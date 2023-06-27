@@ -13,9 +13,7 @@ class TerminateStackListener
     private array $events = [];
     private EventProducer $eventProducer;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;

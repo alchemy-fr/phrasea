@@ -65,25 +65,19 @@ class AbstractAssetAction extends AbstractController
         return $subDef;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setReportClient(ReportUserService $reportClient): void
     {
         $this->reportClient = $reportClient;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;

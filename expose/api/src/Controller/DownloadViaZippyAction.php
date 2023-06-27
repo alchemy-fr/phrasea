@@ -17,20 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{id}/download-via-zippy", name="archive_download", methods={"GET"})
- */
+#[Route(path: '/publications/{id}/download-via-zippy', name: 'archive_download', methods: ['GET'])]
 final class DownloadViaZippyAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private ZippyManager $zippyManager;
-    private ReportUserService $reportClient;
-
-    public function __construct(EntityManagerInterface $em, ZippyManager $zippyManager, ReportUserService $reportClient)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ZippyManager $zippyManager, private readonly ReportUserService $reportClient)
     {
-        $this->em = $em;
-        $this->zippyManager = $zippyManager;
-        $this->reportClient = $reportClient;
     }
 
     public function __invoke(string $id, Request $request): Response

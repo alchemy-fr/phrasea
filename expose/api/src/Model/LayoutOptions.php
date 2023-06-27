@@ -10,22 +10,18 @@ class LayoutOptions extends AbstractOptions
 {
     /**
      * Compatible with [gallery].
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $displayMap = null;
 
     /**
      * Display pins on map instead of thumbnails
      * Compatible with [mapbox].
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $displayMapPins = null;
 
-    /**
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $logoUrl = null;
 
     public function jsonSerialize(): array

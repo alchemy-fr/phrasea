@@ -25,7 +25,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             ],
         ]
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -62,7 +62,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
                 [],
                 ['HTTP_ACCEPT' => $accept]
             );
-            $json = json_decode($response->getContent(), true);
+            $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
             $this->assertEquals(200, $response->getStatusCode());
 
@@ -96,7 +96,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             'GET',
             '/publications/'.$parentId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($parentId, $json['id']);
@@ -116,7 +116,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             'GET',
             '/publications/'.$childId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($childId, $json['id']);
@@ -136,7 +136,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(null, 'GET', '/publications/'.$parentId);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($parentId, $json['id']);
@@ -187,7 +187,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));

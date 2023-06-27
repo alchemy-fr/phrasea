@@ -21,24 +21,17 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationVoter extends Voter
 {
-    public const PUBLISH = 'publication:publish';
-    public const CREATE = 'CREATE';
-    public const INDEX = 'publication:index';
-    public const READ = 'READ';
-    public const READ_DETAILS = 'READ_DETAILS';
-    public const OPERATOR = 'OPERATOR';
-    public const EDIT = 'EDIT';
-    public const DELETE = 'DELETE';
+    final public const PUBLISH = 'publication:publish';
+    final public const CREATE = 'CREATE';
+    final public const INDEX = 'publication:index';
+    final public const READ = 'READ';
+    final public const READ_DETAILS = 'READ_DETAILS';
+    final public const OPERATOR = 'OPERATOR';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
 
-    private Security $security;
-    private RequestStack $requestStack;
-    private JWTManager $JWTManager;
-
-    public function __construct(Security $security, RequestStack $requestStack, JWTManager $JWTManager)
+    public function __construct(private readonly Security $security, private readonly RequestStack $requestStack, private readonly JWTManager $JWTManager)
     {
-        $this->security = $security;
-        $this->requestStack = $requestStack;
-        $this->JWTManager = $JWTManager;
     }
 
     protected function supports($attribute, $subject): bool
@@ -61,7 +54,7 @@ class PublicationVoter extends Voter
 
         try {
             $this->JWTManager->validateJWT($uri, $token);
-        } catch (AccessDeniedHttpException $e) {
+        } catch (AccessDeniedHttpException) {
             return false;
         }
 
@@ -80,40 +73,29 @@ class PublicationVoter extends Voter
 
         $isPublicationVisible = $subject instanceof Publication && $subject->isVisible();
 
-        switch ($attribute) {
-            case self::CREATE:
-                return $isAdmin
-                    || $this->security->isGranted(PermissionInterface::CREATE, new Publication());
-            case self::INDEX:
-                return true;
-            case self::READ:
-                return $isPublicationVisible
-                    || $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
-            case self::READ_DETAILS:
-                return $isAdmin
-                    || $this->isValidJWTForRequest()
-                    || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject);
-            case self::DELETE:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                ;
-            case self::OPERATOR:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
-                ;
-            case self::EDIT:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                ;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::CREATE => $isAdmin
+                || $this->security->isGranted(PermissionInterface::CREATE, new Publication()),
+            self::INDEX => true,
+            self::READ => $isPublicationVisible
+                || $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            self::READ_DETAILS => $isAdmin
+                || $this->isValidJWTForRequest()
+                || ($isPublicationVisible && $this->securityMethodPasses($subject, $token))
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            self::DELETE => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::OPERATOR => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::OPERATOR, $subject),
+            self::EDIT => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            default => false,
+        };
     }
 
     protected function securityMethodPasses(Publication $publication, TokenInterface $token): bool

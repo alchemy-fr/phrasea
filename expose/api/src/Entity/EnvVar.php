@@ -8,37 +8,26 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class EnvVar
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string", unique=true)
-     */
+    #[ORM\Column(type: 'string', unique: true)]
     private string $name = '';
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $value = '';
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private \DateTime $updatedAt;
 
     public function __construct()

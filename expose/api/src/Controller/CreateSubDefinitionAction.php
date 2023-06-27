@@ -19,21 +19,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateSubDefinitionAction extends AbstractController
 {
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
-
-    public function __construct(
-        FileStorageManager $storageManager,
-        AssetManager $assetManager,
-        UploadManager $uploadManager,
-        PathGenerator $pathGenerator
-    ) {
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
+    public function __construct(private readonly FileStorageManager $storageManager, private readonly AssetManager $assetManager, private readonly UploadManager $uploadManager, private readonly PathGenerator $pathGenerator)
+    {
     }
 
     public function __invoke(Request $request): SubDefinition
@@ -90,7 +77,7 @@ final class CreateSubDefinitionAction extends AbstractController
             $originalFilename = $upload['name'] ?? null;
             $contentType = $upload['type'] ?? null;
             if (null === $contentType && !empty($originalFilename)) {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
                 $contentType = (new MimeTypes())->getMimeType($extension);
             }
 
@@ -99,7 +86,7 @@ final class CreateSubDefinitionAction extends AbstractController
             if (null === $originalFilename) {
                 $extension = (new MimeTypes())->getExtension($contentType);
             } else {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
             }
             $path = $this->pathGenerator->generatePath($extension);
 

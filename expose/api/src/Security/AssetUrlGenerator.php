@@ -10,11 +10,8 @@ use App\Entity\SubDefinition;
 
 class AssetUrlGenerator
 {
-    private UrlSigner $urlSigner;
-
-    public function __construct(UrlSigner $urlSigner)
+    public function __construct(private readonly UrlSigner $urlSigner)
     {
-        $this->urlSigner = $urlSigner;
     }
 
     public function generateAssetUrl(MediaInterface $media, bool $download = false): string

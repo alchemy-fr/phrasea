@@ -10,11 +10,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class MapLayoutChoiceType extends AbstractType
 {
-    private array $choices;
-
-    public function __construct(array $choices)
+    public function __construct(private readonly array $choices)
     {
-        $this->choices = $choices;
     }
 
     public function configureOptions(OptionsResolver $resolver)

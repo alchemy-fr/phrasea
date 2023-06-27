@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ConfigurationManager
 {
-    public const CONFIG = [
+    final public const CONFIG = [
         'globalCSS' => [
             'name' => 'GLOBAL_CSS',
             'type' => 'string',
@@ -49,12 +49,10 @@ class ConfigurationManager
             'type' => 'bool',
         ],
     ];
-    private EntityManagerInterface $em;
     private ?array $cache = null;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     private function get(string $key)

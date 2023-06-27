@@ -18,17 +18,13 @@ class PostFlushStackListener implements EventSubscriber
     private EventProducer $eventProducer;
     private TerminateStackListener $terminateStackListener;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setTerminateStackListener(TerminateStackListener $terminateStackListener)
     {
         $this->terminateStackListener = $terminateStackListener;

@@ -11,16 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{id}/style.{hash}.css", name="publication_css")
- */
+#[Route(path: '/publications/{id}/style.{hash}.css', name: 'publication_css')]
 final class GetPublicationCssAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function __invoke(string $id, string $hash): Response
@@ -38,8 +33,8 @@ final class GetPublicationCssAction extends AbstractController
             'Content-Type' => 'text/css',
         ]);
         $response->setCache([
-            's_maxage' => 7776000,
-            'max_age' => 7776000,
+            's_maxage' => 7_776_000,
+            'max_age' => 7_776_000,
             'public' => true,
         ]);
 

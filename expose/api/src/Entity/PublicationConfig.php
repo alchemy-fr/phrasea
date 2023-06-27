@@ -13,31 +13,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Configuration of a publication or a profile.
- *
- * @ORM\Embeddable()
  */
+#[ORM\Embeddable]
 class PublicationConfig implements MergeableValueObjectInterface
 {
-    public const SECURITY_METHOD_NONE = null;
-    public const SECURITY_METHOD_PASSWORD = 'password';
-    public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    final public const SECURITY_METHOD_NONE = null;
+    final public const SECURITY_METHOD_PASSWORD = 'password';
+    final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="boolean", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $enabled = null;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="boolean", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $downloadViaEmail = null;
 
     /**
@@ -45,10 +44,10 @@ class PublicationConfig implements MergeableValueObjectInterface
      *
      * @ApiProperty()
      *
-     * @ORM\Column(type="boolean", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $includeDownloadTermsInZippy = null;
 
     /**
@@ -56,129 +55,111 @@ class PublicationConfig implements MergeableValueObjectInterface
      *
      * @var Url[]|array
      *
-     * @ORM\Column(type="json")
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private array $urls = [];
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="text", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $copyrightText = null;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="text", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $css = null;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $layout = null;
 
-    /**
-     * @ORM\Column(type="string", length=30, nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'string', length: 30, nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $theme = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $publiclyListed = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $downloadEnabled = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?\DateTime $beginsAt = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     *
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?\DateTime $expiresAt = null;
 
     /**
      * @ApiProperty(readableLink=true)
      *
-     * @ORM\Embedded(class="App\Entity\TermsConfig")
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private TermsConfig $terms;
 
     /**
      * @ApiProperty(readableLink=true)
      *
-     * @ORM\Embedded(class="App\Entity\TermsConfig")
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private TermsConfig $downloadTerms;
 
     /**
      * "password" or "authentication".
      *
-     * @ORM\Column(type="string", length=20, nullable=true)
      *
      * @ApiProperty()
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $securityMethod = null;
 
     /**
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}.
      *
-     * @ORM\Column(type="json")
      *
      * @ApiProperty()
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private array $securityOptions = [];
 
     /**
      * @var MapOptions|array|null
      *
-     * @ORM\Column(type="json", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private $mapOptions;
 
     /**
      * @var LayoutOptions|array|null
      *
-     * @ORM\Column(type="json", nullable=true)
      *
-     * @Groups({"profile:read", "publication:admin:read"})
      */
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private $layoutOptions;
 
     public function __construct()

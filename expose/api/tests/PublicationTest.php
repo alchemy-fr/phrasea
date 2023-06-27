@@ -21,7 +21,7 @@ class PublicationTest extends AbstractExposeTestCase
                 'layout' => 'download',
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -59,7 +59,7 @@ class PublicationTest extends AbstractExposeTestCase
                 'layout' => 'download',
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -114,7 +114,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -153,7 +153,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount(3, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -187,12 +187,12 @@ class PublicationTest extends AbstractExposeTestCase
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(2, $json);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?flatten=true');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(3, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
         $this->assertEquals('Pub #1.1', $json[1]['title']);
@@ -213,7 +213,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -239,7 +239,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -257,7 +257,7 @@ class PublicationTest extends AbstractExposeTestCase
                 'beginsAt' => '2042-12-12',
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('2042-12-12T00:00:00+00:00', $json['config']['beginsAt']);
@@ -270,7 +270,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertNull($json['config']['beginsAt']);
@@ -292,7 +292,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
@@ -323,7 +323,7 @@ class PublicationTest extends AbstractExposeTestCase
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
 
         foreach ($expectations as $propertyPath => $expectedValue) {
-            $this->assertEquals(json_encode($expectedValue), json_encode($propertyAccessor->getValue($publication, $propertyPath)));
+            $this->assertEquals(json_encode($expectedValue, JSON_THROW_ON_ERROR), json_encode($propertyAccessor->getValue($publication, $propertyPath), JSON_THROW_ON_ERROR));
         }
     }
 
@@ -542,7 +542,7 @@ class PublicationTest extends AbstractExposeTestCase
     {
         $id = $this->createPublication(['enabled' => true])->getId();
         $response = $this->request(null, 'GET', '/publications/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
@@ -555,7 +555,7 @@ class PublicationTest extends AbstractExposeTestCase
     {
         $id = $this->createPublication(['enabled' => false])->getId();
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
@@ -627,7 +627,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
         $this->createPublication($options);
         $response = $this->request(null, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount($shouldBeVisible ? 1 : 0, $json);
     }
@@ -673,7 +673,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json['config']['enabled']);
         $this->assertEquals(true, $json['config']['publiclyListed']);
@@ -710,7 +710,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json['config']['enabled']);
         $this->assertEquals(true, $json['config']['publiclyListed']);
@@ -780,7 +780,7 @@ class PublicationTest extends AbstractExposeTestCase
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals($profileId, $json['profile']['id']);
     }
@@ -806,7 +806,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(false, $json['config']['enabled']);
         $id = $json['id'];
 
@@ -817,7 +817,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json['config']['enabled']);
 
@@ -854,7 +854,7 @@ class PublicationTest extends AbstractExposeTestCase
             var_dump($response->getContent());
         }
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('createdAt', $json);
         $this->assertEquals('Pub', $json['title']);
 
@@ -875,7 +875,7 @@ class PublicationTest extends AbstractExposeTestCase
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(true, $json['config']['enabled']);
     }
 
@@ -902,7 +902,7 @@ class PublicationTest extends AbstractExposeTestCase
 DESC
             ,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(201, $response->getStatusCode());
 
         $this->assertArrayHasKey('description', $json);

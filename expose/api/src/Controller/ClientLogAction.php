@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/logs", methods={"POST"})
- */
+#[Route(path: '/logs', methods: ['POST'])]
 class ClientLogAction
 {
     public function __construct(
@@ -28,9 +26,7 @@ class ClientLogAction
     ) {
     }
 
-    /**
-     * @Route(path="/publication-view/{id}")
-     */
+    #[Route(path: '/publication-view/{id}')]
     public function logPublicationView(string $id, Request $request): Response
     {
         $publication = $this->em->find(Publication::class, $id) ?? throw new NotFoundHttpException();
@@ -42,9 +38,7 @@ class ClientLogAction
         );
     }
 
-    /**
-     * @Route(path="/asset-view/{id}")
-     */
+    #[Route(path: '/asset-view/{id}')]
     public function logAssetView(string $id, Request $request): Response
     {
         $asset = $this->em->find(Asset::class, $id) ?? throw new NotFoundHttpException();

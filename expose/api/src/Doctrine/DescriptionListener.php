@@ -17,11 +17,8 @@ use Doctrine\ORM\Events;
 
 class DescriptionListener implements EventSubscriber
 {
-    private \HTMLPurifier $purifier;
-
-    public function __construct(\HTMLPurifier $purifier)
+    public function __construct(private readonly \HTMLPurifier $purifier)
     {
-        $this->purifier = $purifier;
     }
 
     public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void

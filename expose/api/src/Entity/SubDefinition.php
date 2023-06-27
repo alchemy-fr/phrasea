@@ -12,8 +12,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SubDefinitionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_asset_type",columns={"asset_id", "name"})})
  *
  * @ApiResource(
  *     normalizationContext=SubDefinition::API_READ,
@@ -25,13 +23,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  *  )
  */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
+#[ORM\Entity(repositoryClass: \App\Repository\SubDefinitionRepository::class)]
 class SubDefinition implements MediaInterface
 {
-    public const THUMBNAIL = 'thumbnail';
-    public const PREVIEW = 'preview';
-    public const POSTER = 'poster';
+    final public const THUMBNAIL = 'thumbnail';
+    final public const PREVIEW = 'preview';
+    final public const POSTER = 'poster';
 
-    public const API_READ = [
+    final public const API_READ = [
         'groups' => ['subdef:read'],
         'swagger_definition_name' => 'Read',
     ];
@@ -39,81 +40,71 @@ class SubDefinition implements MediaInterface
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"asset:read", "publication:read", "subdef:read"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
+    #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Asset", inversedBy="subDefinitions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Asset::class, inversedBy: 'subDefinitions')]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?Asset $asset = null;
 
     /**
      * @ApiProperty()
      *
-     * @Groups({"asset:read", "publication:read", "subdef:read"})
      *
-     * @ORM\Column(type="string", length=30)
      */
+    #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
+    #[ORM\Column(type: 'string', length: 30)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
-    /**
-     * @Groups({"subdef:read", "publication:read", "asset:read"})
-     *
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
-     */
+    #[Groups(['subdef:read', 'publication:read', 'asset:read'])]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty()
      *
-     * @Groups({"subdef:read", "asset:read"})
      */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['subdef:read', 'asset:read'])]
     private ?string $mimeType = null;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
      *
      * @ApiProperty()
      *
-     * @Groups({"subdef:read"})
      */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['subdef:read'])]
     private ?\DateTime $createdAt = null;
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"subdef:read", "asset:read", "publication:read"})
      */
+    #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
     private ?string $url = null;
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"subdef:read", "asset:read", "publication:read"})
      */
+    #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
     private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty()
-     *
-     * @Groups({"subdef:read", "asset:read"})
      */
+    #[Groups(['subdef:read', 'asset:read'])]
     private ?string $uploadURL = null;
 
     public function __construct()

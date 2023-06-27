@@ -17,25 +17,19 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     protected UrlGeneratorInterface $urlGenerator;
     protected JWTManager $JWTManager;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): void
     {
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setJWTManager(JWTManager $JWTManager): void
     {
         $this->JWTManager = $JWTManager;

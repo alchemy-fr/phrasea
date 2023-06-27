@@ -11,16 +11,13 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    public const READ = 'READ';
-    public const EDIT = 'EDIT';
-    public const DELETE = 'DELETE';
-    public const CREATE = 'CREATE';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
+    final public const CREATE = 'CREATE';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool
@@ -33,15 +30,10 @@ class AssetVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        switch ($attribute) {
-            case self::READ:
-                return $this->security->isGranted(PublicationVoter::READ_DETAILS, $subject->getPublication());
-            case self::CREATE:
-            case self::DELETE:
-            case self::EDIT:
-                return $this->security->isGranted(PublicationVoter::EDIT, $subject->getPublication());
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::READ => $this->security->isGranted(PublicationVoter::READ_DETAILS, $subject->getPublication()),
+            self::CREATE, self::DELETE, self::EDIT => $this->security->isGranted(PublicationVoter::EDIT, $subject->getPublication()),
+            default => false,
+        };
     }
 }

@@ -15,14 +15,12 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-final class CacheListener implements EventSubscriberInterface
+final readonly class CacheListener implements EventSubscriberInterface
 {
     private const CACHE_ATTR = '_cache';
-
     public function __construct(private RequestStack $requestStack)
     {
     }
-
     public static function getSubscribedEvents()
     {
         return [
@@ -30,7 +28,6 @@ final class CacheListener implements EventSubscriberInterface
             KernelEvents::RESPONSE => 'applyCache',
         ];
     }
-
     public function setCacheHeaders(ViewEvent $event): void
     {
         $object = $event->getControllerResult();
@@ -72,13 +69,11 @@ final class CacheListener implements EventSubscriberInterface
             'public' => true,
         ]);
     }
-
     private function isPublicationCacheable(Publication $publication): bool
     {
         return $publication->isVisible()
             && Publication::SECURITY_METHOD_NONE === $publication->getSecurityContainer()->getSecurityMethod();
     }
-
     public function applyCache(ResponseEvent $event): void
     {
         $request = $event->getRequest();

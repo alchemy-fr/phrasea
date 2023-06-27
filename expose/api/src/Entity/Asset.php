@@ -18,8 +18,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\AssetRepository")
- * @ORM\Table(indexes={@ORM\Index(name="assetId", columns={"asset_id"})})
  *
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
@@ -52,12 +50,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  * )
  */
-class Asset implements MediaInterface
+#[ORM\Table]
+#[ORM\Index(name: 'assetId', columns: ['asset_id'])]
+#[ORM\Entity(repositoryClass: \App\Repository\AssetRepository::class)]
+class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;
-    public const GROUP_READ = 'asset:read';
+    final public const GROUP_READ = 'asset:read';
 
-    public const API_READ = [
+    final public const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
@@ -65,81 +66,79 @@ class Asset implements MediaInterface
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"_", "asset:read", "publication:read"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
-    private $id;
+    #[Groups(['_', 'asset:read', 'publication:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private readonly \Ramsey\Uuid\UuidInterface $id;
 
     /**
      * @ApiProperty()
      *
-     * @Groups({"publication:read", "asset:read"})
      *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[Groups(['publication:read', 'asset:read'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $assetId = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
     /**
      * @var int|string
      *
-     * @Groups({"asset:read", "publication:read"})
      *
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
-    private $size;
+    #[Groups(['asset:read', 'publication:read'])]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    private ?string $size = null;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
      *
      * @ApiProperty()
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?string $title = null;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
      *
      * @ApiProperty()
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?string $description = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty(iri="http://schema.org/name")
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?string $originalName = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty()
      *
-     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
     private ?string $mimeType = null;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="string", nullable=true)
      *
-     * @Groups({"publication:admin:read"})
      */
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Groups(['publication:admin:read'])]
     private ?string $ownerId = null;
 
     /**
@@ -147,25 +146,21 @@ class Asset implements MediaInterface
      *
      * @ApiProperty()
      *
-     * @Groups({"publication:read", "asset:read"})
      *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[Groups(['publication:read', 'asset:read'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected ?string $slug = null;
 
     /**
      * @ApiProperty()
-     *
-     * @ORM\Column(type="smallint", options={"default": 0})
      */
+    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
     protected int $position = 0;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Publication::class, inversedBy="assets")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_", "asset:read"})
-     */
+    #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'assets')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_', 'asset:read'])]
     private ?Publication $publication = null;
 
     /**
@@ -173,10 +168,10 @@ class Asset implements MediaInterface
      *
      * @ApiSubresource()
      *
-     * @Groups({"asset:read", "publication:read"})
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\SubDefinition", mappedBy="asset", cascade={"remove"})
      */
+    #[Groups(['asset:read', 'publication:read'])]
+    #[ORM\OneToMany(targetEntity: \App\Entity\SubDefinition::class, mappedBy: 'asset', cascade: ['remove'])]
     private ?Collection $subDefinitions = null;
 
     /**
@@ -184,10 +179,10 @@ class Asset implements MediaInterface
      *
      * @ApiProperty()
      *
-     * @ORM\Column(type="float", nullable=true)
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'float', nullable: true)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?float $lat = null;
 
     /**
@@ -195,26 +190,25 @@ class Asset implements MediaInterface
      *
      * @ApiProperty()
      *
-     * @ORM\Column(type="float", nullable=true)
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'float', nullable: true)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?float $lng = null;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="text", nullable=true)
      *
-     * @Groups({"asset:admin:read"})
      */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['asset:admin:read'])]
     private ?string $webVTT = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[Groups(['asset:read', 'publication:read'])]
     private ?string $webVTTLink = null;
 
     /**
@@ -222,61 +216,55 @@ class Asset implements MediaInterface
      *
      * @ApiProperty()
      *
-     * @ORM\Column(type="float", nullable=true)
      *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[ORM\Column(type: 'float', nullable: true)]
+    #[Groups(['asset:read', 'publication:read'])]
     private ?float $altitude = null;
 
     /**
-     * @ORM\Column(type="datetime")
      *
      * @ApiProperty(writable=false)
      *
-     * @Groups({"asset:read"})
      */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['asset:read'])]
     private ?\DateTime $createdAt = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read"})
      */
+    #[Groups(['asset:read', 'publication:read'])]
     private ?string $url = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
+    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
     private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
+    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
     private ?string $thumbUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
+    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
     private ?string $previewUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read", "publication:read", "publication:index"})
      */
+    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
     private ?string $posterUrl = null;
 
     /**
      * @ApiProperty(writable=false)
-     *
-     * @Groups({"asset:read"})
      */
+    #[Groups(['asset:read'])]
     private ?string $uploadURL = null;
 
     public function __construct()
@@ -560,7 +548,7 @@ class Asset implements MediaInterface
         $this->uploadURL = $uploadURL;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getId().($this->title ? '-'.$this->title : '');
     }

@@ -17,8 +17,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
- *
  * @ApiResource(
  *     normalizationContext=PublicationProfile::API_READ,
  *     itemOperations={
@@ -42,20 +40,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
-class PublicationProfile implements AclObjectInterface
+#[ORM\Entity]
+class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    public const GROUP_ADMIN_READ = 'profile:admin:read';
-    public const GROUP_READ = 'profile:read';
-    public const GROUP_LIST = 'profile:index';
+    final public const GROUP_ADMIN_READ = 'profile:admin:read';
+    final public const GROUP_READ = 'profile:read';
+    final public const GROUP_LIST = 'profile:index';
 
-    public const API_READ = [
+    final public const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
-    public const API_LIST = [
+    final public const API_LIST = [
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
@@ -63,52 +62,45 @@ class PublicationProfile implements AclObjectInterface
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"profile:index", "profile:read", "publication:read"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
-    private $id;
+    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private readonly \Ramsey\Uuid\UuidInterface $id;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="string", length=150)
      *
-     * @Groups({"profile:index", "profile:read", "publication:read"})
      */
+    #[ORM\Column(type: 'string', length: 150)]
+    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private ?string $name = null;
 
-    /**
-     * @ORM\Embedded(class="App\Entity\PublicationConfig")
-     *
-     * @Groups({"profile:index", "profile:read", "publication:read"})
-     */
+    #[ORM\Embedded(class: \App\Entity\PublicationConfig::class)]
+    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private PublicationConfig $config;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="string", nullable=true)
      *
-     * @Groups({"profile:admin:read"})
      */
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Groups(['profile:admin:read'])]
     private ?string $ownerId = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     *
-     * @Groups({"profile:read"})
-     */
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['profile:read'])]
+    private readonly \DateTime $createdAt;
 
     /**
      * @var Publication[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Publication", mappedBy="profile")
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Publication::class, mappedBy: 'profile')]
     private ?Collection $publications = null;
 
     public function __construct()
@@ -159,7 +151,7 @@ class PublicationProfile implements AclObjectInterface
         return $this->createdAt;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
     }

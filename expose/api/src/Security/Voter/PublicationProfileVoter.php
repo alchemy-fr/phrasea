@@ -13,17 +13,14 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationProfileVoter extends Voter
 {
-    public const CREATE = 'profile:create';
-    public const INDEX = 'profile:index';
-    public const READ = 'READ';
-    public const EDIT = 'EDIT';
-    public const DELETE = 'DELETE';
+    final public const CREATE = 'profile:create';
+    final public const INDEX = 'profile:index';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool
@@ -41,28 +38,20 @@ class PublicationProfileVoter extends Voter
         $isAuthenticated = $user instanceof RemoteUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
-        switch ($attribute) {
-            case self::CREATE:
-                return $isAdmin
-                    || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile());
-            case self::INDEX:
-                return $isAuthenticated;
-            case self::READ:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject);
-            case self::DELETE:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                ;
-            case self::EDIT:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                ;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::CREATE => $isAdmin
+                || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile()),
+            self::INDEX => $isAuthenticated,
+            self::READ => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::VIEW, $subject),
+            self::DELETE => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::EDIT => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            default => false,
+        };
     }
 }

@@ -19,16 +19,14 @@ use Doctrine\Persistence\ObjectManager;
 
 class AssetListener implements EventSubscriber
 {
-    private EventProducer $eventProducer;
     /**
      * @var EventMessage[]
      */
     private array $eventStack = [];
     private array $positionCache = [];
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void

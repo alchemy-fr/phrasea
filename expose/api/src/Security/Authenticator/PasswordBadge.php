@@ -8,14 +8,11 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\BadgeInterface;
 
 class PasswordBadge implements BadgeInterface
 {
-    private string $passwords;
-
     /**
      * AccessTokenBadge constructor.
      */
-    public function __construct(string $passwords)
+    public function __construct(private readonly string $passwords)
     {
-        $this->passwords = $passwords;
     }
 
     public function isResolved(): bool

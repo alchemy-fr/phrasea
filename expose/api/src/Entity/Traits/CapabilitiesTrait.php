@@ -13,9 +13,8 @@ trait CapabilitiesTrait
      * @ApiProperty(attributes={
      *  "json_schema_context"={"type"="object"}
      * })
-     *
-     * @Groups({"_", "publication:index", "publication:read", "profile:index", "profile:read"})
      */
+    #[Groups(['_', 'publication:index', 'publication:read', 'profile:index', 'profile:read'])]
     protected array $capabilities = [];
 
     public function getCapabilities(): array

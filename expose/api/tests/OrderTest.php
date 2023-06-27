@@ -25,14 +25,14 @@ class OrderTest extends AbstractExposeTestCase
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         foreach (range(1, $nbItems) as $i) {
             $this->assertEquals('Pub '.$this->addZero($i), $json[$i - 1]['title']);
         }
 
         $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publications?order[title]=desc');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         foreach (range(1, $nbItems) as $i) {
             $this->assertEquals('Pub '.$this->addZero($nbItems - $i + 1), $json[$i - 1]['title']);
         }

@@ -12,8 +12,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity()
- *
  * @ApiResource(
  *     itemOperations={
  *         "get"={
@@ -33,30 +31,28 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     }
  * )
  */
+#[ORM\Entity]
 class DownloadRequest
 {
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"publication:index", "publication:index", "publication:read", "asset:read"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
-    private $id;
+    #[Groups(['publication:index', 'publication:index', 'publication:read', 'asset:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private readonly \Ramsey\Uuid\UuidInterface $id;
 
     /**
      * @ApiProperty()
-     *
-     * @ORM\Column(type="string", length=255)
      */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $email = null;
 
-    /**
-     * @ORM\Column(type="string", length=5, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
     protected ?string $locale = null;
 
     /**
@@ -67,10 +63,9 @@ class DownloadRequest
      *         }
      *     }
      * )
-     *
-     * @ORM\ManyToOne(targetEntity="Publication")
-     * @ORM\JoinColumn(onDelete="CASCADE")
      */
+    #[ORM\ManyToOne(targetEntity: 'Publication')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Publication $publication = null;
 
     /**
@@ -81,10 +76,9 @@ class DownloadRequest
      *         }
      *     }
      * )
-     *
-     * @ORM\ManyToOne(targetEntity="Asset")
-     * @ORM\JoinColumn(onDelete="SET NULL")
      */
+    #[ORM\ManyToOne(targetEntity: 'Asset')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $asset = null;
 
     /**
@@ -95,16 +89,13 @@ class DownloadRequest
      *         }
      *     }
      * )
-     *
-     * @ORM\ManyToOne(targetEntity="SubDefinition")
-     * @ORM\JoinColumn(onDelete="SET NULL")
      */
+    #[ORM\ManyToOne(targetEntity: 'SubDefinition')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?SubDefinition $subDefinition = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
     public function __construct()
     {

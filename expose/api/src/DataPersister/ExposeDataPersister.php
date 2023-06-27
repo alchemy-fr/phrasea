@@ -15,18 +15,8 @@ use Symfony\Component\Security\Core\Security;
 
 class ExposeDataPersister implements ContextAwareDataPersisterInterface
 {
-    private DataPersisterInterface $decorated;
-    private EntityManagerInterface $em;
-    private Security $security;
-
-    public function __construct(
-        DataPersisterInterface $decorated,
-        EntityManagerInterface $em,
-        Security $security
-    ) {
-        $this->decorated = $decorated;
-        $this->em = $em;
-        $this->security = $security;
+    public function __construct(private readonly DataPersisterInterface $decorated, private readonly EntityManagerInterface $em, private readonly Security $security)
+    {
     }
 
     public function supports($data, array $context = []): bool

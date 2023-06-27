@@ -18,11 +18,8 @@ use Doctrine\ORM\Events;
 
 class EntityHttpCacheListener implements EventSubscriber
 {
-    private ProxyCachePurger $proxyCachePurger;
-
-    public function __construct(ProxyCachePurger $proxyCachePurger)
+    public function __construct(private readonly ProxyCachePurger $proxyCachePurger)
     {
-        $this->proxyCachePurger = $proxyCachePurger;
     }
 
     private function handle(PostUpdateEventArgs|PostPersistEventArgs|PreRemoveEventArgs|LifecycleEventArgs $args): void

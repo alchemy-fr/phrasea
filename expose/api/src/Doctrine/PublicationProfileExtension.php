@@ -16,11 +16,8 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationProfileExtension implements QueryCollectionExtensionInterface
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)

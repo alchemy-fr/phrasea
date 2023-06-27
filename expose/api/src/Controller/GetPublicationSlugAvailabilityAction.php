@@ -13,16 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class GetPublicationSlugAvailabilityAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
-    /**
-     * @Route("/publications/slug-availability/{slug}", name="slug_availability")
-     */
+    #[Route(path: '/publications/slug-availability/{slug}', name: 'slug_availability')]
     public function __invoke(string $slug, Request $request): JsonResponse
     {
         /** @var Publication|null $publication */

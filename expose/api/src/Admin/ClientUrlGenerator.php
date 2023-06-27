@@ -8,11 +8,8 @@ use App\Entity\Publication;
 
 class ClientUrlGenerator
 {
-    private string $clientBaseUrl;
-
-    public function __construct(string $clientBaseUrl)
+    public function __construct(private readonly string $clientBaseUrl)
     {
-        $this->clientBaseUrl = $clientBaseUrl;
     }
 
     public function generatePublicationUrl(Publication $publication): string

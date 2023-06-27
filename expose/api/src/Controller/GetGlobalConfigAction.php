@@ -11,16 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/config", name="global_config")
- */
+#[Route(path: '/config', name: 'global_config')]
 final class GetGlobalConfigAction extends AbstractController
 {
-    private ConfigurationManager $configurationManager;
-
-    public function __construct(ConfigurationManager $configurationManager)
+    public function __construct(private readonly ConfigurationManager $configurationManager)
     {
-        $this->configurationManager = $configurationManager;
     }
 
     public function __invoke(Request $request): Response

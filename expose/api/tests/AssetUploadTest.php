@@ -20,7 +20,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
@@ -38,7 +38,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         // Test the asset is added to the publication
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals('Foo', $json['title']);
         $this->assertCount(1, $json['assets']);

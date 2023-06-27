@@ -7,23 +7,15 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Embeddable()
- */
+#[ORM\Embeddable]
 class TermsConfig implements MergeableValueObjectInterface
 {
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     *
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['profile:read', 'publication:read'])]
     private ?string $text = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['profile:read', 'publication:read'])]
     private ?string $url = null;
 
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
@@ -65,9 +57,7 @@ class TermsConfig implements MergeableValueObjectInterface
         $this->url = $url;
     }
 
-    /**
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[Groups(['profile:read', 'publication:read'])]
     public function isEnabled(): bool
     {
         return null !== $this->text

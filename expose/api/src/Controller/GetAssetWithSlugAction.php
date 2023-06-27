@@ -12,11 +12,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class GetAssetWithSlugAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function __invoke(string $publicationSlug, string $assetSlug): Asset

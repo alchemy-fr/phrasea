@@ -14,18 +14,13 @@ use Symfony\Component\Security\Core\Security;
 
 class DownloadRequestVoter extends Voter
 {
-    public const LIST = 'download_request:list';
-    public const READ = 'READ';
-    public const EDIT = 'EDIT';
-    public const DELETE = 'DELETE';
+    final public const LIST = 'download_request:list';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
 
-    private Security $security;
-    private EntityManagerInterface $em;
-
-    public function __construct(Security $security, EntityManagerInterface $em)
+    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $em)
     {
-        $this->security = $security;
-        $this->em = $em;
     }
 
     protected function supports($attribute, $subject): bool
@@ -45,15 +40,9 @@ class DownloadRequestVoter extends Voter
             && ($this->security->isGranted('ROLE_PUBLISH')
                 || $this->security->isGranted('ROLE_ADMIN')
             );
-
-        switch ($attribute) {
-            case self::LIST:
-            case self::READ:
-            case self::EDIT:
-            case self::DELETE:
-                return $isAdmin;
-        }
-
-        return false;
+        return match ($attribute) {
+            self::LIST, self::READ, self::EDIT, self::DELETE => $isAdmin,
+            default => false,
+        };
     }
 }

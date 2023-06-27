@@ -14,18 +14,8 @@ use GuzzleHttp\Client;
 
 class ZippyManager
 {
-    /**
-     * @var EntityManager
-     */
-    private EntityManagerInterface $em;
-    private Client $client;
-    private AssetUrlGenerator $assetUrlGenerator;
-
-    public function __construct(Client $client, EntityManagerInterface $em, AssetUrlGenerator $assetUrlGenerator)
+    public function __construct(private readonly Client $client, private readonly EntityManagerInterface $em, private readonly AssetUrlGenerator $assetUrlGenerator)
     {
-        $this->client = $client;
-        $this->em = $em;
-        $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
     public function getDownloadUrl(Publication $publication): string
@@ -37,12 +27,10 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
-                $files = array_map(function (Asset $asset): array {
-                    return [
-                        'path' => $asset->getOriginalName(),
-                        'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
-                    ];
-                }, $publication->getAssets()->getValues());
+                $files = array_map(fn(Asset $asset): array => [
+                    'path' => $asset->getOriginalName(),
+                    'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
+                ], $publication->getAssets()->getValues());
 
                 if ($publication->isIncludeDownloadTermsInZippy()
                     && null !== $termsUrl = $publication->getDownloadTerms()->getUrl()) {

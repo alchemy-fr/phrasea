@@ -14,10 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{publicationId}/assets/{assetId}/download-request", name="download_asset_request_create",
- *                                                                           methods={"POST"})
- */
+#[Route(path: '/publications/{publicationId}/assets/{assetId}/download-request', name: 'download_asset_request_create', methods: ['POST'])]
 final class PostDownloadAssetViaEmailAction extends AbstractAssetAction
 {
     public function __invoke(

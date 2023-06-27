@@ -18,9 +18,7 @@ class PublicationFilter extends AbstractContextAwareFilter
 {
     private Security $security;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;
