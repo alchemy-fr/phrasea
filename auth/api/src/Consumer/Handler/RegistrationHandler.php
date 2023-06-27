@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RegistrationHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'registration';
+    public const EVENT = 'registration';
 
     /**
      * @var UrlGeneratorInterface

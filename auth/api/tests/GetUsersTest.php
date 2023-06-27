@@ -26,9 +26,9 @@ class GetUsersTest extends AbstractTestCase
     {
         $this->markTestSkipped('Users are exposed to everyone for simplicity. Should fix it.');
 
-//        $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
-//        $response = $this->request($accessToken, 'GET', '/users');
-//        $this->assertEquals(403, $response->getStatusCode());
+        //        $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
+        //        $response = $this->request($accessToken, 'GET', '/users');
+        //        $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testGetUsersGenerates401WithInvalidAccessToken(): void

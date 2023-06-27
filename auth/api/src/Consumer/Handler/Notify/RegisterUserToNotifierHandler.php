@@ -12,7 +12,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class RegisterUserToNotifierHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'register_user_to_notifier';
+    public const EVENT = 'register_user_to_notifier';
 
     /**
      * @var NotifierInterface

@@ -9,18 +9,15 @@ use App\Entity\User;
 use App\OAuth\GroupParser;
 use App\User\GroupMapper;
 use App\User\UserManager;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use HWI\Bundle\OAuthBundle\OAuth\Response\PathUserResponse;
 use HWI\Bundle\OAuthBundle\OAuth\Response\UserResponseInterface;
 use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
-    const AUTH_ORIGIN = 'authOrigin';
+    public const AUTH_ORIGIN = 'authOrigin';
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -34,7 +31,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
     {
         if (empty($response->getEmail())) {
-            throw new InvalidArgumentException('User must have an email. Please check your "paths" mapping is correct!');
+            throw new \InvalidArgumentException('User must have an email. Please check your "paths" mapping is correct!');
         }
 
         $user = $this->findUserByUsername($response->getEmail());
@@ -58,7 +55,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
             $accessToken->setRefreshToken($response->getRefreshToken());
         }
         if (null !== $response->getExpiresIn()) {
-            $expiresAt = new DateTime();
+            $expiresAt = new \DateTime();
             $expiresAt->setTimestamp(time() + (int) $response->getExpiresIn());
             $accessToken->setExpiresAt($expiresAt);
         }

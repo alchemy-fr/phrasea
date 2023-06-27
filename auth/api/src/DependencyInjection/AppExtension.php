@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
 class AppExtension extends Extension implements PrependExtensionInterface
 {
-    private function getGlobalConfig(?ContainerBuilder $container = null): array
+    private function getGlobalConfig(ContainerBuilder $container = null): array
     {
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {

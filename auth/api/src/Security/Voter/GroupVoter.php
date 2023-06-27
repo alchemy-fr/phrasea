@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 class GroupVoter extends Voter
 {
-    const LIST_GROUPS = 'LIST_GROUPS';
+    public const LIST_GROUPS = 'LIST_GROUPS';
 
     private Security $security;
 

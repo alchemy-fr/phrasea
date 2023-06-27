@@ -47,7 +47,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $password = $request->request->get('password');
 
         return new Passport(
-            new UserBadge($username, function($userIdentifier) {
+            new UserBadge($username, function ($userIdentifier) {
                 // optionally pass a callback to load the User manually
                 $user = $this->entityManager
                     ->getRepository(User::class)
@@ -55,6 +55,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
                 if (!$user) {
                     throw new UserNotFoundException();
                 }
+
                 return $user;
             }),
             new PasswordCredentials($password),

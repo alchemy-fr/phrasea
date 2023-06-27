@@ -8,8 +8,6 @@ use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use App\User\UserManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Exception;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,9 +28,6 @@ class CreateUserCommand extends Command
         $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -64,9 +59,6 @@ class CreateUserCommand extends Command
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
@@ -74,7 +66,7 @@ class CreateUserCommand extends Command
         $io->title('User Credentials');
         $username = $input->getArgument('username');
         if (empty($username)) {
-            throw new InvalidArgumentException('Missing or empty username');
+            throw new \InvalidArgumentException('Missing or empty username');
         }
 
         $user = $this->userManager->findUserByUsername($username);
@@ -82,7 +74,7 @@ class CreateUserCommand extends Command
             $user = $this->userManager->createUser();
             $user->setUsername($username);
         } elseif (!$input->getOption('update-if-exist')) {
-            throw new Exception(sprintf('User with username "%s" already exists', $username));
+            throw new \Exception(sprintf('User with username "%s" already exists', $username));
         }
 
         $user->setEnabled(true);

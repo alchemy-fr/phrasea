@@ -10,7 +10,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteNotifyUserHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_notify_user';
+    public const EVENT = 'delete_notify_user';
 
     /**
      * @var NotifierInterface

@@ -15,11 +15,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionListener implements EventSubscriberInterface
 {
-    const ERROR_MAP = [
+    public const ERROR_MAP = [
         BadRequestHttpException::class => 'bad_request',
         AccessDeniedHttpException::class => 'access_denied',
     ];
-    const DEFAULT_ERROR = 'internal_error';
+    public const DEFAULT_ERROR = 'internal_error';
 
     private bool $debug = false;
     private LoggerInterface $logger;

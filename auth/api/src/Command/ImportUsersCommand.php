@@ -26,9 +26,6 @@ class ImportUsersCommand extends Command
         $this->userImporter = $userImporter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -41,9 +38,6 @@ class ImportUsersCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $src = $input->getArgument('src');

@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\User;
 
 use App\Entity\User;
-use DateTime;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -79,7 +77,7 @@ class UserManager implements UserProviderInterface
     public function encodePassword(User $user): void
     {
         if (null === $user) {
-            throw new InvalidArgumentException('Missing user\'s plain password');
+            throw new \InvalidArgumentException('Missing user\'s plain password');
         }
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $user->getPlainPassword());
@@ -88,7 +86,7 @@ class UserManager implements UserProviderInterface
 
     public function persistUser(User $user): void
     {
-        $user->setUpdatedAt(new DateTime());
+        $user->setUpdatedAt(new \DateTime());
         $this->em->persist($user);
         $this->em->flush();
     }

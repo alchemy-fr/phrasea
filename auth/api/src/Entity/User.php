@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,6 +32,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255, unique=true)
      */
     protected $username;
@@ -54,6 +54,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255)
      */
     protected $salt;
@@ -76,21 +77,21 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
     protected ?string $plainPassword = null;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $lastInviteAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -110,7 +111,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->groups = new ArrayCollection();
     }
 
@@ -226,17 +227,17 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
         $this->plainPassword = $plainPassword;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
@@ -281,12 +282,12 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
         $this->inviteByEmail = $inviteByEmail;
     }
 
-    public function getLastInviteAt(): ?DateTime
+    public function getLastInviteAt(): ?\DateTime
     {
         return $this->lastInviteAt;
     }
 
-    public function setLastInviteAt(DateTime $lastInviteAt): void
+    public function setLastInviteAt(\DateTime $lastInviteAt): void
     {
         $this->lastInviteAt = $lastInviteAt;
     }

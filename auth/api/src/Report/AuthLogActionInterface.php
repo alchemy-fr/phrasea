@@ -6,8 +6,8 @@ namespace App\Report;
 
 interface AuthLogActionInterface
 {
-    const CHANGE_PASSWORD = 'change_password';
-    const RESET_PASSWORD = 'reset_password';
-    const REQUEST_RESET_PASSWORD = 'request_reset_password';
-    const USER_AUTHENTICATION = 'user_authentication';
+    public const CHANGE_PASSWORD = 'change_password';
+    public const RESET_PASSWORD = 'reset_password';
+    public const REQUEST_RESET_PASSWORD = 'request_reset_password';
+    public const USER_AUTHENTICATION = 'user_authentication';
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -26,6 +25,7 @@ class ExternalAccessToken
 
     /**
      * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -33,37 +33,41 @@ class ExternalAccessToken
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255)
      */
     protected $identifier;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=50)
      */
     protected $provider;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=5000)
      */
     protected $accessToken;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=5000, nullable=true)
      */
     protected $refreshToken;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
-     * @var DateTime|null
+     * @var \DateTime|null
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -71,7 +75,7 @@ class ExternalAccessToken
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): string
@@ -109,17 +113,17 @@ class ExternalAccessToken
         $this->refreshToken = $refreshToken;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function getExpiresAt(): ?DateTime
+    public function getExpiresAt(): ?\DateTime
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(?DateTime $expiresAt): void
+    public function setExpiresAt(?\DateTime $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }

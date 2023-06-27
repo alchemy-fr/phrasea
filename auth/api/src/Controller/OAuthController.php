@@ -17,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
-use Throwable;
 
 /**
  * @Route("/oauth", name="oauth_")
@@ -103,7 +102,7 @@ class OAuthController extends AbstractIdentityProviderController
                     $request,
                     $redirectUri
                 );
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->addFlash('error', $e->getMessage());
                 throw $e;
             }

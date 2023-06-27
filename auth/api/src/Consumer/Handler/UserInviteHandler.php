@@ -10,15 +10,13 @@ use App\User\InviteManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use DateTime;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Throwable;
 
 class UserInviteHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'user_invite';
+    public const EVENT = 'user_invite';
 
     /**
      * @var UrlGeneratorInterface
@@ -59,11 +57,11 @@ class UserInviteHandler extends AbstractEntityManagerHandler
                 return;
             }
 
-            $user->setLastInviteAt(new DateTime());
+            $user->setLastInviteAt(new \DateTime());
             $em->persist($user);
             $em->flush();
             $em->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $em->rollback();
             throw $e;
         }

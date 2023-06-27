@@ -28,9 +28,6 @@ class LogoutListener implements EventSubscriberInterface
         return [LogoutEvent::class => 'onLogout'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function onLogout(LogoutEvent $event): void
     {
         $request = $event->getRequest();
@@ -60,13 +57,13 @@ class LogoutListener implements EventSubscriberInterface
                         );
                     }
 
-                    $response =  new RedirectResponse($logoutUrl);
+                    $response = new RedirectResponse($logoutUrl);
                 }
             }
         }
 
         if (empty($response)) {
-            $response =  new RedirectResponse($redirectUri);
+            $response = new RedirectResponse($redirectUri);
         }
 
         $event->setResponse($response);

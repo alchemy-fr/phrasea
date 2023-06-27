@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class SecurityController extends AbstractController
 {
-    const SESSION_REDIRECT_KEY = 'auth.redirect_uri';
+    public const SESSION_REDIRECT_KEY = 'auth.redirect_uri';
 
     /**
      * @Route("/", name="index")

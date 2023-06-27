@@ -34,7 +34,7 @@ class LocaleRewriteListener implements EventSubscriberInterface
 
     public function isLocaleSupported($locale): bool
     {
-//        return in_array($locale, $this->supportedLocales);
+        //        return in_array($locale, $this->supportedLocales);
         return true;
     }
 

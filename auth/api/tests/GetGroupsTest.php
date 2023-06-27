@@ -29,9 +29,9 @@ class GetGroupsTest extends AbstractTestCase
     {
         $this->markTestSkipped('Groups are exposed to everyone for simplicity. Should fix it.');
 
-//        $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
-//        $response = $this->request($accessToken, 'GET', '/groups');
-//        $this->assertEquals(403, $response->getStatusCode());
+        //        $accessToken = $this->authenticateUser('foo@bar.com', 'secret');
+        //        $response = $this->request($accessToken, 'GET', '/groups');
+        //        $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testGetGroupsGenerates401WithInvalidAccessToken(): void

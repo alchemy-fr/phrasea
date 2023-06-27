@@ -4,9 +4,6 @@ namespace Jq;
 
 class Executor
 {
-    /**
-     * @return mixed
-     */
     public function filter(string $filter, int $flags = 0)
     {
     }
@@ -33,16 +30,10 @@ class Input
 
 class Run
 {
-    /**
-     * @return mixed
-     */
     public static function fromString(string $text, string $filter, int $flags = 0, array $variables = [])
     {
     }
 
-    /**
-     * @return mixed
-     */
     public static function fromFile(string $file, string $filter, int $flags = 0, array $variables = [])
     {
     }

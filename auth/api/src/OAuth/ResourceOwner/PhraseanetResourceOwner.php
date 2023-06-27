@@ -12,9 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements ResourceOwnerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     protected array $paths = [
         'identifier' => 'response.user.id',
         'nickname' => 'response.user.email',
@@ -27,9 +24,6 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
         return 'phraseanet';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
@@ -49,9 +43,6 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getUserInformation(
         array $accessToken,
         array $extraParameters = []
@@ -61,7 +52,7 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
                 $extraParameters),
             'null',
             [
-                'Authorization' => 'OAuth'.' '.$accessToken['access_token'],
+                'Authorization' => 'OAuth '.$accessToken['access_token'],
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json; charset=utf-8',
             ], 'GET');

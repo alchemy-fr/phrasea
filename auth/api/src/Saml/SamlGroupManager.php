@@ -8,7 +8,6 @@ use App\Entity\Group;
 use App\Entity\User;
 use App\User\GroupMapper;
 use Doctrine\ORM\EntityManagerInterface;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class SamlGroupManager

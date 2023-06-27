@@ -53,7 +53,7 @@ class GroupParserTest extends TestCase
   ]
 }
 JSON
-);
+        );
         $groups = $gp->extractGroups($response);
 
         $this->assertEquals([

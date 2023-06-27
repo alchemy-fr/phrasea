@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Arthem\Bundle\RabbitBundle\Model\FailedEvent as BaseFailedEvent;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -27,11 +26,11 @@ class FailedEvent extends BaseFailedEvent
     /**
      * @ORM\Column(type="datetime")
      */
-    private ?DateTime $createdAt = null;
+    private ?\DateTime $createdAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): string
@@ -39,7 +38,7 @@ class FailedEvent extends BaseFailedEvent
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

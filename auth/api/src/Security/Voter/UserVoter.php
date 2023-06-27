@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\Security;
 
 class UserVoter extends Voter
 {
-    const READ = 'READ';
-    const LIST_USERS = 'LIST_USERS';
+    public const READ = 'READ';
+    public const LIST_USERS = 'LIST_USERS';
 
     private Security $security;
 

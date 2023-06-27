@@ -12,8 +12,8 @@ abstract class AbstractTestCase extends ApiTestCase
 {
     use ReloadDatabaseTrait;
 
-    const CLIENT_ID = 'mobile-app_12345';
-    const CLIENT_SECRET = 'cli3nt_s3cr3t';
+    public const CLIENT_ID = 'mobile-app_12345';
+    public const CLIENT_SECRET = 'cli3nt_s3cr3t';
 
     /**
      * @return string The access token

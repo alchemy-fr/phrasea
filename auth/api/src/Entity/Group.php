@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -46,11 +45,11 @@ class Group
     /**
      * @ORM\Column(type="datetime")
      */
-    private DateTime $createdAt;
+    private \DateTime $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->users = new ArrayCollection();
 
         $this->id = Uuid::uuid4();
@@ -86,7 +85,7 @@ class Group
         return $this;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

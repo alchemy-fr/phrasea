@@ -14,7 +14,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class PasswordChangedHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'password_changed';
+    public const EVENT = 'password_changed';
 
     /**
      * @var NotifierInterface

@@ -9,7 +9,6 @@ use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
 use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
 use OAuth2\OAuth2;
 use OAuth2\OAuth2ServerException;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -92,7 +91,7 @@ class SamlController extends AbstractIdentityProviderController
         }
 
         if ($error) {
-            throw new RuntimeException($error->getMessage());
+            throw new \RuntimeException($error->getMessage());
         }
 
         $session->set('_security.saml.target_path', $this->generateUrl('saml_check', $this->getRedirectParams(

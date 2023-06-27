@@ -7,7 +7,6 @@ namespace App\OAuth;
 use Http\Client\Common\HttpMethodsClient;
 use HWI\Bundle\OAuthBundle\OAuth\RequestDataStorageInterface;
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
-use InvalidArgumentException;
 use Symfony\Component\Security\Http\HttpUtils;
 
 class OAuthProviderFactory
@@ -42,13 +41,13 @@ class OAuthProviderFactory
         }));
 
         if (!isset($providers[0])) {
-            throw new InvalidArgumentException(sprintf('Provider "%s" does not exist in Auth service', $providerName));
+            throw new \InvalidArgumentException(sprintf('Provider "%s" does not exist in Auth service', $providerName));
         }
 
         $providerConfig = $providers[0];
         $class = $this->resourceOwners[$providerConfig['options']['type']] ?? null;
         if (null === $class) {
-            throw new InvalidArgumentException(sprintf('Undefined resource owner "%s"', $providerConfig['options']['type']));
+            throw new \InvalidArgumentException(sprintf('Undefined resource owner "%s"', $providerConfig['options']['type']));
         }
         $options = $providerConfig['options'];
         unset($options['type']);

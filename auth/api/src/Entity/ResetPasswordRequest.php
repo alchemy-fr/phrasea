@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -26,6 +25,7 @@ class ResetPasswordRequest
 
     /**
      * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -33,12 +33,13 @@ class ResetPasswordRequest
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=256)
      */
     private $token;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -46,7 +47,7 @@ class ResetPasswordRequest
 
     public function __construct(User $user, string $token)
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->user = $user;
         $this->token = $token;
     }
@@ -66,7 +67,7 @@ class ResetPasswordRequest
         return $this->token;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

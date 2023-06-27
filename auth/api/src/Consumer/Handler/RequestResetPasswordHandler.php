@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class RequestResetPasswordHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'request_reset_password';
+    public const EVENT = 'request_reset_password';
 
     private UserManager $userManager;
     private NotifierInterface $notifier;

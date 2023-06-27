@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\User\UserManager;
-use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,9 +22,6 @@ class RemoveUserCommand extends Command
         $this->userManager = $userManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -34,19 +30,16 @@ class RemoveUserCommand extends Command
             ->setName('app:user:remove')
             ->setDescription('Remove user from database')
             ->addArgument('username', InputArgument::REQUIRED, 'The user username')
-            ;
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $username = $input->getArgument('username');
 
         $user = $this->userManager->findUserByUsername($username);
         if (null === $user) {
-            throw new Exception(sprintf('User with username "%s" does not exist', $username));
+            throw new \Exception(sprintf('User with username "%s" does not exist', $username));
         }
 
         $helper = $this->getHelper('question');
