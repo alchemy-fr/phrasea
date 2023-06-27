@@ -106,13 +106,13 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
         return $this->redirect($batchActionDto->getReferrerUrl());
     }
 
-    /** @required */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;
     }
 
-    /** @required */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;

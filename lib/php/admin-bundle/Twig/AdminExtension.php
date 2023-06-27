@@ -13,7 +13,7 @@ class AdminExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('file_size', [$this, 'formatSize']),
+            new TwigFilter('file_size', $this->formatSize(...)),
             new TwigFilter('substring', 'substr'),
         ];
     }

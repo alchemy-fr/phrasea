@@ -12,21 +12,8 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 
 class OAuthClient
 {
-    private string $clientId;
-    private string $clientSecret;
-    private Client $client;
-    private string $authBaseUrl;
-
-    public function __construct(
-        string $clientId,
-        string $clientSecret,
-        Client $client,
-        string $authBaseUrl
-    ) {
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->client = $client;
-        $this->authBaseUrl = $authBaseUrl;
+    public function __construct(private readonly string $clientId, private readonly string $clientSecret, private readonly Client $client, private readonly string $authBaseUrl)
+    {
     }
 
     public function getAuthorizeUrl(string $redirectUri, string $state = null): string

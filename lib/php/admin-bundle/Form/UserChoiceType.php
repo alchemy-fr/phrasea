@@ -13,21 +13,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserChoiceType extends AbstractType
 {
-    private AdminClient $adminClient;
-    private AuthServiceClient $authServiceClient;
-
-    public function __construct(AdminClient $adminClient, AuthServiceClient $authServiceClient)
+    public function __construct(private readonly AdminClient $adminClient, private readonly AuthServiceClient $authServiceClient)
     {
-        $this->adminClient = $adminClient;
-        $this->authServiceClient = $authServiceClient;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {
-            return $this->authServiceClient->getUsers($accessToken);
-        });
+        $users = $this->adminClient->executeWithAccessToken(fn(string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];

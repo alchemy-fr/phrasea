@@ -12,11 +12,8 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 class LogoutListener implements EventSubscriberInterface
 {
 
-    private OAuthClient $client;
-
-    public function __construct(OAuthClient $client)
+    public function __construct(private readonly OAuthClient $client)
     {
-        $this->client = $client;
     }
 
     public static function getSubscribedEvents(): array

@@ -19,9 +19,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 {
     private AdminConfigRegistry $adminConfigRegistry;
 
-    /**
-     * @Route("/admin")
-     */
+    #[Route(path: '/admin')]
     public function index(): Response
     {
         return $this->render('@AlchemyAdmin/layout.html.twig');
@@ -59,9 +57,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
         return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission('ROLE_TECH');
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
     {
         $this->adminConfigRegistry = $adminConfigRegistry;

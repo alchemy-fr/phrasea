@@ -8,14 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/reset-password", name="reset_password_")
- */
+#[Route(path: '/reset-password', name: 'reset_password_')]
 class ResetPasswordController extends AbstractAdminController
 {
-    /**
-     * @Route("/request", name="request")
-     */
+    #[Route(path: '/request', name: 'request')]
     public function requestResetPassword(Request $request, AuthServiceClient $authServiceClient): Response
     {
         $form = $this->createForm(RequestResetPasswordForm::class);
@@ -38,9 +34,7 @@ class ResetPasswordController extends AbstractAdminController
         ]));
     }
 
-    /**
-     * @Route("/requested", name="requested")
-     */
+    #[Route(path: '/requested', name: 'requested')]
     public function requestedResetPassword(): Response
     {
         return $this->render(

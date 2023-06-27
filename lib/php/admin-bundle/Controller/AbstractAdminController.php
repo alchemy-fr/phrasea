@@ -11,9 +11,7 @@ abstract class AbstractAdminController extends AbstractController
 {
     protected AdminConfigRegistry $adminConfigRegistry;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
     {
         $this->adminConfigRegistry = $adminConfigRegistry;

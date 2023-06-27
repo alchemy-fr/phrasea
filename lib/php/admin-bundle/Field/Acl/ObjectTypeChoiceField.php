@@ -7,7 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class ObjectTypeChoiceField
 {
-    private ObjectMapping $objectMapping;
+    private readonly ObjectMapping $objectMapping;
 
     public function __construct(ObjectMapping $objectMapping)
     {

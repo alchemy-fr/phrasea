@@ -16,9 +16,7 @@ class LoginController extends AbstractAdminController
 {
     use TargetPathTrait;
 
-    /**
-     * @Route("/login", name="login")
-     */
+    #[Route(path: '/login', name: 'login')]
     public function login(Request $request, OAuthClient $OAuthClient, AuthStateEncoder $authStateEncoder): Response
     {
         $targetPath = $this->getTargetPath($request->getSession(), 'admin');
@@ -31,9 +29,7 @@ class LoginController extends AbstractAdminController
         ));
     }
 
-    /**
-     * @Route("/auth/check", name="auth_check")
-     */
+    #[Route(path: '/auth/check', name: 'auth_check')]
     public function oauthCheck(
         Request $request,
         OAuthClient $oauthClient,
@@ -60,9 +56,7 @@ class LoginController extends AbstractAdminController
         return $this->redirectToRoute('easyadmin');
     }
 
-    /**
-     * @Route("/logout", name="logout")
-     */
+    #[Route(path: '/logout', name: 'logout')]
     public function logout(): never
     {
         // controller can be blank: it will never be called!

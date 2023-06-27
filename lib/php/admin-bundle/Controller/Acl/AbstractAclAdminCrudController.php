@@ -45,7 +45,7 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
         $id = $entity->getId();
 
         $twigParameters = $this->permissionView->getViewParameters(
-            $this->objectMapping->getObjectKey(get_class($entity)),
+            $this->objectMapping->getObjectKey($entity::class),
             $id
         );
         $twigParameters['back_url'] = $adminUrlGenerator->get('referrer');
@@ -53,17 +53,13 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
         return $this->render('@AlchemyAcl/easyadmin3/entity/acl.html.twig', $twigParameters);
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setObjectMapping(ObjectMapping $objectMapping): void
     {
         $this->objectMapping = $objectMapping;
     }
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setPermissionView(PermissionView $permissionView): void
     {
         $this->permissionView = $permissionView;

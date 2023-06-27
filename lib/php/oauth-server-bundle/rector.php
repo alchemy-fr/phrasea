@@ -8,11 +8,10 @@ use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
-        __DIR__,
-    ]);
-    $rectorConfig->skip([
-        __DIR__.'/vendor',
-        \Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
+        __DIR__ . '/config',
+        __DIR__ . '/public',
+        __DIR__ . '/src',
+        __DIR__ . '/tests',
     ]);
 
     // register a single rule
@@ -25,5 +24,9 @@ return static function (RectorConfig $rectorConfig): void {
         \Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
         \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
+    ]);
+
+    $rectorConfig->skip([
+        \Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
     ]);
 };
