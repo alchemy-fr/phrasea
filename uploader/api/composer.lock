@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ea8309664dc54a85e2f646cb49961c6",
+    "content-hash": "40e07ebdaaa9a9c5c8b54aed1ea16e2f",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "b26c7864c8de31ae587ac42cf6b9bf85a57d8ecf"
+                "reference": "889ac7145dde9936f68bfbfa60ae986156430282"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -72,7 +72,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -89,6 +90,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -115,7 +119,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "b7362f1d57c1a8ca320c29f91676ff79543df95a"
+                "reference": "716ec6f0cf09b403ce11101be05841013ba8de42"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -125,7 +129,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -142,6 +147,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -165,7 +173,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
-                "reference": "dfaef2089ba96b0a3c67d197a39b359ae46b1e60"
+                "reference": "dd4fcf4756a9c683d4878b11ffd218f8bef383e7"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -173,7 +181,8 @@
                 "symfony/framework-bundle": "2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -190,6 +199,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -216,7 +228,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
-                "reference": "854b9db738df4175840287b8a82ab6675c3f9dee"
+                "reference": "3f1efb66dc34093cd76003071f72013637dda23a"
             },
             "require": {
                 "klapaudius/oauth-server-bundle": "^4.0",
@@ -225,7 +237,8 @@
                 "symfony/templating": "^4.0 || ^5.0 || ^6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -242,6 +255,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -265,7 +281,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
-                "reference": "73a72f1d9cd60bb6906b19d41f6c84279bcc008e"
+                "reference": "84a7b0df4ab9e395c5173073a5caf3875d89ab67"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -274,7 +290,8 @@
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5 || ^6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -291,6 +308,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -317,7 +337,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
-                "reference": "625330de66b654bc8d9fdea54f01031dc2c5d1ce"
+                "reference": "617baf57b64b04e47b33d82753a1cc75752f0c40"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -326,7 +346,8 @@
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -343,6 +364,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -366,7 +390,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
-                "reference": "0b7741a213ab508508dd045bf3067ae9af4a59c2"
+                "reference": "f30886e28b43b29d12b9466f1d8ecfe995b00ccd"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -375,7 +399,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -392,6 +417,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -415,7 +443,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "6cfd992edd25c285a14cf6c3468bab157c652946"
+                "reference": "8ff2428595bf8dc07d6ed8ad7ed9f4d5ac5a26ad"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -443,6 +471,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -7358,6 +7389,89 @@
             "time": "2023-06-21T12:08:28+00:00"
         },
         {
+            "name": "symfony/mime",
+            "version": "v6.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/mime.git",
+                "reference": "7b5d2121858cd6efbed778abce9cfdd7ab1f62ad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/7b5d2121858cd6efbed778abce9cfdd7ab1f62ad",
+                "reference": "7b5d2121858cd6efbed778abce9cfdd7ab1f62ad",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/polyfill-intl-idn": "^1.10",
+                "symfony/polyfill-mbstring": "^1.0"
+            },
+            "conflict": {
+                "egulias/email-validator": "~3.0.0",
+                "phpdocumentor/reflection-docblock": "<3.2.2",
+                "phpdocumentor/type-resolver": "<1.4.0",
+                "symfony/mailer": "<5.4",
+                "symfony/serializer": "<6.2"
+            },
+            "require-dev": {
+                "egulias/email-validator": "^2.1.10|^3.1|^4",
+                "league/html-to-markdown": "^5.0",
+                "phpdocumentor/reflection-docblock": "^3.0|^4.0|^5.0",
+                "symfony/dependency-injection": "^5.4|^6.0",
+                "symfony/property-access": "^5.4|^6.0",
+                "symfony/property-info": "^5.4|^6.0",
+                "symfony/serializer": "^6.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Mime\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Allows manipulating MIME messages",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "mime",
+                "mime-type"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/mime/tree/v6.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-04-28T15:57:00+00:00"
+        },
+        {
             "name": "symfony/monolog-bridge",
             "version": "v6.3.1",
             "source": {
@@ -7806,6 +7920,93 @@
             ],
             "support": {
                 "source": "https://github.com/symfony/polyfill-intl-icu/tree/v1.27.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-11-03T14:55:06+00:00"
+        },
+        {
+            "name": "symfony/polyfill-intl-idn",
+            "version": "v1.27.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-idn.git",
+                "reference": "639084e360537a19f9ee352433b84ce831f3d2da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/639084e360537a19f9ee352433b84ce831f3d2da",
+                "reference": "639084e360537a19f9ee352433b84ce831f3d2da",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "symfony/polyfill-intl-normalizer": "^1.10",
+                "symfony/polyfill-php72": "^1.10"
+            },
+            "suggest": {
+                "ext-intl": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.27-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Intl\\Idn\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Laurent Bassin",
+                    "email": "laurent@bassin.info"
+                },
+                {
+                    "name": "Trevor Rowbotham",
+                    "email": "trevor.rowbotham@pm.me"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for intl's idn_to_ascii and idn_to_utf8 functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "idn",
+                "intl",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -10542,7 +10743,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "db9e9600fbedd68d9fd9d0c4dddac6a2edff1550"
+                "reference": "9af3b868e523a1c7dd135048a1febcaebb17970f"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -10550,7 +10751,8 @@
                 "symfony/security-bundle": "^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -10564,6 +10766,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],

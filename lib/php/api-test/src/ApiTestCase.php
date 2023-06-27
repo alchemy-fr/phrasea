@@ -86,13 +86,7 @@ abstract class ApiTestCase extends WebTestCase
      */
     protected static function getService(string $name): object
     {
-        if (method_exists(self::class, 'getContainer')) {
-            $container = static::getContainer();
-        } else {
-            $container = self::$container;
-        }
-
-        return $container->get($name);
+        return static::getContainer()->get($name);
     }
 
     protected static function getEntityManager(): EntityManagerInterface

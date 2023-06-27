@@ -26,6 +26,6 @@ abstract class AbstractStateFullTestCase extends WebTestCase
 
     protected static function getEntityManager(): EntityManagerInterface
     {
-        return self::$container->get(EntityManagerInterface::class);
+        return self::getContainer()->get(EntityManagerInterface::class);
     }
 }

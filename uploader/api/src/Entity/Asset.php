@@ -70,9 +70,6 @@ class Asset
     #[Groups(['asset:read'])]
     private ?string $url = null;
 
-    /**
-     * @var int|string
-     */
     #[Groups('asset:read')]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
@@ -110,7 +107,7 @@ class Asset
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups('asset:read')]
-    private readonly \DateTime $createdAt;
+    private \DateTime $createdAt;
 
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $userId = null;

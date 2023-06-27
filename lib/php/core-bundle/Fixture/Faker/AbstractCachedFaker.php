@@ -16,7 +16,7 @@ abstract class AbstractCachedFaker extends BaseProvider
     private readonly PathGenerator $pathGenerator;
 
     public function __construct(
-        private readonly ?string $cacheDir,
+        private readonly ?string $fixturesCacheDir,
         FileStorageManager $fileStorageManager,
         PathGenerator $pathGenerator,
         Generator $generator,
@@ -30,11 +30,11 @@ abstract class AbstractCachedFaker extends BaseProvider
     protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string
     {
         $this->logger->debug(sprintf('Fetching "%s"', $url));
-        if (null !== $this->cacheDir) {
-            if (!is_dir($this->cacheDir)) {
-                mkdir($this->cacheDir);
+        if (null !== $this->fixturesCacheDir) {
+            if (!is_dir($this->fixturesCacheDir)) {
+                mkdir($this->fixturesCacheDir);
             }
-            $cacheKey = $this->cacheDir.'/'.$cachePath.'.'.$extension;
+            $cacheKey = $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
             if (!file_exists($cacheKey)) {
                 file_put_contents($cacheKey, fopen($url, 'r'));
             }

@@ -26,8 +26,7 @@ abstract class AbstractAssetTest extends AbstractUploaderTestCase
         $commit->setFormData(['foo' => 'bar']);
         $commit->setTotalSize(42);
 
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
         $em->persist($commit);
         $em->flush();
         $em
@@ -40,8 +39,7 @@ abstract class AbstractAssetTest extends AbstractUploaderTestCase
 
     private function createAsset(): Asset
     {
-        /** @var AssetManager $assetManager */
-        $assetManager = self::$container->get(AssetManager::class);
+        $assetManager = self::getService(AssetManager::class);
         $path = 'test/foo.jpg';
 
         return $assetManager->createAsset(

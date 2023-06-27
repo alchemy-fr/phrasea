@@ -211,12 +211,12 @@ abstract class AbstractExposeTestCase extends ApiTestCase
 
     protected static function getStorageManager(): FileStorageManager
     {
-        return self::$container->get(FileStorageManager::class);
+        return self::getService(FileStorageManager::class);
     }
 
     protected static function getPathGenerator(): PathGenerator
     {
-        return self::$container->get(PathGenerator::class);
+        return self::getService(PathGenerator::class);
     }
 
     protected function createAsset(Publication $publication, array $options = []): string

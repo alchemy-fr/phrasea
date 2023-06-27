@@ -15,8 +15,7 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
 
     protected function getOrCreateDefaultTarget(): Target
     {
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $name = 'TestDefault';
         $target = $em->getRepository(Target::class)->findOneBy([
