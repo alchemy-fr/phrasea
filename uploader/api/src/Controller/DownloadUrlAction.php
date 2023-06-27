@@ -19,29 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DownloadUrlAction extends AbstractController
 {
-    private $validator;
-    private $resourceMetadataFactory;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    /**
-     * @var FormValidator
-     */
-    private $formValidator;
-
-    public function __construct(
-        ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory,
-        EventProducer $eventProducer,
-        FormValidator $formValidator
-    ) {
-        $this->validator = $validator;
-        $this->resourceMetadataFactory = $resourceMetadataFactory;
-        $this->eventProducer = $eventProducer;
-        $this->formValidator = $formValidator;
+    public function __construct(private readonly ValidatorInterface $validator, private readonly ResourceMetadataFactoryInterface $resourceMetadataFactory, private readonly EventProducer $eventProducer, private readonly FormValidator $formValidator)
+    {
     }
 
     public function __invoke(DownloadUrl $data, Request $request, ValidateFormAction $validateFormAction): Response

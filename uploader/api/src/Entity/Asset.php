@@ -16,8 +16,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
- *
  * @ApiResource(
  *     normalizationContext={
  *         "groups"={"asset:read"},
@@ -45,115 +43,94 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  * )
  */
+#[ORM\Entity(repositoryClass: \App\Entity\AssetRepository::class)]
 class Asset
 {
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups("asset:read")
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
+    #[Groups('asset:read')]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private $path;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $path = null;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     *
-     * @Groups("asset:read", "asset:write")
-     */
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups('asset:read')]
     private ?array $data = [];
 
     /**
      * Dynamic signed URL.
      *
      * @ApiProperty()
-     *
-     * @Groups({"asset:read"})
      */
+    #[Groups(['asset:read'])]
     private ?string $url = null;
 
     /**
      * @var int|string
      *
-     * @Groups("asset:read")
      *
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
-    private $size;
+    #[Groups('asset:read')]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    private ?string $size = null;
 
     /**
-     * @var string
      *
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty(iri="http://schema.org/name")
      *
-     * @Groups("asset:read")
      */
-    private $originalName;
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups('asset:read')]
+    private ?string $originalName = null;
 
     /**
-     * @var string
      *
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty()
      *
-     * @Groups("asset:read")
      */
-    private $mimeType;
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups('asset:read')]
+    private ?string $mimeType = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Target $target = null;
 
-    /**
-     * @var Commit|null
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Commit", inversedBy="assets")
-     */
-    private $commit;
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Commit::class, inversedBy: 'assets')]
+    private ?\App\Entity\Commit $commit = null;
 
     /**
-     * @var bool
      *
-     * @ORM\Column(type="boolean")
      *
-     * @Groups("asset:read")
      *
      * @ApiFilter(BooleanFilter::class)
      */
-    private $acknowledged = false;
+    #[ORM\Column(type: 'boolean')]
+    #[Groups('asset:read')]
+    private bool $acknowledged = false;
 
     /**
-     * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
      *
      * @ApiProperty()
      *
-     * @Groups("asset:read")
      */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups('asset:read')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    private $userId;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $userId = null;
 
     public function __construct()
     {
@@ -211,9 +188,7 @@ class Asset
         return null !== $this->commit;
     }
 
-    /**
-     * @Groups("asset:read")
-     */
+    #[Groups('asset:read')]
     public function getFormData(): ?array
     {
         return $this->commit ? $this->commit->getFormData() : null;
@@ -284,7 +259,7 @@ class Asset
 
     public function getData(): array
     {
-        return null !== $this->data ? $this->data : [];
+        return $this->data ?? [];
     }
 
     public function setData(?array $data): void

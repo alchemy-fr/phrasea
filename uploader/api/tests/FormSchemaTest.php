@@ -21,13 +21,13 @@ class FormSchemaTest extends AbstractUploaderTestCase
             ],
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('data', $json);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(1, $json);
         $this->assertEquals([
             'foo' => 'bar',

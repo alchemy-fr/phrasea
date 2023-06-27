@@ -19,7 +19,7 @@ class CommitTest extends AbstractUploaderTestCase
             'GET',
             '/commits/'.$commitId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -33,7 +33,7 @@ class CommitTest extends AbstractUploaderTestCase
             'GET',
             '/commits'
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));

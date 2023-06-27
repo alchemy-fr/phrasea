@@ -22,19 +22,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class DownloadUrl
 {
-    /**
-     * @var string
-     */
-    private $url;
+    private ?string $url = null;
 
-    /**
-     * @var array
-     */
-    private $data = [];
+    private array $data = [];
 
-    /**
-     * @Assert\NotNull()
-     */
+    #[Assert\NotNull]
     private ?Target $target = null;
 
     public function getUrl(): string

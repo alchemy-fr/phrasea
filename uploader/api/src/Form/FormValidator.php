@@ -10,15 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FormValidator
 {
-    private LiFormToFormTransformer $formGenerator;
-    private FormSchemaManager $schemaLoader;
-
-    public function __construct(
-        LiFormToFormTransformer $formGenerator,
-        FormSchemaManager $schemaLoader
-    ) {
-        $this->formGenerator = $formGenerator;
-        $this->schemaLoader = $schemaLoader;
+    public function __construct(private readonly LiFormToFormTransformer $formGenerator, private readonly FormSchemaManager $schemaLoader)
+    {
     }
 
     public function validateForm(array $data, Target $target, Request $request): array
@@ -39,7 +32,7 @@ class FormValidator
     public static function cleanExtraFields(array $data): array
     {
         foreach ($data as $key => $v) {
-            if (0 === strpos($key, '__')) {
+            if (str_starts_with($key, '__')) {
                 unset($data[$key]);
             }
         }

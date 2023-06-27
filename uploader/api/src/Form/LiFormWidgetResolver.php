@@ -12,7 +12,7 @@ class LiFormWidgetResolver
     /**
      * @var WidgetResolverInterface[]
      */
-    private $resolvers = [];
+    private array $resolvers = [];
 
     public function addResolver(WidgetResolverInterface $resolver)
     {
@@ -25,7 +25,7 @@ class LiFormWidgetResolver
             return $resolver->getFormType($config);
         }
 
-        throw new \InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config)));
+        throw new \InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config, JSON_THROW_ON_ERROR)));
     }
 
     public function getFieldOptions(array $fieldConfig): array
@@ -64,9 +64,9 @@ class LiFormWidgetResolver
 
     private function normalizeConfig(array $config): array
     {
-        $config['type'] = $config['type'] ?? 'string';
-        $config['widget'] = $config['widget'] ?? 'text';
-        $config['format'] = $config['format'] ?? null;
+        $config['type'] ??= 'string';
+        $config['widget'] ??= 'text';
+        $config['format'] ??= null;
 
         return $config;
     }

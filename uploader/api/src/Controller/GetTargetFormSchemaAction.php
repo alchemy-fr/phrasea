@@ -14,12 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class GetTargetFormSchemaAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        EntityManagerInterface $em
-    ) {
-        $this->em = $em;
+    public function __construct(private readonly EntityManagerInterface $em)
+    {
     }
 
     public function __invoke(string $id, Request $request): ?FormSchema

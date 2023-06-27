@@ -14,14 +14,8 @@ use Doctrine\ORM\Events;
 
 class AssetListener implements EventSubscriber
 {
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function postRemove(LifecycleEventArgs $event)

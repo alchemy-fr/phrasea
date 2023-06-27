@@ -13,54 +13,48 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class TargetParams implements AclObjectInterface
 {
     /**
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      *
-     * @Groups({"targetparams:index"})
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[Groups(['targetparams:index'])]
     protected $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Target", inversedBy="targetParams")
-     * @ORM\JoinColumn(nullable=false)
      *
-     * @Groups({"targetparams:index", "targetparams:write"})
      *
-     * @Assert\NotNull()
      *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
      */
+    #[ORM\OneToOne(targetEntity: \App\Entity\Target::class, inversedBy: 'targetParams')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['targetparams:index', 'targetparams:write'])]
+    #[Assert\NotNull]
     private ?Target $target = null;
 
-    /**
-     * @ORM\Column(type="json")
-     *
-     * @Groups({"targetparams:index", "targetparams:write"})
-     */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['targetparams:index', 'targetparams:write'])]
     private array $data = [];
 
     /**
-     * @ORM\Column(type="datetime")
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @Groups({"targetparams:index"})
      */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['targetparams:index'])]
     private ?\DateTimeInterface $createdAt = null;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()

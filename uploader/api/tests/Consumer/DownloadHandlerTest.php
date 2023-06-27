@@ -37,10 +37,8 @@ class DownloadHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function ($subject) {
-                    return $subject instanceof EventMessage
-                        && is_string($subject->getPayload()['user_id']);
-                })
+                $this->callback(fn($subject) => $subject instanceof EventMessage
+                    && is_string($subject->getPayload()['user_id']))
             );
 
         /** @var FileStorageManager|MockObject $storageStub */

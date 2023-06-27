@@ -19,28 +19,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        FileStorageManager $storageManager,
-        AssetManager $assetManager,
-        UploadManager $uploadManager,
-        PathGenerator $pathGenerator,
-        EntityManagerInterface $em
-    ) {
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
-        $this->em = $em;
+    public function __construct(private readonly FileStorageManager $storageManager, private readonly AssetManager $assetManager, private readonly UploadManager $uploadManager, private readonly PathGenerator $pathGenerator, private readonly EntityManagerInterface $em)
+    {
     }
 
     public function __invoke(Request $request): Asset
     {
+        $targetId = null;
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug,

@@ -12,15 +12,12 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    public const ACK = 'ACK';
-    public const DOWNLOAD = 'DOWNLOAD';
-    public const READ_METADATA = 'READ_META';
+    final public const ACK = 'ACK';
+    final public const DOWNLOAD = 'DOWNLOAD';
+    final public const READ_METADATA = 'READ_META';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool

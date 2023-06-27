@@ -26,7 +26,7 @@ class CommitAckTest extends AbstractUploaderTestCase
             'POST',
             '/commits/'.$commit->getId().'/ack'
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertTrue($json);
         $this->assertEquals(200, $response->getStatusCode());
@@ -50,7 +50,7 @@ class CommitAckTest extends AbstractUploaderTestCase
             'POST',
             '/assets/'.$asset1->getId().'/ack'
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json);
         $this->assertEquals(200, $response->getStatusCode());
@@ -63,7 +63,7 @@ class CommitAckTest extends AbstractUploaderTestCase
             'POST',
             '/assets/'.$asset2->getId().'/ack'
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json);
         $this->assertEquals(200, $response->getStatusCode());

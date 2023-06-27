@@ -16,17 +16,10 @@ use GuzzleHttp\Client;
  */
 class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'asset_consumer_notify';
+    final public const EVENT = 'asset_consumer_notify';
 
-    private Client $client;
-    private string $uploadBaseUrl;
-
-    public function __construct(
-        Client $client,
-        string $uploadBaseUrl
-    ) {
-        $this->client = $client;
-        $this->uploadBaseUrl = $uploadBaseUrl;
+    public function __construct(private readonly Client $client, private readonly string $uploadBaseUrl)
+    {
     }
 
     public function handle(EventMessage $message): void
@@ -35,7 +28,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $commit = $em->find(Commit::class, $id);
         if (!$commit instanceof Commit) {
-            throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Commit::class, $id, self::class);
         }
 
         $target = $commit->getTarget();
@@ -45,9 +38,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
         }
 
         $arr = [
-            'assets' => array_map(function (Asset $asset): string {
-                return $asset->getId();
-            }, $commit->getAssets()->toArray()),
+            'assets' => array_map(fn(Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray()),
             'publisher' => $commit->getUserId(),
             'commit_id' => $commit->getId(),
             'token' => $commit->getToken(),

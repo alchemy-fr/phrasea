@@ -24,19 +24,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class FormData
 {
-    /**
-     * @var array
-     *
-     * @Assert\NotNull()
-     */
-    private $data;
+    #[Assert\NotNull]
+    private ?array $data = null;
 
-    /**
-     * @var Target
-     *
-     * @Assert\NotNull()
-     */
-    private $target;
+    #[Assert\NotNull]
+    private ?\App\Entity\Target $target = null;
 
     public function getData(): array
     {

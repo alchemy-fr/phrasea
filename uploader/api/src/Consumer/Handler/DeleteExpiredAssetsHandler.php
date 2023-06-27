@@ -14,15 +14,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
  */
 class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'delete_expired_assets';
+    final public const EVENT = 'delete_expired_assets';
 
-    private EventProducer $eventProducer;
-    private int $deleteAssetGracefulTime;
-
-    public function __construct(EventProducer $eventProducer, int $deleteAssetGracefulTime)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly int $deleteAssetGracefulTime)
     {
-        $this->eventProducer = $eventProducer;
-        $this->deleteAssetGracefulTime = $deleteAssetGracefulTime;
     }
 
     public function handle(EventMessage $message): void

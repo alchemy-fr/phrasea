@@ -14,7 +14,7 @@ class AssetGetTest extends AbstractAssetTest
         $this->commitAsset();
         $response = $this->requestGet('secret_token');
 
-        $contents = json_decode($response->getContent(), true);
+        $contents = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));

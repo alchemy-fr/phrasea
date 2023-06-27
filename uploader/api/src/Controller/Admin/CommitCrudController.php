@@ -24,13 +24,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 class CommitCrudController extends AbstractAdminCrudController
 {
-    private EventProducer $eventProducer;
-    private UserChoiceField $userChoiceField;
-
-    public function __construct(EventProducer $eventProducer, UserChoiceField $userChoiceField)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly UserChoiceField $userChoiceField)
     {
-        $this->eventProducer = $eventProducer;
-        $this->userChoiceField = $userChoiceField;
     }
 
     public static function getEntityFqcn(): string

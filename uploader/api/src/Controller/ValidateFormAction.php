@@ -13,13 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class ValidateFormAction extends AbstractController
 {
-    private FormValidator $formValidator;
-    private ValidatorInterface $validator;
-
-    public function __construct(FormValidator $formValidator, ValidatorInterface $validator)
+    public function __construct(private readonly FormValidator $formValidator, private readonly ValidatorInterface $validator)
     {
-        $this->formValidator = $formValidator;
-        $this->validator = $validator;
     }
 
     public function __invoke(FormData $data, Request $request)

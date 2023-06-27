@@ -8,19 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AssetRelatedUser implements UserInterface
 {
-    /**
-     * @var string
-     */
-    private $token;
-    /**
-     * @var string
-     */
-    private $assetId;
-
-    public function __construct(string $assetId, string $token)
+    public function __construct(private readonly string $assetId, private readonly string $token)
     {
-        $this->token = $token;
-        $this->assetId = $assetId;
     }
 
     public function getId(): string

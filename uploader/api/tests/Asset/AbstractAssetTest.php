@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractAssetTest extends AbstractUploaderTestCase
 {
-    public const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
+    final public const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
     protected $assetId;
 
     protected function commitAsset(string $token = 'secret_token')

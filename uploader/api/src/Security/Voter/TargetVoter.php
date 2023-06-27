@@ -12,13 +12,10 @@ use Symfony\Component\Security\Core\Security;
 
 class TargetVoter extends Voter
 {
-    public const READ = 'READ';
+    final public const READ = 'READ';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool
@@ -41,11 +38,9 @@ class TargetVoter extends Voter
             $groups = $user->getGroupIds();
         }
 
-        switch ($attribute) {
-            case self::READ:
-                return empty($subject->getAllowedGroups()) || !empty(array_intersect($groups, $subject->getAllowedGroups()));
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::READ => empty($subject->getAllowedGroups()) || !empty(array_intersect($groups, $subject->getAllowedGroups())),
+            default => false,
+        };
     }
 }

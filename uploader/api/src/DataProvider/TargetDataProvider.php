@@ -13,18 +13,13 @@ use Symfony\Component\Security\Core\Security;
 
 class TargetDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {
-    private CollectionDataProviderInterface $inner;
-    private Security $security;
-
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Target::class === $resourceClass && 'get' === $operationName;
     }
 
-    public function __construct(CollectionDataProviderInterface $inner, Security $security)
+    public function __construct(private readonly CollectionDataProviderInterface $inner, private readonly Security $security)
     {
-        $this->inner = $inner;
-        $this->security = $security;
     }
 
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])

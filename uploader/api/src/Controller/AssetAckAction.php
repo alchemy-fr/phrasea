@@ -16,15 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class AssetAckAction extends AbstractController
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        EventProducer $eventProducer,
-        EntityManagerInterface $em
-    ) {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
+    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em)
+    {
     }
 
     public function __invoke(string $id)

@@ -23,27 +23,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CommitAction extends AbstractController
 {
-    private AssetManager $assetManager;
-    private EventProducer $eventProducer;
-    private FormValidator $formValidator;
-    private CommitValidator $commitValidator;
-    private ReportUserService $reportClient;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        AssetManager $assetManager,
-        EventProducer $eventProducer,
-        FormValidator $formValidator,
-        CommitValidator $commitValidator,
-        ReportUserService $reportClient,
-        EntityManagerInterface $em
-    ) {
-        $this->assetManager = $assetManager;
-        $this->eventProducer = $eventProducer;
-        $this->formValidator = $formValidator;
-        $this->commitValidator = $commitValidator;
-        $this->reportClient = $reportClient;
-        $this->em = $em;
+    public function __construct(private readonly AssetManager $assetManager, private readonly EventProducer $eventProducer, private readonly FormValidator $formValidator, private readonly CommitValidator $commitValidator, private readonly ReportUserService $reportClient, private readonly EntityManagerInterface $em)
+    {
     }
 
     public function __invoke(Commit $data, Request $request)
@@ -60,7 +41,7 @@ final class CommitAction extends AbstractController
 
         $errors = $this->formValidator->validateForm($data->getFormData(), $data->getTarget(), $request);
         if (!empty($errors)) {
-            throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors)));
+            throw new BadRequestHttpException(sprintf('Form errors: %s', json_encode($errors, JSON_THROW_ON_ERROR)));
         }
 
         $totalSize = $this->assetManager->getTotalSize($data->getFiles());

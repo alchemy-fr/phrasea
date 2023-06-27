@@ -44,11 +44,8 @@ class CommitHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function ($subject) {
-                    return $subject instanceof EventMessage
-                        && is_string($subject->getPayload()['id'])
-                    ;
-                })
+                $this->callback(fn($subject) => $subject instanceof EventMessage
+                    && is_string($subject->getPayload()['id']))
             );
 
         $assetManager = $this->createMock(AssetManager::class);

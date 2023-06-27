@@ -12,13 +12,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class AssetAcknowledgeHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'asset_ack';
+    final public const EVENT = 'asset_ack';
 
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void
@@ -29,7 +26,7 @@ class AssetAcknowledgeHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $asset = $em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
         }
 
         if ($asset->isAcknowledged()) {

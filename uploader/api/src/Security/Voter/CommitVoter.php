@@ -12,14 +12,11 @@ use Symfony\Component\Security\Core\Security;
 
 class CommitVoter extends Voter
 {
-    public const ACK = 'ACK';
-    public const READ = 'READ';
+    final public const ACK = 'ACK';
+    final public const READ = 'READ';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool

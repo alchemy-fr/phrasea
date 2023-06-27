@@ -14,17 +14,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'commit_ack';
+    final public const EVENT = 'commit_ack';
 
-    private EventProducer $eventProducer;
-    private NotifierInterface $notifier;
-    private int $deleteAssetGracefulTime;
-
-    public function __construct(EventProducer $eventProducer, NotifierInterface $notifier, int $deleteAssetGracefulTime)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly NotifierInterface $notifier, private readonly int $deleteAssetGracefulTime)
     {
-        $this->eventProducer = $eventProducer;
-        $this->notifier = $notifier;
-        $this->deleteAssetGracefulTime = $deleteAssetGracefulTime;
     }
 
     public function handle(EventMessage $message): void
@@ -35,7 +28,7 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $commit = $em->find(Commit::class, $id);
         if (!$commit instanceof Commit) {
-            throw new ObjectNotFoundForHandlerException(Commit::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Commit::class, $id, self::class);
         }
 
         if ($commit->isAcknowledged()) {

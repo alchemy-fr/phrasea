@@ -14,15 +14,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class CommitHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'commit';
+    final public const EVENT = 'commit';
 
-    private EventProducer $eventProducer;
-    private AssetManager $assetManager;
-
-    public function __construct(EventProducer $eventProducer, AssetManager $assetManager)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly AssetManager $assetManager)
     {
-        $this->eventProducer = $eventProducer;
-        $this->assetManager = $assetManager;
     }
 
     public function handle(EventMessage $message): void

@@ -15,9 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MeAction extends AbstractController
 {
-    /**
-     * @Route(path="/me", methods={"GET"})
-     */
+    #[Route(path: '/me', methods: ['GET'])]
     public function __invoke(Request $request, EntityManagerInterface $em): Response
     {
         /** @var RemoteUser $user */

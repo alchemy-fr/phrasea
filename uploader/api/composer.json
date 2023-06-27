@@ -76,7 +76,7 @@
         "php": "^8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/acl-bundle": "dev-main",
+        "alchemy/acl-bundle": "dev-to-sf6",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
@@ -131,6 +131,7 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.17.1",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
         "symfony/debug-bundle": "^6.3",
@@ -179,6 +180,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "rector": "vendor/bin/rector",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },

@@ -68,7 +68,7 @@ class AssetConsumerNotifyHandlerTest extends TestCase
 
         $this->assertEquals('/api/v1/upload/enqueue/', $clientHandler->getLastRequest()->getUri()->getPath());
 
-        $postBody = json_decode($clientHandler->getLastRequest()->getBody()->getContents(), true);
+        $postBody = json_decode($clientHandler->getLastRequest()->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('assets', $postBody);
         $this->assertArrayHasKey('commit_id', $postBody);
         $this->assertCount(2, $postBody['assets']);

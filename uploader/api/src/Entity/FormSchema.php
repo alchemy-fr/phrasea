@@ -12,60 +12,48 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Entity\FormSchemaRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_target_locale", columns={"locale", "target_id"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_target_locale', columns: ['locale', 'target_id'])]
+#[ORM\Entity(repositoryClass: \App\Entity\FormSchemaRepository::class)]
 class FormSchema implements AclObjectInterface
 {
     /**
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      *
-     * @Groups({"formschema:index"})
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[Groups(['formschema:index'])]
     protected $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Assert\NotNull()
-     *
-     * @Groups({"formschema:index", "formschema:write"})
-     */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
+    #[Groups(['formschema:index', 'formschema:write'])]
     private ?Target $target = null;
 
-    /**
-     * @ORM\Column(type="string", length=5, nullable=true)
-     *
-     * @Groups({"formschema:index", "formschema:write"})
-     */
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['formschema:index', 'formschema:write'])]
     private ?string $locale = null;
 
-    /**
-     * @ORM\Column(type="json")
-     *
-     * @Groups({"formschema:index", "formschema:write"})
-     */
+    #[ORM\Column(type: 'json')]
+    #[Groups(['formschema:index', 'formschema:write'])]
     private array $data = [];
 
     /**
-     * @ORM\Column(type="datetime")
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @Groups({"targetparams:index"})
      */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['targetparams:index'])]
     private ?\DateTimeInterface $createdAt = null;
 
     /**
-     * @ORM\Column(type="datetime")
-     *
      * @Gedmo\Timestampable(on="update")
      */
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct(string $id = null)

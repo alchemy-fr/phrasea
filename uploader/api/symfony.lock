@@ -291,9 +291,6 @@
             "src/Consumer/.gitignore"
         ]
     },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
-    },
     "phpdocumentor/reflection-common": {
         "version": "1.0.1"
     },

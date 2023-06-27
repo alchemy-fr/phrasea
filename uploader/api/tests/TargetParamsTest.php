@@ -13,7 +13,7 @@ class TargetParamsTest extends AbstractUploaderTestCase
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/target-params');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals([], $json);
 
         $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/target-params', [
@@ -21,7 +21,7 @@ class TargetParamsTest extends AbstractUploaderTestCase
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('data', $json);
         $this->assertEquals([], $json['data']);
@@ -32,7 +32,7 @@ class TargetParamsTest extends AbstractUploaderTestCase
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('data', $json);
         $this->assertEquals([

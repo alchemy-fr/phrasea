@@ -17,26 +17,10 @@ use Symfony\Component\Mime\MimeTypes;
 
 class DownloadHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'download';
+    final public const EVENT = 'download';
 
-    private Client $client;
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private EventProducer $eventProducer;
-    private PathGenerator $pathGenerator;
-
-    public function __construct(
-        FileStorageManager $storageManager,
-        Client $client,
-        AssetManager $assetManager,
-        EventProducer $eventProducer,
-        PathGenerator $pathGenerator
-    ) {
-        $this->client = $client;
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->eventProducer = $eventProducer;
-        $this->pathGenerator = $pathGenerator;
+    public function __construct(private readonly FileStorageManager $storageManager, private readonly Client $client, private readonly AssetManager $assetManager, private readonly EventProducer $eventProducer, private readonly PathGenerator $pathGenerator)
+    {
     }
 
     public function handle(EventMessage $message): void
@@ -51,7 +35,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $headers = $response->getHeaders();
         $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
 
-        $originalName = basename(explode('?', $url, 2)[0]);
+        $originalName = basename(explode('?', (string) $url, 2)[0]);
         if (isset($headers['Content-Disposition'][0])) {
             $contentDisposition = $headers['Content-Disposition'][0];
             if (preg_match('#\s+filename="(.+?)"#', $contentDisposition, $regs)) {

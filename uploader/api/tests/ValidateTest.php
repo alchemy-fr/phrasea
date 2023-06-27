@@ -14,7 +14,7 @@ class ValidateTest extends AbstractUploaderTestCase
 
         $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
-            'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true),
+            'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true, 512, JSON_THROW_ON_ERROR),
         ]);
     }
 
@@ -27,7 +27,7 @@ class ValidateTest extends AbstractUploaderTestCase
                 'agreed' => true,
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(['errors' => []], $json);
@@ -54,7 +54,7 @@ class ValidateTest extends AbstractUploaderTestCase
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => $data,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(['errors' => $exceptedErrors], $json);

@@ -21,8 +21,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Entity\CommitRepository")
- * @ORM\Table(name="asset_commit")
  *
  * @ApiResource(
  *     order={"acknowledged": "ASC", "createdAt": "ASC"},
@@ -50,132 +48,115 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"commit:write"}}
  * )
  */
+#[ORM\Table(name: 'asset_commit')]
+#[ORM\Entity(repositoryClass: \App\Entity\CommitRepository::class)]
 class Commit
 {
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"asset:read", "commit:read"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
-    private $id;
+    #[Groups(['asset:read', 'commit:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private readonly \Ramsey\Uuid\UuidInterface $id;
 
     /**
      * @var Asset[]|Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Asset", mappedBy="commit", cascade={"remove"})
      *
-     * @Groups({"commit:read", "commit:write"})
      */
+    #[ORM\OneToMany(targetEntity: \App\Entity\Asset::class, mappedBy: 'commit', cascade: ['remove'])]
+    #[Groups(['commit:read', 'commit:write'])]
     private ?Collection $assets = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
-     * @ORM\JoinColumn(nullable=false)
      *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
      *
-     * @Assert\NotNull()
      *
-     * @Groups({"asset:read", "commit:read", "commit:write"})
      */
+    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull]
+    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?Target $target = null;
 
     /**
-     * @Groups({"asset:read", "commit:read"})
      *
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
      *
      * @ApiProperty(writable=false)
      */
+    #[Groups(['asset:read', 'commit:read'])]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $totalSize = null;
 
-    /**
-     * @ORM\Column(type="json")
-     *
-     * @Groups("asset:read", "commit:read", "commit:write")
-     */
+    #[ORM\Column(type: 'json')]
+    #[Groups('asset:read', 'commit:read')]
     private array $formData = [];
 
-    /**
-     * @Groups({"asset:read", "commit:read", "commit:write"})
-     *
-     * @ORM\Column(type="json")
-     */
+    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[ORM\Column(type: 'json')]
     private array $options = [];
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     *
-     * @Groups({"asset:read", "commit:read", "commit:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?string $userId = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
      *
      * @ApiProperty(writable=false)
      *
-     * @Groups({"commit:read"})
      */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['commit:read'])]
     private ?string $token = null;
 
     /**
-     * @ORM\Column(type="boolean")
      *
      * @ApiFilter(BooleanFilter::class)
      *
-     * @Groups({"asset:read", "commit:read"})
      *
      * @ApiProperty(writable=false)
      */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['asset:read', 'commit:read'])]
     private bool $acknowledged = false;
 
     /**
      * If set, this email will be notified when asset consumer acknowledges the commit.
      *
-     * @ORM\Column(type="string", nullable=true)
      *
-     * @Groups({"commit:read", "commit:write"})
      */
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Groups(['commit:read', 'commit:write'])]
     private ?string $notifyEmail = null;
 
-    /**
-     * @ORM\Column(type="string", length=5, nullable=true)
-     *
-     * @Groups({"asset:read", "commit:read", "commit:write"})
-     */
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?string $locale = null;
 
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     *
-     * @Groups({"asset:read", "commit:read"})
-     */
-    private $acknowledgedAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['asset:read', 'commit:read'])]
+    private ?\DateTime $acknowledgedAt = null;
 
     /**
-     * @var \DateTime
      *
-     * @ORM\Column(type="datetime")
      *
      * @ApiProperty()
      *
-     * @Groups({"asset:read", "commit:read"})
      */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['asset:read', 'commit:read'])]
+    private readonly \DateTime $createdAt;
 
     /**
      * Not mapped.
-     *
-     * @Groups({"commit:write"})
      */
+    #[Groups(['commit:write'])]
     private array $files = [];
 
     public function __construct()
@@ -205,9 +186,7 @@ class Commit
         return $this->formData;
     }
 
-    /**
-     * @Groups({"__NONE__"})
-     */
+    #[Groups(['__NONE__'])]
     public function getFormDataJson(): string
     {
         return \GuzzleHttp\json_encode($this->formData, JSON_PRETTY_PRINT);
@@ -219,9 +198,7 @@ class Commit
         $this->formData = \GuzzleHttp\json_decode($json, true);
     }
 
-    /**
-     * @Groups({"__NONE__"})
-     */
+    #[Groups(['__NONE__'])]
     public function getOptionsJson(): string
     {
         return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);

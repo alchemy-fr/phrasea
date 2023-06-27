@@ -8,17 +8,11 @@ use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 class AssetToken extends AbstractToken
 {
-    /**
-     * @var string|null
-     */
-    private $accessToken;
-
-    public function __construct(?string $accessAccessToken)
+    public function __construct(private readonly ?string $accessToken)
     {
         parent::__construct();
-        $this->accessToken = $accessAccessToken;
 
-        $this->setAuthenticated(!empty($accessAccessToken));
+        $this->setAuthenticated(!empty($accessToken));
     }
 
     public function getCredentials()

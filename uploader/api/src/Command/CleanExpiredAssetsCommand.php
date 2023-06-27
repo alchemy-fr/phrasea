@@ -12,12 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CleanExpiredAssetsCommand extends Command
 {
-    private AssetManager $assetManager;
-
-    public function __construct(AssetManager $assetManager)
+    public function __construct(private readonly AssetManager $assetManager)
     {
         parent::__construct();
-        $this->assetManager = $assetManager;
     }
 
     protected function configure()

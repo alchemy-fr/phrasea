@@ -10,11 +10,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LiFormFromSchemaFormType extends AbstractType
 {
-    private LiFormWidgetResolver $widgetResolver;
-
-    public function __construct(LiFormWidgetResolver $widgetRegistry)
+    public function __construct(private readonly LiFormWidgetResolver $widgetResolver)
     {
-        $this->widgetResolver = $widgetRegistry;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

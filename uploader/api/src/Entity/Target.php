@@ -10,118 +10,88 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity
- * @ORM\Table
- */
-class Target
+#[ORM\Table]
+#[ORM\Entity]
+class Target implements \Stringable
 {
     /**
      * @ApiProperty(identifier=true)
      *
-     * @Groups({"target:index"})
      *
      * @var Uuid
      *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
-    private $id;
+    #[Groups(['target:index'])]
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    private readonly \Ramsey\Uuid\UuidInterface $id;
 
     /**
      * @ApiProperty()
      *
-     * @Groups({"target:index"})
      *
-     * @Assert\Regex("/^[a-z][a-z0-9_-]+/")
      *
-     * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */
+    #[Groups(['target:index'])]
+    #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
+    #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
     protected ?string $slug = null;
 
-    /**
-     * @ORM\Column(type="string", length=1000)
-     *
-     * @Assert\Length(max=1000)
-     * @Assert\NotBlank
-     *
-     * @Groups({"target:index"})
-     */
+    #[ORM\Column(type: 'string', length: 1000)]
+    #[Assert\Length(max: 1000)]
+    #[Assert\NotBlank]
+    #[Groups(['target:index'])]
     private ?string $name = null;
 
     /**
      * @ApiProperty()
      *
-     * @ORM\Column(type="boolean", nullable=false)
      *
-     * @Groups({"target:read"})
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[Groups(['target:read'])]
     private bool $enabled = true;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     *
-     * @Groups({"target:index"})
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['target:index'])]
     private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     *
-     * @Assert\Length(max=255)
-     * @Assert\Url()
-     * @Assert\NotBlank
-     *
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\Length(max: 255)]
+    #[Assert\Url]
+    #[Assert\NotBlank]
+    #[Groups(['target:write'])]
     private ?string $targetUrl = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Assert\Length(max=255)
-     *
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Groups(['target:write'])]
     private ?string $defaultDestination = null;
 
-    /**
-     * @ORM\Column(type="string", length=2000, nullable=true)
-     *
-     * @Assert\Length(max=2000)
-     *
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: 'string', length: 2000, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['target:write'])]
     private ?string $targetAccessToken = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
-     * @Assert\Length(max=100)
-     *
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
+    #[Groups(['target:write'])]
     private ?string $targetTokenType = null;
 
     /**
      * Null value allows everyone.
      *
-     * @ORM\Column(type="json", nullable=true)
      *
-     * @Groups({"target:write"})
      */
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['target:write'])]
     private ?array $allowedGroups = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     *
-     * @Groups({"target:index"})
-     */
-    private \DateTimeInterface $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['target:index'])]
+    private readonly \DateTimeInterface $createdAt;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\TargetParams", mappedBy="target")
-     */
+    #[ORM\OneToOne(targetEntity: \App\Entity\TargetParams::class, mappedBy: 'target')]
     private ?TargetParams $targetParams = null;
 
     /**
@@ -210,9 +180,9 @@ class Target
         $this->defaultDestination = $defaultDestination;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName() ?? $this->getId();
+        return (string) ($this->getName() ?? $this->getId());
     }
 
     public function getTargetTokenType(): ?string
