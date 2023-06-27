@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject):bool
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Attribute;
     }
@@ -18,7 +18,7 @@ class AttributeVoter extends AbstractVoter
     /**
      * @param Attribute $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())

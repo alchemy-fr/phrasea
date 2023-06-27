@@ -22,7 +22,7 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
     /**
      * @var array|string
      */
-    public $coordinates = null;
+    public $coordinates;
 
     /**
      * "valid" | "review_pending" | "declined".

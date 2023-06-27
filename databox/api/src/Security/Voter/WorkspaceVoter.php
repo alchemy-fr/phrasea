@@ -13,7 +13,7 @@ class WorkspaceVoter extends AbstractVoter
 {
     private array $cache = [];
 
-    protected function supports(string $attribute, $subject):bool
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Workspace;
     }
@@ -21,7 +21,7 @@ class WorkspaceVoter extends AbstractVoter
     /**
      * @param Workspace $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
         if (isset($this->cache[$key])) {

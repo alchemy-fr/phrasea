@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class TagFilterRuleVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject):bool
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof TagFilterRule;
     }
@@ -18,7 +18,7 @@ class TagFilterRuleVoter extends AbstractVoter
     /**
      * @param TagFilterRule $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $objectClass = TagFilterRule::OBJECT_CLASSES[$subject->getObjectType()];
         $object = $this->em->getRepository($objectClass)->find($subject->getObjectId());

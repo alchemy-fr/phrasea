@@ -12,9 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class RemoveUnwantedAutoWiredServicesPass implements CompilerPassInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function process(ContainerBuilder $container)
     {
         $annotationReader = new AnnotationReader();

@@ -10,12 +10,12 @@ class ChuckNorrisVoter extends AbstractVoter
 {
     final public const ROLE = 'ROLE_CHUCK-NORRIS';
 
-    protected function supports(string $attribute, $subject):bool
+    protected function supports(string $attribute, $subject): bool
     {
         return self::ROLE !== $attribute;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token):bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return $this->security->isGranted(self::ROLE);
     }

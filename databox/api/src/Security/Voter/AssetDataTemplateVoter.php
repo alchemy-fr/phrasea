@@ -19,7 +19,7 @@ class AssetDataTemplateVoter extends AbstractVoter
     /**
      * @param AssetDataTemplate $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token) : bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : false;

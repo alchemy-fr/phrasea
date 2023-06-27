@@ -29,8 +29,6 @@ interface AttributeTypeInterface
 
     /**
      * De-normalize value from database to PHP.
-     *
-     * @return mixed
      */
     public function denormalizeValue(?string $value);
 
@@ -46,8 +44,6 @@ interface AttributeTypeInterface
 
     /**
      * Normalize value from database to ES index.
-     *
-     * @return mixed
      */
     public function normalizeElasticsearchValue(?string $value);
 

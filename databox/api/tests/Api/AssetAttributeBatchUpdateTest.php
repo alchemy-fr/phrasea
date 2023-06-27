@@ -128,8 +128,8 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $replacedAll['Description'] = $repl($replacedAll['Description']);
         $replacedAll['Keywords'] = array_map($repl, $replacedAll['Keywords']);
 
-//        $regexDesc = self::$defaultAttributes;
-//        $regexDesc['Description'] = 'This is a de!scription te!st.';
+        //        $regexDesc = self::$defaultAttributes;
+        //        $regexDesc['Description'] = 'This is a de!scription te!st.';
 
         return [
             [

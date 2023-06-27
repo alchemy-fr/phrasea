@@ -20,9 +20,6 @@ class SplitAttributesCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -35,9 +32,6 @@ class SplitAttributesCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $attrDefId = $input->getArgument('attribute-definition-id');

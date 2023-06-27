@@ -16,7 +16,7 @@ class AssetVoter extends AbstractVoter
     final public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const SHARE = 'SHARE';
 
-    protected function supports(string $attribute, $subject) : bool
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Asset;
     }

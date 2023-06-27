@@ -30,7 +30,7 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var Workspace
      */
-    public $workspace = null;
+    public $workspace;
 
     public ?Collection $collection = null;
 
@@ -46,19 +46,19 @@ class AssetInput extends AbstractOwnerIdInput
      *
      * @Assert\Valid()
      */
-    public $sourceFile = null;
+    public $sourceFile;
 
     /**
      * @var string|null
      */
-    public $sourceFileId = null;
+    public $sourceFileId;
 
     /**
      * @var AssetRelationshipInput|null
      *
      * @Assert\Valid()
      */
-    public $relationship = null;
+    public $relationship;
 
     /**
      * @var RenditionInput[]

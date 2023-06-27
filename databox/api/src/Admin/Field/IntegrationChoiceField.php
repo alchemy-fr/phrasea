@@ -13,7 +13,7 @@ class IntegrationChoiceField
     {
     }
 
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         $choices = [];
         foreach ($this->integrationRegistry->getIntegrations() as $type) {

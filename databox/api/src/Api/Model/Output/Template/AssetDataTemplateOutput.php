@@ -87,7 +87,7 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     /**
      * @Groups({"asset-data-template:index"})
      */
-    public $collection = null;
+    public $collection;
 
     /**
      * @Groups({"asset-data-template:index"})

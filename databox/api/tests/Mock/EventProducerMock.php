@@ -22,7 +22,7 @@ class EventProducerMock extends EventProducer
         EventMessage $message,
         string $deprecatedRoutingKey = null,
         array $deprecatedProperties = [],
-        ?array $deprecatedHeaders = null
+        array $deprecatedHeaders = null
     ): void {
         $this->events[] = $message;
 

@@ -11,7 +11,7 @@ class AttributeClassInput
     /**
      * @var Workspace
      */
-    public $workspace = null;
+    public $workspace;
 
     /**
      * Target definition by name. Or use $definition.

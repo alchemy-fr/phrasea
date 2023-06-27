@@ -21,9 +21,6 @@ class TriggerAssetIngestWorkflowCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -34,9 +31,6 @@ class TriggerAssetIngestWorkflowCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $assetId = $input->getArgument('assetId');

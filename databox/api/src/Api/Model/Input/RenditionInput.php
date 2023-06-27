@@ -11,7 +11,7 @@ class RenditionInput
      *
      * @var string|null
      */
-    public $definitionId = null;
+    public $definitionId;
 
     public ?string $assetId = null;
 
@@ -20,7 +20,7 @@ class RenditionInput
      *
      * @var string|null
      */
-    public $name = null;
+    public $name;
 
     /**
      * @var AssetSourceInput|null

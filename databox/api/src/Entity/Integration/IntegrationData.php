@@ -51,7 +51,7 @@ class IntegrationData extends AbstractUuidEntity
      *
      * @Groups({"integrationdata:index"})
      */
-    private $value = null;
+    private $value;
 
     public function getIntegration(): ?WorkspaceIntegration
     {

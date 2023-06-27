@@ -30,12 +30,12 @@ class AssetDataTemplateInput extends AbstractOwnerIdInput
      *
      * @Assert\NotNull()
      */
-    public $workspace = null;
+    public $workspace;
 
     /**
      * @var Collection
      */
-    public $collection = null;
+    public $collection;
 
     public bool $includeCollectionChildren = false;
 

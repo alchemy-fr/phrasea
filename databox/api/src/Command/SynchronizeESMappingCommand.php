@@ -19,9 +19,6 @@ class SynchronizeESMappingCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -33,9 +30,6 @@ class SynchronizeESMappingCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $workspaceId = $input->getArgument('workspace');

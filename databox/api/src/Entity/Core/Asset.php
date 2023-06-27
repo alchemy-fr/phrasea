@@ -139,7 +139,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     /**
      * @param float $now got from microtime(true)
      */
-    public function __construct(?float $now = null, ?int $sequence = null)
+    public function __construct(float $now = null, int $sequence = null)
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
@@ -150,7 +150,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         /* @var $now float */
         $now ??= microtime(true);
         $createdAt = new \DateTimeImmutable();
-        $this->createdAt = ($createdAt)->setTimestamp((int) floor($now));
+        $this->createdAt = $createdAt->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;
         $this->microseconds = ($now * 1_000_000) % 1_000_000;
 

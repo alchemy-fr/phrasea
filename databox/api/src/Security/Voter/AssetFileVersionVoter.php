@@ -17,7 +17,7 @@ class AssetFileVersionVoter extends AbstractVoter
     /**
      * @param AssetFileVersion $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token) : bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(AssetVoter::READ, $subject->getAsset()),

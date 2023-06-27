@@ -33,7 +33,7 @@ class AclListener implements EventSubscriberInterface
         $this->reIndexAsset($event->getObjectType(), $event->getObjectId());
     }
 
-    private function reIndexAsset(string $objectType, ?string $objectId = null): void
+    private function reIndexAsset(string $objectType, string $objectId = null): void
     {
         $objectClass = $this->objectMapping->getClassName($objectType);
 

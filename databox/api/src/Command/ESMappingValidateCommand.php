@@ -17,9 +17,6 @@ class ESMappingValidateCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -29,9 +26,6 @@ class ESMappingValidateCommand extends Command
             ->setDescription('Check whether Elasticsearch documents should be re-indexed');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $returnCode = 0;

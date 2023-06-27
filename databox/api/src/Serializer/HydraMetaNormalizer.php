@@ -14,9 +14,6 @@ class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 {
     use NormalizerAwareTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof ApiMetaWrapperOutput;
