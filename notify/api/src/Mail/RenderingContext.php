@@ -9,16 +9,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RenderingContext
 {
-    private TranslatorInterface $translator;
-
-    private UrlGeneratorInterface $router;
-
-    public function __construct(
-        TranslatorInterface $translator,
-        UrlGeneratorInterface $router
-    ) {
-        $this->translator = $translator;
-        $this->router = $router;
+    public function __construct(private readonly TranslatorInterface $translator, private readonly UrlGeneratorInterface $router)
+    {
     }
 
     public function getLocale(): string

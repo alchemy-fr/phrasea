@@ -8,55 +8,44 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity
- */
-class Contact
+#[ORM\Entity]
+class Contact implements \Stringable
 {
     /**
      * @var string
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=128, unique=true, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 128, unique: true, nullable: true)]
     protected $userId;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $email;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=20, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     protected $phone;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=5, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
     protected $locale;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
     public function __construct()
     {
@@ -114,7 +103,7 @@ class Contact
         return $this->createdAt;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('%s %s', $this->getEmail(), $this->getUserId());
     }

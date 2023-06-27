@@ -9,13 +9,10 @@ use Symfony\Component\Mailer\Exception\TransportException;
 
 class SendEmailHandler extends AbstractRetryableHandler
 {
-    public const EVENT = 'send_email';
+    final public const EVENT = 'send_email';
 
-    private Mailer $mailer;
-
-    public function __construct(Mailer $mailer)
+    public function __construct(private readonly Mailer $mailer)
     {
-        $this->mailer = $mailer;
     }
 
     protected function doHandle(array $payload): void

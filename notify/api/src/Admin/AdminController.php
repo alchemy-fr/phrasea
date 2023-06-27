@@ -15,18 +15,8 @@ class AdminController extends EasyAdminController
 {
     use AdminReplayControllerTrait;
 
-    private TopicManager $topicManager;
-    private EventProducer $eventProducer;
-    private FailedEventManager $failedEventManager;
-
-    public function __construct(
-        TopicManager $topicManager,
-        EventProducer $eventProducer,
-        FailedEventManager $failedEventManager
-    ) {
-        $this->topicManager = $topicManager;
-        $this->eventProducer = $eventProducer;
-        $this->failedEventManager = $failedEventManager;
+    public function __construct(private readonly TopicManager $topicManager, private readonly EventProducer $eventProducer, private readonly FailedEventManager $failedEventManager)
+    {
     }
 
     protected function getFailedEventManager(): FailedEventManager

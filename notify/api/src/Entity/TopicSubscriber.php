@@ -8,43 +8,35 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="contact_topic_unique",columns={"topic", "contact_id"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'contact_topic_unique', columns: ['topic', 'contact_id'])]
+#[ORM\Entity]
 class TopicSubscriber
 {
     /**
      * @var string
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=100, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
     protected $topic;
 
     /**
      * @var Contact
-     *
-     * @ORM\ManyToOne(targetEntity="Contact")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
+    #[ORM\ManyToOne(targetEntity: 'Contact')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     protected $contact;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
     public function __construct()
     {

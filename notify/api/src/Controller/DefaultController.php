@@ -8,15 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(name="app_")
- */
+#[Route(name: 'app_')]
 class DefaultController extends AbstractController
 {
-    /**
-     * @Route(path="/", name="index")
-     */
-    public function indexAction()
+    #[Route(path: '/', name: 'index')]
+    public function indexAction(): never
     {
         throw new NotFoundHttpException();
     }

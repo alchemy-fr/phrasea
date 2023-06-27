@@ -17,21 +17,8 @@ class Mailer implements LoggerAwareInterface
 {
     use LoggableTrait;
 
-    private MailerInterface $mailer;
-    private string $from;
-    private Environment $templating;
-    private RenderingContext $renderingContext;
-
-    public function __construct(
-        Environment $templating,
-        MailerInterface $mailer,
-        RenderingContext $renderingContext,
-        string $from
-    ) {
-        $this->mailer = $mailer;
-        $this->from = $from;
-        $this->templating = $templating;
-        $this->renderingContext = $renderingContext;
+    public function __construct(private readonly Environment $templating, private readonly MailerInterface $mailer, private readonly RenderingContext $renderingContext, private readonly string $from)
+    {
     }
 
     public function send(string $to, string $template, array $parameters, string $locale = null): void
@@ -68,7 +55,7 @@ class Mailer implements LoggerAwareInterface
         try {
             $this->renderSubject($template, $parameters);
             $this->renderView($template, $parameters);
-        } catch (LoaderError $e) {
+        } catch (LoaderError) {
             throw new BadRequestHttpException(sprintf('Undefined template "%s"', $template));
         } catch (RuntimeError $e) {
             if (1 === preg_match('#^Variable "([^"]+)" does not exist.$#', $e->getMessage(), $regs)) {

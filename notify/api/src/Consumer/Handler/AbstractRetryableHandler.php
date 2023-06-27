@@ -12,12 +12,10 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 {
     protected static int $retryCount = 2;
 
-    public const RETRY_KEY = '_retry';
+    final public const RETRY_KEY = '_retry';
     protected EventProducer $eventProducer;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;
@@ -38,8 +36,8 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
                     $this->logger->error(sprintf(
                         'Retrying event: %s (%s): %s: %s',
                         $message->getType(),
-                        json_encode($payload),
-                        get_class($e),
+                        json_encode($payload, JSON_THROW_ON_ERROR),
+                        $e::class,
                         $e->getMessage()
                     ));
 
@@ -49,7 +47,7 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
                             self::RETRY_KEY => [
                                 'count' => $retryCount,
                                 'exception' => [
-                                    'class' => get_class($e),
+                                    'class' => $e::class,
                                     'message' => $e->getMessage(),
                                 ],
                             ],

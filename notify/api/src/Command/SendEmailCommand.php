@@ -14,13 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SendEmailCommand extends Command
 {
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
         parent::__construct();
-
-        $this->eventProducer = $eventProducer;
     }
 
     protected function configure()
@@ -44,7 +40,7 @@ class SendEmailCommand extends Command
         $locale = $input->getArgument('locale');
 
         if ($input->getArgument('parameters')) {
-            $parameters = json_decode($input->getArgument('parameters'), true);
+            $parameters = json_decode((string) $input->getArgument('parameters'), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $parameters = [];
         }

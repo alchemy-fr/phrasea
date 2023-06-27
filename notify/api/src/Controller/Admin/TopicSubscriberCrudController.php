@@ -17,11 +17,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class TopicSubscriberCrudController extends AbstractAdminCrudController
 {
-    private TopicManager $topicManager;
-
-    public function __construct(TopicManager $topicManager)
+    public function __construct(private readonly TopicManager $topicManager)
     {
-        $this->topicManager = $topicManager;
     }
 
     public static function getEntityFqcn(): string

@@ -10,16 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteUserHandler extends AbstractLogHandler
 {
-    public const EVENT = 'delete_user';
+    final public const EVENT = 'delete_user';
 
-    /**
-     * @var ContactManager
-     */
-    private $contactManager;
-
-    public function __construct(ContactManager $contactManager)
+    public function __construct(private readonly ContactManager $contactManager)
     {
-        $this->contactManager = $contactManager;
     }
 
     public function handle(EventMessage $message): void

@@ -10,16 +10,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class RegisterUserHandler extends AbstractLogHandler
 {
-    public const EVENT = 'register_user';
+    final public const EVENT = 'register_user';
 
-    /**
-     * @var ContactManager
-     */
-    private $contactManager;
-
-    public function __construct(ContactManager $contactManager)
+    public function __construct(private readonly ContactManager $contactManager)
     {
-        $this->contactManager = $contactManager;
     }
 
     public function handle(EventMessage $message): void
