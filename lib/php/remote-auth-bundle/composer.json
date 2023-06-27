@@ -17,6 +17,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "rector": "vendor/bin/rector",
     "cs": "vendor/bin/php-cs-fixer fix",
     "test": "echo 'This project has no test...'"
   },
