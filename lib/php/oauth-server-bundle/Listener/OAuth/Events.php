@@ -6,5 +6,5 @@ namespace Alchemy\OAuthServerBundle\Listener\OAuth;
 
 abstract class Events
 {
-    public const ON_ACCESS_TOKEN_DELIVERED = 'app.on_access_token_delivered';
+    final public const ON_ACCESS_TOKEN_DELIVERED = 'app.on_access_token_delivered';
 }

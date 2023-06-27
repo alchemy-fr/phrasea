@@ -11,13 +11,10 @@ use Alchemy\Workflow\State\WorkflowState;
 
 class TestStateStateRepository implements LockAwareStateRepositoryInterface
 {
-    private StateRepositoryInterface $inner;
-
     private array $logs = [];
 
-    public function __construct(StateRepositoryInterface $inner)
+    public function __construct(private readonly StateRepositoryInterface $inner)
     {
-        $this->inner = $inner;
     }
 
     public function getWorkflowState(string $id): WorkflowState

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Date;
 
-readonly class MicroDateTime
+readonly class MicroDateTime implements \Stringable
 {
     private \DateTimeImmutable $dateTime;
     private int $microseconds;
@@ -13,12 +13,12 @@ readonly class MicroDateTime
     {
         if (null === $microseconds) {
             [$microTime, $ts] = explode(' ', microtime());
-            $this->microseconds = (int) ($microTime * 1000000);
+            $this->microseconds = (int) ($microTime * 1_000_000);
         } else {
             $this->microseconds = $microseconds;
         }
 
-        if ($this->microseconds >= 1000000) {
+        if ($this->microseconds >= 1_000_000) {
             throw new \InvalidArgumentException(sprintf('Microseconds are greater than 999 999 (%s given)', $microseconds));
         }
 
@@ -36,7 +36,7 @@ readonly class MicroDateTime
 
     public function getDiff(self $microDateTime): float
     {
-        $factor = 1000000;
+        $factor = 1_000_000;
         $t1 = $this->dateTime->getTimestamp() * $factor + $this->microseconds;
         $t2 = $microDateTime->dateTime->getTimestamp() * $factor + $microDateTime->getMicroseconds();
 

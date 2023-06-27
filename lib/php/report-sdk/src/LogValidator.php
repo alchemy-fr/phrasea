@@ -11,15 +11,9 @@ use Opis\JsonSchema\Validator;
 
 class LogValidator
 {
-    /**
-     * @var Schema
-     */
-    private $schema;
+    private readonly \Opis\JsonSchema\Schema $schema;
 
-    /**
-     * @var Validator
-     */
-    private $validator;
+    private readonly \Opis\JsonSchema\Validator $validator;
 
     public function __construct(string $schema = null)
     {

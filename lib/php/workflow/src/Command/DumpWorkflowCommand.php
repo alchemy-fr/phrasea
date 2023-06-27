@@ -15,16 +15,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DumpWorkflowCommand extends Command
 {
-    private StateRepositoryInterface $stateRepository;
-    private WorkflowRepositoryInterface $workflowRepository;
-
     public function __construct(
-        StateRepositoryInterface $stateRepository,
-        WorkflowRepositoryInterface $workflowRepository
+        private readonly StateRepositoryInterface $stateRepository,
+        private readonly WorkflowRepositoryInterface $workflowRepository
     ) {
         parent::__construct();
-        $this->stateRepository = $stateRepository;
-        $this->workflowRepository = $workflowRepository;
     }
 
     protected function configure()
@@ -36,6 +31,7 @@ class DumpWorkflowCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $name = null;
         $workflowState = $this->stateRepository->getWorkflowState($input->getArgument('id'));
 
         $event = $workflowState->getEvent();

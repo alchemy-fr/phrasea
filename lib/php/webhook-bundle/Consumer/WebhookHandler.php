@@ -12,11 +12,8 @@ class WebhookHandler extends AbstractEntityManagerHandler
 {
     private const EVENT = 'webhook';
 
-    private WebhookTrigger $webhookTrigger;
-
-    public function __construct(WebhookTrigger $webhookTrigger)
+    public function __construct(private readonly WebhookTrigger $webhookTrigger)
     {
-        $this->webhookTrigger = $webhookTrigger;
     }
 
     public function handle(EventMessage $message): void

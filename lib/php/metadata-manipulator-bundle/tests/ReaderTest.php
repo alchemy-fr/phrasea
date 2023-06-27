@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class ReaderTest extends TestCase
 {
-    public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+    final public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
 
     private ?MetadataManipulator $service = null;
 

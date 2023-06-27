@@ -10,11 +10,8 @@ use GuzzleHttp\Exception\ClientException;
 
 class AuthServiceClient
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function getTokenInfo(string $accessToken): array

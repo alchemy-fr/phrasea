@@ -14,7 +14,7 @@ class MetadataManipulatorTest extends TestCase
     /**
      * @covers \MetadataManipulator::getKnownTagGroups
      */
-    public function testGetKnownTagGroups(): void
+    public function testGetKnownTagGroups(): never
     {
         $this->markTestIncomplete('TODO: re-implement getKnownTagGroups()');
         // self::assertIsArray($this->service->getKnownTagGroups());
@@ -26,7 +26,7 @@ class MetadataManipulatorTest extends TestCase
     public function testGroupName(): void
     {
         $o = $this->service->createTagGroup('IFD0:Artist');
-        $this->assertEquals("PHPExiftool\Driver\TagGroup\IFD0\Artist", get_class($o));
+        $this->assertEquals(\PHPExiftool\Driver\TagGroup\IFD0\Artist::class, $o::class);
     }
 
     /**

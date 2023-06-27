@@ -16,14 +16,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CreateClientCommand extends Command
 {
-    private ClientManagerInterface $clientManager;
-    private ValidatorInterface $validator;
+    private readonly ValidatorInterface $validator;
 
-    public function __construct(ClientManagerInterface $clientManager, ValidatorInterface $validator)
+    public function __construct(private readonly ClientManagerInterface $clientManager, ValidatorInterface $validator)
     {
         parent::__construct();
-
-        $this->clientManager = $clientManager;
         $this->validator = $validator;
     }
 

@@ -15,9 +15,7 @@ trait AdminControllerTrait
 {
     private EventProducer $eventProducer;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;

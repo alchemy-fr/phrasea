@@ -12,23 +12,19 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractCachedFaker extends BaseProvider
 {
-    private FileStorageManager $fileStorageManager;
-    private PathGenerator $pathGenerator;
-    private LoggerInterface $logger;
-    private ?string $cacheDir;
+    private readonly FileStorageManager $fileStorageManager;
+    private readonly PathGenerator $pathGenerator;
 
     public function __construct(
-        string $fixturesCacheDir,
+        private readonly ?string $cacheDir,
         FileStorageManager $fileStorageManager,
         PathGenerator $pathGenerator,
         Generator $generator,
-        LoggerInterface $logger
+        private readonly LoggerInterface $logger
     ) {
         parent::__construct($generator);
-        $this->cacheDir = $fixturesCacheDir;
         $this->fileStorageManager = $fileStorageManager;
         $this->pathGenerator = $pathGenerator;
-        $this->logger = $logger;
     }
 
     protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string

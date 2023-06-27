@@ -12,14 +12,10 @@ use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 class ReportUserService
 {
-    private ReportClient $client;
-    private Security $security;
-    private bool $enabled;
+    private readonly bool $enabled;
 
-    public function __construct(ReportClient $client, Security $security, string $reportBaseUrl)
+    public function __construct(private readonly ReportClient $client, private readonly Security $security, string $reportBaseUrl)
     {
-        $this->client = $client;
-        $this->security = $security;
         $this->enabled = !empty($reportBaseUrl);
     }
 

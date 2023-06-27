@@ -15,7 +15,7 @@ use Gedmo\Tool\Wrapper\EntityWrapper;
 class EntitySerializer
 {
     private const MAX_COLLECTION_COUNT = 100;
-    private EntityManagerInterface $em;
+    private readonly EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -73,9 +73,7 @@ class EntitySerializer
                         return null;
                     }
 
-                    return $value->map(function (object $object) {
-                        return $this->getEntityIdentifier($object);
-                    })->toArray();
+                    return $value->map(fn(object $object) => $this->getEntityIdentifier($object))->toArray();
                 }
 
                 return null;
@@ -122,10 +120,7 @@ class EntitySerializer
 
             $target = $meta->getAssociationTargetClass($field);
             $targetMeta = $this->em->getClassMetadata($target);
-            $collection = new PersistentCollection($this->em, $targetMeta, new ArrayCollection(array_map(function ($id
-            ) use ($target): object {
-                return $this->em->getReference($target, $id);
-            }, $value)));
+            $collection = new PersistentCollection($this->em, $targetMeta, new ArrayCollection(array_map(fn($id): object => $this->em->getReference($target, $id), $value)));
             $collection->takeSnapshot();
 
             return $collection;

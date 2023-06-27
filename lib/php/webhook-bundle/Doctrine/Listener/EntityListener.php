@@ -18,15 +18,10 @@ use Doctrine\ORM\Events;
 
 class EntityListener implements EventSubscriber
 {
-    public const EVENT_CREATE = 'create';
-    public const EVENT_UPDATE = 'update';
-    public const EVENT_DELETE = 'delete';
-
-    private EntitySerializer $entitySerializer;
-    private EntityRegistry $entityRegistry;
+    final public const EVENT_CREATE = 'create';
+    final public const EVENT_UPDATE = 'update';
+    final public const EVENT_DELETE = 'delete';
     private array $changes = [];
-    private TerminateStackListener $terminateStackListener;
-    private WebhookTrigger $webhookTrigger;
     private static bool $enabled = true;
 
     public static function enable(): void
@@ -39,16 +34,8 @@ class EntityListener implements EventSubscriber
         self::$enabled = false;
     }
 
-    public function __construct(
-        EntitySerializer $entitySerializer,
-        EntityRegistry $entityRegistry,
-        TerminateStackListener $terminateStackListener,
-        WebhookTrigger $webhookTrigger
-    ) {
-        $this->entitySerializer = $entitySerializer;
-        $this->entityRegistry = $entityRegistry;
-        $this->terminateStackListener = $terminateStackListener;
-        $this->webhookTrigger = $webhookTrigger;
+    public function __construct(private readonly EntitySerializer $entitySerializer, private readonly EntityRegistry $entityRegistry, private readonly TerminateStackListener $terminateStackListener, private readonly WebhookTrigger $webhookTrigger)
+    {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
@@ -61,16 +48,16 @@ class EntityListener implements EventSubscriber
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
         foreach ($uow->getScheduledEntityInsertions() as $insertedEntity) {
-            $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($insertedEntity), self::EVENT_CREATE);
+            $configNode = $this->entityRegistry->getConfigNodeForEvent($insertedEntity::class, self::EVENT_CREATE);
             if (null !== $configNode) {
                 $this->addChange($configNode, $em, $insertedEntity);
             }
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $updatedEntity) {
-            $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($updatedEntity), self::EVENT_UPDATE);
+            $configNode = $this->entityRegistry->getConfigNodeForEvent($updatedEntity::class, self::EVENT_UPDATE);
             if (null !== $configNode) {
-                $entityChangeSet = $this->entitySerializer->convertChangeSetToDatabaseValue(get_class($updatedEntity), $uow->getEntityChangeSet($updatedEntity));
+                $entityChangeSet = $this->entitySerializer->convertChangeSetToDatabaseValue($updatedEntity::class, $uow->getEntityChangeSet($updatedEntity));
                 $this->addChange($configNode, $em, $updatedEntity, $entityChangeSet);
             }
         }
@@ -80,16 +67,12 @@ class EntityListener implements EventSubscriber
             $uow->getScheduledCollectionUpdates(),
             $uow->getScheduledCollectionDeletions()
         ) as $collectionUpdate) {
-            $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($collectionUpdate->getOwner()), self::EVENT_UPDATE);
+            $configNode = $this->entityRegistry->getConfigNodeForEvent($collectionUpdate->getOwner()::class, self::EVENT_UPDATE);
             if (null !== $configNode) {
                 $collectionMapping = $collectionUpdate->getMapping();
                 $field = $collectionMapping['fieldName'];
 
-                $mapIds = function (array $collection): array {
-                    return array_map(function (object $o) {
-                        return $o->getId();
-                    }, $collection);
-                };
+                $mapIds = fn(array $collection): array => array_map(fn(object $o) => $o->getId(), $collection);
 
                 $old = $collectionUpdate->getSnapshot();
                 $new = $collectionUpdate->unwrap()->toArray();
@@ -104,7 +87,7 @@ class EntityListener implements EventSubscriber
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $deletedEntity) {
-            $configNode = $this->entityRegistry->getConfigNodeForEvent(get_class($deletedEntity), self::EVENT_DELETE);
+            $configNode = $this->entityRegistry->getConfigNodeForEvent($deletedEntity::class, self::EVENT_DELETE);
             if (null !== $configNode) {
                 $this->addChange($configNode, $em, $deletedEntity);
             }
@@ -115,7 +98,7 @@ class EntityListener implements EventSubscriber
 
     private function snapshotEntityData(EntityManagerInterface $em, object $entity): array
     {
-        $class = get_class($entity);
+        $class = $entity::class;
         $data = $em->getUnitOfWork()->getOriginalEntityData($entity);
 
         return $this->entitySerializer->convertToDatabaseValue($class, $data);

@@ -42,7 +42,7 @@ class ReportClientTest extends TestCase
 
         $this->expectException(InvalidLogException::class);
 
-        call_user_func_array([$reportClient, 'pushLog'], $args);
+        call_user_func_array($reportClient->pushLog(...), $args);
     }
 
     public function pushLogErrorData(): array

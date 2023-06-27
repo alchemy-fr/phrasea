@@ -12,19 +12,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AccessTokenListener
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->eventDispatcher = $eventDispatcher;
     }
 
-    /**
-     * @ORM\PostPersist()
-     */
+    #[ORM\PostPersist]
     public function postPersist(AccessToken $accessToken)
     {
         $user = $accessToken->getUser();

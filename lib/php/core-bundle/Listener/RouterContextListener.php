@@ -10,13 +10,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 class RouterContextListener implements EventSubscriberInterface
 {
-    private RouterInterface $router;
-    private string $baseUrl;
-
-    public function __construct(RouterInterface $router, string $baseUrl)
+    public function __construct(private readonly RouterInterface $router, private readonly string $baseUrl)
     {
-        $this->router = $router;
-        $this->baseUrl = $baseUrl;
     }
 
     public function setContext()

@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/permissions", name="permissions_")
- */
+#[Route(path: '/permissions', name: 'permissions_')]
 class PermissionsController extends AbstractController
 {
     public function __construct(
@@ -23,9 +21,7 @@ class PermissionsController extends AbstractController
     ) {
     }
 
-    /**
-     * @Route("/users", methods={"GET"}, name="users")
-     */
+    #[Route(path: '/users', methods: ['GET'], name: 'users')]
     public function getUsers(Request $request): Response
     {
         $this->validateAuthorization();
@@ -35,9 +31,7 @@ class PermissionsController extends AbstractController
         return new JsonResponse($this->userRepository->getUsers($limit, $offset));
     }
 
-    /**
-     * @Route("/groups", methods={"GET"}, name="groups")
-     */
+    #[Route(path: '/groups', methods: ['GET'], name: 'groups')]
     public function getGroups(Request $request): Response
     {
         $this->validateAuthorization();

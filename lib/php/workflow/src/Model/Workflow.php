@@ -6,15 +6,12 @@ namespace Alchemy\Workflow\Model;
 
 final class Workflow
 {
-    private string $name;
+    private readonly EnvVars $env;
+    private readonly JobList $jobs;
+    private readonly OnEventList $on;
 
-    private EnvVars $env;
-    private JobList $jobs;
-    private OnEventList $on;
-
-    public function __construct(string $name)
+    public function __construct(private string $name)
     {
-        $this->name = $name;
         $this->env = new EnvVars();
         $this->jobs = new JobList();
         $this->on = new OnEventList();

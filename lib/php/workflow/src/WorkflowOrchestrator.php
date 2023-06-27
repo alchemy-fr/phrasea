@@ -20,21 +20,8 @@ use Alchemy\Workflow\Validator\EventValidatorInterface;
 
 class WorkflowOrchestrator
 {
-    private WorkflowRepositoryInterface $workflowRepository;
-    private StateRepositoryInterface $stateRepository;
-    private JobTriggerInterface $trigger;
-    private EventValidatorInterface $eventValidator;
-
-    public function __construct(
-        WorkflowRepositoryInterface $workflowRepository,
-        StateRepositoryInterface $stateRepository,
-        JobTriggerInterface $trigger,
-        EventValidatorInterface $eventValidator,
-    ) {
-        $this->workflowRepository = $workflowRepository;
-        $this->stateRepository = $stateRepository;
-        $this->trigger = $trigger;
-        $this->eventValidator = $eventValidator;
+    public function __construct(private readonly WorkflowRepositoryInterface $workflowRepository, private readonly StateRepositoryInterface $stateRepository, private readonly JobTriggerInterface $trigger, private readonly EventValidatorInterface $eventValidator)
+    {
     }
 
     /**

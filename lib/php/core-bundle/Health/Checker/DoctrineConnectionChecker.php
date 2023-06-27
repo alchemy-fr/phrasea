@@ -9,13 +9,11 @@ use Doctrine\Persistence\ConnectionRegistry;
 
 class DoctrineConnectionChecker implements HealthCheckerInterface
 {
-    private ConnectionRegistry $connectionRegistry;
-    private ?string $connectionName;
+    private readonly ConnectionRegistry $connectionRegistry;
 
-    public function __construct(ConnectionRegistry $connectionRegistry, string $connectionName = null)
+    public function __construct(ConnectionRegistry $connectionRegistry, private readonly ?string $connectionName = null)
     {
         $this->connectionRegistry = $connectionRegistry;
-        $this->connectionName = $connectionName;
     }
 
     public function getName(): string

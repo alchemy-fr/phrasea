@@ -11,14 +11,10 @@ use Alchemy\Workflow\Model\WorkflowList;
 
 class FileWorkflowRepository implements WorkflowRepositoryInterface
 {
-    private array $dirs;
-    private FileLoaderInterface $loader;
     private ?WorkflowList $workflows = null;
 
-    public function __construct(array $dirs, FileLoaderInterface $loader)
+    public function __construct(private readonly array $dirs, private readonly FileLoaderInterface $loader)
     {
-        $this->dirs = $dirs;
-        $this->loader = $loader;
     }
 
     private function doLoad(): void

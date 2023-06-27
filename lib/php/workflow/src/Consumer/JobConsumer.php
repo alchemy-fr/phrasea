@@ -11,17 +11,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface;
 
 class JobConsumer implements EventMessageHandlerInterface
 {
-    public const EVENT = 'alchemy_workflow_job_run';
+    final public const EVENT = 'alchemy_workflow_job_run';
 
-    private PlanExecutor $planExecutor;
-    private WorkflowOrchestrator $orchestrator;
-
-    public function __construct(
-        PlanExecutor $planExecutor,
-        WorkflowOrchestrator $orchestrator
-    ) {
-        $this->planExecutor = $planExecutor;
-        $this->orchestrator = $orchestrator;
+    public function __construct(private readonly PlanExecutor $planExecutor, private readonly WorkflowOrchestrator $orchestrator)
+    {
     }
 
     public function handle(EventMessage $message): void

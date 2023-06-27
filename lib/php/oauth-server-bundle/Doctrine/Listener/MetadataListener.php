@@ -13,14 +13,8 @@ use Doctrine\ORM\Events;
 
 class MetadataListener implements EventSubscriber
 {
-    /**
-     * @var string
-     */
-    private $userClass;
-
-    public function __construct(string $userClass)
+    public function __construct(private readonly string $userClass)
     {
-        $this->userClass = $userClass;
     }
 
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void

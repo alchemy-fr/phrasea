@@ -31,16 +31,7 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                 ];
 
                 if ($jobState instanceof JobState) {
-                    $job = array_merge($job, [
-                        'id' => $jobState->getJobId(),
-                        'status' => $jobState->getStatus(),
-                        'inputs' => $jobState->getInputs(),
-                        'outputs' => $jobState->getOutputs(),
-                        'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
-                        'startedAt' => $jobState->getStartedAt()?->formatAtom(),
-                        'endedAt' => $jobState->getEndedAt()?->formatAtom(),
-                        'duration' => StateUtil::getFormattedDuration($jobState->getDuration()),
-                    ]);
+                    $job = [...$job, 'id' => $jobState->getJobId(), 'status' => $jobState->getStatus(), 'inputs' => $jobState->getInputs(), 'outputs' => $jobState->getOutputs(), 'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(), 'startedAt' => $jobState->getStartedAt()?->formatAtom(), 'endedAt' => $jobState->getEndedAt()?->formatAtom(), 'duration' => StateUtil::getFormattedDuration($jobState->getDuration())];
 
                     if (!empty($jobState->getErrors())) {
                         $job['errors'] = $jobState->getErrors();
@@ -76,6 +67,6 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             ];
         }
 
-        $output->write(json_encode($out));
+        $output->write(json_encode($out, JSON_THROW_ON_ERROR));
     }
 }

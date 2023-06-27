@@ -11,8 +11,8 @@ use PHPUnit\Framework\TestCase;
 
 class WriterTest extends TestCase
 {
-    public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
-    public const TEST_IMAGE_WRITABLE_FILE = __DIR__.'/fixtures/image_w.jpg';
+    final public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+    final public const TEST_IMAGE_WRITABLE_FILE = __DIR__.'/fixtures/image_w.jpg';
 
     private ?MetadataManipulator $service = null;
 

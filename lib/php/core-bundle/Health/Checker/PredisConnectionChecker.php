@@ -9,7 +9,7 @@ use Predis\Client;
 
 class PredisConnectionChecker implements HealthCheckerInterface
 {
-    private Client $client;
+    private readonly Client $client;
 
     public function __construct(Client $client)
     {

@@ -19,17 +19,8 @@ if (interface_exists(AclUserInterface::class)) {
 
 class RemoteUser implements UserInterface, RemoteUserInterface
 {
-    private string $username;
-    private string $id;
-    private array $roles;
-    private array $groups;
-
-    public function __construct(string $id, string $username, array $roles = [], array $groups = [])
+    public function __construct(private readonly string $id, private readonly string $username, private readonly array $roles = [], private readonly array $groups = [])
     {
-        $this->username = $username;
-        $this->id = $id;
-        $this->roles = $roles;
-        $this->groups = $groups;
     }
 
     public function getId(): string

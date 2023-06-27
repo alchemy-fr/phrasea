@@ -6,20 +6,15 @@ namespace Alchemy\Workflow\Model;
 
 class Step
 {
-    private string $id;
-    private ?string $name;
-
-    private EnvVars $env;
+    private readonly EnvVars $env;
     private string $executor = 'bash';
     private ?string $run = null;
     private ?string $uses = null;
     private array $with = [];
     private bool $continueOnError = false;
 
-    public function __construct(string $id, ?string $name)
+    public function __construct(private readonly string $id, private readonly ?string $name)
     {
-        $this->id = $id;
-        $this->name = $name;
         $this->env = new EnvVars();
     }
 

@@ -8,17 +8,14 @@ use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 class RemoteAuthToken extends AbstractToken
 {
-    public const TOKEN_PREFIX = '!';
+    final public const TOKEN_PREFIX = '!';
 
     /**
      * @var string
      */
     protected $accessToken;
 
-    /**
-     * @var array
-     */
-    private $scopes = [];
+    private array $scopes = [];
 
     public function __construct(string $accessToken, array $roles = [])
     {

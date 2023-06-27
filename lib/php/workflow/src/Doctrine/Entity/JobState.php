@@ -14,36 +14,24 @@ class JobState
 {
     protected string $id;
 
-    protected ?WorkflowState $workflow = null;
-
-    protected string $jobId;
-
     protected ?string $state = null;
 
     protected int $status;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=false)
-     */
+    #[ORM\Column(type: 'date_immutable', nullable: false)]
     protected \DateTimeImmutable $triggeredAt;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
     protected ?\DateTimeImmutable $startedAt = null;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
     protected ?\DateTimeImmutable $endedAt = null;
 
     protected ?ModelJobState $jobState = null;
 
-    public function __construct(WorkflowState $workflow, string $jobId)
+    public function __construct(protected ?WorkflowState $workflow, protected string $jobId)
     {
         $this->id = Uuid::uuid4()->toString();
-        $this->workflow = $workflow;
-        $this->jobId = $jobId;
     }
 
     public function getId(): string

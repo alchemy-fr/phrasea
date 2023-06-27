@@ -6,11 +6,8 @@ namespace Alchemy\OAuthServerBundle\Listener\OAuth;
 
 class OAuthEvent
 {
-    private $user;
-
-    public function __construct($user)
+    public function __construct(private $user)
     {
-        $this->user = $user;
     }
 
     public function getUser()

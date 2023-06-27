@@ -70,7 +70,7 @@ class AlchemyOAuthServerExtension extends Extension implements PrependExtensionI
             'service' => [
                 'user_provider' => 'App\User\UserManager',
                 'options' => [
-                    'access_token_lifetime' => 7776000,
+                    'access_token_lifetime' => 7_776_000,
                     'supported_scopes' => implode(' ', $config['scopes']),
                 ],
             ],

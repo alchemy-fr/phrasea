@@ -12,21 +12,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 class AdminClient
 {
     private const ACCESS_TOKEN_CACHE_KEY = 'admin_remote_auth_access_token';
-    protected AuthServiceClient $serviceClient;
-    private CacheInterface $cache;
-    private string $clientId;
-    private string $clientSecret;
 
-    public function __construct(
-        AuthServiceClient $serviceClient,
-        CacheInterface $accessTokenCache,
-        string $clientId,
-        string $clientSecret
-    ) {
-        $this->serviceClient = $serviceClient;
-        $this->cache = $accessTokenCache;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
+    public function __construct(protected AuthServiceClient $serviceClient, private readonly CacheInterface $cache, private readonly string $clientId, private readonly string $clientSecret)
+    {
     }
 
     private function getAccessToken(): string

@@ -12,14 +12,12 @@ use Psr\Log\NullLogger;
 class MetadataManipulator
 {
     private static ?array $knownTagGroups = null;  // cache
-    private PHPExiftool $phpExifTool;
-    private bool $debug;
-    private LoggerInterface $logger;
+    private readonly PHPExiftool $phpExifTool;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(string $classesDirectory, LoggerInterface $logger = null, bool $debug = false)
+    public function __construct(string $classesDirectory, LoggerInterface $logger = null, private readonly bool $debug = false)
     {
         $this->phpExifTool = new PHPExiftool($classesDirectory);
-        $this->debug = $debug;
         $this->logger = $logger ?? new NullLogger();
 
         if ($debug) {

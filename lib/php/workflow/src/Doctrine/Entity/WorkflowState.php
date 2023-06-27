@@ -13,8 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class WorkflowState
 {
-    protected string $id;
-
     protected ?string $state = null;
 
     protected string $name;
@@ -29,9 +27,8 @@ class WorkflowState
 
     protected ?\DateTimeImmutable $endedAt = null;
 
-    public function __construct(string $id)
+    public function __construct(protected string $id)
     {
-        $this->id = $id;
         $this->jobs = new ArrayCollection();
     }
 
@@ -71,7 +68,7 @@ class WorkflowState
     {
         try {
             return $this->getWorkflowState()->getDuration();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -80,7 +77,7 @@ class WorkflowState
     {
         try {
             return $this->getWorkflowState()->getEvent()?->getName();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -89,7 +86,7 @@ class WorkflowState
     {
         try {
             return $this->getWorkflowState()->getEvent()?->getInputs();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
@@ -98,7 +95,7 @@ class WorkflowState
     {
         try {
             return $this->getWorkflowState()->getContext()->getArrayCopy();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }

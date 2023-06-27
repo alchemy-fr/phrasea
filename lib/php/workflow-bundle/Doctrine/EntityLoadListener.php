@@ -10,19 +10,11 @@ use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 
-final class EntityLoadListener implements EventSubscriberInterface
+final readonly class EntityLoadListener implements EventSubscriberInterface
 {
-    private string $workflowStateEntity;
-    private string $jobStateEntity;
-
-    public function __construct(
-        string $workflowStateEntity,
-        string $jobStateEntity,
-    ) {
-        $this->workflowStateEntity = $workflowStateEntity;
-        $this->jobStateEntity = $jobStateEntity;
+    public function __construct(private string $workflowStateEntity, private string $jobStateEntity)
+    {
     }
-
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
     {
         $class = $args->getClassMetadata();
@@ -55,7 +47,6 @@ final class EntityLoadListener implements EventSubscriberInterface
             ]);
         }
     }
-
     public function getSubscribedEvents()
     {
         return [

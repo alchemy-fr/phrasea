@@ -11,31 +11,25 @@ use Ramsey\Uuid\Uuid;
 
 class WorkflowState
 {
-    public const STATUS_STARTED = 0;
-    public const STATUS_SUCCESS = 1;
-    public const STATUS_FAILURE = 2;
+    final public const STATUS_STARTED = 0;
+    final public const STATUS_SUCCESS = 1;
+    final public const STATUS_FAILURE = 2;
 
     private string $id;
     private Context $context;
-    private StateRepositoryInterface $stateRepository;
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
-    private ?WorkflowEvent $event;
-    private string $workflowName;
     private int $status = self::STATUS_STARTED;
 
     public function __construct(
-        StateRepositoryInterface $stateRepository,
-        string $workflowName,
-        ?WorkflowEvent $event,
+        private StateRepositoryInterface $stateRepository,
+        private string $workflowName,
+        private ?WorkflowEvent $event,
         string $id = null,
         array $context = []
     ) {
-        $this->stateRepository = $stateRepository;
         $this->id = $id ?? Uuid::uuid4()->toString();
         $this->startedAt = new MicroDateTime();
-        $this->event = $event;
-        $this->workflowName = $workflowName;
         $this->context = new Context($context);
     }
 

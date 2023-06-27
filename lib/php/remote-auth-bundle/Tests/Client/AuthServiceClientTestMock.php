@@ -11,13 +11,13 @@ use Psr\Http\Message\ResponseInterface;
 
 class AuthServiceClientTestMock extends Client
 {
-    public const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
-    public const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
+    final public const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
+    final public const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
 
-    public const USER_UID = '123';
-    public const ADMIN_UID = '4242';
+    final public const USER_UID = '123';
+    final public const ADMIN_UID = '4242';
 
-    public const USERS_ID = [
+    final public const USERS_ID = [
         self::USER_TOKEN => self::USER_UID,
         self::ADMIN_TOKEN => self::ADMIN_UID,
     ];
@@ -37,7 +37,7 @@ class AuthServiceClientTestMock extends Client
         }
 
         $accessToken = isset($options['headers']['Authorization'])
-            ? explode(' ', $options['headers']['Authorization'], 2)[1]
+            ? explode(' ', (string) $options['headers']['Authorization'], 2)[1]
         : null;
         if (empty($accessToken)) {
             return $this->createResponse(401, [
@@ -61,37 +61,32 @@ class AuthServiceClientTestMock extends Client
             $roles[] = 'ROLE_SUPER_ADMIN';
         }
 
-        switch ($uri) {
-            case '/me':
-                return $this->createResponse(200, [
-                    'user_id' => $userId,
+        return match ($uri) {
+            '/me' => $this->createResponse(200, [
+                'user_id' => $userId,
+                'username' => $accessToken,
+                'roles' => $roles,
+                'groups' => [],
+            ]),
+            '/token-info' => $this->createResponse(200, [
+                'scopes' => [],
+                'user' => [
+                    'id' => $userId,
                     'username' => $accessToken,
                     'roles' => $roles,
                     'groups' => [],
-                ]);
-            case '/token-info':
-                return $this->createResponse(200, [
-                    'scopes' => [],
-                    'user' => [
-                        'id' => $userId,
-                        'username' => $accessToken,
-                        'roles' => $roles,
-                        'groups' => [],
-                    ],
-                ]);
-            case '/users':
-            case '/groups':
-                return $this->createResponse(200, [
-                ]);
-            default:
-                throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $uri));
-        }
+                ],
+            ]),
+            '/users', '/groups' => $this->createResponse(200, [
+            ]),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $uri)),
+        };
     }
 
     private function createResponse(int $code, array $data): Response
     {
         return new Response($code, [
             'Content-Type' => 'application/json',
-        ], json_encode($data));
+        ], json_encode($data, JSON_THROW_ON_ERROR));
     }
 }

@@ -16,13 +16,10 @@ use GuzzleHttp\RequestOptions;
 class WebhookTriggerHandler extends AbstractEntityManagerHandler
 {
     private const EVENT = 'webhook_trigger';
-    public const TEST_EVENT = '_test';
+    final public const TEST_EVENT = '_test';
 
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function handle(EventMessage $message): void
@@ -35,7 +32,7 @@ class WebhookTriggerHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $webhook = $em->find(Webhook::class, $id);
         if (!$webhook instanceof Webhook) {
-            throw new ObjectNotFoundForHandlerException(Webhook::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(Webhook::class, $id, self::class);
         }
 
         if (!$webhook->isActive()) {

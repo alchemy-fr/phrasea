@@ -9,13 +9,8 @@ use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 
 abstract class AbstractRemoteAuthRepository
 {
-    protected AdminClient $adminClient;
-    protected AuthServiceClient $serviceClient;
-
-    public function __construct(AdminClient $adminClient, AuthServiceClient $serviceClient)
+    public function __construct(protected AdminClient $adminClient, protected AuthServiceClient $serviceClient)
     {
-        $this->adminClient = $adminClient;
-        $this->serviceClient = $serviceClient;
     }
 
     protected function executeWithAccessToken(callable $callback)

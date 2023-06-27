@@ -8,30 +8,22 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\OAuthServerBundle\Entity\Client as BaseClient;
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class OAuthClient extends BaseClient
 {
     /**
      * @var string
      *
-     * @ORM\Id
      *
-     * @ORM\Column(type="string", length=80, unique=true)
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 80, unique: true)]
     protected $id;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private array $allowedScopes = [];
 
     public function __construct()

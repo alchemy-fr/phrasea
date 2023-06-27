@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_oauth_server');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('access_token_lifetime')->defaultValue(7776000)->end()
+                ->scalarNode('access_token_lifetime')->defaultValue(7_776_000)->end()
                 ->arrayNode('scopes')
                     ->scalarPrototype()->end()
                 ->end()

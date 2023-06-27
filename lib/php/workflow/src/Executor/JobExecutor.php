@@ -22,9 +22,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class JobExecutor
 {
-    private LoggerInterface $logger;
-    private OutputInterface $output;
-    private EnvContainer $envs;
+    private readonly LoggerInterface $logger;
+    private readonly OutputInterface $output;
+    private readonly EnvContainer $envs;
 
     public function __construct(
         private readonly iterable $executors,

@@ -10,14 +10,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AllowedScopesChoiceType extends AbstractType
 {
-    /**
-     * @var array
-     */
-    private $scopes;
-
-    public function __construct(array $scopes)
+    public function __construct(private readonly array $scopes)
     {
-        $this->scopes = $scopes;
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -22,10 +22,10 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
 class RemoteAccessAuthenticator extends AbstractAuthenticator
 {
     use TargetPathTrait;
-    public const COOKIE_NAME = 'auth-access-token';
+    final public const COOKIE_NAME = 'auth-access-token';
 
-    private string $routeName;
-    private UserCheckerInterface $userChecker;
+    private readonly string $routeName;
+    private readonly UserCheckerInterface $userChecker;
 
     public function supports(Request $request): bool
     {
@@ -37,7 +37,7 @@ class RemoteAccessAuthenticator extends AbstractAuthenticator
         $accessToken = RequestHelper::getAuthorizationFromRequest($request)
             ?? $request->cookies->get(self::COOKIE_NAME);
 
-        if (empty($accessToken) || 0 !== strpos($accessToken, RemoteAuthToken::TOKEN_PREFIX)) {
+        if (empty($accessToken) || !str_starts_with($accessToken, RemoteAuthToken::TOKEN_PREFIX)) {
             throw new CustomUserMessageAuthenticationException('Invalid access_token');
         }
 

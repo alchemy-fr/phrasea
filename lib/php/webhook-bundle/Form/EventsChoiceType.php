@@ -12,11 +12,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class EventsChoiceType extends AbstractType
 {
-    private array $events;
-
-    public function __construct(array $events)
+    public function __construct(private readonly array $events)
     {
-        $this->events = $events;
     }
 
     public function getBlockPrefix()

@@ -11,7 +11,7 @@ class EventProducerMock extends EventProducer
 {
     private bool $intercept = false;
     private array $events = [];
-    private EventProducer $inner;
+    private readonly EventProducer $inner;
 
     public function __construct(EventProducer $inner)
     {

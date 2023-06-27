@@ -10,11 +10,8 @@ use Alchemy\Workflow\Model\WorkflowList;
 
 class MemoryWorkflowRepository implements WorkflowRepositoryInterface
 {
-    private WorkflowList $workflows;
-
-    public function __construct(WorkflowList $workflows)
+    public function __construct(private readonly WorkflowList $workflows)
     {
-        $this->workflows = $workflows;
     }
 
     public function loadWorkflowByName(string $name): ?Workflow

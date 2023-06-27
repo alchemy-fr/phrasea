@@ -13,14 +13,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class RemoteAuthProvider
 {
-    /**
-     * @var AuthServiceClient
-     */
-    private $client;
+    private \Alchemy\RemoteAuthBundle\Client\AuthServiceClient $client;
 
-    /**
-     * @required
-     */
+    #[\Symfony\Contracts\Service\Attribute\Required]
     public function setClient(AuthServiceClient $client)
     {
         $this->client = $client;

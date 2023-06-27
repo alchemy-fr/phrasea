@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    public const UUID_REGEX = '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}';
+    final public const UUID_REGEX = '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}';
 
     protected ?AbstractBrowser $client = null;
 
@@ -40,11 +40,11 @@ abstract class ApiTestCase extends WebTestCase
             $server['CONTENT_TYPE'] = 'application/merge-patch+json';
         }
 
-        $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
-        $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';
+        $server['CONTENT_TYPE'] ??= 'application/json';
+        $server['HTTP_ACCEPT'] ??= 'application/json';
 
         if (empty($content) && !empty($params) && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
-            $content = json_encode($params);
+            $content = json_encode($params, JSON_THROW_ON_ERROR);
         }
 
         $this->client->request($method, $uri, $params, $files, $server, $content);
@@ -57,8 +57,6 @@ abstract class ApiTestCase extends WebTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->client = static::createClient();
         $this->client->disableReboot();
     }

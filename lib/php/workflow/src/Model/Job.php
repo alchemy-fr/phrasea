@@ -6,23 +6,21 @@ namespace Alchemy\Workflow\Model;
 
 class Job
 {
-    private string $id;
     private string $name;
 
-    private NeedList $needs;
+    private readonly NeedList $needs;
 
-    private EnvVars $env;
+    private readonly EnvVars $env;
     private ?string $if = null;
 
-    private StepList $steps;
+    private readonly StepList $steps;
     private With $with;
     private array $outputs = [];
     private ?string $result = null;
     private bool $continueOnError = false;
 
-    public function __construct(string $id)
+    public function __construct(private readonly string $id)
     {
-        $this->id = $id;
         $this->env = new EnvVars();
         $this->steps = new StepList();
         $this->needs = new NeedList();

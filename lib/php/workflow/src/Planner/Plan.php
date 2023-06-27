@@ -11,11 +11,8 @@ use Alchemy\Workflow\Model\Job;
  */
 class Plan
 {
-    private StageList $stages;
-
-    public function __construct(StageList $stages)
+    public function __construct(private readonly StageList $stages)
     {
-        $this->stages = $stages;
     }
 
     /**

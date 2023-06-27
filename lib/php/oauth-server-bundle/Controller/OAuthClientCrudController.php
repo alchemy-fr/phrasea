@@ -15,11 +15,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class OAuthClientCrudController extends AbstractAdminCrudController
 {
-    private AllowedScopesChoiceField $allowedScopesChoiceField;
-
-    public function __construct(AllowedScopesChoiceField $allowedScopesChoiceField)
+    public function __construct(private readonly AllowedScopesChoiceField $allowedScopesChoiceField)
     {
-        $this->allowedScopesChoiceField = $allowedScopesChoiceField;
     }
 
     public static function getEntityFqcn(): string

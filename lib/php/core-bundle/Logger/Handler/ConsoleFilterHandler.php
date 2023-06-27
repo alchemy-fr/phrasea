@@ -10,7 +10,7 @@ use Monolog\Logger;
 
 class ConsoleFilterHandler extends FilterHandler
 {
-    private bool $enabled;
+    private readonly bool $enabled;
 
     public function __construct(HandlerInterface $handler, bool $bubble = true)
     {

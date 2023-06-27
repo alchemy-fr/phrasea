@@ -7,21 +7,14 @@ namespace Alchemy\Workflow\Planner;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Model\Workflow;
 
-final class WorkflowPlanner
+final readonly class WorkflowPlanner
 {
-    /**
-     * @var Workflow[]
-     */
-    private array $workflows;
-
     /**
      * @param Workflow[] $workflows
      */
-    public function __construct(array $workflows)
+    public function __construct(private array $workflows)
     {
-        $this->workflows = $workflows;
     }
-
     public function planEvent(WorkflowEvent $event): Plan
     {
         $stages = new StageList();
@@ -35,7 +28,6 @@ final class WorkflowPlanner
 
         return new Plan($stages);
     }
-
     public function planAll(): Plan
     {
         $stages = new StageList();
@@ -47,7 +39,6 @@ final class WorkflowPlanner
 
         return new Plan($stages);
     }
-
     private function createStages(Workflow $workflow, array $jobIds): StageList
     {
         $jobDependencies = [];
@@ -88,7 +79,6 @@ final class WorkflowPlanner
 
         return $stages;
     }
-
     private function jobsArePresentInStages(StageList $stages, array $jobIds): bool
     {
         foreach ($jobIds as $jobId) {

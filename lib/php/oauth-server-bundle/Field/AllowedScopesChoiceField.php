@@ -6,11 +6,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class AllowedScopesChoiceField
 {
-    private array $choices;
+    private array $choices = [];
 
     public function __construct(array $scopes)
     {
-        $this->choices = [];
         foreach ($scopes as $scope) {
             $this->choices[$scope] = $scope;
         }

@@ -12,7 +12,7 @@ abstract class RequestHelper
     {
         if (
             (null !== $accessToken = $request->headers->get('Authorization'))
-            && 0 === strpos($accessToken, $authType.' ')
+            && str_starts_with($accessToken, $authType.' ')
         ) {
             return preg_replace('#^'.$authType.'\s+#', '', $accessToken);
         } elseif ($allowGET) {

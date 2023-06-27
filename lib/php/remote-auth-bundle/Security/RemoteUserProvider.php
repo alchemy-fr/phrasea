@@ -13,23 +13,16 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class RemoteUserProvider implements UserProviderInterface
 {
-    /**
-     * @var AuthServiceClient
-     */
-    private $client;
-
-    public function __construct(AuthServiceClient $client)
+    public function __construct(private readonly AuthServiceClient $client)
     {
-        $this->client = $client;
     }
 
-    public function loadUserByUsername($username)
+    public function loadUserByUsername($username): never
     {
         throw new \Exception('Not implemented');
     }
 
     /**
-     * @param string $accessToken
      * @return UserInterface|null
      */
     public function loadUserFromAccessToken(string $accessToken): ?UserInterface

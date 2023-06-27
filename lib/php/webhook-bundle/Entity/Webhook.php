@@ -7,62 +7,47 @@ namespace Alchemy\WebhookBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class Webhook
 {
-    public const ALL_EVENTS = '_all';
+    final public const ALL_EVENTS = '_all';
 
     /**
      * @var Uuid
      *
-     * @ORM\Id
      *
-     * @ORM\Column(type="uuid", unique=true)
      *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
      *
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string", length=1024, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 1024, nullable: false)]
     private ?string $url = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $secret = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $verifySSL = true;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $active = true;
 
     /**
      * Null if all events are active.
-     *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $events = null;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: 'json', nullable: false)]
     private array $options = [];
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    private \DateTimeInterface $createdAt;
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    private readonly \DateTimeInterface $createdAt;
 
     public function __construct()
     {

@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ClientAllowedScopesOAuth2 extends OAuth2
 {
-    public const NO_SCOPE_PROVIDED = '__NO_SCOPE_PROVIDED__';
+    final public const NO_SCOPE_PROVIDED = '__NO_SCOPE_PROVIDED__';
 
     /**
      * Overrides parent method in order to keep "scope" empty if input param is empty.
@@ -99,7 +99,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
                 $stored = $this->grantAccessTokenRefreshToken($client, $input);
                 break;
             default:
-                if ('urn:' !== substr($input['grant_type'], 0, 4)
+                if (!str_starts_with($input['grant_type'], 'urn:')
                     && !filter_var($input['grant_type'], FILTER_VALIDATE_URL)
                 ) {
                     throw new OAuth2ServerException(Response::HTTP_BAD_REQUEST, self::ERROR_INVALID_REQUEST, 'Invalid grant_type parameter or parameter missing');
@@ -130,7 +130,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
 
         $token = $this->createAccessToken($client, $stored['data'], $scope, $stored['access_token_lifetime'], $stored['issue_refresh_token'], $stored['refresh_token_lifetime']);
 
-        return new Response(json_encode($token), 200, $this->getJsonHeaders());
+        return new Response(json_encode($token, JSON_THROW_ON_ERROR), 200, $this->getJsonHeaders());
     }
 
     /**
@@ -153,9 +153,7 @@ class ClientAllowedScopesOAuth2 extends OAuth2
     {
         if (!empty(trim((string) $scope))) {
             $scopes = explode(' ', $scope);
-            $scopes = array_filter($scopes, function (string $scope): bool {
-                return self::NO_SCOPE_PROVIDED !== $scope;
-            });
+            $scopes = array_filter($scopes, fn(string $scope): bool => self::NO_SCOPE_PROVIDED !== $scope);
 
             if (!empty($scopes) && $client instanceof OAuthClient) {
                 $this->validateClientAllowedScopes($client, $scopes);

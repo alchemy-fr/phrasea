@@ -36,15 +36,9 @@ class ExpressionParser extends ExpressionLanguage
     {
         parent::registerFunctions();
 
-        $this->register('date', function ($date) {
-            return sprintf('(new \DateTime(%s))', $date);
-        }, function (array $values, $date) {
-            return new \DateTime($date);
-        });
+        $this->register('date', fn($date) => sprintf('(new \DateTime(%s))', $date), fn(array $values, $date) => new \DateTime($date));
 
-        $this->register('date_modify', function ($date, $modify) {
-            return sprintf('%s->modify(%s)', $date, $modify);
-        }, function (array $values, $date, $modify) {
+        $this->register('date_modify', fn($date, $modify) => sprintf('%s->modify(%s)', $date, $modify), function (array $values, $date, $modify) {
             if (!$date instanceof \DateTime) {
                 throw new \RuntimeException('date_modify() expects parameter 1 to be a Date');
             }
