@@ -6,11 +6,10 @@ namespace App\Consumer\Handler;
 
 use App\Mail\Mailer;
 use Symfony\Component\Mailer\Exception\TransportException;
-use Throwable;
 
 class SendEmailHandler extends AbstractRetryableHandler
 {
-    const EVENT = 'send_email';
+    public const EVENT = 'send_email';
 
     private Mailer $mailer;
 
@@ -31,7 +30,7 @@ class SendEmailHandler extends AbstractRetryableHandler
         );
     }
 
-    protected function isRetryableException(Throwable $e): bool
+    protected function isRetryableException(\Throwable $e): bool
     {
         return $e instanceof TransportException;
     }

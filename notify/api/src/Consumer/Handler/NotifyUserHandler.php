@@ -11,7 +11,7 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NotifyUserHandler extends AbstractLogHandler
 {
-    const EVENT = 'notify_user';
+    public const EVENT = 'notify_user';
 
     /**
      * @var EventProducer

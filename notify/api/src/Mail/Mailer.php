@@ -34,7 +34,7 @@ class Mailer implements LoggerAwareInterface
         $this->renderingContext = $renderingContext;
     }
 
-    public function send(string $to, string $template, array $parameters, ?string $locale = null): void
+    public function send(string $to, string $template, array $parameters, string $locale = null): void
     {
         $this->renderingContext->setLocale($locale ?? 'en');
 

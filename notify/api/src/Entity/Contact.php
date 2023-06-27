@@ -52,7 +52,7 @@ class Contact
     protected $locale;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -60,7 +60,7 @@ class Contact
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -109,7 +109,7 @@ class Contact
         $this->locale = $locale;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

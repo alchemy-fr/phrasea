@@ -40,7 +40,7 @@ class TopicSubscriber
     protected $contact;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
      */
@@ -48,7 +48,7 @@ class TopicSubscriber
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -77,7 +77,7 @@ class TopicSubscriber
         return $this->contact;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

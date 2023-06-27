@@ -7,13 +7,12 @@ namespace App\Consumer\Handler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Throwable;
 
 abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 {
     protected static int $retryCount = 2;
 
-    const RETRY_KEY = '_retry';
+    public const RETRY_KEY = '_retry';
     protected EventProducer $eventProducer;
 
     /**
@@ -30,7 +29,7 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 
         try {
             $this->doHandle($payload);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             if ($this->isRetryableException($e)) {
                 $retry = $payload[self::RETRY_KEY] ?? [];
                 $retryCount = ($retry['count'] ?? 0) + 1;
@@ -67,5 +66,5 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 
     abstract protected function doHandle(array $payload): void;
 
-    abstract protected function isRetryableException(Throwable $e): bool;
+    abstract protected function isRetryableException(\Throwable $e): bool;
 }

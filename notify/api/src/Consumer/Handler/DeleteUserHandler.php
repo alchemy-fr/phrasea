@@ -10,7 +10,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteUserHandler extends AbstractLogHandler
 {
-    const EVENT = 'delete_user';
+    public const EVENT = 'delete_user';
 
     /**
      * @var ContactManager

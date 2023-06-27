@@ -23,9 +23,6 @@ class SendEmailCommand extends Command
         $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         parent::configure();
@@ -40,9 +37,6 @@ class SendEmailCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $template = $input->getArgument('template');
