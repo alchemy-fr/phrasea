@@ -11,13 +11,10 @@ use Symfony\Component\Security\Core\Security;
 
 class GroupVoter extends Voter
 {
-    public const LIST_GROUPS = 'LIST_GROUPS';
+    final public const LIST_GROUPS = 'LIST_GROUPS';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     protected function supports($attribute, $subject): bool
@@ -27,14 +24,11 @@ class GroupVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        switch ($attribute) {
-            case self::LIST_GROUPS:
-                return $this->security->isGranted('ROLE_USER')
-                    || $this->security->isGranted('ROLE_GROUP:LIST') // Scope
-                    || $this->security->isGranted('ROLE_ADMIN_USERS')
-                ;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::LIST_GROUPS => $this->security->isGranted('ROLE_USER')
+                || $this->security->isGranted('ROLE_GROUP:LIST') // Scope
+                || $this->security->isGranted('ROLE_ADMIN_USERS'),
+            default => false,
+        };
     }
 }

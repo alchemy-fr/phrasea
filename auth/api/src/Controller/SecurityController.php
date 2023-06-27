@@ -9,24 +9,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-/**
- * @Route("/{_locale}/security", name="security_")
- */
+#[Route(path: '/{_locale}/security', name: 'security_')]
 class SecurityController extends AbstractController
 {
-    public const SESSION_REDIRECT_KEY = 'auth.redirect_uri';
+    final public const SESSION_REDIRECT_KEY = 'auth.redirect_uri';
 
-    /**
-     * @Route("/", name="index")
-     */
+    #[Route(path: '/', name: 'index')]
     public function index(): Response
     {
         return $this->render('security/index.html.twig');
     }
 
-    /**
-     * @Route("/login", name="login")
-     */
+    #[Route(path: '/login', name: 'login')]
     public function login(AuthenticationUtils $authenticationUtils,
         array $identityProviders,
         array $loginFormLayout,
@@ -52,9 +46,7 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         if ($connect = $request->query->get('connect')) {
-            $idp = array_values(array_filter($identityProviders, function (array $idp) use ($connect): bool {
-                return $idp['name'] === $connect;
-            }));
+            $idp = array_values(array_filter($identityProviders, fn(array $idp): bool => $idp['name'] === $connect));
 
             if (!empty($idp)) {
                 return $this->redirect($this->generateUrl(sprintf('%s_entrypoint', $idp[0]['type']), [
@@ -69,14 +61,12 @@ class SecurityController extends AbstractController
             'error' => $error,
             'externalIdpOnTop' => $loginFormLayout['externalIdpOnTop'] ?? false,
             'displayIdPTitle' => $loginFormLayout['displayIdPTitle'] ?? true,
-            'providers' => array_map(function (array $idp) use ($redirectUri): array {
-                return array_merge($idp, [
-                    'entrypoint' => $this->generateUrl(sprintf('%s_entrypoint', $idp['type']), [
-                        'provider' => $idp['name'],
-                        'redirect_uri' => $redirectUri,
-                    ]),
-                ]);
-            }, $identityProviders),
+            'providers' => array_map(fn(array $idp): array => array_merge($idp, [
+                'entrypoint' => $this->generateUrl(sprintf('%s_entrypoint', $idp['type']), [
+                    'provider' => $idp['name'],
+                    'redirect_uri' => $redirectUri,
+                ]),
+            ]), $identityProviders),
         ]);
     }
 }

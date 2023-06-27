@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
-    public const AUTH_ORIGIN = 'authOrigin';
+    final public const AUTH_ORIGIN = 'authOrigin';
 
     public function __construct(
         private readonly EntityManagerInterface $em,

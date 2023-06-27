@@ -9,11 +9,8 @@ use Jq;
 
 class GroupParser
 {
-    private array $normalizers;
-
-    public function __construct(array $normalizers)
+    public function __construct(private array $normalizers)
     {
-        $this->normalizers = $normalizers;
     }
 
     public function extractGroups(UserResponseInterface $response): ?array
@@ -21,7 +18,7 @@ class GroupParser
         $providerName = $response->getResourceOwner()->getName();
         $data = $response->getData();
         if (isset($this->normalizers[$providerName])) {
-            $jq = Jq\Input::fromString(json_encode($data));
+            $jq = Jq\Input::fromString(json_encode($data, JSON_THROW_ON_ERROR));
             $node = $jq->filter($this->normalizers[$providerName]);
 
             return $node['groups'] ?? null;

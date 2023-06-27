@@ -21,11 +21,8 @@ class GroupCrudController extends AbstractAdminCrudController
         return Group::class;
     }
 
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function configureCrud(Crud $crud): Crud

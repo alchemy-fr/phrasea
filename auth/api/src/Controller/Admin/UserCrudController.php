@@ -34,24 +34,13 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class UserCrudController extends AbstractAdminCrudController
 {
-    private AdminUrlGenerator $adminUrlGenerator;
-    private RequestStack $requestStack;
-    private AuthorizationCheckerInterface $authorizationChecker;
-    private UserManager $userManager;
-    private EventProducer $eventProducer;
-
     public static function getEntityFqcn(): string
     {
         return User::class;
     }
 
-    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack, AuthorizationCheckerInterface $authorizationChecker, UserManager $userManager, EventProducer $eventProducer)
+    public function __construct(private readonly AdminUrlGenerator $adminUrlGenerator, private readonly RequestStack $requestStack, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly UserManager $userManager, private readonly EventProducer $eventProducer)
     {
-        $this->adminUrlGenerator = $adminUrlGenerator;
-        $this->requestStack = $requestStack;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->userManager = $userManager;
-        $this->eventProducer = $eventProducer;
     }
 
     public function configureActions(Actions $actions): Actions

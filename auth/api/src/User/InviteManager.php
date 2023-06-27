@@ -8,11 +8,8 @@ use App\Entity\User;
 
 class InviteManager
 {
-    private int $allowedInviteDelay;
-
-    public function __construct(int $allowedInviteDelay)
+    public function __construct(private readonly int $allowedInviteDelay)
     {
-        $this->allowedInviteDelay = $allowedInviteDelay;
     }
 
     public function userCanBeInvited(User $user): bool

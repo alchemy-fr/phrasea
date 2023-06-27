@@ -7,14 +7,8 @@ use App\User\UserManager;
 
 class UserPasswordFactory
 {
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-
-    public function __construct(UserManager $userManager)
+    public function __construct(private readonly UserManager $userManager)
     {
-        $this->userManager = $userManager;
     }
 
     public function create(string $password): User

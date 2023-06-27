@@ -13,7 +13,7 @@ class GetUsersTest extends AbstractTestCase
         $response = $this->request($accessToken, 'GET', '/users');
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(3, $json);
 
         foreach ($json as $user) {
@@ -22,7 +22,7 @@ class GetUsersTest extends AbstractTestCase
         }
     }
 
-    public function testGetUsersGenerates403WithInvalidScope(): void
+    public function testGetUsersGenerates403WithInvalidScope(): never
     {
         $this->markTestSkipped('Users are exposed to everyone for simplicity. Should fix it.');
 

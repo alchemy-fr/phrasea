@@ -4,98 +4,65 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Doctrine\Listener\UserDeleteListener;
 use Arthem\Bundle\LocaleBundle\Model\UserLocaleInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass="UserRepository")
- * @ORM\Table(name="`user`")
- * @ORM\EntityListeners({"App\Doctrine\Listener\UserDeleteListener"})
- */
-class User implements UserInterface, UserLocaleInterface, EquatableInterface, PasswordAuthenticatedUserInterface
+#[ORM\Table(name: '`user`')]
+#[ORM\Entity(repositoryClass: 'UserRepository')]
+#[ORM\EntityListeners([UserDeleteListener::class])]
+class User implements UserInterface, UserLocaleInterface, EquatableInterface, PasswordAuthenticatedUserInterface, \Stringable
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
-    protected $username;
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    protected ?string $username = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected bool $emailVerified = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected ?bool $enabled = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected ?string $securityToken = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    protected $salt;
+    #[ORM\Column(type: 'string', length: 255)]
+    protected ?string $salt = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     protected array $roles = [];
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected ?string $password = null;
 
-    /**
-     * @ORM\Column(type="string", length=5, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
     protected ?string $locale = null;
 
     protected ?string $plainPassword = null;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastInviteAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTime $lastInviteAt = null;
 
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $updatedAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTime $updatedAt = null;
 
     /**
      * Not mapped.
@@ -104,9 +71,8 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
 
     /**
      * @var Group[]|Collection
-     *
-     * @ORM\ManyToMany(targetEntity="Group", inversedBy="users")
      */
+    #[ORM\ManyToMany(targetEntity: Group::class, inversedBy: 'users')]
     protected $groups;
 
     public function __construct()
@@ -351,7 +317,7 @@ class User implements UserInterface, UserLocaleInterface, EquatableInterface, Pa
         return count($this->getRoles()) === count($user->getRoles()) && empty(array_diff($this->getRoles(), $user->getRoles()));
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getUsername() ?? $this->getId();
     }

@@ -13,7 +13,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertResponseToken($json, false);
@@ -27,7 +27,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertResponseToken($json, false);
         $this->assertEquals('scope1', $json['scope']);
@@ -42,7 +42,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_scope', $json['error']);
     }
@@ -56,7 +56,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_scope', $json['error']);
         $this->assertEquals('Scope "scope2" is not allowed for this client.', $json['error_description']);
@@ -70,7 +70,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertResponseToken($json, false);
         $this->assertEquals('scope1 scope3', $json['scope']);
@@ -85,7 +85,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_scope', $json['error']);
     }
@@ -99,7 +99,7 @@ class OAuthClientCredentialsTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_scope', $json['error']);
         $this->assertEquals('Scope "scope2" is not allowed for this client.', $json['error_description']);

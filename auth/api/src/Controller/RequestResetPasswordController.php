@@ -12,21 +12,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/{_locale}/security/password-reset", name="password_reset_")
- */
+#[Route(path: '/{_locale}/security/password-reset', name: 'password_reset_')]
 class RequestResetPasswordController extends AbstractController
 {
-    private PasswordManager $resetPasswordManager;
-
-    public function __construct(PasswordManager $resetPasswordManager)
+    public function __construct(private readonly PasswordManager $resetPasswordManager)
     {
-        $this->resetPasswordManager = $resetPasswordManager;
     }
 
-    /**
-     * @Route(path="/request", name="request", methods={"GET", "POST"})
-     */
+    #[Route(path: '/request', name: 'request', methods: ['GET', 'POST'])]
     public function requestAction(Request $request, ReportUserService $reportClient)
     {
         $form = $this->createForm(RequestPasswordResetForm::class);
@@ -57,9 +50,7 @@ class RequestResetPasswordController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/requested", name="requested", methods={"GET"})
-     */
+    #[Route(path: '/requested', name: 'requested', methods: ['GET'])]
     public function requestedAction()
     {
         return $this->render('security/password_reset_requested.html.twig');

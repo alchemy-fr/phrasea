@@ -13,14 +13,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/{_locale}/security/register", name="registration_")
- */
+#[Route(path: '/{_locale}/security/register', name: 'registration_')]
 class RegistrationController extends AbstractController
 {
-    /**
-     * @Route(name="register")
-     */
+    #[Route(name: 'register')]
     public function registerAction(Request $request, UserManager $userManager, EventProducer $eventProducer)
     {
         $user = $userManager->createUser();
@@ -43,17 +39,13 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/unconfirmed", name="unconfirmed", methods={"GET"})
-     */
+    #[Route(path: '/unconfirmed', name: 'unconfirmed', methods: ['GET'])]
     public function unconfirmedAction()
     {
         return $this->render('registration/unconfirmed.html.twig');
     }
 
-    /**
-     * @Route(path="/confirm/{id}/{token}", name="confirm", methods={"GET"})
-     */
+    #[Route(path: '/confirm/{id}/{token}', name: 'confirm', methods: ['GET'])]
     public function registerConfirmAction(string $id, string $token, UserManager $userManager)
     {
         $user = $userManager->getUserByIdAndToken($id, $token);
@@ -62,9 +54,7 @@ class RegistrationController extends AbstractController
         return $this->redirectToRoute('registration_confirmed');
     }
 
-    /**
-     * @Route(path="/confirmed", name="confirmed", methods={"GET"})
-     */
+    #[Route(path: '/confirmed', name: 'confirmed', methods: ['GET'])]
     public function registerConfirmedAction()
     {
         return $this->render('registration/confirmed.html.twig', []);

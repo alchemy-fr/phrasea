@@ -13,13 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnableUserCommand extends Command
 {
-    private $userManager;
-
-    public function __construct(UserManager $userManager)
+    public function __construct(private readonly UserManager $userManager)
     {
         parent::__construct();
-
-        $this->userManager = $userManager;
     }
 
     protected function configure()

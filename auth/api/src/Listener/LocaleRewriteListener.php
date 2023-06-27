@@ -13,23 +13,15 @@ use Symfony\Component\Routing\RouterInterface;
 
 class LocaleRewriteListener implements EventSubscriberInterface
 {
-    private RouterInterface $router;
-    private RouteCollection $routeCollection;
-    private string $defaultLocale;
-    private array $supportedLocales = [];
-    private string $localeRouteParam;
+    private readonly RouteCollection $routeCollection;
 
     public function __construct(
-        RouterInterface $router,
-        $defaultLocale = 'en',
-        array $supportedLocales = ['en'],
-        $localeRouteParam = '_locale'
+        private readonly RouterInterface $router,
+        private readonly string $defaultLocale = 'en',
+        private readonly array $supportedLocales = ['en'],
+        private readonly string $localeRouteParam = '_locale'
     ) {
-        $this->router = $router;
         $this->routeCollection = $router->getRouteCollection();
-        $this->defaultLocale = $defaultLocale;
-        $this->supportedLocales = $supportedLocales;
-        $this->localeRouteParam = $localeRouteParam;
     }
 
     public function isLocaleSupported($locale): bool

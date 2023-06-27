@@ -13,21 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/{_locale}/security/password", name="security_password_")
- */
+#[Route(path: '/{_locale}/security/password', name: 'security_password_')]
 class ChangePasswordController extends AbstractController
 {
-    private PasswordManager $passwordManager;
-
-    public function __construct(PasswordManager $passwordManager)
+    public function __construct(private readonly PasswordManager $passwordManager)
     {
-        $this->passwordManager = $passwordManager;
     }
 
-    /**
-     * @Route(path="/change", name="change", methods={"GET", "POST"})
-     */
+    #[Route(path: '/change', name: 'change', methods: ['GET', 'POST'])]
     public function changeAction(Request $request, ReportUserService $reportClient)
     {
         /** @var User $user */

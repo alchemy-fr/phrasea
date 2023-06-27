@@ -15,19 +15,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionListener implements EventSubscriberInterface
 {
-    public const ERROR_MAP = [
+    final public const ERROR_MAP = [
         BadRequestHttpException::class => 'bad_request',
         AccessDeniedHttpException::class => 'access_denied',
     ];
-    public const DEFAULT_ERROR = 'internal_error';
+    final public const DEFAULT_ERROR = 'internal_error';
 
-    private bool $debug = false;
-    private LoggerInterface $logger;
-
-    public function __construct(bool $debug, LoggerInterface $logger)
+    public function __construct(private readonly bool $debug, private readonly LoggerInterface $logger)
     {
-        $this->debug = $debug;
-        $this->logger = $logger;
     }
 
     public function onKernelException(ExceptionEvent $event): void
@@ -40,7 +35,7 @@ class ApiExceptionListener implements EventSubscriberInterface
         }
 
         $exception = $event->getThrowable();
-        $class = get_class($event->getThrowable());
+        $class = $event->getThrowable()::class;
 
         if ($exception instanceof HttpException) {
             $status = $exception->getStatusCode();
@@ -59,7 +54,7 @@ class ApiExceptionListener implements EventSubscriberInterface
 
         if ($this->debug) {
             $data['debug'] = [
-                'exception_class' => get_class($exception),
+                'exception_class' => $exception::class,
                 'trace' => $exception->getTraceAsString(),
             ];
         }

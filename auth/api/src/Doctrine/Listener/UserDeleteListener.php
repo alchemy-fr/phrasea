@@ -13,24 +13,18 @@ use Doctrine\ORM\Mapping as ORM;
 class UserDeleteListener
 {
     private array $deletedUsers = [];
-    private EventProducer $eventProducer;
 
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * @ORM\PreRemove()
-     */
+    #[ORM\PreRemove]
     public function preRemove(User $user)
     {
         $this->deletedUsers[] = (string) $user->getId();
     }
 
-    /**
-     * @ORM\PostRemove()
-     */
+    #[ORM\PostRemove]
     public function postRemove()
     {
         while ($userId = array_shift($this->deletedUsers)) {

@@ -5,59 +5,38 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="user_provider_udix",columns={"provider", "user_id"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'user_provider_udix', columns: ['provider', 'user_id'])]
+#[ORM\Entity]
 class SamlIdentity
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=100)
-     */
-    protected $provider;
+    #[ORM\Column(type: 'string', length: 100)]
+    protected ?string $provider = null;
 
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
-    protected $user;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    protected ?User $user = null;
 
-    /**
-     * @var array
-     *
-     * @ORM\Column(type="json")
-     */
-    protected $attributes = [];
+    #[ORM\Column(type: 'json')]
+    protected array $attributes = [];
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $updatedAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTime $updatedAt = null;
 
     public function __construct()
     {

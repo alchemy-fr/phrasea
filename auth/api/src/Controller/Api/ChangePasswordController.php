@@ -13,16 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ChangePasswordController extends AbstractController
 {
-    private PasswordManager $passwordManager;
-
-    public function __construct(PasswordManager $passwordManager)
+    public function __construct(private readonly PasswordManager $passwordManager)
     {
-        $this->passwordManager = $passwordManager;
     }
 
-    /**
-     * @Route(path="/password/change", methods={"POST"})
-     */
+    #[Route(path: '/password/change', methods: ['POST'])]
     public function __invoke(Request $request)
     {
         /** @var User $user */

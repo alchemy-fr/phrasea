@@ -12,21 +12,9 @@ use Symfony\Component\Security\Http\HttpUtils;
 class OAuthProviderFactory
 {
     private array $resourceOwners = [];
-    private HttpMethodsClient $httpClient;
-    private HttpUtils $httpUtils;
-    private RequestDataStorageInterface $storage;
-    private array $oAuthProviders;
 
-    public function __construct(
-        HttpMethodsClient $httpClient,
-        HttpUtils $httpUtils,
-        RequestDataStorageInterface $storage,
-        array $oAuthProviders
-    ) {
-        $this->httpClient = $httpClient;
-        $this->httpUtils = $httpUtils;
-        $this->storage = $storage;
-        $this->oAuthProviders = $oAuthProviders;
+    public function __construct(private readonly HttpMethodsClient $httpClient, private readonly HttpUtils $httpUtils, private readonly RequestDataStorageInterface $storage, private readonly array $oAuthProviders)
+    {
     }
 
     public function addResourceOwner(string $key, string $resourceOwnerClass): void
@@ -36,9 +24,7 @@ class OAuthProviderFactory
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface
     {
-        $providers = array_values(array_filter($this->oAuthProviders, function (array $node) use ($providerName) {
-            return $node['name'] === $providerName;
-        }));
+        $providers = array_values(array_filter($this->oAuthProviders, fn(array $node): bool => $node['name'] === $providerName));
 
         if (!isset($providers[0])) {
             throw new \InvalidArgumentException(sprintf('Provider "%s" does not exist in Auth service', $providerName));

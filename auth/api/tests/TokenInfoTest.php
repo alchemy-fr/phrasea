@@ -13,7 +13,7 @@ class TokenInfoTest extends AbstractTestCase
         $response = $this->request($accessToken, 'GET', '/token-info');
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('scopes', $json);
         $this->assertEquals([], $json['scopes']);
         $this->assertArrayHasKey('user', $json);

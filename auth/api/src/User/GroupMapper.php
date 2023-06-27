@@ -10,25 +10,16 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class GroupMapper
 {
-    private EntityManagerInterface $em;
-    private array $groupMaps;
-
-    public function __construct(EntityManagerInterface $em, array $groupMaps)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly array $groupMaps)
     {
-        $this->em = $em;
-        $this->groupMaps = $groupMaps;
     }
 
     public function updateGroups(string $providerName, User $user, array $groups): void
     {
         // Some hierarchical groups can have a beginning slash, remove it:
-        $groups = array_map(function (string $name): string {
-            return preg_replace('#^/#', '', $name);
-        }, $groups);
+        $groups = array_map(fn(string $name): string => preg_replace('#^/#', '', $name), $groups);
 
-        $groups = array_map(function (string $group) use ($providerName): string {
-            return $this->resolveGroupName($providerName, $group);
-        }, $groups);
+        $groups = array_map(fn(string $group): string => $this->resolveGroupName($providerName, $group), $groups);
 
         // remove old groups
         foreach ($user->getGroups() as $group) {

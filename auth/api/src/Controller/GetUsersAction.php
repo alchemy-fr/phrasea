@@ -14,16 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GetUsersAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
-    /**
-     * @Route(path="/users")
-     */
+    #[Route(path: '/users')]
     public function __invoke(Request $request)
     {
         $limit = $request->query->get('limit', 200);

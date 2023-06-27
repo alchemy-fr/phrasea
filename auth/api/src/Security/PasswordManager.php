@@ -16,35 +16,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PasswordManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-    /**
-     * @var AccessTokenManagerInterface
-     */
-    private $accessTokenManager;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        UserManager $userManager,
-        AccessTokenManagerInterface $accessTokenManager,
-        EventProducer $eventProducer
-    ) {
-        $this->em = $em;
-        $this->userManager = $userManager;
-        $this->accessTokenManager = $accessTokenManager;
-        $this->eventProducer = $eventProducer;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UserManager $userManager, private readonly AccessTokenManagerInterface $accessTokenManager, private readonly EventProducer $eventProducer)
+    {
     }
 
     public function requestPasswordResetForLogin(string $username, string $locale): void

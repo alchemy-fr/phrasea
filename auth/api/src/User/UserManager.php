@@ -15,29 +15,8 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserManager implements UserProviderInterface
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var UserPasswordHasherInterface
-     */
-    private $passwordHasher;
-
-    /**
-     * @var bool
-     */
-    private $validateEmail;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher,
-        bool $validateEmail
-    ) {
-        $this->em = $em;
-        $this->passwordHasher = $passwordHasher;
-        $this->validateEmail = $validateEmail;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UserPasswordHasherInterface $passwordHasher, private readonly bool $validateEmail)
+    {
     }
 
     public function createUser(): User

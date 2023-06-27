@@ -11,15 +11,8 @@ use Nbgrp\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
-    private EntityManagerInterface $em;
-    private UserManager $userManager;
-    private SamlGroupManager $groupManager;
-
-    public function __construct(EntityManagerInterface $em, UserManager $userManager, SamlGroupManager $groupManager)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UserManager $userManager, private readonly SamlGroupManager $groupManager)
     {
-        $this->em = $em;
-        $this->userManager = $userManager;
-        $this->groupManager = $groupManager;
     }
 
     public function createUser(SamlToken|string $token, $attributes): User

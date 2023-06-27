@@ -13,21 +13,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RegistrationHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'registration';
+    final public const EVENT = 'registration';
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
-
-    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly NotifierInterface $notifier, private readonly UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
-        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -38,7 +27,7 @@ class RegistrationHandler extends AbstractEntityManagerHandler
 
         $user = $em->find(User::class, $userId);
         if (!$user instanceof User) {
-            throw new ObjectNotFoundForHandlerException(User::class, $userId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(User::class, $userId, self::class);
         }
 
         $this->notifier->notifyUser(

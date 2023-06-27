@@ -14,16 +14,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class PasswordChangedHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'password_changed';
+    final public const EVENT = 'password_changed';
 
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
-
-    public function __construct(NotifierInterface $notifier)
+    public function __construct(private readonly NotifierInterface $notifier)
     {
-        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -34,7 +28,7 @@ class PasswordChangedHandler extends AbstractEntityManagerHandler
 
         $user = $em->find(User::class, $userId);
         if (!$user instanceof User) {
-            throw new ObjectNotFoundForHandlerException(User::class, $userId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(User::class, $userId, self::class);
         }
 
         $em

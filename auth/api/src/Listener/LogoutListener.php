@@ -12,15 +12,8 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 class LogoutListener implements EventSubscriberInterface
 {
-    private UrlGeneratorInterface $urlGenerator;
-    private array $identityProviders;
-
-    public function __construct(
-        UrlGeneratorInterface $urlGenerator,
-        array $identityProviders
-    ) {
-        $this->urlGenerator = $urlGenerator;
-        $this->identityProviders = $identityProviders;
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator, private readonly array $identityProviders)
+    {
     }
 
     public static function getSubscribedEvents()
@@ -38,17 +31,15 @@ class LogoutListener implements EventSubscriberInterface
         }
 
         $session = $request->getSession();
-        if ($session && $session->has(OAuthUserProvider::AUTH_ORIGIN)) {
+        if ($session->has(OAuthUserProvider::AUTH_ORIGIN)) {
             $provider = $session->get(OAuthUserProvider::AUTH_ORIGIN);
             if ($provider) {
-                $idp = array_values(array_filter($this->identityProviders, function (array $idp) use ($provider): bool {
-                    return $idp['name'] === $provider;
-                }));
+                $idp = array_values(array_filter($this->identityProviders, fn(array $idp): bool => $idp['name'] === $provider));
 
                 if (!empty($idp) && ($logoutUrl = $idp[0]['logout_url'] ?? false)) {
                     if ($redirectUriParam = $idp[0]['logout_redirect_param'] ?? false) {
                         $logoutUrl .= sprintf('%s%s=%s&client_id=%s',
-                            strpos('?', $logoutUrl) > 0 ? '&' : '?',
+                            strpos('?', (string) $logoutUrl) > 0 ? '&' : '?',
                             $redirectUriParam,
                             urlencode($this->urlGenerator->generate('security_logout', [
                                 'r' => $redirectUri,

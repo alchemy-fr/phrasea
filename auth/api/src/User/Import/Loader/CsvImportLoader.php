@@ -11,10 +11,7 @@ use App\User\Import\ColReader\IsAdminColReader;
 
 class CsvImportLoader implements UserImportLoaderInterface
 {
-    /**
-     * @var array
-     */
-    private $colReaders = [];
+    private array $colReaders;
 
     public function __construct()
     {

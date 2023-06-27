@@ -16,24 +16,11 @@ use Symfony\Component\Security\Core\Security;
 
 class TokenInfoAction extends AbstractController
 {
-    /**
-     * @var TokenManagerInterface
-     */
-    private $tokenManager;
-    /**
-     * @var Security
-     */
-    private $security;
-
-    public function __construct(Security $security, TokenManagerInterface $tokenManager)
+    public function __construct(private readonly Security $security, private readonly TokenManagerInterface $tokenManager)
     {
-        $this->tokenManager = $tokenManager;
-        $this->security = $security;
     }
 
-    /**
-     * @Route(path="/token-info")
-     */
+    #[Route(path: '/token-info')]
     public function __invoke()
     {
         $token = $this->security->getToken();

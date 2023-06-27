@@ -27,7 +27,7 @@ abstract class AbstractTestCase extends ApiTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         return $json['access_token'];
     }
@@ -43,7 +43,7 @@ abstract class AbstractTestCase extends ApiTestCase
             'client_id' => self::CLIENT_ID,
             'client_secret' => self::CLIENT_SECRET,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         return $json['access_token'];
     }

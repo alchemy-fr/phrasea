@@ -12,15 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class SamlGroupManager
 {
-    private EntityManagerInterface $em;
-    private GroupMapper $groupMapper;
-    private array $groupAttributesName;
-
-    public function __construct(EntityManagerInterface $em, GroupMapper $groupMapper, array $groupAttributesName)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly GroupMapper $groupMapper, private readonly array $groupAttributesName)
     {
-        $this->em = $em;
-        $this->groupMapper = $groupMapper;
-        $this->groupAttributesName = $groupAttributesName;
     }
 
     public function updateGroups(string $providerName, User $user, TokenInterface $token)

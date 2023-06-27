@@ -14,20 +14,10 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class RequestResetPasswordHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'request_reset_password';
+    final public const EVENT = 'request_reset_password';
 
-    private UserManager $userManager;
-    private NotifierInterface $notifier;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(
-        UserManager $userManager,
-        NotifierInterface $notifier,
-        UrlGeneratorInterface $urlGenerator
-    ) {
-        $this->userManager = $userManager;
-        $this->notifier = $notifier;
-        $this->urlGenerator = $urlGenerator;
+    public function __construct(private readonly UserManager $userManager, private readonly NotifierInterface $notifier, private readonly UrlGeneratorInterface $urlGenerator)
+    {
     }
 
     public function handle(EventMessage $message): void
@@ -38,7 +28,7 @@ class RequestResetPasswordHandler extends AbstractEntityManagerHandler
 
         try {
             $user = $this->userManager->loadUserByUsername($username);
-        } catch (UsernameNotFoundException $e) {
+        } catch (UsernameNotFoundException) {
             $this->logger->notice(sprintf('Request reset password: Username "%s" not found', $username));
 
             return;

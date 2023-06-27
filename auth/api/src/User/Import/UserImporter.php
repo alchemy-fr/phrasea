@@ -17,50 +17,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserImporter
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-
-    /**
-     * @var UserImportLoaderInterface
-     */
-    private $userImporter;
-
-    /**
-     * @var int
-     */
-    private $batchSize;
-
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        UserManager $userManager,
-        UserImportLoaderInterface $userImporter,
-        ValidatorInterface $validator,
-        EventProducer $eventProducer,
-        int $batchSize = 20
-    ) {
-        $this->em = $em;
-        $this->userManager = $userManager;
-        $this->userImporter = $userImporter;
-        $this->batchSize = $batchSize;
-        $this->validator = $validator;
-        $this->eventProducer = $eventProducer;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UserManager $userManager, private readonly UserImportLoaderInterface $userImporter, private readonly ValidatorInterface $validator, private readonly EventProducer $eventProducer, private readonly int $batchSize = 20)
+    {
     }
 
     /**
@@ -70,9 +28,7 @@ class UserImporter
     {
         $this->em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $createUser = function (): User {
-            return $this->userManager->createUser();
-        };
+        $createUser = fn(): User => $this->userManager->createUser();
         if (is_string($src)) {
             $resource = fopen($src, 'r');
         } else {

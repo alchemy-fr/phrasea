@@ -15,23 +15,17 @@ use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route("/admin")
- */
+#[Route(path: '/admin')]
 class AuthCheckController extends AbstractController
 {
-    private string $authClientId;
-
-    public function __construct(string $authClientId)
+    public function __construct(private readonly string $authClientId)
     {
-        $this->authClientId = $authClientId;
     }
 
     /**
      * Authenticates from code (in query parameters).
-     *
-     * @Route(path="/auth/check", name="auth_check")
      */
+    #[Route(path: '/auth/check', name: 'auth_check')]
     public function check(
         Request $request,
         EntityManagerInterface $em,

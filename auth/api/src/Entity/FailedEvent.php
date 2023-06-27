@@ -6,26 +6,22 @@ namespace App\Entity;
 
 use Arthem\Bundle\RabbitBundle\Model\FailedEvent as BaseFailedEvent;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity
- */
+#[ORM\Entity]
 class FailedEvent extends BaseFailedEvent
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTime $createdAt = null;
 
     public function __construct()
@@ -45,6 +41,6 @@ class FailedEvent extends BaseFailedEvent
 
     public function getPayloadAsJson(): string
     {
-        return json_encode($this->getPayload());
+        return json_encode($this->getPayload(), JSON_THROW_ON_ERROR);
     }
 }

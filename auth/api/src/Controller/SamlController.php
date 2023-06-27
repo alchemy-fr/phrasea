@@ -15,16 +15,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 
-/**
- * @Route("/saml", name="saml_")
- */
+#[Route(path: '/saml', name: 'saml_')]
 class SamlController extends AbstractIdentityProviderController
 {
     /**
      * Used direct authentication in Auth service.
-     *
-     * @Route(path="/{provider}/entrypoint", name="entrypoint")
      */
+    #[Route(path: '/{provider}/entrypoint', name: 'entrypoint')]
     public function entrypoint(string $provider, OneLoginAuthRegistry $loginAuthRegistry, Request $request)
     {
         $session = $request->getSession();
@@ -64,9 +61,8 @@ class SamlController extends AbstractIdentityProviderController
 
     /**
      * Used for redirecting to client app (not Auth service).
-     *
-     * @Route(path="/{provider}/authorize", name="authorize")
      */
+    #[Route(path: '/{provider}/authorize', name: 'authorize')]
     public function authorize(string $provider, OneLoginAuthRegistry $loginAuthRegistry, Request $request)
     {
         $clientId = $request->get('client_id');
@@ -109,9 +105,7 @@ class SamlController extends AbstractIdentityProviderController
         $loginAuthRegistry->getIdpAuth($provider)->login($returnTo);
     }
 
-    /**
-     * @Route(path="/{provider}/check", name="check")
-     */
+    #[Route(path: '/{provider}/check', name: 'check')]
     public function check(
         string $provider,
         OAuth2 $oAuth2Server,

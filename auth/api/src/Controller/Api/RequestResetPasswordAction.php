@@ -12,16 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RequestResetPasswordAction extends AbstractController
 {
-    private PasswordManager $passwordManager;
-
-    public function __construct(PasswordManager $passwordManager)
+    public function __construct(private readonly PasswordManager $passwordManager)
     {
-        $this->passwordManager = $passwordManager;
     }
 
-    /**
-     * @Route(path="/{_locale}/password-reset/request", methods={"POST"})
-     */
+    #[Route(path: '/{_locale}/password-reset/request', methods: ['POST'])]
     public function __invoke(Request $request)
     {
         $this->passwordManager->requestPasswordResetForLogin(

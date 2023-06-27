@@ -24,15 +24,10 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    public const LOGIN_ROUTE = 'security_login';
+    final public const LOGIN_ROUTE = 'security_login';
 
-    private EntityManagerInterface $entityManager;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UrlGeneratorInterface $urlGenerator)
     {
-        $this->entityManager = $entityManager;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function supports(Request $request): bool

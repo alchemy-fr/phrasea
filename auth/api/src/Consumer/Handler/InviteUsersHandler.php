@@ -10,16 +10,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class InviteUsersHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'invite_users';
+    final public const EVENT = 'invite_users';
 
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
     public function handle(EventMessage $message): void

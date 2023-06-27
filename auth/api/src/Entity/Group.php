@@ -7,45 +7,36 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(name="`group`")
- */
-class Group
+#[ORM\Table(name: '`group`')]
+#[ORM\Entity]
+class Group implements \Stringable
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string", length=150, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 150, unique: true)]
     protected ?string $name = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     protected array $roles = [];
 
     /**
      * @var User[]|Collection
-     *
-     * @ORM\ManyToMany(targetEntity="User", mappedBy="groups")
      */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'groups')]
     protected $users;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private \DateTime $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
     public function __construct()
     {
@@ -115,7 +106,7 @@ class Group
         $this->roles = $roles;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getName() ?? '';
     }

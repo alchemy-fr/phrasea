@@ -14,16 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GetGroupsAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
-    /**
-     * @Route(path="/groups")
-     */
+    #[Route(path: '/groups')]
     public function __invoke(Request $request)
     {
         $limit = $request->query->get('limit', 200);

@@ -18,7 +18,7 @@ class ChangePasswordTest extends AbstractPasswordTest
         ]);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(true, $json);
 
         // Access token should be invalidated
@@ -54,7 +54,7 @@ class ChangePasswordTest extends AbstractPasswordTest
         ]);
 
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         unset($json['debug']);
         $this->assertEquals(['error' => 'bad_request', 'error_description' => 'Invalid old password'], $json);
 

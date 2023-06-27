@@ -17,7 +17,7 @@ class OAuthUserCredentialTest extends AbstractTestCase
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertTokenContent($json['access_token']);
         $this->assertTokenContent($json['refresh_token']);
         $this->assertArrayHasKey('scope', $json);
@@ -35,7 +35,7 @@ class OAuthUserCredentialTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals('invalid_grant', $json['error']);
         $this->assertEquals('Invalid username and password combination', $json['error_description']);
     }
@@ -46,7 +46,7 @@ class OAuthUserCredentialTest extends AbstractTestCase
             'grant_type' => 'foo',
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_request', $json['error']);
     }
@@ -61,7 +61,7 @@ class OAuthUserCredentialTest extends AbstractTestCase
             'client_secret' => 'invalid_client_secret',
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_client', $json['error']);
     }
@@ -76,7 +76,7 @@ class OAuthUserCredentialTest extends AbstractTestCase
             'client_secret' => self::CLIENT_SECRET,
         ]);
         $this->assertEquals(400, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('error', $json);
         $this->assertEquals('invalid_client', $json['error']);
     }

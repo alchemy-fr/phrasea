@@ -14,16 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportUsersCommand extends Command
 {
-    /**
-     * @var UserImporter
-     */
-    private $userImporter;
-
-    public function __construct(UserImporter $userImporter)
+    public function __construct(private readonly UserImporter $userImporter)
     {
         parent::__construct();
-
-        $this->userImporter = $userImporter;
     }
 
     protected function configure()

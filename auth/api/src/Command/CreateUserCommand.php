@@ -17,15 +17,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CreateUserCommand extends Command
 {
-    private UserManager $userManager;
-    private EventProducer $eventProducer;
-
-    public function __construct(UserManager $userManager, EventProducer $eventProducer)
+    public function __construct(private readonly UserManager $userManager, private readonly EventProducer $eventProducer)
     {
         parent::__construct();
-
-        $this->userManager = $userManager;
-        $this->eventProducer = $eventProducer;
     }
 
     protected function configure()

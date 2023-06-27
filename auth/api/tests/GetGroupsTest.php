@@ -13,7 +13,7 @@ class GetGroupsTest extends AbstractTestCase
         $response = $this->request($accessToken, 'GET', '/groups');
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(2, $json);
 
         foreach ($json as $group) {
@@ -25,7 +25,7 @@ class GetGroupsTest extends AbstractTestCase
         $this->assertEquals(1, $json[1]['userCount']);
     }
 
-    public function testGetGroupsGenerates403WithInvalidScope(): void
+    public function testGetGroupsGenerates403WithInvalidScope(): never
     {
         $this->markTestSkipped('Groups are exposed to everyone for simplicity. Should fix it.');
 

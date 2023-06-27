@@ -13,23 +13,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/{_locale}/security/password-reset", name="password_reset_")
- */
+#[Route(path: '/{_locale}/security/password-reset', name: 'password_reset_')]
 class ResetPasswordAction extends AbstractController
 {
-    private PasswordManager $passwordManager;
-    private ReportUserService $reportClient;
-
-    public function __construct(PasswordManager $passwordManager, ReportUserService $reportClient)
+    public function __construct(private readonly PasswordManager $passwordManager, private readonly ReportUserService $reportClient)
     {
-        $this->passwordManager = $passwordManager;
-        $this->reportClient = $reportClient;
     }
 
-    /**
-     * @Route(path="/{id}/{token}", name="reset", methods={"GET", "POST"})
-     */
+    #[Route(path: '/{id}/{token}', name: 'reset', methods: ['GET', 'POST'])]
     public function reset(string $id, string $token, Request $request)
     {
         $passwordRequest = $this->passwordManager->getResetRequest($id, $token);
@@ -58,9 +49,7 @@ class ResetPasswordAction extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/changed", name="changed", methods={"GET"})
-     */
+    #[Route(path: '/changed', name: 'changed', methods: ['GET'])]
     public function changed()
     {
         return $this->render('security/password_changed.html.twig');

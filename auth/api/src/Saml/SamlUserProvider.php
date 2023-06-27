@@ -14,11 +14,8 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlUserProvider implements UserProviderInterface
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function loadUserByUsername($username, string $idpName = null)

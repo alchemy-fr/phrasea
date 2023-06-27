@@ -14,7 +14,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
             'username' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json);
         $this->assertPasswordResetRequestCount(1);
@@ -39,7 +39,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
         ]);
         // Must return 200 otherwise it would allow attackers to scan usernames in database.
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(true, $json);
         $this->assertPasswordResetRequestCount(0);
@@ -51,7 +51,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
             'username' => 'foo@bar.com',
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(true, $json);
     }
 }

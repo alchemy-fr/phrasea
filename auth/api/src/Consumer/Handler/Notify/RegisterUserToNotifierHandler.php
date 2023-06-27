@@ -12,16 +12,10 @@ use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerExcept
 
 class RegisterUserToNotifierHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'register_user_to_notifier';
+    final public const EVENT = 'register_user_to_notifier';
 
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
-
-    public function __construct(NotifierInterface $notifier)
+    public function __construct(private readonly NotifierInterface $notifier)
     {
-        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -32,7 +26,7 @@ class RegisterUserToNotifierHandler extends AbstractEntityManagerHandler
 
         $user = $em->find(User::class, $userId);
         if (!$user instanceof User) {
-            throw new ObjectNotFoundForHandlerException(User::class, $userId, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(User::class, $userId, self::class);
         }
 
         $this->notifier->registerUser(

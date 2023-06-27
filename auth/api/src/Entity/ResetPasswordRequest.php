@@ -5,51 +5,34 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity(repositoryClass="App\Entity\ResetPasswordRequestRepository")
- * @ORM\Table
- */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
 class ResetPasswordRequest
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     private $id;
 
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=256)
-     */
-    private $token;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
-
-    public function __construct(User $user, string $token)
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: User::class)]
+        #[ORM\JoinColumn(nullable: false)]
+        private readonly User $user,
+        #[ORM\Column(type: 'string', length: 256)]
+        private readonly string $token,
+    )
     {
         $this->createdAt = new \DateTime();
-        $this->user = $user;
-        $this->token = $token;
     }
 
     public function getId(): string

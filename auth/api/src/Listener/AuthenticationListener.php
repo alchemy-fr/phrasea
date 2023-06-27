@@ -14,15 +14,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class AuthenticationListener implements EventSubscriberInterface
 {
-    private ReportUserService $reportUser;
-    private RequestStack $requestStack;
-
-    public function __construct(
-        ReportUserService $reportUser,
-        RequestStack $requestStack
-    ) {
-        $this->reportUser = $reportUser;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly ReportUserService $reportUser, private readonly RequestStack $requestStack)
+    {
     }
 
     public function onAccessToken(OAuthEvent $event)

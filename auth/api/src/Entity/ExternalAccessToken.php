@@ -4,74 +4,45 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Repository\ExternalAccessTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity
- * @ORM\Table()
- */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: ExternalAccessTokenRepository::class)]
 class ExternalAccessToken
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @var User
-     *
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     */
-    protected $identifier;
+    #[ORM\Column(type: 'string', length: 255)]
+    protected ?string $identifier = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=50)
-     */
-    protected $provider;
+    #[ORM\Column(type: 'string', length: 50)]
+    protected ?string $provider = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=5000)
-     */
-    protected $accessToken;
+    #[ORM\Column(type: 'string', length: 5000)]
+    protected ?string $accessToken = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=5000, nullable=true)
-     */
-    protected $refreshToken;
+    #[ORM\Column(type: 'string', length: 5000, nullable: true)]
+    protected ?string $refreshToken = null;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: 'datetime')]
+    private readonly \DateTime $createdAt;
 
-    /**
-     * @var \DateTime|null
-     *
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $expiresAt;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTime $expiresAt = null;
 
     public function __construct()
     {

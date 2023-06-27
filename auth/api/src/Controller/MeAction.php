@@ -12,20 +12,12 @@ use Symfony\Component\Security\Core\Security;
 
 class MeAction extends AbstractController
 {
-    /**
-     * @var Security
-     */
-    private $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    /**
-     * @Route(path="/me")
-     * @Route(path="/userinfo")
-     */
+    #[Route(path: '/me')]
+    #[Route(path: '/userinfo')]
     public function __invoke()
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');

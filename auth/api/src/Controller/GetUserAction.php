@@ -12,16 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GetUserAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
-    /**
-     * @Route(path="/users/{id}")
-     */
+    #[Route(path: '/users/{id}')]
     public function __invoke(string $id)
     {
         /** @var User $user */

@@ -12,13 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SetUserRolesCommand extends Command
 {
-    private $userManager;
-
-    public function __construct(UserManager $userManager)
+    public function __construct(private readonly UserManager $userManager)
     {
         parent::__construct();
-
-        $this->userManager = $userManager;
     }
 
     protected function configure()
@@ -46,7 +42,7 @@ class SetUserRolesCommand extends Command
             throw new \Exception(sprintf('User with username "%s" does not exist', $username));
         }
 
-        $roles = explode(',', $input->getArgument('roles'));
+        $roles = explode(',', (string) $input->getArgument('roles'));
         $user->setUserRoles($roles);
 
         $this->userManager->persistUser($user);

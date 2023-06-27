@@ -12,14 +12,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/{_locale}/register/invite", name="invite_")
- */
+#[Route(path: '/{_locale}/register/invite', name: 'invite_')]
 class InviteController extends AbstractController
 {
-    /**
-     * @Route(path="/confirm/{id}/{token}", name="confirm", methods={"GET", "POST"})
-     */
+    #[Route(path: '/confirm/{id}/{token}', name: 'confirm', methods: ['GET', 'POST'])]
     public function inviteConfirmAction(
         string $id,
         string $token,
@@ -49,9 +45,7 @@ class InviteController extends AbstractController
         return $this->redirectToRoute('invite_confirmed');
     }
 
-    /**
-     * @Route(path="/confirmed", name="confirmed", methods={"GET"})
-     */
+    #[Route(path: '/confirmed', name: 'confirmed', methods: ['GET'])]
     public function registerConfirmedAction()
     {
         return $this->render('invite/confirmed.html.twig', []);

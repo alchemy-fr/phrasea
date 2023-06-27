@@ -16,26 +16,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class UserInviteHandler extends AbstractEntityManagerHandler
 {
-    public const EVENT = 'user_invite';
+    final public const EVENT = 'user_invite';
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $router;
-    /**
-     * @var InviteManager
-     */
-    private $inviteManager;
-    /**
-     * @var NotifierInterface
-     */
-    private $notifier;
-
-    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $router, InviteManager $inviteManager)
+    public function __construct(private readonly NotifierInterface $notifier, private readonly UrlGeneratorInterface $router, private readonly InviteManager $inviteManager)
     {
-        $this->router = $router;
-        $this->inviteManager = $inviteManager;
-        $this->notifier = $notifier;
     }
 
     public function handle(EventMessage $message): void
@@ -48,7 +32,7 @@ class UserInviteHandler extends AbstractEntityManagerHandler
         try {
             $user = $em->find(User::class, $userId, LockMode::PESSIMISTIC_WRITE);
             if (!$user instanceof User) {
-                throw new ObjectNotFoundForHandlerException(User::class, $userId, __CLASS__);
+                throw new ObjectNotFoundForHandlerException(User::class, $userId, self::class);
             }
 
             if (!$this->inviteManager->userCanBeInvited($user)) {

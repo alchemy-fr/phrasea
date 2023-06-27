@@ -18,27 +18,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
-/**
- * @Route("/oauth", name="oauth_")
- */
+#[Route(path: '/oauth', name: 'oauth_')]
 class OAuthController extends AbstractIdentityProviderController
 {
-    private OAuthUserProvider $OAuthUserProvider;
-    private AuthStateEncoder $authStateEncoder;
-
-    public function __construct(
-        OAuthUserProvider $OAuthUserProvider,
-        AuthStateEncoder $authStateEncoder
-    ) {
-        $this->OAuthUserProvider = $OAuthUserProvider;
-        $this->authStateEncoder = $authStateEncoder;
+    public function __construct(private readonly OAuthUserProvider $OAuthUserProvider, private readonly AuthStateEncoder $authStateEncoder)
+    {
     }
 
     /**
      * Used direct authentication in Auth service.
-     *
-     * @Route(path="/{provider}/entrypoint", name="entrypoint")
      */
+    #[Route(path: '/{provider}/entrypoint', name: 'entrypoint')]
     public function entrypoint(string $provider, Request $request, OAuthProviderFactory $OAuthFactory)
     {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
@@ -59,9 +49,8 @@ class OAuthController extends AbstractIdentityProviderController
 
     /**
      * Used for redirecting to client app (not Auth service).
-     *
-     * @Route(path="/{provider}/authorize", name="authorize")
      */
+    #[Route(path: '/{provider}/authorize', name: 'authorize')]
     public function authorize(string $provider, Request $request, OAuthProviderFactory $OAuthFactory)
     {
         $resourceOwner = $OAuthFactory->createResourceOwner($provider);
@@ -115,9 +104,7 @@ class OAuthController extends AbstractIdentityProviderController
         return $this->OAuthUserProvider->loadUserByOAuthUserResponse($userInformation);
     }
 
-    /**
-     * @Route(path="/check/{provider}", name="check")
-     */
+    #[Route(path: '/check/{provider}', name: 'check')]
     public function check(
         string $provider,
         Request $request,

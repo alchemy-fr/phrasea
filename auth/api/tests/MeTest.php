@@ -13,7 +13,7 @@ class MeTest extends AbstractTestCase
         $response = $this->request($accessToken, 'GET', '/me');
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertArrayHasKey('user_id', $json);
         $this->assertArrayHasKey('username', $json);
         $this->assertArrayHasKey('email', $json);
