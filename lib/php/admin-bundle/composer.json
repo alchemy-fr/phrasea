@@ -27,6 +27,7 @@
     "sort-packages": true
   },
   "scripts": {
+    "rector": "vendor/bin/rector",
     "cs": "vendor/bin/php-cs-fixer fix",
     "test": "./vendor/bin/phpunit"
   },

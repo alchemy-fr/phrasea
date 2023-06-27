@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "e2481e6bddb08e80aba02a14fcc8517f7a0ebf30"
+                "reference": "b26c7864c8de31ae587ac42cf6b9bf85a57d8ecf"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -72,7 +72,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -115,7 +115,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "5324b5250e8425f18dbe4fb0f1ea7e0efea59fa5"
+                "reference": "b7362f1d57c1a8ca320c29f91676ff79543df95a"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -125,7 +125,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -165,7 +165,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
-                "reference": "6177bf9f336e89e29895862c6e735693573aa827"
+                "reference": "611158d4550d945a3c6c89597bd2b3dd7c21f3b9"
             },
             "require": {
                 "alchemy/phpexiftool": "^4.0.0",
@@ -176,7 +176,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -437,7 +437,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/test-bundle",
-                "reference": "f0de417b2990f4039d2c1581d5201426d36c2ed1"
+                "reference": "f7fa72336c2d0034be86bc2f870b303e641276e9"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -445,7 +445,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -538,7 +538,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow",
-                "reference": "fcdefc37908ff7d4098748e9b89b1160c4962e97"
+                "reference": "f0cfc42da9a1de36d613a7d75028e693af52b9bd"
             },
             "require": {
                 "ext-json": "*",
@@ -554,7 +554,7 @@
                 "arthem/rabbit-bundle": "@dev",
                 "doctrine/orm": "^2.14",
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2",
+                "phpunit/phpunit": "^9.5",
                 "symfony/var-dumper": "^5.4"
             },
             "type": "library",
@@ -603,7 +603,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow-bundle",
-                "reference": "804b88357ac011b457d41241a44b62cff8a330b8"
+                "reference": "9ac8b8f44b1f88ba9a099d7db82dd6180cfb0834"
             },
             "require": {
                 "alchemy/workflow": "@dev",
@@ -615,7 +615,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^10.2"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
