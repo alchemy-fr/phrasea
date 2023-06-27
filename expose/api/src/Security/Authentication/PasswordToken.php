@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Security\Authentication;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
-use Throwable;
 
 class PasswordToken extends AbstractToken
 {
@@ -31,7 +30,7 @@ class PasswordToken extends AbstractToken
     {
         try {
             $passwords = json_decode(base64_decode($this->passwords), true);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             return null;
         }
 

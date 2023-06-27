@@ -10,7 +10,6 @@ use App\Entity\Asset;
 use App\Entity\EnvVar;
 use App\Entity\FailedEvent;
 use App\Entity\Publication;
-use App\Entity\PublicationAsset;
 use App\Entity\PublicationProfile;
 use App\Entity\SubDefinition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;

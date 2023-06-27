@@ -18,7 +18,7 @@ class TermsConfigType extends AbstractType
         $builder
             ->add('text', TextareaType::class)
             ->add('url', UrlType::class)
-            ;
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

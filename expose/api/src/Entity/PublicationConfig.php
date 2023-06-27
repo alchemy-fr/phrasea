@@ -18,20 +18,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class PublicationConfig implements MergeableValueObjectInterface
 {
-    const SECURITY_METHOD_NONE = null;
-    const SECURITY_METHOD_PASSWORD = 'password';
-    const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    public const SECURITY_METHOD_NONE = null;
+    public const SECURITY_METHOD_PASSWORD = 'password';
+    public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     /**
      * @ApiProperty()
+     *
      * @ORM\Column(type="boolean", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $enabled = null;
 
     /**
      * @ApiProperty()
+     *
      * @ORM\Column(type="boolean", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $downloadViaEmail = null;
@@ -40,7 +44,9 @@ class PublicationConfig implements MergeableValueObjectInterface
      * Download Terms URL must also be set.
      *
      * @ApiProperty()
+     *
      * @ORM\Column(type="boolean", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $includeDownloadTermsInZippy = null;
@@ -49,7 +55,9 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty()
      *
      * @var Url[]|array
+     *
      * @ORM\Column(type="json")
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private array $urls = [];
@@ -58,6 +66,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $copyrightText = null;
@@ -66,50 +75,58 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $css = null;
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $layout = null;
 
     /**
      * @ORM\Column(type="string", length=30, nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $theme = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $publiclyListed = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?bool $downloadEnabled = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?DateTime $beginsAt = null;
+    private ?\DateTime $beginsAt = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private ?DateTime $expiresAt = null;
+    private ?\DateTime $expiresAt = null;
 
     /**
      * @ApiProperty(readableLink=true)
      *
      * @ORM\Embedded(class="App\Entity\TermsConfig")
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private TermsConfig $terms;
@@ -118,6 +135,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty(readableLink=true)
      *
      * @ORM\Embedded(class="App\Entity\TermsConfig")
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private TermsConfig $downloadTerms;
@@ -128,6 +146,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Column(type="string", length=20, nullable=true)
      *
      * @ApiProperty()
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private ?string $securityMethod = null;
@@ -139,23 +158,28 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ORM\Column(type="json")
      *
      * @ApiProperty()
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
     private array $securityOptions = [];
 
     /**
      * @var MapOptions|array|null
+     *
      * @ORM\Column(type="json", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private $mapOptions = null;
+    private $mapOptions;
 
     /**
      * @var LayoutOptions|array|null
+     *
      * @ORM\Column(type="json", nullable=true)
+     *
      * @Groups({"profile:read", "publication:admin:read"})
      */
-    private $layoutOptions = null;
+    private $layoutOptions;
 
     public function __construct()
     {
@@ -279,22 +303,22 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->layout = $layout;
     }
 
-    public function getBeginsAt(): ?DateTime
+    public function getBeginsAt(): ?\DateTime
     {
         return $this->beginsAt;
     }
 
-    public function setBeginsAt(?DateTime $beginsAt): void
+    public function setBeginsAt(?\DateTime $beginsAt): void
     {
         $this->beginsAt = $beginsAt;
     }
 
-    public function getExpiresAt(): ?DateTime
+    public function getExpiresAt(): ?\DateTime
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(?DateTime $expiresAt): void
+    public function setExpiresAt(?\DateTime $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }

@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ *
  * @ApiResource(
  *     itemOperations={
  *         "get"={
@@ -36,6 +37,7 @@ class DownloadRequest
 {
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"publication:index", "publication:index", "publication:read", "asset:read"})
      *
      * @var Uuid
@@ -65,6 +67,7 @@ class DownloadRequest
      *         }
      *     }
      * )
+     *
      * @ORM\ManyToOne(targetEntity="Publication")
      * @ORM\JoinColumn(onDelete="CASCADE")
      */
@@ -78,6 +81,7 @@ class DownloadRequest
      *         }
      *     }
      * )
+     *
      * @ORM\ManyToOne(targetEntity="Asset")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
@@ -91,6 +95,7 @@ class DownloadRequest
      *         }
      *     }
      * )
+     *
      * @ORM\ManyToOne(targetEntity="SubDefinition")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
@@ -99,11 +104,11 @@ class DownloadRequest
     /**
      * @ORM\Column(type="datetime")
      */
-    private DateTime $createdAt;
+    private \DateTime $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -142,7 +147,7 @@ class DownloadRequest
         $this->asset = $asset;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

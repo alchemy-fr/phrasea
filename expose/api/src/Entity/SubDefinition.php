@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SubDefinitionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_asset_type",columns={"asset_id", "name"})})
+ *
  * @ApiResource(
  *     normalizationContext=SubDefinition::API_READ,
  *     itemOperations={
@@ -26,17 +27,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class SubDefinition implements MediaInterface
 {
-    const THUMBNAIL = 'thumbnail';
-    const PREVIEW = 'preview';
-    const POSTER = 'poster';
+    public const THUMBNAIL = 'thumbnail';
+    public const PREVIEW = 'preview';
+    public const POSTER = 'poster';
 
-    const API_READ = [
+    public const API_READ = [
         'groups' => ['subdef:read'],
         'swagger_definition_name' => 'Read',
     ];
 
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"asset:read", "publication:read", "subdef:read"})
      *
      * @var Uuid
@@ -54,7 +56,9 @@ class SubDefinition implements MediaInterface
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"asset:read", "publication:read", "subdef:read"})
+     *
      * @ORM\Column(type="string", length=30)
      */
     private ?string $name = null;
@@ -66,47 +70,55 @@ class SubDefinition implements MediaInterface
 
     /**
      * @Groups({"subdef:read", "publication:read", "asset:read"})
+     *
      * @ORM\Column(type="bigint", options={"unsigned"=true})
      */
     private ?string $size = null;
 
     /**
      * @ORM\Column(type="string", length=255)
+     *
      * @ApiProperty()
+     *
      * @Groups({"subdef:read", "asset:read"})
      */
     private ?string $mimeType = null;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(type="datetime")
+     *
      * @ApiProperty()
+     *
      * @Groups({"subdef:read"})
      */
-    private ?DateTime $createdAt = null;
+    private ?\DateTime $createdAt = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"subdef:read", "asset:read", "publication:read"})
      */
     private ?string $url = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"subdef:read", "asset:read", "publication:read"})
      */
     private ?string $downloadUrl = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"subdef:read", "asset:read"})
      */
     private ?string $uploadURL = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -145,7 +157,7 @@ class SubDefinition implements MediaInterface
         $this->mimeType = $mimeType;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

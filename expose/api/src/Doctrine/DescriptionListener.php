@@ -14,13 +14,12 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use HTMLPurifier;
 
 class DescriptionListener implements EventSubscriber
 {
-    private HTMLPurifier $purifier;
+    private \HTMLPurifier $purifier;
 
-    public function __construct(HTMLPurifier $purifier)
+    public function __construct(\HTMLPurifier $purifier)
     {
         $this->purifier = $purifier;
     }

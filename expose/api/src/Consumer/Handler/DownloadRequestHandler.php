@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DownloadRequestHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'download_request';
+    public const EVENT = 'download_request';
 
     private NotifierInterface $notifier;
     private UrlGeneratorInterface $urlGenerator;

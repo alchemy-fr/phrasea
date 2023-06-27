@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Factory;
 
-use App\Security\Authentication\PasswordTokenProvider;
 use App\Security\Authenticator\PasswordTokenAuthenticator;
-use App\Security\Firewall\PasswordTokenListener;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;

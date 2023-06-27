@@ -13,11 +13,11 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationProfileVoter extends Voter
 {
-    const CREATE = 'profile:create';
-    const INDEX = 'profile:index';
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
+    public const CREATE = 'profile:create';
+    public const INDEX = 'profile:index';
+    public const READ = 'READ';
+    public const EDIT = 'EDIT';
+    public const DELETE = 'DELETE';
 
     private Security $security;
 
@@ -55,12 +55,12 @@ class PublicationProfileVoter extends Voter
                 return $isAdmin
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                    ;
+                ;
             case self::EDIT:
                 return $isAdmin
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                    ;
+                ;
             default:
                 return false;
         }

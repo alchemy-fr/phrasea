@@ -14,12 +14,14 @@ class TermsConfig implements MergeableValueObjectInterface
 {
     /**
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"profile:read", "publication:read"})
      */
     private ?string $text = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     *
      * @Groups({"profile:read", "publication:read"})
      */
     private ?string $url = null;

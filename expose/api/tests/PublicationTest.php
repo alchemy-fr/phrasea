@@ -8,8 +8,6 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
-use DateInterval;
-use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -582,13 +580,13 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => $enabled,
         ];
         if (null !== $start) {
-            $startDate = new DateTime();
-            $startDate->add(DateInterval::createFromDateString($start));
+            $startDate = new \DateTime();
+            $startDate->add(\DateInterval::createFromDateString($start));
             $options['startDate'] = $startDate;
         }
         if (null !== $end) {
-            $endDate = new DateTime();
-            $endDate->add(DateInterval::createFromDateString($end));
+            $endDate = new \DateTime();
+            $endDate->add(\DateInterval::createFromDateString($end));
             $options['endDate'] = $endDate;
         }
         $id = $this->createPublication($options)->getId();
@@ -618,13 +616,13 @@ class PublicationTest extends AbstractExposeTestCase
             'publiclyListed' => $listed,
         ];
         if (null !== $start) {
-            $startDate = new DateTime();
-            $startDate->add(DateInterval::createFromDateString($start));
+            $startDate = new \DateTime();
+            $startDate->add(\DateInterval::createFromDateString($start));
             $options['startDate'] = $startDate;
         }
         if (null !== $end) {
-            $endDate = new DateTime();
-            $endDate->add(DateInterval::createFromDateString($end));
+            $endDate = new \DateTime();
+            $endDate->add(\DateInterval::createFromDateString($end));
             $options['endDate'] = $endDate;
         }
         $this->createPublication($options);

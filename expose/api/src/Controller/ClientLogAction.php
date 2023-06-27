@@ -25,8 +25,7 @@ class ClientLogAction
         private readonly ReportUserService $reportClient,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     /**
@@ -63,7 +62,7 @@ class ClientLogAction
         );
     }
 
-    private function pushLog(Request $request, string $action, ?string $item = null, array $payload = []): Response
+    private function pushLog(Request $request, string $action, string $item = null, array $payload = []): Response
     {
         $this->terminateStackListener->addCallback(function () use ($request, $action, $item, $payload): void {
             $this->reportClient->pushHttpRequestLog(

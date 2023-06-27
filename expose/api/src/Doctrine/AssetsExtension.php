@@ -18,7 +18,7 @@ class AssetsExtension implements ContextAwareQueryCollectionExtensionInterface
         string $operationName = null,
         array $context = []
     ) {
-        if ($resourceClass !== Asset::class || !($context['collection'] ?? false)) {
+        if (Asset::class !== $resourceClass || !($context['collection'] ?? false)) {
             return;
         }
 

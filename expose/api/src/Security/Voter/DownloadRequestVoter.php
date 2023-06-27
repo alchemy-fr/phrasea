@@ -14,10 +14,10 @@ use Symfony\Component\Security\Core\Security;
 
 class DownloadRequestVoter extends Voter
 {
-    const LIST = 'download_request:list';
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
+    public const LIST = 'download_request:list';
+    public const READ = 'READ';
+    public const EDIT = 'EDIT';
+    public const DELETE = 'DELETE';
 
     private Security $security;
     private EntityManagerInterface $em;

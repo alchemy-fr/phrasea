@@ -197,7 +197,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertEquals('p2', $json[1]['title']);
     }
 
-    private function createTree(array $tree, array $options, array &$ids, ?string $parentName = null): void
+    private function createTree(array $tree, array $options, array &$ids, string $parentName = null): void
     {
         foreach ($tree as $pubName => $children) {
             $options['title'] = $pubName;

@@ -8,7 +8,6 @@ use App\Entity\Asset;
 use App\Security\Voter\PublicationVoter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Throwable;
 
 final class SortAssetsAction extends AbstractAssetAction
 {
@@ -37,7 +36,7 @@ final class SortAssetsAction extends AbstractAssetAction
                     ]);
             }
             $this->em->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;
         }

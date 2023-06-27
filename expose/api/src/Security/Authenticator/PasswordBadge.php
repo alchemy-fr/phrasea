@@ -18,9 +18,6 @@ class PasswordBadge implements BadgeInterface
         $this->passwords = $passwords;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isResolved(): bool
     {
         return true;

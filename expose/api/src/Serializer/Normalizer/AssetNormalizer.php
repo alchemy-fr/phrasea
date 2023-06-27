@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Serializer\Normalizer;
 
 use App\Entity\Asset;
-use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
@@ -15,6 +14,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
     public function __construct(private readonly Security $security)
     {
     }
+
     /**
      * @param Asset $object
      */
@@ -28,7 +28,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
                 $context['groups'] = ['_'];
             }
         }
-        
+
         $downloadViaEmail = $context['download_via_email'] ?? false;
 
         if (!$downloadViaEmail) {

@@ -17,6 +17,7 @@ trait ClientAnnotationsTrait
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"publication:admin:read", "asset:admin:read", "profile:admin:read"})
      */
     private ?string $clientAnnotations = null;

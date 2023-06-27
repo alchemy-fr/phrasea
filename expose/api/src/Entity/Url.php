@@ -21,7 +21,7 @@ class Url implements \JsonSerializable
      */
     private ?string $url;
 
-    public function __construct(?string $text = null, ?string $url = null)
+    public function __construct(string $text = null, string $url = null)
     {
         $this->text = $text;
         $this->url = $url;

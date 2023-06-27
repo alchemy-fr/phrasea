@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Alchemy\StorageBundle\Storage\UrlSigner;
-use App\Entity\Asset;
 use App\Entity\MediaInterface;
 use App\Entity\SubDefinition;
 

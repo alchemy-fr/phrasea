@@ -11,10 +11,10 @@ use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
-    const CREATE = 'CREATE';
+    public const READ = 'READ';
+    public const EDIT = 'EDIT';
+    public const DELETE = 'DELETE';
+    public const CREATE = 'CREATE';
 
     private Security $security;
 

@@ -10,10 +10,7 @@ use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
-use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Security;
 
 class ExposeDataPersister implements ContextAwareDataPersisterInterface
@@ -44,7 +41,7 @@ class ExposeDataPersister implements ContextAwareDataPersisterInterface
             if ($data->getParentId()) {
                 $parent = $this->em->find(Publication::class, $data->getParentId());
                 if (!$parent instanceof Publication) {
-                    throw new InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
+                    throw new \InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
                 }
 
                 $parent->addChild($data);

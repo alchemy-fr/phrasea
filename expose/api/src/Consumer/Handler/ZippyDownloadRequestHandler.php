@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'zippy_download_request';
+    public const EVENT = 'zippy_download_request';
 
     private NotifierInterface $notifier;
     private ZippyManager $zippyManager;

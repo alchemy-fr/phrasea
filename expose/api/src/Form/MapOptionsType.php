@@ -21,7 +21,7 @@ class MapOptionsType extends AbstractType
             ->add('mapLayout', MapLayoutChoiceType::class, [
                 'required' => false,
             ])
-            ;
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

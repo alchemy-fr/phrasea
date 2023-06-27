@@ -18,6 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ *
  * @ApiResource(
  *     normalizationContext=PublicationProfile::API_READ,
  *     itemOperations={
@@ -46,21 +47,22 @@ class PublicationProfile implements AclObjectInterface
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    const GROUP_ADMIN_READ = 'profile:admin:read';
-    const GROUP_READ = 'profile:read';
-    const GROUP_LIST = 'profile:index';
+    public const GROUP_ADMIN_READ = 'profile:admin:read';
+    public const GROUP_READ = 'profile:read';
+    public const GROUP_LIST = 'profile:index';
 
-    const API_READ = [
+    public const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
-    const API_LIST = [
+    public const API_LIST = [
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
 
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"profile:index", "profile:read", "publication:read"})
      *
      * @var Uuid
@@ -74,38 +76,44 @@ class PublicationProfile implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="string", length=150)
+     *
      * @Groups({"profile:index", "profile:read", "publication:read"})
      */
     private ?string $name = null;
 
     /**
      * @ORM\Embedded(class="App\Entity\PublicationConfig")
+     *
      * @Groups({"profile:index", "profile:read", "publication:read"})
      */
     private PublicationConfig $config;
 
     /**
      * @ApiProperty()
+     *
      * @ORM\Column(type="string", nullable=true)
+     *
      * @Groups({"profile:admin:read"})
      */
     private ?string $ownerId = null;
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Groups({"profile:read"})
      */
-    private DateTime $createdAt;
+    private \DateTime $createdAt;
 
     /**
      * @var Publication[]|Collection
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\Publication", mappedBy="profile")
      */
     private ?Collection $publications = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->config = new PublicationConfig();
         $this->id = Uuid::uuid4();
         $this->publications = new ArrayCollection();
@@ -146,7 +154,7 @@ class PublicationProfile implements AclObjectInterface
         $this->ownerId = $ownerId;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }

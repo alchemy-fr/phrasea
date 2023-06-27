@@ -25,7 +25,7 @@ class JWTManager
         $this->ttl = $ttl;
     }
 
-    public function signUri(string $uri, ?int $ttl = null): string
+    public function signUri(string $uri, int $ttl = null): string
     {
         $config = $this->getConfig();
         $token = $config->builder()

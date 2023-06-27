@@ -34,17 +34,17 @@ class EnvVar
     /**
      * @ORM\Column(type="datetime")
      */
-    private DateTime $createdAt;
+    private \DateTime $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private DateTime $updatedAt;
+    private \DateTime $updatedAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
         $this->id = Uuid::uuid4();
     }
 
@@ -53,17 +53,17 @@ class EnvVar
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): \DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(DateTime $updatedAt): void
+    public function setUpdatedAt(\DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

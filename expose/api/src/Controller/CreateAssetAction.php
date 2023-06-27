@@ -9,7 +9,6 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
 use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

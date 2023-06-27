@@ -20,7 +20,6 @@ use App\Filter\PublicationFilter;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use DateTime;
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,9 +31,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity()
+ *
  * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
  * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
+ *
  * @ApiResource(
  *     attributes={
  *         "order"={"title": "ASC"},
@@ -115,25 +116,26 @@ class Publication implements AclObjectInterface
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    const GROUP_READ = 'publication:read';
-    const GROUP_ADMIN_READ = 'publication:admin:read';
-    const GROUP_LIST = 'publication:index';
+    public const GROUP_READ = 'publication:read';
+    public const GROUP_ADMIN_READ = 'publication:admin:read';
+    public const GROUP_LIST = 'publication:index';
 
-    const API_READ = [
+    public const API_READ = [
         'groups' => [self::GROUP_READ],
         'swagger_definition_name' => 'Read',
     ];
-    const API_LIST = [
+    public const API_LIST = [
         'groups' => [self::GROUP_LIST],
         'swagger_definition_name' => 'List',
     ];
 
-    const SECURITY_METHOD_NONE = null;
-    const SECURITY_METHOD_PASSWORD = 'password';
-    const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    public const SECURITY_METHOD_NONE = null;
+    public const SECURITY_METHOD_PASSWORD = 'password';
+    public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     /**
      * @ApiProperty(identifier=true)
+     *
      * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      *
      * @var Uuid
@@ -147,6 +149,7 @@ class Publication implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="string", length=255)
+     *
      * @Groups({"publication:index", "publication:read"})
      */
     private ?string $title = null;
@@ -155,6 +158,7 @@ class Publication implements AclObjectInterface
      * @ApiProperty()
      *
      * @ORM\Column(type="text", nullable=true)
+     *
      * @Groups({"publication:index", "publication:read"})
      */
     private ?string $description = null;
@@ -163,6 +167,7 @@ class Publication implements AclObjectInterface
      * @var Asset[]|Collection
      *
      * @ApiSubresource(maxDepth=1)
+     *
      * @ApiProperty(
      *     attributes={
      *         "swagger_context"={
@@ -170,8 +175,11 @@ class Publication implements AclObjectInterface
      *         }
      *     }
      * )
+     *
      * @Groups({"publication:read"})
+     *
      * @MaxDepth(1)
+     *
      * @ORM\OneToMany(targetEntity=Asset::class, mappedBy="publication", cascade={"remove"})
      * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
@@ -185,7 +193,9 @@ class Publication implements AclObjectInterface
      *         }
      *     },
      * )
+     *
      * @ORM\ManyToOne(targetEntity="PublicationProfile")
+     *
      * @Groups({"publication:read", "publication:admin:read"})
      */
     private ?PublicationProfile $profile = null;
@@ -198,6 +208,7 @@ class Publication implements AclObjectInterface
      *         }
      *     }
      * )
+     *
      * @ORM\ManyToOne(targetEntity="Asset")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
@@ -211,33 +222,40 @@ class Publication implements AclObjectInterface
      *         }
      *     }
      * )
+     *
      * @ORM\ManyToOne(targetEntity="Asset")
      * @ORM\JoinColumn(onDelete="SET NULL")
+     *
      * @Groups({"publication:admin:read", "publication:index", "publication:read"})
      */
     private ?Asset $cover = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"publication:read"})
      */
     private ?string $packageUrl = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"publication:read"})
      */
     private ?string $archiveDownloadUrl = null;
 
     /**
      * @ApiProperty()
+     *
      * @ORM\Column(type="string", nullable=true)
+     *
      * @Groups({"publication:admin:read"})
      */
     private ?string $ownerId = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private bool $authorized = false;
@@ -246,12 +264,14 @@ class Publication implements AclObjectInterface
      * Password identifier for the current publication branch.
      *
      * @ApiProperty()
+     *
      * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
     private ?string $securityContainerId = null;
 
     /**
      * @ApiProperty()
+     *
      * @Groups({"_", "publication:index", "asset:read"})
      */
     private ?string $authorizationError = null;
@@ -265,7 +285,9 @@ class Publication implements AclObjectInterface
      *         }
      *     }
      * )
+     *
      * @Groups({"publication:read"})
+     *
      * @MaxDepth(1)
      *
      * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
@@ -280,7 +302,9 @@ class Publication implements AclObjectInterface
      *         }
      *     }
      * )
+     *
      * @Groups({"publication:read"})
+     *
      * @MaxDepth(1)
      *
      * @var Publication[]|Collection
@@ -296,6 +320,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @ORM\Embedded(class="App\Entity\PublicationConfig")
+     *
      * @Groups({"publication:index", "publication:admin:read"})
      */
     private PublicationConfig $config;
@@ -304,6 +329,7 @@ class Publication implements AclObjectInterface
      * Virtual property.
      *
      * @deprecated
+     *
      * @ApiProperty()
      *
      * @Groups({"publication:write"})
@@ -314,6 +340,7 @@ class Publication implements AclObjectInterface
      * URL slug.
      *
      * @ApiProperty()
+     *
      * @Groups({"_", "publication:index", "publication:index", "publication:read"})
      *
      * @ORM\Column(type="string", length=100, nullable=true, unique=true)
@@ -322,18 +349,21 @@ class Publication implements AclObjectInterface
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     *
      * @Groups({"publication:read", "publication:index"})
      */
-    private ?DateTime $date = null;
+    private ?\DateTime $date = null;
 
     /**
      * @ORM\Column(type="datetime")
+     *
      * @Groups({"publication:read"})
      */
-    private DateTime $createdAt;
+    private \DateTime $createdAt;
 
     /**
      * @ApiProperty(writable=false)
+     *
      * @Groups({"publication:read", "asset:read"})
      */
     private ?string $cssLink = null;
@@ -350,7 +380,7 @@ class Publication implements AclObjectInterface
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTime();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
@@ -380,7 +410,7 @@ class Publication implements AclObjectInterface
         $this->title = $title;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -449,6 +479,7 @@ class Publication implements AclObjectInterface
 
     /**
      * @return Url[]|array
+     *
      * @Groups({"publication:read"})
      */
     public function getUrls(): array
@@ -754,16 +785,16 @@ class Publication implements AclObjectInterface
         $this->cover = $cover;
     }
 
-    public function isVisible(DateTimeInterface $now = null): bool
+    public function isVisible(\DateTimeInterface $now = null): bool
     {
-        $now ??= new DateTime();
+        $now ??= new \DateTime();
 
         return $this->isEnabled()
             && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
             && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
     }
 
-    public function getBeginsAt(): ?DateTime
+    public function getBeginsAt(): ?\DateTime
     {
         if (null !== $this->config->getBeginsAt()) {
             return $this->config->getBeginsAt();
@@ -776,7 +807,7 @@ class Publication implements AclObjectInterface
         return null;
     }
 
-    public function getExpiresAt(): ?DateTime
+    public function getExpiresAt(): ?\DateTime
     {
         if (null !== $this->config->getExpiresAt()) {
             return $this->config->getExpiresAt();
@@ -789,12 +820,12 @@ class Publication implements AclObjectInterface
         return null;
     }
 
-    public function getDate(): ?DateTime
+    public function getDate(): ?\DateTime
     {
         return $this->date;
     }
 
-    public function setDate(?DateTime $date): void
+    public function setDate(?\DateTime $date): void
     {
         $this->date = $date;
     }

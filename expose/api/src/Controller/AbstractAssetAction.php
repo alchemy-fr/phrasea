@@ -62,7 +62,6 @@ class AbstractAssetAction extends AbstractController
             throw new NotFoundHttpException(sprintf('SubDef "%s" is not from publication "%s"', $subDef->getId(), $publication->getId()));
         }
 
-
         return $subDef;
     }
 

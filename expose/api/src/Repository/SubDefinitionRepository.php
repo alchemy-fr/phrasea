@@ -20,6 +20,6 @@ class SubDefinitionRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }

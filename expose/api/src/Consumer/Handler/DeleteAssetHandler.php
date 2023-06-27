@@ -10,7 +10,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
 class DeleteAssetHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'delete_asset';
+    public const EVENT = 'delete_asset';
 
     private FileStorageManager $storageManager;
 

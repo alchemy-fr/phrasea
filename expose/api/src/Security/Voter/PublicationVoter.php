@@ -21,14 +21,14 @@ use Symfony\Component\Security\Core\Security;
 
 class PublicationVoter extends Voter
 {
-    const PUBLISH = 'publication:publish';
-    const CREATE = 'CREATE';
-    const INDEX = 'publication:index';
-    const READ = 'READ';
-    const READ_DETAILS = 'READ_DETAILS';
-    const OPERATOR = 'OPERATOR';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
+    public const PUBLISH = 'publication:publish';
+    public const CREATE = 'CREATE';
+    public const INDEX = 'publication:index';
+    public const READ = 'READ';
+    public const READ_DETAILS = 'READ_DETAILS';
+    public const OPERATOR = 'OPERATOR';
+    public const EDIT = 'EDIT';
+    public const DELETE = 'DELETE';
 
     private Security $security;
     private RequestStack $requestStack;
@@ -100,17 +100,17 @@ class PublicationVoter extends Voter
                 return $isAdmin
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                    ;
+                ;
             case self::OPERATOR:
                 return $isAdmin
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
-                    ;
+                ;
             case self::EDIT:
                 return $isAdmin
                     || $isOwner
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                    ;
+                ;
             default:
                 return false;
         }
