@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Basket extends AbstractUuidEntity
 {
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: false)]
     private Collection $collection;
 

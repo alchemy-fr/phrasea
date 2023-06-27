@@ -19,7 +19,6 @@ use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Filter\PublicationFilter;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,10 +29,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
- *
  * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
  * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
+ *
  * @ApiResource(
  *     attributes={
  *         "order"={"title": "ASC"},
@@ -135,9 +134,7 @@ class Publication implements AclObjectInterface, \Stringable
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['_', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
@@ -146,8 +143,6 @@ class Publication implements AclObjectInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['publication:index', 'publication:read'])]
@@ -155,8 +150,6 @@ class Publication implements AclObjectInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['publication:index', 'publication:read'])]
@@ -174,9 +167,6 @@ class Publication implements AclObjectInterface, \Stringable
      *         }
      *     }
      * )
-     *
-     *
-     *
      */
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
@@ -192,10 +182,8 @@ class Publication implements AclObjectInterface, \Stringable
      *         }
      *     },
      * )
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: 'PublicationProfile')]
+    #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
     #[Groups(['publication:read', 'publication:admin:read'])]
     private ?PublicationProfile $profile = null;
 
@@ -208,7 +196,7 @@ class Publication implements AclObjectInterface, \Stringable
      *     }
      * )
      */
-    #[ORM\ManyToOne(targetEntity: 'Asset')]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $package = null;
 
@@ -220,10 +208,8 @@ class Publication implements AclObjectInterface, \Stringable
      *         }
      *     }
      * )
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: 'Asset')]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     #[Groups(['publication:admin:read', 'publication:index', 'publication:read'])]
     private ?Asset $cover = null;
@@ -242,8 +228,6 @@ class Publication implements AclObjectInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['publication:admin:read'])]
@@ -278,13 +262,10 @@ class Publication implements AclObjectInterface, \Stringable
      *         }
      *     }
      * )
-     *
-     *
-     *
      */
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
-    #[ORM\ManyToOne(targetEntity: 'Publication', inversedBy: 'children')]
+    #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
     private ?Publication $parent = null;
 
     /**
@@ -296,17 +277,14 @@ class Publication implements AclObjectInterface, \Stringable
      *     }
      * )
      *
-     *
-     *
      * @var Publication[]|Collection
-     *
      */
     #[ORM\JoinTable(name: 'publication_children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'child_id', referencedColumnName: 'id')]
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
-    #[ORM\OneToMany(targetEntity: 'Publication', mappedBy: 'parent', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'parent', cascade: ['remove'])]
     #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
 
@@ -328,8 +306,6 @@ class Publication implements AclObjectInterface, \Stringable
      * URL slug.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[Groups(['_', 'publication:index', 'publication:index', 'publication:read'])]
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]

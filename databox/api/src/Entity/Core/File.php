@@ -26,10 +26,8 @@ class File extends AbstractUuidEntity implements \Stringable
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'files')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'files')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;

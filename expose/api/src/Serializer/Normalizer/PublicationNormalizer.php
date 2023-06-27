@@ -46,7 +46,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $context['download_via_email'] = true;
         }
 
-        $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn(Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
+        $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
 
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));

@@ -31,7 +31,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
  *
- *
  * @ApiResource()
  */
 #[ORM\Table]
@@ -52,17 +51,15 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     #[ORM\Column(type: 'string', length: 36)]
     private ?string $ownerId = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'children')]
+    #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
     #[ORM\JoinColumn(nullable: true)]
     #[MaxDepth(1)]
     private ?self $parent = null;
 
     /**
      * @var self[]
-     *
-     *
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Collection::class, mappedBy: 'parent')]
+    #[ORM\OneToMany(targetEntity: Collection::class, mappedBy: 'parent')]
     #[ORM\JoinColumn(nullable: true)]
     #[MaxDepth(1)]
     private ?DoctrineCollection $children = null;
@@ -72,13 +69,13 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
      */
     private ?bool $hasChildren = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\CollectionAsset::class, mappedBy: 'collection', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: CollectionAsset::class, mappedBy: 'collection', cascade: ['persist'])]
     private ?DoctrineCollection $assets = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Asset::class, mappedBy: 'referenceCollection')]
+    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'referenceCollection')]
     private ?DoctrineCollection $referenceAssets = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'collections')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;

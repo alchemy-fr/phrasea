@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -37,9 +36,7 @@ class DownloadRequest
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['publication:index', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
@@ -64,7 +61,7 @@ class DownloadRequest
      *     }
      * )
      */
-    #[ORM\ManyToOne(targetEntity: 'Publication')]
+    #[ORM\ManyToOne(targetEntity: Publication::class)]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Publication $publication = null;
 
@@ -77,7 +74,7 @@ class DownloadRequest
      *     }
      * )
      */
-    #[ORM\ManyToOne(targetEntity: 'Asset')]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $asset = null;
 
@@ -90,7 +87,7 @@ class DownloadRequest
      *     }
      * )
      */
-    #[ORM\ManyToOne(targetEntity: 'SubDefinition')]
+    #[ORM\ManyToOne(targetEntity: SubDefinition::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?SubDefinition $subDefinition = null;
 

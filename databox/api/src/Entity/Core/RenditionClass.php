@@ -22,10 +22,8 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'renditionClasses')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionClasses')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
@@ -41,7 +39,7 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     /**
      * @var RenditionDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\RenditionDefinition::class, mappedBy: 'class', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: RenditionDefinition::class, mappedBy: 'class', cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
 
     public function __construct()

@@ -11,10 +11,12 @@ final readonly class SodiumKeyPair
         private string $secret,
     ) {
     }
+
     public function getPublic(): string
     {
         return $this->public;
     }
+
     public function getSecret(): string
     {
         return $this->secret;

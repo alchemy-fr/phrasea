@@ -34,7 +34,7 @@ class LogoutListener implements EventSubscriberInterface
         if ($session->has(OAuthUserProvider::AUTH_ORIGIN)) {
             $provider = $session->get(OAuthUserProvider::AUTH_ORIGIN);
             if ($provider) {
-                $idp = array_values(array_filter($this->identityProviders, fn(array $idp): bool => $idp['name'] === $provider));
+                $idp = array_values(array_filter($this->identityProviders, fn (array $idp): bool => $idp['name'] === $provider));
 
                 if (!empty($idp) && ($logoutUrl = $idp[0]['logout_url'] ?? false)) {
                     if ($redirectUriParam = $idp[0]['logout_redirect_param'] ?? false) {

@@ -24,7 +24,7 @@ class OAuthProviderFactory
 
     public function createResourceOwner(string $providerName): ResourceOwnerInterface
     {
-        $providers = array_values(array_filter($this->oAuthProviders, fn(array $node): bool => $node['name'] === $providerName));
+        $providers = array_values(array_filter($this->oAuthProviders, fn (array $node): bool => $node['name'] === $providerName));
 
         if (!isset($providers[0])) {
             throw new \InvalidArgumentException(sprintf('Provider "%s" does not exist in Auth service', $providerName));

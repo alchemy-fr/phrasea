@@ -10,11 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class AssetTitleAttribute extends AbstractUuidEntity
 {
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class)]
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Workspace $workspace = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\AttributeDefinition::class)]
+    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
     #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeDefinition $definition = null;
 

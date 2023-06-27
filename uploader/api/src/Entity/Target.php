@@ -17,9 +17,7 @@ class Target implements \Stringable
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['target:index'])]
     #[ORM\Id]
@@ -28,9 +26,6 @@ class Target implements \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
-     *
      */
     #[Groups(['target:index'])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
@@ -45,8 +40,6 @@ class Target implements \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'boolean', nullable: false)]
     #[Groups(['target:read'])]
@@ -80,8 +73,6 @@ class Target implements \Stringable
 
     /**
      * Null value allows everyone.
-     *
-     *
      */
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['target:write'])]
@@ -91,7 +82,7 @@ class Target implements \Stringable
     #[Groups(['target:index'])]
     private readonly \DateTimeInterface $createdAt;
 
-    #[ORM\OneToOne(targetEntity: \App\Entity\TargetParams::class, mappedBy: 'target')]
+    #[ORM\OneToOne(targetEntity: TargetParams::class, mappedBy: 'target')]
     private ?TargetParams $targetParams = null;
 
     /**

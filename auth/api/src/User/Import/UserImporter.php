@@ -28,7 +28,7 @@ class UserImporter
     {
         $this->em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $createUser = fn(): User => $this->userManager->createUser();
+        $createUser = fn (): User => $this->userManager->createUser();
         if (is_string($src)) {
             $resource = fopen($src, 'r');
         } else {

@@ -18,8 +18,6 @@ class TargetParams implements AclObjectInterface
 {
     /**
      * @var Uuid
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -27,12 +25,9 @@ class TargetParams implements AclObjectInterface
     protected $id;
 
     /**
-     *
-     *
-     *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
      */
-    #[ORM\OneToOne(targetEntity: \App\Entity\Target::class, inversedBy: 'targetParams')]
+    #[ORM\OneToOne(targetEntity: Target::class, inversedBy: 'targetParams')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['targetparams:index', 'targetparams:write'])]
     #[Assert\NotNull]
@@ -43,9 +38,7 @@ class TargetParams implements AclObjectInterface
     private array $data = [];
 
     /**
-     *
      * @Gedmo\Timestampable(on="create")
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['targetparams:index'])]

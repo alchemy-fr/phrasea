@@ -38,7 +38,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
         }
 
         $arr = [
-            'assets' => array_map(fn(Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray()),
+            'assets' => array_map(fn (Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray()),
             'publisher' => $commit->getUserId(),
             'commit_id' => $commit->getId(),
             'token' => $commit->getToken(),

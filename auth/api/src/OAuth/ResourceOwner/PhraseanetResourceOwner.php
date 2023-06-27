@@ -31,9 +31,9 @@ class PhraseanetResourceOwner extends GenericOAuth2ResourceOwner implements Reso
         $resolver->setRequired(['base_url']);
 
         $resolver->setDefaults([
-            'authorization_url' => fn(Options $options): string => $options['base_url'].'/oauthv2/authorize',
-            'access_token_url' => fn(Options $options): string => $options['base_url'].'/oauthv2/token',
-            'infos_url' => fn(Options $options): string => $options['base_url'].'/v1/me',
+            'authorization_url' => fn (Options $options): string => $options['base_url'].'/oauthv2/authorize',
+            'access_token_url' => fn (Options $options): string => $options['base_url'].'/oauthv2/token',
+            'infos_url' => fn (Options $options): string => $options['base_url'].'/v1/me',
         ]);
     }
 

@@ -18,7 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiResource(
  *  shortName="tag",
  *  normalizationContext={"groups"={"_", "tag:index"}},
@@ -46,10 +45,8 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'tags')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'tags')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;

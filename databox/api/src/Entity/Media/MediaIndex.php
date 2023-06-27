@@ -14,7 +14,7 @@ class MediaIndex extends AbstractUuidEntity
 {
     use WorkspaceTrait;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: false)]
     private readonly Collection $collection;
 

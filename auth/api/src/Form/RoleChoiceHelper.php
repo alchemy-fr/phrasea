@@ -17,7 +17,7 @@ class RoleChoiceHelper
             'Super Admin' => 'ROLE_SUPER_ADMIN',
         ];
 
-        return array_filter($choices, fn(string $role): bool => $authorizationChecker->isGranted($role)
+        return array_filter($choices, fn (string $role): bool => $authorizationChecker->isGranted($role)
             || $authorizationChecker->isGranted('ROLE_SUPER_ADMIN'));
     }
 }

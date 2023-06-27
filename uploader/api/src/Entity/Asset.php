@@ -10,7 +10,6 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use App\Controller\AssetAckAction;
 use App\Controller\DownloadAssetAction;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -43,15 +42,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  * )
  */
-#[ORM\Entity(repositoryClass: \App\Entity\AssetRepository::class)]
+#[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset
 {
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups('asset:read')]
     #[ORM\Id]
@@ -75,44 +72,33 @@ class Asset
 
     /**
      * @var int|string
-     *
-     *
      */
     #[Groups('asset:read')]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
     /**
-     *
-     *
      * @ApiProperty(iri="http://schema.org/name")
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups('asset:read')]
     private ?string $originalName = null;
 
     /**
-     *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups('asset:read')]
     private ?string $mimeType = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Target $target = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Commit::class, inversedBy: 'assets')]
-    private ?\App\Entity\Commit $commit = null;
+    #[ORM\ManyToOne(targetEntity: Commit::class, inversedBy: 'assets')]
+    private ?Commit $commit = null;
 
     /**
-     *
-     *
-     *
      * @ApiFilter(BooleanFilter::class)
      */
     #[ORM\Column(type: 'boolean')]
@@ -120,10 +106,7 @@ class Asset
     private bool $acknowledged = false;
 
     /**
-     *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups('asset:read')]

@@ -7,7 +7,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -23,8 +22,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -32,8 +29,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -43,8 +38,6 @@ class PublicationConfig implements MergeableValueObjectInterface
      * Download Terms URL must also be set.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -54,8 +47,6 @@ class PublicationConfig implements MergeableValueObjectInterface
      * @ApiProperty()
      *
      * @var Url[]|array
-     *
-     *
      */
     #[ORM\Column(type: 'json')]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -63,8 +54,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -72,8 +61,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -105,8 +92,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty(readableLink=true)
-     *
-     *
      */
     #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -114,8 +99,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @ApiProperty(readableLink=true)
-     *
-     *
      */
     #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -124,9 +107,7 @@ class PublicationConfig implements MergeableValueObjectInterface
     /**
      * "password" or "authentication".
      *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -136,9 +117,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}.
      *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'json')]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -146,8 +125,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @var MapOptions|array|null
-     *
-     *
      */
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -155,8 +132,6 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     /**
      * @var LayoutOptions|array|null
-     *
-     *
      */
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]

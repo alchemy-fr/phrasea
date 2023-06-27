@@ -8,8 +8,6 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Attribute\Type\TextAttributeType;
-use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;

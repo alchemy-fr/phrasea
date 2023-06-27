@@ -11,7 +11,6 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +20,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- *
  * @ApiResource(
  *     order={"acknowledged": "ASC", "createdAt": "ASC"},
  *     shortName="commit",
@@ -55,9 +53,7 @@ class Commit
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['asset:read', 'commit:read'])]
     #[ORM\Id]
@@ -66,28 +62,21 @@ class Commit
 
     /**
      * @var Asset[]|Collection
-     *
-     *
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Asset::class, mappedBy: 'commit', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'commit', cascade: ['remove'])]
     #[Groups(['commit:read', 'commit:write'])]
     private ?Collection $assets = null;
 
     /**
-     *
      * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?Target $target = null;
 
     /**
-     *
-     *
      * @ApiProperty(writable=false)
      */
     #[Groups(['asset:read', 'commit:read'])]
@@ -107,18 +96,14 @@ class Commit
     private ?string $userId = null;
 
     /**
-     *
      * @ApiProperty(writable=false)
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['commit:read'])]
     private ?string $token = null;
 
     /**
-     *
      * @ApiFilter(BooleanFilter::class)
-     *
      *
      * @ApiProperty(writable=false)
      */
@@ -128,8 +113,6 @@ class Commit
 
     /**
      * If set, this email will be notified when asset consumer acknowledges the commit.
-     *
-     *
      */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['commit:read', 'commit:write'])]
@@ -144,10 +127,7 @@ class Commit
     private ?\DateTime $acknowledgedAt = null;
 
     /**
-     *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['asset:read', 'commit:read'])]

@@ -17,7 +17,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     #[ORM\JoinColumn(nullable: false)]
     private ?AssetDataTemplate $template = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\AttributeDefinition::class, inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['asset-data-template:read'])]
     protected ?AttributeDefinition $definition = null;
@@ -31,7 +31,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     /**
      * Unique ID to group translations of the same attribute.
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Template\TemplateAttribute::class, inversedBy: 'translations')]
+    #[ORM\ManyToOne(targetEntity: TemplateAttribute::class, inversedBy: 'translations')]
     #[ORM\JoinColumn(nullable: true)]
     private ?self $translationOrigin = null;
 
@@ -41,7 +41,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private ?string $translationOriginHash = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Template\TemplateAttribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $translations = null;
 

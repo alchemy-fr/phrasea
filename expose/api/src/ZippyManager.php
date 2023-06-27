@@ -8,7 +8,6 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\AssetUrlGenerator;
 use Doctrine\DBAL\LockMode;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 
@@ -27,7 +26,7 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
-                $files = array_map(fn(Asset $asset): array => [
+                $files = array_map(fn (Asset $asset): array => [
                     'path' => $asset->getOriginalName(),
                     'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
                 ], $publication->getAssets()->getValues());

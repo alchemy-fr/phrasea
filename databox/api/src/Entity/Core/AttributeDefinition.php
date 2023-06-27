@@ -32,28 +32,24 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'attributeDefinitions')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['attributedef:index'])]
     protected ?Workspace $workspace = null;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
-    #[ORM\ManyToOne(targetEntity: 'AttributeClass', inversedBy: 'definitions')]
+    #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeClass $class = null;
 
     /**
      * @var Attribute[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'definition', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'definition', cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
     #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]
@@ -69,8 +65,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     /**
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
-     *
-     *
      */
     #[Groups(['attributedef:index'])]
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
@@ -110,8 +104,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     /**
      * Initialize attributes after asset creation; key=locale.
-     *
-     *
      */
     #[Groups(['attributedef:index'])]
     #[ORM\Column(type: 'json', nullable: true)]
@@ -119,8 +111,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
-     *
-     *
      */
     #[Groups(['attributedef:index'])]
     #[ORM\Column(type: 'array', nullable: true)]
@@ -133,8 +123,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $key = null;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]

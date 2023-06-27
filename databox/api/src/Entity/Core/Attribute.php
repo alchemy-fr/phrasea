@@ -39,14 +39,14 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         self::STATUS_DECLINED => 'declined',
     ];
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $locked = false;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\AttributeDefinition::class, inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeDefinition $definition = null;
 
@@ -59,7 +59,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     /**
      * Unique ID to group translations of the same attribute.
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Attribute::class, inversedBy: 'translations')]
+    #[ORM\ManyToOne(targetEntity: Attribute::class, inversedBy: 'translations')]
     #[ORM\JoinColumn(nullable: true)]
     private ?self $translationOrigin = null;
 
@@ -69,7 +69,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     private ?string $translationOriginHash = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $translations = null;
 

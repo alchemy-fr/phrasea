@@ -33,7 +33,7 @@ class OpenIdConnectResourceOwner extends GenericOAuth2ResourceOwner implements R
             'base_url',
         ]);
 
-        $normalizer = fn(Options $options, $value): string => str_replace(
+        $normalizer = fn (Options $options, $value): string => str_replace(
             '{base_url}',
             $options['base_url'],
             (string) $value

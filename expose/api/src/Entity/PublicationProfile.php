@@ -9,7 +9,6 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -62,9 +61,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     #[ORM\Id]
@@ -73,21 +70,17 @@ class PublicationProfile implements AclObjectInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 150)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private ?string $name = null;
 
-    #[ORM\Embedded(class: \App\Entity\PublicationConfig::class)]
+    #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private PublicationConfig $config;
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['profile:admin:read'])]
@@ -100,7 +93,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     /**
      * @var Publication[]|Collection
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Publication::class, mappedBy: 'profile')]
+    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'profile')]
     private ?Collection $publications = null;
 
     public function __construct()

@@ -44,7 +44,7 @@ class CommitHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(fn($subject) => $subject instanceof EventMessage
+                $this->callback(fn ($subject) => $subject instanceof EventMessage
                     && is_string($subject->getPayload()['id']))
             );
 

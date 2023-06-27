@@ -20,8 +20,7 @@ class Url implements \JsonSerializable, \Stringable
          * @ApiProperty(writable=true)
          */
         private ?string $url = null
-    )
-    {
+    ) {
     }
 
     public function getUrl(): ?string

@@ -40,11 +40,11 @@ class AppExtension extends Extension implements PrependExtensionInterface
         $def->setAutowired(true);
         $def->setAutoconfigured(true);
         $providers = $config['identity_providers'] ?? [];
-        $oauthProviders = array_filter($providers, fn(array $provider) => 'oauth' === $provider['type']);
+        $oauthProviders = array_filter($providers, fn (array $provider) => 'oauth' === $provider['type']);
         $def->setArgument('$oAuthProviders', $oauthProviders);
         $container->setDefinition($def->getClass(), $def);
 
-        $samlProviders = array_filter($providers, fn(array $provider) => 'saml' === $provider['type']);
+        $samlProviders = array_filter($providers, fn (array $provider) => 'saml' === $provider['type']);
         $this->loadSamlProviders($container, $samlProviders);
 
         $this->loadIdentityProviders($container, $config['identity_providers'] ?? []);
@@ -141,7 +141,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
                 ],
                 'baseurl' => '%env(AUTH_API_BASE_URL)%/saml',
                 'strict' => true,
-                'contactPerson' => array_map(fn(array $contact): array => [
+                'contactPerson' => array_map(fn (array $contact): array => [
                     'givenName' => $contact['name'],
                     'emailAddress' => $contact['email'],
                 ], $options['contacts'] ?? []),
@@ -170,7 +170,7 @@ class AppExtension extends Extension implements PrependExtensionInterface
 
         $container->setParameter('app.client.config', $config['auth']['client'] ?? null);
         $container->prependExtensionConfig('arthem_locale', [
-                'locales' => array_map(fn(string $locale): string => str_replace('_', '-', $locale), $availableLocales),
+                'locales' => array_map(fn (string $locale): string => str_replace('_', '-', $locale), $availableLocales),
             ]
         );
     }

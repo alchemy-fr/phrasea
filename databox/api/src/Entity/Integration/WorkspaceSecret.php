@@ -14,7 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 #[ORM\Table]

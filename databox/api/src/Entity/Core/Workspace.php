@@ -51,37 +51,37 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     /**
      * @var Collection[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Collection::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: Collection::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $collections = null;
 
     /**
      * @var Tag[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Tag::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $tags = null;
 
     /**
      * @var RenditionClass[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\RenditionClass::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: RenditionClass::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
      * @var RenditionDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\RenditionDefinition::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: RenditionDefinition::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AttributeDefinition::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: AttributeDefinition::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\File::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'workspace')]
     protected ?DoctrineCollection $files = null;
 
     public function __construct()

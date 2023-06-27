@@ -97,7 +97,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
         $client = static::createClient();
 
         $em = static::getContainer()->get(EntityManagerInterface::class);
-        $assetsIds = array_map(fn(array $r): string => $r['id'], $em->getRepository(Asset::class)->createQueryBuilder('a')
+        $assetsIds = array_map(fn (array $r): string => $r['id'], $em->getRepository(Asset::class)->createQueryBuilder('a')
             ->select('a.id')
             ->andWhere('a.key IS NOT NULL')
             ->getQuery()

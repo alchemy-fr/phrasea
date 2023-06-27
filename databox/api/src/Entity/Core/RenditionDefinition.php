@@ -25,10 +25,8 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class, inversedBy: 'renditionDefinitions')]
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
@@ -38,7 +36,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $name = null;
 
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
-    #[ORM\ManyToOne(targetEntity: 'RenditionClass', inversedBy: 'definitions')]
+    #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?RenditionClass $class = null;
 
@@ -47,8 +45,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $download = true;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -56,8 +52,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $pickSourceFile = false;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -65,8 +59,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsOriginal = false;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -74,8 +66,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsPreview = false;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -83,8 +73,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsThumbnail = false;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -92,8 +80,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsThumbnailActive = false;
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -101,8 +87,6 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $definition = '';
 
     /**
-     *
-     *
      * @ApiProperty(security="is_granted('READ_ADMIN', object)")
      */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
@@ -112,7 +96,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     /**
      * @var AssetRendition[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AssetRendition::class, mappedBy: 'definition', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: AssetRendition::class, mappedBy: 'definition', cascade: ['remove'])]
     protected ?DoctrineCollection $renditions = null;
 
     public function __construct()

@@ -13,7 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiResource()
  */
 #[ORM\Table]
@@ -25,17 +24,17 @@ class AssetRendition extends AbstractUuidEntity
     use UpdatedAtTrait;
 
     #[Groups(['rendition:index', 'rendition:read'])]
-    #[ORM\ManyToOne(targetEntity: 'RenditionDefinition', inversedBy: 'renditions')]
+    #[ORM\ManyToOne(targetEntity: RenditionDefinition::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?RenditionDefinition $definition = null;
 
     #[Groups(['rendition:index', 'rendition:read'])]
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'renditions')]
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
     #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\File::class)]
+    #[ORM\ManyToOne(targetEntity: File::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 

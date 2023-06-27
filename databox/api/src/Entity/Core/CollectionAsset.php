@@ -11,7 +11,6 @@ use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
  * @ApiResource()
  */
 #[ORM\Table]
@@ -21,11 +20,11 @@ class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInte
 {
     use CreatedAtTrait;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'assets')]
+    #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $collection = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Asset::class, inversedBy: 'collections')]
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 

@@ -122,7 +122,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $replacedDesc['Description'] = 'This is a replaced test.';
 
         $replacedAll = self::$defaultAttributes;
-        $repl = fn(string $str): string => str_replace(' is', ' IS', $str);
+        $repl = fn (string $str): string => str_replace(' is', ' IS', $str);
         $replacedAll['Description'] = $repl($replacedAll['Description']);
         $replacedAll['Keywords'] = array_map($repl, $replacedAll['Keywords']);
 

@@ -22,7 +22,6 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 #[ORM\Table]

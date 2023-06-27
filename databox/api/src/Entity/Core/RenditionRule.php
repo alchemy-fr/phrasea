@@ -14,7 +14,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
  * @ApiFilter(SearchFilter::class, properties={"allowed"="exact", "userType"="exact", "userId"="exact", "objectType"="exact", "objectId"="exact"})
  */
 #[ORM\Table]
@@ -54,7 +53,7 @@ class RenditionRule extends AbstractUuidEntity
      * @var RenditionClass[]|Collection
      */
     #[ORM\JoinTable(name: 'sdr_allowed')]
-    #[ORM\ManyToMany(targetEntity: 'RenditionClass')]
+    #[ORM\ManyToMany(targetEntity: RenditionClass::class)]
     protected ?DoctrineCollection $allowed = null;
 
     public function __construct()

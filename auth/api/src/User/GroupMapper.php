@@ -17,9 +17,9 @@ class GroupMapper
     public function updateGroups(string $providerName, User $user, array $groups): void
     {
         // Some hierarchical groups can have a beginning slash, remove it:
-        $groups = array_map(fn(string $name): string => preg_replace('#^/#', '', $name), $groups);
+        $groups = array_map(fn (string $name): string => preg_replace('#^/#', '', $name), $groups);
 
-        $groups = array_map(fn(string $group): string => $this->resolveGroupName($providerName, $group), $groups);
+        $groups = array_map(fn (string $group): string => $this->resolveGroupName($providerName, $group), $groups);
 
         // remove old groups
         foreach ($user->getGroups() as $group) {

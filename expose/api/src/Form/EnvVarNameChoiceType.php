@@ -14,7 +14,7 @@ class EnvVarNameChoiceType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $choices = [];
-        $config = array_filter(ConfigurationManager::CONFIG, fn(array $c): bool => $c['overridableInAdmin'] ?? true);
+        $config = array_filter(ConfigurationManager::CONFIG, fn (array $c): bool => $c['overridableInAdmin'] ?? true);
         foreach ($config as $c) {
             $key = $c['name'];
             $choices[$key] = $key;

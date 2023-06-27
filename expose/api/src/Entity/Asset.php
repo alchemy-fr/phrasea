@@ -10,7 +10,6 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
 use App\Entity\Traits\ClientAnnotationsTrait;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +17,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiResource(
  *     normalizationContext=Asset::API_READ,
  *     itemOperations={
@@ -66,9 +64,7 @@ class Asset implements MediaInterface, \Stringable
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['_', 'asset:read', 'publication:read'])]
     #[ORM\Id]
@@ -77,8 +73,6 @@ class Asset implements MediaInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[Groups(['publication:read', 'asset:read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -87,46 +81,33 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
-    /**
-     * @var int|string
-     *
-     *
-     */
     #[Groups(['asset:read', 'publication:read'])]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
     /**
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
     private ?string $title = null;
 
     /**
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
     private ?string $description = null;
 
     /**
-     *
      * @ApiProperty(iri="http://schema.org/name")
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['asset:read', 'publication:read'])]
     private ?string $originalName = null;
 
     /**
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
@@ -134,8 +115,6 @@ class Asset implements MediaInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['publication:admin:read'])]
@@ -145,8 +124,6 @@ class Asset implements MediaInterface, \Stringable
      * Direct access to asset.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[Groups(['publication:read', 'asset:read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -167,19 +144,15 @@ class Asset implements MediaInterface, \Stringable
      * @var SubDefinition[]|Collection
      *
      * @ApiSubresource()
-     *
-     *
      */
     #[Groups(['asset:read', 'publication:read'])]
-    #[ORM\OneToMany(targetEntity: \App\Entity\SubDefinition::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: SubDefinition::class, mappedBy: 'asset', cascade: ['remove'])]
     private ?Collection $subDefinitions = null;
 
     /**
      * Location latitude.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
@@ -189,8 +162,6 @@ class Asset implements MediaInterface, \Stringable
      * Location longitude.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
@@ -198,8 +169,6 @@ class Asset implements MediaInterface, \Stringable
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['asset:admin:read'])]
@@ -215,17 +184,13 @@ class Asset implements MediaInterface, \Stringable
      * Location altitude.
      *
      * @ApiProperty()
-     *
-     *
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
     private ?float $altitude = null;
 
     /**
-     *
      * @ApiProperty(writable=false)
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['asset:read'])]

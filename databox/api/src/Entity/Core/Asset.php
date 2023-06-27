@@ -59,34 +59,34 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $pendingUploadToken = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\CollectionAsset::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: CollectionAsset::class, mappedBy: 'asset', cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
-    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $storyCollection = null;
 
     /**
      * Asset will inherit permissions from this collection.
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class, inversedBy: 'referenceAssets')]
+    #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'referenceAssets')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\Attribute::class, mappedBy: 'asset', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'asset', cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\File::class, cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?File $source = null;
 
     private bool $noFileVersion = false;
 
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AssetRendition::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: AssetRendition::class, mappedBy: 'asset', cascade: ['remove'])]
     private ?DoctrineCollection $renditions = null;
 
     private ?array $highlights = null;

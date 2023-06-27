@@ -11,9 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait CreatedAtTrait
 {
     /**
-     *
      * @Gedmo\Timestampable(on="create")
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['dates'])]

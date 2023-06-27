@@ -21,12 +21,14 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
         self::ATTRIBUTES_UPDATE_NAME,
         self::ASSET_INGEST_NAME,
     ];
+
     public function __construct(
         private EntityManagerInterface $em,
         private IntegrationManager $integrationManager,
         private WorkflowRepositoryInterface $decorated,
     ) {
     }
+
     public function loadWorkflowByName(string $name): ?Workflow
     {
         foreach (self::ROOT_WORKFLOWS as $rootName) {
@@ -42,6 +44,7 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 
         return $this->decorated->loadWorkflowByName($name);
     }
+
     public function getWorkflowsByEvent(WorkflowEvent $event): array
     {
         $inputs = $event->getInputs();
@@ -58,6 +61,7 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 
         return $workflows;
     }
+
     private function createIntegrationsToWorkflow(Workflow $workflow, string $workspaceId): Workflow
     {
         if (!in_array($workflow->getName(), self::ROOT_WORKFLOWS, true)) {
@@ -126,6 +130,7 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
 
         return $integrationWorkflow;
     }
+
     public function loadAll(): void
     {
     }

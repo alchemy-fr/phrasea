@@ -24,10 +24,8 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
 
     /**
      * Override trait for annotation.
-     *
-     *
      */
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Workspace::class)]
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
@@ -47,7 +45,7 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     /**
      * @var AttributeDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: \App\Entity\Core\AttributeDefinition::class, mappedBy: 'class', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: AttributeDefinition::class, mappedBy: 'class', cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
@@ -19,15 +18,13 @@ class FormSchema implements AclObjectInterface
 {
     /**
      * @var Uuid
-     *
-     *
      */
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[Groups(['formschema:index'])]
     protected $id;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Target::class)]
+    #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['formschema:index', 'formschema:write'])]
@@ -42,9 +39,7 @@ class FormSchema implements AclObjectInterface
     private array $data = [];
 
     /**
-     *
      * @Gedmo\Timestampable(on="create")
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['targetparams:index'])]

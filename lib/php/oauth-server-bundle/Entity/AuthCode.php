@@ -23,7 +23,7 @@ class AuthCode extends BaseAuthCode
     /**
      * @var OAuthClient
      */
-    #[ORM\ManyToOne(targetEntity: 'OAuthClient')]
+    #[ORM\ManyToOne(targetEntity: OAuthClient::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     protected ClientInterface $client;
 

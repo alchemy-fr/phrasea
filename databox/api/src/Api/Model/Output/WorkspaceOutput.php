@@ -7,7 +7,6 @@ namespace App\Api\Model\Output;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
-use App\Entity\Core\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**

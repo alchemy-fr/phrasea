@@ -19,7 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
  */
 #[ORM\Table]
@@ -46,27 +45,23 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
 
     /**
      * Asset title.
-     *
-     *
      */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['asset-data-template:read'])]
     private ?string $title = null;
 
-    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     #[Groups(['asset-data-template:read'])]
     private ?DoctrineCollection $tags = null;
 
     /**
      * @var TemplateAttribute[]
-     *
-     *
      */
     #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'template', cascade: ['persist', 'remove'])]
     #[Groups(['asset-data-template:read'])]
     private ?DoctrineCollection $attributes = null;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Core\Collection::class)]
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $collection = null;
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
@@ -16,10 +17,10 @@ class WebhookLog
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    #[ORM\ManyToOne(targetEntity: \Alchemy\WebhookBundle\Entity\Webhook::class)]
+    #[ORM\ManyToOne(targetEntity: Webhook::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Webhook $webhook = null;
 

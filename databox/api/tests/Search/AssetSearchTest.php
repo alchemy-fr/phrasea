@@ -202,7 +202,7 @@ class AssetSearchTest extends AbstractSearchTest
             '/assets?query='.urlencode($queryString)
         );
 
-        $getMessage = fn(string $m): string => sprintf('%s [case "%s", ["%s"]]',
+        $getMessage = fn (string $m): string => sprintf('%s [case "%s", ["%s"]]',
             $m,
             $queryString,
             implode('", "', $expectedResults)

@@ -46,7 +46,7 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         if ($connect = $request->query->get('connect')) {
-            $idp = array_values(array_filter($identityProviders, fn(array $idp): bool => $idp['name'] === $connect));
+            $idp = array_values(array_filter($identityProviders, fn (array $idp): bool => $idp['name'] === $connect));
 
             if (!empty($idp)) {
                 return $this->redirect($this->generateUrl(sprintf('%s_entrypoint', $idp[0]['type']), [
@@ -61,7 +61,7 @@ class SecurityController extends AbstractController
             'error' => $error,
             'externalIdpOnTop' => $loginFormLayout['externalIdpOnTop'] ?? false,
             'displayIdPTitle' => $loginFormLayout['displayIdPTitle'] ?? true,
-            'providers' => array_map(fn(array $idp): array => array_merge($idp, [
+            'providers' => array_map(fn (array $idp): array => array_merge($idp, [
                 'entrypoint' => $this->generateUrl(sprintf('%s_entrypoint', $idp['type']), [
                     'provider' => $idp['name'],
                     'redirect_uri' => $redirectUri,

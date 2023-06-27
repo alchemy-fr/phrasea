@@ -40,6 +40,7 @@ class DownloadRequestVoter extends Voter
             && ($this->security->isGranted('ROLE_PUBLISH')
                 || $this->security->isGranted('ROLE_ADMIN')
             );
+
         return match ($attribute) {
             self::LIST, self::READ, self::EDIT, self::DELETE => $isAdmin,
             default => false,

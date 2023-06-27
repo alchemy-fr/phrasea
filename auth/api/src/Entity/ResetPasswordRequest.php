@@ -30,8 +30,7 @@ class ResetPasswordRequest
         private readonly User $user,
         #[ORM\Column(type: 'string', length: 256)]
         private readonly string $token,
-    )
-    {
+    ) {
         $this->createdAt = new \DateTime();
     }
 

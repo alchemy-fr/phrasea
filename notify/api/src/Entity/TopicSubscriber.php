@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -22,18 +21,12 @@ class TopicSubscriber
     #[ORM\CustomIdGenerator(class: \Ramsey\Uuid\Doctrine\UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
-    protected $topic;
+    protected ?string $topic = null;
 
-    /**
-     * @var Contact
-     */
-    #[ORM\ManyToOne(targetEntity: 'Contact')]
+    #[ORM\ManyToOne(targetEntity: Contact::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    protected $contact;
+    protected ?Contact $contact = null;
 
     #[ORM\Column(type: 'datetime')]
     private readonly \DateTime $createdAt;

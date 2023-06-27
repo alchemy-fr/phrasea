@@ -15,7 +15,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- *
  * @ApiResource(
  *  shortName="tag-filter-rule",
  *  attributes={"security"="is_granted('ROLE_USER')"},
@@ -67,11 +66,11 @@ class TagFilterRule extends AbstractUuidEntity
     protected string $objectId;
 
     #[ORM\JoinTable(name: 'tfr_includes')]
-    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     protected ?DoctrineCollection $include = null;
 
     #[ORM\JoinTable(name: 'tfr_excludes')]
-    #[ORM\ManyToMany(targetEntity: \App\Entity\Core\Tag::class)]
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     protected ?DoctrineCollection $exclude = null;
 
     public function __construct()

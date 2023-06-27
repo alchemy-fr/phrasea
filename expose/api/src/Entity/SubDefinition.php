@@ -6,13 +6,11 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- *
  * @ApiResource(
  *     normalizationContext=SubDefinition::API_READ,
  *     itemOperations={
@@ -40,23 +38,19 @@ class SubDefinition implements MediaInterface
     /**
      * @ApiProperty(identifier=true)
      *
-     *
      * @var Uuid
-     *
      */
     #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
 
-    #[ORM\ManyToOne(targetEntity: \App\Entity\Asset::class, inversedBy: 'subDefinitions')]
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'subDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?Asset $asset = null;
 
     /**
      * @ApiProperty()
-     *
-     *
      */
     #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
     #[ORM\Column(type: 'string', length: 30)]
@@ -70,9 +64,7 @@ class SubDefinition implements MediaInterface
     private ?string $size = null;
 
     /**
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['subdef:read', 'asset:read'])]
@@ -81,9 +73,7 @@ class SubDefinition implements MediaInterface
     /**
      * @var \DateTime
      *
-     *
      * @ApiProperty()
-     *
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['subdef:read'])]
