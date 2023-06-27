@@ -9,18 +9,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EasyAdminListener implements EventSubscriberInterface
 {
-    private SessionInterface $session;
-    private TranslatorInterface $translator;
-
-    public function __construct(RequestStack $requestStack, TranslatorInterface $translator)
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly TranslatorInterface $translator,
+    )
     {
-        $this->session = $requestStack->getSession();
-        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents(): array
@@ -34,21 +35,32 @@ class EasyAdminListener implements EventSubscriberInterface
 
     public function flashMessageAfterPersist(AfterEntityPersistedEvent $event): void
     {
-        $this->session->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.create', [
+        $this->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.create', [
             '%name%' => $this->getObjectName($event->getEntityInstance()),
         ], 'admin'));
     }
 
     public function flashMessageAfterUpdate(AfterEntityUpdatedEvent $event): void
     {
-        $this->session->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.update', [
+        $this->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.update', [
             '%name%' => $this->getObjectName($event->getEntityInstance()),
         ], 'admin'));
     }
 
     public function flashMessageAfterDelete(AfterEntityDeletedEvent $event): void
     {
-        $this->session->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.delete', [], 'admin'));
+        $this->getFlashBag()->add('success', $this->translator->trans('content_admin.flash_message.delete', [], 'admin'));
+    }
+
+    private function getFlashBag(): FlashBagInterface
+    {
+        $session = $this->requestStack->getSession();
+
+        if (!$session instanceof FlashBagAwareSessionInterface) {
+            throw new \InvalidArgumentException('Session does not support FlashBag');
+        }
+
+        return $session->getFlashBag();
     }
 
     private function getObjectName(object $object): string

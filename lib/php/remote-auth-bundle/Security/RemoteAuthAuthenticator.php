@@ -9,24 +9,16 @@ use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 class RemoteAuthAuthenticator
 {
-    private TokenStorageInterface $tokenStorage;
-    private SessionInterface $session;
-    private EventDispatcherInterface $eventDispatcher;
-
     public function __construct(
-        TokenStorageInterface $tokenStorage,
-        RequestStack $requestStack,
-        EventDispatcherInterface $eventDispatcher
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly RequestStack $requestStack,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-        $this->tokenStorage = $tokenStorage;
-        $this->session = $requestStack->getSession();
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function authenticateUser(
@@ -38,12 +30,11 @@ class RemoteAuthAuthenticator
     ): void {
         $securityToken = new RemoteAuthToken($accessToken, $user->getRoles());
         $securityToken->setScopes($tokenInfo['scopes']);
-//        $securityToken->setAuthenticated(true);
         $securityToken->setUser($user);
 
         $this->tokenStorage->setToken($securityToken);
 
-        $this->session->set('_security_'.$providerKey, serialize($securityToken));
+        $this->requestStack->getSession()->set('_security_'.$providerKey, serialize($securityToken));
 
         $event = new InteractiveLoginEvent($request, $securityToken);
         $this->eventDispatcher->dispatch($event);

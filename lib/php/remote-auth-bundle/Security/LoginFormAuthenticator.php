@@ -8,11 +8,11 @@ use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
 use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Utils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -28,36 +28,17 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
-    private EntityManagerInterface $entityManager;
-    private RouterInterface $router;
-    private AuthServiceClient $client;
-    private string $clientId;
-    private string $clientSecret;
-    private SessionInterface $session;
-    private RemoteAuthProvider $userProvider;
-    private string $routeName;
-    private string $defaultTargetPath;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        RouterInterface $router,
-        AuthServiceClient $client,
-        string $clientId,
-        string $clientSecret,
-        string $routeName,
-        string $defaultTargetPath,
-        RequestStack $requestStack,
-        RemoteAuthProvider $userProvider
+        private readonly EntityManagerInterface $entityManager,
+        private readonly RouterInterface $router,
+        private readonly AuthServiceClient $client,
+        private readonly string $clientId,
+        private readonly string $clientSecret,
+        private readonly string $routeName,
+        private readonly string $defaultTargetPath,
+        private readonly RequestStack $requestStack,
+        private readonly RemoteAuthProvider $userProvider,
     ) {
-        $this->entityManager = $entityManager;
-        $this->router = $router;
-        $this->client = $client;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->session = $requestStack->getSession();
-        $this->userProvider = $userProvider;
-        $this->routeName = $routeName;
-        $this->defaultTargetPath = $defaultTargetPath;
     }
 
     public function supports(Request $request): bool
@@ -92,13 +73,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
                 }
 
                 $content = $response->getBody()->getContents();
-                $data = \GuzzleHttp\json_decode($content, true);
+                $data = Utils::jsonDecode($content, true);
                 if (!isset($data['access_token'])) {
                     throw new CustomUserMessageAuthenticationException('Invalid credentials');
                 }
 
                 $accessToken = $data['access_token'];
-                $this->session->set('access_token', $data['access_token']);
+                $this->requestStack->getSession()->set('access_token', $data['access_token']);
 
                 $tokenInfo = $this->userProvider->getTokenInfo($accessToken);
 

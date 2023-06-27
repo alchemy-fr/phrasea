@@ -21,24 +21,14 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class OAuthUserProvider implements OAuthAwareUserProviderInterface
 {
     const AUTH_ORIGIN = 'authOrigin';
-    private EntityManagerInterface $em;
-    private UserManager $userManager;
-    private GroupMapper $groupMapper;
-    private GroupParser $groupParser;
-    private SessionInterface $session;
 
     public function __construct(
-        EntityManagerInterface $em,
-        UserManager $userManager,
-        GroupMapper $groupMapper,
-        GroupParser $groupParser,
-        RequestStack $requestStack
+        private readonly EntityManagerInterface $em,
+        private readonly UserManager $userManager,
+        private readonly GroupMapper $groupMapper,
+        private readonly GroupParser $groupParser,
+        private readonly RequestStack $requestStack
     ) {
-        $this->em = $em;
-        $this->userManager = $userManager;
-        $this->groupMapper = $groupMapper;
-        $this->groupParser = $groupParser;
-        $this->session = $requestStack->getSession();
     }
 
     public function loadUserByOAuthUserResponse(UserResponseInterface $response)
@@ -75,7 +65,7 @@ class OAuthUserProvider implements OAuthAwareUserProviderInterface
         $this->em->persist($accessToken);
         $this->em->flush();
 
-        $this->session->set(self::AUTH_ORIGIN, $providerName);
+        $this->requestStack->getSession()->set(self::AUTH_ORIGIN, $providerName);
 
         return $user;
     }

@@ -8,6 +8,7 @@ use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -18,11 +19,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 final class CacheListener implements EventSubscriberInterface
 {
     private const CACHE_ATTR = '_cache';
-    private SessionInterface $session;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->session = $requestStack->getSession();
     }
 
     public static function getSubscribedEvents()
@@ -55,8 +54,13 @@ final class CacheListener implements EventSubscriberInterface
             return;
         }
 
-        if ($this->session->isStarted()) {
-            return;
+        try {
+            $session = $this->requestStack->getSession();
+            if ($session->isStarted()) {
+                return;
+            }
+        } catch (SessionNotFoundException) {
+            // continue
         }
 
         if ($request->headers->has('Authorization')) {
