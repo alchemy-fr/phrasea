@@ -27,7 +27,7 @@ class AdminTest extends AbstractAdminTest
             'ROLE_SUPER_ADMIN',
         ]);
         /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
         $em->persist($user);
         $em->flush();
 

@@ -10,7 +10,7 @@ use FOS\OAuthServerBundle\Model\TokenManagerInterface;
 use FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
@@ -38,7 +38,7 @@ class TokenInfoAction extends AbstractController
     {
         $token = $this->security->getToken();
         if (!$token instanceof OAuthToken) {
-            throw new AccessDeniedHttpException('Unsupported authentication token %s', get_class($token));
+            throw new UnauthorizedHttpException(sprintf('Unsupported authentication token %s', get_debug_type($token)));
         }
 
         /** @var AccessToken $accessToken */

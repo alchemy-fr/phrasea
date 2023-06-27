@@ -8,7 +8,7 @@ class ResetPasswordTest extends AbstractPasswordTest
 {
     public function testResetPasswordOK(): void
     {
-        $client = static::createClient();
+        $client = $this->client;
         $client->disableReboot();
         $request = $this->createResetPasswordRequest('foo@bar.com');
 

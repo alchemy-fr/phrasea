@@ -7,6 +7,7 @@ namespace Alchemy\RemoteAuthBundle\Tests\Client;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 
 class AuthServiceClientTestMock extends Client
 {
@@ -21,7 +22,7 @@ class AuthServiceClientTestMock extends Client
         self::ADMIN_TOKEN => self::ADMIN_UID,
     ];
 
-    public function request($method, $uri = '', array $options = [])
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         if ('oauth/v2/token' === $uri) {
             if ('client_credentials' === $options['json']['grant_type']) {

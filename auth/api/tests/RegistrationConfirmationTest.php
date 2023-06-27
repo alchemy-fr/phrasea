@@ -62,7 +62,7 @@ class RegistrationConfirmationTest extends WebTestCase
 
     private function createUser(): User
     {
-        $userManager = self::$container->get(UserManager::class);
+        $userManager = self::getContainer()->get(UserManager::class);
         $user = $userManager->createUser();
         $user->setUsername('test@confirm.com');
         $user->setPlainPassword('secret');

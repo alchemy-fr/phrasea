@@ -11,6 +11,7 @@ use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 abstract class AbstractAdminTest extends WebTestCase
 {
@@ -34,7 +35,7 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
         $this->client->followRedirects();
-        $this->logIn();
+        $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
         if (200 !== $response->getStatusCode()) {
@@ -85,19 +86,10 @@ abstract class AbstractAdminTest extends WebTestCase
         return $crawler;
     }
 
-    private function logIn()
+    private function logIn(KernelBrowser $client): void
     {
-        $session = self::getContainer()->get('session');
-
         $user = $this->getAuthAdminUser();
-
-        $firewallName = 'admin';
-        $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
-        $session->set('_security_'.$firewallName, serialize($token));
-        $session->save();
-
-        $cookie = new Cookie($session->getName(), $session->getId());
-        $this->client->getCookieJar()->set($cookie);
+        $client->loginUser($user);
     }
 
     protected function getAuthAdminUser(): UserInterface

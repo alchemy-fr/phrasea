@@ -8,7 +8,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 {
     public function testRequestResetPasswordWithExistingEmail(): void
     {
-        $client = static::createClient();
+        $client = $this->client;
         $client->disableReboot();
 
         $client->request('GET', '/en/security/password-reset/request');
@@ -27,7 +27,7 @@ class RequestResetPasswordTest extends AbstractPasswordTest
 
     public function testRequestResetPasswordWithNonExistingEmail(): void
     {
-        $client = static::createClient();
+        $client = $this->client;
         $client->disableReboot();
 
         $client->request('GET', '/en/security/password-reset/request');
