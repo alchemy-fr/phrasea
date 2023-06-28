@@ -7,6 +7,14 @@ namespace App\Entity\Template;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\Template\AssetDataTemplateInput;
+use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
@@ -17,12 +25,43 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table]
 #[ORM\Entity]
+#[ApiResource(
+    shortName: 'asset-data-template',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => [
+                    'asset-data-template:index',
+                    'asset-data-template:read',
+                ]
+            ],
+            security: 'is_granted("READ", object)'
+        ),
+        new Put(
+            normalizationContext: [
+                'groups' => [
+                    'asset-data-template:index',
+                    'asset-data-template:read',
+                ]
+            ],
+            security: 'is_granted("EDIT", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+    normalizationContext: [
+        'groups' => ['asset-data-template:index'],
+    ],
+    input: AssetDataTemplateInput::class,
+    output: AssetDataTemplateOutput::class,
+)]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
+class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

@@ -6,8 +6,15 @@ namespace App\Border\Model\Upload;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use App\Api\Processor\IncomingUploadProcessor;
 
-#[ApiResource]
+#[ApiResource(
+    shortName: 'incoming-upload',
+    operations: [
+        new Post(processor: IncomingUploadProcessor::class)
+    ],
+)]
 final class IncomingUpload
 {
     #[ApiProperty(writable: true, identifier: true)]

@@ -5,9 +5,27 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Api\Model\Input\MoveAssetInput;
+use App\Api\Model\Input\MultipleAssetInput;
+use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Output\MultipleAssetOutput;
+use App\Controller\Core\AssetAttributeBatchUpdateAction;
+use App\Controller\Core\CopyAssetsAction;
+use App\Controller\Core\DeleteAssetByIdsAction;
+use App\Controller\Core\DeleteAssetByKeysAction;
+use App\Controller\Core\MoveAssetsAction;
+use App\Controller\Core\MultipleAssetCreate;
+use App\Controller\Core\TriggerAssetWorkflowAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
@@ -25,6 +43,70 @@ use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(
+    shortName: 'asset',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new Post(
+            uriTemplate: '/assets/{id}/trigger-workflow',
+            controller: TriggerAssetWorkflowAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: false,
+            name: 'post_trigger_workflow',
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/attributes',
+            controller: AssetAttributeBatchUpdateAction::class,
+            security: 'is_granted("EDIT_ATTRIBUTES", object)',
+            input: AssetAttributeBatchUpdateInput::class,
+            name: 'post_batch_attributes',
+        ),
+        new GetCollection(),
+        new Post(security: 'is_granted("CREATE", object)'),
+        new Post(
+            uriTemplate: '/assets/multiple',
+            controller: MultipleAssetCreate::class,
+            normalizationContext: [
+                'groups' => ['asset:read'],
+            ],
+            security: 'is_granted("CREATE", object)',
+            input: MultipleAssetInput::class,
+            output: MultipleAssetOutput::class,
+            validate: false,
+            name: 'post_multiple',
+        ),
+        new Post(
+            uriTemplate: '/assets/move',
+            controller: MoveAssetsAction::class,
+            input: MoveAssetInput::class,
+            name: 'post_move',
+        ),
+        new Post(
+            uriTemplate: '/assets/copy',
+            controller: CopyAssetsAction::class,
+            input: CopyAssetInput::class,
+            name: 'post_copy',
+        ),
+        new Delete(
+            uriTemplate: '/assets-by-keys',
+            controller: DeleteAssetByKeysAction::class,
+            name: 'delete_by_key',
+        ),
+        new Delete(
+            uriTemplate: '/assets',
+            controller: DeleteAssetByIdsAction::class,
+            name: 'delete_by_ids',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => ['asset:index'],
+    ],
+    input: AssetInput::class,
+    output: AssetOutput::class,
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]

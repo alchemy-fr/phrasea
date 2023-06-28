@@ -6,11 +6,46 @@ namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
+use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Output\AttributeOutput;
+use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+
+#[ApiResource(
+    shortName: 'attribute',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            uriTemplate: '/attributes/batch-update',
+            controller: AttributeBatchUpdateAction::class,
+            input: AttributeBatchUpdateInput::class,
+            name: 'post_batch'
+        )
+    ],
+    normalizationContext: [
+        'groups' => [
+            'attribute:index'
+        ]
+    ],
+    input: AttributeInput::class,
+    output: AttributeOutput::class
+)]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]

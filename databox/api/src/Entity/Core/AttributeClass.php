@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use App\Api\Model\Input\AttributeClassInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -12,7 +13,29 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
 
+#[ApiResource(
+    shortName: 'attribute-class',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+    normalizationContext: [
+        'groups' => ['attributeclass:index'],
+    ],
+    input: AttributeClassInput::class
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_key', columns: ['workspace_id', 'key'])]
