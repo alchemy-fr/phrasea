@@ -4,13 +4,34 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\File;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
 
+#[ApiResource(
+    shortName: 'integration-data',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+    normalizationContext: [
+        'groups' => ['integrationdata:index'],
+    ],
+    output: IntegrationDataOutput::class
+)]
 #[ORM\Table]
 #[ORM\Index(columns: ['integration_id', 'file_id', 'name'], name: 'name')]
 #[ORM\Entity]

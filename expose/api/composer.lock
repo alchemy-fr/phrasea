@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b56b61e05eb1edf161dc08ed8547952b",
+    "content-hash": "b67fe581e4f745d0d91257c03139b58c",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "b26c7864c8de31ae587ac42cf6b9bf85a57d8ecf"
+                "reference": "889ac7145dde9936f68bfbfa60ae986156430282"
             },
             "require": {
                 "alchemy/remote-auth-bundle": "@dev",
@@ -72,7 +72,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -89,6 +90,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -115,7 +119,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "b7362f1d57c1a8ca320c29f91676ff79543df95a"
+                "reference": "716ec6f0cf09b403ce11101be05841013ba8de42"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -125,7 +129,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -142,6 +147,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -165,7 +173,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
-                "reference": "dfaef2089ba96b0a3c67d197a39b359ae46b1e60"
+                "reference": "dd4fcf4756a9c683d4878b11ffd218f8bef383e7"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -173,7 +181,8 @@
                 "symfony/framework-bundle": "2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -190,6 +199,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -216,7 +228,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
-                "reference": "854b9db738df4175840287b8a82ab6675c3f9dee"
+                "reference": "3f1efb66dc34093cd76003071f72013637dda23a"
             },
             "require": {
                 "klapaudius/oauth-server-bundle": "^4.0",
@@ -225,7 +237,8 @@
                 "symfony/templating": "^4.0 || ^5.0 || ^6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -242,6 +255,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -265,7 +281,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
-                "reference": "73a72f1d9cd60bb6906b19d41f6c84279bcc008e"
+                "reference": "84a7b0df4ab9e395c5173073a5caf3875d89ab67"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -274,7 +290,8 @@
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5 || ^6"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -291,6 +308,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -317,7 +337,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
-                "reference": "625330de66b654bc8d9fdea54f01031dc2c5d1ce"
+                "reference": "617baf57b64b04e47b33d82753a1cc75752f0c40"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -326,7 +346,8 @@
                 "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -343,6 +364,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -366,7 +390,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
-                "reference": "0b7741a213ab508508dd045bf3067ae9af4a59c2"
+                "reference": "f30886e28b43b29d12b9466f1d8ecfe995b00ccd"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -375,7 +399,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -392,6 +417,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -415,7 +443,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "6cfd992edd25c285a14cf6c3468bab157c652946"
+                "reference": "8ff2428595bf8dc07d6ed8ad7ed9f4d5ac5a26ad"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -443,6 +471,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],
@@ -462,24 +493,24 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v2.6.8",
+            "version": "v2.7.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "ff3aab5b196709c721960c0bb4f1d52759af737d"
+                "reference": "c1b4e5a71c2235ae5a4acc8b1cee6e0ffef24484"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/ff3aab5b196709c721960c0bb4f1d52759af737d",
-                "reference": "ff3aab5b196709c721960c0bb4f1d52759af737d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/c1b4e5a71c2235ae5a4acc8b1cee6e0ffef24484",
+                "reference": "c1b4e5a71c2235ae5a4acc8b1cee6e0ffef24484",
                 "shasum": ""
             },
             "require": {
                 "doctrine/inflector": "^1.0 || ^2.0",
-                "fig/link-util": "^1.0",
                 "php": ">=7.1",
                 "psr/cache": "^1.0 || ^2.0 || ^3.0",
                 "psr/container": "^1.0 || ^2.0",
+                "symfony/deprecation-contracts": "^2.1 || ^3.0",
                 "symfony/http-foundation": "^4.4 || ^5.1 || ^6.0",
                 "symfony/http-kernel": "^4.4 || ^5.1 || ^6.0",
                 "symfony/property-access": "^3.4.19 || ^4.4 || ^5.1 || ^6.0",
@@ -492,7 +523,8 @@
                 "doctrine/common": "<2.7",
                 "doctrine/dbal": "<2.10",
                 "doctrine/mongodb-odm": "<2.2",
-                "doctrine/persistence": "<1.3"
+                "doctrine/persistence": "<1.3",
+                "elasticsearch/elasticsearch": ">=8.0"
             },
             "require-dev": {
                 "behat/behat": "^3.1",
@@ -506,7 +538,7 @@
                 "doctrine/mongodb-odm": "^2.2",
                 "doctrine/mongodb-odm-bundle": "^4.0",
                 "doctrine/orm": "^2.6.4",
-                "elasticsearch/elasticsearch": "^6.0 || ^7.0",
+                "elasticsearch/elasticsearch": "^7.11.0",
                 "friends-of-behat/mink-browserkit-driver": "^1.3.1",
                 "friends-of-behat/mink-extension": "^2.2",
                 "friends-of-behat/symfony-extension": "^2.1",
@@ -515,6 +547,7 @@
                 "justinrainbow/json-schema": "^5.2.1",
                 "phpdocumentor/reflection-docblock": "^3.0 || ^4.0 || ^5.1",
                 "phpdocumentor/type-resolver": "^0.3 || ^0.4 || ^1.4",
+                "phpspec/prophecy": "^1.10",
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan": "^1.1",
                 "phpstan/phpstan-doctrine": "^1.0",
@@ -523,7 +556,7 @@
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "ramsey/uuid": "^3.7 || ^4.0",
                 "ramsey/uuid-doctrine": "^1.4",
-                "soyuka/contexts": "dev-main",
+                "soyuka/contexts": "^3.3.6",
                 "soyuka/stubs-mongodb": "^1.0",
                 "symfony/asset": "^3.4 || ^4.4 || ^5.1 || ^6.0",
                 "symfony/browser-kit": "^4.4 || ^5.1 || ^6.0",
@@ -541,6 +574,8 @@
                 "symfony/form": "^3.4 || ^4.4 || ^5.1 || ^6.0",
                 "symfony/framework-bundle": "^4.4 || ^5.1 || ^6.0",
                 "symfony/http-client": "^4.4 || ^5.1 || ^6.0",
+                "symfony/intl": "^4.4 || ^5.3 || ^6.0",
+                "symfony/maker-bundle": "^1.24",
                 "symfony/mercure-bundle": "*",
                 "symfony/messenger": "^4.4 || ^5.1 || ^6.0",
                 "symfony/phpunit-bridge": "^5.4 || ^6.0",
@@ -557,7 +592,6 @@
             "suggest": {
                 "doctrine/mongodb-odm-bundle": "To support MongoDB. Only versions 4.0 and later are supported.",
                 "elasticsearch/elasticsearch": "To support Elasticsearch.",
-                "guzzlehttp/guzzle": "To use the HTTP cache invalidation system.",
                 "ocramius/package-versions": "To display the API Platform's version in the debug bar.",
                 "phpdocumentor/reflection-docblock": "To support extracting metadata from PHPDoc.",
                 "psr/cache-implementation": "To use metadata caching.",
@@ -565,6 +599,8 @@
                 "symfony/cache": "To have metadata caching when using Symfony integration.",
                 "symfony/config": "To load XML configuration files.",
                 "symfony/expression-language": "To use authorization features.",
+                "symfony/http-client": "To use the HTTP cache invalidation system.",
+                "symfony/messenger": "To support messenger integration.",
                 "symfony/security": "To use authorization features.",
                 "symfony/twig-bundle": "To use the Swagger UI integration.",
                 "symfony/uid": "To support Symfony UUID/ULID identifiers.",
@@ -574,15 +610,18 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.6.x-dev"
+                    "dev-main": "2.7.x-dev"
                 },
                 "symfony": {
                     "require": "^3.4 || ^4.4 || ^5.1 || ^6.0"
                 }
             },
             "autoload": {
+                "files": [
+                    "src/deprecation.php"
+                ],
                 "psr-4": {
-                    "ApiPlatform\\Core\\": "src/"
+                    "ApiPlatform\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -611,7 +650,7 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v2.6.8"
+                "source": "https://github.com/api-platform/core/tree/v2.7.13"
             },
             "funding": [
                 {
@@ -619,7 +658,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-11T10:29:54+00:00"
+            "time": "2023-06-22T11:16:50+00:00"
         },
         {
             "name": "arthem/rabbit-bundle",
@@ -2556,67 +2595,6 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.16.0"
             },
             "time": "2022-09-18T07:06:19+00:00"
-        },
-        {
-            "name": "fig/link-util",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/link-util.git",
-                "reference": "10e52348a2e9ad4581f2bf3e16458f0861a88c6a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/link-util/zipball/10e52348a2e9ad4581f2bf3e16458f0861a88c6a",
-                "reference": "10e52348a2e9ad4581f2bf3e16458f0861a88c6a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.0.0",
-                "psr/link": "^1.1.0 | ^2.0.0"
-            },
-            "provide": {
-                "psr/link-implementation": "1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9",
-                "squizlabs/php_codesniffer": "^2.3.1"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Fig\\Link\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "https://www.php-fig.org/"
-                }
-            ],
-            "description": "Common utility implementations for HTTP links",
-            "keywords": [
-                "http",
-                "http-link",
-                "link",
-                "psr",
-                "psr-13",
-                "rest"
-            ],
-            "support": {
-                "issues": "https://github.com/php-fig/link-util/issues",
-                "source": "https://github.com/php-fig/link-util/tree/1.2.0"
-            },
-            "time": "2021-03-11T23:09:19+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -10212,7 +10190,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "db9e9600fbedd68d9fd9d0c4dddac6a2edff1550"
+                "reference": "9af3b868e523a1c7dd135048a1febcaebb17970f"
             },
             "require": {
                 "php": "^7.4 || ^8.0",
@@ -10220,7 +10198,8 @@
                 "symfony/security-bundle": "^4.0 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17"
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
             },
             "type": "library",
             "autoload": {
@@ -10234,6 +10213,9 @@
                 }
             },
             "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
                 ],

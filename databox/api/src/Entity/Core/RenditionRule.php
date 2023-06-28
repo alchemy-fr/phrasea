@@ -6,6 +6,8 @@ namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Api\Model\Input\RenditionRuleInput;
+use App\Api\Model\Output\RenditionRuleOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -14,10 +16,38 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
+
+#[ApiResource(
+    shortName: 'rendition-rule',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+    normalizationContext: [
+        'groups' => [
+            'rendrule:index',
+            'rendclass:read',
+        ],
+    ],
+    input: RenditionRuleInput::class,
+    output: RenditionRuleOutput::class,
+    security: 'is_granted("ROLE_USER")'
+)]
 #[ORM\Table]
-#[ORM\Index(name: 'rr_user_idx', columns: ['user_type', 'user_id'])]
-#[ORM\Index(name: 'rr_object_idx', columns: ['object_type', 'object_id'])]
-#[ORM\Index(name: 'rr_user_type_idx', columns: ['user_type'])]
+#[ORM\Index(columns: ['user_type', 'user_id'], name: 'rr_user_idx')]
+#[ORM\Index(columns: ['object_type', 'object_id'], name: 'rr_object_idx')]
+#[ORM\Index(columns: ['user_type'], name: 'rr_user_type_idx')]
 #[ORM\UniqueConstraint(name: 'rend_uniq_rule', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
 #[ORM\Entity(repositoryClass: RenditionRuleRepository::class)]
 #[ApiFilter(SearchFilter::class, properties: ['allowed' => 'exact', 'userType' => 'exact', 'userId' => 'exact', 'objectType' => 'exact', 'objectId' => 'exact'])]

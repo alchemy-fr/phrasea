@@ -6,6 +6,10 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Api\Model\Input\WorkspaceInput;
+use App\Api\Model\Output\WorkspaceOutput;
+use App\Controller\Core\FlushWorkspaceAction;
+use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -17,7 +21,56 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
 
+#[ApiResource(
+    shortName: 'workspace',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => ['workspace:read'],
+            ],
+            security: 'is_granted("READ", object)'
+        ),
+        new Put(
+            normalizationContext: [
+                'groups' => ['workspace:read'],
+            ],
+            security: 'is_granted("EDIT", object)'
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Post(
+            uriTemplate: '/workspaces/{id}/flush',
+            controller: FlushWorkspaceAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'flush'
+        ),
+        new GetCollection(),
+        new Get(
+            uriTemplate: '/workspaces-by-slug/{slug}',
+            controller: GetWorkspaceBySlugAction::class,
+            name: 'get_by_slug'
+        ),
+        new Post(
+            normalizationContext: [
+                'groups' => ['workspace:read'],
+            ],
+            security: 'is_granted("ROLE_ADMIN")'
+        )
+    ],
+    normalizationContext: [
+        'groups' => ['workspace:index'],
+    ],
+    input: WorkspaceInput::class,
+    output: WorkspaceOutput::class
+)]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable

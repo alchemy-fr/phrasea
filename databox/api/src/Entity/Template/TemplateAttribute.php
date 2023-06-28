@@ -4,12 +4,33 @@ declare(strict_types=1);
 
 namespace App\Entity\Template;
 
+use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Output\AttributeOutput;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
 
+#[ApiResource(
+    shortName: 'template-attribute',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)')
+    ],
+    normalizationContext: [
+        'groups' => ['attribute:index'],
+    ],
+    input: AttributeInput::class,
+    output: AttributeOutput::class
+)]
 #[ORM\Entity]
 class TemplateAttribute extends AbstractBaseAttribute
 {

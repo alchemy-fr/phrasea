@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Api\Model\Output\FileOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -12,7 +13,19 @@ use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource]
+#[ApiResource(
+    shortName: 'file',
+    operations: [
+
+    ],
+    normalizationContext: [
+        'groups' => ['file:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['file:write'],
+    ],
+    output: FileOutput::class
+)]
 #[ORM\Entity]
 class File extends AbstractUuidEntity implements \Stringable
 {

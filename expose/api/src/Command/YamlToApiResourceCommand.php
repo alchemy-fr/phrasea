@@ -43,25 +43,32 @@ final class YamlToApiResourceCommand extends Command
         $d = reset($content['resources']);
 
         $sections = [];
-        foreach (['input', 'output', 'normalization_context'] as $n) {
-            $k = match ($n) {
-                'normalization_context' => 'normalizationContext',
-                default => $n,
-            };
-            $v = $d['attributes'][$n] ?? null;
-            if (!empty($v)) {
-                $sections[] = sprintf(<<<EOF
-    %s: %s
-EOF, $k, ltrim(dumpPhpVar($v, 1)));
+        if (isset($d['attributes'])) {
+            foreach ($d['attributes'] as $k => $n) {
+                $nk = match ($k) {
+                    'normalization_context' => 'normalizationContext',
+                    'denormalization_context' => 'denormalizationContext',
+                    default => $k,
+                };
+                $v = $d['attributes'][$k] ?? null;
+                if (!empty($v)) {
+                    $sections[] = sprintf(<<<EOF
+        %s: %s
+    EOF, $nk, ltrim(dumpPhpVar($v, 1)));
+                }
             }
         }
 
         $operations = [];
-        foreach ($d['itemOperations'] as $k => $op) {
-            $operations[] = dumpOperation($k, $op, true);
+        if (isset($d['itemOperations']) && is_array($d['itemOperations'])) {
+            foreach ($d['itemOperations'] as $k => $op) {
+                $operations[] = dumpOperation($k, $op, true);
+            }
         }
-        foreach ($d['collectionOperations'] as $k => $op) {
-            $operations[] = dumpOperation($k, $op, false);
+        if (isset($d['collectionOperations']) && is_array($d['collectionOperations'])) {
+            foreach ($d['collectionOperations'] as $k => $op) {
+                $operations[] = dumpOperation($k, $op, false);
+            }
         }
 
         $output->writeln(sprintf(<<<EOF
@@ -122,6 +129,8 @@ function dumpOperation(string $name, ?array $op, bool $itemOp): string {
         $nk = match ($k) {
             'path' => 'uriTemplate',
             'security_post_denormalize' => 'securityPostDenormalize',
+            'normalization_context' => 'normalizationContext',
+            'denormalization_context' => 'denormalizationContext',
             'validation_groups' => 'validationContext',
             'openapi_context' => 'openapiContext',
             default => $k,

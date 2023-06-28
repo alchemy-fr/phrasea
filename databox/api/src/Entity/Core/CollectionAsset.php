@@ -10,8 +10,17 @@ use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Post;
 
-#[ApiResource]
+#[ApiResource(
+    shortName: 'collection-asset',
+    operations: [
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
 #[ORM\Entity(repositoryClass: CollectionAssetRepository::class)]

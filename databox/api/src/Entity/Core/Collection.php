@@ -6,6 +6,9 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Metadata\ApiResource;
+use App\Api\Model\Input\CollectionInput;
+use App\Api\Model\Output\CollectionOutput;
+use App\Controller\Core\MoveCollectionAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
@@ -28,8 +31,51 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
 
-#[ApiResource]
+#[ApiResource(
+    shortName: 'collection',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new Put(
+            uriTemplate: '/collections/{id}/move/{dest}',
+            controller: MoveCollectionAction::class,
+            openapiContext: [
+                'parameters' => [
+                    [
+                        'name' => 'dest',
+                        'in' => 'path',
+                        'required' => true,
+                        'description' => 'The destination collection ID',
+                    ],
+                ],
+            ],
+            security: 'is_granted("EDIT", object)',
+            deserialize: false,
+            name: 'put_move'
+        ),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ],
+    normalizationContext: [
+        'enable_max_depth' => true,
+        'groups' => [
+            'collection:index',
+            'collection:include_children',
+            'collection:2_level_children',
+        ],
+    ],
+    input: CollectionInput::class,
+    output: CollectionOutput::class
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -14,8 +15,57 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
+
+#[ApiResource(
+    shortName: 'rendition-definition',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Put(
+            uriTemplate: '/rendition-definitions/sort',
+            controller: RenditionDefinitionSortAction::class,
+            openapiContext: [
+                'summary' => 'Reorder items',
+                'description' => 'Reorder items',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'description' => 'Ordered list of IDs',
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            input: false,
+            output: false,
+            name: 'put_sort'
+        )
+    ],
+    normalizationContext: [
+        'groups' => ['renddef:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['renddef:write'],
+    ],
+    order: ['priority' => 'DESC']
+)]
+
 #[ORM\Table]
-#[ORM\Index(name: 'rend_def_ws_name', columns: ['workspace_id', 'name'])]
+#[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\Entity]
 class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {

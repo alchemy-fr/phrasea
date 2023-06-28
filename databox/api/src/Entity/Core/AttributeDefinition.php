@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use App\Api\Model\Input\AttributeDefinitionInput;
+use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Attribute\Type\TextAttributeType;
+use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -16,10 +19,55 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
 
+#[ApiResource(
+    shortName: 'attribute-definition',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Put(
+            uriTemplate: '/attribute-definitions/sort',
+            controller: AttributeDefinitionSortAction::class,
+            openapiContext: [
+                'summary' => 'Reorder items',
+                'description' => 'Reorder items',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'description' => 'Ordered list of IDs',
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            input: false,
+            output: false,
+            name: 'put_sort'
+        )
+    ],
+    normalizationContext: [
+        'groups' => ['attributedef:index'],
+    ],
+    input: AttributeDefinitionInput::class,
+    output: AttributeDefinitionOutput::class
+)]
 #[ORM\Table]
-#[ORM\Index(name: 'searchable_idx', columns: ['searchable'])]
-#[ORM\Index(name: 'type_idx', columns: ['field_type'])]
+#[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
+#[ORM\Index(columns: ['field_type'], name: 'type_idx')]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]

@@ -167,9 +167,6 @@
     "fakerphp/faker": {
         "version": "v1.13.0"
     },
-    "fig/link-util": {
-        "version": "1.0.0"
-    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
