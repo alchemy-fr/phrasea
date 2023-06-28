@@ -4,46 +4,51 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(security: 'is_granted(\'download_request:list\')')])]
 #[ORM\Entity]
-#[ApiResource(itemOperations: ['get' => ['security' => "is_granted('READ', object)"], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete' => ['security' => "is_granted('DELETE', object)"]], collectionOperations: ['get' => ['security' => "is_granted('download_request:list')"]])]
 class DownloadRequest
 {
     /**
      * @var Uuid
      */
+    #[ApiProperty(identifier: true)]
     #[Groups(['publication:index', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
     #[ApiProperty]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 5, nullable: true)]
     protected ?string $locale = null;
 
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Publication'])]
     #[ORM\ManyToOne(targetEntity: Publication::class)]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
-    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Publication']])]
     private ?Publication $publication = null;
 
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Asset']])]
     private ?Asset $asset = null;
 
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/SubDefinition'])]
     #[ORM\ManyToOne(targetEntity: SubDefinition::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
-    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/SubDefinition']])]
     private ?SubDefinition $subDefinition = null;
 
     #[ORM\Column(type: 'datetime')]

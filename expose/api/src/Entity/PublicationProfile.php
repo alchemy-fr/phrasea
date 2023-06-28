@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiFilter;
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,8 +22,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(normalizationContext: ['groups' => ['profile:index'], 'swagger_definition_name' => 'List']), new Post(security: 'is_granted(\'profile:create\')')], normalizationContext: ['groups' => ['profile:read'], 'swagger_definition_name' => 'Read'])]
 #[ORM\Entity]
-#[ApiResource(normalizationContext: PublicationProfile::API_READ, itemOperations: ['get' => ['security' => "is_granted('READ', object)"], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete' => ['security' => "is_granted('DELETE', object)"]], collectionOperations: ['get' => ['normalization_context' => PublicationProfile::API_LIST], 'post' => ['security' => "is_granted('profile:create')"]])]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -39,24 +45,24 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     /**
      * @var Uuid
      */
+    #[ApiProperty(identifier: true)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
+    #[ApiProperty]
     #[ORM\Column(type: 'string', length: 150)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
-    #[ApiProperty]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private PublicationConfig $config;
 
+    #[ApiProperty]
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['profile:admin:read'])]
-    #[ApiProperty]
     private ?string $ownerId = null;
 
     #[ORM\Column(type: 'datetime')]
