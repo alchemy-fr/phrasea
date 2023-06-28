@@ -12,10 +12,8 @@ use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
- */
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
     final public const ORIGIN_MACHINE = 0;

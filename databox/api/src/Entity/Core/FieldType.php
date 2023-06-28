@@ -8,9 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 
 class FieldType
 {
-    /**
-     * @ApiProperty(identifier=true)
-     */
+    #[ApiProperty(identifier: true)]
     private string $name;
 
     private string $title;

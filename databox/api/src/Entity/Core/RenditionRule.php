@@ -14,15 +14,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ApiFilter(SearchFilter::class, properties={"allowed"="exact", "userType"="exact", "userId"="exact", "objectType"="exact", "objectId"="exact"})
- */
 #[ORM\Table]
 #[ORM\Index(name: 'rr_user_idx', columns: ['user_type', 'user_id'])]
 #[ORM\Index(name: 'rr_object_idx', columns: ['object_type', 'object_id'])]
 #[ORM\Index(name: 'rr_user_type_idx', columns: ['user_type'])]
 #[ORM\UniqueConstraint(name: 'rend_uniq_rule', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
 #[ORM\Entity(repositoryClass: RenditionRuleRepository::class)]
+#[ApiFilter(SearchFilter::class, properties: ['allowed' => 'exact', 'userType' => 'exact', 'userId' => 'exact', 'objectType' => 'exact', 'objectId' => 'exact'])]
 class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;

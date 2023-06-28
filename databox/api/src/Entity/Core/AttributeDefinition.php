@@ -39,12 +39,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[Groups(['attributedef:index'])]
     protected ?Workspace $workspace = null;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
     #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     protected ?AttributeClass $class = null;
 
     /**
@@ -57,10 +55,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @Gedmo\Slug(fields={"name"}, style="lower", separator="", unique=false)
-     */
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Gedmo\Slug(fields: ['name'], style: 'lower', separator: '', unique: false)]
     private ?string $slug = null;
 
     /**
@@ -123,11 +119,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $key = null;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
 
     public function getName(): ?string

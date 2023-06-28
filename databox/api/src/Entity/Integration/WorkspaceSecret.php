@@ -13,12 +13,10 @@ use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_key', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class WorkspaceSecret extends AbstractUuidEntity
 {
     use CreatedAtTrait;

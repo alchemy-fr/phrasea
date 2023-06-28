@@ -18,10 +18,8 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- */
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -130,9 +128,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         $this->ownerId = $ownerId;
     }
 
-    /**
-     * @ApiProperty(readable=false, writable=false)
-     */
+    #[ApiProperty(readable: false, writable: false)]
     public function getAclOwnerId(): string
     {
         return $this->getOwnerId() ?? '';

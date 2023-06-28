@@ -29,13 +29,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-/**
- * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- */
 #[ApiResource]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
 class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;

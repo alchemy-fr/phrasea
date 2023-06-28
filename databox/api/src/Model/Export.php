@@ -9,9 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class Export
 {
-    /**
-     * @ApiProperty(identifier=true)
-     */
+    #[ApiProperty(identifier: true)]
     public string $id = 'export';
 
     /**

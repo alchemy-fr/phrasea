@@ -9,10 +9,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 trait UpdatedAtDTOTrait
 {
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['dates'])]
+    #[ApiProperty]
     protected \DateTimeInterface $updatedAt;
 
     public function getUpdatedAt(): \DateTimeInterface

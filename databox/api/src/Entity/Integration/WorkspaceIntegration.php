@@ -21,12 +21,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
 #[ORM\Entity]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;

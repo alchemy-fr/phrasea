@@ -9,12 +9,7 @@ use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     shortName="workspace",
- *     normalizationContext="workspace:read",
- * )
- */
+#[ApiResource(shortName: 'workspace', normalizationContext: 'workspace:read')]
 class WorkspaceOutput extends AbstractUuidOutput
 {
     use CapabilitiesDTOTrait;

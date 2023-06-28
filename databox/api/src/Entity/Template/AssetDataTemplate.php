@@ -19,11 +19,9 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
 #[ORM\Table]
 #[ORM\Entity]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;

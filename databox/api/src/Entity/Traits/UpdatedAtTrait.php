@@ -9,10 +9,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 trait UpdatedAtTrait
 {
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime')]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function getUpdatedAt(): ?\DateTimeInterface

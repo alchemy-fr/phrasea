@@ -18,33 +18,8 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    /**
-     * @ApiProperty(attributes={
-     *  "openapi_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"={
-     *         "type"="boolean"
-     *       },
-     *       "canDelete"={
-     *         "type"="boolean"
-     *       },
-     *       "canEditPermissions"={
-     *         "type"="boolean"
-     *       },
-     *     }
-     *  },
-     *  "json_schema_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"="boolean",
-     *       "canDelete"="boolean",
-     *       "canEditPermissions"="boolean",
-     *     }
-     * }
-     * })
-     */
     #[Groups(['asset-data-template:index'])]
+    #[ApiProperty(attributes: ['openapi_context' => ['type' => 'object', 'properties' => ['canEdit' => ['type' => 'boolean'], 'canDelete' => ['type' => 'boolean'], 'canEditPermissions' => ['type' => 'boolean']]], 'json_schema_context' => ['type' => 'object', 'properties' => ['canEdit' => 'boolean', 'canDelete' => 'boolean', 'canEditPermissions' => 'boolean']]])]
     protected array $capabilities = [];
 
     /**

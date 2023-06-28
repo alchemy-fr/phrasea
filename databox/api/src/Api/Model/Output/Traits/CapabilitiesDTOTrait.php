@@ -8,11 +8,7 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 
 trait CapabilitiesDTOTrait
 {
-    /**
-     * @ApiProperty(attributes={
-     *  "json_schema_context"={"type"="object"}
-     * })
-     */
+    #[ApiProperty(attributes: ['json_schema_context' => ['type' => 'object']])]
     protected array $capabilities = [];
 
     public function getCapabilities(): array

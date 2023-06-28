@@ -9,10 +9,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 trait CreatedAtDTOTrait
 {
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['dates'])]
+    #[ApiProperty]
     protected \DateTimeInterface $createdAt;
 
     public function getCreatedAt(): \DateTimeInterface

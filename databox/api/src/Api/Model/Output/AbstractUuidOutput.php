@@ -11,10 +11,9 @@ abstract class AbstractUuidOutput
 {
     /**
      * The unique resource ID (UUID form).
-     *
-     * @ApiProperty(identifier=true)
      */
     #[Groups(['_'])]
+    #[ApiProperty(identifier: true)]
     protected string $id;
 
     public function getId(): string

@@ -44,53 +44,39 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: 'boolean')]
     private bool $download = true;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'boolean')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $pickSourceFile = false;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'boolean')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsOriginal = false;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'boolean')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsPreview = false;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'boolean')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnail = false;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'boolean')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnailActive = false;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'text')]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private ?string $definition = '';
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
     #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $priority = 0;
 
     /**

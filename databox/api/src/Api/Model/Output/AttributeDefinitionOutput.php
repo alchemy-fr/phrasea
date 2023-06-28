@@ -20,10 +20,8 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups(['attributedef:index'])]
     public ?Workspace $workspace = null;
 
-    /**
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
     #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;
 
     #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]

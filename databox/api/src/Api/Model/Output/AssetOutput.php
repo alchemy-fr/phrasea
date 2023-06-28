@@ -19,33 +19,8 @@ class AssetOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    /**
-     * @ApiProperty(attributes={
-     *  "openapi_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"={
-     *         "type"="boolean"
-     *       },
-     *       "canDelete"={
-     *         "type"="boolean"
-     *       },
-     *       "canEditPermissions"={
-     *         "type"="boolean"
-     *       },
-     *     }
-     *  },
-     *  "json_schema_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"="boolean",
-     *       "canDelete"="boolean",
-     *       "canEditPermissions"="boolean",
-     *     }
-     * }
-     * })
-     */
     #[Groups(['asset:index', 'asset:read'])]
+    #[ApiProperty(attributes: ['openapi_context' => ['type' => 'object', 'properties' => ['canEdit' => ['type' => 'boolean'], 'canDelete' => ['type' => 'boolean'], 'canEditPermissions' => ['type' => 'boolean']]], 'json_schema_context' => ['type' => 'object', 'properties' => ['canEdit' => 'boolean', 'canDelete' => 'boolean', 'canEditPermissions' => 'boolean']]])]
     protected array $capabilities = [];
 
     /**
@@ -96,16 +71,12 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups(['asset:index', 'asset:read'])]
     private ?AssetRendition $thumbnailActive = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['dates'])]
+    #[ApiProperty]
     private \DateTimeImmutable $editedAt;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['dates'])]
+    #[ApiProperty]
     private \DateTimeImmutable $attributesEditedAt;
 
     /**
