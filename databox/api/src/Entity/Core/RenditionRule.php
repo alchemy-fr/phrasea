@@ -9,6 +9,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Repository\Core\RenditionRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'rr_object_idx', columns: ['object_type', 'object_id'])]
 #[ORM\Index(name: 'rr_user_type_idx', columns: ['user_type'])]
 #[ORM\UniqueConstraint(name: 'rend_uniq_rule', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\RenditionRuleRepository::class)]
+#[ORM\Entity(repositoryClass: RenditionRuleRepository::class)]
 class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;

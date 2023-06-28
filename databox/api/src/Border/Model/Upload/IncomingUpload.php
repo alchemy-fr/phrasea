@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Border\Model\Upload;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 
-/**
- * @ApiResource()
- */
+#[ApiResource]
 final class IncomingUpload
 {
-    /**
-     * @ApiProperty(identifier=true, writable=true)
-     */
+    #[ApiProperty(writable: true, identifier: true)]
     public ?string $commit_id = null;
+
     public ?array $assets = null;
     public ?string $publisher = null;
     public ?string $token = null;

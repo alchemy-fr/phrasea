@@ -4,40 +4,29 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Repository\Core\TagFilterRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ApiResource(
- *  shortName="tag-filter-rule",
- *  attributes={"security"="is_granted('ROLE_USER')"},
- *  collectionOperations={
- *       "get",
- *       "post" = { "security_post_denormalize" = "is_granted('CREATE', object)" }
- *  },
- *  itemOperations={
- *       "get" = { "security" = "is_granted('READ', object)" },
- *       "put" = { "security" = "is_granted('EDIT', object)" },
- *       "delete" = { "security" = "is_granted('DELETE', object)" }
- *  },
- *  normalizationContext={"groups"={"_", "tfr:read", "tag:read"}},
- *  output=TagFilterRuleOutput::class,
- *  input=TagFilterRuleInput::class,
- * )
- */
+#[ApiResource(shortName: 'tag-filter-rule', operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(), new Post(securityPostDenormalize: 'is_granted(\'CREATE\', object)')], normalizationContext: ['groups' => ['_', 'tfr:read', 'tag:read']], input: TagFilterRuleInput::class, output: TagFilterRuleOutput::class, security: 'is_granted(\'ROLE_USER\')')]
 #[ORM\Table]
-#[ORM\Index(name: 'tfr_user_idx', columns: ['user_type', 'user_id'])]
-#[ORM\Index(name: 'tfr_object_idx', columns: ['object_type', 'object_id'])]
-#[ORM\Index(name: 'tfr_user_type_idx', columns: ['user_type'])]
+#[ORM\Index(columns: ['user_type', 'user_id'], name: 'tfr_user_idx')]
+#[ORM\Index(columns: ['object_type', 'object_id'], name: 'tfr_object_idx')]
+#[ORM\Index(columns: ['user_type'], name: 'tfr_user_type_idx')]
 #[ORM\UniqueConstraint(name: 'tfr_uniq_ace', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\TagFilterRuleRepository::class)]
+#[ORM\Entity(repositoryClass: TagFilterRuleRepository::class)]
 class TagFilterRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;

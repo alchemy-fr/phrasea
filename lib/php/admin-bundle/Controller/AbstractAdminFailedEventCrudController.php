@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudController
 {
@@ -106,13 +107,13 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
         return $this->redirect($batchActionDto->getReferrerUrl());
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;

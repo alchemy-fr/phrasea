@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractAclAdminCrudController extends AbstractAdminCrudController
 {
@@ -53,13 +54,13 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
         return $this->render('@AlchemyAcl/easyadmin3/entity/acl.html.twig', $twigParameters);
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setObjectMapping(ObjectMapping $objectMapping): void
     {
         $this->objectMapping = $objectMapping;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setPermissionView(PermissionView $permissionView): void
     {
         $this->permissionView = $permissionView;

@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Core\Validator\Exception\ValidationException;
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
 use App\Model\Export;

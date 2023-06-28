@@ -7,9 +7,10 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeRepository::class)]
+#[ORM\Entity(repositoryClass: AttributeRepository::class)]
 class AlternateUrl extends AbstractUuidEntity
 {
     use CreatedAtTrait;

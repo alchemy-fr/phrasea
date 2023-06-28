@@ -7,6 +7,7 @@ namespace App\Consumer\Handler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 {
@@ -15,7 +16,7 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
     final public const RETRY_KEY = '_retry';
     protected EventProducer $eventProducer;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;

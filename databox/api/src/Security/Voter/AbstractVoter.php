@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractVoter extends Voter
 {
@@ -20,13 +21,13 @@ abstract class AbstractVoter extends Voter
     protected EntityManagerInterface $em;
     protected Security $security;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

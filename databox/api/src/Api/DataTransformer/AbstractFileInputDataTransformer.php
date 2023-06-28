@@ -16,6 +16,7 @@ use App\Storage\RenditionManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractFileInputDataTransformer extends AbstractInputDataTransformer
 {
@@ -100,31 +101,31 @@ abstract class AbstractFileInputDataTransformer extends AbstractInputDataTransfo
         return $file;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setRenditionManager(RenditionManager $renditionManager): void
     {
         $this->renditionManager = $renditionManager;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setUploadManager(UploadManager $uploadManager): void
     {
         $this->uploadManager = $uploadManager;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setFileUploadManager(FileUploadManager $fileUploadManager): void
     {
         $this->fileUploadManager = $fileUploadManager;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setPostFlushStackListener(PostFlushStack $postFlushStackListener): void
     {
         $this->postFlushStackListener = $postFlushStackListener;

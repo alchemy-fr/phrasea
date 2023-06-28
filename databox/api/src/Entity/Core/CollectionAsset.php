@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ApiResource()
- */
+#[ApiResource]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\CollectionAssetRepository::class)]
+#[ORM\Entity(repositoryClass: CollectionAssetRepository::class)]
 class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface, \Stringable
 {
     use CreatedAtTrait;

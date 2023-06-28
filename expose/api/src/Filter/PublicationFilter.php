@@ -13,12 +13,13 @@ use ApiPlatform\Core\Exception\InvalidArgumentException;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class PublicationFilter extends AbstractContextAwareFilter
 {
     private Security $security;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

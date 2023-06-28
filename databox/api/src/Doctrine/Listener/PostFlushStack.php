@@ -10,6 +10,7 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Contracts\Service\Attribute\Required;
 
 final class PostFlushStack implements EventSubscriber
 {
@@ -18,13 +19,13 @@ final class PostFlushStack implements EventSubscriber
     private EventProducer $eventProducer;
     private TerminateStackListener $terminateStackListener;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setTerminateStackListener(TerminateStackListener $terminateStackListener)
     {
         $this->terminateStackListener = $terminateStackListener;

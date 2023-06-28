@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Repository\Core\AssetRenditionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource()
- */
+#[ApiResource]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRenditionRepository::class)]
+#[ORM\Entity(repositoryClass: AssetRenditionRepository::class)]
 class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -69,9 +68,7 @@ class AssetRendition extends AbstractUuidEntity
         $this->definition = $definition;
     }
 
-    /**
-     * @ApiProperty()
-     */
+    #[ApiProperty]
     #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
     public function getName(): string
     {

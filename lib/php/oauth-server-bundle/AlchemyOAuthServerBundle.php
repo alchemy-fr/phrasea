@@ -17,7 +17,7 @@ class AlchemyOAuthServerBundle extends Bundle
         return new AlchemyOAuthServerExtension();
     }
 
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
         $container->addCompilerPass(new OverrideOAuthServiceCompilerPass());

@@ -10,12 +10,13 @@ use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class RemoteAuthProvider
 {
     private \Alchemy\RemoteAuthBundle\Client\AuthServiceClient $client;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setClient(AuthServiceClient $client)
     {
         $this->client = $client;

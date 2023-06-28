@@ -1,5 +1,6 @@
 api_platform:
     show_webby: false
+    metadata_backward_compatibility_layer: false
     formats:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]

@@ -6,39 +6,22 @@ namespace App\Entity\Workflow;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Controller\Workflow\GetWorkflowAction;
 use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
-use App\Security\Voter\AbstractVoter;
 use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource(
-    collectionOperations: [
-        'get' => [
-            'security' => 'is_granted("ROLE_USER")',
-        ],
-    ],
-    itemOperations: [
-        'get' => [
-            'security' => 'is_granted("'.AbstractVoter::READ.'", object)',
-            'controller' => GetWorkflowAction::class,
-            'output' => false,
-        ],
-        'post_rerun_job' => [
-            'method' => 'POST',
-            'path' => '/workflows/{id}/jobs/{jobId}/rerun',
-            'controller' => RerunJobAction::class,
-        ],
-    ],
-    shortName: 'workflows',
-)]
-#[ApiFilter(SearchFilter::class, properties: ['asset' => 'exact'])]
+#[ApiResource(operations: [new Get(security: 'is_granted("READ", object)', controller: GetWorkflowAction::class, output: false), new Post(uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun', controller: RerunJobAction::class), new GetCollection(security: 'is_granted("ROLE_USER")')], shortName: 'workflows')]
 #[ORM\Entity]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';

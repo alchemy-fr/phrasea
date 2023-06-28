@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\TagOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -17,19 +17,11 @@ use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *  shortName="tag",
- *  normalizationContext={"groups"={"_", "tag:index"}},
- *  output=TagOutput::class,
- *  input=false
- * )
- *
- * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
- */
+#[ApiResource(shortName: 'tag', normalizationContext: ['groups' => ['_', 'tag:index']], input: false, output: TagOutput::class)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
+#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
 {
     use CreatedAtTrait;

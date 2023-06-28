@@ -10,6 +10,7 @@ use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractSearch
 {
@@ -85,13 +86,13 @@ abstract class AbstractSearch
         return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

@@ -8,13 +8,14 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Entity\SearchDeleteDependencyInterface;
+use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiFilter(filterClass=SearchFilter::class, properties={"asset"="exact"})
  */
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeRepository::class)]
+#[ORM\Entity(repositoryClass: AttributeRepository::class)]
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
     final public const ORIGIN_MACHINE = 0;

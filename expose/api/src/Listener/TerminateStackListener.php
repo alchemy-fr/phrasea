@@ -6,6 +6,7 @@ namespace App\Listener;
 
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class TerminateStackListener
 {
@@ -13,7 +14,7 @@ class TerminateStackListener
     private array $events = [];
     private EventProducer $eventProducer;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;

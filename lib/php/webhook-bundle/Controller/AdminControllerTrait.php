@@ -7,6 +7,7 @@ namespace Alchemy\WebhookBundle\Controller;
 use Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
+use Symfony\Contracts\Service\Attribute\Required;
 
 /**
  * @target EasyAdminController
@@ -15,7 +16,7 @@ trait AdminControllerTrait
 {
     private EventProducer $eventProducer;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;

@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_key', columns: ['workspace_id', 'name'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
+#[ORM\Entity]
 class WorkspaceSecret extends AbstractUuidEntity
 {
     use CreatedAtTrait;

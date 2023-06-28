@@ -26,7 +26,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
+#[ORM\Entity]
 class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;

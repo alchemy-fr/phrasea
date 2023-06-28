@@ -18,6 +18,7 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\AssetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -26,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
+#[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;

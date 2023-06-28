@@ -15,7 +15,7 @@ class UserPreference extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    #[ORM\Column(type: 'string', length: 36, nullable: false, unique: true)]
+    #[ORM\Column(type: 'string', length: 36, unique: true, nullable: false)]
     private ?string $userId = null;
 
     #[ORM\Column(type: 'json', nullable: false)]

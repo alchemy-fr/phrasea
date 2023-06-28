@@ -9,12 +9,13 @@ use Elastica\Result;
 use FOS\ElasticaBundle\Doctrine\ORM\ElasticaToModelTransformer;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class AppElasticaToModelTransformer extends ElasticaToModelTransformer
 {
     private LoggerInterface $logger;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;

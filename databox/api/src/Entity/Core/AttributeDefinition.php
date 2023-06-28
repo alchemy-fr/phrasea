@@ -11,6 +11,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -23,7 +24,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
 #[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AttributeDefinitionRepository::class)]
+#[ORM\Entity(repositoryClass: AttributeDefinitionRepository::class)]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;

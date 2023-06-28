@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\DataTransformer;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Asset;
@@ -13,6 +13,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransformer
 {
@@ -48,7 +49,7 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
     protected function getEntity(string $class, string $id): object
     {
         if (str_starts_with($id, '/')) {
-            $item = $this->iriConverter->getItemFromIri($id);
+            $item = $this->iriConverter->getResourceFromIri($id);
         } else {
             $item = $this->em->find($class, $id);
         }
@@ -59,19 +60,19 @@ abstract class AbstractInputDataTransformer extends AbstractSecurityDataTransfor
         return $item;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setValidator(ValidatorInterface $validator): void
     {
         $this->validator = $validator;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setIriConverter(IriConverterInterface $iriConverter): void
     {
         $this->iriConverter = $iriConverter;

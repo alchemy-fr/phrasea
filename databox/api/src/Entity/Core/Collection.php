@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
@@ -20,6 +20,7 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\CollectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,12 +31,11 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 /**
  * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- *
- * @ApiResource()
  */
+#[ApiResource]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\CollectionRepository::class)]
+#[ORM\Entity(repositoryClass: CollectionRepository::class)]
 class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;

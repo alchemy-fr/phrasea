@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
 {
@@ -57,7 +58,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
         return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission('ROLE_TECH');
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
     {
         $this->adminConfigRegistry = $adminConfigRegistry;

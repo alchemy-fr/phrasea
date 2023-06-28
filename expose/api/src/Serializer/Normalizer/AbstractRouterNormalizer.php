@@ -10,6 +10,7 @@ use App\Entity\SubDefinition;
 use App\Security\AssetUrlGenerator;
 use App\Security\Authentication\JWTManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 {
@@ -17,19 +18,19 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     protected UrlGeneratorInterface $urlGenerator;
     protected JWTManager $JWTManager;
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): void
     {
         $this->urlGenerator = $urlGenerator;
     }
 
-    #[\Symfony\Contracts\Service\Attribute\Required]
+    #[Required]
     public function setJWTManager(JWTManager $JWTManager): void
     {
         $this->JWTManager = $JWTManager;

@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table]
-#[ORM\Index(name: 'name', columns: ['integration_id', 'file_id', 'name'])]
-#[ORM\Entity(repositoryClass: \App\Repository\Core\AssetRepository::class)]
+#[ORM\Index(columns: ['integration_id', 'file_id', 'name'], name: 'name')]
+#[ORM\Entity]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
