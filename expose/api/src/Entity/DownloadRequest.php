@@ -11,85 +11,39 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     itemOperations={
- *         "get"={
- *              "security"="is_granted('READ', object)"
- *          },
- *         "put"={
- *              "security"="is_granted('EDIT', object)"
- *         },
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *     },
- *     collectionOperations={
- *         "get"={
- *              "security"="is_granted('download_request:list')",
- *          }
- *     }
- * )
- */
 #[ORM\Entity]
+#[ApiResource(itemOperations: ['get' => ['security' => "is_granted('READ', object)"], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete' => ['security' => "is_granted('DELETE', object)"]], collectionOperations: ['get' => ['security' => "is_granted('download_request:list')"]])]
 class DownloadRequest
 {
     /**
-     * @ApiProperty(identifier=true)
-     *
      * @var Uuid
      */
     #[Groups(['publication:index', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 255)]
+    #[ApiProperty]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 5, nullable: true)]
     protected ?string $locale = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Publication",
-     *         }
-     *     }
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: Publication::class)]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Publication']])]
     private ?Publication $publication = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Asset']])]
     private ?Asset $asset = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/SubDefinition",
-     *         }
-     *     }
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: SubDefinition::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/SubDefinition']])]
     private ?SubDefinition $subDefinition = null;
 
     #[ORM\Column(type: 'datetime')]

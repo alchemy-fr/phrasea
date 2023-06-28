@@ -9,12 +9,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 trait CapabilitiesTrait
 {
-    /**
-     * @ApiProperty(attributes={
-     *  "json_schema_context"={"type"="object"}
-     * })
-     */
     #[Groups(['_', 'publication:index', 'publication:read', 'profile:index', 'profile:read'])]
+    #[ApiProperty(attributes: ['json_schema_context' => ['type' => 'object']])]
     protected array $capabilities = [];
 
     public function getCapabilities(): array

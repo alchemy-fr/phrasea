@@ -20,50 +20,40 @@ class PublicationConfig implements MergeableValueObjectInterface
     final public const SECURITY_METHOD_PASSWORD = 'password';
     final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?bool $enabled = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?bool $downloadViaEmail = null;
 
     /**
      * Download Terms URL must also be set.
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'boolean', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?bool $includeDownloadTermsInZippy = null;
 
     /**
-     * @ApiProperty()
-     *
      * @var Url[]|array
      */
     #[ORM\Column(type: 'json')]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private array $urls = [];
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?string $copyrightText = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?string $css = null;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
@@ -90,37 +80,31 @@ class PublicationConfig implements MergeableValueObjectInterface
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?\DateTime $expiresAt = null;
 
-    /**
-     * @ApiProperty(readableLink=true)
-     */
     #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty(readableLink: true)]
     private TermsConfig $terms;
 
-    /**
-     * @ApiProperty(readableLink=true)
-     */
     #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty(readableLink: true)]
     private TermsConfig $downloadTerms;
 
     /**
      * "password" or "authentication".
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private ?string $securityMethod = null;
 
     /**
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}.
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'json')]
     #[Groups(['profile:read', 'publication:admin:read'])]
+    #[ApiProperty]
     private array $securityOptions = [];
 
     /**

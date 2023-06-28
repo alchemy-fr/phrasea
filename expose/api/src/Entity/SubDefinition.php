@@ -10,20 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     normalizationContext=SubDefinition::API_READ,
- *     itemOperations={
- *         "get"={},
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *     },
- *  )
- */
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
 #[ORM\Entity(repositoryClass: \App\Repository\SubDefinitionRepository::class)]
+#[ApiResource(normalizationContext: SubDefinition::API_READ, itemOperations: ['get' => [], 'delete' => ['security' => "is_granted('DELETE', object)"]])]
 class SubDefinition implements MediaInterface
 {
     final public const THUMBNAIL = 'thumbnail';
@@ -36,24 +26,21 @@ class SubDefinition implements MediaInterface
     ];
 
     /**
-     * @ApiProperty(identifier=true)
-     *
      * @var Uuid
      */
     #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
     protected $id;
 
     #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'subDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?Asset $asset = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
     #[ORM\Column(type: 'string', length: 30)]
+    #[ApiProperty]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -63,38 +50,29 @@ class SubDefinition implements MediaInterface
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['subdef:read', 'asset:read'])]
+    #[ApiProperty]
     private ?string $mimeType = null;
 
     /**
      * @var \DateTime
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['subdef:read'])]
+    #[ApiProperty]
     private ?\DateTime $createdAt = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?string $url = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?string $downloadUrl = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['subdef:read', 'asset:read'])]
+    #[ApiProperty]
     private ?string $uploadURL = null;
 
     public function __construct()

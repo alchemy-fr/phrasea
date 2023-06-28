@@ -16,31 +16,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     normalizationContext=PublicationProfile::API_READ,
- *     itemOperations={
- *         "get"={
- *              "security"="is_granted('READ', object)"
- *          },
- *         "put"={
- *              "security"="is_granted('EDIT', object)"
- *         },
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *     },
- *     collectionOperations={
- *         "get"={
- *              "normalization_context"=PublicationProfile::API_LIST,
- *          },
- *         "post"={
- *             "security"="is_granted('profile:create')"
- *         }
- *     }
- * )
- */
 #[ORM\Entity]
+#[ApiResource(normalizationContext: PublicationProfile::API_READ, itemOperations: ['get' => ['security' => "is_granted('READ', object)"], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete' => ['security' => "is_granted('DELETE', object)"]], collectionOperations: ['get' => ['normalization_context' => PublicationProfile::API_LIST], 'post' => ['security' => "is_granted('profile:create')"]])]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -60,31 +37,26 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     ];
 
     /**
-     * @ApiProperty(identifier=true)
-     *
      * @var Uuid
      */
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 150)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
+    #[ApiProperty]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups(['profile:index', 'profile:read', 'publication:read'])]
     private PublicationConfig $config;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['profile:admin:read'])]
+    #[ApiProperty]
     private ?string $ownerId = null;
 
     #[ORM\Column(type: 'datetime')]

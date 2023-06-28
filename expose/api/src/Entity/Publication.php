@@ -29,87 +29,11 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
- * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
- * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
- *
- * @ApiResource(
- *     attributes={
- *         "order"={"title": "ASC"},
- *         "denormalization_context"={"deep_object_to_populate"=true},
- *     },
- *     normalizationContext=Publication::API_READ,
- *     itemOperations={
- *         "get"={
- *              "controller"=GetPublicationAction::class,
- *              "defaults"={
- *                   "_api_receive"=false
- *              },
- *          },
- *         "put"={
- *              "security"="is_granted('EDIT', object)"
- *         },
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *         "sort_assets"={
- *             "defaults"={
- *                  "_api_receive"=false,
- *                  "_api_respond"=true,
- *             },
- *             "path"="/publications/{id}/sort-assets",
- *             "controller"=SortAssetsAction::class,
- *             "method"="POST",
- *         },
- *     },
- *     collectionOperations={
- *         "get"={
- *              "normalization_context"=Publication::API_LIST,
- *          },
- *         "post"={
- *             "security_post_denormalize"="is_granted('CREATE', object)"
- *         },
- *         "slug_availability"={
- *             "openapi_context"={
- *                 "summary"="Check whether a slug is available or not.",
- *                 "description"="Check whether a slug is available or not.",
- *                 "responses"={
- *                          "200"={
- *                          "description"="OK",
- *                          "content"={
- *                              "application/json"={
- *                                  "schema"={
- *                                     "type"="boolean",
- *                                  },
- *                              },
- *                          },
- *                      },
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="path",
- *                         "name"="slug",
- *                         "type"="string",
- *                         "required"=true,
- *                         "description"="The slug to verify",
- *                     },
- *                 },
- *             },
- *             "controller"=GetPublicationSlugAvailabilityAction::class,
- *             "path"="/publications/slug-availability/{slug}",
- *             "pagination_enabled"=false,
- *             "filters"={},
- *             "defaults"={
- *                  "_api_receive"=false,
- *                  "input"=false,
- *                  "output"=false,
- *             },
- *         },
- *     }
- * )
- */
 #[ORM\Entity]
+#[ApiFilter(OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
+#[ApiFilter(PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
+#[ApiFilter(DateFilter::class, properties: ['config.beginsAt', 'config.expiresAt', 'createdAt'])]
+#[ApiResource(attributes: ['order' => ['title' => 'ASC'], 'denormalization_context' => ['deep_object_to_populate' => true]], normalizationContext: Publication::API_READ, itemOperations: ['get' => ['controller' => GetPublicationAction::class, 'defaults' => ['_api_receive' => false]], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete' => ['security' => "is_granted('DELETE', object)"], 'sort_assets' => ['defaults' => ['_api_receive' => false, '_api_respond' => true], 'path' => '/publications/{id}/sort-assets', 'controller' => SortAssetsAction::class, 'method' => 'POST']], collectionOperations: ['get' => ['normalization_context' => Publication::API_LIST], 'post' => ['security_post_denormalize' => "is_granted('CREATE', object)"], 'slug_availability' => ['openapi_context' => ['summary' => 'Check whether a slug is available or not.', 'description' => 'Check whether a slug is available or not.', 'responses' => ['200' => ['description' => 'OK', 'content' => ['application/json' => ['schema' => ['type' => 'boolean']]]]], 'parameters' => [['in' => 'path', 'name' => 'slug', 'type' => 'string', 'required' => true, 'description' => 'The slug to verify']]], 'controller' => GetPublicationSlugAvailabilityAction::class, 'path' => '/publications/slug-availability/{slug}', 'pagination_enabled' => false, 'filters' => [], 'defaults' => ['_api_receive' => false, 'input' => false, 'output' => false]]])]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -133,151 +57,87 @@ class Publication implements AclObjectInterface, \Stringable
     final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     /**
-     * @ApiProperty(identifier=true)
-     *
      * @var Uuid
      */
     #[Groups(['_', 'publication:index', 'publication:read', 'asset:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['publication:index', 'publication:read'])]
+    #[ApiProperty]
     private ?string $title = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['publication:index', 'publication:read'])]
+    #[ApiProperty]
     private ?string $description = null;
 
     /**
      * @var Asset[]|Collection
      *
      * @ApiSubresource(maxDepth=1)
-     *
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
      */
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
     #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'publication', cascade: ['remove'])]
     #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Asset']])]
     private Collection $assets;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationProfile",
-     *         }
-     *     },
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
     #[Groups(['publication:read', 'publication:admin:read'])]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/PublicationProfile']])]
     private ?PublicationProfile $profile = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Asset']])]
     private ?Asset $package = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     */
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(onDelete: 'SET NULL')]
     #[Groups(['publication:admin:read', 'publication:index', 'publication:read'])]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Asset']])]
     private ?Asset $cover = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['publication:read'])]
+    #[ApiProperty]
     private ?string $packageUrl = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['publication:read'])]
+    #[ApiProperty]
     private ?string $archiveDownloadUrl = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['publication:admin:read'])]
+    #[ApiProperty]
     private ?string $ownerId = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['_', 'publication:index', 'publication:read', 'asset:read'])]
+    #[ApiProperty]
     private bool $authorized = false;
 
     /**
      * Password identifier for the current publication branch.
-     *
-     * @ApiProperty()
      */
     #[Groups(['_', 'publication:index', 'publication:read', 'asset:read'])]
+    #[ApiProperty]
     private ?string $securityContainerId = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['_', 'publication:index', 'asset:read'])]
+    #[ApiProperty]
     private ?string $authorizationError = null;
 
-    /**
-     * @ApiProperty(
-     *     readableLink=true,
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Publication",
-     *         }
-     *     }
-     * )
-     */
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
+    #[ApiProperty(readableLink: true, attributes: ['swagger_context' => ['$ref' => '#/definitions/Publication']])]
     private ?Publication $parent = null;
 
     /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Publication",
-     *         }
-     *     }
-     * )
-     *
      * @var Publication[]|Collection
      */
     #[ORM\JoinTable(name: 'publication_children')]
@@ -287,6 +147,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[MaxDepth(1)]
     #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'parent', cascade: ['remove'])]
     #[ORM\OrderBy(['title' => 'ASC'])]
+    #[ApiProperty(attributes: ['swagger_context' => ['$ref' => '#/definitions/Publication']])]
     private Collection $children;
 
     #[ORM\Embedded(class: \App\Entity\PublicationConfig::class)]
@@ -297,19 +158,17 @@ class Publication implements AclObjectInterface, \Stringable
      * Virtual property.
      *
      * @deprecated
-     *
-     * @ApiProperty()
      */
     #[Groups(['publication:write'])]
+    #[ApiProperty]
     private ?string $parentId = null;
 
     /**
      * URL slug.
-     *
-     * @ApiProperty()
      */
     #[Groups(['_', 'publication:index', 'publication:index', 'publication:read'])]
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
+    #[ApiProperty]
     protected ?string $slug = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -320,10 +179,8 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups(['publication:read'])]
     private \DateTime $createdAt;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['publication:read', 'asset:read'])]
+    #[ApiProperty(writable: false)]
     private ?string $cssLink = null;
 
     #[ORM\Column(type: 'string', length: 36, nullable: true)]

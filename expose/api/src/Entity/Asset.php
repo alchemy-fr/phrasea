@@ -17,41 +17,10 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     normalizationContext=Asset::API_READ,
- *     itemOperations={
- *         "get"={},
- *         "delete"={
- *             "security"="is_granted('DELETE', object)"
- *         },
- *         "get_with_slug"={
- *              "controller"=GetAssetWithSlugAction::class,
- *              "method"="GET",
- *              "path"="/publications/{publicationSlug}/assets/{assetSlug}",
- *              "defaults"={
- *                   "_api_receive"=false
- *              },
- *          },
- *         "put"={
- *              "security"="is_granted('EDIT', object)"
- *         },
- *         "delete_by_asset_id"={
- *             "controller"=DeleteAssetsAction::class,
- *             "method"="DELETE",
- *             "path"="/assets/delete-by-asset-id/{assetId}",
- *             "openapi_context"={
- *                  "summary"="Delete all assets by the given assetId",
- *                  "description"="Delete all assets by the given assetId",
- *             },
- *             "read"=false,
- *         }
- *     },
- * )
- */
 #[ORM\Table]
 #[ORM\Index(name: 'assetId', columns: ['asset_id'])]
 #[ORM\Entity(repositoryClass: \App\Repository\AssetRepository::class)]
+#[ApiResource(normalizationContext: Asset::API_READ, itemOperations: ['get' => [], 'delete' => ['security' => "is_granted('DELETE', object)"], 'get_with_slug' => ['controller' => GetAssetWithSlugAction::class, 'method' => 'GET', 'path' => '/publications/{publicationSlug}/assets/{assetSlug}', 'defaults' => ['_api_receive' => false]], 'put' => ['security' => "is_granted('EDIT', object)"], 'delete_by_asset_id' => ['controller' => DeleteAssetsAction::class, 'method' => 'DELETE', 'path' => '/assets/delete-by-asset-id/{assetId}', 'openapi_context' => ['summary' => 'Delete all assets by the given assetId', 'description' => 'Delete all assets by the given assetId'], 'read' => false]])]
 class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;
@@ -63,20 +32,17 @@ class Asset implements MediaInterface, \Stringable
     ];
 
     /**
-     * @ApiProperty(identifier=true)
-     *
      * @var Uuid
      */
     #[Groups(['_', 'asset:read', 'publication:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
+    #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['publication:read', 'asset:read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ApiProperty]
     private ?string $assetId = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -86,54 +52,41 @@ class Asset implements MediaInterface, \Stringable
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?string $title = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?string $description = null;
 
-    /**
-     * @ApiProperty(iri="http://schema.org/name")
-     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty(iri: 'http://schema.org/name')]
     private ?string $originalName = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[ApiProperty]
     private ?string $mimeType = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'string', nullable: true)]
     #[Groups(['publication:admin:read'])]
+    #[ApiProperty]
     private ?string $ownerId = null;
 
     /**
      * Direct access to asset.
-     *
-     * @ApiProperty()
      */
     #[Groups(['publication:read', 'asset:read'])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ApiProperty]
     protected ?string $slug = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    #[ApiProperty]
     protected int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'assets')]
@@ -152,85 +105,64 @@ class Asset implements MediaInterface, \Stringable
 
     /**
      * Location latitude.
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?float $lat = null;
 
     /**
      * Location longitude.
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?float $lng = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['asset:admin:read'])]
+    #[ApiProperty]
     private ?string $webVTT = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty(writable: false)]
     private ?string $webVTTLink = null;
 
     /**
      * Location altitude.
-     *
-     * @ApiProperty()
      */
     #[ORM\Column(type: 'float', nullable: true)]
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty]
     private ?float $altitude = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['asset:read'])]
+    #[ApiProperty(writable: false)]
     private ?\DateTime $createdAt = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read'])]
+    #[ApiProperty(writable: false)]
     private ?string $url = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[ApiProperty(writable: false)]
     private ?string $downloadUrl = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[ApiProperty(writable: false)]
     private ?string $thumbUrl = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[ApiProperty(writable: false)]
     private ?string $previewUrl = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[ApiProperty(writable: false)]
     private ?string $posterUrl = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
     #[Groups(['asset:read'])]
+    #[ApiProperty(writable: false)]
     private ?string $uploadURL = null;
 
     public function __construct()

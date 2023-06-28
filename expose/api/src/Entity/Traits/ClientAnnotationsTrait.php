@@ -13,11 +13,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 trait ClientAnnotationsTrait
 {
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['publication:admin:read', 'asset:admin:read', 'profile:admin:read'])]
+    #[ApiProperty]
     private ?string $clientAnnotations = null;
 
     public function getClientAnnotations(): ?string

@@ -115,7 +115,7 @@ function dumpOperation(string $name, ?array $op, bool $itemOp): string {
         };
     } else {
         $params['name'] = $name;
-        $metadata = match(strtoupper($op['method'])) {
+        $metadata = match(strtoupper((string) $op['method'])) {
             'POST' => 'Post',
             'DELETE' => 'Delete',
             'PUT' => 'Put',

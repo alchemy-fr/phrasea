@@ -12,13 +12,9 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 class Url implements \JsonSerializable, \Stringable
 {
     public function __construct(
-        /**
-         * @ApiProperty()
-         */
+        #[ApiProperty]
         private ?string $text = null,
-        /**
-         * @ApiProperty(writable=true)
-         */
+        #[ApiProperty(writable: true)]
         private ?string $url = null
     ) {
     }
