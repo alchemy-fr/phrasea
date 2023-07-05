@@ -4,88 +4,101 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Client;
 
-use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Utils;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-class AuthServiceClient
+final readonly class AuthServiceClient
 {
-    public function __construct(private readonly Client $client)
+    public function __construct(
+        private Client $client,
+        private KeycloakUrlGenerator $urlGenerator,
+    )
     {
     }
 
     public function getTokenInfo(string $accessToken): array
     {
-        try {
-            $response = $this->client->request('GET', 'userinfo', [
-                'headers' => [
+        return $this->wrapRequest(function () use ($accessToken) {
+            return $this->client->request('GET', $this->urlGenerator->getUserinfoUrl(), [
+                RequestOptions::HEADERS => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
             ]);
-        } catch (ClientException $e) {
-            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
-                throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
-            }
+        });
+    }
 
-            throw $e;
-        }
-
-        if (401 === $response->getStatusCode()) {
-            throw new InvalidResponseException($response->getBody()->getContents());
-        }
-
-        $content = $response->getBody()->getContents();
-
-        return \GuzzleHttp\json_decode($content, true);
+    public function logout(string $accessToken, string $clientId, string $refreshToken): array
+    {
+        return $this->wrapRequest(function () use ($accessToken, $clientId, $refreshToken) {
+            return $this->client->request('POST', $this->urlGenerator->getLogoutUrl(), [
+                RequestOptions::HEADERS => [
+                    'Authorization' => 'Bearer '.$accessToken,
+                ],
+                RequestOptions::FORM_PARAMS => [
+                    'client_id' => $clientId,
+                    'refresh_token' => $refreshToken,
+                ]
+            ]);
+        });
     }
 
     public function getUsers(string $accessToken, int $limit = null, int $offset = null): array
     {
-        return $this->get('/admin/realms/master/users', $accessToken, $limit, $offset);
+        return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset);
     }
 
     public function getGroups(string $accessToken, int $limit = null, int $offset = null): array
     {
-        return $this->get('/admin/realms/master/groups', $accessToken, $limit, $offset);
+        return $this->get($this->urlGenerator->getGroupsApiUrl(), $accessToken, $limit, $offset);
     }
 
     private function get(string $path, string $accessToken, int $limit = null, int $offset = null): array
     {
-        dump($accessToken);
-        try {
-            $response = $this->client->request('GET', $path, [
-                'headers' => [
+        return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset) {
+            return $this->client->request('GET', $path, [
+                RequestOptions::HEADERS => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
-//                'query' => [
-//                    'limit' => $limit,
-//                    'offset' => $offset,
-//                ],
+                RequestOptions::QUERY => [
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ],
             ]);
+        });
+    }
+
+    private function wrapRequest(callable $handler): array
+    {
+        try {
+            $response = $handler();
         } catch (ClientException $e) {
-            if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {
-                throw new InvalidResponseException($e->getResponse()->getBody()->getContents());
+            if (401 === $e->getResponse()?->getStatusCode()) {
+                throw new UnauthorizedHttpException('access_token', $e->getResponse()->getBody()->getContents(), $e);
             }
 
             throw $e;
         }
 
-        if (401 === $response->getStatusCode()) {
-            throw new InvalidResponseException($response->getBody()->getContents());
-        }
-
         $content = $response->getBody()->getContents();
 
-        return \GuzzleHttp\json_decode($content, true);
+        dump($content);
+
+        return Utils::jsonDecode($content, true);
     }
 
-    public function post(string $uri, array $options = [])
+    public function getClientCredentialAccessToken(string $clientId, string $clientSecret): array
     {
-        return $this->client->post($uri, $options);
-    }
+        $response = $this->client->post($this->urlGenerator->getTokenUrl(), [
+            RequestOptions::FORM_PARAMS => [
+                'grant_type' => 'client_credentials',
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+            ],
+        ]);
 
-    public function request(string $method, string $uri, array $options = [])
-    {
-        return $this->client->request($method, $uri, $options);
+        return Utils::jsonDecode($response->getBody()->getContents(), true);
     }
 }

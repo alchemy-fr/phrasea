@@ -8,5 +8,3 @@ services:
     Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
         arguments:
             $client: "@Alchemy\\RemoteAuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
-
-    Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider: ~

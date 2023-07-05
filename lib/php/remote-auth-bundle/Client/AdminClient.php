@@ -7,6 +7,7 @@ namespace Alchemy\RemoteAuthBundle\Client;
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Utils;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -14,21 +15,19 @@ class AdminClient
 {
     private const ACCESS_TOKEN_CACHE_KEY = 'admin_remote_auth_access_token';
 
-    public function __construct(protected AuthServiceClient $serviceClient, private readonly CacheInterface $cache, private readonly string $clientId, private readonly string $clientSecret)
+    public function __construct(
+        protected AuthServiceClient $serviceClient,
+        private readonly CacheInterface $cache,
+        private readonly string $clientId,
+        private readonly string $clientSecret,
+    )
     {
     }
 
     private function getAccessToken(): string
     {
         return $this->cache->get(self::ACCESS_TOKEN_CACHE_KEY, function (ItemInterface $item) {
-            $response = $this->serviceClient->post('token', [
-                RequestOptions::FORM_PARAMS => [
-                    'grant_type' => 'client_credentials',
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                ],
-            ]);
-            $data = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+            $data = $this->serviceClient->getClientCredentialAccessToken($this->clientId, $this->clientSecret);
 
             $item->expiresAfter($data['expires_in']);
 
@@ -47,14 +46,6 @@ class AdminClient
             return $callback($this->getAccessToken());
         } catch (ClientException $e) {
             if ($retryCount < 1 && in_array($e->getResponse()->getStatusCode(), [401, 403], true)) {
-                $this->invalidateAccessToken();
-
-                return $this->executeWithAccessToken($callback, $retryCount + 1);
-            }
-
-            throw $e;
-        } catch (InvalidResponseException $e) {
-            if ($retryCount < 1) {
                 $this->invalidateAccessToken();
 
                 return $this->executeWithAccessToken($callback, $retryCount + 1);

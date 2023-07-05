@@ -30,12 +30,11 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
-        $this->client->followRedirects();
         $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
         if (200 !== $response->getStatusCode()) {
-            dump($response->getContent());
+//            dump($response->getContent());
         }
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -85,7 +84,7 @@ abstract class AbstractAdminTest extends WebTestCase
     private function logIn(KernelBrowser $client): void
     {
         $user = $this->getAuthAdminUser();
-        $client->loginUser($user);
+        $client->loginUser($user, 'admin');
     }
 
     protected function getAuthAdminUser(): UserInterface

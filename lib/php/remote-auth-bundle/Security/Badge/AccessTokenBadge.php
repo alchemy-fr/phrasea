@@ -8,10 +8,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\BadgeInterface;
 
 class AccessTokenBadge implements BadgeInterface
 {
-    /**
-     * AccessTokenBadge constructor.
-     */
-    public function __construct(private readonly string $accessToken)
+    public function __construct(
+        private readonly string $accessToken,
+        private readonly string $refreshToken = null,
+    )
     {
     }
 
@@ -23,5 +23,10 @@ class AccessTokenBadge implements BadgeInterface
     public function getAccessToken(): string
     {
         return $this->accessToken;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
     }
 }

@@ -105,18 +105,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
             ]
         );
 
-        if (isset($bundles['AlchemyRemoteAuthBundle'])) {
-            $container->prependExtensionConfig('alchemy_remote_auth', [
-                    'login_forms' => [
-                        'admin' => [
-                            'route_name' => 'alchemy_admin_login',
-                            'default_target_path' => '/admin',
-                        ],
-                    ],
-                ]
-            );
-        }
-
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [
                     'form_themes' => [

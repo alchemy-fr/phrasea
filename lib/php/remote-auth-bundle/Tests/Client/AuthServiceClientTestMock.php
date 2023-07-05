@@ -7,12 +7,13 @@ namespace Alchemy\RemoteAuthBundle\Tests\Client;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 
 class AuthServiceClientTestMock extends Client
 {
-    final public const USER_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_USER_TOKEN__';
-    final public const ADMIN_TOKEN = RemoteAuthToken::TOKEN_PREFIX.'__VALID_ADMIN_TOKEN__';
+    final public const USER_TOKEN = '__VALID_USER_TOKEN__';
+    final public const ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
 
     final public const USER_UID = '123';
     final public const ADMIN_UID = '4242';
@@ -24,8 +25,8 @@ class AuthServiceClientTestMock extends Client
 
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
-        if ('oauth/v2/token' === $uri) {
-            if ('client_credentials' === $options['json']['grant_type']) {
+        if ('token' === $uri) {
+            if ('client_credentials' === $options[RequestOptions::FORM_PARAMS]['grant_type']) {
                 return $this->createResponse(200, [
                     'access_token' => self::ADMIN_TOKEN,
                     'expires_in' => time() + 3600,
@@ -36,8 +37,8 @@ class AuthServiceClientTestMock extends Client
             ]);
         }
 
-        $accessToken = isset($options['headers']['Authorization'])
-            ? explode(' ', (string) $options['headers']['Authorization'], 2)[1]
+        $accessToken = isset($options[RequestOptions::HEADERS]['Authorization'])
+            ? explode(' ', (string) $options[RequestOptions::HEADERS]['Authorization'], 2)[1]
         : null;
         if (empty($accessToken)) {
             return $this->createResponse(401, [
@@ -62,13 +63,7 @@ class AuthServiceClientTestMock extends Client
         }
 
         return match ($uri) {
-            '/me' => $this->createResponse(200, [
-                'user_id' => $userId,
-                'username' => $accessToken,
-                'roles' => $roles,
-                'groups' => [],
-            ]),
-            '/token-info' => $this->createResponse(200, [
+            'userinfo' => $this->createResponse(200, [
                 'scopes' => [],
                 'user' => [
                     'id' => $userId,
@@ -77,7 +72,8 @@ class AuthServiceClientTestMock extends Client
                     'groups' => [],
                 ],
             ]),
-            '/users', '/groups' => $this->createResponse(200, [
+            '/admin/realms/master/users',
+            '/admin/realms/master/groups' => $this->createResponse(200, [
             ]),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $uri)),
         };

@@ -8,27 +8,19 @@ use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 class RemoteAuthToken extends AbstractToken
 {
-    final public const TOKEN_PREFIX = '!';
-
-    /**
-     * @var string
-     */
-    protected $accessToken;
-
     private array $scopes = [];
 
-    public function __construct(string $accessToken, array $roles = [])
+    public function __construct(
+        private readonly string $accessToken,
+        private string $refreshToken,
+        array $roles = []
+    )
     {
         parent::__construct($roles);
-        $this->accessToken = $accessToken;
+        $this->setAttribute('rt', $this->refreshToken);
     }
 
-    public function getAccessToken()
-    {
-        return $this->accessToken;
-    }
-
-    public function getCredentials()
+    public function getAccessToken(): string
     {
         return $this->accessToken;
     }
@@ -46,5 +38,10 @@ class RemoteAuthToken extends AbstractToken
     public function hasScope(string $scope): bool
     {
         return in_array($scope, $this->scopes);
+    }
+
+    public function getRefreshToken(): string
+    {
+        return $this->getAttribute('rt');
     }
 }

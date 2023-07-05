@@ -88,7 +88,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
                         ->prototype('array')
                             ->children()
                                 ->scalarNode('name')->isRequired()->cannotBeEmpty()->info('Attribute slug')->end()
-                                ->floatNode('threshold')->example(.5)->info('Minimum confidence to be saved into attribute')->end()
+                                ->floatNode('threshold')->example('.5')->info('Minimum confidence to be saved into attribute')->end()
                             ->end()
                         ->end()
                     ->end()

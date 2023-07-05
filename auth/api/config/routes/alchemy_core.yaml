@@ -1,3 +1,0 @@
-alchemy_core_healthcheck:
-  controller: Alchemy\CoreBundle\Controller\HealthCheckAction
-  path: /_healthcheck

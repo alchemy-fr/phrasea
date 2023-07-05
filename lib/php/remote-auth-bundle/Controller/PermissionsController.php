@@ -21,7 +21,7 @@ class PermissionsController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/users', methods: ['GET'], name: 'users')]
+    #[Route(path: '/users', name: 'users', methods: ['GET'])]
     public function getUsers(Request $request): Response
     {
         $this->validateAuthorization();
@@ -31,7 +31,7 @@ class PermissionsController extends AbstractController
         return new JsonResponse($this->userRepository->getUsers($limit, $offset));
     }
 
-    #[Route(path: '/groups', methods: ['GET'], name: 'groups')]
+    #[Route(path: '/groups', name: 'groups', methods: ['GET'])]
     public function getGroups(Request $request): Response
     {
         $this->validateAuthorization();

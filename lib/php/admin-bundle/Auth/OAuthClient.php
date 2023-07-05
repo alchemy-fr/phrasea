@@ -35,7 +35,8 @@ class OAuthClient
         );
     }
 
-    public function getAccessTokenFromAuthorizationCode(string $code, string $redirectUri): string
+    // TODO move to RemoteAuthBundle
+    public function getAccessTokenFromAuthorizationCode(string $code, string $redirectUri): array
     {
         try {
             $response = $this->client->post('token', [
@@ -62,7 +63,7 @@ class OAuthClient
         $json = $this->getJson($response);
         $this->validatePayload($json);
 
-        return $json['access_token'];
+        return [$json['access_token'], $json['refresh_token']];
     }
 
     private function getJson(ResponseInterface $response)

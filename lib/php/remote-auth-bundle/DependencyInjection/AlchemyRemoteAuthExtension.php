@@ -3,9 +3,10 @@
 namespace Alchemy\RemoteAuthBundle\DependencyInjection;
 
 use Alchemy\RemoteAuthBundle\Client\AdminClient;
-use Alchemy\RemoteAuthBundle\Security\LoginFormAuthenticator;
+use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\RemoteAuthBundle\Client\KeycloakUrlGenerator;
+use Alchemy\RemoteAuthBundle\Listener\LogoutListener;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -29,18 +30,16 @@ class AlchemyRemoteAuthExtension extends Extension
             $loader->load('services_test.yaml');
         }
 
-        foreach ($config['login_forms'] as $name => $loginForm) {
-            $def = new ChildDefinition(LoginFormAuthenticator::class);
-            $def->setArgument('$routeName', $loginForm['route_name']);
-            $def->setAbstract(false);
-            $def->setPublic(true);
-            $def->setArgument('$defaultTargetPath', $loginForm['default_target_path']);
-            $container->setDefinition('alchemy_remote.login_form.'.$name, $def);
-        }
+        $def = $container->findDefinition(AdminClient::class);
+        $def->setArgument('$clientId', $config['admin_auth']['client_id']);
+        $def->setArgument('$clientSecret', $config['admin_auth']['client_secret']);
 
-        $mapperDef = $container->findDefinition(AdminClient::class);
-        $mapperDef->setArgument('$clientId', $config['admin_auth']['client_id']);
-        $mapperDef->setArgument('$clientSecret', $config['admin_auth']['client_secret']);
+        $def = $container->findDefinition(KeycloakUrlGenerator::class);
+        $def->setArgument('$baseUrl', $config['keycloak']['url']);
+        $def->setArgument('$realm', $config['keycloak']['realm']);
+
+        $def = $container->findDefinition(LogoutListener::class);
+        $def->setArgument('$clientId', $config['admin_auth']['client_id']);
 
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['AlchemyAclBundle'])) {

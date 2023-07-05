@@ -1,7 +1,0 @@
-index:
-    path: /
-    controller: App\Controller\DefaultController::index
-
-security_logout:
-    path: /security/logout
-    methods: GET

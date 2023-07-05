@@ -4,8 +4,8 @@ namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\Auth\OAuthClient;
 use Alchemy\RemoteAuthBundle\Http\AuthStateEncoder;
-use Alchemy\RemoteAuthBundle\Security\Provider\RemoteAuthProvider;
-use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticator;
+use Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticatorPersister;
+use Alchemy\RemoteAuthBundle\Security\RemoteUserProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,19 +33,18 @@ class LoginController extends AbstractAdminController
     public function oauthCheck(
         Request $request,
         OAuthClient $oauthClient,
-        RemoteAuthProvider $userProvider,
-        RemoteAuthAuthenticator $authenticator,
-        AuthStateEncoder $authStateEncoder
+        RemoteUserProvider $userProvider,
+        AuthStateEncoder $authStateEncoder,
+        RemoteAuthAuthenticatorPersister $authenticatorPersister
     ): Response {
-        $accessToken = $oauthClient->getAccessTokenFromAuthorizationCode(
+        [$accessToken, $refreshToken] = $oauthClient->getAccessTokenFromAuthorizationCode(
             $request->get('code'),
             $this->getRedirectUrl()
         );
 
-        $tokenInfo = $userProvider->getTokenInfo($accessToken);
-        $user = $userProvider->getUserFromToken($tokenInfo);
+        $user = $userProvider->loadUserByIdentifier($accessToken);
 
-        $authenticator->authenticateUser($request, $accessToken, $tokenInfo, $user, 'admin');
+        $authenticatorPersister->authenticateUser($request, $accessToken, $refreshToken, [], $user, 'admin');
 
         if ($state = $request->query->get('state')) {
             $state = $authStateEncoder->decodeState($state);
