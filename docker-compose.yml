@@ -1218,20 +1218,21 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:21.1.2
     command:
-      - 'start-dev'
-      - '--hostname=keycloak.${PHRASEA_DOMAIN}'
+      - 'start'
       - '--hostname-strict-https=false'
-      - '--proxy=edge'
     networks:
       - internal
     profiles:
       - openid
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=password
       - KC_PROXY=edge
-    volumes:
-      - keycloak_vol:/opt/keycloak/data
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+      - KC_HOSTNAME=keycloak.${PHRASEA_DOMAIN}
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK_DB_NAME}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
@@ -1250,4 +1251,3 @@ volumes:
   elasticsearch_vol:
   expose_nginx_cache:
   zippy_vol:
-  keycloak_vol:

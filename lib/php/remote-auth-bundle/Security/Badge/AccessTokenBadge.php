@@ -10,7 +10,6 @@ class AccessTokenBadge implements BadgeInterface
 {
     public function __construct(
         private readonly string $accessToken,
-        private readonly string $refreshToken = null,
     )
     {
     }
@@ -23,10 +22,5 @@ class AccessTokenBadge implements BadgeInterface
     public function getAccessToken(): string
     {
         return $this->accessToken;
-    }
-
-    public function getRefreshToken(): ?string
-    {
-        return $this->refreshToken;
     }
 }

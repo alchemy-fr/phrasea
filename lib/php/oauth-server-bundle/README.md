@@ -44,8 +44,6 @@ security:
             anonymous: ~
             stateless: true
             fos_oauth:  true
-            # If you also are using remote-auth-bundle
-            # remote_auth: true
 ```
 
 ### Access token delivered to users

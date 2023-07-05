@@ -16,7 +16,7 @@ security:
                 path: alchemy_admin_logout
                 target: easyadmin
             custom_authenticator:
-                - 'alchemy_remote.login_form.admin'
+                - Alchemy\RemoteAuthBundle\Security\AppAuthenticator
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }

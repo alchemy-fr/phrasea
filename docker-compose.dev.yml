@@ -76,23 +76,6 @@ services:
     volumes:
       - ./uploader/api/public:/srv/app/public
 
-  auth-worker:
-    volumes:
-      - ./auth/api:/srv/app
-      - ./auth/api/docker/supervisor:/etc/supervisor.d
-
-  auth-api-php:
-    environment:
-      - XDEBUG_ENABLED
-      - XDEBUG_SESSION
-      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
-    volumes:
-      - ./auth/api:/srv/app
-
-  auth-api-nginx:
-    volumes:
-      - ./auth/api/public:/srv/app/public
-
   notify-api-php:
     environment:
       - XDEBUG_ENABLED
@@ -176,6 +159,7 @@ services:
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+      - KEYCLOAK_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

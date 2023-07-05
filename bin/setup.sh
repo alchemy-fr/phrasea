@@ -22,39 +22,11 @@ docker compose up -d
 # Wait for services to be ready
 docker compose run --rm dockerize
 
-# Setup Auth
-## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost ${AUTH_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${AUTH_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
-## Setup container
-exec_container_as auth-api-php "bin/setup.sh" app
-## Create OAuth client for Admin
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${AUTH_ADMIN_CLIENT_ID} \
-    --random-id=${AUTH_ADMIN_CLIENT_RANDOM_ID} \
-    --secret=${AUTH_ADMIN_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --redirect-uri ${AUTH_API_BASE_URL}"
-
-
 # Setup Uploader
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${UPLOADER_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as uploader-api-php "bin/setup.sh" app
-## Create OAuth client
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_CLIENT_ID} \
-    --random-id=${UPLOADER_CLIENT_RANDOM_ID} \
-    --secret=${UPLOADER_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --redirect-uri ${UPLOADER_CLIENT_BASE_URL}"
-## Create OAuth client for Admin
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_ADMIN_CLIENT_ID} \
-    --random-id=${UPLOADER_ADMIN_CLIENT_RANDOM_ID} \
-    --secret=${UPLOADER_ADMIN_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --grant-type client_credentials \
-    --scope user:list \
-    --scope group:list \
-    --redirect-uri ${UPLOADER_API_BASE_URL}"
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
@@ -68,20 +40,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 exec_container rabbitmq "rabbitmqctl add_vhost ${EXPOSE_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${EXPOSE_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as expose-api-php "bin/setup.sh" app
-## Create OAuth client
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_CLIENT_ID} \
-    --random-id=${EXPOSE_CLIENT_RANDOM_ID} \
-    --secret=${EXPOSE_CLIENT_SECRET} \
-    --grant-type password"
-## Create OAuth client for Admin
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_ADMIN_CLIENT_ID} \
-    --random-id=${EXPOSE_ADMIN_CLIENT_RANDOM_ID} \
-    --secret=${EXPOSE_ADMIN_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --grant-type client_credentials \
-    --scope user:list \
-    --scope group:list \
-    --redirect-uri ${EXPOSE_API_BASE_URL}"
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   i=0
@@ -105,33 +63,12 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 exec_container rabbitmq "rabbitmqctl add_vhost ${NOTIFY_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${NOTIFY_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as notify-api-php "bin/setup.sh" app
-## Create OAuth client for Notify Admin
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${NOTIFY_ADMIN_CLIENT_ID} \
-    --random-id=${NOTIFY_ADMIN_CLIENT_RANDOM_ID} \
-    --secret=${NOTIFY_ADMIN_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --redirect-uri ${NOTIFY_API_BASE_URL}"
 
 # Setup Databox
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost ${DATABOX_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${DATABOX_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
 ## Setup container
 exec_container_as databox-api-php "bin/setup.sh" app
-## Create OAuth client for Databox Admin
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_ADMIN_CLIENT_ID} \
-    --random-id=${DATABOX_ADMIN_CLIENT_RANDOM_ID} \
-    --secret=${DATABOX_ADMIN_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --grant-type client_credentials \
-    --scope user:list \
-    --scope group:list \
-    --redirect-uri ${DATABOX_API_BASE_URL}"
-## Create OAuth client
-exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_CLIENT_ID} \
-    --random-id=${DATABOX_CLIENT_RANDOM_ID} \
-    --secret=${DATABOX_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
@@ -146,13 +83,7 @@ exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADE
 ## Create DB
 create_db "${REPORT_DB_NAME}"
 
-
-# Create default admin user in Auth (must be execute after Notify & Auth setup)
-# TODO
-#exec_container auth-api-php "bin/console app:user:create \
-#    --update-if-exist ${DEFAULT_USER_EMAIL} \
-#    -p ${DEFAULT_USER_PASSWORD} \
-#    --roles ROLE_SUPER_ADMIN"
+create_db "${KEYCLOAK_DB_NAME}"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer
