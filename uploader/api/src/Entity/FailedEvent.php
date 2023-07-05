@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use Arthem\Bundle\RabbitBundle\Model\FailedEvent as BaseFailedEvent;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]

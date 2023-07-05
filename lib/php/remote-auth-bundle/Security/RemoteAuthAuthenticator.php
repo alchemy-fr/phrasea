@@ -29,7 +29,7 @@ class RemoteAuthAuthenticator
         string $providerKey
     ): void {
         $securityToken = new RemoteAuthToken($accessToken, $user->getRoles());
-        $securityToken->setScopes($tokenInfo['scopes']);
+        $securityToken->setScopes($tokenInfo['scopes'] ?? []);
         $securityToken->setUser($user);
 
         $this->tokenStorage->setToken($securityToken);

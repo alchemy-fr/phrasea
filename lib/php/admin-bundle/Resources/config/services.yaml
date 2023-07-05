@@ -23,17 +23,16 @@ services:
     arguments:
       -
         base_uri: "%alchemy_admin.auth_base_url%"
-        verify: false # TODO configure it for prod
+        verify: '%env(bool:VERIFY_SSL)%'
         options:
           timeout: 10
-          http_errors: false
           headers:
             Accept: "application/json"
 
   Alchemy\AdminBundle\Auth\OAuthClient:
     arguments:
       $client: "@alchemy_admin.http_client"
-      $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+      $clientId: '%env(ADMIN_CLIENT_ID)%'
       $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
       $authBaseUrl: '%alchemy_admin.auth_base_url%'
 

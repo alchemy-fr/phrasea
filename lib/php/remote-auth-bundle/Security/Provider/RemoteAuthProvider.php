@@ -51,10 +51,9 @@ class RemoteAuthProvider
 
     public function getUserFromToken(array $tokenInfo): ?RemoteUser
     {
-        if (isset($tokenInfo['user'])) {
-            $userData = $tokenInfo['user'];
-
-            return new RemoteUser($userData['id'], $userData['username'], $userData['roles'], $userData['groups']);
+        if (isset($tokenInfo['sub'])) {
+            dump($tokenInfo);
+            return new RemoteUser($tokenInfo['sub'], $tokenInfo['preferred_username'], $tokenInfo['realm_access']['roles'] ?? [], $tokenInfo['groups'] ?? []);
         }
 
         return null;

@@ -6,6 +6,7 @@ namespace Alchemy\AdminBundle\Auth;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -19,8 +20,8 @@ class OAuthClient
     public function getAuthorizeUrl(string $redirectUri, string $state = null): string
     {
         return sprintf(
-            '%s/oauth/v2/auth?client_id=%s&response_type=code&redirect_uri=%s',
-            $this->authBaseUrl,
+            '%s/auth?client_id=%s&response_type=code&redirect_uri=%s',
+            preg_replace('#/$#', '', $this->authBaseUrl),
             urlencode($this->clientId),
             urlencode($redirectUri)
         ).(!empty($state) ? '&state='.urlencode($state) : '');
@@ -37,8 +38,8 @@ class OAuthClient
     public function getAccessTokenFromAuthorizationCode(string $code, string $redirectUri): string
     {
         try {
-            $response = $this->client->post('oauth/v2/token', [
-                'json' => [
+            $response = $this->client->post('token', [
+                RequestOptions::FORM_PARAMS => [
                     'code' => $code,
                     'redirect_uri' => $redirectUri,
                     'grant_type' => 'authorization_code',
@@ -72,7 +73,7 @@ class OAuthClient
     private function validatePayload(array $data, string $exceptionClass = CustomUserMessageAuthenticationException::class): void
     {
         if (isset($data['error'])) {
-            throw new $exceptionClass(sprintf('%s: %s', $data['error'], $data['error_description']));
+            throw new $exceptionClass(sprintf('%s: %s', $data['error'], $data['error_description'] ?? ''));
         }
     }
 }

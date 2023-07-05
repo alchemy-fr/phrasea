@@ -10,7 +10,6 @@ bin/create-config.sh
 
 set -ex
 
-export AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
 export UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
 export DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
 export UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
@@ -149,10 +148,11 @@ create_db "${REPORT_DB_NAME}"
 
 
 # Create default admin user in Auth (must be execute after Notify & Auth setup)
-exec_container auth-api-php "bin/console app:user:create \
-    --update-if-exist ${DEFAULT_USER_EMAIL} \
-    -p ${DEFAULT_USER_PASSWORD} \
-    --roles ROLE_SUPER_ADMIN"
+# TODO
+#exec_container auth-api-php "bin/console app:user:create \
+#    --update-if-exist ${DEFAULT_USER_EMAIL} \
+#    -p ${DEFAULT_USER_PASSWORD} \
+#    --roles ROLE_SUPER_ADMIN"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer

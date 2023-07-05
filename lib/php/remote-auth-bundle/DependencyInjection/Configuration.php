@@ -20,7 +20,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('admin_auth')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->scalarNode('client_id')->defaultValue('%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%')->end()
+                        ->scalarNode('client_id')->defaultValue('%env(ADMIN_CLIENT_ID)%')->end()
                         ->scalarNode('client_secret')->defaultValue('%env(ADMIN_CLIENT_SECRET)%')->end()
                     ->end()
                 ->end()

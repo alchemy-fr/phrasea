@@ -100,9 +100,8 @@ services:
       - RABBITMQ_SSL
       - RABBITMQ_VHOST=${UPLOADER_RABBITMQ_VHOST}
       - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${UPLOADER_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - REPORT_API_BASE_URL
       - UPLOAD_MAX_FILE_SIZE
@@ -125,7 +124,7 @@ services:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -174,7 +173,7 @@ services:
       - uploader_vol:/var/data/upload
       - ./configs:/configs
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-api-nginx:
@@ -216,7 +215,7 @@ services:
     environment:
       - DEV_MODE
       - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
       - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
@@ -244,7 +243,7 @@ services:
       - ./configs:/configs
     environment:
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
@@ -274,7 +273,7 @@ services:
       - DEV_MODE
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
@@ -310,7 +309,7 @@ services:
     environment:
       - APP_ENV
       - APP_ID=auth
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -348,9 +347,8 @@ services:
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - APP_ID=auth
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - ADMIN_CLIENT_ID=${AUTH_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${AUTH_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${AUTH_ADMIN_CLIENT_SECRET}
       - REGISTRATION_VALIDATE_EMAIL=${AUTH_REGISTRATION_VALIDATE_EMAIL}
       - POSTGRES_USER
@@ -374,7 +372,6 @@ services:
       - rabbitmq
       - db
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   auth-api-nginx:
@@ -435,9 +432,8 @@ services:
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
       - RABBITMQ_VHOST=${EXPOSE_RABBITMQ_VHOST}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${EXPOSE_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
       - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - S3_PATH_PREFIX
@@ -469,7 +465,7 @@ services:
       - CLOUD_FRONT_KEY_PAIR_ID=${EXPOSE_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${EXPOSE_CLOUD_FRONT_TTL}
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -580,9 +576,8 @@ services:
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
       - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${NOTIFY_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
       - REPORT_API_BASE_URL
       - MAILER_DSN
@@ -593,7 +588,7 @@ services:
       - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=notify-api
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   notify-worker:
     profiles:
@@ -909,7 +904,7 @@ services:
       - REPORT_DB_NAME
       - XDEBUG_ENABLED
       - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
@@ -952,7 +947,7 @@ services:
       - ./configs:/configs
     environment:
       - APP_ENV
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - TRUSTED_PROXIES=${PS_SUBNET}
       - VERIFY_SSL
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
@@ -966,7 +961,6 @@ services:
       - RABBITMQ_SSL
       - RABBITMQ_VHOST=${DATABOX_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
@@ -1003,7 +997,7 @@ services:
       - db
       - elasticsearch
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1031,7 +1025,7 @@ services:
       - ./configs:/configs
     environment:
       - APP_ENV
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - AUTH_API_BASE_URL
       - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - POSTGRES_USER
@@ -1044,7 +1038,6 @@ services:
       - RABBITMQ_VHOST=${DATABOX_RABBITMQ_VHOST}
       - VERIFY_SSL
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_RANDOM_ID=${DATABOX_ADMIN_CLIENT_RANDOM_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
@@ -1070,7 +1063,7 @@ services:
       - PWI_PHRASEANET_BASE_URL=${PHRASEANET_BASE_URL}
       - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
     extra_hosts:
-      - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1332,7 +1325,7 @@ services:
       - VERIFY_SSL
 
   keycloak:
-    image: quay.io/keycloak/keycloak:18.0.2
+    image: quay.io/keycloak/keycloak:21.1.2
     command:
       - 'start-dev'
       - '--hostname=keycloak.${PHRASEA_DOMAIN}'

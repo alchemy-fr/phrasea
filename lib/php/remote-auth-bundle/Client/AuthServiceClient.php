@@ -17,7 +17,7 @@ class AuthServiceClient
     public function getTokenInfo(string $accessToken): array
     {
         try {
-            $response = $this->client->request('GET', '/token-info', [
+            $response = $this->client->request('GET', 'userinfo', [
                 'headers' => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
@@ -41,25 +41,26 @@ class AuthServiceClient
 
     public function getUsers(string $accessToken, int $limit = null, int $offset = null): array
     {
-        return $this->get('/users', $accessToken, $limit, $offset);
+        return $this->get('/admin/realms/master/users', $accessToken, $limit, $offset);
     }
 
     public function getGroups(string $accessToken, int $limit = null, int $offset = null): array
     {
-        return $this->get('/groups', $accessToken, $limit, $offset);
+        return $this->get('/admin/realms/master/groups', $accessToken, $limit, $offset);
     }
 
     private function get(string $path, string $accessToken, int $limit = null, int $offset = null): array
     {
+        dump($accessToken);
         try {
             $response = $this->client->request('GET', $path, [
                 'headers' => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
-                'query' => [
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ],
+//                'query' => [
+//                    'limit' => $limit,
+//                    'offset' => $offset,
+//                ],
             ]);
         } catch (ClientException $e) {
             if ($e->getResponse() && 401 === $e->getResponse()->getStatusCode()) {

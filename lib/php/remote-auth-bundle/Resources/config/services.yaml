@@ -1,6 +1,6 @@
 parameters:
   alchemy_remote_auth.auth_base_url: '%env(AUTH_API_BASE_URL)%'
-  alchemy_remote_auth.admin_client_id: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+  alchemy_remote_auth.admin_client_id: '%env(ADMIN_CLIENT_ID)%'
   alchemy_remote_auth.admin_client_secret: '%env(ADMIN_CLIENT_SECRET)%'
   env(VERIFY_SSL): true
 

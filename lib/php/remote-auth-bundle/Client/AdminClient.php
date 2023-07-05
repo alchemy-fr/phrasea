@@ -6,6 +6,7 @@ namespace Alchemy\RemoteAuthBundle\Client;
 
 use Alchemy\RemoteAuthBundle\Security\InvalidResponseException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -20,9 +21,8 @@ class AdminClient
     private function getAccessToken(): string
     {
         return $this->cache->get(self::ACCESS_TOKEN_CACHE_KEY, function (ItemInterface $item) {
-            $response = $this->serviceClient->post('oauth/v2/token', [
-                'json' => [
-                    'scope' => 'user:list group:list',
+            $response = $this->serviceClient->post('token', [
+                RequestOptions::FORM_PARAMS => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
