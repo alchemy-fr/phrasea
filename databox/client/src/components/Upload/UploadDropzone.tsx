@@ -4,14 +4,27 @@ import {Box, Typography} from "@mui/material";
 import {grey} from "@mui/material/colors";
 import config from "../../config";
 
-export function useAccept() {
+export function useAccept(): Accept | undefined {
     return React.useMemo<Accept | undefined>(() => {
-        const list = [
-            ...(config.get('allowedTypes') as string[]),
-            ...(config.get('allowedExtensions') as string[]).map(e => `.${e}`),
-        ];
+        const a = config.get('allowedTypes') as Accept | undefined;
+        if (!a) {
+            return;
+        }
 
-        return list.length > 0 ? {'image/*': list} : undefined;
+        const n = {...a};
+        try {
+            Object.keys(n).forEach(k => {
+                n[k] = n[k].map(e => `.${e.replace(/^\./, '')}`);
+                if (n[k].length === 0) {
+                    throw new Error(`Missing extension list for MIME type ${k}`);
+                }
+            });
+        } catch (e: any) {
+            console.error(e.toString());
+            return;
+        }
+
+        return n;
     }, []);
 }
 

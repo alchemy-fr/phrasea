@@ -10,7 +10,6 @@ bin/create-config.sh
 
 set -ex
 
-export COMPOSE_PROFILES=setup,db,uploader,auth,databox,expose,notify,dashboard,tools
 export AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
 export UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
 export DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
@@ -58,7 +57,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
     --scope group:list \
     --redirect-uri ${UPLOADER_API_BASE_URL}"
 ## Create minio bucket
-docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -85,7 +84,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${EXPOSE_AD
     --scope group:list \
     --redirect-uri ${EXPOSE_API_BASE_URL}"
 ## Create minio bucket
-docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   i=0
   while ! nc -z minio 9000; do \
     echo 'Wait for minio to startup...'; \
@@ -135,7 +134,7 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${DATABOX_C
     --grant-type authorization_code \
     --redirect-uri ${DATABOX_CLIENT_BASE_URL}"
 ## Create minio bucket
-docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -157,7 +156,7 @@ exec_container auth-api-php "bin/console app:user:create \
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer
-docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
@@ -174,7 +173,7 @@ exec_container rabbitmq "\
   rabbitmqadmin declare exchange --vhost=s3events name=s3events type=direct durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
   && rabbitmqadmin declare queue --vhost=s3events name=s3events auto_delete=false durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
   && rabbitmqadmin declare binding --vhost=s3events source=s3events destination=s3events routing_key='' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD}"
-docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   set -x; \
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
     mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
