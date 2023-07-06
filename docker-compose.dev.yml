@@ -168,6 +168,7 @@ services:
       - dev_vol:/home/app
       - ./configs:/configs
     extra_hosts:
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
