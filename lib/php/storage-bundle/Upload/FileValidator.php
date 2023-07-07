@@ -30,7 +30,9 @@ final class FileValidator
                 $extensions = [];
 
                 if (!empty($matches[2][$i])) {
-                    $extensions = array_map('trim', explode(',', substr($matches[2][$i], 1, -1)));
+                    $extensions = array_map(function (string $ext): string {
+                        return preg_replace('#^\.#', '', trim($ext));
+                    }, explode(',', substr($matches[2][$i], 1, -1)));
                 }
 
                 $types[$matches[1][$i]] = $extensions;
@@ -42,8 +44,17 @@ final class FileValidator
         return $value;
     }
 
+    private function getAllowedExtensions(): array
+    {
+        return array_merge(...array_values($this->allowedTypes));
+    }
+
     public function validateFile(string $path, ?string $type): void
     {
+        if (empty($this->allowedTypes)) {
+            return;
+        }
+
         $extension = FileUtil::getExtensionFromPath($path);
         if (null === $type) {
             $type = FileUtil::getTypeFromExtension($extension);
@@ -54,7 +65,7 @@ final class FileValidator
         }
 
         if (!$this->hasValidExtension($extension)) {
-           throw $this->createException($extension, $this->allowedExtensions, 'extension');
+           throw $this->createException($extension, $this->getAllowedExtensions(), 'extension');
         }
     }
 
@@ -69,7 +80,7 @@ final class FileValidator
 
     private function hasValidExtension(string $extension): bool
     {
-        $allowedExtensions = array_merge(...$this->allowedTypes);
+        $allowedExtensions = $this->getAllowedExtensions();
 
         if (in_array($extension, $allowedExtensions, true)) {
             return true;
@@ -103,7 +114,6 @@ final class FileValidator
 
     private function matches(string $value, string $mask): bool
     {
-        dump('#^'.str_replace('*', '.+', $mask).'$#');
         return 1 === preg_match('#^'.str_replace('*', '.+', $mask).'$#', $value);
     }
 }

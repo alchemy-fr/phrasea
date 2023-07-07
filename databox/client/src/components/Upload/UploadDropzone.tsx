@@ -1,5 +1,5 @@
 import React from 'react';
-import Dropzone, {Accept, DropzoneOptions} from "react-dropzone";
+import {Accept, DropzoneOptions, useDropzone} from "react-dropzone";
 import {Box, Typography} from "@mui/material";
 import {grey} from "@mui/material/colors";
 import config from "../../config";
@@ -37,25 +37,32 @@ export default function UploadDropzone({
 }: Props) {
     const accept = useAccept();
 
-    return <Dropzone
-        onDrop={onDrop}
-        accept={accept}
-    >
-        {({getRootProps, getInputProps, isDragActive}) => (
-            <Box
-                sx={theme => ({
-                    border: `1px dashed ${grey[500]}`,
-                    borderRadius: theme.shape.borderRadius,
-                    p: 3,
-                    mb: 2,
-                    bgcolor: isDragActive ? 'info.main' : undefined,
-                    cursor: 'pointer',
-                })}
-                {...getRootProps()}
-            >
-                <input {...getInputProps()} />
-                <Typography>Drag 'n' drop some files here, or click to select files</Typography>
-            </Box>
-        )}
-    </Dropzone>
+    const {
+        getRootProps,
+        getInputProps,
+        isDragActive,
+    } = useDropzone({
+        onDrop,
+        accept,
+        noClick: true,
+    });
+
+    return <>
+        <Box
+            component={'label'}
+            sx={theme => ({
+                display: 'block',
+                border: `1px dashed ${grey[500]}`,
+                borderRadius: theme.shape.borderRadius,
+                p: 3,
+                mb: 2,
+                bgcolor: isDragActive ? 'info.main' : undefined,
+                cursor: 'pointer',
+            })}
+            {...getRootProps()}
+        >
+            <input {...getInputProps()} />
+            <Typography>Drag 'n' drop some files here, or click to select files</Typography>
+        </Box>
+    </>
 }
