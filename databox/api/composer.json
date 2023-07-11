@@ -222,7 +222,7 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "stan": "vendor/bin/phpstan analyse --memory-limit 512M src tests --level 1",
+        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
     },

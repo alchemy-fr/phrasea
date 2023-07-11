@@ -1,5 +1,4 @@
 parameters:
-  alchemy_admin.auth_base_url: '%env(AUTH_API_BASE_URL)%'
   env(DASHBOARD_BASE_URL): ~
   env(DISPLAY_SERVICES_MENU): false
   alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_BASE_URL)%/menu.html'
@@ -18,23 +17,10 @@ services:
     tags:
       - { name: twig.extension }
 
-  alchemy_admin.http_client:
-    class: GuzzleHttp\Client
-    arguments:
-      -
-        base_uri: "%alchemy_admin.auth_base_url%"
-        verify: '%env(bool:VERIFY_SSL)%'
-        options:
-          timeout: 10
-          headers:
-            Accept: "application/json"
-
   Alchemy\AdminBundle\Auth\OAuthClient:
     arguments:
-      $client: "@alchemy_admin.http_client"
       $clientId: '%env(ADMIN_CLIENT_ID)%'
       $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-      $authBaseUrl: '%alchemy_admin.auth_base_url%'
 
   Alchemy\AclBundle\Controller\PermissionController: ~
 

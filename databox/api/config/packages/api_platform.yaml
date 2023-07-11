@@ -17,6 +17,6 @@ api_platform:
     oauth:
         clientId: '%env(ADMIN_CLIENT_ID)%'
         clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-        tokenUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/token'
+        tokenUrl: '%env(KEYCLOAK_URL)%/oauth/v2/token'
         flow: authorizationCode
-        authorizationUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/auth'
+        authorizationUrl: '%env(KEYCLOAK_URL)%/oauth/v2/auth'

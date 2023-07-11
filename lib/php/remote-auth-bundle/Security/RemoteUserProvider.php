@@ -11,7 +11,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class RemoteUserProvider implements UserProviderInterface
 {
-    public function __construct(private readonly AuthServiceClient $client)
+    public function __construct(
+        private readonly AuthServiceClient $client,
+        private readonly RoleMapper $roleMapper,
+    )
     {
     }
 
@@ -28,7 +31,8 @@ class RemoteUserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         $data = $this->client->getTokenInfo($identifier);
+        $roles = $this->roleMapper->getRoles($data['roles'] ?? []);
 
-        return new RemoteUser($data['sub'], $data['preferred_username'], $data['realm_access']['roles'] ?? [], $data['groups'] ?? []);
+        return new RemoteUser($data['sub'], $data['preferred_username'], $roles, $data['groups'] ?? []);
     }
 }

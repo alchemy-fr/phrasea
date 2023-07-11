@@ -15,6 +15,10 @@ class RenditionPermissionManager
 {
     private const IS_EMPTY = 0;
     private const ANONYMOUS = '~';
+
+    /**
+     * @var array{string, boolean}
+     */
     private array $cache = [];
 
     public function __construct(private readonly EntityManagerInterface $em)

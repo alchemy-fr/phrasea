@@ -9,7 +9,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class CollectionFacet extends AbstractFacet
 {

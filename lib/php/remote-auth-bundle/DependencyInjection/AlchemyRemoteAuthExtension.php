@@ -8,6 +8,7 @@ use Alchemy\RemoteAuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\RemoteAuthBundle\Listener\LogoutListener;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -16,7 +17,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class AlchemyRemoteAuthExtension extends Extension
+class AlchemyRemoteAuthExtension extends Extension implements PrependExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -45,5 +46,19 @@ class AlchemyRemoteAuthExtension extends Extension
         if (isset($bundles['AlchemyAclBundle'])) {
             $loader->load('bridge/acl_bundle.yaml');
         }
+    }
+
+    public function prepend(ContainerBuilder $container)
+    {
+        $container->prependExtensionConfig('framework', [
+            'http_client' => [
+                'scoped_clients' => [
+                    'keycloak.client' => [
+                        'base_uri' => '%env(KEYCLOAK_URL)%',
+                        'verify_peer' => '%env(bool:VERIFY_SSL)%',
+                    ]
+                ]
+            ],
+        ]);
     }
 }

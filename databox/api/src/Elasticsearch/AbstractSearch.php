@@ -9,7 +9,7 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractSearch

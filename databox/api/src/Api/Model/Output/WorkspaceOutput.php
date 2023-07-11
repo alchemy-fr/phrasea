@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiResource;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(shortName: 'workspace', normalizationContext: 'workspace:read')]
 class WorkspaceOutput extends AbstractUuidOutput
 {
     use CapabilitiesDTOTrait;
     use CreatedAtDTOTrait;
 
-    #[Groups(['workspace:index', 'workspace:read', 'collection:index', 'collection:read'])]
+    #[Groups(['_', 'workspace:index', 'workspace:read', 'collection:index', 'collection:read'])]
     protected array $capabilities = [];
 
     #[Groups(['workspace:index', 'workspace:read', 'collection:index', 'collection:read', 'asset:index', 'asset:read', 'Webhook', 'renddef:index'])]

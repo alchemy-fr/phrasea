@@ -16,6 +16,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -52,8 +53,6 @@ class Commit
 {
     /**
      * @ApiProperty(identifier=true)
-     *
-     * @var Uuid
      */
     #[Groups(['asset:read', 'commit:read'])]
     #[ORM\Id]

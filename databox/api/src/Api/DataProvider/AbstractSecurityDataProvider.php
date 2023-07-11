@@ -7,7 +7,7 @@ namespace App\Api\DataProvider;
 use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
 use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 abstract class AbstractSecurityDataProvider implements CollectionDataProviderInterface
 {

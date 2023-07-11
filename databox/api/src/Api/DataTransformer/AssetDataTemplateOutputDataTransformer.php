@@ -9,7 +9,7 @@ use App\Asset\Attribute\AttributesResolver;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetDataTemplateOutputDataTransformer extends AbstractSecurityDataTransformer
 {

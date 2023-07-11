@@ -26,7 +26,6 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
@@ -55,6 +54,9 @@ use ApiPlatform\Metadata\GetCollection;
         new GetCollection(),
         new Get(
             uriTemplate: '/workspaces-by-slug/{slug}',
+            uriVariables: [
+                'slug' => 'slug',
+            ],
             controller: GetWorkspaceBySlugAction::class,
             name: 'get_by_slug'
         ),

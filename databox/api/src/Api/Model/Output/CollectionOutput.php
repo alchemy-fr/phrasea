@@ -35,7 +35,6 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups(['collection:index', 'collection:children', 'workspace:index'])]
     private $children;
 
-    #[MaxDepth(1)]
     #[Groups(['collection:index', 'collection:read', 'workspace:index', 'workspace:read'])]
     private $workspace;
 

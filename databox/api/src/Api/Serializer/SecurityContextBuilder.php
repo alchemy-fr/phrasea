@@ -6,9 +6,9 @@ namespace App\Api\Serializer;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
-use ApiPlatform\Core\Serializer\SerializerContextBuilderInterface;
+use ApiPlatform\Serializer\SerializerContextBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class SecurityContextBuilder implements SerializerContextBuilderInterface
 {

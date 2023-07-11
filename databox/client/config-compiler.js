@@ -80,7 +80,7 @@
         baseUrl: env.DATABOX_API_BASE_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_BASE_URL,
         uploaderTargetSlug: env.UPLOADER_TARGET_SLUG,
-        authBaseUrl: env.AUTH_API_BASE_URL,
+        authBaseUrl: env.KEYCLOAK_URL,
         clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
         clientSecret: env.CLIENT_SECRET,
         devMode: env.DEV_MODE === 'true',

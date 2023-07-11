@@ -10,7 +10,7 @@ use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
 use App\Entity\Core\Asset;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
 {

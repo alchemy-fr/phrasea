@@ -20,12 +20,8 @@ services:
           Accept: "application/json"
 
 
-  Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
-    arguments:
-      $client: "@alchemy.keycloak_client"
-
+  Alchemy\RemoteAuthBundle\Client\AuthServiceClient: ~
   Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener: ~
-
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
   Alchemy\RemoteAuthBundle\Security\RemoteAuthAuthenticatorPersister: ~
   Alchemy\RemoteAuthBundle\Security\AccessTokenAuthenticator: ~
@@ -39,3 +35,4 @@ services:
   Alchemy\RemoteAuthBundle\Repository\GroupRepositoryInterface: "@Alchemy\\RemoteAuthBundle\\Repository\\RemoteAuthGroupRepository"
   Alchemy\RemoteAuthBundle\Listener\LogoutListener: ~
   Alchemy\RemoteAuthBundle\Client\KeycloakUrlGenerator: ~
+  Alchemy\RemoteAuthBundle\Security\RoleMapper: ~

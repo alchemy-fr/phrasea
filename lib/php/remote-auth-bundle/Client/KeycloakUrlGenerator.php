@@ -9,8 +9,7 @@ final readonly class KeycloakUrlGenerator
     public function __construct(
         private string $baseUrl,
         private string $realm,
-    )
-    {
+    ) {
     }
 
     public function getLogoutUrl(string $clientId, string $redirectUri): string
@@ -31,6 +30,15 @@ final readonly class KeycloakUrlGenerator
     public function getTokenUrl(): string
     {
         return $this->getOpenIdConnectBaseUrl().'/token';
+    }
+
+    public function getAuthorizeUrl(string $clientId, string $redirectUri, string $state = ''): string
+    {
+        return $this->getOpenIdConnectBaseUrl().sprintf(
+                '/auth?client_id=%s&response_type=code&redirect_uri=%s',
+                urlencode($clientId),
+                urlencode($redirectUri),
+            ).(!empty($state) ? '&state='.urlencode($state) : '');
     }
 
     private function getOpenIdConnectBaseUrl(): string

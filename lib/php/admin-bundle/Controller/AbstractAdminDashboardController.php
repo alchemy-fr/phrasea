@@ -20,7 +20,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 {
     private AdminConfigRegistry $adminConfigRegistry;
 
-    #[Route(path: '/admin')]
+    #[Route(path: '/admin', name: 'easyadmin')]
     public function index(): Response
     {
         return $this->render('@AlchemyAdmin/layout.html.twig');
