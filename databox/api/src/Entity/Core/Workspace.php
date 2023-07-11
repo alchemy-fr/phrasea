@@ -71,7 +71,7 @@ use ApiPlatform\Metadata\GetCollection;
         'groups' => ['workspace:index'],
     ],
     input: WorkspaceInput::class,
-    output: WorkspaceOutput::class
+    output: WorkspaceOutput::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]

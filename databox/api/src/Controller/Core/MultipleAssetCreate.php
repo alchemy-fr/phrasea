@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Api\DataTransformer\AssetOutputDataTransformer;
+use App\Api\Processor\AssetOutputProcessor;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Entity\Core\Asset;
@@ -15,7 +15,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class MultipleAssetCreate
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly AssetOutputDataTransformer $assetOutputDataTransformer, private readonly Security $security)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly AssetOutputProcessor $assetOutputDataTransformer, private readonly Security $security)
     {
     }
 
