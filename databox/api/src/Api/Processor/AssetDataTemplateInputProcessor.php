@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetDataTemplateInputProcessor extends AbstractInputProcessor
 {
@@ -27,9 +27,9 @@ class AssetDataTemplateInputProcessor extends AbstractInputProcessor
     {
         $this->validator->validate($data);
 
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetDataTemplate $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new AssetDataTemplate();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AssetDataTemplate();
 
         $workspace = null;
         if ($data->workspace) {

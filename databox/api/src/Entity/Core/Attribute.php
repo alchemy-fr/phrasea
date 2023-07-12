@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\AttributeCollectionDataProvider;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
@@ -44,7 +45,8 @@ use Doctrine\ORM\Mapping as ORM;
         ]
     ],
     input: AttributeInput::class,
-    output: AttributeOutput::class
+    output: AttributeOutput::class,
+    provider: AttributeCollectionDataProvider::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]

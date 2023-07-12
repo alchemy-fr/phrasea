@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetFileVersion;
 
 class AssetFileVersionCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
 {
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
         $asset = $this->getAsset($context);
 
@@ -19,10 +20,5 @@ class AssetFileVersionCollectionDataProvider extends AbstractAssetFilteredCollec
             ->addOrderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return AssetFileVersion::class === $resourceClass;
     }
 }

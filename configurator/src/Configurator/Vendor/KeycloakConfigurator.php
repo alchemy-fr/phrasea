@@ -17,6 +17,7 @@ final class KeycloakConfigurator implements ConfiguratorInterface
 
     public function __construct(
         private readonly array $symfonyApplications,
+        private readonly array $frontendApplications,
         HttpClientInterface $client,
         private readonly string $realm = 'master',
     ) {
@@ -44,12 +45,25 @@ final class KeycloakConfigurator implements ConfiguratorInterface
             $client = $this->createClient(
                 getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
                 getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
-                getenv(sprintf('%s_API_BASE_URL', strtoupper($app))).'/admin',
+                getenv(sprintf('%s_API_URL', strtoupper($app))).'/admin',
+                [
+                    'serviceAccountsEnabled' => true,
+                ]
             );
 
-            $this->configureServiceAccountRoles($client, [
-                'role' => 'view-users',
-            ]);
+            $this->addServiceAccountRole($client, 'view-users', $this->realm.'-realm');
+            $this->addServiceAccountRole($client, 'view-groups', 'account');
+        }
+
+        foreach ($this->frontendApplications as $app) {
+            $this->createClient(
+                getenv(sprintf('%s_CLIENT_ID', strtoupper($app))),
+                null,
+                getenv(sprintf('%s_CLIENT_URL', strtoupper($app))),
+                [
+                    'serviceAccountsEnabled' => false,
+                ]
+            );
         }
     }
 
@@ -96,23 +110,24 @@ final class KeycloakConfigurator implements ConfiguratorInterface
 
     private function createClient(
         string $clientId,
-        string $clientSecret,
+        ?string $clientSecret,
         string $baseUri,
+        array $data = [],
     ): array {
         $clients = $this->getClients();
         $client = $this->getClientByClientId($clients, $clientId);
 
-        $data = [
+        $data = array_merge([
             'clientId' => $clientId,
             'secret' => $clientSecret,
+            'publicClient' => null === $clientSecret,
             'frontchannelLogout' => false,
-            'serviceAccountsEnabled' => true,
             'rootUrl' => $baseUri,
             'redirectUris' => [
                 $baseUri.'/*',
             ],
             'defaultClientScopes' => ['openid'],
-        ];
+        ], $data);
 
         if (null !== $client) {
             $this->getAuthenticatedClient()
@@ -123,12 +138,14 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                     'json' => $data,
                 ]);
         } else {
-            $client = $this->getAuthenticatedClient()
+            $this->getAuthenticatedClient()
                 ->request('POST', UriTemplate::resolve('{realm}/clients', [
                     'realm' => $this->realm,
                 ]), [
                     'json' => $data,
                 ]);
+            $clients = $this->getClients();
+            $client = $this->getClientByClientId($clients, $clientId);
         }
 
         $scopes = $this->getScopes();
@@ -189,10 +206,15 @@ final class KeycloakConfigurator implements ConfiguratorInterface
         }
     }
 
-    private function configureServiceAccountRoles(
+    private function addServiceAccountRole(
         array $client,
-        array $data,
+        string $role,
+        string $fromClientId,
     ): void {
+        $data = [
+            'role' => $role,
+        ];
+
         $serviceAccountUser =  $this->getAuthenticatedClient()
             ->request('GET', UriTemplate::resolve('{realm}/clients/{clientId}/service-account-user', [
                 'realm' => $this->realm,
@@ -203,12 +225,13 @@ final class KeycloakConfigurator implements ConfiguratorInterface
 
 
         $clients = $this->getClients();
-        $realmClient = $this->getClientByClientId($clients, $this->realm.'-realm');
+        $realmClient = $this->getClientByClientId($clients, $fromClientId);
 
-        $viewUsersRole = $this->getAuthenticatedClient()
-            ->request('GET', UriTemplate::resolve('{realm}/clients/{realmClientId}/roles/view-users', [
+        $roleToGrant = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/clients/{realmClientId}/roles/{roleName}', [
                 'realm' => $this->realm,
                 'realmClientId' => $realmClient['id'],
+                'roleName' => $role,
             ]), [
                 'json' => $data,
             ])->toArray();
@@ -220,8 +243,8 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                 'clientId' => $realmClient['id'],
             ]), [
                 'json' => [[
-                    'id' => $viewUsersRole['id'],
-                    'name' => $viewUsersRole['name'],
+                    'id' => $roleToGrant['id'],
+                    'name' => $roleToGrant['name'],
                 ]],
             ]);
     }

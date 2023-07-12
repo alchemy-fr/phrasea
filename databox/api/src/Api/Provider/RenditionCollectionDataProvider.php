@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetRendition;
 use App\Security\Voter\RenditionVoter;
 
 class RenditionCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
 {
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
         $asset = $this->getAsset($context);
 
@@ -23,10 +24,5 @@ class RenditionCollectionDataProvider extends AbstractAssetFilteredCollectionDat
             ->getResult();
 
         return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(RenditionVoter::READ, $rendition));
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return AssetRendition::class === $resourceClass;
     }
 }

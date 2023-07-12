@@ -162,7 +162,7 @@ class Target implements \Stringable
 
     public function getPullModeUrl(): string
     {
-        return sprintf('%s/commits?target=%s', getenv('UPLOADER_API_BASE_URL'), $this->getId());
+        return sprintf('%s/commits?target=%s', getenv('UPLOADER_API_URL'), $this->getId());
     }
 
     public function setDefaultDestination(?string $defaultDestination): void

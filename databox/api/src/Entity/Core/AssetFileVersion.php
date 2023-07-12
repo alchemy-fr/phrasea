@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use App\Api\Provider\AssetFileVersionCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,7 +28,8 @@ use ApiPlatform\Metadata\GetCollection;
         'groups' => [
             'assetfileversion:index'
         ]
-    ]
+    ],
+    provider: AssetFileVersionCollectionDataProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Entity]

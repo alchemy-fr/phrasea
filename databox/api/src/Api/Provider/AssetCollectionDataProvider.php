@@ -2,23 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
-use App\Entity\Core\Asset;
 use Symfony\Bundle\SecurityBundle\Security;
 
-class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class AssetCollectionDataProvider extends AbstractCollectionProvider
 {
     public function __construct(private readonly AssetSearch $assetSearch, private readonly Security $security)
     {
     }
 
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
         $user = $this->security->getUser();
         $userId = $user instanceof RemoteUser ? $user->getId() : null;
@@ -34,10 +32,5 @@ class AssetCollectionDataProvider implements ContextAwareCollectionDataProviderI
         ]);
 
         return $response;
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return Asset::class === $resourceClass;
     }
 }

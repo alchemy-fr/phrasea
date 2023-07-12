@@ -35,13 +35,12 @@
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         client: config.uploader.client,
         identityProviders,
-        baseUrl: env.UPLOADER_API_BASE_URL,
-        authBaseUrl: env.KEYCLOAK_URL,
-        clientId: env.CLIENT_ID+'_'+env.CLIENT_RANDOM_ID,
-        clientSecret: env.CLIENT_SECRET,
+        baseUrl: env.UPLOADER_API_URL,
+        authBaseUrl: env.OPENID_CONNECT_URL,
+        clientId: env.CLIENT_ID,
         devMode: env.DEV_MODE === 'true',
         displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
-        dashboardBaseUrl: env.DASHBOARD_BASE_URL,
+        dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
     };
 });

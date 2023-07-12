@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(normalizationContext: [
+    'force_resource_class' => true,
+])]
+#[Get]
 abstract class AbstractUuidOutput
 {
     /**

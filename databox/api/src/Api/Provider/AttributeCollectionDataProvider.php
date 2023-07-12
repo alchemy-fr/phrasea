@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Attribute;
 
 class AttributeCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
 {
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
         $asset = $this->getAsset($context);
 
@@ -19,10 +20,5 @@ class AttributeCollectionDataProvider extends AbstractAssetFilteredCollectionDat
         return $this->em->getRepository(Attribute::class)->findBy($criteria, [
             'position' => 'ASC',
         ]);
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return Attribute::class === $resourceClass;
     }
 }

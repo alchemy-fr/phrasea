@@ -109,4 +109,11 @@ final readonly class AuthServiceClient
             ],
         ])->toArray();
     }
+
+    public function getJwtPublicKey(): string
+    {
+        $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfo())->toArray();
+
+        return $data['public_key'];
+    }
 }

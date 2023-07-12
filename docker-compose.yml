@@ -67,6 +67,29 @@ services:
       - AWS_PROFILE=${LEGO_AWS_PROFILE}
       - AWS_SDK_LOAD_CONFIG=${LEGO_AWS_SDK_LOAD_CONFIG}
 
+  a_client:
+    profiles:
+      - none
+    build:
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    networks:
+      - internal
+    environment:
+      - DEV_MODE
+      - OPENID_CONNECT_URL
+      - MATOMO_HOST
+      - DISPLAY_SERVICES_MENU
+      - DASHBOARD_URL
+      - AUTO_CONNECT_IDP
+      - KEYCLOAK_JWT_PUBLIC_KEY
+    volumes:
+      - ./configs:/configs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
   a_api-php:
     profiles:
       - none
@@ -91,12 +114,13 @@ services:
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - RABBITMQ_SSL
-      - REPORT_API_BASE_URL
+      - REPORT_API_URL
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DASHBOARD_URL
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - KEYCLOAK_URL
+      - KEYCLOAK_JWT_PUBLIC_KEY
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:
@@ -108,7 +132,7 @@ services:
     profiles:
       - none
     environment:
-      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_ENDPOINT
       - S3_PATH_PREFIX
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
@@ -129,7 +153,7 @@ services:
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
       - RABBITMQ_VHOST=${UPLOADER_RABBITMQ_VHOST}
-      - UPLOADER_API_BASE_URL
+      - UPLOADER_API_URL
       - ADMIN_CLIENT_ID=${UPLOADER_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${UPLOADER_ADMIN_CLIENT_SECRET}
       - UPLOAD_MAX_FILE_SIZE
@@ -176,95 +200,54 @@ services:
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  uploader-client:
-    image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
-    build:
-      context: ./uploader/client
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    profiles:
-      - uploader
-    networks:
-      - internal
-    volumes:
-      - ./configs:/configs
-    environment:
-      - DEV_MODE
-      - UPLOADER_API_BASE_URL
-      - KEYCLOAK_URL
-      - CLIENT_ID=${UPLOADER_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${UPLOADER_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${UPLOADER_CLIENT_SECRET}
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - AUTO_CONNECT_IDP
-      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-
-  expose-client:
-    image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
-    build:
-      context: ./expose/client
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    profiles:
-      - expose
-    networks:
-      - internal
-    volumes:
-      - ./configs:/configs
-    environment:
-      - EXPOSE_API_BASE_URL
-      - KEYCLOAK_URL
-      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
-      - CLIENT_ID=${EXPOSE_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${EXPOSE_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${EXPOSE_CLIENT_SECRET}
-      - MATOMO_HOST
-      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
-      - AUTO_CONNECT_IDP
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-
   databox-client:
+    extends:
+      service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
     build:
       context: ./databox/client
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     profiles:
       - databox
-    networks:
-      - internal
-    volumes:
-      - ./configs:/configs
     environment:
-      - DEV_MODE
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
-      - DATABOX_API_BASE_URL
-      - KEYCLOAK_URL
-      - UPLOADER_API_BASE_URL
+      - DATABOX_API_URL
+      - UPLOADER_API_URL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
-      - CLIENT_RANDOM_ID=${DATABOX_CLIENT_RANDOM_ID}
-      - CLIENT_SECRET=${DATABOX_CLIENT_SECRET}
-      - MATOMO_HOST
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
-      - AUTO_CONNECT_IDP
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     labels:
-      - "traefik.enable=true"
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  expose-client:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
+    build:
+      context: ./expose/client
+    profiles:
+      - expose
+    environment:
+      - EXPOSE_API_URL
+      - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
+      - CLIENT_ID=${EXPOSE_CLIENT_ID}
+      - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
+    labels:
+      - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
+
+  uploader-client:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
+    build:
+      context: ./uploader/client
+    profiles:
+      - uploader
+    environment:
+      - UPLOADER_API_URL
+      - CLIENT_ID=${UPLOADER_CLIENT_ID}
+      - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+    labels:
+      - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
 
   expose-api-php:
     extends:
@@ -283,12 +266,12 @@ services:
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - S3_USE_PATH_STYLE_ENDPOINT=${EXPOSE_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_BUCKET_NAME=${EXPOSE_STORAGE_BUCKET_NAME}
-      - EXPOSE_API_BASE_URL
-      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - EXPOSE_API_URL
+      - EXPOSE_CLIENT_URL
       - UPLOAD_MAX_FILE_SIZE
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
-      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - ZIPPY_URL
       - SIDEBAR_DEFAULT_OPEN=${EXPOSE_SIDEBAR_DEFAULT_OPEN}
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
@@ -338,83 +321,31 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   notify-api-php:
+    extends:
+      service: a_api-php
     profiles:
       - notify
     image: ${REGISTRY_NAMESPACE}notify-api-php:${DOCKER_TAG}
     build:
       context: ./notify/api
-      target: api-php
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      internal:
-        aliases:
-          - notify-api-php
-    volumes:
-      - ./configs:/configs
-    depends_on:
-      - rabbitmq
     environment:
-      - APP_ENV
-      - TRUSTED_PROXIES
-      - VERIFY_SSL
       - APP_ID=notify
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - RABBITMQ_HOST
-      - RABBITMQ_PORT
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - RABBITMQ_SSL
       - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
-      - KEYCLOAK_URL
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
-      - REPORT_API_BASE_URL
+      - REPORT_API_URL
       - MAILER_DSN
       - MAIL_FROM
-      - DISPLAY_SERVICES_MENU
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - NEWRELIC_ENABLED
-      - NEWRELIC_LICENSE_KEY
       - NEWRELIC_APP_NAME=notify-api
-    extra_hosts:
-      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   notify-worker:
+    extends:
+      service: notify-api-php
     profiles:
       - notify-worker
     image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
     build:
-      context: ./notify/api
       target: worker
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
-    depends_on:
-      - rabbitmq
-    volumes:
-      - ./configs:/configs
-    environment:
-      - APP_ENV
-      - APP_ID=notify
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - RABBITMQ_HOST
-      - RABBITMQ_PORT
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - RABBITMQ_SSL
-      - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
-      - REPORT_API_BASE_URL
-      - MAILER_DSN
-      - MAIL_FROM
-      - NEWRELIC_ENABLED
-      - NEWRELIC_LICENSE_KEY
-      - NEWRELIC_APP_NAME=notify-worker
 
   notify-api-nginx:
     profiles:
@@ -511,7 +442,7 @@ services:
     environment:
       - MINIO_ROOT_USER=${S3_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
-      - MINIO_BROWSER_REDIRECT_URL=https://minio-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - MINIO_BROWSER_REDIRECT_URL=${MINIO_CONSOLE_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
@@ -544,9 +475,7 @@ services:
     image: ${REGISTRY_NAMESPACE}matomo-php:${DOCKER_TAG}
     build: ./infra/docker/matomo-php
     networks:
-      internal:
-        aliases:
-          - matomo-php
+      - internal
     depends_on:
       - matomo-db
     environment:
@@ -598,9 +527,7 @@ services:
     image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
     build: report
     networks:
-      internal:
-        aliases:
-          - report-api
+      - internal
     environment:
       - APP_ENV
       - POSTGRES_HOST
@@ -695,27 +622,27 @@ services:
       - REGISTRY_NAMESPACE
       - REPORT_DB_NAME
       - XDEBUG_ENABLED
-      - UPLOADER_API_BASE_URL
+      - UPLOADER_API_URL
       - KEYCLOAK_URL
-      - EXPOSE_API_BASE_URL
-      - EXPOSE_CLIENT_BASE_URL=https://expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - NOTIFY_API_BASE_URL
-      - DATABOX_API_BASE_URL
-      - REPORT_API_BASE_URL
-      - DASHBOARD_BASE_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - ZIPPY_BASE_URL=https://zippy.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - EXPOSE_API_URL
+      - EXPOSE_CLIENT_URL
+      - UPLOADER_CLIENT_URL
+      - DATABOX_CLIENT_URL
+      - NOTIFY_API_URL
+      - DATABOX_API_URL
+      - REPORT_API_URL
+      - DASHBOARD_URL
+      - ZIPPY_URL
+      - S3_ENDPOINT
       - S3_PATH_PREFIX
-      - PGADMIN_BASE_URL=https://pgadmin.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - PHPMYADMIN_BASE_URL=https://pma.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - RABBITMQ_CONSOLE_BASE_URL=https://rabbitmq-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - TRAEFIK_CONSOLE_BASE_URL=https://traefik-console.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - ELASTICHQ_BASE_URL=https://elastichq.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - MAILHOG_BASE_URL=https://mailhog.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - SAML_BASE_URL=https://saml-idp.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - SAML2_BASE_URL=https://saml-idp2.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - PGADMIN_URL
+      - PHPMYADMIN_URL
+      - RABBITMQ_CONSOLE_URL
+      - TRAEFIK_CONSOLE_URL
+      - ELASTICHQ_URL
+      - MAILHOG_URL
+      - SAML_URL
+      - SAML2_URL
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
@@ -730,8 +657,9 @@ services:
     build:
       context: ./databox/api
     environment:
-      - DATABOX_API_BASE_URL
-      - DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - APP_ID=databox
+      - DATABOX_API_URL
+      - DATABOX_CLIENT_URL
       - RABBITMQ_VHOST=${DATABOX_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
@@ -745,7 +673,7 @@ services:
       - NEWRELIC_APP_NAME=databox-api
       - ZIPPY_CLIENT_ID
       - ZIPPY_CLIENT_SECRET
-      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - ZIPPY_URL
       - CLOUD_FRONT_URL=${DATABOX_CLOUD_FRONT_URL}
       - CLOUD_FRONT_REGION=${DATABOX_CLOUD_FRONT_REGION}
       - CLOUD_FRONT_PRIVATE_KEY=${DATABOX_CLOUD_FRONT_PRIVATE_KEY}
@@ -754,7 +682,7 @@ services:
       - CLARIFAI_API_KEY
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - SECRETS_SECRET_KEY=not_provided
-      - PWI_PHRASEANET_BASE_URL=${PHRASEANET_BASE_URL}
+      - PWI_PHRASEANET_URL=${PHRASEANET_URL}
       - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
     depends_on:
       - redis
@@ -799,7 +727,7 @@ services:
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  databox-indexer:
+  a_indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
@@ -811,15 +739,15 @@ services:
     environment:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - IMPORT_FILES=${INDEXER_IMPORT_FILES}
-      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - DATABOX_API_URL
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
       - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
       - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
       - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
       - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - PUBLIC_URL=${DATABOX_INDEXER_URL}
+      - S3_ENDPOINT
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - S3_ACCESS_KEY
@@ -830,7 +758,7 @@ services:
       - WATCH_DIR=${INDEXER_WATCH_DIR}
       - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
       - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
-      - PHRASEANET_BASE_URL
+      - PHRASEANET_URL
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
       - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
@@ -843,52 +771,23 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
+  databox-indexer:
+    extends:
+      service: a_indexer
+    command: [ "/bin/sh", "-c", "exit" ]
+    environment:
+      - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
+      - PHRASEANET_SEARCH_ORDER=${INDEXER_PHRASEANET_SEARCH_ORDER}
+
   databox-watcher:
-    image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
-    build:
-      context: ./databox/indexer
-    profiles:
-      - indexer
-    networks:
-      - internal
+    extends:
+      service: a_indexer
     depends_on:
       - rabbitmq
-    environment:
-      - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
-      - IMPORT_FILES=${INDEXER_IMPORT_FILES}
-      - DATABOX_API_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - DATABOX_VERIFY_SSL=${VERIFY_SSL}
-      - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}_${INDEXER_DATABOX_CLIENT_RANDOM_ID}
-      - DATABOX_CLIENT_SECRET=${INDEXER_DATABOX_CLIENT_SECRET}
-      - DATABOX_CONCURRENCY=${INDEXER_DATABOX_CONCURRENCY}
-      - DATABOX_WORKSPACE_SLUG=${INDEXER_DATABOX_WORKSPACE_SLUG}
-      - DATABOX_OWNER_ID=${INDEXER_DATABOX_OWNER_ID}
-      - PUBLIC_URL=https://databox-indexer.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_PATH_PREFIX
-      - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
-      - S3_ACCESS_KEY
-      - S3_SECRET_KEY
-      - S3_REGION
-      - S3_BUCKET_NAME=${INDEXER_BUCKET_NAME}
-      - BUCKET_NAMES=${INDEXER_BUCKET_NAME}
-      - WATCH_DIR=${INDEXER_WATCH_DIR}
-      - WATCH_DIR_PREFIX=${INDEXER_WATCH_DIR_PREFIX}
-      - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
-      - PHRASEANET_BASE_URL
-      - PHRASEANET_APP_OAUTH_TOKEN
-      - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
-      - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
-    volumes:
-      - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-    extra_hosts:
-      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   elasticsearch:
     profiles:
@@ -976,7 +875,7 @@ services:
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  zippy-api:
+  a_zippy:
     image: alchemyfr/zippy-api:latest
     profiles:
       - zippy
@@ -988,48 +887,32 @@ services:
       - TRUSTED_PROXIES
       - CLIENT_ID=${ZIPPY_CLIENT_ID}
       - CLIENT_SECRET=${ZIPPY_CLIENT_SECRET}
-      - ZIPPY_BASE_URL=https://zippy-svc.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - ZIPPY_URL
     volumes:
       - zippy_vol:/data
     depends_on:
       - rabbitmq
+    extra_hosts:
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  zippy-api:
+    extends:
+      service: a_zippy
+    image: alchemyfr/zippy-api:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.zippy-svc.rule=Host(`zippy-svc.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-    extra_hosts:
-      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   zippy-worker:
+    extends:
+      service: a_zippy
     image: alchemyfr/zippy-worker:latest
-    networks:
-      - internal
-    profiles:
-      - zippy
-    depends_on:
-      - rabbitmq
-    environment:
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - VERIFY_SSL
-    volumes:
-      - zippy_vol:/data
-    extra_hosts:
-      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   zippy-cron:
-    image: alchemyfr/zippy-worker:latest
-    profiles:
-      - zippy
+    extends:
+      service: zippy-worker
     command: ['/srv/app/docker/cron/start-cron.sh']
-    networks:
-      - internal
-    depends_on:
-      - rabbitmq
-    environment:
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - VERIFY_SSL
 
   keycloak:
     image: quay.io/keycloak/keycloak:21.1.2

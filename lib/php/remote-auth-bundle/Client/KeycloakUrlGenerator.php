@@ -27,6 +27,11 @@ final readonly class KeycloakUrlGenerator
         return $this->getOpenIdConnectBaseUrl().'/userinfo';
     }
 
+    public function getRealmInfo(): string
+    {
+        return $this->baseUrl.'/realms/'.$this->realm;
+    }
+
     public function getTokenUrl(): string
     {
         return $this->getOpenIdConnectBaseUrl().'/token';

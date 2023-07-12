@@ -1,7 +1,7 @@
 parameters:
-  env(DASHBOARD_BASE_URL): ~
+  env(DASHBOARD_URL): ~
   env(DISPLAY_SERVICES_MENU): false
-  alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_BASE_URL)%/menu.html'
+  alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_URL)%/menu.html'
   alchemy_admin.services_menu_enabled: '%env(bool:DISPLAY_SERVICES_MENU)%'
 
 services:

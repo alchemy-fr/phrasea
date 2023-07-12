@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
+#[Get]
 class WorkspaceOutput extends AbstractUuidOutput
 {
     use CapabilitiesDTOTrait;

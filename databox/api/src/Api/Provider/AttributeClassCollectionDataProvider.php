@@ -2,19 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeClass;
 
-class AttributeClassCollectionDataProvider extends AbstractSecurityDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class AttributeClassCollectionDataProvider extends AbstractCollectionProvider
 {
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
+    use SecurityAwareTrait;
+
+    protected function provideCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = []
+    ): array|object {
         $user = $this->security->getUser();
         if (!$user instanceof RemoteUser) {
             return [];
@@ -24,8 +29,7 @@ class AttributeClassCollectionDataProvider extends AbstractSecurityDataProvider 
 
         $queryBuilder = $this->em->getRepository(AttributeClass::class)
             ->createQueryBuilder('t')
-            ->innerJoin('t.workspace', 'w')
-        ;
+            ->innerJoin('t.workspace', 'w');
 
         if ($filters['workspaceId'] ?? false) {
             $queryBuilder
@@ -49,10 +53,5 @@ class AttributeClassCollectionDataProvider extends AbstractSecurityDataProvider 
         return $queryBuilder
             ->getQuery()
             ->getResult();
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return AttributeClass::class === $resourceClass;
     }
 }

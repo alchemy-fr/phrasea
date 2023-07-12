@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
+#[Get]
 class AlternateUrlOutput extends AbstractUuidOutput
 {
     public function __construct(

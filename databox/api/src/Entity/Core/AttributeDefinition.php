@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Provider\AttributeDefinitionCollectionDataProvider;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -63,7 +64,8 @@ use ApiPlatform\Metadata\GetCollection;
         'groups' => ['attributedef:index'],
     ],
     input: AttributeDefinitionInput::class,
-    output: AttributeDefinitionOutput::class
+    output: AttributeDefinitionOutput::class,
+    provider: AttributeDefinitionCollectionDataProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]

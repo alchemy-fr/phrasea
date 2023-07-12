@@ -2,21 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
 use ApiPlatform\Metadata\Operation;
+use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\WorkspaceVoter;
+use App\Security\Voter\AbstractVoter;
 
-class WorkspaceOutputProcessor extends AbstractSecurityProcessor
+class WorkspaceDtoTransformer implements OutputTransformerInterface
 {
+    use ApiSecurityTrait;
+
     private array $capCache = [];
+
+    public function supports(string $outputClass, string $dataClass): bool
+    {
+        return WorkspaceOutput::class === $outputClass;
+    }
 
     /**
      * @param Workspace $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, Operation $operation, array $context = []): object
     {
         $output = new WorkspaceOutput();
         $output->setId($data->getId());
@@ -30,19 +38,14 @@ class WorkspaceOutputProcessor extends AbstractSecurityProcessor
         $k = $data->getId().$this->getTokenId();
         if (!isset($this->capCache[$k])) {
             $this->capCache[$k] = [
-                'canEdit' => $this->isGranted(WorkspaceVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(WorkspaceVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(WorkspaceVoter::EDIT_PERMISSIONS, $data),
+                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ];
         }
 
         $output->setCapabilities($this->capCache[$k]);
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return WorkspaceOutput::class === $to && $data instanceof Workspace;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
@@ -12,6 +13,7 @@ use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 
 class AssetOutput extends AbstractUuidOutput
 {

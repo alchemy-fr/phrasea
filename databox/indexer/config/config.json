@@ -47,7 +47,7 @@
       "name": "phraseanet",
       "type": "phraseanet",
       "options": {
-        "url": "%env(PHRASEANET_BASE_URL)%",
+        "url": "%env(PHRASEANET_URL)%",
         "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
         "importFiles": "%env(bool:IMPORT_FILES)%",

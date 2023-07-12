@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Api\DtoTransformer\WorkspaceDtoTransformer;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -72,6 +73,7 @@ use ApiPlatform\Metadata\GetCollection;
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,
+    provider: WorkspaceDtoTransformer::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]

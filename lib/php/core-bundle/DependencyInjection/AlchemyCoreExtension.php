@@ -37,8 +37,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $loader->load('monolog.yaml');
         }
 
-        if (!empty($config['app_base_url'])) {
-            $container->setParameter('alchemy_core.app_base_url', $config['app_base_url']);
+        if (!empty($config['app_url'])) {
+            $container->setParameter('alchemy_core.app_url', $config['app_url']);
             $loader->load('router_listener.yaml');
         }
 

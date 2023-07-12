@@ -121,7 +121,7 @@
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
-        "api-platform/core": "^2.7",
+        "api-platform/core": "^3.1",
         "arthem/rabbit-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",

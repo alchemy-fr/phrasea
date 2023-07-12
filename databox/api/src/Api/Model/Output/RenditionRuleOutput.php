@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 
 class RenditionRuleOutput extends AbstractUuidOutput
 {

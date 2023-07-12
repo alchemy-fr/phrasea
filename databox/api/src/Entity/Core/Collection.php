@@ -8,6 +8,8 @@ use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\DtoTransformer\CollectionOutputTransformer;
+use App\Api\Provider\CollectionProvider;
 use App\Controller\Core\MoveCollectionAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
@@ -74,7 +76,8 @@ use ApiPlatform\Metadata\GetCollection;
         ],
     ],
     input: CollectionInput::class,
-    output: CollectionOutput::class
+    output: CollectionOutput::class,
+    provider: CollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]

@@ -4,7 +4,7 @@ parameters:
     env(S3_ACCESS_KEY): define-me
     env(S3_SECRET_KEY): define-me
     env(S3_REQUEST_SIGNATURE_TTL): '3600'
-    env(S3_PATH_PREFIX): ''
+    env(S3_PATH_PREFIX): 'a'
     env(VERIFY_SSL): true
     env(ALLOWED_FILE_TYPES): ''
 

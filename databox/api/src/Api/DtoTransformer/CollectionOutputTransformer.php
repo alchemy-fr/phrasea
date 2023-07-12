@@ -2,25 +2,36 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
 use ApiPlatform\Metadata\Operation;
+use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\CollectionOutput;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
-use App\Security\Voter\CollectionVoter;
+use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
-class CollectionOutputProcessor extends AbstractSecurityProcessor
+class CollectionOutputTransformer implements OutputTransformerInterface
 {
-    public function __construct(private readonly CollectionSearch $collectionSearch)
+    use ApiSecurityTrait;
+
+    public function __construct(
+        private readonly CollectionSearch $collectionSearch,
+        private readonly WorkspaceDtoTransformer $workspaceProvider,
+    )
     {
+    }
+
+    public function supports(string $outputClass, string $dataClass): bool
+    {
+        return CollectionOutput::class === $outputClass;
     }
 
     /**
      * @param Collection $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform($data, string $outputClass, Operation $operation, array $context = []): object
     {
         $output = new CollectionOutput();
         $output->setCreatedAt($data->getCreatedAt());
@@ -32,7 +43,7 @@ class CollectionOutputProcessor extends AbstractSecurityProcessor
 
         if (in_array('collection:include_children', $context['groups'], true)) {
             $maxChildrenLimit = 30;
-            if (preg_match('#(?:&|\?)childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {
+            if (preg_match('#[&?]childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {
                 $childrenLimit = $regs[1];
             } else {
                 $childrenLimit = $maxChildrenLimit;
@@ -59,16 +70,11 @@ class CollectionOutputProcessor extends AbstractSecurityProcessor
         }
 
         $output->setCapabilities([
-            'canEdit' => $this->isGranted(CollectionVoter::EDIT, $data),
-            'canDelete' => $this->isGranted(CollectionVoter::DELETE, $data),
-            'canEditPermissions' => $this->isGranted(CollectionVoter::EDIT_PERMISSIONS, $data),
+            'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
+            'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+            'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
         ]);
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return CollectionOutput::class === $to && $data instanceof Collection;
     }
 }

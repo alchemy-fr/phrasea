@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use App\Asset\AssetCopier;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -18,8 +18,10 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'asset_copy';
 
-    public function __construct(private readonly IriConverterInterface $iriConverter, private readonly AssetCopier $assetCopier)
-    {
+    public function __construct(
+        private readonly IriConverterInterface $iriConverter,
+        private readonly AssetCopier $assetCopier
+    ) {
     }
 
     public function handle(EventMessage $message): void
@@ -39,7 +41,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         }
 
         /** @var Collection|Workspace $destination */
-        $destination = $this->iriConverter->getItemFromIri($dest);
+        $destination = $this->iriConverter->getResourceFromIri($dest);
         $destCollection = $destination instanceof Collection ? $destination : null;
         $destWorkspace = $destination instanceof Workspace ? $destination : $destination->getWorkspace();
 

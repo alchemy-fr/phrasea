@@ -61,10 +61,9 @@
         identityProviders,
         loginFormLayout: config.auth.loginFormLayout,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
-        baseUrl: env.EXPOSE_API_BASE_URL,
-        authBaseUrl: env.KEYCLOAK_URL,
-        clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
-        clientSecret: env.CLIENT_SECRET,
+        baseUrl: env.EXPOSE_API_URL,
+        authBaseUrl: env.OPENID_CONNECT_URL,
+        clientId: env.CLIENT_ID,
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
         disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),
     };

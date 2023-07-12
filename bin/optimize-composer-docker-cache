@@ -39,7 +39,7 @@ function updateProject(string $project)
         return;
     }
 
-    $composerJson = json_decode(file_get_contents($composerSrc), true);
+    $composerJson = json_decode(file_get_contents($composerSrc), true, 512, JSON_THROW_ON_ERROR);
 
     $composerCacheSrc = $project . '/docker/caching/composer.json';
     if (is_dir($project.'/__lib')) {
@@ -47,6 +47,8 @@ function updateProject(string $project)
     } else {
         throw new InvalidArgumentException(sprintf('%s does not exist', $project.'/__lib'));
     }
+
+    $composerJson = flattenSubRequire($project, $composerJson);
 
     try {
         file_put_contents($composerCacheSrc, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
@@ -62,27 +64,33 @@ function updateProject(string $project)
             'rm -rf vendor)',
             '(cd %s && composer update --no-interaction --ansi)',
         ]), dirname($composerCacheSrc), $project));
-
-        clearLocalLibs(dirname($composerCacheSrc));
     } finally {
         runSubCommand(sprintf('rm -rf %s/__lib', dirname($composerCacheSrc)));
     }
 }
 
-function clearLocalLibs(string $dir) {
-    $lockFile = $dir.'/composer.lock';
-    $c = json_decode(file_get_contents($lockFile), true);
-    $packages = $c['packages'];
-    foreach ($packages as $key => $package) {
-        $type = $package['dist']['type'] ?? null;
-        if ($type === 'path') {
-            unset($packages[$key]);
+function flattenSubRequire(string $workingDir, array $composer): array {
+    $repositories = $composer['repositories'] ?? null;
+    if ($repositories) {
+        foreach ($repositories as $repository) {
+            if ('path' === $repository['type']) {
+                $url = $repository['url'];
+                $path = $workingDir.preg_replace('#^\./#', '/', $url);
+
+                $subComposer = json_decode(file_get_contents($path.'/composer.json'), true, 512, JSON_THROW_ON_ERROR);
+
+                unset($composer['require'][$subComposer['name']]);
+
+                foreach ($subComposer['require'] as $lib => $version) {
+                    if (str_contains($lib, '/')) {
+                        $composer['require'][$lib] = $version;
+                    }
+                }
+            }
         }
     }
-    $packages = array_values($packages);
-    $c['packages'] = $packages;
 
-    file_put_contents($lockFile, json_encode($c, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)."\n");
+    return $composer;
 }
 
 foreach ($projects as $project) {

@@ -14,7 +14,6 @@ auth:
     externalSecretName:
     # Secret must contain:
     # - ADMIN_CLIENT_ID
-    # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
 
 databox:
@@ -36,7 +35,6 @@ databox:
     externalSecretName:
     # Secret must contain:
     # - ADMIN_CLIENT_ID
-    # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
   client:
     hostname: databox.phrasea.io
@@ -48,8 +46,6 @@ databox:
       externalSecretName:
       # Secret must contain:
       # - CLIENT_ID
-      # - CLIENT_RANDOM_ID
-      # - CLIENT_SECRET
       secret: ""
 
 expose:
@@ -71,7 +67,6 @@ expose:
     externalSecretName:
     # Secret must contain:
     # - ADMIN_CLIENT_ID
-    # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
   client:
     hostname: expose.phrasea.io
@@ -83,8 +78,6 @@ expose:
       externalSecretName:
       # Secret must contain:
       # - CLIENT_ID
-      # - CLIENT_RANDOM_ID
-      # - CLIENT_SECRET
       secret: ""
     mapbox:
       token: ""
@@ -100,7 +93,6 @@ notify:
     externalSecretName:
     # Secret must contain:
     # - ADMIN_CLIENT_ID
-    # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
 
 uploader:
@@ -124,7 +116,6 @@ uploader:
     externalSecretName:
     # Secret must contain:
     # - ADMIN_CLIENT_ID
-    # - ADMIN_CLIENT_RANDOM_ID
     # - ADMIN_CLIENT_SECRET
   client:
     hostname: uploader.phrasea.io
@@ -135,8 +126,6 @@ uploader:
       externalSecretName:
       # Secret must contain:
       # - CLIENT_ID
-      # - CLIENT_RANDOM_ID
-      # - CLIENT_SECRET
 
 report:
   api:

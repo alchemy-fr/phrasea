@@ -5,6 +5,6 @@ services:
 
   Alchemy\CoreBundle\Listener\RouterContextListener:
     arguments:
-      $baseUrl: '%alchemy_core.app_base_url%'
+      $baseUrl: '%alchemy_core.app_url%'
     tags:
       - { name: kernel.event_subscriber }

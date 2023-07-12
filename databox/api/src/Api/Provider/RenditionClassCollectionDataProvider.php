@@ -2,23 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
+use App\Api\ApiSecurityTrait;
 use App\Entity\Core\RenditionClass;
 use App\Security\Voter\RenditionClassVoter;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 
-class RenditionClassCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class RenditionClassCollectionDataProvider extends AbstractCollectionProvider
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Security $security)
-    {
-    }
+    use ApiSecurityTrait;
 
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
+    protected function provideCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = []
+    ): array|object {
         $criteria = [];
         $filters = $context['filters'] ?? [];
 

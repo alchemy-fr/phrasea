@@ -2,19 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeDefinition;
 
-class AttributeDefinitionCollectionDataProvider extends AbstractSecurityDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class AttributeDefinitionCollectionDataProvider extends AbstractCollectionProvider
 {
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
+    use SecurityAwareTrait;
+
+    protected function provideCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = []
+    ): array|object {
         $filters = $context['filters'] ?? [];
 
         $queryBuilder = $this->em->getRepository(AttributeDefinition::class)
@@ -51,10 +56,5 @@ class AttributeDefinitionCollectionDataProvider extends AbstractSecurityDataProv
             ->addOrderBy('t.position', 'ASC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return AttributeDefinition::class === $resourceClass;
     }
 }

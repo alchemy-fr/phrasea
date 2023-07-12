@@ -5,7 +5,7 @@
 ```yaml
 # config/packages/alchemy_core.yml
 alchemy_core:
-  app_base_url: '%env(MYAPP_BASE_URL)%'
+  app_url: '%env(MYAPP_URL)%'
 ```
 
 ### Healthcheck

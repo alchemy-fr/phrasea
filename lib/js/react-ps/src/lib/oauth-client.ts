@@ -1,11 +1,12 @@
 import axios, {AxiosError} from "axios";
 import CookieStorage from "./cookieStorage";
 
-const accessTokenStorageKey = 'accessToken';
+const tokenStorageKey = 'token';
 const usernameStorageKey = 'username';
 
 type TokenResponse = {
     access_token: string;
+    refresh_token: string;
     expires_in: number;
 };
 
@@ -46,7 +47,6 @@ export interface IStorage {
 type Options = {
     storage?: IStorage;
     clientId: string;
-    clientSecret: string;
     baseUrl: string;
 }
 
@@ -54,18 +54,15 @@ export default class OAuthClient {
     private listeners: Record<string, AuthEventHandler[]> = {};
     private authenticated = false;
     private clientId: string;
-    private clientSecret: string;
     private baseUrl: string;
     private storage: IStorage;
 
     constructor({
                     clientId,
-                    clientSecret,
                     baseUrl,
                     storage = new CookieStorage()
                 }: Options) {
         this.clientId = clientId;
-        this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
 
         if (!storage) {
@@ -78,19 +75,36 @@ export default class OAuthClient {
         return null !== this.getAccessToken();
     }
 
-    getAccessToken(): string | null {
-        return this.storage.getItem(accessTokenStorageKey);
+    public getAccessToken(): string | null {
+        return this.getTokenInfo()?.access_token ?? null;
     }
 
-    setAccessToken(accessToken: string): void {
-        return this.storage.setItem(accessTokenStorageKey, accessToken);
+    public getRefreshToken(): string | null {
+        return this.getTokenInfo()?.refresh_token ?? null;
     }
 
-    setUsername(username: string): void {
+    private setTokenInfo(token: TokenResponse): void {
+        return this.storage.setItem(tokenStorageKey, JSON.stringify(token));
+    }
+
+    private getTokenInfo(): TokenResponse | undefined {
+        const t = this.storage.getItem(tokenStorageKey);
+        if (t) {
+            return JSON.parse(t) as TokenResponse;
+        }
+    }
+
+    /**
+     * @deprecated
+     */
+    public setUsername(username: string): void {
         return this.storage.setItem(usernameStorageKey, username);
     }
 
-    getUsername(): string | null {
+    /**
+     * @deprecated
+     */
+    public getUsername(): string | null {
         return this.storage.getItem(usernameStorageKey);
     }
 
@@ -100,7 +114,7 @@ export default class OAuthClient {
 
     logout(): void {
         this.authenticated = false;
-        this.storage.removeItem(accessTokenStorageKey);
+        this.storage.removeItem(tokenStorageKey);
         this.storage.removeItem(usernameStorageKey);
         this.triggerEvent(logoutEventType);
     }
@@ -163,25 +177,16 @@ export default class OAuthClient {
         }
     }
 
-    async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<{
-        username: string;
-    }> {
-        const {clientId, clientSecret, baseUrl} = this;
-
-        const data = (await axios.post(`${baseUrl}/oauth/v2/token`, {
+    async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
+        const res = await this.getToken({
             code,
             grant_type: 'authorization_code',
-            client_id: clientId,
-            client_secret: clientSecret,
             redirect_uri: redirectUri,
-        })).data as {
-            username: string;
-        } & TokenResponse;
+        });
 
-        this.setAccessToken(data.access_token);
         await this.triggerEvent(loginEventType);
 
-        return data;
+        return res;
     }
 
     async login(username: string, password: string): Promise<TokenResponse> {
@@ -192,19 +197,29 @@ export default class OAuthClient {
     }
 
     private async doLogin(username: string, password: string): Promise<TokenResponse> {
-        const {clientId, clientSecret, baseUrl} = this;
-
-        const data = (await axios.post(`${baseUrl}/oauth/v2/token`, {
+        return await this.getToken({
             username,
             password,
             grant_type: 'password',
-            client_id: clientId,
-            client_secret: clientSecret,
-        })).data as TokenResponse;
+        });
+    }
 
-        this.setAccessToken(data.access_token);
+    private async getToken(data: Record<string, string>): Promise<TokenResponse> {
+        const params = new URLSearchParams();
+        const formData: Record<string, string> = {
+            ...data,
+            client_id: this.clientId,
+        };
 
-        return data
+        Object.keys(formData).map(k => {
+            params.append(k, formData[k]);
+        });
+
+        const res = (await axios.post(`${this.baseUrl}/token`, params)).data as TokenResponse;
+
+        this.setTokenInfo(res);
+
+        return res;
     }
 
     public createAuthorizeUrl({
@@ -225,6 +240,6 @@ export default class OAuthClient {
         const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
         const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
 
-        return `${this.baseUrl}/oauth/v2/auth?${queryString}`;
+        return `${this.baseUrl}/auth?${queryString}`;
     }
 }

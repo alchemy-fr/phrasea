@@ -6,6 +6,7 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use App\Api\Model\Input\AttributeClassInput;
+use App\Api\Provider\AttributeClassCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -34,7 +35,8 @@ use ApiPlatform\Metadata\GetCollection;
     normalizationContext: [
         'groups' => ['attributeclass:index'],
     ],
-    input: AttributeClassInput::class
+    input: AttributeClassInput::class,
+    provider: AttributeClassCollectionDataProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]

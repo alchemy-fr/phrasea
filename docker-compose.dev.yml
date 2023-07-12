@@ -4,11 +4,7 @@ services:
   uploader-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./uploader/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./uploader/client:/usr/src/app
     environment:
@@ -17,11 +13,7 @@ services:
   expose-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./expose/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./expose/client:/usr/src/app
     environment:
@@ -30,11 +22,7 @@ services:
   databox-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./databox/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./databox/client:/usr/src/app
     environment:
@@ -44,6 +32,7 @@ services:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
@@ -63,6 +52,7 @@ services:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
@@ -80,6 +70,7 @@ services:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
@@ -126,8 +117,8 @@ services:
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
-      - UPLOADER_API_BASE_URL
-      - DATABOX_API_BASE_URL
+      - UPLOADER_API_URL
+      - DATABOX_API_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - MARIADB_NAME=databox
@@ -144,11 +135,10 @@ services:
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - S3_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
-      - EXPOSE_API_BASE_URL
-      - REPORT_API_BASE_URL
+      - EXPOSE_API_URL
+      - REPORT_API_URL
       - MAPBOX_TOKEN
       - XDEBUG_ENABLED
       - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
@@ -170,7 +160,16 @@ services:
       - NOTIFY_ADMIN_CLIENT_SECRET
       - DATABOX_ADMIN_CLIENT_ID
       - DATABOX_ADMIN_CLIENT_SECRET
-      - NOTIFY_API_BASE_URL
+      - NOTIFY_API_URL
+      - DATABOX_CLIENT_ID
+      - DATABOX_CLIENT_SECRET
+      - EXPOSE_CLIENT_ID
+      - EXPOSE_CLIENT_SECRET
+      - UPLOADER_CLIENT_ID
+      - UPLOADER_CLIENT_SECRET
+      - DATABOX_CLIENT_URL
+      - EXPOSE_CLIENT_URL
+      - UPLOADER_CLIENT_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

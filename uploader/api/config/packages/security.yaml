@@ -29,7 +29,6 @@ security:
         api:
             stateless: true
             asset: true
-            fos_oauth:  true
             custom_authenticators:
                 - Alchemy\RemoteAuthBundle\Security\AccessTokenAuthenticator
 

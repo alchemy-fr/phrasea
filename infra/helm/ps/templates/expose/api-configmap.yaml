@@ -11,7 +11,7 @@ data:
   SIDEBAR_DEFAULT_OPEN: {{ ternary "true" "false" .client.sidebarDefaultOpen | quote }}
   DEV_MODE: "0"
   {{- if .zippy.enabled }}
-  ZIPPY_BASE_URL: {{ required "Missing expose.zippy.baseUrl" .zippy.baseUrl | quote }}
+  ZIPPY_URL: {{ required "Missing expose.zippy.baseUrl" .zippy.baseUrl | quote }}
   ZIPPY_CLIENT_ID: {{ required "Missing expose.zippy.clientId" .zippy.clientId | quote }}
   ZIPPY_CLIENT_SECRET: {{ required "Missing expose.zippy.clientSecret" .zippy.clientSecret | quote }}
   {{- end }}

@@ -48,7 +48,7 @@ services:
     App\Consumer\Handler\AssetConsumerNotifyHandler:
         arguments:
             $client: "@eight_points_guzzle.client.consumer_notify"
-            $uploadBaseUrl: '%env(UPLOADER_API_BASE_URL)%'
+            $uploadBaseUrl: '%env(UPLOADER_API_URL)%'
 
     App\Storage\AssetManager:
         arguments:

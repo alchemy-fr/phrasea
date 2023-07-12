@@ -8,18 +8,6 @@ services:
     autoconfigure: true
     public: false
 
-  alchemy.keycloak_client:
-    class: GuzzleHttp\Client
-    arguments:
-    -
-      verify: '%env(bool:VERIFY_SSL)%'
-      options:
-        timeout: 10
-        http_errors: false
-        headers:
-          Accept: "application/json"
-
-
   Alchemy\RemoteAuthBundle\Client\AuthServiceClient: ~
   Alchemy\RemoteAuthBundle\Security\Firewall\RemoteAuthListener: ~
   Alchemy\RemoteAuthBundle\Security\RemoteUserProvider: ~
@@ -27,6 +15,7 @@ services:
   Alchemy\RemoteAuthBundle\Security\AccessTokenAuthenticator: ~
   Alchemy\RemoteAuthBundle\Security\AppAuthenticator: ~
   Alchemy\RemoteAuthBundle\Client\AdminClient: ~
+  Alchemy\RemoteAuthBundle\Security\JwtValidator: ~
   Alchemy\RemoteAuthBundle\Http\AuthStateEncoder: ~
   Alchemy\RemoteAuthBundle\Repository\AbstractRemoteAuthRepository: ~
   Alchemy\RemoteAuthBundle\Repository\RemoteAuthUserRepository: ~

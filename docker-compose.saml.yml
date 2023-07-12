@@ -6,7 +6,7 @@ services:
     networks:
       - internal
     environment:
-      - SIMPLESAMLPHP_BASE_URL=${SAML_BASE_URL}
+      - SIMPLESAMLPHP_URL=${SAML_URL}
       - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
       - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout
@@ -21,7 +21,7 @@ services:
     networks:
       - internal
     environment:
-      - SIMPLESAMLPHP_BASE_URL=${SAML2_BASE_URL}
+      - SIMPLESAMLPHP_URL=${SAML2_URL}
       - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test2
       - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
       - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout

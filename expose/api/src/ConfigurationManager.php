@@ -32,7 +32,7 @@ class ConfigurationManager
         ],
         'dashboardBaseUrl' => [
             'overridableInAdmin' => false,
-            'name' => 'DASHBOARD_BASE_URL',
+            'name' => 'DASHBOARD_URL',
             'type' => 'string',
         ],
         'mapBoxToken' => [
@@ -41,7 +41,7 @@ class ConfigurationManager
         ],
         'zippyEnabled' => [
             'overridableInAdmin' => false,
-            'name' => 'ZIPPY_BASE_URL',
+            'name' => 'ZIPPY_URL',
             'cast' => 'bool',
         ],
         'sidebarDefaultOpen' => [

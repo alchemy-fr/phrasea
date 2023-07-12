@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Alchemy\RemoteAuthBundle\Security;
 
 use Alchemy\RemoteAuthBundle\Security\Badge\AccessTokenBadge;
+use Alchemy\RemoteAuthBundle\Security\Token\JwtToken;
 use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Validation\Validator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,9 +27,16 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     use TargetPathTrait;
     final public const COOKIE_NAME = 'auth-access-token';
 
+    public function __construct(
+        private readonly JwtValidator $jwtValidator,
+    )
+    {
+    }
+
     public function supports(Request $request): bool
     {
-        return $request->headers->has('Authorization');
+        return $request->headers->has('Authorization')
+            && str_starts_with($request->headers->get('Authorization'), 'Bearer ');
     }
 
     public function authenticate(Request $request): Passport
@@ -34,7 +45,11 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
             ?? $request->cookies->get(self::COOKIE_NAME);
 
         if (empty($accessToken)) {
-            throw new CustomUserMessageAuthenticationException('Invalid access_token');
+            throw new CustomUserMessageAuthenticationException('Missing access_token');
+        }
+
+        if (!$this->jwtValidator->isTokenValid($accessToken)) {
+            throw new CustomUserMessageAuthenticationException('Invalid token.');
         }
 
         $accessTokenBadge = new AccessTokenBadge($accessToken);
@@ -51,7 +66,12 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     {
         $accessTokenBadge = $passport->getBadge(AccessTokenBadge::class);
 
-        return new RemoteAuthToken($accessTokenBadge->getAccessToken(), $accessTokenBadge->getRefreshToken(), $accessTokenBadge->getRoles());
+        $token = new JwtToken($accessTokenBadge->getAccessToken(), [
+            'ROLE_USER', // TODO take roles from JWT
+        ]);
+        $token->setUser($passport->getUser());
+
+        return $token;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

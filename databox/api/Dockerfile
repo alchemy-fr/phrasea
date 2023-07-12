@@ -28,6 +28,8 @@ RUN apk add --no-cache \
         imagick \
     && apk del build-essentials
 
+USER app
+
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
@@ -40,6 +42,8 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && chown -R app: .
+
+USER root
 
 ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
 RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \

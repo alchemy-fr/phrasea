@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopyHandler;
 use App\Entity\Core\Asset;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
@@ -19,8 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CopyAssetsAction extends AbstractController
 {
-    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly IriConverterInterface $iriConverter)
-    {
+    public function __construct(
+        private readonly EventProducer $eventProducer,
+        private readonly EntityManagerInterface $em,
+        private readonly IriConverterInterface $iriConverter
+    ) {
     }
 
     public function __invoke(Asset $data, Request $request)
@@ -32,8 +36,8 @@ class CopyAssetsAction extends AbstractController
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);
 
-        $dest = $this->iriConverter->getItemFromIri($data->destination);
-        $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $dest);
+        $dest = $this->iriConverter->getResourceFromIri($data->destination);
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $dest);
 
         $options = [];
         if ($data->withAttributes) {
@@ -44,8 +48,8 @@ class CopyAssetsAction extends AbstractController
         }
 
         foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AssetVoter::READ, $asset);
-            $symlink = $data->byReference && $this->isGranted(AssetVoter::EDIT, $asset);
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
+            $symlink = $data->byReference && $this->isGranted(AbstractVoter::EDIT, $asset);
 
             $this->eventProducer->publish(AssetCopyHandler::createEvent(
                 $user->getId(),

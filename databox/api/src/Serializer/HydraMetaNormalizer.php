@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use ApiPlatform\Core\Hydra\Serializer\CollectionNormalizer;
+use ApiPlatform\Hydra\Serializer\CollectionNormalizer;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;

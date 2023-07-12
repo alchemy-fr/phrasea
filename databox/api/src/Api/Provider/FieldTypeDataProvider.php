@@ -2,23 +2,28 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\FieldType;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class FieldTypeDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class FieldTypeDataProvider extends AbstractCollectionProvider
 {
-    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
+
+    protected function provideCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = []
+    ): array|object {
         $results = array_map(function (AttributeTypeInterface $type): FieldType {
             $t = new FieldType();
             $name = $type::getName();
@@ -28,7 +33,7 @@ class FieldTypeDataProvider implements ContextAwareCollectionDataProviderInterfa
             return $t;
         }, $this->attributeTypeRegistry->getTypes());
 
-        usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
+        usort($results, fn(FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
         return $results;
     }

@@ -16,4 +16,4 @@ framework:
             assets:
                 version: v1
                 base_urls:
-                    - '%env(EXPOSE_API_BASE_URL)%'
+                    - '%env(EXPOSE_API_URL)%'

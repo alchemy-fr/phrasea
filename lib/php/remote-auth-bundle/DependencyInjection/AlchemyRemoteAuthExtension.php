@@ -60,5 +60,9 @@ class AlchemyRemoteAuthExtension extends Extension implements PrependExtensionIn
                 ]
             ],
         ]);
+
+        $container->prependExtensionConfig('lexik_jwt_authentication', [
+            'public_key' => '%env(resolve:KEYCLOAK_JWT_PUBLIC_KEY)%',
+        ]);
     }
 }

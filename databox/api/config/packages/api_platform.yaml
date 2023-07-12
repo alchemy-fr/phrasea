@@ -1,6 +1,5 @@
 api_platform:
     show_webby: false
-    metadata_backward_compatibility_layer: false
     formats:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]
@@ -10,6 +9,7 @@ api_platform:
         paths:
         - '%kernel.project_dir%/src/Entity'
         - '%kernel.project_dir%/src/Border/Model'
+        - '%kernel.project_dir%/src/Api/Model/Output'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

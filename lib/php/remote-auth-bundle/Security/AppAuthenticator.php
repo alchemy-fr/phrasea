@@ -13,9 +13,11 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class AppAuthenticator extends AccessTokenAuthenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
+        JwtValidator $jwtValidator,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $routeName = 'alchemy_admin_login',
     ) {
+        parent::__construct($jwtValidator);
     }
 
     public function start(Request $request, AuthenticationException $authException = null)

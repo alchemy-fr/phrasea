@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
-use ApiPlatform\Core\DataProvider\PaginatorInterface;
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use Pagerfanta\Pagerfanta;
 
 class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAggregate

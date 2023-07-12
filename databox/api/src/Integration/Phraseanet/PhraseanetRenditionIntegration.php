@@ -31,7 +31,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
         $builder
             ->scalarNode('baseUrl')
-                ->defaultValue('${PHRASEANET_BASE_URL}')
+                ->defaultValue('${PHRASEANET_URL}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet base URL')
             ->end()

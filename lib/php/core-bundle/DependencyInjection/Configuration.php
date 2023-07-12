@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_core');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('app_base_url')->defaultNull()->end()
+                ->scalarNode('app_url')->defaultNull()->end()
                 ->arrayNode('healthcheck')
                     ->canBeEnabled()
                     ->children()

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\AssetCollectionDataProvider;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -106,6 +107,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AssetInput::class,
     output: AssetOutput::class,
+    provider: AssetCollectionDataProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]

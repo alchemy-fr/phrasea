@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
+use App\Api\Provider\RenditionCollectionDataProvider;
 use App\Api\Model\Input\RenditionInput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -109,7 +110,8 @@ use ApiPlatform\Metadata\GetCollection;
     ],
     normalizationContext: [
         'groups' => ['rendition:index'],
-    ]
+    ],
+    provider: RenditionCollectionDataProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]

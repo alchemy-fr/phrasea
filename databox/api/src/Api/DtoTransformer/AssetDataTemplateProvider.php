@@ -2,25 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
 use ApiPlatform\Metadata\Operation;
+use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Bundle\SecurityBundle\Security;
 
-class AssetDataTemplateOutputProcessor extends AbstractSecurityProcessor
+class AssetDataTemplateProvider implements OutputTransformerInterface
 {
-    public function __construct(private readonly Security $security)
-    {
-    }
+    use ApiSecurityTrait;
 
     /**
      * @param AssetDataTemplate $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, Operation $operation, array $context = []): object
     {
         $output = new AssetDataTemplateOutput();
         $output->name = $data->getName();
@@ -47,8 +45,8 @@ class AssetDataTemplateOutputProcessor extends AbstractSecurityProcessor
         return $output;
     }
 
-    public function supportsTransformation($data, string $to, array $context = []): bool
+    public function supports(string $outputClass, string $dataClass): bool
     {
-        return AssetDataTemplateOutput::class === $to && $data instanceof AssetDataTemplate;
+        return AssetDataTemplateOutput::class === $outputClass;
     }
 }

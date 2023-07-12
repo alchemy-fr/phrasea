@@ -2,21 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DataProvider;
+namespace App\Api\Provider;
 
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\TagFilterRule;
-use Doctrine\ORM\EntityManagerInterface;
 
-class TagFilterRuleCollectionDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+class TagFilterRuleCollectionDataProvider extends AbstractCollectionProvider
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
-    }
-
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
+    protected function provideCollection(
+        Operation $operation,
+        array $uriVariables = [],
+        array $context = []
+    ): array|object {
         $criteria = [];
         $filters = $context['filters'] ?? [];
         if (isset($filters['collectionId'])) {

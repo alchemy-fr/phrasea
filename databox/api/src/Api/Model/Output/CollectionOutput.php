@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
+#[Get(shortName: 'Collection')]
+#[ApiResource]
 class CollectionOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
