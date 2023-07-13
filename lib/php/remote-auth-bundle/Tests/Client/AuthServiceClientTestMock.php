@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Tests\Client;
 
+use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -24,14 +26,15 @@ class AuthServiceClientTestMock implements HttpClientInterface
 
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        if ('token' === $url) {
+        $args = [$method, $url, $options];
+        if (str_ends_with($url, '/token')) {
             if ('client_credentials' === $options['body']['grant_type']) {
-                return $this->createResponse(200, [
+                return $this->createResponse($args, 200, [
                     'access_token' => self::ADMIN_TOKEN,
                     'expires_in' => time() + 3600,
                 ]);
             }
-            $this->createResponse(401, [
+            $this->createResponse($args, 401, [
                 'error' => 'invalid_grant_type_for_test',
             ]);
         }
@@ -40,7 +43,7 @@ class AuthServiceClientTestMock implements HttpClientInterface
             ? explode(' ', (string) $options['headers']['Authorization'], 2)[1]
             : null;
         if (empty($accessToken)) {
-            return $this->createResponse(401, [
+            return $this->createResponse($args, 401, [
                 'error' => 'missing_token',
             ]);
         }
@@ -49,7 +52,7 @@ class AuthServiceClientTestMock implements HttpClientInterface
             self::USER_TOKEN,
             self::ADMIN_TOKEN,
         ])) {
-            return $this->createResponse(401, [
+            return $this->createResponse($args, 401, [
                 'error' => 'invalid_token',
             ]);
         }
@@ -61,8 +64,8 @@ class AuthServiceClientTestMock implements HttpClientInterface
             $roles[] = 'ROLE_SUPER_ADMIN';
         }
 
-        return match ($url) {
-            'userinfo' => $this->createResponse(200, [
+        return match (true) {
+            str_ends_with($url, '/userinfo') => $this->createResponse($args, 200, [
                 'scopes' => [],
                 'user' => [
                     'id' => $userId,
@@ -71,18 +74,23 @@ class AuthServiceClientTestMock implements HttpClientInterface
                     'groups' => [],
                 ],
             ]),
-            '/admin/realms/master/users',
-            '/admin/realms/master/groups' => $this->createResponse(200, [
-            ]),
+            str_ends_with($url, '/admin/realms/master/users'),
+            str_ends_with($url, '/admin/realms/master/groups') => $this->createResponse($args, 200, []),
             default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
 
-    private function createResponse(int $code, array $data): ResponseInterface
+    private function createResponse(array $args, int $code, array $data): ResponseInterface
     {
-        return new JsonMockResponse($data, [
-            'code' => $code,
-        ]);
+        $callback = function ($method, $url, $options) use ($code, $data): MockResponse {
+            return new JsonMockResponse($data, [
+                'http_code' => $code,
+            ]);
+        };
+
+        $client = new MockHttpClient($callback);
+
+        return $client->request(...$args);
     }
 
     public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface

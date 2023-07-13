@@ -25,6 +25,7 @@ doctrine:
 when@test:
     doctrine:
         dbal:
+            driver: 'sqlite'
             url: 'sqlite:///%kernel.cache_dir%/data.db'
 
 when@prod:

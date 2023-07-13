@@ -9,11 +9,11 @@ use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class RemoteUserProvider implements UserProviderInterface
+readonly class RemoteUserProvider implements UserProviderInterface
 {
     public function __construct(
-        private readonly AuthServiceClient $client,
-        private readonly RoleMapper $roleMapper,
+        private AuthServiceClient $client,
+        private RoleMapper $roleMapper,
     )
     {
     }

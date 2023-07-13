@@ -28,7 +28,7 @@ abstract class AbstractAdminTest extends WebTestCase
             dump($response->getContent());
         }
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
+        $this->assertEquals('/admin/login?r=http://localhost/admin', $response->getTargetUrl());
 
         $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');
@@ -40,7 +40,7 @@ abstract class AbstractAdminTest extends WebTestCase
 
         $crawler
             ->filter('nav#main-menu ul.submenu a')
-            ->each(function ($node, $i) {
+            ->each(function (Crawler $node): void {
                 if ('#' !== $href = $node->attr('href')) {
                     $this->assertMatchesRegularExpression('#^http://localhost/admin\?.+$#', $href);
                     $this->explore($href);
@@ -48,7 +48,7 @@ abstract class AbstractAdminTest extends WebTestCase
             });
     }
 
-    private function explore(string $path)
+    private function explore(string $path): void
     {
         $crawler = $this->loadPage($path);
 
