@@ -23,7 +23,7 @@ class AssetUploadTest extends AbstractUploaderTestCase
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
         $this->assertArrayHasKey('originalName', $json);
         $this->assertSame('32x32.jpg', $json['originalName']);
         $this->assertArrayHasKey('size', $json);

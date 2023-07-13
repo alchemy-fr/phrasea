@@ -18,8 +18,10 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'asset_consumer_notify';
 
-    public function __construct(private readonly HttpClientInterface $client, private readonly string $uploaderUrl)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $client,
+        private readonly string $uploaderUrl
+    ) {
     }
 
     public function handle(EventMessage $message): void

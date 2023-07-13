@@ -12,7 +12,7 @@ use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 
-final class JwtValidator
+final class JwtValidator implements JwtValidatorInterface
 {
     private readonly Validator $validator;
     private ?string $publicKey = null;

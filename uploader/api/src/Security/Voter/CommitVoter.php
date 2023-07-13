@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Commit;
 use App\Security\Authentication\AssetToken;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -34,7 +35,7 @@ class CommitVoter extends Voter
             return false;
         }
 
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($this->security->isGranted(RemoteUser::ROLE_ADMIN)) {
             return true;
         }
 

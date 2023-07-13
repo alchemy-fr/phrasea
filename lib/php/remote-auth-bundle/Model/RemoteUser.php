@@ -19,6 +19,9 @@ if (interface_exists(AclUserInterface::class)) {
 
 class RemoteUser implements UserInterface, RemoteUserInterface
 {
+    const ROLE_USER = 'ROLE_USER';
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+
     public function __construct(private readonly string $id, private readonly string $username, private readonly array $roles = [], private readonly array $groups = [])
     {
     }

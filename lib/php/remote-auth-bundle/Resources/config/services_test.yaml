@@ -8,3 +8,7 @@ services:
     Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
         arguments:
             $keycloakClient: "@Alchemy\\RemoteAuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
+
+    Alchemy\RemoteAuthBundle\Tests\TestJwtValidator:
+        decorates: Alchemy\RemoteAuthBundle\Security\JwtValidator
+        arguments: ['@.inner']

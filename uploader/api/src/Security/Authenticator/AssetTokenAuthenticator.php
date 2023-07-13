@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Authenticator;
 
 use Alchemy\RemoteAuthBundle\Security\RequestHelper;
+use App\Security\AssetTokenUser;
 use App\Security\Authentication\AssetToken;
 use App\Security\Badge\AssetTokenBadge;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,7 +37,9 @@ class AssetTokenAuthenticator extends AbstractAuthenticator
 
         $assetTokenBadge = new AssetTokenBadge($assetToken);
 
-        return new SelfValidatingPassport(new UserBadge($assetToken), [$assetTokenBadge]);
+        return new SelfValidatingPassport(new UserBadge($assetToken, function () {
+            return new AssetTokenUser();
+        }), [$assetTokenBadge]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -48,7 +51,10 @@ class AssetTokenAuthenticator extends AbstractAuthenticator
     {
         $assetTokenBadge = $passport->getBadge(AssetTokenBadge::class);
 
-        return new AssetToken($assetTokenBadge->getAccessToken());
+        $assetToken = new AssetToken($assetTokenBadge->getAccessToken());
+        $assetToken->setUser($passport->getUser());
+
+        return $assetToken;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

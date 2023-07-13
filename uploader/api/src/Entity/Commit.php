@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -22,15 +23,37 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ApiResource(operations: [new Get(security: 'is_granted(\'READ\', object)'), new Post(uriTemplate: '/commits/{id}/ack', controller: CommitAckAction::class, defaults: ['_api_receive' => false, '_api_respond' => true]), new Post(uriTemplate: '/commit', controller: CommitAction::class), new GetCollection(security: 'is_granted(\'ROLE_COMMIT:LIST\') or is_granted(\'ROLE_SUPER_ADMIN\')')], shortName: 'commit', order: ['acknowledged' => 'ASC', 'createdAt' => 'ASC'], normalizationContext: ['groups' => ['commit:read']], denormalizationContext: ['groups' => ['commit:write']])]
+#[ApiResource(
+    shortName: 'commit', operations: [
+    new Get(security: 'is_granted("READ", object)'),
+    new Post(
+        uriTemplate: '/commits/{id}/ack',
+        defaults: ['_api_receive' => false, '_api_respond' => true],
+        controller: CommitAckAction::class,
+        name: 'ack',
+    ),
+    new Post(
+        uriTemplate: '/commit',
+        controller: CommitAction::class
+    ),
+    new GetCollection(
+        security: 'is_granted("ROLE_COMMIT:LIST") or is_granted("'.RemoteUser::ROLE_ADMIN.'")'),
+],
+    normalizationContext: ['groups' => ['commit:read']],
+    denormalizationContext: ['groups' => ['commit:write']],
+    order: [
+        'acknowledged' => 'ASC',
+        'createdAt' => 'ASC',
+    ],
+)]
 #[ORM\Table(name: 'asset_commit')]
-#[ORM\Entity(repositoryClass: \App\Entity\CommitRepository::class)]
+#[ORM\Entity(repositoryClass: CommitRepository::class)]
 class Commit extends AbstractUuidEntity
 {
     /**
      * @var Asset[]|Collection
      */
-    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'commit', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'commit', targetEntity: Asset::class, cascade: ['remove'])]
     #[Groups(['commit:read', 'commit:write'])]
     private ?Collection $assets = null;
 
@@ -38,7 +61,7 @@ class Commit extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
-    #[ApiFilter(strategy: 'exact', filterClass: SearchFilter::class, properties: ['target'])]
+    #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['target'])]
     private ?Target $target = null;
 
     #[ApiProperty(writable: false)]
@@ -47,7 +70,7 @@ class Commit extends AbstractUuidEntity
     private ?string $totalSize = null;
 
     #[ORM\Column(type: 'json')]
-    #[Groups('asset:read', 'commit:read')]
+    #[Groups(['asset:read', 'commit:read'])]
     private array $formData = [];
 
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]

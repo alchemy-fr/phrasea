@@ -38,7 +38,7 @@ class CommitTest extends AbstractUploaderTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertTrue(is_array($json), 'Not an array');
-        $this->assertTrue(empty($json), 'Not empty');
+        $this->assertEmpty($json);
     }
 
     public function testGetCommittListWithAnonymousUser(): void

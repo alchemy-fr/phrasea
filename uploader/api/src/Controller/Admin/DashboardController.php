@@ -39,7 +39,8 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
-        yield MenuItem::linkToCrud('OAuth Clients', 'fas fa-folder-open', OAuthClient::class)->setPermission('ROLE_ADMIN_OAUTH_CLIENTS');
+        yield MenuItem::linkToCrud('OAuth Clients', 'fas fa-folder-open', OAuthClient::class)
+            ->setPermission('ROLE_ADMIN_OAUTH_CLIENTS');
         yield $this->createDevMenu(FailedEvent::class);
     }
 }

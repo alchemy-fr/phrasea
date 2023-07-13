@@ -59,20 +59,18 @@ class AuthServiceClientTestMock implements HttpClientInterface
 
         $userId = self::USERS_ID[$accessToken];
 
-        $roles = ['ROLE_USER'];
+        $roles = [];
         if (self::ADMIN_TOKEN === $accessToken) {
-            $roles[] = 'ROLE_SUPER_ADMIN';
+            $roles[] = 'admin';
         }
 
         return match (true) {
             str_ends_with($url, '/userinfo') => $this->createResponse($args, 200, [
                 'scopes' => [],
-                'user' => [
-                    'id' => $userId,
-                    'username' => $accessToken,
-                    'roles' => $roles,
-                    'groups' => [],
-                ],
+                'sub' => $userId,
+                'preferred_username' => $accessToken,
+                'roles' => $roles,
+                'groups' => [],
             ]),
             str_ends_with($url, '/admin/realms/master/users'),
             str_ends_with($url, '/admin/realms/master/groups') => $this->createResponse($args, 200, []),

@@ -32,7 +32,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
     }
 
     public function testCreatePublicationAsUser(): void
@@ -70,7 +70,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(AuthServiceClientTestMock::USER_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
     }
 
     public function testCreatePublicationAsUserWithoutPermissions(): void

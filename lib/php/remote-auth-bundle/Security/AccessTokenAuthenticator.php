@@ -28,7 +28,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     final public const COOKIE_NAME = 'auth-access-token';
 
     public function __construct(
-        private readonly JwtValidator $jwtValidator,
+        private readonly JwtValidatorInterface $jwtValidator,
     )
     {
     }
@@ -48,7 +48,11 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Missing access_token');
         }
 
-        if (!$this->jwtValidator->isTokenValid($accessToken)) {
+        try {
+            if (!$this->jwtValidator->isTokenValid($accessToken)) {
+                throw new CustomUserMessageAuthenticationException('Invalid token.');
+            }
+        } catch (\InvalidArgumentException $e) {
             throw new CustomUserMessageAuthenticationException('Invalid token.');
         }
 
@@ -66,10 +70,9 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     {
         $accessTokenBadge = $passport->getBadge(AccessTokenBadge::class);
 
-        $token = new JwtToken($accessTokenBadge->getAccessToken(), [
-            'ROLE_USER', // TODO take roles from JWT
-        ]);
-        $token->setUser($passport->getUser());
+        $user = $passport->getUser();
+        $token = new JwtToken($accessTokenBadge->getAccessToken(), $user->getRoles());
+        $token->setUser($user);
 
         return $token;
     }

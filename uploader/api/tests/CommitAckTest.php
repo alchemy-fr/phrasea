@@ -26,10 +26,10 @@ class CommitAckTest extends AbstractUploaderTestCase
             'POST',
             '/commits/'.$commit->getId().'/ack'
         );
+        $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertTrue($json);
-        $this->assertEquals(200, $response->getStatusCode());
         $this->assertAssetAcknowledgement($asset1->getId(), true);
         $this->assertAssetAcknowledgement($asset2->getId(), true);
     }
@@ -48,12 +48,12 @@ class CommitAckTest extends AbstractUploaderTestCase
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
             'POST',
-            '/assets/'.$asset1->getId().'/ack'
+            '/assets/'.$asset1->getId().'/ack',
+            [],
         );
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        $this->assertEquals(true, $json);
         $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertTrue($json);
         $this->assertCommitAcknowledgement($commit->getId(), false);
         $this->assertAssetAcknowledgement($asset1->getId(), true);
         $this->assertAssetAcknowledgement($asset2->getId(), false);
@@ -61,12 +61,12 @@ class CommitAckTest extends AbstractUploaderTestCase
         $response = $this->request(
             AuthServiceClientTestMock::ADMIN_TOKEN,
             'POST',
-            '/assets/'.$asset2->getId().'/ack'
+            '/assets/'.$asset2->getId().'/ack',
+            [],
         );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-        $this->assertEquals(true, $json);
         $this->assertEquals(200, $response->getStatusCode());
+        $this->assertTrue($json);
         $this->assertCommitAcknowledgement($commit->getId(), true);
         $this->assertAssetAcknowledgement($asset1->getId(), true);
         $this->assertAssetAcknowledgement($asset2->getId(), true);

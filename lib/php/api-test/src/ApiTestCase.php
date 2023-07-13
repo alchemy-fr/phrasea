@@ -11,18 +11,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    final public const UUID_REGEX = '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}';
+    final public const UUID_REGEX = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 
     protected ?AbstractBrowser $client = null;
 
-    /**
-     * @param string|array|null $accessToken
-     */
     protected function request(
-        $accessToken,
+        string|array|null $accessToken,
         string $method,
         string $uri,
-        $params = [],
+        ?array $params = null,
         array $files = [],
         array $server = [],
         string $content = null
@@ -43,8 +40,11 @@ abstract class ApiTestCase extends WebTestCase
         $server['CONTENT_TYPE'] ??= 'application/json';
         $server['HTTP_ACCEPT'] ??= 'application/json';
 
-        if (empty($content) && !empty($params) && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
+        if (empty($content) && null !== $params && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
             $content = json_encode($params, JSON_THROW_ON_ERROR);
+            $params = [];
+        } elseif (null === $params) {
+            $params = [];
         }
 
         $this->client->request($method, $uri, $params, $files, $server, $content);

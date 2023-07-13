@@ -12,10 +12,10 @@ use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\Test\TestLogger;
 
 class CommitHandlerTest extends TestCase
 {

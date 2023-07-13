@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Controller\AssetAckAction;
 use App\Controller\CreateAssetAction;
+use App\Security\Voter\AssetVoter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -24,9 +25,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(security: 'is_granted("READ_META", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
-            defaults: ['_api_receive' => false, '_api_respond' => true],
+            defaults: ['_api_respond' => true],
             controller: AssetAckAction::class,
-            name: 'ack',
+            security: 'is_granted("'.AssetVoter::ACK.'", object)',
+            name: 'post_ack',
         ),
         new GetCollection(),
         new Post(

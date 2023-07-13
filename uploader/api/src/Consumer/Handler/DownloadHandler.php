@@ -38,7 +38,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $locale = $payload['locale'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
-        $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
+        $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
 
         $originalName = basename(explode('?', (string) $url, 2)[0]);
         if (isset($headers['Content-Disposition'][0])) {
