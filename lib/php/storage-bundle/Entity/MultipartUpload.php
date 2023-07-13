@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
@@ -75,14 +74,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity]
 class MultipartUpload
 {
-    /**
-     * @var Uuid
-     */
-    #[ApiProperty(identifier: true)]
+    #[Groups(['upload:read'])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    #[Groups('upload:read')]
-    private readonly UuidInterface $id;
+    #[ApiProperty(identifier: true)]
+    private string $id;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['upload:read', 'upload:write'])]
@@ -105,23 +101,23 @@ class MultipartUpload
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: 'boolean')]
-    #[Groups('upload:read')]
+    #[Groups(['upload:read'])]
     private bool $complete = false;
 
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: 'datetime')]
-    #[Groups('upload:read')]
+    #[Groups(['upload:read'])]
     private ?\DateTimeInterface $createdAt = null;
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::uuid4()->toString();
         $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): string
     {
-        return $this->id->toString();
+        return $this->id;
     }
 
     public function getFilename(): ?string

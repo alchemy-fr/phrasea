@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Controller\GetTargetFormSchemaAction;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,6 +21,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'form-schema',
     operations: [
+        new Get(
+            uriTemplate: '/targets/{id}/form-schema',
+            controller: GetTargetFormSchemaAction::class,
+            read: false,
+            name: 'get_form_schema',
+        ),
         new Get(security: 'is_granted("EDIT_FORM_SCHEMA")'),
         new Delete(security: 'is_granted("EDIT_FORM_SCHEMA")'),
         new Put(security: 'is_granted("EDIT_FORM_SCHEMA")'),
