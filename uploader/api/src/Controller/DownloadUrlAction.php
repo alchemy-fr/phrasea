@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
 use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
@@ -19,8 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DownloadUrlAction extends AbstractController
 {
-    public function __construct(private readonly ValidatorInterface $validator, private readonly ResourceMetadataFactoryInterface $resourceMetadataFactory, private readonly EventProducer $eventProducer, private readonly FormValidator $formValidator)
-    {
+    public function __construct(
+        private readonly EventProducer $eventProducer,
+        private readonly FormValidator $formValidator
+    ) {
     }
 
     public function __invoke(DownloadUrl $data, Request $request, ValidateFormAction $validateFormAction): Response

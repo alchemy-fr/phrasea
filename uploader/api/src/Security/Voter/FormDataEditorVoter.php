@@ -8,9 +8,9 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\FormSchema;
 use App\Entity\TargetParams;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class FormDataEditorVoter extends Voter
 {

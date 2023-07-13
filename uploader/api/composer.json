@@ -84,7 +84,7 @@
         "alchemy/remote-auth-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
-        "api-platform/core": "^2.6,<=2.6.8",
+        "api-platform/core": "^3.1",
         "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
@@ -180,6 +180,8 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "rector": "vendor/bin/rector",
+        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },

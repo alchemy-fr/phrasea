@@ -8,7 +8,6 @@ use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Tests\AbstractUploaderTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractAssetTest extends AbstractUploaderTestCase
 {

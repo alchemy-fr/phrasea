@@ -5,14 +5,36 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    shortName: 'target-params',
+    operations: [
+        new Get(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Delete(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Put(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Post(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new GetCollection(security: 'is_granted("EDIT_TARGET_DATA")'),
+    ],
+    normalizationContext: [
+        'groups' => ['targetparams:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['targetparams:write'],
+    ]
+)]
 #[ORM\Entity]
 class TargetParams implements AclObjectInterface
 {
@@ -24,30 +46,24 @@ class TargetParams implements AclObjectInterface
     #[Groups(['targetparams:index'])]
     protected $id;
 
-    /**
-     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
-     */
     #[ORM\OneToOne(targetEntity: Target::class, inversedBy: 'targetParams')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['targetparams:index', 'targetparams:write'])]
     #[Assert\NotNull]
+    #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     private ?Target $target = null;
 
     #[ORM\Column(type: 'json')]
     #[Groups(['targetparams:index', 'targetparams:write'])]
     private array $data = [];
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['targetparams:index'])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeInterface $createdAt = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime')]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()

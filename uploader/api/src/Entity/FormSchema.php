@@ -6,12 +6,33 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    shortName: 'form-schema',
+    operations: [
+        new Get(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+        new Delete(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+        new Put(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+        new Post(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+        new GetCollection(security: 'is_granted("EDIT_FORM_SCHEMA")'),
+    ],
+    normalizationContext: [
+        'groups' => ['formschema:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['formschema:write'],
+    ]
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_target_locale', columns: ['locale', 'target_id'])]
 #[ORM\Entity(repositoryClass: FormSchemaRepository::class)]
@@ -31,17 +52,13 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     #[Groups(['formschema:index', 'formschema:write'])]
     private array $data = [];
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime')]
     #[Groups(['targetparams:index'])]
+    #[Gedmo\Timestampable(on: 'create')]
     private ?\DateTimeInterface $createdAt = null;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime')]
+    #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct(string $id = null)

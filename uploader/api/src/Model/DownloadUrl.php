@@ -4,22 +4,13 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use App\Controller\DownloadUrlAction;
 use App\Entity\Target;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ApiResource(
- *     shortName="download",
- *     collectionOperations={
- *         "post"={
- *             "controller"=DownloadUrlAction::class,
- *         },
- *     },
- *     itemOperations={}
- * )
- */
+#[ApiResource(operations: [new Post(controller: DownloadUrlAction::class)], shortName: 'download')]
 class DownloadUrl
 {
     private ?string $url = null;

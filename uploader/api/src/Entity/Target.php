@@ -5,18 +5,36 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiResource(
+    shortName: 'target',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("ROLE_ADMIN")'),
+        new Put(security: 'is_granted("ROLE_ADMIN")'),
+        new Post(security: 'is_granted("ROLE_ADMIN")'),
+        new GetCollection(security: 'is_granted("ROLE_USER")'),
+    ],
+    normalizationContext: [
+        'groups' => ['target:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['target:write'],
+    ]
+)]
 #[ORM\Table]
 #[ORM\Entity]
 class Target extends AbstractUuidEntity implements \Stringable
 {
-    /**
-     * @ApiProperty()
-     */
     #[Groups(['target:index'])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
     #[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
@@ -28,9 +46,6 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Groups(['target:index'])]
     private ?string $name = null;
 
-    /**
-     * @ApiProperty()
-     */
     #[ORM\Column(type: 'boolean', nullable: false)]
     #[Groups(['target:read'])]
     private bool $enabled = true;

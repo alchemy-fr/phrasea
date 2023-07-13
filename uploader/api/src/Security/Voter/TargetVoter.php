@@ -6,9 +6,9 @@ namespace App\Security\Voter;
 
 use Alchemy\RemoteAuthBundle\Model\RemoteUser;
 use App\Entity\Target;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class TargetVoter extends Voter
 {

@@ -12,7 +12,6 @@ use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use GuzzleHttp\Client;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 

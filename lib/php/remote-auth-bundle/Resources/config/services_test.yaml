@@ -7,4 +7,4 @@ services:
 
     Alchemy\RemoteAuthBundle\Client\AuthServiceClient:
         arguments:
-            $client: "@Alchemy\\RemoteAuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
+            $keycloakClient: "@Alchemy\\RemoteAuthBundle\\Tests\\Client\\AuthServiceClientTestMock"

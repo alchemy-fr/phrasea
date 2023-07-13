@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\RemoteAuthBundle\Tests\Client;
 
-use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpClient\Response\JsonMockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
-class AuthServiceClientTestMock extends Client
+class AuthServiceClientTestMock implements HttpClientInterface
 {
     final public const USER_TOKEN = '__VALID_USER_TOKEN__';
     final public const ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
@@ -23,10 +22,10 @@ class AuthServiceClientTestMock extends Client
         self::ADMIN_TOKEN => self::ADMIN_UID,
     ];
 
-    public function request(string $method, $uri = '', array $options = []): ResponseInterface
+    public function request(string $method, string $url, array $options = []): ResponseInterface
     {
-        if ('token' === $uri) {
-            if ('client_credentials' === $options[RequestOptions::FORM_PARAMS]['grant_type']) {
+        if ('token' === $url) {
+            if ('client_credentials' === $options['body']['grant_type']) {
                 return $this->createResponse(200, [
                     'access_token' => self::ADMIN_TOKEN,
                     'expires_in' => time() + 3600,
@@ -37,9 +36,9 @@ class AuthServiceClientTestMock extends Client
             ]);
         }
 
-        $accessToken = isset($options[RequestOptions::HEADERS]['Authorization'])
-            ? explode(' ', (string) $options[RequestOptions::HEADERS]['Authorization'], 2)[1]
-        : null;
+        $accessToken = isset($options['headers']['Authorization'])
+            ? explode(' ', (string) $options['headers']['Authorization'], 2)[1]
+            : null;
         if (empty($accessToken)) {
             return $this->createResponse(401, [
                 'error' => 'missing_token',
@@ -62,7 +61,7 @@ class AuthServiceClientTestMock extends Client
             $roles[] = 'ROLE_SUPER_ADMIN';
         }
 
-        return match ($uri) {
+        return match ($url) {
             'userinfo' => $this->createResponse(200, [
                 'scopes' => [],
                 'user' => [
@@ -75,14 +74,24 @@ class AuthServiceClientTestMock extends Client
             '/admin/realms/master/users',
             '/admin/realms/master/groups' => $this->createResponse(200, [
             ]),
-            default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $uri)),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
 
-    private function createResponse(int $code, array $data): Response
+    private function createResponse(int $code, array $data): ResponseInterface
     {
-        return new Response($code, [
-            'Content-Type' => 'application/json',
-        ], json_encode($data, JSON_THROW_ON_ERROR));
+        return new JsonMockResponse($data, [
+            'code' => $code,
+        ]);
+    }
+
+    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    public function withOptions(array $options): static
+    {
+        return $this;
     }
 }

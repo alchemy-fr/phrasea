@@ -5,49 +5,24 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ApiResource(
- *     order={"acknowledged": "ASC", "createdAt": "ASC"},
- *     shortName="commit",
- *     collectionOperations={
- *         "post"={
- *             "path"="/commit",
- *             "controller"=CommitAction::class,
- *         },
- *         "get"={"access_control"="is_granted('ROLE_COMMIT:LIST') or is_granted('ROLE_SUPER_ADMIN')"},
- *     },
- *     itemOperations={
- *         "get"={"access_control"="is_granted('READ', object)"},
- *         "ack"={
- *             "method"="POST",
- *             "path"="/commits/{id}/ack",
- *             "controller"=CommitAckAction::class,
- *              "defaults"={
- *                  "_api_receive"=false,
- *                  "_api_respond"=true,
- *             },
- *         }
- *     },
- *     normalizationContext={"groups"={"commit:read"}},
- *     denormalizationContext={"groups"={"commit:write"}}
- * )
- */
+#[ApiResource(operations: [new Get(security: 'is_granted(\'READ\', object)'), new Post(uriTemplate: '/commits/{id}/ack', controller: CommitAckAction::class, defaults: ['_api_receive' => false, '_api_respond' => true]), new Post(uriTemplate: '/commit', controller: CommitAction::class), new GetCollection(security: 'is_granted(\'ROLE_COMMIT:LIST\') or is_granted(\'ROLE_SUPER_ADMIN\')')], shortName: 'commit', order: ['acknowledged' => 'ASC', 'createdAt' => 'ASC'], normalizationContext: ['groups' => ['commit:read']], denormalizationContext: ['groups' => ['commit:write']])]
 #[ORM\Table(name: 'asset_commit')]
 #[ORM\Entity(repositoryClass: \App\Entity\CommitRepository::class)]
 class Commit extends AbstractUuidEntity
@@ -59,18 +34,14 @@ class Commit extends AbstractUuidEntity
     #[Groups(['commit:read', 'commit:write'])]
     private ?Collection $assets = null;
 
-    /**
-     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"target"})
-     */
     #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
+    #[ApiFilter(strategy: 'exact', filterClass: SearchFilter::class, properties: ['target'])]
     private ?Target $target = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
+    #[ApiProperty(writable: false)]
     #[Groups(['asset:read', 'commit:read'])]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $totalSize = null;
@@ -87,20 +58,15 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?string $userId = null;
 
-    /**
-     * @ApiProperty(writable=false)
-     */
+    #[ApiProperty(writable: false)]
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(['commit:read'])]
     private ?string $token = null;
 
-    /**
-     * @ApiFilter(BooleanFilter::class)
-     *
-     * @ApiProperty(writable=false)
-     */
+    #[ApiProperty(writable: false)]
     #[ORM\Column(type: 'boolean')]
     #[Groups(['asset:read', 'commit:read'])]
+    #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
     /**
@@ -118,9 +84,7 @@ class Commit extends AbstractUuidEntity
     #[Groups(['asset:read', 'commit:read'])]
     private ?\DateTime $acknowledgedAt = null;
 
-    /**
-     * @ApiProperty()
-     */
+    #[ApiProperty]
     #[ORM\Column(type: 'datetime')]
     #[Groups(['asset:read', 'commit:read'])]
     private readonly \DateTime $createdAt;

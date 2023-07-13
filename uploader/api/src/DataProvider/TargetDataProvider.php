@@ -4,36 +4,29 @@ declare(strict_types=1);
 
 namespace App\DataProvider;
 
-use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
 use App\Entity\Target;
 use App\Security\Voter\TargetVoter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-class TargetDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+final readonly class TargetDataProvider implements ProviderInterface
 {
+    public function __construct(
+        private ProviderInterface $inner,
+        private Security $security
+    ) {
+    }
+
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Target::class === $resourceClass && 'get' === $operationName;
     }
 
-    public function __construct(private readonly CollectionDataProviderInterface $inner, private readonly Security $security)
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-    }
+        $items = $this->inner->provide($operation, $uriVariables, $context);
 
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
-        $list = $this->inner->getCollection($resourceClass, $operationName);
-
-        $items = [];
-        /* @var Target $item */
-        foreach ($list as $target) {
-            if ($this->security->isGranted(TargetVoter::READ, $target)) {
-                $items[] = $target;
-            }
-        }
-
-        return $items;
+        return array_values(array_filter($items, fn (Target $target): bool => $this->security->isGranted(TargetVoter::READ, $target)));
     }
 }

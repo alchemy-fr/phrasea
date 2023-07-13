@@ -69,6 +69,3 @@ services:
         arguments: [ '@app.serializer.decorated_object.inner' ]
         tags:
             - { name: serializer.normalizer, priority: -989 }
-
-    App\DataProvider\TargetDataProvider:
-        arguments: [ '@api_platform.doctrine.orm.default.collection_data_provider' ]

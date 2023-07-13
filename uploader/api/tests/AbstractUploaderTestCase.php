@@ -6,7 +6,6 @@ namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Target;
-use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
 abstract class AbstractUploaderTestCase extends ApiTestCase
