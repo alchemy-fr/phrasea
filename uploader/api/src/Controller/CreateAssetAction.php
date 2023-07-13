@@ -40,7 +40,7 @@ final class CreateAssetAction extends AbstractController
             throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
         }
 
-        if ($request->request->get('multipart')) {
+        if ($request->request->all('multipart')) {
             return $this->handleMultipartUpload($request, $target);
         }
 

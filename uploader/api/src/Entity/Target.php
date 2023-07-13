@@ -4,25 +4,16 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\Entity]
-class Target implements \Stringable
+class Target extends AbstractUuidEntity implements \Stringable
 {
-    /**
-     * @ApiProperty(identifier=true)
-     */
-    #[Groups(['target:index'])]
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    private UuidInterface $id;
-
     /**
      * @ApiProperty()
      */
@@ -81,7 +72,7 @@ class Target implements \Stringable
     #[Groups(['target:index'])]
     private readonly \DateTimeInterface $createdAt;
 
-    #[ORM\OneToOne(targetEntity: TargetParams::class, mappedBy: 'target')]
+    #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
     private ?TargetParams $targetParams = null;
 
     /**
@@ -91,13 +82,14 @@ class Target implements \Stringable
 
     public function __construct()
     {
+        parent::__construct();
         $this->createdAt = new \DateTimeImmutable();
-        $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    #[Groups(['target:index'])]
+    public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
 
     public function getCreatedAt()

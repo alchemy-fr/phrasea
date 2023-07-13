@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
@@ -13,17 +14,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_target_locale', columns: ['locale', 'target_id'])]
-#[ORM\Entity(repositoryClass: \App\Entity\FormSchemaRepository::class)]
-class FormSchema implements AclObjectInterface
+#[ORM\Entity(repositoryClass: FormSchemaRepository::class)]
+class FormSchema extends AbstractUuidEntity implements AclObjectInterface
 {
-    /**
-     * @var Uuid
-     */
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[Groups(['formschema:index'])]
-    protected $id;
-
     #[ORM\ManyToOne(targetEntity: Target::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
@@ -53,12 +46,13 @@ class FormSchema implements AclObjectInterface
 
     public function __construct(string $id = null)
     {
-        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
+        parent::__construct($id);
     }
 
+    #[Groups(['formschema:index'])]
     public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
 
     public function getLocale(): ?string

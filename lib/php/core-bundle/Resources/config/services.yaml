@@ -1,4 +1,8 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
   Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker:
     arguments:
       - '@service_container'

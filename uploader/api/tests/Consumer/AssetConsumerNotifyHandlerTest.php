@@ -21,7 +21,7 @@ class AssetConsumerNotifyHandlerTest extends TestCase
     public function testAssetConsumerNotify(): void
     {
         $accessToken = 'secret_token';
-        $uploadBaseUrl = 'http://localhost:8080';
+        $uploaderUrl = 'http://localhost:8080';
 
         $consumerResponse = new Response(200, [
             'Content-Type' => 'application/json',
@@ -54,7 +54,7 @@ class AssetConsumerNotifyHandlerTest extends TestCase
 
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
-            $uploadBaseUrl
+            $uploaderUrl
         );
         $handler->setEntityManager($em);
 

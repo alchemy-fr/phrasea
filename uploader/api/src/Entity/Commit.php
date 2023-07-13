@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -49,16 +50,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Table(name: 'asset_commit')]
 #[ORM\Entity(repositoryClass: \App\Entity\CommitRepository::class)]
-class Commit
+class Commit extends AbstractUuidEntity
 {
-    /**
-     * @ApiProperty(identifier=true)
-     */
-    #[Groups(['asset:read', 'commit:read'])]
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    private UuidInterface $id;
-
     /**
      * @var Asset[]|Collection
      */
@@ -140,14 +133,15 @@ class Commit
 
     public function __construct()
     {
+        parent::__construct();
         $this->assets = new ArrayCollection();
         $this->createdAt = new \DateTime();
-        $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    #[Groups(['asset:read', 'commit:read'])]
+    public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
 
     public function getFiles(): array

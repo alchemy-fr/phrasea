@@ -92,7 +92,6 @@
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
-        "eightpoints/guzzle-bundle": "^8.0",
         "fig/link-util": "^1.1",
         "guzzlehttp/guzzle": "^7.2",
         "nelmio/cors-bundle": "^2.1",

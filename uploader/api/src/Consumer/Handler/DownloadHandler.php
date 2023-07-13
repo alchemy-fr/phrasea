@@ -14,13 +14,19 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use GuzzleHttp\Client;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class DownloadHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'download';
 
-    public function __construct(private readonly FileStorageManager $storageManager, private readonly Client $client, private readonly AssetManager $assetManager, private readonly EventProducer $eventProducer, private readonly PathGenerator $pathGenerator)
-    {
+    public function __construct(
+        private readonly FileStorageManager $storageManager,
+        private readonly HttpClientInterface $client,
+        private readonly AssetManager $assetManager,
+        private readonly EventProducer $eventProducer,
+        private readonly PathGenerator $pathGenerator
+    ) {
     }
 
     public function handle(EventMessage $message): void
@@ -53,7 +59,9 @@ class DownloadHandler extends AbstractEntityManagerHandler
 
         $path = $this->pathGenerator->generatePath($extension);
 
-        $this->storageManager->store($path, $response->getBody()->getContents());
+        $content = $response->getContent();
+        $size = strlen($content);
+        $this->storageManager->store($path, $content);
 
         $em = $this->getEntityManager();
         $target = $em->find(Target::class, $targetId);
@@ -61,7 +69,6 @@ class DownloadHandler extends AbstractEntityManagerHandler
             throw new \InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
         }
 
-        $size = $response->getBody()->getSize();
         $asset = $this->assetManager->createAsset(
             $target,
             $path,

@@ -14,8 +14,10 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $storageBaseUrl: '%env(S3_ENDPOINT)%'
+            string $storageBaseUrl: '%env(S3_ENDPOINT)%'
+            string $uploaderUrl: '%env(UPLOADER_API_URL)%'
             $deleteAssetGracefulTime: '%env(int:DELETE_ASSET_GRACEFUL_TIME)%'
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -40,15 +42,6 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    App\Consumer\Handler\DownloadHandler:
-        arguments:
-            $client: "@eight_points_guzzle.client.download"
-
-    App\Consumer\Handler\AssetConsumerNotifyHandler:
-        arguments:
-            $client: "@eight_points_guzzle.client.consumer_notify"
-            $uploadBaseUrl: '%env(UPLOADER_API_URL)%'
 
     App\Storage\AssetManager:
         arguments:

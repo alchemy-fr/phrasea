@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -43,18 +44,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  */
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset
+class Asset extends AbstractUuidEntity
 {
-    /**
-     * @ApiProperty(identifier=true)
-     *
-     * @var Uuid
-     */
-    #[Groups('asset:read')]
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
-    protected $id;
-
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
@@ -114,14 +105,16 @@ class Asset
 
     public function __construct()
     {
+        parent::__construct();
         $this->createdAt = new \DateTime();
-        $this->id = Uuid::uuid4();
     }
 
-    public function getId()
+    #[Groups('asset:read')]
+    public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
+
 
     public function getPath(): string
     {

@@ -29,6 +29,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
+        $loader->load('services.yaml');
         $this->loadFixtures($container, $loader);
         $loader->load('security.yaml');
 
@@ -46,8 +47,6 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $loader->load('healthcheck.yaml');
             $this->loadHealthCheckers($container);
         }
-
-        $loader->load('services.yaml');
     }
 
     public function prepend(ContainerBuilder $container)

@@ -119,7 +119,7 @@ class UploadManager
 
     public function handleMultipartUpload(Request $request): MultipartUpload
     {
-        $multipart = $request->request->get('multipart');
+        $multipart = $request->request->all('multipart');
 
         foreach ([
                      'parts',
