@@ -15,7 +15,7 @@
                 "reference": "889ac7145dde9936f68bfbfa60ae986156430282"
             },
             "require": {
-                "alchemy/remote-auth-bundle": "@dev",
+                "alchemy/auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^4.0",
                 "guzzlehttp/guzzle": "^7.2",
                 "php": "^7.4 || ^8.0",
@@ -119,11 +119,11 @@
             }
         },
         {
-            "name": "alchemy/remote-auth-bundle",
+            "name": "alchemy/auth-bundle",
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/remote-auth-bundle",
+                "url": "./__lib/auth-bundle",
                 "reference": "84a7b0df4ab9e395c5173073a5caf3875d89ab67"
             },
             "require": {
@@ -139,7 +139,7 @@
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\": ""
+                    "Alchemy\\AuthBundle\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -147,7 +147,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
+                    "Alchemy\\AuthBundle\\Tests\\": "/Tests/"
                 }
             },
             "scripts": {

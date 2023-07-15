@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock: ~
+
+    Alchemy\AuthBundle\Client\AuthServiceClient:
+        arguments:
+            $keycloakClient: "@Alchemy\\AuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
+
+    Alchemy\AuthBundle\Tests\TestJwtValidator:
+        decorates: Alchemy\AuthBundle\Security\JwtValidator
+        arguments: ['@.inner']

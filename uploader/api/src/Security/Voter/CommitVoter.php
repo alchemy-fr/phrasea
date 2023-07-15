@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use App\Entity\Commit;
 use App\Security\Authentication\AssetToken;
 use Symfony\Bundle\SecurityBundle\Security;

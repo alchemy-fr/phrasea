@@ -10,7 +10,7 @@
   "repositories": [
     {
       "type": "path",
-      "url": "../remote-auth-bundle",
+      "url": "../auth-bundle",
       "options": {
         "symlink": true
       }
@@ -18,7 +18,7 @@
   ],
   "require": {
     "php": "^7.4 || ^8.0",
-    "alchemy/remote-auth-bundle": "@dev",
+    "alchemy/auth-bundle": "@dev",
     "easycorp/easyadmin-bundle": "^4.0",
     "guzzlehttp/guzzle": "^7.2",
     "symfony/framework-bundle": "^6"

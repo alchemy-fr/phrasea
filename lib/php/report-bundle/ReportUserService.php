@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\ReportBundle;
 
-use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
+use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;

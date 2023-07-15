@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;

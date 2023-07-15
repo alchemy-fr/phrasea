@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopyHandler;

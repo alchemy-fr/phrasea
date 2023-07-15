@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

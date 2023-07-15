@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use App\Entity\WithOwnerIdInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

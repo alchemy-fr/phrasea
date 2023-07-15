@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;

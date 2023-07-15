@@ -77,7 +77,7 @@
         },
         {
             "type": "path",
-            "url": "./__lib/remote-auth-bundle",
+            "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
             }
@@ -115,7 +115,7 @@
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
-        "alchemy/remote-auth-bundle": "*",
+        "alchemy/auth-bundle": "*",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",

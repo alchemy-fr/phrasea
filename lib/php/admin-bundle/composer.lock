@@ -7,11 +7,11 @@
     "content-hash": "e7787e7a74ca0c7b18d399796eb61254",
     "packages": [
         {
-            "name": "alchemy/remote-auth-bundle",
+            "name": "alchemy/auth-bundle",
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "../remote-auth-bundle",
+                "url": "../auth-bundle",
                 "reference": "84a7b0df4ab9e395c5173073a5caf3875d89ab67"
             },
             "require": {
@@ -27,7 +27,7 @@
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\": ""
+                    "Alchemy\\AuthBundle\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -35,7 +35,7 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
+                    "Alchemy\\AuthBundle\\Tests\\": "/Tests/"
                 }
             },
             "scripts": {
@@ -8443,7 +8443,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "alchemy/remote-auth-bundle": 20
+        "alchemy/auth-bundle": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

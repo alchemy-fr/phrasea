@@ -29,7 +29,7 @@
         },
         {
             "type": "path",
-            "url": "./__lib/remote-auth-bundle",
+            "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
             }
@@ -81,7 +81,7 @@
         "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/oauth-server-bundle": "@dev",
-        "alchemy/remote-auth-bundle": "@dev",
+        "alchemy/auth-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
         "api-platform/core": "^3.1",

@@ -6,7 +6,7 @@ namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeClass;

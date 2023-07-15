@@ -1,0 +1,5 @@
+
+alchemy_remote_auth_permissions:
+  name_prefix: alchemy_remote_auth_
+  resource: 'Alchemy\AuthBundle\Controller\PermissionsController'
+  type: annotation

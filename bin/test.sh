@@ -32,7 +32,7 @@ admin-bundle
 api-test
 notify-bundle
 oauth-server-bundle
-remote-auth-bundle
+auth-bundle
 report-bundle
 report-sdk
 "

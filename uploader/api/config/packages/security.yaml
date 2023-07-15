@@ -2,7 +2,7 @@ security:
     role_hierarchy: '%core.role_hierarchy%'
     providers:
         remote_users:
-            id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider
+            id: Alchemy\AuthBundle\Security\RemoteUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -24,13 +24,13 @@ security:
                 path: alchemy_admin_logout
                 target: easyadmin
             custom_authenticators:
-                - Alchemy\RemoteAuthBundle\Security\AppAuthenticator
+                - Alchemy\AuthBundle\Security\AppAuthenticator
 
         api:
             stateless: true
             asset: true
             custom_authenticators:
-                - Alchemy\RemoteAuthBundle\Security\AccessTokenAuthenticator
+                - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }

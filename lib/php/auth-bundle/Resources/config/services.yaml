@@ -1,0 +1,27 @@
+parameters:
+  env(VERIFY_SSL): true
+  env(KEYCLOAK_REALM): master
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Alchemy\AuthBundle\Client\OAuthClient: ~
+  Alchemy\AuthBundle\Security\Firewall\RemoteAuthListener: ~
+  Alchemy\AuthBundle\Security\RemoteUserProvider: ~
+  Alchemy\AuthBundle\Security\RemoteAuthAuthenticatorPersister: ~
+  Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
+  Alchemy\AuthBundle\Security\AppAuthenticator: ~
+  Alchemy\AuthBundle\Security\JwtValidator: ~
+  Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
+  Alchemy\AuthBundle\Http\AuthStateEncoder: ~
+  Alchemy\AuthBundle\Repository\AbstractRemoteAuthRepository: ~
+  Alchemy\AuthBundle\Repository\RemoteAuthUserRepository: ~
+  Alchemy\AuthBundle\Repository\RemoteAuthGroupRepository: ~
+  Alchemy\AuthBundle\Repository\UserRepositoryInterface: "@Alchemy\\AuthBundle\\Repository\\RemoteAuthUserRepository"
+  Alchemy\AuthBundle\Repository\GroupRepositoryInterface: "@Alchemy\\AuthBundle\\Repository\\RemoteAuthGroupRepository"
+  Alchemy\AuthBundle\Listener\LogoutListener: ~
+  Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
+  Alchemy\AuthBundle\Security\RoleMapper: ~

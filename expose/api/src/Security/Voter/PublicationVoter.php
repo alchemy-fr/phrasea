@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
+use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Publication;
 use App\Security\Authentication\JWTManager;
 use App\Security\Authentication\PasswordToken;

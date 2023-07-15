@@ -8,6 +8,9 @@
     "alchemy/api-test": {
         "version": "dev-expose"
     },
+    "alchemy/auth-bundle": {
+        "version": "dev-PS-bump-sf6"
+    },
     "alchemy/core-bundle": {
         "version": "dev-main"
     },

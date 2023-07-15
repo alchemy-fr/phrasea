@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;

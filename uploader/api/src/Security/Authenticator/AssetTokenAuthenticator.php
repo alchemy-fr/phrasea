@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Authenticator;
 
-use Alchemy\RemoteAuthBundle\Security\RequestHelper;
+use Alchemy\AuthBundle\Security\RequestHelper;
 use App\Security\AssetTokenUser;
 use App\Security\Authentication\AssetToken;
 use App\Security\Badge\AssetTokenBadge;

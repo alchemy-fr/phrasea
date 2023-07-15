@@ -2,21 +2,21 @@
 
 namespace Alchemy\AdminBundle\Field;
 
-use Alchemy\RemoteAuthBundle\Client\AdminClient;
-use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Auth\ServiceAccountClient;
+use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 final readonly class UserChoiceField
 {
-    public function __construct(private AdminClient $adminClient, private AuthServiceClient $authServiceClient)
+    public function __construct(private ServiceAccountClient $serviceAccountClient, private OAuthClient $authServiceClient)
     {
     }
 
     public function create(string $propertyName, string $label = null)
     {
         /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
+        $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];

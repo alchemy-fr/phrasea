@@ -16,7 +16,7 @@ return [
     Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => ['all' => true],
     Hautelook\AliceBundle\HautelookAliceBundle::class => ['all' => true],
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
-    Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
+    Alchemy\AuthBundle\AlchemyAuthBundle::class => ['all' => true],
     Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
     Alchemy\OAuthServerBundle\AlchemyOAuthServerBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],

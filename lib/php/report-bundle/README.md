@@ -2,7 +2,7 @@
 
 This bundle provide [report-sdk](../report-sdk/README.md) as an extended service using Symfony security.
 
-If user is authenticated with a RemoteAuthToken (see [remote-auth-bundle](../remote-auth-bundle/README.md)), then user ID will be provided automatically.
+If user is authenticated with a RemoteAuthToken (see [auth-bundle](../auth-bundle/README.md)), then user ID will be provided automatically.
 
 ## Configuration
 

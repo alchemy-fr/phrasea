@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssetGetTest extends AbstractAssetTest

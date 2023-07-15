@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Traits;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 trait UserControllerTrait

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "745b692848544f69638dd80bdae0944a",
+    "content-hash": "3986bacf900ce0cb5c3c449bc1dbcf49",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -61,10 +61,10 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "889ac7145dde9936f68bfbfa60ae986156430282"
+                "reference": "3209dad90f34378e060e4b364d150cc7fbf25bb9"
             },
             "require": {
-                "alchemy/remote-auth-bundle": "@dev",
+                "alchemy/auth-bundle": "@dev",
                 "easycorp/easyadmin-bundle": "^4.0",
                 "guzzlehttp/guzzle": "^7.2",
                 "php": "^7.4 || ^8.0",
@@ -107,6 +107,63 @@
             "homepage": "https://www.alchemy.fr/",
             "keywords": [
                 "Admin"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "alchemy/auth-bundle",
+            "version": "dev-PS-bump-sf6",
+            "dist": {
+                "type": "path",
+                "url": "./__lib/auth-bundle",
+                "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
+            },
+            "require": {
+                "lcobucci/jwt": "^5.0",
+                "php": "^8.2",
+                "symfony/framework-bundle": "^6",
+                "symfony/http-client": "^6",
+                "symfony/security-bundle": "^6"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "rector/rector": "^0.17.1"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\AuthBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\AuthBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
+                "test": [
+                    "echo 'This project has no test...'"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony remote auth bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "keywords": [
+                "User Security"
             ],
             "transport-options": {
                 "symlink": true,
@@ -270,63 +327,6 @@
             ],
             "description": "Symfony OAuth server bundle",
             "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-bump-sf6",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/remote-auth-bundle",
-                "reference": "a56dc4fa9d36db0357dc2cfc7dc38ea369f6fc06"
-            },
-            "require": {
-                "lcobucci/jwt": "^5.0",
-                "php": "^8.2",
-                "symfony/framework-bundle": "^6",
-                "symfony/http-client": "^6",
-                "symfony/security-bundle": "^6"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17",
-                "rector/rector": "^0.17.1"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\RemoteAuthBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "rector": [
-                    "vendor/bin/rector"
-                ],
-                "cs": [
-                    "vendor/bin/php-cs-fixer fix"
-                ],
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony remote auth bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "keywords": [
-                "User Security"
-            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -770,16 +770,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.275.6",
+            "version": "3.275.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a048b1d7110f62fb67cc69b93efc24e62ea8b64b"
+                "reference": "54dcef3349c81b46c0f5f6e54b5f9bfb5db19903"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a048b1d7110f62fb67cc69b93efc24e62ea8b64b",
-                "reference": "a048b1d7110f62fb67cc69b93efc24e62ea8b64b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/54dcef3349c81b46c0f5f6e54b5f9bfb5db19903",
+                "reference": "54dcef3349c81b46c0f5f6e54b5f9bfb5db19903",
                 "shasum": ""
             },
             "require": {
@@ -859,9 +859,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.275.6"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.275.7"
             },
-            "time": "2023-07-11T04:45:11+00:00"
+            "time": "2023-07-13T18:21:04+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -12477,16 +12477,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.17.5",
+            "version": "0.17.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "f4a5f45c420b797d8e8e9c540e14c8bbdddff62d"
+                "reference": "ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f4a5f45c420b797d8e8e9c540e14c8bbdddff62d",
-                "reference": "f4a5f45c420b797d8e8e9c540e14c8bbdddff62d",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21",
+                "reference": "ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21",
                 "shasum": ""
             },
             "require": {
@@ -12526,7 +12526,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.17.5"
+                "source": "https://github.com/rectorphp/rector/tree/0.17.6"
             },
             "funding": [
                 {
@@ -12534,7 +12534,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-12T08:42:12+00:00"
+            "time": "2023-07-14T09:54:15+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -14269,7 +14269,7 @@
         "alchemy/core-bundle": 20,
         "alchemy/notify-bundle": 20,
         "alchemy/oauth-server-bundle": 20,
-        "alchemy/remote-auth-bundle": 20,
+        "alchemy/auth-bundle": 20,
         "alchemy/report-bundle": 20,
         "alchemy/storage-bundle": 20,
         "arthem/rabbit-bundle": 20,

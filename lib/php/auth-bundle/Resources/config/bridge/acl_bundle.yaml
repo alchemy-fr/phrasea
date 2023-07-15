@@ -1,0 +1,11 @@
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\AclBundle\Repository\AclUserRepositoryInterface: '@Alchemy\AuthBundle\Repository\RemoteAuthUserRepository'
+    Alchemy\AclBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\RemoteAuthGroupRepository'
+
+    Alchemy\AuthBundle\Controller\PermissionsController:
+        public: true

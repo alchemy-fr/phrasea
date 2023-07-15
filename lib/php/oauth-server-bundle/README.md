@@ -3,7 +3,7 @@
 This bundle provide FOSOAuthServerBundle with a simplified confuration.
 It extends it with allowed scopes per OAuth client.
 
-If user is authenticated with a RemoteAuthToken (see [remote-auth-bundle](../remote-auth-bundle/README.md)), then user ID will be provided automatically.
+If user is authenticated with a RemoteAuthToken (see [auth-bundle](../auth-bundle/README.md)), then user ID will be provided automatically.
 
 ## Configuration
 

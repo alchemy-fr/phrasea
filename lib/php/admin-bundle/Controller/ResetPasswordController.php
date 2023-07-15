@@ -3,7 +3,7 @@
 namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\Form\RequestResetPasswordForm;
-use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\AuthBundle\Client\OAuthClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ResetPasswordController extends AbstractAdminController
 {
     #[Route(path: '/request', name: 'request')]
-    public function requestResetPassword(Request $request, AuthServiceClient $authServiceClient): Response
+    public function requestResetPassword(Request $request, OAuthClient $authServiceClient): Response
     {
         $form = $this->createForm(RequestResetPasswordForm::class);
 

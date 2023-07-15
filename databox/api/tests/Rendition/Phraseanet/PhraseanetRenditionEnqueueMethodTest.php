@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Rendition\Phraseanet;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;

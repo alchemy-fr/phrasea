@@ -29,7 +29,7 @@
         },
         {
             "type": "path",
-            "url": "./__lib/remote-auth-bundle",
+            "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
             }

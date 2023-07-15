@@ -5,7 +5,7 @@
     "alchemy/core-bundle": {
         "version": "dev-core-bundle"
     },
-    "alchemy/remote-auth-bundle": {
+    "alchemy/auth-bundle": {
         "version": "dev-master"
     },
     "arthem/rabbit-bundle": {

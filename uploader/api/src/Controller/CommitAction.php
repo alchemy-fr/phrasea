@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Model\RemoteUser;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
