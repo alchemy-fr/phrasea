@@ -6,6 +6,7 @@ use Alchemy\AuthBundle\Client\AdminClient;
 use Alchemy\AuthBundle\Client\OAuthClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
+use Alchemy\AuthBundle\Security\AppAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -40,6 +41,9 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
         $def->setArgument('$realm', $config['keycloak']['realm']);
 
         $def = $container->findDefinition(LogoutListener::class);
+        $def->setArgument('$clientId', $config['client_id']);
+
+        $def = $container->findDefinition(AppAuthenticator::class);
         $def->setArgument('$clientId', $config['client_id']);
 
         $bundles = $container->getParameter('kernel.bundles');

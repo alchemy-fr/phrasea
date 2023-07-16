@@ -7,11 +7,11 @@ namespace Alchemy\AuthBundle\Repository;
 use Alchemy\AclBundle\Model\AclUserInterface;
 use Alchemy\AuthBundle\Model\RemoteUser;
 
-class RemoteAuthUserRepository extends AbstractRemoteAuthRepository implements UserRepositoryInterface
+class UserRepository extends AbstractKeycloakRepository implements UserRepositoryInterface
 {
     public function getUsers(int $limit = null, int $offset = null): array
     {
-        return $this->executeWithAccessToken(fn (string $accessToken): array => $this->serviceClient->getUsers($accessToken, $limit, $offset));
+        return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $limit, $offset));
     }
 
     public function getAclUsers(int $limit = null, int $offset = 0): array

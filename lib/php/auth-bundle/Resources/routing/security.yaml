@@ -1,0 +1,3 @@
+alchemy_auth:
+  name_prefix: alchemy_auth_
+  resource: 'Alchemy\AuthBundle\Controller\OAuthController'

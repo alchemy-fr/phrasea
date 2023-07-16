@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 
 class FormSchemaTest extends AbstractUploaderTestCase
 {
     public function testFormSchemaEditOK(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('[]', $response->getContent());
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => [
                 'foo' => 'bar',
@@ -25,7 +25,7 @@ class FormSchemaTest extends AbstractUploaderTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('data', $json);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(1, $json);
@@ -36,7 +36,7 @@ class FormSchemaTest extends AbstractUploaderTestCase
 
     public function testFormSchemaPostWithANonAdminUser(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'POST', '/form-schemas', [
+        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/form-schemas', [
             'data' => [
                 'foo' => 'bar',
             ],

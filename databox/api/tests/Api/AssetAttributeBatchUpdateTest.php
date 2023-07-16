@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -103,7 +103,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return static::createClient()->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'actions' => $actions,

@@ -35,7 +35,7 @@ security:
             stateless:  false
             anonymous:  ~
             logout:
-                path: alchemy_admin_logout
+                path: alchemy_auth_logout
                 target: easyadmin
                 success_handler: alchemy_admin.logout.success_handler
             guard:

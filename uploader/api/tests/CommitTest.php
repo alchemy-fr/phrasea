@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
@@ -15,7 +15,7 @@ class CommitTest extends AbstractUploaderTestCase
         [$commitId, $assetId] = $this->createCommit();
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'GET',
             '/commits/'.$commitId
         );
@@ -29,7 +29,7 @@ class CommitTest extends AbstractUploaderTestCase
     public function testGetCommitListOK(): void
     {
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'GET',
             '/commits'
         );

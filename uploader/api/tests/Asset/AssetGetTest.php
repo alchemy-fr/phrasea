@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssetGetTest extends AbstractAssetTest
@@ -43,14 +43,14 @@ class AssetGetTest extends AbstractAssetTest
     public function testAssetGetWithValidBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet(AuthServiceClientTestMock::USER_TOKEN, 'Bearer');
+        $response = $this->requestGet(OAuthClientTestMock::USER_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testAssetGetWithAdminBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet(AuthServiceClientTestMock::ADMIN_TOKEN, 'Bearer');
+        $response = $this->requestGet(OAuthClientTestMock::ADMIN_TOKEN, 'Bearer');
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -63,7 +63,7 @@ class AssetGetTest extends AbstractAssetTest
 
     public function testUnCommittedAssetGet(): void
     {
-        $response = $this->requestGet(AuthServiceClientTestMock::ADMIN_TOKEN, 'Bearer');
+        $response = $this->requestGet(OAuthClientTestMock::ADMIN_TOKEN, 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 

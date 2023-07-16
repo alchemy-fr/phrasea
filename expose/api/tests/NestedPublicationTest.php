@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 
 class NestedPublicationTest extends AbstractExposeTestCase
 {
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
+            'ownerId' => OAuthClientTestMock::ADMIN_UID,
         ])->getId();
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'POST',
             '/publications',
             [
@@ -34,12 +34,12 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Sub Foo', $json['title']);
         $this->assertMatchesUuid($json['id']);
-        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
+        $this->assertEquals(OAuthClientTestMock::ADMIN_UID, $json['ownerId']);
 
         $this->assertArrayHasKey('parent', $json);
         $this->assertEquals($id, $json['parent']['id']);
         $this->assertArrayHasKey('title', $json['parent']);
-        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
+        $this->assertEquals(OAuthClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
     }
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
@@ -55,7 +55,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
                      'application/ld+json',
                  ] as $accept) {
             $response = $this->request(
-                AuthServiceClientTestMock::ADMIN_TOKEN,
+                OAuthClientTestMock::ADMIN_TOKEN,
                 'GET',
                 '/publications/'.$childId,
                 [],
@@ -92,7 +92,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'GET',
             '/publications/'.$parentId
         );
@@ -112,7 +112,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
         // Test child
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'GET',
             '/publications/'.$childId
         );
@@ -160,7 +160,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/publications/'.$ids['p1']
         );
@@ -186,7 +186,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());

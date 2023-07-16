@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\AuthBundle\Auth;
+namespace Alchemy\AuthBundle\Client;
 
 use Alchemy\AuthBundle\Client\OAuthClient as AuthClient;
 use Symfony\Component\HttpClient\Exception\ClientException;

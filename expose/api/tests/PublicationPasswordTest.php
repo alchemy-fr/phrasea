@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use App\Security\PasswordSecurityMethodInterface;
 
 class PublicationPasswordTest extends AbstractExposeTestCase
@@ -53,7 +53,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
             'password' => 'xxx',
         ])->getId();
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);

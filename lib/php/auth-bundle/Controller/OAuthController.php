@@ -11,25 +11,24 @@ use Alchemy\AuthBundle\Security\RemoteUserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+#[AsController]
 final class OAuthController extends AbstractController
 {
-    public function __construct()
-    {
-    }
-
-    #[Route(path: '/auth/check', name: 'auth_check')]
+    #[Route(path: '/auth/check', name: 'oauth_check')]
     public function oauthCheck(
         Request $request,
         OAuthClient $oauthClient,
         RemoteUserProvider $userProvider,
         AuthStateEncoder $authStateEncoder,
-        RemoteAuthAuthenticatorPersister $authenticatorPersister
+        RemoteAuthAuthenticatorPersister $authenticatorPersister,
     ): Response {
         [$accessToken, $refreshToken] = $oauthClient->getTokenFromAuthorizationCode(
             $request->get('code'),
-            $request->getUri()
+            $this->generateUrl('alchemy_auth_oauth_check', [], UrlGeneratorInterface::ABSOLUTE_URL)
         );
 
         $user = $userProvider->loadUserByIdentifier($accessToken);

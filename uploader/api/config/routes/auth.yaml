@@ -1,0 +1,3 @@
+alchemy_auth:
+  resource: '@AlchemyAuthBundle/Resources/routing/security.yaml'
+  prefix: /admin

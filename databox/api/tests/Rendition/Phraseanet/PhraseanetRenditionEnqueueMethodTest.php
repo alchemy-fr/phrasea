@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Rendition\Phraseanet;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;
@@ -78,7 +78,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -179,7 +179,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);

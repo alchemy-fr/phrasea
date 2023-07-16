@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\AbstractSearchTestCase;
@@ -18,7 +18,7 @@ class AssetTest extends AbstractSearchTestCase
         self::enableFixtures();
         $response = static::createClient()->request('GET', '/assets?limit='.$limit, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
         ]);
 
@@ -50,7 +50,7 @@ class AssetTest extends AbstractSearchTestCase
     {
         $response = static::createClient()->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -72,7 +72,7 @@ class AssetTest extends AbstractSearchTestCase
     {
         static::createClient()->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'title' => 'Invalid payload',
@@ -101,7 +101,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('PUT', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
             'json' => [
                 'title' => 'updated title',
@@ -123,7 +123,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('DELETE', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
             ],
         ]);
 

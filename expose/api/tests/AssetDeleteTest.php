@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use App\Entity\SubDefinition;
 
 class AssetDeleteTest extends AbstractExposeTestCase
@@ -19,7 +19,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/assets/'.$assetId
         );
@@ -39,7 +39,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::USER_TOKEN,
             'DELETE',
             '/assets/'.$assetId
         );
@@ -64,7 +64,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertSubDefinitionExist($subDef1Id);
         $this->assertSubDefinitionExist($subDef2Id);
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/assets/'.$assetId
         );
@@ -80,7 +80,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
     public function testDeleteNonExistingAssetWillReturn404(): void
     {
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/assets/invalid-asset'
         );
@@ -104,7 +104,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
             'DELETE',
             '/assets/delete-by-asset-id/foo'
         );

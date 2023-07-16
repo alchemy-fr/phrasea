@@ -17,11 +17,6 @@ services:
     tags:
       - { name: twig.extension }
 
-  Alchemy\AdminBundle\Auth\OAuthClient:
-    arguments:
-      $clientId: '%env(ADMIN_CLIENT_ID)%'
-      $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-
   Alchemy\AclBundle\Controller\PermissionController: ~
 
   alchemy_admin.access_denied_handler:

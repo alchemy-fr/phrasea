@@ -21,7 +21,7 @@ security:
             stateless:  false
             access_denied_handler: alchemy_admin.access_denied_handler
             logout:
-                path: alchemy_admin_logout
+                path: alchemy_auth_logout
                 target: easyadmin
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\AppAuthenticator

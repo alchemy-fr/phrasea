@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Tests;
 
 use Alchemy\AuthBundle\Security\JwtValidatorInterface;
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 
 final class TestJwtValidator implements JwtValidatorInterface
 {
@@ -16,8 +16,8 @@ final class TestJwtValidator implements JwtValidatorInterface
     public function isTokenValid(string $token): bool
     {
         if (in_array($token, [
-            AuthServiceClientTestMock::ADMIN_TOKEN,
-            AuthServiceClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::USER_TOKEN,
         ])) {
             return true;
         }

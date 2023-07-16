@@ -3,9 +3,9 @@ services:
         autowire: true
         autoconfigure: true
 
-    Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock: ~
+    Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock: ~
 
-    Alchemy\AuthBundle\Client\AuthServiceClient:
+    Alchemy\AuthBundle\Client\OAuthClient:
         arguments:
             $keycloakClient: "@Alchemy\\AuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
 

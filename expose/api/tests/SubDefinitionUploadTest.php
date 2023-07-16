@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class SubDefinitionUploadTest extends AbstractExposeTestCase
@@ -14,7 +14,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $publication = $this->createPublication();
         $assetId = $this->createAsset($publication);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
             'asset_id' => $assetId,
             'name' => 'thumb',
         ], [
@@ -33,7 +33,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         // Test the sub definition is added to the asset
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 

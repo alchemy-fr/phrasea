@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 
 class ValidateTest extends AbstractUploaderTestCase
 {
@@ -12,7 +12,7 @@ class ValidateTest extends AbstractUploaderTestCase
     {
         parent::setUp();
 
-        $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
+        $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true, 512, JSON_THROW_ON_ERROR),
         ]);
@@ -20,7 +20,7 @@ class ValidateTest extends AbstractUploaderTestCase
 
     public function testValidateOK(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => [
                 'album' => 'Foo',
@@ -50,7 +50,7 @@ class ValidateTest extends AbstractUploaderTestCase
      */
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => $data,
         ]);
