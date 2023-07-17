@@ -8,14 +8,13 @@ services:
     autoconfigure: true
     public: false
 
-  Alchemy\AuthBundle\Controller\OAuthController: ~
   Alchemy\AuthBundle\Client\OAuthClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
   Alchemy\AuthBundle\Security\Firewall\RemoteAuthListener: ~
   Alchemy\AuthBundle\Security\RemoteUserProvider: ~
   Alchemy\AuthBundle\Security\RemoteAuthAuthenticatorPersister: ~
   Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
-  Alchemy\AuthBundle\Security\AppAuthenticator: ~
+  Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
   Alchemy\AuthBundle\Security\JwtValidator: ~
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
   Alchemy\AuthBundle\Http\AuthStateEncoder: ~

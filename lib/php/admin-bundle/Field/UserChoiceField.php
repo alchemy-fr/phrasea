@@ -2,8 +2,8 @@
 
 namespace Alchemy\AdminBundle\Field;
 
-use Alchemy\AuthBundle\Auth\ServiceAccountClient;
 use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Alchemy\AuthBundle\Model\RemoteUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 

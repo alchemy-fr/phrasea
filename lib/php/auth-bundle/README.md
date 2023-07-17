@@ -1,13 +1,22 @@
 # Remote auth
 
-This bundle provides a Guard authenticator for micro services using a SSO.
+This bundle provides a Guard authenticator for services using a SSO.
+
+Add routes:
+```yaml
+# config/routes/auth.yaml
+alchemy_auth_security:
+    prefix: /admin
+    resource: '@AlchemyAuthBundle/Resources/routing/security.yaml'
+
+alchemy_auth_permissions:
+  prefix: /admin
+  resource: '@AlchemyAuthBundle/Resources/routing/permissions.yaml'
+```
 
 Example of configuration:
 ```yaml
 security:
-    role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
-        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
     providers:
         remote_users:
             id: Alchemy\AuthBundle\Security\RemoteUserProvider
@@ -15,16 +24,15 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            anonymous:  ~
+            access_denied_handler: alchemy_admin.access_denied_handler
             logout:
-                path: alchemy_admin_logout
+                path: alchemy_auth_logout
                 target: easyadmin
-            guard:
-                authenticators:
-                    - 'alchemy_remote.login_form.admin'
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
 
         api:
-            anonymous: ~
             stateless: true
             asset: true
-            remote_auth: true
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\AccessTokenAuthenticator

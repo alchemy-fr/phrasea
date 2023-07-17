@@ -1,5 +1,4 @@
 security:
-    role_hierarchy: '%core.role_hierarchy%'
     providers:
         remote_users:
             id: Alchemy\AuthBundle\Security\RemoteUserProvider
@@ -24,7 +23,7 @@ security:
                 path: alchemy_auth_logout
                 target: easyadmin
             custom_authenticators:
-                - Alchemy\AuthBundle\Security\AppAuthenticator
+                - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
 
         api:
             stateless: true

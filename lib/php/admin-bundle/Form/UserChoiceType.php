@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Form;
 
-use Alchemy\AuthBundle\Auth\ServiceAccountClient;
-use Alchemy\AuthBundle\Client\AdminClient;
 use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Alchemy\AuthBundle\Model\RemoteUser;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

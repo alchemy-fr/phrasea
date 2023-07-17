@@ -1,4 +1,3 @@
-
 alchemy_admin_reset_password:
   name_prefix: alchemy_admin_
   resource: 'Alchemy\AdminBundle\Controller\ResetPasswordController'

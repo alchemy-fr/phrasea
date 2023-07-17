@@ -6,10 +6,10 @@ namespace Alchemy\AuthBundle\Security\Badge;
 
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\BadgeInterface;
 
-final class AccessTokenBadge implements BadgeInterface
+final class RefreshTokenBadge implements BadgeInterface
 {
     public function __construct(
-        private readonly string $accessToken,
+        private readonly string $refreshToken,
     )
     {
     }
@@ -19,8 +19,8 @@ final class AccessTokenBadge implements BadgeInterface
         return true;
     }
 
-    public function getAccessToken(): string
+    public function getRefreshToken(): string
     {
-        return $this->accessToken;
+        return $this->refreshToken;
     }
 }

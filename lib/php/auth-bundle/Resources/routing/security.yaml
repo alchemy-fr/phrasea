@@ -1,3 +1,7 @@
-alchemy_auth:
-  name_prefix: alchemy_auth_
-  resource: 'Alchemy\AuthBundle\Controller\OAuthController'
+alchemy_auth_logout:
+    name_prefix: alchemy_auth_
+    path: /logout
+
+alchemy_auth_oauth_check:
+    name_prefix: alchemy_auth_
+    path: /oauth/check
