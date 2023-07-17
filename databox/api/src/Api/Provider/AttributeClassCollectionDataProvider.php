@@ -6,7 +6,7 @@ namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeClass;
@@ -21,7 +21,7 @@ class AttributeClassCollectionDataProvider extends AbstractCollectionProvider
         array $context = []
     ): array|object {
         $user = $this->security->getUser();
-        if (!$user instanceof RemoteUser) {
+        if (!$user instanceof JwtUser) {
             return [];
         }
 

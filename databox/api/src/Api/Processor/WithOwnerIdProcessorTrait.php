@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\WithOwnerIdInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -18,7 +18,7 @@ trait WithOwnerIdProcessorTrait
         $user = $this->getUser();
 
         if (null === $data->getOwnerId()) {
-            if (!$user instanceof RemoteUser) {
+            if (!$user instanceof JwtUser) {
                 throw new BadRequestHttpException('You must provide "ownerId" as your access token is not associated to a user.');
             }
 

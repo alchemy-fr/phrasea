@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataPersister;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Asset;
@@ -44,7 +44,7 @@ class ExposeDataPersister implements ContextAwareDataPersisterInterface
             || $data instanceof PublicationProfile
         ) {
             $user = $this->security->getUser();
-            if ($user instanceof RemoteUser && !$data->getOwnerId()) {
+            if ($user instanceof JwtUser && !$data->getOwnerId()) {
                 $data->setOwnerId($user->getId());
             }
         }

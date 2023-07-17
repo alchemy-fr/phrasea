@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -20,10 +20,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'target',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Delete(security: 'is_granted("'.RemoteUser::ROLE_ADMIN.'")'),
-        new Put(security: 'is_granted("'.RemoteUser::ROLE_ADMIN.'")'),
-        new Post(security: 'is_granted("'.RemoteUser::ROLE_ADMIN.'")'),
-        new GetCollection(security: 'is_granted("'.RemoteUser::ROLE_USER.'")'),
+        new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Put(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new GetCollection(security: 'is_granted("'.JwtUser::ROLE_USER.'")'),
     ],
     normalizationContext: [
         'groups' => ['target:index'],

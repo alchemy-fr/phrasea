@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Asset;
 use App\Security\Authentication\AssetToken;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -36,7 +36,7 @@ class AssetVoter extends Voter
             return false;
         }
 
-        if ($this->security->isGranted(RemoteUser::ROLE_ADMIN)) {
+        if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;
         }
 

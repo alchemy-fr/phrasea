@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Badge\AccessTokenBadge;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +28,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
     public function __construct(
         private readonly JwtValidatorInterface $jwtValidator,
+        private readonly JwtExtractor $jwtExtractor,
     )
     {
     }
@@ -42,6 +47,8 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Missing access_token');
         }
 
+        $token = $this->jwtExtractor->parseJwt($accessToken);
+
         try {
             if (!$this->jwtValidator->isTokenValid($accessToken)) {
                 throw new CustomUserMessageAuthenticationException('Invalid token.');
@@ -52,7 +59,9 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
         $accessTokenBadge = new AccessTokenBadge($accessToken);
 
-        return new SelfValidatingPassport(new UserBadge($accessToken), [$accessTokenBadge]);
+        return new SelfValidatingPassport(new UserBadge($accessToken, function () use ($token): JwtUser {
+            return $this->jwtExtractor->getUser($token);
+        }), [$accessTokenBadge]);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

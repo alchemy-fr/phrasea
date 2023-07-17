@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Alchemy\AuthBundle\Security;
+
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
+
+final readonly class JwtExtractor
+{
+    private Parser $parser;
+
+    public function __construct(
+        private RoleMapper $roleMapper,
+    )
+    {
+        $this->parser = new Parser(new JoseEncoder());
+    }
+
+    public function parseJwt(string $jwt): UnencryptedToken
+    {
+        $token = $this->parser->parse($jwt);
+
+        if (!$token instanceof UnencryptedToken) {
+            throw new \InvalidArgumentException('Token is not unencrypted');
+        }
+
+        return $token;
+    }
+
+    public function getUserFromToken(UnencryptedToken $token): JwtUser
+    {
+        $claims = $token->claims();
+
+        return new JwtUser(
+            $token->toString(),
+            $claims->get('sub'),
+            $claims->get('preferred_username'),
+            $this->roleMapper->getRoles($claims->get('roles', [])),
+            $claims->get('groups', []),
+        );
+    }
+}

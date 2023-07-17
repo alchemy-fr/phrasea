@@ -6,7 +6,7 @@ namespace App\Api\Provider;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeDefinition;
@@ -36,7 +36,7 @@ class AttributeDefinitionCollectionDataProvider extends AbstractCollectionProvid
         if (!$this->isChuckNorris()) {
             $user = $this->security->getUser();
 
-            if ($user instanceof RemoteUser) {
+            if ($user instanceof JwtUser) {
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),

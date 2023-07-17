@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopyHandler;
@@ -31,7 +31,7 @@ class CopyAssetsAction extends AbstractController
     {
         $data = $data->copyAction;
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);

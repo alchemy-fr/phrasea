@@ -19,7 +19,7 @@ Example of configuration:
 security:
     providers:
         remote_users:
-            id: Alchemy\AuthBundle\Security\RemoteUserProvider
+            id: Alchemy\AuthBundle\Security\JwtUserProvider
     firewalls:
         admin:
             pattern:    ^/admin

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Target;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -34,7 +34,7 @@ class TargetVoter extends Voter
 
         $user = $token->getUser();
         $groups = [];
-        if ($user instanceof RemoteUser) {
+        if ($user instanceof JwtUser) {
             $groups = $user->getGroupIds();
         }
 

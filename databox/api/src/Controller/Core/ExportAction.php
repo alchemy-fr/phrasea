@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Core\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
@@ -32,8 +32,8 @@ class ExportAction extends AbstractController
     public function __invoke(Export $data, Request $request): Export
     {
         $user = $this->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
-        $groupsIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+        $groupsIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
         $errors = $this->validator->validate($data);
         if (!empty($errors)) {
             throw new ValidationException($errors);

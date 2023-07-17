@@ -6,7 +6,7 @@ namespace App\Filter;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Core\Exception\InvalidArgumentException;
@@ -86,7 +86,7 @@ class PublicationFilter extends AbstractContextAwareFilter
 
         if (isset($filters['mine']) && true === $this->normalizeBoolValue($filters['mine'], 'mine')) {
             $user = $this->security->getUser();
-            if (!$user instanceof RemoteUser) {
+            if (!$user instanceof JwtUser) {
                 throw new AuthenticationException('User must be authenticated');
             }
             $queryBuilder
@@ -100,7 +100,7 @@ class PublicationFilter extends AbstractContextAwareFilter
                 && !$this->security->isGranted('ROLE_PUBLISH')
             ) {
                 $user = $this->security->getUser();
-                if (!$user instanceof RemoteUser) {
+                if (!$user instanceof JwtUser) {
                     throw new AuthenticationException('User must be authenticated');
                 }
                 if (!in_array('ace', $queryBuilder->getAllAliases(), true)) {

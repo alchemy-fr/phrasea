@@ -4,7 +4,7 @@ namespace Alchemy\AdminBundle\Field;
 
 use Alchemy\AuthBundle\Client\OAuthClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 final readonly class UserChoiceField
@@ -15,7 +15,7 @@ final readonly class UserChoiceField
 
     public function create(string $propertyName, string $label = null)
     {
-        /** @var RemoteUser[] $users */
+        /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {

@@ -8,6 +8,8 @@ class GroupRepository extends AbstractKeycloakRepository implements GroupReposit
 {
     public function getGroups(int $limit = null, int $offset = null): array
     {
-        return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getGroups($accessToken, $limit, $offset));
+        return $this->keycloakRealmCache->get('groups', function () use ($limit, $offset): array {
+            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getGroups($accessToken, $limit, $offset));
+        });
     }
 }

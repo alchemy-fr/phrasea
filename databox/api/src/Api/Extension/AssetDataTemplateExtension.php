@@ -7,7 +7,7 @@ namespace App\Api\Extension;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -40,7 +40,7 @@ class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $user = $this->security->getUser();
-        if ($user instanceof RemoteUser) {
+        if ($user instanceof JwtUser) {
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),

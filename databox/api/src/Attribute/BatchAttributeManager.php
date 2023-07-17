@@ -6,7 +6,7 @@ namespace App\Attribute;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChangedEventHandler;
@@ -111,7 +111,7 @@ class BatchAttributeManager
         string $workspaceId,
         array $assetsId,
         AssetAttributeBatchUpdateInput $input,
-        ?RemoteUser $user,
+        ?JwtUser $user,
         bool $dispatchUpdateEvent = false,
     ): void {
         if (empty($assetsId)) {
@@ -228,7 +228,7 @@ class BatchAttributeManager
                                     ->from(AttributeDefinition::class, 'ad')
                                     ->andWhere('ad.workspace = :ws')
                                     ->setParameter('ws', $workspaceId);
-                                if ($user instanceof RemoteUser) {
+                                if ($user instanceof JwtUser) {
                                     $sub
                                         ->innerJoin('ad.class', 'ac')
                                         ->andWhere('ac.public = true OR ace.id IS NOT NULL');
@@ -331,7 +331,7 @@ class BatchAttributeManager
     private function deleteAttributes(
         array $assetsId,
         ?AttributeDefinition $definition,
-        ?RemoteUser $user,
+        ?JwtUser $user,
         array $options = []
     ): void {
         $qb = $this->em->createQueryBuilder()
@@ -344,7 +344,7 @@ class BatchAttributeManager
                 ->andWhere('a.definition = :def')
                 ->setParameter('def', $definition->getId());
         } else {
-            if ($user instanceof RemoteUser) {
+            if ($user instanceof JwtUser) {
                 $qb
                     ->innerJoin('a.definition', 'ad')
                     ->innerJoin('ad.class', 'ac')
@@ -370,7 +370,7 @@ class BatchAttributeManager
         $qb->getQuery()->execute();
     }
 
-    private function joinUserAcl(QueryBuilder $queryBuilder, RemoteUser $user): void
+    private function joinUserAcl(QueryBuilder $queryBuilder, JwtUser $user): void
     {
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,

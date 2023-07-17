@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -32,7 +32,7 @@ class CollectionVoter extends AbstractVoter
     private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : false;
+        $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {

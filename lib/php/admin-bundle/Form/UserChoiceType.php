@@ -6,7 +6,7 @@ namespace Alchemy\AdminBundle\Form;
 
 use Alchemy\AuthBundle\Client\OAuthClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,7 +19,7 @@ class UserChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        /** @var RemoteUser[] $users */
+        /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {

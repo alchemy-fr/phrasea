@@ -2,27 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Alchemy\AuthBundle\Model;
+namespace Alchemy\AuthBundle\Security;
 
 use Alchemy\AclBundle\Model\AclUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 if (interface_exists(AclUserInterface::class)) {
-    interface RemoteUserInterface extends AclUserInterface
+    interface JwtUserInterface extends AclUserInterface
     {
     }
 } else {
-    interface RemoteUserInterface
+    interface JwtUserInterface
     {
     }
 }
 
-class RemoteUser implements UserInterface, RemoteUserInterface
+class JwtUser implements UserInterface, JwtUserInterface
 {
     const ROLE_USER = 'ROLE_USER';
     const ROLE_ADMIN = 'ROLE_ADMIN';
 
-    public function __construct(private readonly string $id, private readonly string $username, private readonly array $roles = [], private readonly array $groups = [])
+    private ?string $refreshToken = null;
+
+    public function __construct(
+        private readonly string $jwt,
+        private readonly string $id,
+        private readonly string $username,
+        private readonly array $roles = [],
+        private readonly array $groups = []
+    )
     {
     }
 
@@ -73,5 +81,20 @@ class RemoteUser implements UserInterface, RemoteUserInterface
 
     public function eraseCredentials()
     {
+    }
+
+    public function getJwt(): string
+    {
+        return $this->jwt;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(?string $refreshToken): void
+    {
+        $this->refreshToken = $refreshToken;
     }
 }

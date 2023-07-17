@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -89,7 +89,7 @@ abstract class AbstractAdminTest extends WebTestCase
 
     protected function getAuthAdminUser(): UserInterface
     {
-        return new RemoteUser('123', 'admin', [
+        return new JwtUser('123', 'admin', [
             'ROLE_SUPER_ADMIN',
         ]);
     }

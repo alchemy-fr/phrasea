@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\AssetRendition;
 use App\Security\RenditionPermissionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -28,7 +28,7 @@ class RenditionVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = null;
         $groupIds = [];
-        if ($user instanceof RemoteUser) {
+        if ($user instanceof JwtUser) {
             $userId = $user->getId();
             $groupIds = $user->getGroupIds();
         }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -66,7 +66,7 @@ final class CreateAssetAction extends AbstractController
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
@@ -84,7 +84,7 @@ final class CreateAssetAction extends AbstractController
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(

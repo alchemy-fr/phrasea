@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Serializer;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
 use ApiPlatform\Serializer\SerializerContextBuilderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,8 +21,8 @@ class SecurityContextBuilder implements SerializerContextBuilderInterface
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 
         $user = $this->security->getUser();
-        $context['userId'] = $user instanceof RemoteUser ? $user->getId() : null;
-        $context['groupIds'] = $user instanceof RemoteUser ? $user->getGroupIds() : [];
+        $context['userId'] = $user instanceof JwtUser ? $user->getId() : null;
+        $context['groupIds'] = $user instanceof JwtUser ? $user->getGroupIds() : [];
         $context['groupBy'] = $request->query->get('group');
         $context['filters'] = $request->query->get('filters');
 

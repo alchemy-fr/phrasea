@@ -6,6 +6,8 @@ namespace Alchemy\AuthBundle\Client;
 
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class OAuthClient
@@ -13,6 +15,7 @@ final readonly class OAuthClient
     public function __construct(
         private HttpClientInterface $keycloakClient,
         private KeycloakUrlGenerator $urlGenerator,
+        private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
     )
@@ -39,6 +42,20 @@ final readonly class OAuthClient
                 'client_id' => $this->clientId,
                 'client_secret' => $this->clientSecret,
                 'redirect_uri' => $redirectUri,
+            ],
+        ])->toArray();
+
+        return [$data['access_token'], $data['refresh_token']];
+    }
+
+    public function getTokenFromRefreshToken(string $refreshToken): array
+    {
+        $data = $this->keycloakClient->request('POST', $this->urlGenerator->getTokenUrl(), [
+            'body' => [
+                'refresh_token' => $refreshToken,
+                'grant_type' => 'refresh_token',
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
             ],
         ])->toArray();
 
@@ -114,8 +131,10 @@ final readonly class OAuthClient
 
     public function getJwtPublicKey(): string
     {
-        $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfo())->toArray();
+        return $this->keycloakRealmCache->get('keycloak_public_key', function (ItemInterface $item): string {
+            $data = $this->keycloakClient->request('GET', $this->urlGenerator->getRealmInfo())->toArray();
 
-        return $data['public_key'];
+            return $data['public_key'];
+        });
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -37,22 +37,22 @@ trait ApiSecurityTrait
         $this->security = $security;
     }
 
-    protected function getStrictUser(): RemoteUser
+    protected function getStrictUser(): JwtUser
     {
         $user = $this->security->getUser();
 
-        if (!$user instanceof RemoteUser) {
+        if (!$user instanceof JwtUser) {
             throw new AccessDeniedHttpException('User must be authenticated');
         }
 
         return $user;
     }
 
-    protected function getUser(): ?RemoteUser
+    protected function getUser(): ?JwtUser
     {
         $user = $this->security->getUser();
 
-        if (!$user instanceof RemoteUser) {
+        if (!$user instanceof JwtUser) {
             return null;
         }
 

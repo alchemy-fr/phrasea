@@ -15,14 +15,14 @@ final class ServiceAccountClient
 
     public function __construct(
         protected readonly AuthClient $serviceClient,
-        private readonly CacheInterface $cache,
+        private readonly CacheInterface $keycloakRealmCache,
     )
     {
     }
 
     private function getAccessToken(): string
     {
-        return $this->cache->get(self::ACCESS_TOKEN_CACHE_KEY, function (ItemInterface $item): string {
+        return $this->keycloakRealmCache->get(self::ACCESS_TOKEN_CACHE_KEY, function (ItemInterface $item): string {
             $data = $this->serviceClient->getClientCredentialAccessToken();
 
             $item->expiresAfter($data['expires_in']);
@@ -33,7 +33,7 @@ final class ServiceAccountClient
 
     private function invalidateAccessToken(): void
     {
-        $this->cache->delete(self::ACCESS_TOKEN_CACHE_KEY);
+        $this->keycloakRealmCache->delete(self::ACCESS_TOKEN_CACHE_KEY);
     }
 
     public function executeWithAccessToken(callable $callback, int $retryCount = 0): mixed

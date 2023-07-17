@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
@@ -30,7 +30,7 @@ final class DownloadUrlAction extends AbstractController
             return new JsonResponse(['errors' => $errors]);
         }
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         $this->eventProducer->publish(new EventMessage(DownloadHandler::EVENT, [

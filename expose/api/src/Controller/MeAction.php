@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,7 +17,7 @@ class MeAction extends AbstractController
     #[Route(path: '/me', methods: ['GET'])]
     public function __invoke(Request $request, EntityManagerInterface $em): Response
     {
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         return new JsonResponse([

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         controller: CommitAction::class
     ),
     new GetCollection(
-        security: 'is_granted("ROLE_COMMIT:LIST") or is_granted("'.RemoteUser::ROLE_ADMIN.'")'),
+        security: 'is_granted("ROLE_COMMIT:LIST") or is_granted("'.JwtUser::ROLE_ADMIN.'")'),
 ],
     normalizationContext: ['groups' => ['commit:read']],
     denormalizationContext: ['groups' => ['commit:write']],

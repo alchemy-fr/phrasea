@@ -6,6 +6,7 @@ use Alchemy\AuthBundle\Client\AdminClient;
 use Alchemy\AuthBundle\Client\OAuthClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
+use Alchemy\AuthBundle\Security\JwtValidator;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -40,6 +41,9 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
         $def->setArgument('$baseUrl', $config['keycloak']['url']);
         $def->setArgument('$realm', $config['keycloak']['realm']);
 
+        $def = $container->findDefinition(JwtValidator::class);
+        $def->setArgument('$clientId', $config['client_id']);
+
         $def = $container->findDefinition(LogoutListener::class);
         $def->setArgument('$clientId', $config['client_id']);
 
@@ -63,6 +67,15 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                     ]
                 ]
             ],
+            'cache' => [
+                'pools' => [
+                    'keycloak_realm.cache' => [
+                        'adapter' => 'cache.adapter.redis',
+                        'provider' => '%env(REDIS_URL)%',
+                        'default_lifetime' => 60,
+                    ]
+                ]
+            ]
         ]);
     }
 }

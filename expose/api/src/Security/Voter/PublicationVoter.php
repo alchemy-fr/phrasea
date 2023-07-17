@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
 use App\Entity\Publication;
 use App\Security\Authentication\JWTManager;
@@ -68,7 +68,7 @@ class PublicationVoter extends Voter
     {
         $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();
-        $isAuthenticated = $user instanceof RemoteUser;
+        $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
         $isPublicationVisible = $subject instanceof Publication && $subject->isVisible();

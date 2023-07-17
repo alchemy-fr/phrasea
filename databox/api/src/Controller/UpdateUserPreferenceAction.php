@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\UserPreference;
 use App\User\UserPreferencesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,12 +59,12 @@ class UpdateUserPreferenceAction extends AbstractController
         return new JsonResponse($preferences->getData());
     }
 
-    private function getRemoteUser(): RemoteUser
+    private function getRemoteUser(): JwtUser
     {
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
-        if (!$user instanceof RemoteUser) {
+        if (!$user instanceof JwtUser) {
             throw new AccessDeniedHttpException(sprintf('Invalid user %s', $user::class));
         }
 

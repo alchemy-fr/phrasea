@@ -6,7 +6,7 @@ namespace App\Doctrine;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Entity\PublicationProfile;
@@ -31,7 +31,7 @@ class PublicationProfileExtension implements QueryCollectionExtensionInterface
                 && !$this->security->isGranted('ROLE_PUBLISH')
             ) {
                 $user = $this->security->getUser();
-                $userId = $user instanceof RemoteUser ? $user->getId() : null;
+                $userId = $user instanceof JwtUser ? $user->getId() : null;
                 if (!$userId) {
                     throw new AccessDeniedHttpException('User must be authenticated');
                 }

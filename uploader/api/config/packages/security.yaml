@@ -1,7 +1,7 @@
 security:
     providers:
         remote_users:
-            id: Alchemy\AuthBundle\Security\RemoteUserProvider
+            id: Alchemy\AuthBundle\Security\JwtUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

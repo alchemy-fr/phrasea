@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\FormSchema;
 use App\Entity\TargetParams;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -33,14 +33,14 @@ class FormDataEditorVoter extends Voter
     {
         $user = $token->getUser();
 
-        if (!$user instanceof RemoteUser) {
+        if (!$user instanceof JwtUser) {
             return false;
         }
 
         return match ($attribute) {
-            self::EDIT_FORM_SCHEMA => $this->security->isGranted(RemoteUser::ROLE_ADMIN)
+            self::EDIT_FORM_SCHEMA => $this->security->isGranted(JwtUser::ROLE_ADMIN)
                 || $this->security->isGranted(PermissionInterface::EDIT, new FormSchema()),
-            self::EDIT_TARGET_DATA => $this->security->isGranted(RemoteUser::ROLE_ADMIN)
+            self::EDIT_TARGET_DATA => $this->security->isGranted(JwtUser::ROLE_ADMIN)
                 || $this->security->isGranted(PermissionInterface::EDIT, new TargetParams()),
             default => false,
         };

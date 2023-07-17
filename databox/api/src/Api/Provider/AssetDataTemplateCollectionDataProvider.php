@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\AssetDataTemplateSearch;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -21,8 +21,8 @@ class AssetDataTemplateCollectionDataProvider extends AbstractCollectionProvider
         array $context = []
     ): array|object {
         $user = $this->security->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
-        $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+        $groupIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
 
         return $this->search->search($userId, $groupIds, $context['filters'] ?? []);
     }

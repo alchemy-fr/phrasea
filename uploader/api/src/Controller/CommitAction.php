@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
@@ -49,7 +49,7 @@ final class CommitAction extends AbstractController
 
         $this->commitValidator->validate($data);
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
         $data->setUserId($user->getId());
         $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());

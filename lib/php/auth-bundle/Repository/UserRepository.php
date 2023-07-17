@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Repository;
 
 use Alchemy\AclBundle\Model\AclUserInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 
 class UserRepository extends AbstractKeycloakRepository implements UserRepositoryInterface
 {
     public function getUsers(int $limit = null, int $offset = null): array
     {
-        return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $limit, $offset));
+        return $this->keycloakRealmCache->get('users', function () use ($limit, $offset): array {
+            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $limit, $offset));
+        });
     }
 
     public function getAclUsers(int $limit = null, int $offset = 0): array
@@ -20,7 +22,7 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
     }
 
     /**
-     * @param RemoteUser $user
+     * @param JwtUser $user
      */
     public function getAclGroupsId(AclUserInterface $user): array
     {

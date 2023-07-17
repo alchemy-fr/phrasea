@@ -70,12 +70,11 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $refreshTokenBadge = $passport->getBadge(RefreshTokenBadge::class);
+        /** @var JwtUser $user */
         $user = $passport->getUser();
+        $user->setRefreshToken($refreshTokenBadge->getRefreshToken());
 
-        $token = new PostAuthenticationToken($user, $firewallName, $user->getRoles());
-        $token->setAttribute('rt', $refreshTokenBadge->getRefreshToken());
-
-        return $token;
+        return new PostAuthenticationToken($user, $firewallName, $user->getRoles());
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -6,7 +6,7 @@ namespace App\Doctrine;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\ContextAwareQueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Entity\Publication;
@@ -31,7 +31,7 @@ class PublicationExtension implements ContextAwareQueryCollectionExtensionInterf
         }
 
         $user = $this->security->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 

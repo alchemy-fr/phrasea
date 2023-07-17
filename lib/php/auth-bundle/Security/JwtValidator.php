@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
+use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Client\OAuthClient;
-use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Token as TokenInterface;
+use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
 
@@ -19,23 +21,27 @@ final class JwtValidator implements JwtValidatorInterface
 
     public function __construct(
         private readonly OAuthClient $authServiceClient,
+        private readonly string $clientId,
+        private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
     )
     {
         $this->validator = new Validator();
     }
 
-    public function isTokenValid(string $token): bool
+    public function isTokenValid(TokenInterface $token): bool
     {
-        $parser = new Parser(new JoseEncoder());
-
-        $token = $parser->parse($token);
+        if ($token->isExpired(new \DateTimeImmutable())) {
+            return false;
+        }
 
         return $this->validator->validate(
             $token,
             new SignedWith(
                 new Sha256(),
                 InMemory::plainText($this->getPublicKey())
-            )
+            ),
+            new IssuedBy($this->keycloakUrlGenerator->getRealmInfo()),
+            new HasClaimWithValue('azp', $this->clientId),
         );
     }
 

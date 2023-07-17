@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use Alchemy\AuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
@@ -52,8 +52,8 @@ class AssetOutputProcessor extends AbstractSecurityProcessor
         $preferredLocales = array_unique(array_filter(array_merge($userLocales, $data->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
 
         $user = $this->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
-        $groupIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+        $groupIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
 
         $output = new AssetOutput();
         $output->setCreatedAt($data->getCreatedAt());
