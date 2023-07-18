@@ -5,7 +5,6 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    env(S3_USE_PATH_STYLE_ENDPOINT): false
     env(ASSET_DAYS_RETENTION): 31
 
 services:

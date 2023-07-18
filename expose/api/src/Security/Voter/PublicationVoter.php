@@ -7,20 +7,24 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Publication;
 use App\Security\Authentication\JWTManager;
 use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
+use App\Security\ScopeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class PublicationVoter extends Voter
 {
+    use ScopeVoterTrait;
+
     final public const PUBLISH = 'publication:publish';
     final public const CREATE = 'CREATE';
     final public const INDEX = 'publication:index';
@@ -66,7 +70,7 @@ class PublicationVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, $token) || $this->security->isGranted('ROLE_ADMIN');
         $user = $token->getUser();
         $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();

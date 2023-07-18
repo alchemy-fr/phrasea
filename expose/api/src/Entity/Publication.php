@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
+use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
-use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\GetPublicationAction;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
@@ -23,38 +23,89 @@ use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Filter\PublicationFilter;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-#[ApiResource(operations: [new Get(controller: GetPublicationAction::class, defaults: ['_api_receive' => false]), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new Post(defaults: ['_api_receive' => false, '_api_respond' => true], uriTemplate: '/publications/{id}/sort-assets', controller: SortAssetsAction::class), new GetCollection(normalizationContext: ['groups' => ['publication:index'], 'swagger_definition_name' => 'List']), new Post(securityPostDenormalize: 'is_granted(\'CREATE\', object)'), new GetCollection(openapiContext: ['summary' => 'Check whether a slug is available or not.', 'description' => 'Check whether a slug is available or not.', 'responses' => [['description' => 'OK', 'content' => ['application/json' => ['schema' => ['type' => 'boolean']]]]], 'parameters' => [['in' => 'path', 'name' => 'slug', 'type' => 'string', 'required' => true, 'description' => 'The slug to verify']]], controller: GetPublicationSlugAvailabilityAction::class, uriTemplate: '/publications/slug-availability/{slug}', paginationEnabled: false, filters: [], defaults: ['_api_receive' => false, 'input' => false, 'output' => false])], order: ['title' => 'ASC'], denormalizationContext: ['deep_object_to_populate' => true], normalizationContext: ['groups' => ['publication:read'], 'swagger_definition_name' => 'Read'])]
+#[ApiResource(operations: [
+    new Get(
+        controller: GetPublicationAction::class,
+        security: 'is_granted("'.PublicationVoter::READ.'", object)',
+        name: self::GET_PUBLICATION_ROUTE_NAME,
+    ),
+    new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
+    new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
+    new Post(
+        uriTemplate: '/publications/{id}/sort-assets',
+        defaults: [
+            '_api_receive' => false,
+            '_api_respond' => true,
+        ],
+        controller: SortAssetsAction::class
+    ),
+    new GetCollection(
+        normalizationContext: [
+            'groups' => ['publication:index'],
+            'swagger_definition_name' => 'List',
+        ]),
+    new Post(
+        securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
+    ),
+    new GetCollection(
+        uriTemplate: '/publications/slug-availability/{slug}',
+        defaults: ['_api_receive' => false, 'input' => false, 'output' => false],
+        controller: GetPublicationSlugAvailabilityAction::class,
+        openapiContext: [
+            'summary' => 'Check whether a slug is available or not.',
+            'description' => 'Check whether a slug is available or not.',
+            'responses' => [
+                [
+                    'description' => 'OK',
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['type' => 'boolean']
+                        ]
+                    ]
+                ]
+            ],
+            'parameters' => [
+                [
+                    'in' => 'path',
+                    'name' => 'slug',
+                    'type' => 'string',
+                    'required' => true,
+                    'description' => 'The slug to verify'],
+            ],
+        ],
+        paginationEnabled: false,
+        filters: [])],
+    normalizationContext: ['groups' => ['publication:read'],
+        'swagger_definition_name' => 'Read'],
+    denormalizationContext: ['deep_object_to_populate' => true],
+    order: ['title' => 'ASC'])]
 #[ORM\Entity]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
 #[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
 #[ApiFilter(filterClass: DateFilter::class, properties: ['config.beginsAt', 'config.expiresAt', 'createdAt'])]
-class Publication implements AclObjectInterface, \Stringable
+class Publication implements AclObjectInterface, Stringable
 {
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
+    final public const GET_PUBLICATION_ROUTE_NAME = 'get_publication';
+
     final public const GROUP_READ = 'publication:read';
     final public const GROUP_ADMIN_READ = 'publication:admin:read';
     final public const GROUP_LIST = 'publication:index';
-
-    final public const API_READ = [
-        'groups' => [self::GROUP_READ],
-        'swagger_definition_name' => 'Read',
-    ];
-    final public const API_LIST = [
-        'groups' => [self::GROUP_LIST],
-        'swagger_definition_name' => 'List',
-    ];
 
     final public const SECURITY_METHOD_NONE = null;
     final public const SECURITY_METHOD_PASSWORD = 'password';
@@ -81,16 +132,14 @@ class Publication implements AclObjectInterface, \Stringable
 
     /**
      * @var Asset[]|Collection
-     *
      */
     #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
     /**
      * @var Asset[]|Collection
-     *
      */
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
-    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'publication', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'publication', targetEntity: Asset::class, cascade: ['remove'])]
     #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
     private Collection $assets;
 
@@ -142,6 +191,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups(['publication:read'])]
     #[MaxDepth(1)]
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Publication $parent = null;
 
     /**
@@ -157,7 +207,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
 
-    #[ORM\Embedded(class: \App\Entity\PublicationConfig::class)]
+    #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups(['publication:index', 'publication:admin:read'])]
     private PublicationConfig $config;
 
@@ -178,13 +228,13 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
     protected ?string $slug = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['publication:read', 'publication:index'])]
-    private ?\DateTime $date = null;
+    private ?\DateTimeImmutable $date = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['publication:read'])]
-    private \DateTime $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ApiProperty(writable: false)]
     #[Groups(['publication:read', 'asset:read'])]
@@ -198,7 +248,7 @@ class Publication implements AclObjectInterface, \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
@@ -228,7 +278,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->title = $title;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -574,47 +624,41 @@ class Publication implements AclObjectInterface, \Stringable
         $this->cover = $cover;
     }
 
-    public function isVisible(\DateTimeInterface $now = null): bool
+    public function isVisible(\DateTimeImmutable $now = null): bool
     {
-        $now ??= new \DateTime();
+        $now ??= new \DateTimeImmutable();
 
         return $this->isEnabled()
             && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
             && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
     }
 
-    public function getBeginsAt(): ?\DateTime
+    public function getBeginsAt(): ?\DateTimeImmutable
     {
         if (null !== $this->config->getBeginsAt()) {
             return $this->config->getBeginsAt();
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getBeginsAt();
-        }
+        return $this->profile?->getConfig()->getBeginsAt();
 
-        return null;
     }
 
-    public function getExpiresAt(): ?\DateTime
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         if (null !== $this->config->getExpiresAt()) {
             return $this->config->getExpiresAt();
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getExpiresAt();
-        }
+        return $this->profile?->getConfig()->getExpiresAt();
 
-        return null;
     }
 
-    public function getDate(): ?\DateTime
+    public function getDate(): ?\DateTimeImmutable
     {
         return $this->date;
     }
 
-    public function setDate(?\DateTime $date): void
+    public function setDate(?\DateTimeImmutable $date): void
     {
         $this->date = $date;
     }

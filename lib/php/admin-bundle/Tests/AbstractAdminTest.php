@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Tests;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -25,16 +26,17 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->followRedirects();
         $response = $this->client->getResponse();
         if (302 !== $response->getStatusCode()) {
-            dump($response->getContent());
+//            dump($response->getContent());
         }
+
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/admin/login?r=http://localhost/admin', $response->getTargetUrl());
+        $this->assertEquals('https://keycloak.phrasea.local/realms/master/protocol/openid-connect/auth?client_id=test&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%2Fadmin%2Foauth%2Fcheck&state=cj1odHRwJTNBJTJGJTJGbG9jYWxob3N0JTJGYWRtaW4%3D', $response->getTargetUrl());
 
         $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
         if (200 !== $response->getStatusCode()) {
-//            dump($response->getContent());
+            dump($response->getContent());
         }
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -89,8 +91,8 @@ abstract class AbstractAdminTest extends WebTestCase
 
     protected function getAuthAdminUser(): UserInterface
     {
-        return new JwtUser('123', 'admin', [
-            'ROLE_SUPER_ADMIN',
+        return new JwtUser(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), OAuthClientTestMock::ADMIN_UID, 'admin', [
+            JwtUser::ROLE_ADMIN,
         ]);
     }
 }

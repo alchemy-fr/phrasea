@@ -9,7 +9,6 @@ import config from './config';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
 import FormEditor from "./components/page/FormEditor";
-import ResetPassword from "./components/page/ResetPassword";
 import Download from "./components/page/Download";
 import TargetDataEditor from "./components/page/TargetDataEditor";
 import Languages from "./components/Languages";
@@ -115,7 +114,6 @@ class App extends Component {
                 <PrivateRoute path="/upload/:id" exact component={Upload}/>
                 <PrivateRoute path="/download/:id" exact component={Download}/>
                 <Route path="/login" exact component={Login}/>
-                <Route path="/forgot-password" exact component={ResetPassword}/>
                 <Route path="/auth-error" exact component={AuthError}/>
                 {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
                 {perms && perms.target_data ?

@@ -1,8 +1,4 @@
 security:
-    role_hierarchy: '%core.role_hierarchy%'
-    providers:
-        remote_users:
-            id: Alchemy\AuthBundle\Security\JwtUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -15,23 +11,20 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            lazy:  true
             access_denied_handler: alchemy_admin.access_denied_handler
             logout:
-                path: alchemy_admin_logout
+                path: alchemy_auth_logout
                 target: easyadmin
             custom_authenticators:
-                - Alchemy\AuthBundle\Security\AppAuthenticator
+                - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
+
         api:
-            lazy: true
             stateless: true
-            fos_oauth:  true
             password: true
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/admin/reset-password/, roles: PUBLIC_ACCESS }
         - { path: ^/admin/auth/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }

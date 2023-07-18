@@ -19,7 +19,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -39,7 +39,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USERS_ID),
             'DELETE',
             '/assets/'.$assetId
         );

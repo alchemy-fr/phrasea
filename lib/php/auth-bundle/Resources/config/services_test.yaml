@@ -7,8 +7,4 @@ services:
 
     Alchemy\AuthBundle\Client\OAuthClient:
         arguments:
-            $keycloakClient: "@Alchemy\\AuthBundle\\Tests\\Client\\AuthServiceClientTestMock"
-
-    Alchemy\AuthBundle\Tests\TestJwtValidator:
-        decorates: Alchemy\AuthBundle\Security\JwtValidator
-        arguments: ['@.inner']
+            $keycloakClient: '@Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock'

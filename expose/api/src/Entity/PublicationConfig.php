@@ -7,6 +7,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -72,13 +73,13 @@ class PublicationConfig implements MergeableValueObjectInterface
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $downloadEnabled = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    private ?\DateTime $beginsAt = null;
+    private ?\DateTimeImmutable $beginsAt = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    private ?\DateTime $expiresAt = null;
+    private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
@@ -243,22 +244,22 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->layout = $layout;
     }
 
-    public function getBeginsAt(): ?\DateTime
+    public function getBeginsAt(): ?\DateTimeImmutable
     {
         return $this->beginsAt;
     }
 
-    public function setBeginsAt(?\DateTime $beginsAt): void
+    public function setBeginsAt(?\DateTimeImmutable $beginsAt): void
     {
         $this->beginsAt = $beginsAt;
     }
 
-    public function getExpiresAt(): ?\DateTime
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(?\DateTime $expiresAt): void
+    public function setExpiresAt(?\DateTimeImmutable $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }

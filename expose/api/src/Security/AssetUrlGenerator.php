@@ -8,9 +8,9 @@ use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\MediaInterface;
 use App\Entity\SubDefinition;
 
-class AssetUrlGenerator
+readonly class AssetUrlGenerator
 {
-    public function __construct(private readonly UrlSigner $urlSigner)
+    public function __construct(private UrlSigner $urlSigner)
     {
     }
 

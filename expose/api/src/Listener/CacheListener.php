@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

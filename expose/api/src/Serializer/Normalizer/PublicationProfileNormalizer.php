@@ -6,7 +6,7 @@ namespace App\Serializer\Normalizer;
 
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationProfileVoter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class PublicationProfileNormalizer extends AbstractRouterNormalizer
 {

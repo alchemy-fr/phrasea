@@ -48,10 +48,9 @@ final class JwtValidator implements JwtValidatorInterface
     private function getPublicKey(): string
     {
         if (null == $this->publicKey) {
-        // TODO cache result
             $this->publicKey = sprintf('-----BEGIN PUBLIC KEY-----
 %s
------END PUBLIC KEY-----', $this->authServiceClient->getJwtPublicKey());
+-----END PUBLIC KEY-----', trim($this->authServiceClient->getJwtPublicKey()));
         }
 
         return $this->publicKey;

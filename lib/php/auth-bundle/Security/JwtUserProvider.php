@@ -14,7 +14,7 @@ readonly class JwtUserProvider implements UserProviderInterface
 {
     public function __construct(
         private JwtExtractor $jwtExtractor,
-        private JwtValidator $jwtValidator,
+        private JwtValidatorInterface $jwtValidator,
         private OAuthClient $oauthClient,
     )
     {

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Link;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
 use App\Controller\CreateSubDefinitionAction;
 use App\Repository\SubDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [new Get(), new Delete(security: 'is_granted(\'DELETE\', object)'), new Post(), new GetCollection()], normalizationContext: ['groups' => ['subdef:read'], 'swagger_definition_name' => 'Read'])]
+#[ApiResource(operations: [new Get(), new Delete(security: 'is_granted("DELETE", object)'), new Post(), new GetCollection()], normalizationContext: ['groups' => ['subdef:read'], 'swagger_definition_name' => 'Read'])]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
 #[ORM\Entity(repositoryClass: SubDefinitionRepository::class)]
@@ -147,7 +147,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
                     ],
                 ],
             ]
-        )
+        ),
     ],
     uriVariables: ['id' => new Link(fromClass: Asset::class, identifiers: ['id'])],
 )]

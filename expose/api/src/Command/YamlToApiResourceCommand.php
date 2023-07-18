@@ -35,7 +35,7 @@ final class YamlToApiResourceCommand extends Command
 
         return 0;
     }
-    
+
     private function dump(string $file, OutputInterface $output): void
     {
         $content = Yaml::parseFile($file);
@@ -91,11 +91,12 @@ EOF,
             dumpPhpVar($d['shortName']),
             ltrim(implode(",\n", $operations)),
             ltrim(implode(",\n", $sections)),
-));
+        ));
     }
 }
 
-function dumpOperation(string $name, ?array $op, bool $itemOp): string {
+function dumpOperation(string $name, ?array $op, bool $itemOp): string
+{
     $op ??= [];
 
     $params = [];
@@ -106,7 +107,7 @@ function dumpOperation(string $name, ?array $op, bool $itemOp): string {
         'patch',
         'put',
     ], true)) {
-        $metadata = match($name) {
+        $metadata = match ($name) {
             'get' => $itemOp ? 'Get' : 'GetCollection',
             'post' => 'Post',
             'delete' => 'Delete',
@@ -115,7 +116,7 @@ function dumpOperation(string $name, ?array $op, bool $itemOp): string {
         };
     } else {
         $params['name'] = $name;
-        $metadata = match(strtoupper((string) $op['method'])) {
+        $metadata = match (strtoupper((string) $op['method'])) {
             'POST' => 'Post',
             'DELETE' => 'Delete',
             'PUT' => 'Put',
@@ -161,26 +162,29 @@ function dumpOperation(string $name, ?array $op, bool $itemOp): string {
     return sprintf(<<<EOF
         new %s(%s)
 EOF,
-    $metadata, $paramsStr
-);
+        $metadata, $paramsStr
+    );
 }
 
-function dumpPhpVar(mixed $v, int $indent = 0): string {
+function dumpPhpVar(mixed $v, int $indent = 0): string
+{
     if (is_string($v)) {
         if (str_contains($v, '\\') && class_exists($v)) {
             return '\\'.$v.'::class';
         }
+
         return sprintf("'%s'", str_replace("'", "\\'", $v));
     } elseif (is_array($v)) {
         return dumpArray($v, $indent);
     } elseif (is_bool($v)) {
         return $v ? 'true' : 'false';
     } else {
-       return  (string) $v;
+        return (string) $v;
     }
 }
 
-function i(int $indent): string {
+function i(int $indent): string
+{
     return str_repeat(' ', $indent * 4);
 }
 
@@ -188,14 +192,14 @@ function dumpArray(array $a, int $indent): string
 {
     $assoc = isAssociativeArray($a);
     $o = i($indent).'[';
-    $many = count($a) > 1 || (count($a) === 1 && is_array(reset($a)));
+    $many = count($a) > 1 || (1 === count($a) && is_array(reset($a)));
     if ($many) {
         $o .= PHP_EOL;
     }
     foreach ($a as $k => $v) {
         $o .= $assoc
             ? sprintf("%s'%s' => %s", i(!$many ? 0 : $indent + 1), $k, ltrim(dumpPhpVar($v, $indent + 1)))
-            : sprintf("%s%s", i(!$many ? 0 : $indent + 1), ltrim(dumpPhpVar($v, $indent + 1)))
+            : sprintf('%s%s', i(!$many ? 0 : $indent + 1), ltrim(dumpPhpVar($v, $indent + 1)))
         ;
         if ($many) {
             $o .= ','.PHP_EOL;

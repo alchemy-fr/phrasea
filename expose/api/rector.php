@@ -27,7 +27,7 @@ return static function (RectorConfig $rectorConfig): void {
         \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
         \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
     ]);
-    $rectorConfig->ruleWithConfiguration(   AnnotationToAttributeRector::class, [
+    $rectorConfig->ruleWithConfiguration(AnnotationToAttributeRector::class, [
         new AnnotationToAttribute(\ApiPlatform\Core\Annotation\ApiFilter::class),
         new AnnotationToAttribute(\Gedmo\Mapping\Annotation\Slug::class),
         new AnnotationToAttribute(\ApiPlatform\Core\Annotation\ApiProperty::class),

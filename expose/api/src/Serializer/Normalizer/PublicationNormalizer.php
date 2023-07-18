@@ -9,7 +9,7 @@ use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {

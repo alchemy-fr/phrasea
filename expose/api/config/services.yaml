@@ -4,9 +4,6 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    env(S3_USE_PATH_STYLE_ENDPOINT): false
-    env(VERIFY_SSL): true
-
     router.request_context.host: '%env(EXPOSE_API_URL)%'
     router.request_context.scheme: 'https'
     asset.request_context.secure: true
@@ -58,9 +55,6 @@ services:
         tags:
             - { name: serializer.normalizer, priority: -989 }
 
-    App\DataPersister\ExposeDataPersister:
-        decorates: 'api_platform.doctrine.orm.data_persister'
-
     App\Form\ThemeChoiceType:
         arguments:
             $choices:
@@ -100,6 +94,12 @@ services:
     App\ZippyManager:
         arguments:
             $client: '@app.zippy_client'
+
+    App\DataPersister\ExposeDataPersister:
+        decorates: api_platform.doctrine.orm.state.persist_processor
+        arguments:
+            $decorated: '@.inner'
+
 
     App\Security\Authentication\JWTManager:
         arguments:

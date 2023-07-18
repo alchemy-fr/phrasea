@@ -7,7 +7,7 @@ namespace Alchemy\ReportBundle;
 use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 class ReportUserService

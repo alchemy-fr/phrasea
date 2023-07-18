@@ -13,14 +13,8 @@ class DateTimePickerType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-                'widget' => 'single_text',
-                'format' => "dd/MM/yyyy' 'HH:mm",
-                'attr' => [
-                    'class' => 'datetimepicker-input',
-                    'data-toggle' => 'datetimepicker',
-                ],
-            ]
-        );
+            'widget' => 'single_text',
+        ]);
     }
 
     public function getParent()

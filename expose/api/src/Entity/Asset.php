@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Link;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\CreateAssetAction;
 use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
@@ -24,10 +24,35 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [new Get(), new Delete(security: 'is_granted(\'DELETE\', object)'), new Get(controller: GetAssetWithSlugAction::class, uriTemplate: '/publications/{publicationSlug}/assets/{assetSlug}', defaults: ['_api_receive' => false]), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(controller: DeleteAssetsAction::class, uriTemplate: '/assets/delete-by-asset-id/{assetId}', openapiContext: ['summary' => 'Delete all assets by the given assetId', 'description' => 'Delete all assets by the given assetId'], read: false), new Post(), new GetCollection()], normalizationContext: ['groups' => ['asset:read'], 'swagger_definition_name' => 'Read'])]
 #[ORM\Table]
 #[ORM\Index(columns: ['asset_id'], name: 'assetId')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(
+            name: self::GET_ASSET_ROUTE_NAME,
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Get(
+            uriTemplate: '/publications/{publicationSlug}/assets/{assetSlug}',
+            defaults: ['_api_receive' => false],
+            controller: GetAssetWithSlugAction::class
+        ),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Delete(
+            uriTemplate: '/assets/delete-by-asset-id/{assetId}',
+            controller: DeleteAssetsAction::class,
+            openapiContext: ['summary' => 'Delete all assets by the given assetId',
+                'description' => 'Delete all assets by the given assetId'],
+            read: false),
+        new Post(),
+        new GetCollection(),
+    ],
+    normalizationContext: [
+        'groups' => ['asset:read'],
+        'swagger_definition_name' => 'Read',
+    ],
+)]
 #[ApiResource(
     uriTemplate: '/publications/{id}/assets.{_format}',
     shortName: 'asset',
@@ -137,23 +162,19 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 ],
             ],
             deserialize: false
-        )
+        ),
     ],
     uriVariables: [
-        'id' => new Link(fromClass: Publication::class, identifiers: ['id'])
+        'id' => new Link(fromClass: Publication::class, identifiers: ['id']),
     ],
 
 )]
-
 class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;
-    final public const GROUP_READ = 'asset:read';
 
-    final public const API_READ = [
-        'groups' => [self::GROUP_READ],
-        'swagger_definition_name' => 'Read',
-    ];
+    final public const GET_ASSET_ROUTE_NAME = 'get_asset';
+    final public const GROUP_READ = 'asset:read';
 
     /**
      * @var Uuid
@@ -220,14 +241,12 @@ class Asset implements MediaInterface, \Stringable
 
     /**
      * @var SubDefinition[]|Collection
-     *
      */
     /**
      * @var SubDefinition[]|Collection
-     *
      */
     #[Groups(['asset:read', 'publication:read'])]
-    #[ORM\OneToMany(targetEntity: SubDefinition::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: SubDefinition::class, cascade: ['remove'])]
     private ?Collection $subDefinitions = null;
 
     /**

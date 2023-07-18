@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Tests\Client;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use LogicException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -24,10 +30,38 @@ class OAuthClientTestMock implements HttpClientInterface
         self::ADMIN_TOKEN => self::ADMIN_UID,
     ];
 
+    public function __construct()
+    {
+    }
+
+    public static function getJwtFor(string $userId): string
+    {
+        $configuration = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(__DIR__ . '/key.pem'),
+            InMemory::file(__DIR__ . '/key.pub'),
+        );
+
+        $now = new DateTimeImmutable();
+        $token = $configuration
+            ->builder()
+            ->issuedBy('https://keycloak.phrasea.local/realms/master')
+            // Configures the time that the token was issue (iat claim)
+            ->issuedAt($now)
+            // Configures the time that the token can be used (nbf claim)
+            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
+            ->expiresAt($now->modify('+1 hour'))
+            ->relatedTo($userId)
+            ->withClaim('azp', 'test')
+            ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
+
+        return $token->toString();
+    }
+
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $args = [$method, $url, $options];
-        if (str_ends_with($url, '/token')) {
+        if ('POST' === $method && str_ends_with($url, '/token')) {
             if ('client_credentials' === $options['body']['grant_type']) {
                 return $this->createResponse($args, 200, [
                     'access_token' => self::ADMIN_TOKEN,
@@ -39,42 +73,49 @@ class OAuthClientTestMock implements HttpClientInterface
             ]);
         }
 
-        $accessToken = isset($options['headers']['Authorization'])
-            ? explode(' ', (string) $options['headers']['Authorization'], 2)[1]
-            : null;
-        if (empty($accessToken)) {
-            return $this->createResponse($args, 401, [
-                'error' => 'missing_token',
-            ]);
-        }
+        if (str_ends_with($url, '/userinfo')) {
 
-        if (!in_array($accessToken, [
-            self::USER_TOKEN,
-            self::ADMIN_TOKEN,
-        ])) {
-            return $this->createResponse($args, 401, [
-                'error' => 'invalid_token',
-            ]);
-        }
+            $accessToken = isset($options['headers']['Authorization'])
+                ? explode(' ', (string)$options['headers']['Authorization'], 2)[1]
+                : null;
+            if (empty($accessToken)) {
+                return $this->createResponse($args, 401, [
+                    'error' => 'missing_token',
+                ]);
+            }
 
-        $userId = self::USERS_ID[$accessToken];
+            if (!in_array($accessToken, [
+                self::USER_TOKEN,
+                self::ADMIN_TOKEN,
+            ])) {
+                return $this->createResponse($args, 401, [
+                    'error' => 'invalid_token',
+                ]);
+            }
 
-        $roles = [];
-        if (self::ADMIN_TOKEN === $accessToken) {
-            $roles[] = 'admin';
-        }
+            $userId = self::USERS_ID[$accessToken];
 
-        return match (true) {
-            str_ends_with($url, '/userinfo') => $this->createResponse($args, 200, [
+            $roles = [];
+            if (self::ADMIN_TOKEN === $accessToken) {
+                $roles[] = 'admin';
+            }
+
+            return $this->createResponse($args, 200, [
                 'scopes' => [],
                 'sub' => $userId,
                 'preferred_username' => $accessToken,
                 'roles' => $roles,
                 'groups' => [],
+            ]);
+        }
+
+        return match (true) {
+            str_ends_with($url, '/realms/master') => $this->createResponse($args, 200, [
+                'public_key' => file_get_contents(__DIR__.'/key.pub'),
             ]),
             str_ends_with($url, '/admin/realms/master/users'),
             str_ends_with($url, '/admin/realms/master/groups') => $this->createResponse($args, 200, []),
-            default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
+            default => throw new InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
 
@@ -93,7 +134,7 @@ class OAuthClientTestMock implements HttpClientInterface
 
     public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
     {
-        throw new \LogicException('Not implemented yet');
+        throw new LogicException('Not implemented yet');
     }
 
     public function withOptions(array $options): static

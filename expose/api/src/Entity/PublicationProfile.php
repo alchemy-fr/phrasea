@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiFilter;
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,7 +21,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(normalizationContext: ['groups' => ['profile:index'], 'swagger_definition_name' => 'List']), new Post(security: 'is_granted(\'profile:create\')')], normalizationContext: ['groups' => ['profile:read'], 'swagger_definition_name' => 'Read'])]
+#[ApiResource(operations: [new Get(security: 'is_granted("READ", object)'), new Put(security: 'is_granted("EDIT", object)'), new Delete(security: 'is_granted("DELETE", object)'), new GetCollection(normalizationContext: ['groups' => ['profile:index'], 'swagger_definition_name' => 'List']), new Post(security: 'is_granted("profile:create")')], normalizationContext: ['groups' => ['profile:read'], 'swagger_definition_name' => 'Read'])]
 #[ORM\Entity]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {

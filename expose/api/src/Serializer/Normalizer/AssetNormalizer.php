@@ -7,7 +7,7 @@ namespace App\Serializer\Normalizer;
 use App\Entity\Asset;
 use App\Security\Voter\PublicationVoter;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetNormalizer extends AbstractRouterNormalizer
 {
