@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use Arthem\Bundle\RabbitBundle\Log\LoggableTrait;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -15,8 +15,7 @@ use Twig\Error\RuntimeError;
 
 class Mailer implements LoggerAwareInterface
 {
-    use LoggableTrait;
-
+    use LoggerAwareTrait;
     public function __construct(private readonly Environment $templating, private readonly MailerInterface $mailer, private readonly RenderingContext $renderingContext, private readonly string $from)
     {
     }
