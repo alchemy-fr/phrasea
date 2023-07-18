@@ -100,7 +100,6 @@ services:
         arguments:
             $decorated: '@.inner'
 
-
     App\Security\Authentication\JWTManager:
         arguments:
             $signingKey: '%env(APP_SECRET)%'

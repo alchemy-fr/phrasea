@@ -7,13 +7,15 @@ namespace App\Filter;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
+use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class PublicationFilter extends AbstractFilter
@@ -99,8 +101,8 @@ class PublicationFilter extends AbstractFilter
 
         if (isset($filters['editable']) && true === $this->normalizeBoolValue($filters['editable'], 'editable')) {
             if (
-                !$this->security->isGranted('ROLE_ADMIN')
-                && !$this->security->isGranted('ROLE_PUBLISH')
+                !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+                && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
             ) {
                 $user = $this->security->getUser();
                 if (!$user instanceof JwtUser) {

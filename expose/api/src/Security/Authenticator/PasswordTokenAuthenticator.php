@@ -3,6 +3,7 @@
 namespace App\Security\Authenticator;
 
 use App\Security\Authentication\PasswordToken;
+use App\Security\PasswordsUser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,14 +31,19 @@ class PasswordTokenAuthenticator extends AbstractAuthenticator
 
         $passwordBadge = new PasswordBadge($passwords);
 
-        return new SelfValidatingPassport(new UserBadge($passwords), [$passwordBadge]);
+        return new SelfValidatingPassport(new UserBadge($passwords, function () {
+            return new PasswordsUser();
+        }), [$passwordBadge]);
     }
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
         $accessTokenBadge = $passport->getBadge(PasswordBadge::class);
 
-        return new PasswordToken($accessTokenBadge->getPasswords());
+        $passwordToken = new PasswordToken($accessTokenBadge->getPasswords());
+        $passwordToken->setUser($passport->getUser());
+
+        return $passwordToken;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -25,9 +25,15 @@ class OAuthClientTestMock implements HttpClientInterface
     final public const USER_UID = '123';
     final public const ADMIN_UID = '4242';
 
-    final public const USERS_ID = [
-        self::USER_TOKEN => self::USER_UID,
-        self::ADMIN_TOKEN => self::ADMIN_UID,
+    private const USERS = [
+        self::ADMIN_UID => [
+            'username' => 'admin',
+            'roles' => ['admin']
+        ],
+        self::USER_UID => [
+            'username' => 'user',
+            'roles' => []
+        ],
     ];
 
     public function __construct()
@@ -53,6 +59,9 @@ class OAuthClientTestMock implements HttpClientInterface
             ->expiresAt($now->modify('+1 hour'))
             ->relatedTo($userId)
             ->withClaim('azp', 'test')
+            ->withClaim('preferred_username', self::USERS[$userId]['username'])
+            ->withClaim('roles', self::USERS[$userId]['roles'] ?? [])
+            ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
 
         return $token->toString();
@@ -70,42 +79,6 @@ class OAuthClientTestMock implements HttpClientInterface
             }
             $this->createResponse($args, 401, [
                 'error' => 'invalid_grant_type_for_test',
-            ]);
-        }
-
-        if (str_ends_with($url, '/userinfo')) {
-
-            $accessToken = isset($options['headers']['Authorization'])
-                ? explode(' ', (string)$options['headers']['Authorization'], 2)[1]
-                : null;
-            if (empty($accessToken)) {
-                return $this->createResponse($args, 401, [
-                    'error' => 'missing_token',
-                ]);
-            }
-
-            if (!in_array($accessToken, [
-                self::USER_TOKEN,
-                self::ADMIN_TOKEN,
-            ])) {
-                return $this->createResponse($args, 401, [
-                    'error' => 'invalid_token',
-                ]);
-            }
-
-            $userId = self::USERS_ID[$accessToken];
-
-            $roles = [];
-            if (self::ADMIN_TOKEN === $accessToken) {
-                $roles[] = 'admin';
-            }
-
-            return $this->createResponse($args, 200, [
-                'scopes' => [],
-                'sub' => $userId,
-                'preferred_username' => $accessToken,
-                'roles' => $roles,
-                'groups' => [],
             ]);
         }
 

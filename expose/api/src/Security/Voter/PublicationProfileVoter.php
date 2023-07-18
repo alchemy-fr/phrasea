@@ -6,10 +6,12 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use App\Entity\PublicationProfile;
+use App\Security\ScopeInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class PublicationProfileVoter extends Voter
 {
@@ -33,7 +35,7 @@ class PublicationProfileVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH) || $this->security->isGranted(JwtUser::ROLE_ADMIN);
         $user = $token->getUser();
         $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();

@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Asset;
 use App\Entity\EnvVar;
@@ -45,7 +44,6 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
-        yield MenuItem::linkToCrud('OAuth Clients', 'fas fa-folder-open', OAuthClient::class)->setPermission('ROLE_ADMIN_OAUTH_CLIENTS');
         yield MenuItem::linkToCrud('EnvVar', 'fas fa-folder-open', EnvVar::class);
         yield $this->createDevMenu(FailedEvent::class);
     }

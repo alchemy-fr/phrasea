@@ -76,7 +76,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         $response = $apiClient->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -147,7 +147,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
         ]);
         $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);

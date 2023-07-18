@@ -19,8 +19,7 @@ final readonly class ExposeDataPersister implements ProcessorInterface
         private ProcessorInterface $decorated,
         private EntityManagerInterface $em,
         private Security $security,
-    )
-    {
+    ) {
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])

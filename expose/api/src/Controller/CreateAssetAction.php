@@ -18,8 +18,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    public function __construct(private readonly FileStorageManager $storageManager, private readonly AssetManager $assetManager, private readonly UploadManager $uploadManager, private readonly PathGenerator $pathGenerator)
-    {
+    public function __construct(
+        private readonly FileStorageManager $storageManager,
+        private readonly AssetManager $assetManager,
+        private readonly UploadManager $uploadManager,
+        private readonly PathGenerator $pathGenerator,
+    ) {
     }
 
     public function __invoke(Request $request): Asset

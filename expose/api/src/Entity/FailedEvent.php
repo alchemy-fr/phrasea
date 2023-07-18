@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Arthem\Bundle\RabbitBundle\Model\FailedEvent as BaseFailedEvent;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Uuid;
@@ -21,12 +22,12 @@ class FailedEvent extends BaseFailedEvent
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTime $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): string
@@ -34,7 +35,7 @@ class FailedEvent extends BaseFailedEvent
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -9,9 +9,9 @@ use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Asset;
 use App\Entity\DownloadRequest;
 use App\Security\ScopeInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class DownloadRequestVoter extends Voter
 {

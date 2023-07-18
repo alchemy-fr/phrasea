@@ -13,14 +13,28 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Controller\CreateSubDefinitionAction;
 use App\Repository\SubDefinitionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [new Get(), new Delete(security: 'is_granted("DELETE", object)'), new Post(), new GetCollection()], normalizationContext: ['groups' => ['subdef:read'], 'swagger_definition_name' => 'Read'])]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
 #[ORM\Entity(repositoryClass: SubDefinitionRepository::class)]
+#[ApiResource(
+    shortName: 'sub-definition',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Post(
+            defaults: ['_api_receive' => false],
+            controller: CreateSubDefinitionAction::class,
+        ),
+        new GetCollection(),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
+    ])]
 #[ApiResource(
     uriTemplate: '/assets/{id}/sub-definitions.{_format}',
     shortName: 'sub-definition',
@@ -149,25 +163,28 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ]
         ),
     ],
-    uriVariables: ['id' => new Link(fromClass: Asset::class, identifiers: ['id'])],
+    uriVariables: [
+        'id' => new Link(
+            toProperty: 'asset',
+            fromClass: Asset::class,
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
+    ],
 )]
-
 class SubDefinition implements MediaInterface
 {
     final public const THUMBNAIL = 'thumbnail';
     final public const PREVIEW = 'preview';
     final public const POSTER = 'poster';
-
-    final public const API_READ = [
-        'groups' => ['subdef:read'],
-        'swagger_definition_name' => 'Read',
-    ];
+    final public const GROUP_READ = 'subdef:read';
 
     /**
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
+    #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     protected $id;
@@ -177,45 +194,42 @@ class SubDefinition implements MediaInterface
     protected ?Asset $asset = null;
 
     #[ApiProperty]
-    #[Groups(['asset:read', 'publication:read', 'subdef:read'])]
+    #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: 'string', length: 30)]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
-    #[Groups(['subdef:read', 'publication:read', 'asset:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['subdef:read', 'asset:read'])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $mimeType = null;
 
-    /**
-     * @var \DateTime
-     */
     #[ApiProperty]
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['subdef:read'])]
-    private ?\DateTime $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups([self::GROUP_READ])]
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ApiProperty]
-    #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $url = null;
 
     #[ApiProperty]
-    #[Groups(['subdef:read', 'asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $downloadUrl = null;
 
     #[ApiProperty]
-    #[Groups(['subdef:read', 'asset:read'])]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $uploadURL = null;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->id = Uuid::uuid4();
     }
 
@@ -254,7 +268,7 @@ class SubDefinition implements MediaInterface
         $this->mimeType = $mimeType;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

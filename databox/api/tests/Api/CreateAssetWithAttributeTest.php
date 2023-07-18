@@ -29,7 +29,7 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
 
         $response = static::createClient()->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Batch attribute Asset',

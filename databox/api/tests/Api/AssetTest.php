@@ -18,7 +18,7 @@ class AssetTest extends AbstractSearchTestCase
         self::enableFixtures();
         $response = static::createClient()->request('GET', '/assets?limit='.$limit, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
         ]);
 
@@ -50,7 +50,7 @@ class AssetTest extends AbstractSearchTestCase
     {
         $response = static::createClient()->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -72,7 +72,7 @@ class AssetTest extends AbstractSearchTestCase
     {
         static::createClient()->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Invalid payload',
@@ -101,7 +101,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('PUT', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'updated title',
@@ -123,7 +123,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('DELETE', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
         ]);
 

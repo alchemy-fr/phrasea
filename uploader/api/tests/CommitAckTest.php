@@ -22,7 +22,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'POST',
             '/commits/'.$commit->getId().'/ack'
         );
@@ -46,7 +46,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'POST',
             '/assets/'.$asset1->getId().'/ack',
             [],
@@ -59,7 +59,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'POST',
             '/assets/'.$asset2->getId().'/ack',
             [],

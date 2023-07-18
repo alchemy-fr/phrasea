@@ -14,7 +14,10 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $publication = $this->createPublication();
         $assetId = $this->createAsset($publication);
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/sub-definitions', [
+        $response = $this->request(
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            'POST',
+            '/sub-definitions', [
             'asset_id' => $assetId,
             'name' => 'thumb',
         ], [
@@ -22,6 +25,9 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
+        if (201 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
@@ -33,7 +39,13 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         // Test the sub definition is added to the asset
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/assets/'.$assetId.'/sub-definitions');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            'GET',
+            '/assets/'.$assetId.'/sub-definitions');
+
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 

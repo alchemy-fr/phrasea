@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\ReportBundle;
 
-use Alchemy\AuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ReportUserService
 {
@@ -42,8 +41,7 @@ class ReportUserService
         $token = $this->security->getToken();
 
         return match (true) {
-            $token instanceof RemoteAuthToken,
-            $token instanceof PostAuthenticationGuardToken => $token->getUser()->getId(),
+            $token instanceof TokenInterface => $token->getUser()?->getId(),
             default => null,
         };
     }

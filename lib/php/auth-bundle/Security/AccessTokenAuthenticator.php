@@ -50,7 +50,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
         $token = $this->jwtExtractor->parseJwt($accessToken);
 
         try {
-            if (!$this->jwtValidator->isTokenValid($accessToken)) {
+            if (!$this->jwtValidator->isTokenValid($token)) {
                 throw new CustomUserMessageAuthenticationException('Invalid token.');
             }
         } catch (\InvalidArgumentException) {
@@ -60,7 +60,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
         $accessTokenBadge = new AccessTokenBadge($accessToken);
 
         return new SelfValidatingPassport(new UserBadge($accessToken, function () use ($token): JwtUser {
-            return $this->jwtExtractor->getUser($token);
+            return $this->jwtExtractor->getUserFromToken($token);
         }), [$accessTokenBadge]);
     }
 

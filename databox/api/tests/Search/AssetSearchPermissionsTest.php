@@ -72,7 +72,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -93,7 +93,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -115,7 +115,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -139,7 +139,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -167,7 +167,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -199,7 +199,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -230,7 +230,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -262,7 +262,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -320,7 +320,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::USER_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'GET',
             '/assets'
         );

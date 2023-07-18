@@ -39,7 +39,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USERS_ID),
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -64,7 +64,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertSubDefinitionExist($subDef1Id);
         $this->assertSubDefinitionExist($subDef2Id);
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -80,7 +80,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
     public function testDeleteNonExistingAssetWillReturn404(): void
     {
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/invalid-asset'
         );
@@ -104,7 +104,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/delete-by-asset-id/foo'
         );

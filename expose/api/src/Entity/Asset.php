@@ -19,6 +19,7 @@ use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\AssetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -41,23 +42,129 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Put(security: 'is_granted("EDIT", object)'),
         new Delete(
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
+            uriVariables: [],
             controller: DeleteAssetsAction::class,
-            openapiContext: ['summary' => 'Delete all assets by the given assetId',
-                'description' => 'Delete all assets by the given assetId'],
-            read: false),
-        new Post(),
+            openapiContext: [
+                'summary' => 'Delete all assets by the given assetId',
+                'description' => 'Delete all assets by the given assetId',
+            ],
+            read: false,
+        ),
+        new Post(
+            controller: CreateAssetAction::class,
+            openapiContext: [
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'examples' => [
+                                'Multipart upload' => [
+                                    'value' => [
+                                        'multipart' => [
+                                            'uploadId' => '123-456',
+                                            'parts' => [
+                                                [
+                                                    'ETag' => '812d692260ab94dd85a5aa7a6caef68d',
+                                                    'PartNumber' => 1,
+                                                ],
+                                                [
+                                                    'ETag' => '4dd85a5aa7a6caef68d812d692260ab9',
+                                                    'PartNumber' => 2,
+                                                ],
+                                            ],
+                                        ],
+                                        'title' => 'My first asset',
+                                        'description' => 'My asset was uploaded to S3 first, then created in expose.',
+                                        'lat' => 48.8,
+                                        'lng' => 2.42,
+                                    ],
+                                ],
+                                'Create asset, then upload to S3' => [
+                                    'value' => [
+                                        'upload' => [
+                                            'name' => 'foo.jpg',
+                                            'type' => 'image/jpeg',
+                                            'size' => 42,
+                                        ],
+                                        'title' => 'My first asset',
+                                        'description' => 'Here we create asset with file info, then Expose returns a signed upload URL to push the data.',
+                                    ],
+                                ],
+                            ],
+                            'schema' => [
+                                'anyOf' => [
+                                    ['$ref' => '#/components/schemas/Asset'],
+                                    [
+                                        'oneOf' => [
+                                            [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'multipart' => [
+                                                        'type' => 'object',
+                                                        'properties' => [
+                                                            'uploadId' => ['type' => 'string'],
+                                                            'parts' => [
+                                                                'type' => 'array',
+                                                                'items' => [
+                                                                    'type' => 'object',
+                                                                    'properties' => [
+                                                                        'ETag' => ['type' => 'string'],
+                                                                        'PartNumber' => ['type' => 'integer'],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                            [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'upload' => [
+                                                        'type' => 'object',
+                                                        'properties' => [
+                                                            'name' => ['type' => 'string'],
+                                                            'type' => ['type' => 'string'],
+                                                            'size' => ['type' => 'integer'],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'anyOf' => [
+                                    ['$ref' => '#/components/schemas/Asset'],
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'file' => [
+                                                'type' => 'string',
+                                                'format' => 'binary',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            deserialize: false
+        ),
         new GetCollection(),
     ],
     normalizationContext: [
-        'groups' => ['asset:read'],
-        'swagger_definition_name' => 'Read',
+        'groups' => [self::GROUP_READ],
     ],
 )]
 #[ApiResource(
     uriTemplate: '/publications/{id}/assets.{_format}',
     shortName: 'asset',
     operations: [
-        new GetCollection(),
         new Post(
             controller: CreateAssetAction::class,
             openapiContext: [
@@ -180,41 +287,41 @@ class Asset implements MediaInterface, \Stringable
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups(['_', 'asset:read', 'publication:read'])]
+    #[Groups(['_', self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
     #[ApiProperty]
-    #[Groups(['publication:read', 'asset:read'])]
+    #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $assetId = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $path = null;
 
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $title = null;
 
     #[ApiProperty]
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $description = null;
 
     #[ApiProperty(iris: ['http://schema.org/name'])]
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $originalName = null;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $mimeType = null;
 
     #[ApiProperty]
@@ -226,7 +333,7 @@ class Asset implements MediaInterface, \Stringable
      * Direct access to asset.
      */
     #[ApiProperty]
-    #[Groups(['publication:read', 'asset:read'])]
+    #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected ?string $slug = null;
 
@@ -236,7 +343,7 @@ class Asset implements MediaInterface, \Stringable
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['_', 'asset:read'])]
+    #[Groups(['_', self::GROUP_READ])]
     private ?Publication $publication = null;
 
     /**
@@ -245,7 +352,7 @@ class Asset implements MediaInterface, \Stringable
     /**
      * @var SubDefinition[]|Collection
      */
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: SubDefinition::class, cascade: ['remove'])]
     private ?Collection $subDefinitions = null;
 
@@ -254,7 +361,7 @@ class Asset implements MediaInterface, \Stringable
      */
     #[ApiProperty]
     #[ORM\Column(type: 'float', nullable: true)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lat = null;
 
     /**
@@ -262,7 +369,7 @@ class Asset implements MediaInterface, \Stringable
      */
     #[ApiProperty]
     #[ORM\Column(type: 'float', nullable: true)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lng = null;
 
     #[ApiProperty]
@@ -271,7 +378,7 @@ class Asset implements MediaInterface, \Stringable
     private ?string $webVTT = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $webVTTLink = null;
 
     /**
@@ -279,41 +386,41 @@ class Asset implements MediaInterface, \Stringable
      */
     #[ApiProperty]
     #[ORM\Column(type: 'float', nullable: true)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $altitude = null;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['asset:read'])]
-    private ?\DateTime $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups([self::GROUP_READ])]
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $url = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $downloadUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $thumbUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $previewUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read', 'publication:read', 'publication:index'])]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $posterUrl = null;
 
     #[ApiProperty(writable: false)]
-    #[Groups(['asset:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?string $uploadURL = null;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->subDefinitions = new ArrayCollection();
         $this->id = Uuid::uuid4();
     }
@@ -403,7 +510,7 @@ class Asset implements MediaInterface, \Stringable
         $this->publication = $publication;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -78,7 +78,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -179,7 +179,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);

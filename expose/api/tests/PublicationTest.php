@@ -15,7 +15,7 @@ class PublicationTest extends AbstractExposeTestCase
 {
     public function testCreatePublicationAsAdmin(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -37,7 +37,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testCreatePublicationAsUser(): void
     {
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -45,7 +45,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(403, $response->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
             'objectType' => 'publication',
@@ -53,7 +53,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -75,7 +75,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testCreatePublicationAsUserWithoutPermissions(): void
     {
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -113,7 +113,7 @@ class PublicationTest extends AbstractExposeTestCase
             'parent_id' => $pub1,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -152,7 +152,7 @@ class PublicationTest extends AbstractExposeTestCase
             'ownerId' => OAuthClientTestMock::USER_UID,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertCount(3, $json);
@@ -185,12 +185,12 @@ class PublicationTest extends AbstractExposeTestCase
             'parent_id' => $pub1,
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(2, $json);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications?flatten=true');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications?flatten=true');
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(3, $json);
@@ -212,7 +212,7 @@ class PublicationTest extends AbstractExposeTestCase
             'publiclyListed' => false,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -238,7 +238,7 @@ class PublicationTest extends AbstractExposeTestCase
             'ownerId' => OAuthClientTestMock::USER_UID,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -251,7 +251,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testICanUnsetBeginAtDateOnPublication(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'beginsAt' => '2042-12-12',
@@ -262,7 +262,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('2042-12-12T00:00:00+00:00', $json['config']['beginsAt']);
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$json['id'], [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$json['id'], [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -273,25 +273,27 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $this->assertNull($json['config']['beginsAt']);
+        $this->assertArrayNotHasKey('beginsAt', $json['config']);
     }
 
     public function testCreatePublicationWithoutTitleWillGenerate400(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publications');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetPublicationFromAdmin(): void
     {
-        $publication = $this->createPublication();
+        $publication = $this->createPublication([
+            'ownerId' => 'user42',
+        ]);
         $id = $publication->getId();
         $this->createAsset($publication);
         $this->createAsset($publication);
 
         $this->clearEmBeforeApiCall();
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -302,7 +304,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertCount(2, $json['assets']);
         $this->assertArrayHasKey('id', $json['assets'][0]);
         $this->assertNotNull($json['assets'][0]['id']);
-        $this->assertEquals(null, $json['ownerId']);
+        $this->assertEquals('user42', $json['ownerId']);
     }
 
     /**
@@ -553,13 +555,16 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testGetNonEnabledPublicationFromAdmin(): void
     {
-        $id = $this->createPublication(['enabled' => false])->getId();
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $id = $this->createPublication([
+            'enabled' => false,
+            'ownerId' => 'user42',
+        ])->getId();
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
-        $this->assertEquals(null, $json['ownerId']);
+        $this->assertEquals('user42', $json['ownerId']);
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
     }
@@ -580,14 +585,10 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => $enabled,
         ];
         if (null !== $start) {
-            $startDate = new \DateTime();
-            $startDate->add(\DateInterval::createFromDateString($start));
-            $options['startDate'] = $startDate;
+            $options['startDate'] = (new \DateTimeImmutable())->add(\DateInterval::createFromDateString($start));
         }
         if (null !== $end) {
-            $endDate = new \DateTime();
-            $endDate->add(\DateInterval::createFromDateString($end));
-            $options['endDate'] = $endDate;
+            $options['endDate'] = (new \DateTimeImmutable())->add(\DateInterval::createFromDateString($end));
         }
         $id = $this->createPublication($options)->getId();
         $response = $this->request(null, 'GET', '/publications/'.$id);
@@ -616,14 +617,10 @@ class PublicationTest extends AbstractExposeTestCase
             'publiclyListed' => $listed,
         ];
         if (null !== $start) {
-            $startDate = new \DateTime();
-            $startDate->add(\DateInterval::createFromDateString($start));
-            $options['startDate'] = $startDate;
+            $options['startDate'] = (new \DateTimeImmutable())->add(\DateInterval::createFromDateString($start));
         }
         if (null !== $end) {
-            $endDate = new \DateTime();
-            $endDate->add(\DateInterval::createFromDateString($end));
-            $options['endDate'] = $endDate;
+            $options['endDate'] = (new \DateTimeImmutable())->add(\DateInterval::createFromDateString($end));
         }
         $this->createPublication($options);
         $response = $this->request(null, 'GET', '/publications');
@@ -653,9 +650,9 @@ class PublicationTest extends AbstractExposeTestCase
     public function testDeletePublicationAsAdmin(): void
     {
         $id = $this->createPublication()->getId();
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'DELETE', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'DELETE', '/publications/'.$id);
         $this->assertEquals(204, $response->getStatusCode());
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
@@ -666,7 +663,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/publications/'.$id, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -686,7 +683,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -703,7 +700,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -731,13 +728,13 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot change profile of publication
         $this->assertEquals(403, $response->getStatusCode());
 
-        $aclRes = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $aclRes = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
             'objectType' => 'publication',
@@ -746,13 +743,13 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Still cannot change profile of publication with EDIT permission (need OPERATOR)
         $this->assertEquals(403, $response->getStatusCode());
 
-        $aclRes = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $aclRes = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
             'objectType' => 'publication',
@@ -761,13 +758,13 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot read this profile
         $this->assertEquals(403, $response->getStatusCode());
 
-        $aclRes = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $aclRes = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
             'objectType' => 'profile',
@@ -776,7 +773,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
@@ -787,7 +784,7 @@ class PublicationTest extends AbstractExposeTestCase
 
     public function testPutAsOwnerUserPublicationProtectedWithPassword(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'objectType' => 'publication',
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
@@ -795,7 +792,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'config' => [
                 'enabled' => false,
@@ -810,7 +807,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(false, $json['config']['enabled']);
         $id = $json['id'];
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -821,7 +818,7 @@ class PublicationTest extends AbstractExposeTestCase
 
         $this->assertEquals(true, $json['config']['enabled']);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/assets', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/assets', [
             'publication_id' => $id,
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
@@ -840,7 +837,7 @@ class PublicationTest extends AbstractExposeTestCase
         ])->getId();
         $this->clearEmBeforeApiCall();
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'objectType' => 'publication',
             'objectId' => $id,
             'userType' => 'user',
@@ -849,7 +846,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications/'.$id);
         if (500 === $response->getStatusCode()) {
             var_dump($response->getContent());
         }
@@ -858,7 +855,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('createdAt', $json);
         $this->assertEquals('Pub', $json['title']);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'POST', '/assets', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'POST', '/assets', [
             'publication_id' => $id,
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
@@ -868,7 +865,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'PUT', '/publications/'.$id, [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -889,13 +886,13 @@ class PublicationTest extends AbstractExposeTestCase
     public function testDeletePublicationAsUser(): void
     {
         $id = $this->createPublication()->getId();
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'DELETE', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'DELETE', '/publications/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testPublicationWillHaveSafeHtmlDescription(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publications', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publications', [
             'title' => 'Foo',
             'description' => <<<DESC
 <div><a onclick="alert('ok')">B</a></div>

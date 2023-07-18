@@ -7,13 +7,16 @@ namespace App\Doctrine;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\ContextAwareQueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Publication;
+use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
-class PublicationExtension implements ContextAwareQueryCollectionExtensionInterface
+class PublicationExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(private readonly Security $security)
     {
@@ -23,9 +26,9 @@ class PublicationExtension implements ContextAwareQueryCollectionExtensionInterf
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null,
+        Operation $operation = null,
         array $context = []
-    ) {
+    ): void {
         if (Publication::class !== $resourceClass) {
             return;
         }
@@ -36,8 +39,8 @@ class PublicationExtension implements ContextAwareQueryCollectionExtensionInterf
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         if (
-            !$this->security->isGranted('ROLE_ADMIN')
-            && !$this->security->isGranted('ROLE_PUBLISH')
+            !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+            && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
         ) {
             $queryBuilder->leftJoin($rootAlias.'.profile', 'p');
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,13 +18,34 @@ use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(operations: [new Get(security: 'is_granted("READ", object)'), new Put(security: 'is_granted("EDIT", object)'), new Delete(security: 'is_granted("DELETE", object)'), new GetCollection(normalizationContext: ['groups' => ['profile:index'], 'swagger_definition_name' => 'List']), new Post(security: 'is_granted("profile:create")')], normalizationContext: ['groups' => ['profile:read'], 'swagger_definition_name' => 'Read'])]
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+        ),
+        new Post(security: 'is_granted("profile:create")'),
+    ],
+    normalizationContext: [
+        'groups' => [
+            self::GROUP_READ,
+        ],
+    ]
+)]
 #[ORM\Entity]
+#[ApiFilter(OrderFilter::class, properties: [
+    'name' => 'ASC',
+])]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
@@ -32,51 +55,42 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     final public const GROUP_READ = 'profile:read';
     final public const GROUP_LIST = 'profile:index';
 
-    final public const API_READ = [
-        'groups' => [self::GROUP_READ],
-        'swagger_definition_name' => 'Read',
-    ];
-    final public const API_LIST = [
-        'groups' => [self::GROUP_LIST],
-        'swagger_definition_name' => 'List',
-    ];
-
     /**
      * @var Uuid
      */
     #[ApiProperty(identifier: true)]
-    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', length: 150)]
-    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
-    #[Groups(['profile:index', 'profile:read', 'publication:read'])]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     private PublicationConfig $config;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', nullable: true)]
-    #[Groups(['profile:admin:read'])]
+    #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 
-    #[ORM\Column(type: 'datetime')]
-    #[Groups(['profile:read'])]
-    private \DateTime $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups([self::GROUP_READ])]
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @var Publication[]|Collection
      */
-    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'profile')]
+    #[ORM\OneToMany(mappedBy: 'profile', targetEntity: Publication::class)]
     private ?Collection $publications = null;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->config = new PublicationConfig();
         $this->id = Uuid::uuid4();
         $this->publications = new ArrayCollection();
@@ -117,7 +131,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
         $this->ownerId = $ownerId;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

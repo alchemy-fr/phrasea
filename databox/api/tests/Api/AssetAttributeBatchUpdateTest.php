@@ -103,7 +103,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return static::createClient()->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'actions' => $actions,

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use App\Entity\Asset;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetVoter extends Voter
 {

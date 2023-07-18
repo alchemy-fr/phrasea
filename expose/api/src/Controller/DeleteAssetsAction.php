@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Storage\AssetManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 
 final class DeleteAssetsAction extends AbstractController
 {
@@ -14,7 +13,7 @@ final class DeleteAssetsAction extends AbstractController
     {
     }
 
-    public function __invoke(string $assetId, Request $request): void
+    public function __invoke(string $assetId): void
     {
         $this->assetManager->deleteByAssetId($assetId);
     }

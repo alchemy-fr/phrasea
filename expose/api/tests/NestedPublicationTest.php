@@ -14,7 +14,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             'ownerId' => OAuthClientTestMock::ADMIN_UID,
         ])->getId();
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'POST',
             '/publications',
             [
@@ -55,7 +55,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
                      'application/ld+json',
                  ] as $accept) {
             $response = $this->request(
-                OAuthClientTestMock::ADMIN_TOKEN,
+                OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
                 'GET',
                 '/publications/'.$childId,
                 [],
@@ -92,7 +92,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$parentId
         );
@@ -112,7 +112,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
         // Test child
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$childId
         );
@@ -136,6 +136,10 @@ class NestedPublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(null, 'GET', '/publications/'.$parentId);
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
+        $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
@@ -160,7 +164,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(
-            OAuthClientTestMock::ADMIN_TOKEN,
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             'DELETE',
             '/publications/'.$ids['p1']
         );
@@ -186,7 +190,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());

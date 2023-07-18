@@ -8,8 +8,8 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {

@@ -10,7 +10,6 @@ services:
 
   Alchemy\AuthBundle\Client\OAuthClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
-  Alchemy\AuthBundle\Security\Firewall\RemoteAuthListener: ~
   Alchemy\AuthBundle\Security\RemoteAuthAuthenticatorPersister: ~
   Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
   Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~

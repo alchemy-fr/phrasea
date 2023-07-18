@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity\Traits;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use App\Entity\Publication;
+use App\Entity\PublicationProfile;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 trait CapabilitiesTrait
 {
-    #[Groups(['_', 'publication:index', 'publication:read', 'profile:index', 'profile:read'])]
-    #[ApiProperty(attributes: ['json_schema_context' => ['type' => 'object']])]
+    #[Groups(['_', Publication::GROUP_LIST, Publication::GROUP_READ, PublicationProfile::GROUP_LIST, PublicationProfile::GROUP_READ])]
+    #[ApiProperty(types: ['object'])]
     protected array $capabilities = [];
 
     public function getCapabilities(): array

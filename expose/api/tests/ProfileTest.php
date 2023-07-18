@@ -11,7 +11,7 @@ class ProfileTest extends AbstractExposeTestCase
 {
     public function testCreateProfileOK(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles', [
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publication-profiles', [
             'name' => 'profile_1',
             'config' => [
                 'layout' => 'download',
@@ -41,14 +41,18 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
             'userId' => OAuthClientTestMock::USER_UID,
             'objectType' => 'profile',
             'mask' => PermissionInterface::VIEW,
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
+        $response = $this->request(
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            'GET',
+            '/publication-profiles'
+        );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -66,7 +70,11 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles');
+        $response = $this->request(
+            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            'GET',
+            '/publication-profiles'
+        );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -84,7 +92,7 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publication-profiles');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -93,27 +101,29 @@ class ProfileTest extends AbstractExposeTestCase
 
     public function testCreateProfileWithoutNameWillGenerate400(): void
     {
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles');
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/publication-profiles');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetProfileFromAdmin(): void
     {
-        $id = $this->createProfile();
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles/'.$id);
+        $id = $this->createProfile([
+            'ownerId' => 'user42',
+        ]);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publication-profiles/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
-        $this->assertEquals(null, $json['ownerId']);
+        $this->assertEquals('user42', $json['ownerId']);
     }
 
     public function testGetProfileAsUser(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'GET', '/publication-profiles/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publication-profiles/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 
@@ -121,16 +131,19 @@ class ProfileTest extends AbstractExposeTestCase
     {
         $id = $this->createProfile(['enabled' => true]);
         $response = $this->request(null, 'GET', '/publication-profiles/'.$id);
+        if (401 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/problem+json; charset=utf-8', $response->headers->get('Content-Type'));
     }
 
     public function testDeleteProfileAsAdmin(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'DELETE', '/publication-profiles/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'DELETE', '/publication-profiles/'.$id);
         $this->assertEquals(204, $response->getStatusCode());
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publication-profiles/'.$id);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
@@ -144,7 +157,7 @@ class ProfileTest extends AbstractExposeTestCase
     public function testDeleteProfileAsUser(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(OAuthClientTestMock::USER_TOKEN, 'DELETE', '/publication-profiles/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'DELETE', '/publication-profiles/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 }

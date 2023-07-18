@@ -25,7 +25,7 @@ class LongTextTest extends AbstractSearchTestCase
 
         $client->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'actions' => [
@@ -48,7 +48,7 @@ class LongTextTest extends AbstractSearchTestCase
 
         $response = $client->request('GET', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'query' => [
                 'query' => $searchKeyword,

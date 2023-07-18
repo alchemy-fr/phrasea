@@ -11,13 +11,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class CacheListener implements EventSubscriberInterface
 {
-    private const CACHE_ATTR = '_cache';
+    private const CACHE_ATTR = '__cache';
 
     public function __construct(private RequestStack $requestStack)
     {
@@ -27,7 +26,6 @@ final readonly class CacheListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::VIEW => ['setCacheHeaders', EventPriorities::PRE_SERIALIZE],
-            KernelEvents::RESPONSE => 'applyCache',
         ];
     }
 
@@ -77,18 +75,5 @@ final readonly class CacheListener implements EventSubscriberInterface
     {
         return $publication->isVisible()
             && Publication::SECURITY_METHOD_NONE === $publication->getSecurityContainer()->getSecurityMethod();
-    }
-
-    public function applyCache(ResponseEvent $event): void
-    {
-        $request = $event->getRequest();
-
-        if (null !== $cache = $request->attributes->get(self::CACHE_ATTR)) {
-            $response = $event->getResponse();
-
-            if ($response->getStatusCode() < 300) {
-                $response->setCache($cache);
-            }
-        }
     }
 }

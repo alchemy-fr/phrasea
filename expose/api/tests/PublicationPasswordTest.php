@@ -31,6 +31,9 @@ class PublicationPasswordTest extends AbstractExposeTestCase
             'HTTP_X-Passwords' => $passwords,
         ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
 
@@ -53,7 +56,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
             'password' => 'xxx',
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);

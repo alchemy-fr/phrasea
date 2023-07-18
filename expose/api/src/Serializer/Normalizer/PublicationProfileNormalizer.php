@@ -19,7 +19,7 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
-        if (in_array(PublicationProfile::GROUP_READ, $context['groups'])) {
+        if (in_array(PublicationProfile::GROUP_READ, $context['groups'] ?? [])) {
             if ($this->security->isGranted(PublicationProfileVoter::EDIT, $object)) {
                 $context['groups'][] = PublicationProfile::GROUP_ADMIN_READ;
             }
