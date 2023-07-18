@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Commit;
 use App\Security\Authentication\AssetToken;
+use App\Security\ScopeInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class CommitVoter extends Voter
 {
+    use ScopeVoterTrait;
     final public const ACK = 'ACK';
     final public const READ = 'READ';
 
@@ -41,7 +44,7 @@ class CommitVoter extends Voter
 
         switch ($attribute) {
             case self::READ:
-                if ($this->security->isGranted('ROLE_COMMIT:LIST')) {
+                if ($this->hasScope(ScopeInterface::SCOPE_COMMIT_LIST, $token)) {
                     return true;
                 }
                 if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {

@@ -1,7 +1,4 @@
 security:
-    providers:
-        remote_users:
-            id: Alchemy\AuthBundle\Security\JwtUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -33,8 +30,6 @@ security:
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/admin/reset-password/, roles: PUBLIC_ACCESS }
-        - { path: ^/admin/auth/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/_healthcheck, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

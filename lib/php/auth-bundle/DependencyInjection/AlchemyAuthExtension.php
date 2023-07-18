@@ -6,6 +6,7 @@ use Alchemy\AuthBundle\Client\AdminClient;
 use Alchemy\AuthBundle\Client\OAuthClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
+use Alchemy\AuthBundle\Security\JwtUserProvider;
 use Alchemy\AuthBundle\Security\JwtValidator;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
 use Symfony\Component\Config\FileLocator;
@@ -76,6 +77,14 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                     ]
                 ]
             ]
+        ]);
+
+        $container->prependExtensionConfig('security', [
+            'providers' => [
+                'jwt_users' => [
+                    'id' => JwtUserProvider::class,
+                ],
+            ],
         ]);
     }
 }

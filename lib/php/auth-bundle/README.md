@@ -4,7 +4,7 @@ This bundle provides a Guard authenticator for services using a SSO.
 
 Add routes:
 ```yaml
-# config/routes/auth.yaml
+# config/routes/alchemy_auth.yaml
 alchemy_auth_security:
     prefix: /admin
     resource: '@AlchemyAuthBundle/Resources/routing/security.yaml'
@@ -17,9 +17,6 @@ alchemy_auth_permissions:
 Example of configuration:
 ```yaml
 security:
-    providers:
-        remote_users:
-            id: Alchemy\AuthBundle\Security\JwtUserProvider
     firewalls:
         admin:
             pattern:    ^/admin
@@ -33,6 +30,6 @@ security:
 
         api:
             stateless: true
-            asset: true
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
+```

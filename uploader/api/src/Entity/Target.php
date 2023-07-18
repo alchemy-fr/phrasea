@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;

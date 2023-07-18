@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -16,6 +17,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
+use App\Security\ScopeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         controller: CommitAction::class
     ),
     new GetCollection(
-        security: 'is_granted("ROLE_COMMIT:LIST") or is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")'),
 ],
     normalizationContext: ['groups' => ['commit:read']],
     denormalizationContext: ['groups' => ['commit:write']],
