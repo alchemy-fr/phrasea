@@ -1,7 +1,10 @@
-
 arthem_rabbit:
-  deffered: false
-  failure: ~
-  queues:
-    event: ~
-    workflow: ~
+    deffered: false
+    failure: ~
+    queues:
+        event: ~
+        workflow: ~
+
+when@test:
+    arthem_rabbit:
+        deffered: false

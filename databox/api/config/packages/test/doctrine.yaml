@@ -1,3 +1,0 @@
-parameters:
-    test_db_path: '%kernel.cache_dir%/data.db'
-    env(DATABASE_URL): 'sqlite:///%test_db_path%'

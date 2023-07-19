@@ -138,7 +138,7 @@
         "intervention/image": "^2.7",
         "klapaudius/oauth-server-bundle": "^4.0",
         "kornrunner/blurhash": "^1.2",
-        "lcobucci/jwt": "^4.1",
+        "lcobucci/jwt": "^5",
         "nelmio/cors-bundle": "^2.1",
         "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
@@ -180,7 +180,6 @@
         "symfony/web-profiler-bundle": "^6.3"
     },
     "config": {
-        "optimize-autoloader": true,
         "preferred-install": {
             "*": "dist"
         },

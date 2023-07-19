@@ -17,7 +17,7 @@
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
     },
-    "alchemy/remote-auth-bundle": {
+    "alchemy/auth-bundle": {
         "version": "dev-ps-248-databox"
     },
     "alchemy/storage-bundle": {

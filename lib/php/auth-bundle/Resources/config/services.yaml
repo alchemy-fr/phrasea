@@ -8,21 +8,20 @@ services:
     autoconfigure: true
     public: false
 
+  Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
   Alchemy\AuthBundle\Client\OAuthClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
-  Alchemy\AuthBundle\Security\RemoteAuthAuthenticatorPersister: ~
+  Alchemy\AuthBundle\Http\AuthStateEncoder: ~
+  Alchemy\AuthBundle\Listener\LogoutListener: ~
+  Alchemy\AuthBundle\Repository\AbstractKeycloakRepository: ~
+  Alchemy\AuthBundle\Repository\GroupRepository: ~
+  Alchemy\AuthBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\GroupRepository'
+  Alchemy\AuthBundle\Repository\UserRepository: ~
+  Alchemy\AuthBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\UserRepository'
   Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
-  Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
   Alchemy\AuthBundle\Security\JwtExtractor: ~
+  Alchemy\AuthBundle\Security\JwtUserProvider: ~
   Alchemy\AuthBundle\Security\JwtValidator: ~
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
-  Alchemy\AuthBundle\Http\AuthStateEncoder: ~
-  Alchemy\AuthBundle\Repository\AbstractKeycloakRepository: ~
-  Alchemy\AuthBundle\Security\JwtUserProvider: ~
-  Alchemy\AuthBundle\Repository\UserRepository: ~
-  Alchemy\AuthBundle\Repository\GroupRepository: ~
-  Alchemy\AuthBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\UserRepository'
-  Alchemy\AuthBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\GroupRepository'
-  Alchemy\AuthBundle\Listener\LogoutListener: ~
-  Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
+  Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
   Alchemy\AuthBundle\Security\RoleMapper: ~
