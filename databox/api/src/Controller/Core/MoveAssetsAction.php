@@ -8,8 +8,6 @@ use ApiPlatform\Api\IriConverterInterface;
 use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
-use App\Security\Voter\CollectionVoter;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

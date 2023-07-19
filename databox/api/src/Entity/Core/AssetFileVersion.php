@@ -4,30 +4,28 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Api\Provider\AssetFileVersionCollectionDataProvider;
+
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'asset-file-version',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new GetCollection()
+        new GetCollection(),
     ],
     normalizationContext: [
         'groups' => [
-            'assetfileversion:index'
-        ]
+            AssetFileVersion::GROUP_LIST,
+        ],
     ],
     provider: AssetFileVersionCollectionDataProvider::class,
 )]
@@ -36,18 +34,20 @@ use ApiPlatform\Metadata\GetCollection;
 class AssetFileVersion extends AbstractUuidEntity
 {
     use CreatedAtTrait;
+    final public const GROUP_READ = 'afv:read';
+    final public const GROUP_LIST = 'afv:index';
 
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $versionName = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['assetfileversion:index'])]
+    #[Groups([AssetFileVersion::GROUP_LIST])]
     private ?Asset $asset = null;
 
     #[ORM\ManyToOne(targetEntity: File::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['assetfileversion:index'])]
+    #[Groups([AssetFileVersion::GROUP_LIST])]
     private ?File $file = null;
 
     #[ORM\Column(type: 'json')]
@@ -63,7 +63,7 @@ class AssetFileVersion extends AbstractUuidEntity
         $this->versionName = $versionName;
     }
 
-    #[Groups(['assetfileversion:index'])]
+    #[Groups([AssetFileVersion::GROUP_LIST])]
     public function getName(): string
     {
         return $this->versionName ?? 'v-'.$this->createdAt->format('Y-m-d_H-i-s');

@@ -4,10 +4,18 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Model\Output\RenditionRuleOutput;
+
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -15,14 +23,6 @@ use App\Repository\Core\RenditionRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'rendition-rule',
@@ -32,12 +32,12 @@ use ApiPlatform\Metadata\GetCollection;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
         'groups' => [
-            'rendrule:index',
-            'rendclass:read',
+            RenditionRule::GROUP_LIST,
+            RenditionClass::GROUP_READ,
         ],
     ],
     input: RenditionRuleInput::class,
@@ -55,6 +55,8 @@ class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'rendrule:read';
+    final public const GROUP_LIST = 'rendrule:index';
 
     final public const TYPE_USER = 0;
     final public const TYPE_GROUP = 1;

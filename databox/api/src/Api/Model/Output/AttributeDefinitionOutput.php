@@ -4,68 +4,69 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Attribute\Type\TextAttributeType;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 class AttributeDefinitionOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?Workspace $workspace = null;
 
-    #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;
 
-    #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     public ?string $name = null;
 
-    #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     public ?string $slug = null;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?string $fileType = null;
 
-    #[Groups(['attributedef:index', 'asset:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     public string $fieldType = TextAttributeType::NAME;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $translatable = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $multiple = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $allowInvalid = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?int $searchBoost = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?array $fallback = null;
 
     /**
      * To create initial attribute value(s) (tag name or twig template).
      */
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?array $initialValues = null;
 
     /**
@@ -73,10 +74,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
      */
     public ?string $key = null;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $canEdit = null;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public function getLocales(): ?array
     {
         if ($this->translatable) {

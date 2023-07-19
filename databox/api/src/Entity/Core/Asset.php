@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Provider\AssetCollectionDataProvider;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -20,6 +19,7 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
+use App\Api\Provider\AssetCollectionDataProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\CopyAssetsAction;
 use App\Controller\Core\DeleteAssetByIdsAction;
@@ -71,7 +71,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/assets/multiple',
             controller: MultipleAssetCreate::class,
             normalizationContext: [
-                'groups' => ['asset:read'],
+                'groups' => [Asset::GROUP_READ],
             ],
             security: 'is_granted("CREATE", object)',
             input: MultipleAssetInput::class,
@@ -103,7 +103,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     normalizationContext: [
-        'groups' => ['asset:index'],
+        'groups' => [Asset::GROUP_LIST],
     ],
     input: AssetInput::class,
     output: AssetOutput::class,
@@ -119,6 +119,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use WorkspaceTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
+    final public const GROUP_READ = 'asset:read';
+    final public const GROUP_LIST = 'asset:index';
+    final public const GROUP_WRITE = 'asset:w';
 
     #[ORM\Column(type: 'integer', nullable: false)]
     private int $microseconds = 0;

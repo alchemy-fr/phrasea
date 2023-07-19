@@ -7,10 +7,13 @@ namespace App\Api\Provider;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use Pagerfanta\Pagerfanta;
 
-class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAggregate
+final class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAggregate
 {
-    public function __construct(private readonly Pagerfanta $pagerfanta)
+    private $transformer;
+
+    public function __construct(private readonly Pagerfanta $pagerfanta, ?callable $transformer = null)
     {
+        $this->transformer = $transformer;
     }
 
     public function count(): int
@@ -40,6 +43,10 @@ class PagerFantaApiPlatformPaginator implements PaginatorInterface, \IteratorAgg
 
     public function getIterator(): \Traversable
     {
-        return $this->pagerfanta;
+        if (!$this->transformer) {
+            return $this->pagerfanta;
+        }
+
+        return new \ArrayIterator(array_map($this->transformer, iterator_to_array($this->pagerfanta)));
     }
 }

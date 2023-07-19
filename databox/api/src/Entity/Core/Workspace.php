@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\DtoTransformer\WorkspaceDtoTransformer;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Api\DtoTransformer\WorkspaceDtoTransformer;
+use App\Api\Provider\WorkspaceProvider;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -22,25 +29,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'workspace',
     operations: [
         new Get(
             normalizationContext: [
-                'groups' => ['workspace:read'],
+                'groups' => [Workspace::GROUP_READ],
             ],
             security: 'is_granted("READ", object)'
         ),
         new Put(
             normalizationContext: [
-                'groups' => ['workspace:read'],
+                'groups' => [Workspace::GROUP_READ],
             ],
             security: 'is_granted("EDIT", object)'
         ),
@@ -63,17 +64,17 @@ use ApiPlatform\Metadata\GetCollection;
         ),
         new Post(
             normalizationContext: [
-                'groups' => ['workspace:read'],
+                'groups' => [Workspace::GROUP_READ],
             ],
             security: 'is_granted("ROLE_ADMIN")'
-        )
+        ),
     ],
     normalizationContext: [
-        'groups' => ['workspace:index'],
+        'groups' => [Workspace::GROUP_LIST],
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,
-    provider: WorkspaceDtoTransformer::class,
+    provider: WorkspaceProvider::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
@@ -82,6 +83,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use DeletedAtTrait;
+    final public const GROUP_READ = 'workspace:read';
+    final public const GROUP_LIST = 'workspace:index';
 
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $name = null;

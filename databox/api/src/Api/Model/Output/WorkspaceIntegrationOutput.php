@@ -4,40 +4,39 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 class WorkspaceIntegrationOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $integration = null;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?bool $supported = null;
 
     /**
      * @var IntegrationData[]
      */
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $data = [];
 
     /**
      * Client options.
      */
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $config = [];
 
     public function getTitle(): ?string

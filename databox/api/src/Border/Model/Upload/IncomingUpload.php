@@ -12,7 +12,7 @@ use App\Api\Processor\IncomingUploadProcessor;
 #[ApiResource(
     shortName: 'incoming-upload',
     operations: [
-        new Post(processor: IncomingUploadProcessor::class)
+        new Post(processor: IncomingUploadProcessor::class),
     ],
 )]
 final class IncomingUpload

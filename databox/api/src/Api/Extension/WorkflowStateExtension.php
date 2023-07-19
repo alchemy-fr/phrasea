@@ -24,8 +24,7 @@ class WorkflowStateExtension implements QueryCollectionExtensionInterface
         string $resourceClass,
         Operation $operation = null,
         array $context = []
-    ): void
-    {
+    ): void {
         if (WorkflowState::class !== $resourceClass) {
             return;
         }

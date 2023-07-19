@@ -6,12 +6,13 @@ namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use App\Api\ApiSecurityTrait;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\RenditionClass;
 use App\Security\Voter\RenditionClassVoter;
 
 class RenditionClassCollectionDataProvider extends AbstractCollectionProvider
 {
-    use ApiSecurityTrait;
+    use SecurityAwareTrait;
 
     protected function provideCollection(
         Operation $operation,

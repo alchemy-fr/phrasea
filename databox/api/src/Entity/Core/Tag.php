@@ -17,7 +17,7 @@ use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(shortName: 'tag', normalizationContext: ['groups' => ['_', 'tag:index']], input: false, output: TagOutput::class)]
+#[ApiResource(shortName: 'tag', normalizationContext: ['groups' => ['_', Tag::GROUP_LIST]], input: false, output: TagOutput::class)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
@@ -28,6 +28,8 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     use UpdatedAtTrait;
     use LocaleTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'tag:read';
+    final public const GROUP_LIST = 'tag:index';
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private string $name;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\StorageBundle\Util\FileUtil;
 use ApiPlatform\Core\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
@@ -12,7 +13,6 @@ use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
-use Alchemy\StorageBundle\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

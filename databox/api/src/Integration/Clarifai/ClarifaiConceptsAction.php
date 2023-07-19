@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Clarifai;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
@@ -11,7 +12,6 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use Alchemy\StorageBundle\Util\FileUtil;
 
 class ClarifaiConceptsAction extends AbstractIntegrationAction implements IfActionInterface
 {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Api\DtoTransformer;
 
 use ApiPlatform\Metadata\Operation;
-use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
@@ -14,13 +14,12 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class CollectionOutputTransformer implements OutputTransformerInterface
 {
-    use ApiSecurityTrait;
+    use SecurityAwareTrait;
 
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
         private readonly WorkspaceDtoTransformer $workspaceProvider,
-    )
-    {
+    ) {
     }
 
     public function supports(string $outputClass, string $dataClass): bool
@@ -41,7 +40,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setPrivacy($data->getPrivacy());
         $output->setWorkspace($data->getWorkspace());
 
-        if (in_array('collection:include_children', $context['groups'], true)) {
+        if (in_array(Collection::GROUP_CHILDREN, $context['groups'], true)) {
             $maxChildrenLimit = 30;
             if (preg_match('#[&?]childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {
                 $childrenLimit = $regs[1];
@@ -53,7 +52,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
 
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, $output::class, 'children');
-            $maxDepth = (in_array('collection:2_level_children', $context['groups'], true)) ? 2 : 1;
+            $maxDepth = (in_array(Collection::GROUP_2LEVEL_CHILDREN, $context['groups'], true)) ? 2 : 1;
             $depth = $context[$key] ?? 0;
             if ($depth < $maxDepth) {
                 if (false !== $data->getHasChildren()) {

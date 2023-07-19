@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -13,10 +13,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Provider\AttributeCollectionDataProvider;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
+use App\Api\Provider\AttributeCollectionDataProvider;
 use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Repository\Core\AttributeRepository;
@@ -37,12 +37,12 @@ use Doctrine\ORM\Mapping as ORM;
             controller: AttributeBatchUpdateAction::class,
             input: AttributeBatchUpdateInput::class,
             name: 'post_batch'
-        )
+        ),
     ],
     normalizationContext: [
         'groups' => [
-            'attribute:index'
-        ]
+            Attribute::GROUP_LIST,
+        ],
     ],
     input: AttributeInput::class,
     output: AttributeOutput::class,
@@ -53,6 +53,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
 {
+    final public const GROUP_READ = 'attr:read';
+    final public const GROUP_LIST = 'attr:index';
+
     final public const ORIGIN_MACHINE = 0;
     final public const ORIGIN_HUMAN = 1;
     final public const ORIGIN_FALLBACK = 2;

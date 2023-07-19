@@ -18,7 +18,6 @@ class FieldTypeDataProvider extends AbstractCollectionProvider
     ) {
     }
 
-
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
@@ -33,7 +32,7 @@ class FieldTypeDataProvider extends AbstractCollectionProvider
             return $t;
         }, $this->attributeTypeRegistry->getTypes());
 
-        usort($results, fn(FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
+        usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
         return $results;
     }

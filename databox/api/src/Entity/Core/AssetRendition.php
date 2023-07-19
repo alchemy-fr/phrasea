@@ -6,20 +6,20 @@ namespace App\Entity\Core;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use App\Api\Provider\RenditionCollectionDataProvider;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionInput;
+use App\Api\Provider\RenditionCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\AssetRenditionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'rendition',
@@ -106,10 +106,10 @@ use ApiPlatform\Metadata\GetCollection;
                 'groups' => ['Default'],
             ],
             input: RenditionInput::class
-        )
+        ),
     ],
     normalizationContext: [
-        'groups' => ['rendition:index'],
+        'groups' => [AssetRendition::GROUP_LIST],
     ],
     provider: RenditionCollectionDataProvider::class,
 )]
@@ -120,18 +120,20 @@ class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'assetrend:read';
+    final public const GROUP_LIST = 'assetrend:index';
 
-    #[Groups(['rendition:index', 'rendition:read'])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: RenditionDefinition::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?RenditionDefinition $definition = null;
 
-    #[Groups(['rendition:index', 'rendition:read'])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
-    #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: File::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
@@ -168,7 +170,7 @@ class AssetRendition extends AbstractUuidEntity
     }
 
     #[ApiProperty]
-    #[Groups(['rendition:index', 'rendition:read', 'asset:index', 'asset:read'])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
     public function getName(): string
     {
         return $this->definition->getName();

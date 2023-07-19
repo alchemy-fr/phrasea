@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractVoter extends Voter

@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Post;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Post;
 
 #[ApiResource(
     shortName: 'collection-asset',
     operations: [
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
-
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]

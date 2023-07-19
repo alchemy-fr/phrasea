@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Provider\AttributeDefinitionCollectionDataProvider;
@@ -20,13 +27,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -58,10 +58,10 @@ use ApiPlatform\Metadata\GetCollection;
             input: false,
             output: false,
             name: 'put_sort'
-        )
+        ),
     ],
     normalizationContext: [
-        'groups' => ['attributedef:index'],
+        'groups' => [AttributeDefinition::GROUP_LIST],
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
@@ -80,16 +80,19 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'attrdef:read';
+    final public const GROUP_LIST = 'attrdef:index';
+    final public const GROUP_WRITE = 'attrdef:w';
 
     /**
      * Override trait for annotation.
      */
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'attributeDefinitions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     protected ?Workspace $workspace = null;
 
-    #[Groups(['attributedef:index', 'attributedef:read', 'attributedef:write'])]
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
     #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
@@ -101,7 +104,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'definition', cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    #[Groups(['asset:index', 'asset:read', 'attributedef:index', 'attribute:index'])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private ?string $name = null;
 
@@ -113,53 +116,53 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
      */
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    #[Groups(['attributedef:index', 'asset:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $searchable = true;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $facetEnabled = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $sortable = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $translatable = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $multiple = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $allowInvalid = false;
 
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $searchBoost = null;
 
     /**
      * Initialize attributes after asset creation; key=locale.
      */
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
-    #[Groups(['attributedef:index'])]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: 'array', nullable: true)]
     private ?array $fallback = null;
 
@@ -169,7 +172,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $key = null;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'smallint', nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;

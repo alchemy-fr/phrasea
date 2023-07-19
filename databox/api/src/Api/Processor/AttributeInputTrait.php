@@ -55,8 +55,7 @@ trait AttributeInputTrait
         iterable $attributes,
         Operation $operation,
         array $context
-    ): void
-    {
+    ): void {
         unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
 
         foreach ($attributes as $attribute) {

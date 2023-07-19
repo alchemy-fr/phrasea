@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output\Template;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Api\Model\Output\AbstractUuidOutput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Template\AssetDataTemplate;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetDataTemplateOutput extends AbstractUuidOutput
@@ -18,43 +18,42 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    #[Groups(['asset-data-template:index'])]
-    #[ApiProperty(attributes: ['openapi_context' => ['type' => 'object', 'properties' => ['canEdit' => ['type' => 'boolean'], 'canDelete' => ['type' => 'boolean'], 'canEditPermissions' => ['type' => 'boolean']]], 'json_schema_context' => ['type' => 'object', 'properties' => ['canEdit' => 'boolean', 'canDelete' => 'boolean', 'canEditPermissions' => 'boolean']]])]
+    #[Groups([AssetDataTemplate::GROUP_LIST])]
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
      */
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public ?array $attributes = null;
 
     /**
      * Template name.
      */
-    #[Groups(['asset-data-template:index'])]
+    #[Groups([AssetDataTemplate::GROUP_LIST])]
     public ?string $name = null;
 
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public bool $public = false;
 
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public ?string $ownerId = null;
 
     /**
      * Asset title.
      */
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public ?string $title = null;
 
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public ?array $tags = null;
 
-    #[Groups(['asset-data-template:index'])]
+    #[Groups([AssetDataTemplate::GROUP_LIST])]
     public $collection;
 
-    #[Groups(['asset-data-template:index'])]
+    #[Groups([AssetDataTemplate::GROUP_LIST])]
     public ?int $privacy = null;
 
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     public bool $includeCollectionChildren = false;
 }

@@ -52,7 +52,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     protected function serializeData(IntegrationData $data): string
     {
         return $this->serializer->serialize($data, 'json', [
-            'groups' => ['integration:index', '_'],
+            'groups' => [WorkspaceIntegration::GROUP_LIST, '_'],
         ]);
     }
 

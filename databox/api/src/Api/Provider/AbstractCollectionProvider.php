@@ -33,5 +33,4 @@ abstract class AbstractCollectionProvider implements ProviderInterface
     {
         $this->em = $em;
     }
-
 }

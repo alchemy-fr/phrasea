@@ -6,9 +6,14 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
-use App\Api\DtoTransformer\CollectionOutputTransformer;
 use App\Api\Provider\CollectionProvider;
 use App\Controller\Core\MoveCollectionAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -33,12 +38,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'collection',
@@ -65,14 +64,14 @@ use ApiPlatform\Metadata\GetCollection;
             name: 'put_move'
         ),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
         'enable_max_depth' => true,
         'groups' => [
-            'collection:index',
-            'collection:include_children',
-            'collection:2_level_children',
+            self::GROUP_LIST,
+            self::GROUP_CHILDREN,
+            self::GROUP_2LEVEL_CHILDREN,
         ],
     ],
     input: CollectionInput::class,
@@ -91,6 +90,11 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use WorkspaceTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
+
+    final public const GROUP_READ = 'coll:r';
+    final public const GROUP_LIST = 'coll:i';
+    final public const GROUP_CHILDREN = 'coll:ic';
+    final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;

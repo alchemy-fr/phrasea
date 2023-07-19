@@ -4,31 +4,30 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
+use App\Entity\Core\TagFilterRule;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 class TagFilterRuleOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $userId = null;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $groupId = null;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $workspaceId = null;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $collectionId = null;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?array $include = null;
 
-    #[Groups(['tfr:read'])]
+    #[Groups([TagFilterRule::GROUP_READ])]
     private ?array $exclude = null;
 
     public function getUserId(): ?string

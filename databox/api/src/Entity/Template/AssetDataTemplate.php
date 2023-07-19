@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,7 +16,6 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Processor\AssetDataTemplateInputProcessor;
-use App\Api\DtoTransformer\AssetDataTemplateProvider;
 use App\Api\Provider\AssetDataTemplateCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
@@ -28,7 +27,6 @@ use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Stringable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table]
@@ -39,26 +37,26 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(
             normalizationContext: [
                 'groups' => [
-                    'asset-data-template:index',
-                    'asset-data-template:read',
-                ]
+                    AssetDataTemplate::GROUP_LIST,
+                    AssetDataTemplate::GROUP_READ,
+                ],
             ],
             security: 'is_granted("READ", object)'
         ),
         new Put(
             normalizationContext: [
                 'groups' => [
-                    'asset-data-template:index',
-                    'asset-data-template:read',
-                ]
+                    AssetDataTemplate::GROUP_LIST,
+                    AssetDataTemplate::GROUP_READ,
+                ],
             ],
             security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => ['asset-data-template:index'],
+        'groups' => [AssetDataTemplate::GROUP_LIST],
     ],
     input: AssetDataTemplateInput::class,
     output: AssetDataTemplateOutput::class,
@@ -66,11 +64,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     processor: AssetDataTemplateInputProcessor::class,
 )]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, Stringable
+class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'adt:r';
+    final public const GROUP_LIST = 'adt:i';
 
     /**
      * Template name.
@@ -79,29 +79,29 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     private ?string $name = null;
 
     #[ORM\Column(type: 'boolean', nullable: false)]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private bool $public = false;
 
     #[ORM\Column(type: 'string', length: 36)]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $ownerId = null;
 
     /**
      * Asset title.
      */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $title = null;
 
     #[ORM\ManyToMany(targetEntity: Tag::class)]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?DoctrineCollection $tags = null;
 
     /**
      * @var TemplateAttribute[]
      */
     #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'template', cascade: ['persist', 'remove'])]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?DoctrineCollection $attributes = null;
 
     #[ORM\ManyToOne(targetEntity: Collection::class)]

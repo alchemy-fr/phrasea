@@ -6,7 +6,6 @@ namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\RenditionDefinition;
-use Doctrine\ORM\EntityManagerInterface;
 
 class RenditionDefinitionCollectionDataProvider extends AbstractCollectionProvider
 {

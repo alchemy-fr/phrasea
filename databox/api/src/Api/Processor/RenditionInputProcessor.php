@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Input\RenditionInput;
 use App\Consumer\Handler\File\CopyFileToRenditionHandler;

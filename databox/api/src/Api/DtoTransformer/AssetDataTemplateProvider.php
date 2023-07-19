@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Api\DtoTransformer;
 
 use ApiPlatform\Metadata\Operation;
-use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
 
 class AssetDataTemplateProvider implements OutputTransformerInterface
 {
-    use ApiSecurityTrait;
+    use SecurityAwareTrait;
 
     /**
      * @param AssetDataTemplate $data
@@ -32,7 +32,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         $output->collection = $data->getCollection();
         $output->includeCollectionChildren = $data->isIncludeCollectionChildren();
 
-        if (isset($context['groups']) && in_array('asset-data-template:read', $context['groups'], true)) {
+        if (isset($context['groups']) && in_array(AssetDataTemplate::GROUP_READ, $context['groups'], true)) {
             $output->attributes = array_filter($data->getAttributes()->getValues(), fn (TemplateAttribute $attribute): bool => $this->security->isGranted(AbstractVoter::READ, $attribute));
         }
 

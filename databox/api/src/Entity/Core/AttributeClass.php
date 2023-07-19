@@ -5,6 +5,13 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeClassInput;
 use App\Api\Provider\AttributeClassCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
@@ -14,13 +21,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'attribute-class',
@@ -30,10 +30,10 @@ use ApiPlatform\Metadata\GetCollection;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => ['attributeclass:index'],
+        'groups' => [AttributeClass::GROUP_LIST],
     ],
     input: AttributeClassInput::class,
     provider: AttributeClassCollectionDataProvider::class,
@@ -46,6 +46,8 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'attrclass:read';
+    final public const GROUP_LIST = 'attrclass:index';
 
     /**
      * Override trait for annotation.
@@ -55,15 +57,15 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    #[Groups(['attributeclass:index', 'attributedef:index', 'attributedef:read'])]
+    #[Groups([AttributeClass::GROUP_LIST, AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
     #[ORM\Column(type: 'string', length: 80)]
     private ?string $name = null;
 
-    #[Groups(['attributeclass:index'])]
+    #[Groups([AttributeClass::GROUP_LIST])]
     #[ORM\Column(type: 'boolean')]
     private ?bool $editable = null;
 
-    #[Groups(['attributeclass:index'])]
+    #[Groups([AttributeClass::GROUP_LIST])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private ?bool $public = null;
 

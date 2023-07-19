@@ -20,7 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource(shortName: 'tag-filter-rule', operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(), new Post(securityPostDenormalize: 'is_granted(\'CREATE\', object)')], normalizationContext: ['groups' => ['_', 'tfr:read', 'tag:read']], input: TagFilterRuleInput::class, output: TagFilterRuleOutput::class, security: 'is_granted(\'ROLE_USER\')')]
+#[ApiResource(shortName: 'tag-filter-rule', operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(), new Post(securityPostDenormalize: 'is_granted(\'CREATE\', object)')], normalizationContext: ['groups' => ['_', TagFilterRule::GROUP_READ, Tag::GROUP_READ]], input: TagFilterRuleInput::class, output: TagFilterRuleOutput::class, security: 'is_granted(\'ROLE_USER\')')]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'tfr_user_idx')]
 #[ORM\Index(columns: ['object_type', 'object_id'], name: 'tfr_object_idx')]
@@ -31,6 +31,8 @@ class TagFilterRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'tfr:read';
+    final public const GROUP_LIST = 'tfr:index';
 
     final public const TYPE_USER = 0;
     final public const TYPE_GROUP = 1;

@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
+use App\Entity\Core\RenditionRule;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 class RenditionRuleOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
 
-    #[Groups(['rendrule:index'])]
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $userId = null;
 
-    #[Groups(['rendrule:index'])]
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $groupId = null;
 
-    #[Groups(['rendrule:index'])]
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $workspaceId = null;
 
-    #[Groups(['rendrule:index'])]
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $collectionId = null;
 
-    #[Groups(['rendrule:index'])]
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?array $allowed = null;
 
     public function getUserId(): ?string

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -18,7 +18,7 @@ abstract class AbstractUuidEntity
     #[ApiProperty(identifier: true)]
     private string $id;
 
-    public function __construct(?string $id = null)
+    public function __construct(string $id = null)
     {
         $this->id = $id ?? Uuid::uuid4()->toString();
     }

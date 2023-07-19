@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -11,14 +19,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'rendition-class',
@@ -28,10 +28,10 @@ use ApiPlatform\Metadata\GetCollection;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => ['rendclass:index'],
+        'groups' => [RenditionClass::GROUP_LIST],
     ]
 )]
 #[ORM\Table]
@@ -41,6 +41,8 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'rendclass:read';
+    final public const GROUP_LIST = 'rendclass:index';
 
     /**
      * Override trait for annotation.
@@ -50,11 +52,11 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    #[Groups(['rendclass:index', 'rendclass:read'])]
+    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
     #[ORM\Column(type: 'string', length: 80)]
     private ?string $name = null;
 
-    #[Groups(['rendclass:index', 'rendclass:read'])]
+    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $public = false;
 

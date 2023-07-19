@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Serializer\Annotation\Groups;
-
 
 class IntegrationDataOutput extends AbstractUuidOutput
 {
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private string $name;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $keyId = null;
 
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private $value;
 
     public function getName(): string

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -13,7 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
     shortName: 'field-type',
     operations: [
         new Get(),
-        new GetCollection()
+        new GetCollection(),
     ],
     normalizationContext: ['enable_max_depth' => true]
 )]

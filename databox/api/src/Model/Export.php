@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use App\Controller\Core\ExportAction;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Core\ExportAction;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     shortName: 'export',
@@ -20,7 +20,7 @@ use ApiPlatform\Metadata\Post;
             controller: ExportAction::class,
             read: true,
             validate: false
-        )
+        ),
     ],
     normalizationContext: [
         'groups' => ['export:output'],

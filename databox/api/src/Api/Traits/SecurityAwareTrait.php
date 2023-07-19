@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\Traits;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Security\Voter\ChuckNorrisVoter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait SecurityAwareTrait
@@ -21,5 +23,37 @@ trait SecurityAwareTrait
     protected function isChuckNorris(): bool
     {
         return $this->security->isGranted(ChuckNorrisVoter::ROLE);
+    }
+
+    protected function isGranted(mixed $attributes, mixed $subject = null): bool
+    {
+        return $this->security->isGranted($attributes, $subject);
+    }
+
+    protected function getUserCacheId(): string
+    {
+        return $this->security->getUser()?->getUserIdentifier() ?? '__no_user__';
+    }
+
+    protected function getStrictUser(): JwtUser
+    {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof JwtUser) {
+            throw new AccessDeniedHttpException('User must be authenticated');
+        }
+
+        return $user;
+    }
+
+    protected function getUser(): ?JwtUser
+    {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof JwtUser) {
+            return null;
+        }
+
+        return $user;
     }
 }

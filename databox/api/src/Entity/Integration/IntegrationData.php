@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\File;
@@ -11,12 +17,6 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'integration-data',
@@ -25,10 +25,10 @@ use ApiPlatform\Metadata\GetCollection;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => ['integrationdata:index'],
+        'groups' => [IntegrationData::GROUP_LIST],
     ],
     output: IntegrationDataOutput::class
 )]
@@ -39,6 +39,9 @@ class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'int-data:r';
+    final public const GROUP_LIST = 'int-data:i';
+    final public const GROUP_WRITE = 'int-data:w';
 
     #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -49,15 +52,15 @@ class IntegrationData extends AbstractUuidEntity
     private ?File $file = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
-    #[Groups(['integrationdata:index'])]
+    #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    #[Groups(['integrationdata:index'])]
+    #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $keyId = null;
 
     #[ORM\Column(type: 'text', nullable: false)]
-    #[Groups(['integrationdata:index'])]
+    #[Groups([IntegrationData::GROUP_LIST])]
     private $value;
 
     public function getIntegration(): ?WorkspaceIntegration

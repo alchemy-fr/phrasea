@@ -19,10 +19,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
     ],
     normalizationContext: [
-        'groups' => ['file:index'],
+        'groups' => [File::GROUP_LIST],
     ],
     denormalizationContext: [
-        'groups' => ['file:write'],
+        'groups' => [File::GROUP_WRITE],
     ],
     output: FileOutput::class
 )]
@@ -32,6 +32,9 @@ class File extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'file:read';
+    final public const GROUP_LIST = 'file:index';
+    final public const GROUP_WRITE = 'file:write';
     final public const STORAGE_S3_MAIN = 's3_main';
     final public const STORAGE_URL = 'url';
 

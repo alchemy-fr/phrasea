@@ -66,7 +66,7 @@ class AssetOutputProcessor extends AbstractSecurityProcessor
 
         $highlights = $data->getElasticHighlights();
 
-        if (isset($context['groups']) && in_array('asset:index', $context['groups'], true)) {
+        if (isset($context['groups']) && in_array(Asset::GROUP_LIST, $context['groups'], true)) {
             $attributes = $this->attributesResolver->resolveAssetAttributes($data, true);
 
             if (!empty($highlights)) {

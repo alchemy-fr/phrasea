@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\AbstractUuidEntity;
+
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -14,14 +22,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'rendition-definition',
@@ -53,13 +53,13 @@ use ApiPlatform\Metadata\GetCollection;
             input: false,
             output: false,
             name: 'put_sort'
-        )
+        ),
     ],
     normalizationContext: [
-        'groups' => ['renddef:index'],
+        'groups' => [RenditionDefinition::GROUP_LIST],
     ],
     denormalizationContext: [
-        'groups' => ['renddef:write'],
+        'groups' => [RenditionDefinition::GROUP_WRITE],
     ],
     order: ['priority' => 'DESC']
 )]
@@ -72,6 +72,9 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'renddef:read';
+    final public const GROUP_LIST = 'renddef:index';
+    final public const GROUP_WRITE = 'renddef:w';
 
     /**
      * Override trait for annotation.
@@ -81,50 +84,50 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'string', length: 80)]
     private ?string $name = null;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: false)]
     protected ?RenditionClass $class = null;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     private bool $download = true;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $pickSourceFile = false;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsOriginal = false;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsPreview = false;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnail = false;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'boolean')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnailActive = false;
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'text')]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private ?string $definition = '';
 
-    #[Groups(['renddef:index', 'renddef:read', 'renddef:write'])]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: 'smallint', nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $priority = 0;

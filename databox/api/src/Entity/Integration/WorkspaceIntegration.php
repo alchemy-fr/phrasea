@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -15,20 +21,13 @@ use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+
 use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\GetCollection;
 
 #[ApiResource(
     shortName: 'integration',
@@ -37,10 +36,10 @@ use ApiPlatform\Metadata\GetCollection;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
-        'groups' => ['integration:index'],
+        'groups' => [WorkspaceIntegration::GROUP_LIST],
     ],
     output: WorkspaceIntegrationOutput::class
 )]
@@ -53,24 +52,26 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'wi:r';
+    final public const GROUP_LIST = 'wi:i';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $integration = null;
 
     #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
     private ?Collection $needs = null;
 
     #[ORM\Column(type: 'string', length: 2048, nullable: true)]
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $if = null;
 
     #[ORM\Column(type: 'boolean', nullable: false)]
-    #[Groups(['integration:index'])]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
     #[ORM\Column(type: 'json', nullable: false)]

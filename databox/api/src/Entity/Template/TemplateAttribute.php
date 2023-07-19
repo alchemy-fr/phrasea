@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Entity\Template;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Entity\Core\AbstractBaseAttribute;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Patch;
 
 #[ApiResource(
     shortName: 'template-attribute',
@@ -23,10 +24,10 @@ use ApiPlatform\Metadata\Patch;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)')
+        new Patch(security: 'is_granted("EDIT", object)'),
     ],
     normalizationContext: [
-        'groups' => ['attribute:index'],
+        'groups' => [Attribute::GROUP_LIST],
     ],
     input: AttributeInput::class,
     output: AttributeOutput::class
@@ -40,7 +41,7 @@ class TemplateAttribute extends AbstractBaseAttribute
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['asset-data-template:read'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     protected ?AttributeDefinition $definition = null;
 
     /**

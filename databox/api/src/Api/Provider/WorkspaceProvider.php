@@ -2,30 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DtoTransformer;
+namespace App\Api\Provider;
 
-use ApiPlatform\Metadata\Operation;
-use App\Api\ApiSecurityTrait;
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Entity\Core\Workspace;
+use App\Api\Traits\CollectionProviderAwareTrait;
+use App\Api\Traits\SecurityAwareTrait;
 use App\Security\Voter\AbstractVoter;
 
-class WorkspaceDtoTransformer implements OutputTransformerInterface
+final class WorkspaceProvider extends AbstractTransformerProvider
 {
-    use ApiSecurityTrait;
+    use CollectionProviderAwareTrait;
+    use SecurityAwareTrait;
 
     private array $capCache = [];
 
-    public function supports(string $outputClass, string $dataClass): bool
+    protected function transform(object $data, array $context): object
     {
-        return WorkspaceOutput::class === $outputClass;
-    }
-
-    /**
-     * @param Workspace $data
-     */
-    public function transform(object $data, string $outputClass, Operation $operation, array $context = []): object
-    {
+        throw new \InvalidArgumentException(sprintf('OK'));
         $output = new WorkspaceOutput();
         $output->setId($data->getId());
         $output->setName($data->getName());
@@ -35,7 +28,7 @@ class WorkspaceDtoTransformer implements OutputTransformerInterface
         $output->setPublic($data->isPublic());
         $output->setCreatedAt($data->getCreatedAt());
 
-        $k = $data->getId().$this->getTokenId();
+        $k = $data->getId().$this->getUserCacheId();
         if (!isset($this->capCache[$k])) {
             $this->capCache[$k] = [
                 'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
@@ -48,4 +41,6 @@ class WorkspaceDtoTransformer implements OutputTransformerInterface
 
         return $output;
     }
+
+
 }
