@@ -2,23 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationDataProcessor;
 
-class IntegrationDataOutputProcessor extends AbstractSecurityProcessor
+class IntegrationDataOutputTransformer implements OutputTransformerInterface
 {
     public function __construct(private readonly IntegrationDataProcessor $dataProcessor)
     {
     }
 
+    public function supports(string $outputClass, object $data): bool
+    {
+        return IntegrationDataOutput::class === $outputClass && $data instanceof IntegrationData;
+    }
+
     /**
      * @param IntegrationData $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $this->dataProcessor->process($data);
 
@@ -29,10 +33,5 @@ class IntegrationDataOutputProcessor extends AbstractSecurityProcessor
         $output->setKeyId($data->getKeyId());
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return IntegrationDataOutput::class === $to && $data instanceof IntegrationData;
     }
 }

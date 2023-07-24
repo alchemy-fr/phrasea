@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeClassInput;
+use App\Api\Processor\AttributeClassInputProcessor;
 use App\Api\Provider\AttributeClassCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -37,6 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AttributeClassInput::class,
     provider: AttributeClassCollectionDataProvider::class,
+    processor: AttributeClassInputProcessor::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]

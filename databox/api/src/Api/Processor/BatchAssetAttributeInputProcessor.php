@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Entity\Core\Asset;
@@ -23,14 +23,5 @@ class BatchAssetAttributeInputProcessor implements ProcessorInterface
         $object->attributeActions = $data;
 
         return $object;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Asset) {
-            return false;
-        }
-
-        return Asset::class === $to && AssetAttributeBatchUpdateInput::class === ($context['input']['class'] ?? null);
     }
 }

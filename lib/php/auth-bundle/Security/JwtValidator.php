@@ -9,7 +9,6 @@ use Alchemy\AuthBundle\Client\OAuthClient;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token as TokenInterface;
-use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Validator;
@@ -21,7 +20,6 @@ final class JwtValidator implements JwtValidatorInterface
 
     public function __construct(
         private readonly OAuthClient $authServiceClient,
-        private readonly string $clientId,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
     )
     {
@@ -41,7 +39,6 @@ final class JwtValidator implements JwtValidatorInterface
                 InMemory::plainText($this->getPublicKey())
             ),
             new IssuedBy($this->keycloakUrlGenerator->getRealmInfo()),
-            new HasClaimWithValue('azp', $this->clientId),
         );
     }
 

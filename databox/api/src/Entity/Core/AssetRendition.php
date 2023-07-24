@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionInput;
+use App\Api\Processor\RenditionInputProcessor;
 use App\Api\Provider\RenditionCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -105,13 +106,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
             validationContext: [
                 'groups' => ['Default'],
             ],
-            input: RenditionInput::class
         ),
     ],
     normalizationContext: [
         'groups' => [AssetRendition::GROUP_LIST],
     ],
+    input: RenditionInput::class,
     provider: RenditionCollectionDataProvider::class,
+    processor: RenditionInputProcessor::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]

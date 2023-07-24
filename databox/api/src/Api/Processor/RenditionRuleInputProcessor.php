@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Entity\Core\RenditionRule;
 
@@ -28,10 +28,5 @@ class RenditionRuleInputProcessor extends AbstractInputProcessor
         $object->setAllowed($data->allowed);
 
         return $object;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return RenditionRule::class === $to && RenditionRuleInput::class === ($context['input']['class'] ?? null);
     }
 }

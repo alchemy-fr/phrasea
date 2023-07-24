@@ -52,13 +52,4 @@ class RenditionInputProcessor extends AbstractFileInputProcessor
 
         return $object;
     }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof AssetRendition) {
-            return false;
-        }
-
-        return AssetRendition::class === $to && RenditionInput::class === ($context['input']['class'] ?? null);
-    }
 }

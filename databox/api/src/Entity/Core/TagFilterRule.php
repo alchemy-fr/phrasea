@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
+use App\Api\Processor\TagFilterRuleInputProcessor;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -20,7 +21,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource(shortName: 'tag-filter-rule', operations: [new Get(security: 'is_granted(\'READ\', object)'), new Put(security: 'is_granted(\'EDIT\', object)'), new Delete(security: 'is_granted(\'DELETE\', object)'), new GetCollection(), new Post(securityPostDenormalize: 'is_granted(\'CREATE\', object)')], normalizationContext: ['groups' => ['_', TagFilterRule::GROUP_READ, Tag::GROUP_READ]], input: TagFilterRuleInput::class, output: TagFilterRuleOutput::class, security: 'is_granted(\'ROLE_USER\')')]
+#[ApiResource(
+    shortName: 'tag-filter-rule',
+    operations: [new Get(security: 'is_granted("READ", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+    ], normalizationContext: ['groups' => ['_',
+    TagFilterRule::GROUP_READ,
+    Tag::GROUP_READ]],
+    input: TagFilterRuleInput::class,
+    output: TagFilterRuleOutput::class,
+    security: 'is_granted("ROLE_USER")',
+    processor: TagFilterRuleInputProcessor::class,
+)]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'tfr_user_idx')]
 #[ORM\Index(columns: ['object_type', 'object_id'], name: 'tfr_object_idx')]

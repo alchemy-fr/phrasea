@@ -2,19 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Output\RenditionRuleOutput;
 use App\Entity\Core\RenditionRule;
 
-class RenditionRuleOutputProcessor implements ProcessorInterface
+class RenditionRuleOutputProcessor implements OutputTransformerInterface
 {
+    public function supports(string $outputClass, object $data): bool
+    {
+        return RenditionRuleOutput::class === $outputClass && $data instanceof RenditionRule;
+    }
+
     /**
      * @param RenditionRule $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new RenditionRuleOutput();
         $output->setId($data->getId());
@@ -34,10 +37,5 @@ class RenditionRuleOutputProcessor implements ProcessorInterface
         $output->setAllowed($data->getAllowed()->getValues());
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return RenditionRuleOutput::class === $to && $data instanceof RenditionRule;
     }
 }

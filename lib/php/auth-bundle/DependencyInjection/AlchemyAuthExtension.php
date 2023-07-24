@@ -42,9 +42,6 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
         $def->setArgument('$baseUrl', $config['keycloak']['url']);
         $def->setArgument('$realm', $config['keycloak']['realm']);
 
-        $def = $container->findDefinition(JwtValidator::class);
-        $def->setArgument('$clientId', $config['client_id']);
-
         $def = $container->findDefinition(LogoutListener::class);
         $def->setArgument('$clientId', $config['client_id']);
 

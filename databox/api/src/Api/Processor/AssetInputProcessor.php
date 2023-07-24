@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Asset\AssetManager;
@@ -137,7 +137,7 @@ class AssetInputProcessor extends AbstractFileInputProcessor
             }
         }
 
-        return $this->processOwnerId($object, $to, $context);
+        return $this->processOwnerId($object);
     }
 
     private function handleFile(AssetInput $data, Asset $asset): ?File
@@ -176,14 +176,5 @@ class AssetInputProcessor extends AbstractFileInputProcessor
         $rel->setType($input->type);
 
         $this->em->persist($rel);
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Asset) {
-            return false;
-        }
-
-        return Asset::class === $to && AssetInput::class === ($context['input']['class'] ?? null);
     }
 }

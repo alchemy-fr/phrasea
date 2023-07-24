@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Exception\ItemNotFoundException;
+use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetInput;
@@ -12,12 +13,15 @@ use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractInputProcessor extends AbstractSecurityProcessor
+abstract class AbstractInputProcessor implements ProcessorInterface
 {
+    use SecurityAwareTrait;
+
     protected ValidatorInterface $validator;
     protected EntityManagerInterface $em;
     protected EntityIriConverter $entityIriConverter;

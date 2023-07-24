@@ -2,24 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\AttributeOutput;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
+use App\Util\SecurityAwareTrait;
 
-class AttributeOutputProcessor extends AbstractSecurityProcessor
+class AttributeOutputTransformer implements OutputTransformerInterface
 {
+    use SecurityAwareTrait;
+
     public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
     {
+    }
+
+
+    public function supports(string $outputClass, object $data): bool
+    {
+        return AttributeOutput::class === $outputClass && $data instanceof AbstractBaseAttribute;
     }
 
     /**
      * @param AbstractBaseAttribute $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $type = $this->attributeTypeRegistry->getStrictType($data->getDefinition()->getFieldType());
 
@@ -48,10 +56,5 @@ class AttributeOutputProcessor extends AbstractSecurityProcessor
         }
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return AttributeOutput::class === $to && $data instanceof AbstractBaseAttribute;
     }
 }

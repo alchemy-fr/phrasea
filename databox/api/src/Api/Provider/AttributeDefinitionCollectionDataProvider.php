@@ -8,8 +8,8 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
-use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\AttributeDefinition;
+use App\Util\SecurityAwareTrait;
 
 class AttributeDefinitionCollectionDataProvider extends AbstractCollectionProvider
 {

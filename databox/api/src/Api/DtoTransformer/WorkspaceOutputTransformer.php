@@ -2,23 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Provider;
+namespace App\Api\DtoTransformer;
 
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Api\Traits\CollectionProviderAwareTrait;
-use App\Api\Traits\SecurityAwareTrait;
+use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use App\Util\SecurityAwareTrait;
 
-final class WorkspaceProvider extends AbstractTransformerProvider
+class WorkspaceOutputTransformer implements OutputTransformerInterface
 {
-    use CollectionProviderAwareTrait;
     use SecurityAwareTrait;
 
     private array $capCache = [];
 
-    protected function transform(object $data, array $context): object
+    public function supports(string $outputClass, object $data): bool
     {
-        throw new \InvalidArgumentException(sprintf('OK'));
+        return WorkspaceOutput::class === $outputClass && $data instanceof Workspace;
+    }
+
+    /**
+     * @param Workspace $data
+     */
+    public function transform($data, string $outputClass, array $context = []): object
+    {
         $output = new WorkspaceOutput();
         $output->setId($data->getId());
         $output->setName($data->getName());
@@ -41,6 +47,4 @@ final class WorkspaceProvider extends AbstractTransformerProvider
 
         return $output;
     }
-
-
 }

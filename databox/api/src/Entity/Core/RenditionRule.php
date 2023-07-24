@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Model\Output\RenditionRuleOutput;
 
+use App\Api\Processor\RenditionRuleInputProcessor;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -42,7 +43,8 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     input: RenditionRuleInput::class,
     output: RenditionRuleOutput::class,
-    security: 'is_granted("ROLE_USER")'
+    security: 'is_granted("ROLE_USER")',
+    processor: RenditionRuleInputProcessor::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'rr_user_idx')]

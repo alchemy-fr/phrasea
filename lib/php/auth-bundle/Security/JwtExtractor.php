@@ -34,6 +34,10 @@ final readonly class JwtExtractor
     {
         $claims = $token->claims();
 
+        if (empty($claims->get('preferred_username'))) {
+            throw new \InvalidArgumentException('Missing "preferred_username" from Keycloak');
+        }
+
         return new JwtUser(
             $token->toString(),
             $claims->get('sub'),

@@ -21,13 +21,4 @@ class MoveAssetProcessor implements ProcessorInterface
 
         return $object;
     }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Asset) {
-            return false;
-        }
-
-        return Asset::class === $to && MoveAssetInput::class === ($context['input']['class'] ?? null);
-    }
 }

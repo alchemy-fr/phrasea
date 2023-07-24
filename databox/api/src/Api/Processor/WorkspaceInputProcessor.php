@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Entity\Core\Workspace;
 
@@ -40,15 +40,6 @@ class WorkspaceInputProcessor extends AbstractInputProcessor
             }
         }
 
-        return $this->processOwnerId($object, $to, $context);
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Workspace) {
-            return false;
-        }
-
-        return Workspace::class === $to && WorkspaceInput::class === ($context['input']['class'] ?? null);
+        return $this->processOwnerId($object);
     }
 }

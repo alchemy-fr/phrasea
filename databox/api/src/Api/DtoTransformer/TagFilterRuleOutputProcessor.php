@@ -2,19 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Entity\Core\TagFilterRule;
 
-class TagFilterRuleOutputProcessor implements ProcessorInterface
+class TagFilterRuleOutputProcessor implements OutputTransformerInterface
 {
+
+    public function supports(string $outputClass, object $data): bool
+    {
+        return TagFilterRuleOutput::class === $outputClass && $data instanceof TagFilterRule;
+    }
+
     /**
      * @param TagFilterRule $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new TagFilterRuleOutput();
         $output->setId($data->getId());
@@ -35,10 +39,5 @@ class TagFilterRuleOutputProcessor implements ProcessorInterface
         $output->setExclude($data->getExclude()->getValues());
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return TagFilterRuleOutput::class === $to && $data instanceof TagFilterRule;
     }
 }

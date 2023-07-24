@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
+use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Entity\Core\TagFilterRule;
 
-class TagFilterRuleInputProcessor extends AbstractSecurityProcessor
+class TagFilterRuleInputProcessor implements ProcessorInterface
 {
     /**
      * @param TagFilterRuleInput $data
@@ -50,14 +51,5 @@ class TagFilterRuleInputProcessor extends AbstractSecurityProcessor
         }
 
         return $tagFilterRule;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof TagFilterRule) {
-            return false;
-        }
-
-        return TagFilterRule::class === $to && TagFilterRuleInput::class === ($context['input']['class'] ?? null);
     }
 }

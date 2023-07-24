@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Template\TemplateAttribute;
@@ -41,14 +41,5 @@ class TemplateAttributeInputProcessor extends AbstractInputProcessor
         $this->attributeAssigner->assignAttributeFromInput($object, $data);
 
         return $object;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof TemplateAttribute) {
-            return false;
-        }
-
-        return TemplateAttribute::class === $to && TemplateAttributeInput::class === ($context['input']['class'] ?? null);
     }
 }

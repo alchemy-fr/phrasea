@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Processor\CollectionInputProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Controller\Core\MoveCollectionAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -77,6 +78,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     input: CollectionInput::class,
     output: CollectionOutput::class,
     provider: CollectionProvider::class,
+    processor: CollectionInputProcessor::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
@@ -91,8 +93,8 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
-    final public const GROUP_READ = 'coll:r';
-    final public const GROUP_LIST = 'coll:i';
+    final public const GROUP_READ = 'coll:read';
+    final public const GROUP_LIST = 'coll:index';
     final public const GROUP_CHILDREN = 'coll:ic';
     final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
 

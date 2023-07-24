@@ -2,28 +2,35 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
+use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
-class FileOutputProcessor extends AbstractSecurityProcessor
+class FileOutputTransformer implements OutputTransformerInterface
 {
+    use SecurityAwareTrait;
+
     private array $cache = [];
 
     public function __construct(private readonly FileUrlResolver $fileUrlResolver, private readonly EntityManagerInterface $em)
     {
     }
 
+    public function supports(string $outputClass, object $data): bool
+    {
+        return FileOutput::class === $outputClass && $data instanceof File;
+    }
+
     /**
      * @param File $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new FileOutput();
         $output->setCreatedAt($data->getCreatedAt());
@@ -65,10 +72,5 @@ class FileOutputProcessor extends AbstractSecurityProcessor
             ]);
 
         return $this->cache[$key] = $label instanceof AlternateUrl ? $label->getLabel() : null;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return FileOutput::class === $to && $data instanceof File;
     }
 }

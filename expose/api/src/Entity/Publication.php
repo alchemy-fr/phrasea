@@ -38,6 +38,10 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiResource(
     operations: [
         new Get(
+            uriTemplate: '/publications/{slug}',
+            uriVariables: [
+                'slug',
+            ],
             controller: GetPublicationAction::class,
             security: 'is_granted("'.PublicationVoter::READ.'", object)',
             name: self::GET_PUBLICATION_ROUTE_NAME,
@@ -55,7 +59,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
-            ]),
+            ]
+        ),
         new Post(
             securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
         ),
@@ -95,7 +100,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         'groups' => [self::GROUP_READ],
     ],
     denormalizationContext: ['deep_object_to_populate' => true],
-    order: ['title' => 'ASC'])]
+    order: ['title' => 'ASC']
+)]
 #[ORM\Entity]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
 #[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]

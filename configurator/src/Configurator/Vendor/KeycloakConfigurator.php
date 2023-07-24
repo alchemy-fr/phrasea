@@ -126,7 +126,6 @@ final class KeycloakConfigurator implements ConfiguratorInterface
             'redirectUris' => [
                 $baseUri.'/*',
             ],
-            'defaultClientScopes' => ['openid'],
         ], $data);
 
         if (null !== $client) {
@@ -149,16 +148,22 @@ final class KeycloakConfigurator implements ConfiguratorInterface
         }
 
         $scopes = $this->getScopes();
-        $openidScope = $this->getScopeByName($scopes, 'openid');
 
-        HttpClientUtil::catchHttpCode(fn () => $this->getAuthenticatedClient()
-            ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
-                'realm' => $this->realm,
-                'clientId' => $client['id'],
-                'scopeId' => $openidScope['id'],
-            ]), [
-                'json' => $data,
-            ]), 409);
+        foreach ([
+            'openid',
+            'profile',
+                 ] as $scope) {
+            $scopeData = $this->getScopeByName($scopes, $scope);
+
+            HttpClientUtil::catchHttpCode(fn () => $this->getAuthenticatedClient()
+                ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
+                    'realm' => $this->realm,
+                    'clientId' => $client['id'],
+                    'scopeId' => $scopeData['id'],
+                ]), [
+                    'json' => $data,
+                ]), 409);
+        }
 
         $this->configureClientClaim($client, [
             'name' => 'roles',

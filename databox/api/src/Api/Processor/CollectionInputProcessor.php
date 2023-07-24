@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
@@ -69,15 +69,6 @@ class CollectionInputProcessor extends AbstractInputProcessor
             $object->setKey($data->key);
         }
 
-        return $this->processOwnerId($object, $to, $context);
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Collection) {
-            return false;
-        }
-
-        return Collection::class === $to && CollectionInput::class === ($context['input']['class'] ?? null);
+        return $this->processOwnerId($object);
     }
 }

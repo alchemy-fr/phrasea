@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
+use App\Api\Processor\TemplateAttributeInputProcessor;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -30,7 +31,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [Attribute::GROUP_LIST],
     ],
     input: AttributeInput::class,
-    output: AttributeOutput::class
+    output: AttributeOutput::class,
+    processor: TemplateAttributeInputProcessor::class,
 )]
 #[ORM\Entity]
 class TemplateAttribute extends AbstractBaseAttribute

@@ -52,8 +52,8 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'wi:r';
-    final public const GROUP_LIST = 'wi:i';
+    final public const GROUP_READ = 'wi:read';
+    final public const GROUP_LIST = 'wi:index';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]

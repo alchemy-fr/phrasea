@@ -44,11 +44,8 @@ class Config {
         return this.get('authBaseUrl');
     }
 
-    getClientCredential(): ClientCredentials {
-        return {
-            clientId: this.get('clientId'),
-            clientSecret: this.get('clientSecret'),
-        };
+    getClientId(): string {
+        return this.get('clientId');
     }
 
     setClientCredential({clientId, clientSecret}: ClientCredentials): void {

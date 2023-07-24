@@ -6,10 +6,11 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\WithOwnerIdInterface;
+use App\Util\SecurityAwareTrait;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @extends AbstractSecurityProcessor
+ * @extends SecurityAwareTrait
  */
 trait WithOwnerIdProcessorTrait
 {

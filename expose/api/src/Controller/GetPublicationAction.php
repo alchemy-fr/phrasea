@@ -18,9 +18,9 @@ final class GetPublicationAction extends AbstractController
     {
     }
 
-    public function __invoke(string $id, Request $request): Publication
+    public function __invoke(string $slug, Request $request): Publication
     {
-        $params = Uuid::isValid($id) ? ['id' => $id] : ['slug' => $id];
+        $params = Uuid::isValid($slug) ? ['id' => $slug] : ['slug' => $slug];
         /** @var Publication|null $publication */
         $publication = $this->em
             ->getRepository(Publication::class)

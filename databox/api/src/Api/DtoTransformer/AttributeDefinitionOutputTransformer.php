@@ -2,19 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Entity\Core\AttributeDefinition;
+use App\Util\SecurityAwareTrait;
 
-class AttributeDefinitionOutputProcessor extends AbstractSecurityProcessor
+class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {
+    use SecurityAwareTrait;
+
+    public function supports(string $outputClass, object $data): bool
+    {
+        return AttributeDefinitionOutput::class === $outputClass && $data instanceof AttributeDefinition;
+    }
+
     /**
      * @param AttributeDefinition $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new AttributeDefinitionOutput();
         $output->setCreatedAt($data->getCreatedAt());
@@ -39,10 +46,5 @@ class AttributeDefinitionOutputProcessor extends AbstractSecurityProcessor
             || $this->isGranted(PermissionInterface::EDIT, $data->getClass());
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return AttributeDefinitionOutput::class === $to && $data instanceof AttributeDefinition;
     }
 }

@@ -16,6 +16,8 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
+use App\Api\Processor\AttributeInputProcessor;
+use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionDataProvider;
 use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Entity\SearchDeleteDependencyInterface;
@@ -36,7 +38,8 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/attributes/batch-update',
             controller: AttributeBatchUpdateAction::class,
             input: AttributeBatchUpdateInput::class,
-            name: 'post_batch'
+            name: 'post_batch',
+            processor: BatchAttributeUpdateProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -47,6 +50,7 @@ use Doctrine\ORM\Mapping as ORM;
     input: AttributeInput::class,
     output: AttributeOutput::class,
     provider: AttributeCollectionDataProvider::class,
+    processor: AttributeInputProcessor::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]

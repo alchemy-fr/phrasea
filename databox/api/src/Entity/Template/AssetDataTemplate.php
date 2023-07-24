@@ -50,10 +50,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
                     AssetDataTemplate::GROUP_READ,
                 ],
             ],
-            security: 'is_granted("EDIT", object)'),
+            security: 'is_granted("EDIT", object)',
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+        ),
     ],
     normalizationContext: [
         'groups' => [AssetDataTemplate::GROUP_LIST],
@@ -69,8 +72,8 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'adt:r';
-    final public const GROUP_LIST = 'adt:i';
+    final public const GROUP_READ = 'adt:read';
+    final public const GROUP_LIST = 'adt:index';
 
     /**
      * Template name.

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
-use ApiPlatform\Core\Serializer\AbstractItemNormalizer;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
@@ -83,14 +83,5 @@ class AttributeDefinitionInputProcessor extends AbstractInputProcessor
         }
 
         return $object;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof AttributeDefinition) {
-            return false;
-        }
-
-        return AttributeDefinition::class === $to && AttributeDefinitionInput::class === ($context['input']['class'] ?? null);
     }
 }

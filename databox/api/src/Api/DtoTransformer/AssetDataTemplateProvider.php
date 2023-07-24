@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
-use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
+use App\Util\SecurityAwareTrait;
 
 class AssetDataTemplateProvider implements OutputTransformerInterface
 {
@@ -18,7 +17,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
     /**
      * @param AssetDataTemplate $data
      */
-    public function transform(object $data, string $outputClass, Operation $operation, array $context = []): object
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new AssetDataTemplateOutput();
         $output->name = $data->getName();
@@ -45,8 +44,8 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         return $output;
     }
 
-    public function supports(string $outputClass, string $dataClass): bool
+    public function supports(string $outputClass, object $data): bool
     {
-        return AssetDataTemplateOutput::class === $outputClass;
+        return AssetDataTemplateOutput::class === $outputClass && $data instanceof AssetDataTemplate;
     }
 }

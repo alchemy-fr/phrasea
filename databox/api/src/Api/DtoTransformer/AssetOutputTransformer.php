@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use ApiPlatform\Metadata\Operation;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Asset\Attribute\AssetTitleResolver;
@@ -22,11 +21,13 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
+use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class AssetOutputProcessor extends AbstractSecurityProcessor
+class AssetOutputTransformer implements OutputTransformerInterface
 {
+    use SecurityAwareTrait;
     private ?string $lastGroupKey = null;
 
     public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly AttributesResolver $attributesResolver, private readonly AssetTitleResolver $assetTitleResolver, private readonly RequestStack $requestStack, private readonly FieldNameResolver $fieldNameResolver, private readonly FacetRegistry $facetRegistry, private readonly AttributeTypeRegistry $attributeTypeRegistry)
@@ -43,10 +44,15 @@ class AssetOutputProcessor extends AbstractSecurityProcessor
         return [];
     }
 
+    public function supports(string $outputClass, object $data): bool
+    {
+        return AssetOutput::class === $outputClass && $data instanceof Asset;
+    }
+
     /**
      * @param Asset $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $userLocales = $this->getUserLocales();
         $preferredLocales = array_unique(array_filter(array_merge($userLocales, $data->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
@@ -176,11 +182,6 @@ class AssetOutputProcessor extends AbstractSecurityProcessor
         }
 
         return null;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return AssetOutput::class === $to && $data instanceof Asset;
     }
 
     private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue

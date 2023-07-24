@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\CollectionOutput;
-use App\Api\Traits\SecurityAwareTrait;
 use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
+use App\Util\SecurityAwareTrait;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class CollectionOutputTransformer implements OutputTransformerInterface
@@ -18,19 +17,18 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
-        private readonly WorkspaceDtoTransformer $workspaceProvider,
     ) {
     }
 
-    public function supports(string $outputClass, string $dataClass): bool
+    public function supports(string $outputClass, object $data): bool
     {
-        return CollectionOutput::class === $outputClass;
+        return CollectionOutput::class === $outputClass && $data instanceof Collection;
     }
 
     /**
      * @param Collection $data
      */
-    public function transform($data, string $outputClass, Operation $operation, array $context = []): object
+    public function transform($data, string $outputClass, array $context = []): object
     {
         $output = new CollectionOutput();
         $output->setCreatedAt($data->getCreatedAt());

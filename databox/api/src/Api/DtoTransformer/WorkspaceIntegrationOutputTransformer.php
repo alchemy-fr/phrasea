@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\DtoTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
@@ -15,16 +14,21 @@ use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
 
-class WorkspaceIntegrationOutputProcessor extends AbstractSecurityProcessor
+class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
     public function __construct(private readonly EntityManagerInterface $em, private readonly IntegrationManager $integrationManager)
     {
     }
 
+    public function supports(string $outputClass, object $data): bool
+    {
+        return WorkspaceIntegrationOutput::class === $outputClass && $data instanceof WorkspaceIntegration;
+    }
+
     /**
      * @param WorkspaceIntegration $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $outputClass, array $context = []): object
     {
         $output = new WorkspaceIntegrationOutput();
         $output->setCreatedAt($data->getCreatedAt());
@@ -48,14 +52,14 @@ class WorkspaceIntegrationOutputProcessor extends AbstractSecurityProcessor
         }
 
         if (null !== $file) {
-            /** @var IntegrationData[] $data */
-            $data = $this->em->getRepository(IntegrationData::class)
+            /** @var IntegrationData[] $subData */
+            $subData = $this->em->getRepository(IntegrationData::class)
                 ->findBy([
                     'integration' => $data->getId(),
                     'file' => $file->getId(),
                 ]);
 
-            $output->setData($data);
+            $output->setData($subData);
         }
 
         $config = $this->integrationManager->getIntegrationConfiguration($data);
@@ -70,10 +74,5 @@ class WorkspaceIntegrationOutputProcessor extends AbstractSecurityProcessor
         }
 
         return $output;
-    }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        return WorkspaceIntegrationOutput::class === $to && $data instanceof WorkspaceIntegration;
     }
 }

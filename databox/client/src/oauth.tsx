@@ -5,11 +5,8 @@ import {getPath} from "./routes";
 import {toast} from "react-toastify";
 import {OAuthClient} from "react-ps";
 
-const {clientId, clientSecret} = config.getClientCredential();
-
 export const oauthClient = new OAuthClient({
-    clientId,
-    clientSecret,
+    clientId: config.getClientId(),
     baseUrl: config.getAuthBaseUrl(),
 });
 

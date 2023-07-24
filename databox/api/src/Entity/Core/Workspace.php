@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\DtoTransformer\WorkspaceDtoTransformer;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Api\Processor\WorkspaceInputProcessor;
 use App\Api\Provider\WorkspaceProvider;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
@@ -74,7 +75,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,
-    provider: WorkspaceProvider::class,
+    processor: WorkspaceInputProcessor::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]

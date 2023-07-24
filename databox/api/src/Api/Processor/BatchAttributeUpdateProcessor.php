@@ -21,13 +21,4 @@ class BatchAttributeUpdateProcessor implements ProcessorInterface
 
         return $object;
     }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if ($data instanceof Attribute) {
-            return false;
-        }
-
-        return Attribute::class === $to && AttributeBatchUpdateInput::class === ($context['input']['class'] ?? null);
-    }
 }

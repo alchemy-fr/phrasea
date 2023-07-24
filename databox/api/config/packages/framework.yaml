@@ -2,7 +2,6 @@
 framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
-    #http_method_override: true
 
     session:
         handler_id: snc_redis.session.handler

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
-use App\Api\ApiSecurityTrait;
-use App\Api\Traits\SecurityAwareTrait;
 use App\Entity\Core\RenditionClass;
 use App\Security\Voter\RenditionClassVoter;
+use App\Util\SecurityAwareTrait;
 
 class RenditionClassCollectionDataProvider extends AbstractCollectionProvider
 {

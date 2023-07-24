@@ -27,13 +27,4 @@ class MultipleAssetInputProcessor extends AbstractFileInputProcessor
 
         return $assets;
     }
-
-    public function supportsTransformation($data, string $to, array $context = []): bool
-    {
-        if (!is_array($data)) {
-            return false;
-        }
-
-        return Asset::class === $to && MultipleAssetInput::class === ($context['input']['class'] ?? null);
-    }
 }

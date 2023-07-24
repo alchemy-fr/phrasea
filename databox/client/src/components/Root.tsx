@@ -14,10 +14,6 @@ type State = {
     user?: User; authenticating: boolean;
 };
 
-function authenticate() {
-    return oauthClient.authenticate();
-}
-
 export default class Root extends PureComponent<{}, State> {
     state: State = {
         authenticating: oauthClient.hasAccessToken(),
@@ -33,7 +29,7 @@ export default class Root extends PureComponent<{}, State> {
             });
         });
         oauthClient.registerListener('login', async () => {
-            await authenticate();
+            await oauthClient.authenticate();
         });
 
         oauthClient.registerListener('logout', async () => {
@@ -80,7 +76,7 @@ export default class Root extends PureComponent<{}, State> {
         }
 
         this.setState({authenticating: true}, () => {
-            authenticate().then(() => {
+            oauthClient.authenticate().then(() => {
                 this.setState({authenticating: false});
             }, (error: any) => {
                 console.error(error);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\Common\Collections\ArrayCollection;

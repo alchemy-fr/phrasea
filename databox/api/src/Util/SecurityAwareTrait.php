@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Traits;
+namespace App\Util;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Security\Voter\ChuckNorrisVoter;
@@ -28,6 +28,15 @@ trait SecurityAwareTrait
     protected function isGranted(mixed $attributes, mixed $subject = null): bool
     {
         return $this->security->isGranted($attributes, $subject);
+    }
+
+    protected function getTokenId(): string
+    {
+        if (is_object($this->security->getToken())) {
+            return (string) spl_object_id($this->security->getToken());
+        }
+
+        return 'no_token';
     }
 
     protected function getUserCacheId(): string

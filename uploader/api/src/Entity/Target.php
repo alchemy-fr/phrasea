@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Put(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
-        new GetCollection(security: 'is_granted("'.JwtUser::ROLE_USER.'")'),
+        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
     ],
     normalizationContext: [
         'groups' => ['target:index'],

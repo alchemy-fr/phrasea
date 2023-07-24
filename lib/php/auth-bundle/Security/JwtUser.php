@@ -4,22 +4,15 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AclBundle\Model\AclUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-
-if (interface_exists(AclUserInterface::class)) {
-    interface JwtUserInterface extends AclUserInterface
-    {
-    }
-} else {
-    interface JwtUserInterface
-    {
-    }
-}
 
 class JwtUser implements UserInterface, JwtUserInterface
 {
+    /**
+     * @deprecated Use IS_AUTHENTICATED_FULLY instead
+     */
     const ROLE_USER = 'ROLE_USER';
+    const IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
     const ROLE_ADMIN = 'ROLE_ADMIN';
 
     private ?string $refreshToken = null;
