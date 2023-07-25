@@ -9,7 +9,9 @@ type TokenResponse = {
     refresh_token: string;
     token_type: string;
     expires_in: number;
+    refresh_expires_in: number;
     expires_at?: number;
+    refresh_expires_at?: number;
 };
 
 type UserInfoResponse = {
@@ -88,6 +90,18 @@ export default class OAuthClient {
 
     public isAuthenticated(): boolean {
         const tokens = this.fetchTokens();
+        console.debug('isAuthenticated tokens', tokens);
+
+        if (tokens) {
+            return tokens.refresh_expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
+        }
+
+        return false;
+    }
+
+    public isAccessTokenValid(): boolean {
+        const tokens = this.fetchTokens();
+        console.debug('isAccessTokenValid tokens', tokens);
         if (tokens) {
             return tokens.expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
         }
@@ -100,8 +114,6 @@ export default class OAuthClient {
         if (!accessToken) {
             return;
         }
-
-        console.debug('accessToken', accessToken);
 
         return jwtDecode<UserInfoResponse>(accessToken);
     }
@@ -168,7 +180,7 @@ export default class OAuthClient {
     }
 
     public async wrapPromiseWithValidToken<T = any>(callback: (tokens: TokenResponse) => Promise<T>): Promise<T> {
-        if (!this.isAuthenticated()) {
+        if (!this.isAccessTokenValid()) {
             await this.refreshToken();
         }
 
@@ -214,7 +226,9 @@ export default class OAuthClient {
     }
 
     private persistTokens(token: TokenResponse): void {
-        token.expires_at = new Date().getTime() / 1000 + token.expires_in;
+        const now = Math.ceil(new Date().getTime() / 1000);
+        token.expires_at = now + token.expires_in;
+        token.refresh_expires_at = now + token.refresh_expires_in;
         this.tokensCache = token;
 
         this.storage.setItem(tokenStorageKey, JSON.stringify(token));

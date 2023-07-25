@@ -6,13 +6,11 @@ export default class PrivateRoute extends Component {
     render() {
         const {component: Component, ...rest} = this.props;
 
-        return <Route {...rest} render={(props) => (
-            oauthClient.isAuthenticated() === true
+        return <Route {...rest} render={(props) => oauthClient.isAuthenticated()
                 ? <Component {...props} />
-                : (oauthClient.isAuthenticated() ? '' : <Redirect to={{
+                : <Redirect to={{
                     pathname: '/login',
                     state: { from: props.location }
-                }} />)
-        )} />;
+                }} />} />;
     }
 }
