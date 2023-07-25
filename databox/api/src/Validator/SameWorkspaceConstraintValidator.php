@@ -21,7 +21,7 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
     /**
      * @param SameWorkspaceConstraint $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $workspaceId = null;
         foreach ($constraint->properties as $propertyPath) {

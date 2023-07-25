@@ -20,7 +20,7 @@ class SecurityMethodChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         foreach ($this->choices as $choice) {
@@ -32,7 +32,7 @@ class SecurityMethodChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

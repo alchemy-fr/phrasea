@@ -17,7 +17,7 @@ class GenerateSecretsKeyPairCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -26,7 +26,7 @@ class GenerateSecretsKeyPairCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $keyPair = $this->encryptionManager->generateKeyPair();
 

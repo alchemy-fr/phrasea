@@ -18,7 +18,7 @@ class CreateTargetCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -37,7 +37,7 @@ EOT
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $slug = $input->getArgument('slug');
 

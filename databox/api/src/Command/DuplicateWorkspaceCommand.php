@@ -19,7 +19,7 @@ class DuplicateWorkspaceCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -31,7 +31,7 @@ class DuplicateWorkspaceCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $workspaceId = $input->getArgument('workspace-id');
         $newSlug = $input->getArgument('new-slug');

@@ -20,7 +20,7 @@ class MemoryCacheInvalidatorListener implements EventSubscriber
         $this->cache->invalidateList();
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::onClear,

@@ -14,7 +14,7 @@ class MapLayoutChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         foreach ($this->choices as $key => $choice) {
@@ -26,7 +26,7 @@ class MapLayoutChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

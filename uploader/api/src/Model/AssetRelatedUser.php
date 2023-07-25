@@ -37,7 +37,7 @@ class AssetRelatedUser implements UserInterface
         return $this->assetId;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 

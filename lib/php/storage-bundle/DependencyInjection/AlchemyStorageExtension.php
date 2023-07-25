@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AlchemyStorageExtension extends Extension implements PrependExtensionInterface
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -27,7 +27,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $container->setParameter('alchemy_storage.upload.allowed_types', $config['upload']['allowed_types']);
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
         $bundle = 'OneupFlysystemBundle';

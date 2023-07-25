@@ -76,7 +76,7 @@ final class PostFlushStack implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postFlush,

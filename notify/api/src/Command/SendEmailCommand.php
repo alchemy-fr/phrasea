@@ -19,7 +19,7 @@ class SendEmailCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -33,7 +33,7 @@ class SendEmailCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $template = $input->getArgument('template');
         $email = $input->getArgument('email');

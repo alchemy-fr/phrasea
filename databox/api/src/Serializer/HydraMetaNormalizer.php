@@ -14,12 +14,12 @@ class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 {
     use NormalizerAwareTrait;
 
-    public function supportsNormalization($data, $format = null): bool
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
         return $data instanceof ApiMetaWrapperOutput;
     }
 
-    public function normalize($object, string $format = null, array $context = [])
+    public function normalize($object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         $normalized = $this->normalizer->normalize($object->getResult(), $format, $context);
 

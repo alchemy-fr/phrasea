@@ -70,13 +70,6 @@
         },
         {
             "type": "path",
-            "url": "./__lib/oauth-server-bundle",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
             "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
@@ -111,11 +104,10 @@
         "ext-imagick": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "dev-to-sf6",
+        "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
-        "alchemy/oauth-server-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
@@ -136,7 +128,6 @@
         "gedmo/doctrine-extensions": "^3.5",
         "hautelook/alice-bundle": "^2.10",
         "intervention/image": "^2.7",
-        "klapaudius/oauth-server-bundle": "^4.0",
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^5",
         "nelmio/cors-bundle": "^2.1",

@@ -65,7 +65,7 @@ class UpdateUserPreferenceAction extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof JwtUser) {
-            throw new AccessDeniedHttpException(sprintf('Invalid user %s', $user::class));
+            throw new AccessDeniedHttpException(sprintf('Invalid user "%s"', get_debug_type($user)));
         }
 
         return $user;

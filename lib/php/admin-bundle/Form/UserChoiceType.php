@@ -17,7 +17,7 @@ class UserChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
@@ -32,7 +32,7 @@ class UserChoiceType extends AbstractType
         );
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

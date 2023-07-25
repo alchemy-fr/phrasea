@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class AlchemyCoreExtension extends Extension implements PrependExtensionInterface
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -48,7 +48,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
         $env = $container->getParameter('kernel.environment');

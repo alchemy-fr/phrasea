@@ -19,7 +19,7 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
      * @param Attribute               $value
      * @param SameWorkspaceConstraint $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $definition = $value->getDefinition();
         if (null === $definition) {

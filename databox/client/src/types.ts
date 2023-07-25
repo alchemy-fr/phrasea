@@ -172,6 +172,8 @@ export interface Tag extends ApiHydraObjectResponse {
 export interface User {
     id: string;
     username: string;
+    roles: string[];
+    groups: string[];
 }
 
 export interface Group {

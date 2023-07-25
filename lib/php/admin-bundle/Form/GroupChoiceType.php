@@ -16,7 +16,7 @@ class GroupChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $groups = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getGroups($accessToken));
         $choices = [];
@@ -30,7 +30,7 @@ class GroupChoiceType extends AbstractType
         );
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

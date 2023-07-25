@@ -9,9 +9,13 @@ interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;
 }
 
-export function makeAuthorizationHeaders(accessToken?: string): MyHeaders {
-    if (accessToken) {
-        return {Authorization: `Bearer ${accessToken}`};
+export async function makeAuthorizationHeaders(): Promise<MyHeaders> {
+    if (oauthClient.isAuthenticated()) {
+        if (!oauthClient.isAccessTokenValid()) {
+            await oauthClient.refreshToken();
+        }
+
+        return {Authorization: `Bearer ${oauthClient.getAccessToken()!}`};
     }
 
     return {};
@@ -27,7 +31,7 @@ export async function UploadFiles(userId: string, files: UploadedFile[], formDat
 }
 
 export async function UploadFile(targetSlug: string, userId: string, uploadedFile: UploadedFile): Promise<string> {
-    return await uploadMultipartFile(targetSlug, userId, oauthClient.getAccessToken()!, uploadedFile);
+    return await uploadMultipartFile(targetSlug, userId, uploadedFile);
 }
 
 export async function CommitUpload(targetSlug: string, files: string[], formData?: FormData): Promise<void> {
@@ -36,6 +40,6 @@ export async function CommitUpload(targetSlug: string, files: string[], formData
         files,
         formData,
     }, {
-        headers: makeAuthorizationHeaders(oauthClient.getAccessToken()!),
+        headers: await makeAuthorizationHeaders(),
     });
 }

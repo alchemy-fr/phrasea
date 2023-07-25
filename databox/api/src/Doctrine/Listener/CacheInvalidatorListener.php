@@ -49,7 +49,7 @@ class CacheInvalidatorListener implements EventSubscriber
         $this->invalidateEntity($args);
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::preRemove,

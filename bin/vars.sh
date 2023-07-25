@@ -19,7 +19,6 @@ lib/php/api-test
 lib/php/core-bundle
 lib/php/metadata-manipulator-bundle
 lib/php/notify-bundle
-lib/php/oauth-server-bundle
 lib/php/auth-bundle
 lib/php/report-bundle
 lib/php/report-sdk

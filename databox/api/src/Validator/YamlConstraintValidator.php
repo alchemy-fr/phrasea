@@ -15,7 +15,7 @@ class YamlConstraintValidator extends ConstraintValidator
      * @param string         $value
      * @param YamlConstraint $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (empty($value)) {
             return;

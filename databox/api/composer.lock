@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7269dc8da7f2533378ce2326a69e0909",
+    "content-hash": "aa7aecd3d89cdf55ff90e53fb80c9a04",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-to-sf6",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "e0ccf00ea53b499e1923f2be41ee85af46321adf"
+                "reference": "4861c2d56050ea004cc10fa97cb3bc234871ec99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/e0ccf00ea53b499e1923f2be41ee85af46321adf",
-                "reference": "e0ccf00ea53b499e1923f2be41ee85af46321adf",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/4861c2d56050ea004cc10fa97cb3bc234871ec99",
+                "reference": "4861c2d56050ea004cc10fa97cb3bc234871ec99",
                 "shasum": ""
             },
             "require": {
@@ -31,9 +31,11 @@
                 "symfony/yaml": "^4.4|^5.4|^6.1"
             },
             "require-dev": {
+                "doctrine/doctrine-bundle": "^2.10",
                 "friendsofphp/php-cs-fixer": "^3",
                 "phpunit/phpunit": "^8.4|^10.2.2"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -51,9 +53,9 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/to-sf6"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-06-26T08:48:39+00:00"
+            "time": "2023-07-25T15:46:57+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
@@ -273,59 +275,6 @@
                 "MIT"
             ],
             "description": "Symfony Metadata Manipulator bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-bump-sf6",
-            "dist": {
-                "type": "path",
-                "url": "./__lib/oauth-server-bundle",
-                "reference": "3f1efb66dc34093cd76003071f72013637dda23a"
-            },
-            "require": {
-                "klapaudius/oauth-server-bundle": "^4.0",
-                "php": "^7.4 || ^8.0",
-                "symfony/framework-bundle": "^4.0 || ^5.0 || ^5 | ^6",
-                "symfony/templating": "^4.0 || ^5.0 || ^6"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17",
-                "rector/rector": "^0.17.1"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\OAuthServerBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\OAuthServerBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "rector": [
-                    "vendor/bin/rector"
-                ],
-                "cs": [
-                    "vendor/bin/php-cs-fixer fix"
-                ],
-                "test": [
-                    "echo 'This project has no test...'"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony OAuth server bundle",
             "homepage": "https://www.alchemy.fr/",
             "transport-options": {
                 "symlink": true,
@@ -865,12 +814,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "8a6d6e4699f5dcbde52b6b796a1db13c3c21ccb8"
+                "reference": "5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/8a6d6e4699f5dcbde52b6b796a1db13c3c21ccb8",
-                "reference": "8a6d6e4699f5dcbde52b6b796a1db13c3c21ccb8",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349",
+                "reference": "5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349",
                 "shasum": ""
             },
             "require": {
@@ -908,7 +857,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2023-07-13T14:16:51+00:00"
+            "time": "2023-07-25T15:46:00+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -2059,16 +2008,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.6.4",
+            "version": "3.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f"
+                "reference": "96d5a70fd91efdcec81fc46316efc5bf3da17ddf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f",
-                "reference": "19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/96d5a70fd91efdcec81fc46316efc5bf3da17ddf",
+                "reference": "96d5a70fd91efdcec81fc46316efc5bf3da17ddf",
                 "shasum": ""
             },
             "require": {
@@ -2083,10 +2032,10 @@
             "require-dev": {
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
-                "jetbrains/phpstorm-stubs": "2022.3",
-                "phpstan/phpstan": "1.10.14",
+                "jetbrains/phpstorm-stubs": "2023.1",
+                "phpstan/phpstan": "1.10.21",
                 "phpstan/phpstan-strict-rules": "^1.5",
-                "phpunit/phpunit": "9.6.7",
+                "phpunit/phpunit": "9.6.9",
                 "psalm/plugin-phpunit": "0.18.4",
                 "squizlabs/php_codesniffer": "3.7.2",
                 "symfony/cache": "^5.4|^6.0",
@@ -2151,7 +2100,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.6.4"
+                "source": "https://github.com/doctrine/dbal/tree/3.6.5"
             },
             "funding": [
                 {
@@ -2167,7 +2116,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-06-15T07:40:12+00:00"
+            "time": "2023-07-17T09:15:50+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -2851,16 +2800,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "2.15.3",
+            "version": "2.15.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "4c3bd208018c26498e5f682aaad45fa00ea307d5"
+                "reference": "f7e4b61459692f9b747f40696e6bf72080390f2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/4c3bd208018c26498e5f682aaad45fa00ea307d5",
-                "reference": "4c3bd208018c26498e5f682aaad45fa00ea307d5",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/f7e4b61459692f9b747f40696e6bf72080390f2d",
+                "reference": "f7e4b61459692f9b747f40696e6bf72080390f2d",
                 "shasum": ""
             },
             "require": {
@@ -2889,14 +2838,14 @@
                 "doctrine/annotations": "^1.13 || ^2",
                 "doctrine/coding-standard": "^9.0.2 || ^12.0",
                 "phpbench/phpbench": "^0.16.10 || ^1.0",
-                "phpstan/phpstan": "~1.4.10 || 1.10.18",
+                "phpstan/phpstan": "~1.4.10 || 1.10.25",
                 "phpunit/phpunit": "^7.5 || ^8.5 || ^9.6",
                 "psr/log": "^1 || ^2 || ^3",
                 "squizlabs/php_codesniffer": "3.7.2",
                 "symfony/cache": "^4.4 || ^5.4 || ^6.0",
                 "symfony/var-exporter": "^4.4 || ^5.4 || ^6.2",
                 "symfony/yaml": "^3.4 || ^4.0 || ^5.0 || ^6.0",
-                "vimeo/psalm": "4.30.0 || 5.12.0"
+                "vimeo/psalm": "4.30.0 || 5.13.1"
             },
             "suggest": {
                 "ext-dom": "Provides support for XSD validation for XML mapping files",
@@ -2946,9 +2895,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/2.15.3"
+                "source": "https://github.com/doctrine/orm/tree/2.15.4"
             },
-            "time": "2023-06-22T12:36:06+00:00"
+            "time": "2023-07-18T07:50:04+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -4271,159 +4220,6 @@
                 }
             ],
             "time": "2022-05-21T17:30:32+00:00"
-        },
-        {
-            "name": "klapaudius/oauth-server-bundle",
-            "version": "4.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/klapaudius/FOSOAuthServerBundle.git",
-                "reference": "b95b61ecd665a0895fc3dd9bacbffaabfde10d37"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/klapaudius/FOSOAuthServerBundle/zipball/b95b61ecd665a0895fc3dd9bacbffaabfde10d37",
-                "reference": "b95b61ecd665a0895fc3dd9bacbffaabfde10d37",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/doctrine-bundle": "~2.0",
-                "klapaudius/oauth2-php": "~1.4",
-                "php": "^8.0",
-                "symfony/dependency-injection": "~6.0",
-                "symfony/form": "~6.0",
-                "symfony/framework-bundle": "~6.0",
-                "symfony/security-bundle": "~6.0",
-                "symfony/twig-bundle": "~6.0"
-            },
-            "require-dev": {
-                "doctrine/mongodb-odm": "~2.0",
-                "doctrine/orm": "~2.2",
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phing/phing": "~2.4",
-                "php-mock/php-mock-phpunit": "~1.0|~2.0",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "~9.0",
-                "symfony/class-loader": "^2.0",
-                "symfony/console": "~6.0",
-                "symfony/phpunit-bridge": "~6.0",
-                "symfony/templating": "~6.0",
-                "symfony/yaml": "~6.0"
-            },
-            "suggest": {
-                "doctrine/doctrine-bundle": "*",
-                "doctrine/mongodb-odm-bundle": "*",
-                "symfony/console": "Needed to be able to use commands",
-                "symfony/form": "Needed to be able to use the AuthorizeFormType"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "FOS\\OAuthServerBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Klapaudius",
-                    "email": "klapaudius@gmail.com"
-                },
-                {
-                    "name": "Arnaud Le Blanc",
-                    "email": "arnaud.lb@gmail.com"
-                },
-                {
-                    "name": "FriendsOfSymfony Community",
-                    "homepage": "https://github.com/FriendsOfSymfony/FOSOAuthServerBundle/contributors"
-                }
-            ],
-            "description": "Symfony OAuth Server Bundle",
-            "homepage": "https://github.com/klapaudius/FOSOAuthServerBundle",
-            "keywords": [
-                "oauth",
-                "oauth2",
-                "server"
-            ],
-            "support": {
-                "issues": "https://github.com/klapaudius/FOSOAuthServerBundle/issues",
-                "source": "https://github.com/klapaudius/FOSOAuthServerBundle/tree/4.0.3"
-            },
-            "time": "2022-09-15T12:29:18+00:00"
-        },
-        {
-            "name": "klapaudius/oauth2-php",
-            "version": "1.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/klapaudius/oauth2-php.git",
-                "reference": "94a03239e0d0baa81670ccf7592f6c61e410f813"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/klapaudius/oauth2-php/zipball/94a03239e0d0baa81670ccf7592f6c61e410f813",
-                "reference": "94a03239e0d0baa81670ccf7592f6c61e410f813",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.5.9 || ^7.0.8 || ^7.1.3 || ^7.2.5 || ^8.0.0",
-                "symfony/http-foundation": "~3.0|~4.0|~5.0|~6.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^5.0 || ^6.0 || ^8.0 || ^9.0.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "OAuth2\\": "lib/"
-                },
-                "exclude-from-classmap": [
-                    "/tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Klapaudius",
-                    "email": "klapaudius@gmail.com"
-                },
-                {
-                    "name": "Arnaud Le Blanc",
-                    "email": "arnaud.lb@gmail.com"
-                },
-                {
-                    "name": "FriendsOfSymfony Community",
-                    "homepage": "https://github.com/FriendsOfSymfony/oauth2-php/contributors"
-                }
-            ],
-            "description": "OAuth2 library",
-            "homepage": "https://github.com/klapaudius/oauth2-php",
-            "keywords": [
-                "oauth",
-                "oauth2"
-            ],
-            "support": {
-                "source": "https://github.com/klapaudius/oauth2-php/tree/1.5.0"
-            },
-            "time": "2022-08-05T12:42:09+00:00"
         },
         {
             "name": "kornrunner/blurhash",
@@ -6027,16 +5823,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.22.1",
+            "version": "1.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "65c39594fbd8c67abfc68bb323f86447bab79cc0"
+                "reference": "a2b24135c35852b348894320d47b3902a94bc494"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/65c39594fbd8c67abfc68bb323f86447bab79cc0",
-                "reference": "65c39594fbd8c67abfc68bb323f86447bab79cc0",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/a2b24135c35852b348894320d47b3902a94bc494",
+                "reference": "a2b24135c35852b348894320d47b3902a94bc494",
                 "shasum": ""
             },
             "require": {
@@ -6068,9 +5864,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.22.1"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.23.0"
             },
-            "time": "2023-06-29T20:46:06+00:00"
+            "time": "2023-07-23T22:17:56+00:00"
         },
         {
             "name": "predis/predis",
@@ -14077,21 +13873,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.17.6",
+            "version": "0.17.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21"
+                "reference": "0e76101aa329911b7fec43106aac5843a978b209"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21",
-                "reference": "ec40080b9bdaf39eb0c0a9276cd7b4a778c03f21",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/0e76101aa329911b7fec43106aac5843a978b209",
+                "reference": "0e76101aa329911b7fec43106aac5843a978b209",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.10.20"
+                "phpstan/phpstan": "^1.10.26"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -14126,7 +13922,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.17.6"
+                "source": "https://github.com/rectorphp/rector/tree/0.17.7"
             },
             "funding": [
                 {
@@ -14134,7 +13930,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-14T09:54:15+00:00"
+            "time": "2023-07-23T20:44:23+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -15347,7 +15143,6 @@
         "alchemy/admin-bundle": 20,
         "alchemy/core-bundle": 20,
         "alchemy/metadata-manipulator-bundle": 20,
-        "alchemy/oauth-server-bundle": 20,
         "alchemy/webhook-bundle": 20,
         "alchemy/workflow-bundle": 20,
         "arthem/rabbit-bundle": 20,

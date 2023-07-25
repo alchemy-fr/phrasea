@@ -13,6 +13,7 @@ use App\Util\SecurityAwareTrait;
 class AssetDataTemplateProvider implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
 
     /**
      * @param AssetDataTemplate $data
@@ -35,11 +36,13 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
             $output->attributes = array_filter($data->getAttributes()->getValues(), fn (TemplateAttribute $attribute): bool => $this->security->isGranted(AbstractVoter::READ, $attribute));
         }
 
-        $output->setCapabilities([
-            'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-            'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-            'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
-        ]);
+        if ($this->hasGroup([AssetDataTemplate::GROUP_LIST, AssetDataTemplate::GROUP_READ], $context)) {
+            $output->setCapabilities([
+                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+            ]);
+        }
 
         return $output;
     }

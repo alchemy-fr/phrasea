@@ -10,7 +10,7 @@ use Twig\TwigFilter;
 
 class AdminExtension extends AbstractExtension
 {
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('file_size', $this->formatSize(...)),

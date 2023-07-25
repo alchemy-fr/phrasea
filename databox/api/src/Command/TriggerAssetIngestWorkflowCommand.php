@@ -21,7 +21,7 @@ class TriggerAssetIngestWorkflowCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -31,7 +31,7 @@ class TriggerAssetIngestWorkflowCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $assetId = $input->getArgument('assetId');
         $asset = $this->em->find(Asset::class, $assetId);

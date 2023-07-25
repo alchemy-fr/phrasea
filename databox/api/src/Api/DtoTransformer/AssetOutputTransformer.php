@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class AssetOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
     private ?string $lastGroupKey = null;
 
     public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly AttributesResolver $attributesResolver, private readonly AssetTitleResolver $assetTitleResolver, private readonly RequestStack $requestStack, private readonly FieldNameResolver $fieldNameResolver, private readonly FacetRegistry $facetRegistry, private readonly AttributeTypeRegistry $attributeTypeRegistry)
@@ -151,13 +152,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $output->setPendingUploadToken($data->getPendingUploadToken());
         }
 
-        $output->setCapabilities([
-            'canEdit' => $this->isGranted(AssetVoter::EDIT, $data),
-            'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
-            'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
-            'canDelete' => $this->isGranted(AssetVoter::DELETE, $data),
-            'canEditPermissions' => $this->isGranted(AssetVoter::EDIT_PERMISSIONS, $data),
-        ]);
+        if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {
+            $output->setCapabilities([
+                'canEdit' => $this->isGranted(AssetVoter::EDIT, $data),
+                'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
+                'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
+                'canDelete' => $this->isGranted(AssetVoter::DELETE, $data),
+                'canEditPermissions' => $this->isGranted(AssetVoter::EDIT_PERMISSIONS, $data),
+            ]);
+        }
 
         return $output;
     }

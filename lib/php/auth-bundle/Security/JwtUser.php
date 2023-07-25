@@ -72,7 +72,7 @@ class JwtUser implements UserInterface, JwtUserInterface
         return $this->username;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 

@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AlchemyAdminExtension extends Extension implements PrependExtensionInterface
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $bundles = $container->getParameter('kernel.bundles');
@@ -70,7 +70,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('easy_admin.site_title', $adminSiteTitle);
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
         if (!isset($bundles['EasyAdminBundle'])) {

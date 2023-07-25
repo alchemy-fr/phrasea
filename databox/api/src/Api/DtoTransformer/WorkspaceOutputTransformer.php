@@ -12,6 +12,7 @@ use App\Util\SecurityAwareTrait;
 class WorkspaceOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
 
     private array $capCache = [];
 
@@ -43,7 +44,12 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             ];
         }
 
-        $output->setCapabilities($this->capCache[$k]);
+        if ($this->hasGroup([
+            Workspace::GROUP_READ,
+            Workspace::GROUP_LIST,
+        ], $context)) {
+            $output->setCapabilities($this->capCache[$k]);
+        }
 
         return $output;
     }

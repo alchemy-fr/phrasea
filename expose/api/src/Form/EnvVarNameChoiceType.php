@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EnvVarNameChoiceType extends AbstractType
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         $config = array_filter(ConfigurationManager::CONFIG, fn (array $c): bool => $c['overridableInAdmin'] ?? true);
@@ -25,7 +25,7 @@ class EnvVarNameChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

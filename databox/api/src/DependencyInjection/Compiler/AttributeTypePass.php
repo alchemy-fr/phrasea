@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class AttributeTypePass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $fieldRegistry = $container->getDefinition(AttributeTypeRegistry::class);
         $taggedServices = $container->findTaggedServiceIds('app.attribute_type');

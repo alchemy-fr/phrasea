@@ -19,7 +19,7 @@ final readonly class AssetTokenUser implements UserInterface
         ];
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 

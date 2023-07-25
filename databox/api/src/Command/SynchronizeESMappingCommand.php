@@ -19,7 +19,7 @@ class SynchronizeESMappingCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -30,7 +30,7 @@ class SynchronizeESMappingCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $workspaceId = $input->getArgument('workspace');
         $workspace = $this->em->find(Workspace::class, $workspaceId);

@@ -4,8 +4,6 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\OAuthServerBundle\Entity\AccessToken;
-use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
@@ -54,7 +52,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
             MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
-            MenuItem::linkToCrud('Access tokens', '', AccessToken::class),
         ];
 
         $submenu2 = [
@@ -104,7 +101,6 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
-        yield MenuItem::linkToCrud('OAuthClient', 'fas fa-folder-open', OAuthClient::class);
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);

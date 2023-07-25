@@ -27,7 +27,7 @@ class FileListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::preRemove,

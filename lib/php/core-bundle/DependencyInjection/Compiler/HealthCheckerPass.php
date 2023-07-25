@@ -17,7 +17,7 @@ class HealthCheckerPass implements CompilerPassInterface
 {
     final public const TAG = 'alchemy_core.health_checker';
 
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition(HealthChecker::class)) {
             return;

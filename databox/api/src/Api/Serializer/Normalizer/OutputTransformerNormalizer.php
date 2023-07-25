@@ -37,7 +37,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = [])
+    public function normalize(mixed $object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         if (is_object($object) && !is_iterable($object)) {
             if (null !== $outputClass = $this->getOutputClass($object)) {
@@ -84,12 +84,12 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         throw new \InvalidArgumentException(sprintf('No transformer found for resource "%s"', $outputClass));
     }
 
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
         return $this->decorated->supportsNormalization($data, $format);
     }
 
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return $this->decorated->supportsDenormalization($data, $type, $format);
     }
@@ -104,5 +104,12 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         if($this->decorated instanceof SerializerAwareInterface) {
             $this->decorated->setSerializer($serializer);
         }
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            'object' => true,
+        ];
     }
 }

@@ -18,14 +18,14 @@ class RunCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
         $this->addArgument('name', InputArgument::REQUIRED, 'The workflow name to run');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->orchestrator->startWorkflow($input->getArgument('name'));
 

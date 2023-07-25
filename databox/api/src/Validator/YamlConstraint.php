@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraint;
 
 class YamlConstraint extends Constraint
 {
-    public function getTargets()
+    public function getTargets(): string|array
     {
         return self::PROPERTY_CONSTRAINT;
     }

@@ -41,7 +41,7 @@ class SoftDeleteListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             SoftDeleteableListener::PRE_SOFT_DELETE => 'preSoftDelete',

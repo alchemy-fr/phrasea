@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class BuildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $dir = $container->getParameter('alchemy_mm.classes_directory');
         $container->getParameterBag()->remove('alchemy_mm.classes_directory');

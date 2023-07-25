@@ -14,7 +14,7 @@ class LayoutChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [
             'None (inherit from profile)' => null,
@@ -28,7 +28,7 @@ class LayoutChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

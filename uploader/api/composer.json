@@ -22,13 +22,6 @@
         },
         {
             "type": "path",
-            "url": "./__lib/oauth-server-bundle",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
             "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
@@ -76,11 +69,10 @@
         "php": "^8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/acl-bundle": "dev-to-sf6",
+        "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
-        "alchemy/oauth-server-bundle": "@dev",
         "alchemy/auth-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",

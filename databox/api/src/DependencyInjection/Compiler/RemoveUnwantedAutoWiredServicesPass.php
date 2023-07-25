@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class RemoveUnwantedAutoWiredServicesPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $annotationReader = new AnnotationReader();
         $definitions = $container->getDefinitions();

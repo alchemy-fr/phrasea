@@ -20,7 +20,7 @@ class PruneMultipartUploadsCommand extends Command
         $this->uploadManager = $uploadManager;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -30,7 +30,7 @@ class PruneMultipartUploadsCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->uploadManager->pruneParts();
 

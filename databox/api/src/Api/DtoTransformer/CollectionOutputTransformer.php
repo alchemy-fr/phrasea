@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
 class CollectionOutputTransformer implements OutputTransformerInterface
 {
+    use GroupsHelperTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -38,7 +39,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setPrivacy($data->getPrivacy());
         $output->setWorkspace($data->getWorkspace());
 
-        if (in_array(Collection::GROUP_CHILDREN, $context['groups'], true)) {
+        if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
             $maxChildrenLimit = 30;
             if (preg_match('#[&?]childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {
                 $childrenLimit = $regs[1];
@@ -50,7 +51,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
 
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, $output::class, 'children');
-            $maxDepth = (in_array(Collection::GROUP_2LEVEL_CHILDREN, $context['groups'], true)) ? 2 : 1;
+            $maxDepth = $this->hasGroup(Collection::GROUP_2LEVEL_CHILDREN, $context) ? 2 : 1;
             $depth = $context[$key] ?? 0;
             if ($depth < $maxDepth) {
                 if (false !== $data->getHasChildren()) {
@@ -66,11 +67,13 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        $output->setCapabilities([
-            'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-            'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-            'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
-        ]);
+        if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
+            $output->setCapabilities([
+                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+            ]);
+        }
 
         return $output;
     }
