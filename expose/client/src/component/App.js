@@ -12,7 +12,7 @@ import EmbeddedAsset from "./EmbeddedAsset";
 
 class App extends PureComponent {
     state = {
-        authenticated: null,
+        authenticated: false,
     };
 
     componentDidMount() {
@@ -28,7 +28,7 @@ class App extends PureComponent {
     }
 
     init = () => {
-        if (oauthClient.getAccessToken()) {
+        if (oauthClient.isAuthenticated()) {
             this.authenticate();
         }
     }
@@ -38,16 +38,11 @@ class App extends PureComponent {
     }
 
     onLogout = async () => {
-        this.setState({authenticated: null});
+        this.setState({authenticated: false});
     }
 
-    async authenticate() {
-        if (this.state.authenticated) {
-            return;
-        }
-
-        const res = await oauthClient.authenticate();
-        this.setState({authenticated: res});
+    authenticate() {
+        this.setState({authenticated: true});
     }
 
     render() {

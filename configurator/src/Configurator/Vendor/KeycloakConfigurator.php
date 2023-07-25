@@ -39,7 +39,8 @@ final class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output): void
     {
-        $this->configureScopes();
+        $this->configureScope('openid');
+        $this->configureScope('groups');
 
         foreach ($this->symfonyApplications as $app) {
             $client = $this->createClient(
@@ -67,12 +68,12 @@ final class KeycloakConfigurator implements ConfiguratorInterface
         }
     }
 
-    private function configureScopes(): void
+    private function configureScope(string $name): void
     {
         $scopes = $this->getScopes();
-        $scope = $this->getScopeByName($scopes, 'openid');
+        $scope = $this->getScopeByName($scopes, $name);
         $data = [
-            'name' => 'openid',
+            'name' => $name,
             'protocol' => 'openid-connect',
             'type' => 'default',
             'attributes' => [
@@ -89,7 +90,7 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                     'json' => $data,
                 ]);
             $scopes = $this->getScopes();
-            $scope = $this->getScopeByName($scopes, 'openid');
+            $scope = $this->getScopeByName($scopes, $name);
         } else {
             $this->getAuthenticatedClient()
                 ->request('PUT', UriTemplate::resolve('{realm}/client-scopes/{id}', [
@@ -99,7 +100,6 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                     'json' => $data,
                 ]);
         }
-
 
         HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
@@ -175,9 +175,23 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                 'jsonType.label' => 'String',
                 'access.token.claim' => 'true',
                 'userinfo.token.claim' => 'true',
-                'id.token.claim' => 'false',
+                'id.token.claim' => 'true',
                 'multivalued' => 'true',
                 'usermodel.realmRoleMapping.rolePrefix' => '',
+            ],
+        ]);
+
+        $this->configureClientClaim($client, [
+            'name' => 'groups',
+            'consentRequired' => false,
+            'protocol' => 'openid-connect',
+            'protocolMapper' => 'oidc-group-membership-mapper',
+            'config' => [
+                'claim.name' => 'groups',
+                'access.token.claim' => 'true',
+                'userinfo.token.claim' => 'true',
+                'id.token.claim' => 'true',
+                'full.path' => 'false',
             ],
         ]);
 

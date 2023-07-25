@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
 import '../scss/Upload.scss';
 import PropTypes from "prop-types";
-import config from "../config";
-import request from "superagent";
 import AssetLiForm from "./AssetLiForm";
 import {SubmissionError} from 'redux-form';
 import {Translation} from "react-i18next";
-import {oauthClient} from "../oauth";
 import {getFormSchema} from "../requests";
+import {authenticatedRequest} from "../lib/api";
 
 export default class AssetForm extends Component {
     static propTypes = {
@@ -60,7 +58,6 @@ export default class AssetForm extends Component {
 
     onSubmit = async (reduxFormData) => {
         let formData = {...reduxFormData};
-        const accessToken = oauthClient.getAccessToken();
         const {baseSchema, submitPath, onComplete} = this.props;
 
         // Extract base fields out from form data
@@ -80,36 +77,29 @@ export default class AssetForm extends Component {
             data: formData,
         };
 
-        return new Promise((resolve, reject) => {
-            request
-                .post(config.getUploadBaseURL() + submitPath)
-                .accept('json')
-                .set('Authorization', `Bearer ${accessToken}`)
-                .send(data)
-                .end((err, res) => {
-                    if (!oauthClient.isResponseValid(err, res)) {
-                        console.log(err);
-                        reject(new SubmissionError({_error: err.toString()}));
-                        return;
-                    }
+        let r;
+        try {
+            r = await authenticatedRequest({
+                url: submitPath,
+                data,
+            });
+        } catch (e) {
+            console.log(e);
+            throw new SubmissionError({_error: e.toString()});
+        }
 
-                    if (res.body.errors && Object.keys(res.body.errors).length > 0) {
-                        const {errors} = res.body;
-                        const errs = {};
+        if (r.errors && Object.keys(r.errors).length > 0) {
+            const {errors} = r.body;
+            const errs = {};
 
-                        Object.keys(errors).forEach((i) => {
-                            errs[i] = errors[i].join("\n");
-                        });
+            Object.keys(errors).forEach((i) => {
+                errs[i] = errors[i].join("\n");
+            });
 
-                        reject(new SubmissionError(errs));
-                        return;
-                    }
+            throw new SubmissionError(errs);
+        }
 
-                    onComplete && onComplete(formData);
-                    resolve();
-                });
-
-        });
+        onComplete && onComplete(formData);
     };
 
     render() {

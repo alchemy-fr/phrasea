@@ -5,11 +5,8 @@ import qs from 'querystring';
 import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
-const {clientId, clientSecret} = config.getClientCredential();
-
 export const oauthClient = new OAuthClient({
-    clientId,
-    clientSecret,
+    clientId: config.getClientId(),
     baseUrl: config.getAuthBaseUrl(),
 });
 

@@ -1,54 +1,50 @@
-import request from "superagent";
-import config from "./config";
 import {oauthClient} from "./oauth";
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
+import {apiClient} from "./lib/api";
 
 const fileChunkSize = 5242880 // 5242880 is the minimum allowed by AWS S3;
 
-async function asyncRequest(file, method, uri, accessToken, postData, onProgress, options = {}) {
-    return new Promise((resolve, reject) => {
-        const accept = options.accept || 'json';
-        const req = request[method](uri)
-            .accept(accept);
+async function asyncRequest(file, method, uri, auth, postData, onProgress, options = {}) {
+    const config = {
+        url: uri,
+        method,
+    };
+    if (postData) {
+        config.data = postData;
+    }
 
-        if (accessToken) {
-            req.set('Authorization', `Bearer ${accessToken}`)
-        }
+    if (onProgress) {
+        config.onUploadProgress = onProgress;
+        /*{
+            function (axiosProgressEvent) {
+          loaded: number;
+          total?: number;
+          progress?: number; // in range [0..1]
+          bytes: number; // how many bytes have been transferred since the last trigger (delta)
+          estimated?: number; // estimated time in seconds
+          rate?: number; // upload speed in bytes
+          upload: true; // upload sign
+    }*/
+    }
 
-        if (postData) {
-            req
-                .set('Content-Type', 'application/json')
-                .send(postData);
-        }
+    if (file) {
+        file.abortController = new AbortController();
+        config.signal = file.abortController.signal;
+    }
 
-        if (onProgress) {
-            req.on('progress', onProgress);
-        }
+    if (auth) {
+        return oauthClient.wrapPromiseWithValidToken(({access_token, token_type}) => {
+            config.headers ??= {};
+            config.headers['Authorization'] = `${token_type} ${access_token}`;
 
-        req
-            .end((err, res) => {
-                if (!oauthClient.isResponseValid(err, res)) {
-                    reject(err);
-                }
-
-                if (res && res.text && accept === 'json') {
-                    const json = JSON.parse(res.text);
-                    resolve({
-                        res,
-                        json,
-                    });
-                } else {
-                    resolve({res});
-                }
-            });
-
-        if (file) {
-            file.request = req;
-        }
-    });
+            return apiClient.request(config);
+        });
+    } else {
+        return apiClient.request(config);
+    }
 }
 
-export async function uploadMultipartFile(targetId, userId, accessToken, file, onProgress) {
+export async function uploadMultipartFile(targetId, userId, file, onProgress) {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
 
     try {
@@ -69,13 +65,14 @@ export async function uploadMultipartFile(targetId, userId, accessToken, file, o
                 });
             }
         } else {
-            const res = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/uploads`, accessToken, {
+            const res = await asyncRequest(file, 'POST', `/uploads`, true, {
                 filename: file.file.name,
                 type: file.file.type,
                 size: file.file.size,
-            }, undefined);
-            uploadId = res.json.id;
-            path = res.json.path;
+            });
+            console.log('res', res);
+            uploadId = res.data.id;
+            path = res.data.path;
             uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
         }
 
@@ -86,31 +83,25 @@ export async function uploadMultipartFile(targetId, userId, accessToken, file, o
             const start = (index - 1) * fileChunkSize;
             const end = (index) * fileChunkSize;
 
-            const getUploadUrlResp = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/uploads/${uploadId}/part`, accessToken, {
+            const getUploadUrlResp = await asyncRequest(file, 'POST', `/uploads/${uploadId}/part`, true, {
                 part: index,
             });
+            console.log('getUploadUrlResp', getUploadUrlResp);
 
-            const {url} = getUploadUrlResp.json;
+            const {url} = getUploadUrlResp.data;
 
             const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
 
-            const uploadResp = await asyncRequest(file, 'put', url, null, blob, (e) => {
-                if (e.direction !== 'upload') {
-                    return;
-                }
-
+            const uploadResp = await asyncRequest(file, 'PUT', url, null, blob, (e) => {
                 const multiPartEvent = {
                     ...e,
                     loaded: e.loaded + start,
                 };
 
                 onProgress(multiPartEvent);
-            }, {
-                accept: '*'
             });
 
-
-            const eTag = uploadResp.res.headers.etag;
+            const eTag = uploadResp.headers.etag;
             uploadParts.push({
                 ETag: eTag,
                 PartNumber: index,
@@ -119,7 +110,7 @@ export async function uploadMultipartFile(targetId, userId, accessToken, file, o
             uploadStateStorage.updateUpload(userId, fileUID, eTag);
         }
 
-        const {res: finalRes} = await asyncRequest(file, 'post', `${config.getUploadBaseURL()}/assets`, accessToken, {
+        const finalRes = await asyncRequest(file, 'POST', `/assets`, true, {
             targetId,
             multipart: {
                 uploadId,

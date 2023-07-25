@@ -1,5 +1,4 @@
 import IdentityProviders from "./components/IdentityProviders";
-import Login from "./components/Login";
 import FormLayout from "./components/FormLayout";
 import DashboardMenu from "./components/DashboardMenu/DashboardMenu";
 import OAuthClient, {
@@ -10,7 +9,6 @@ import OAuthClient, {
 
 export {
     IdentityProviders,
-    Login,
     FormLayout,
     OAuthClient,
     authenticationEventType,

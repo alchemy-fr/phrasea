@@ -61,6 +61,6 @@ export default class OAuthRedirect extends PureComponent {
     }
 
     render() {
-        return <FullPageLoader/>;
+        return <FullPageLoader/>
     }
 }

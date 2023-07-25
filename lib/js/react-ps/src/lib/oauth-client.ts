@@ -1,21 +1,22 @@
-import axios, {AxiosError} from "axios";
+import axios from "axios";
 import CookieStorage from "./cookieStorage";
+import jwtDecode from "jwt-decode";
 
 const tokenStorageKey = 'token';
-const usernameStorageKey = 'username';
 
 type TokenResponse = {
     access_token: string;
     refresh_token: string;
+    token_type: string;
     expires_in: number;
+    expires_at?: number;
 };
 
 type UserInfoResponse = {
-    username: string;
-    email: string;
-    groups: Record<string, string>;
+    preferred_username: string;
+    groups: string[];
     roles: string[];
-    user_id: string;
+    sub: string;
 }
 
 type AuthEvent = {
@@ -40,7 +41,9 @@ export const logoutEventType = 'logout';
 
 export interface IStorage {
     getItem(key: string): string | null;
+
     removeItem(key: string): void;
+
     setItem(key: string, value: string): void;
 }
 
@@ -52,16 +55,16 @@ type Options = {
 
 export default class OAuthClient {
     private listeners: Record<string, AuthEventHandler[]> = {};
-    private authenticated = false;
     private clientId: string;
     private baseUrl: string;
     private storage: IStorage;
+    private tokensCache: TokenResponse | undefined;
 
     constructor({
-                    clientId,
-                    baseUrl,
-                    storage = new CookieStorage()
-                }: Options) {
+        clientId,
+        baseUrl,
+        storage = new CookieStorage()
+    }: Options) {
         this.clientId = clientId;
         this.baseUrl = baseUrl;
 
@@ -71,52 +74,44 @@ export default class OAuthClient {
         this.storage = storage;
     }
 
-    hasAccessToken(): boolean {
-        return null !== this.getAccessToken();
+    public getAccessToken(): string | undefined {
+        return this.fetchTokens()?.access_token;
     }
 
-    public getAccessToken(): string | null {
-        return this.getTokenInfo()?.access_token ?? null;
+    public getRefreshToken(): string | undefined {
+        return this.fetchTokens()?.refresh_token;
     }
 
-    public getRefreshToken(): string | null {
-        return this.getTokenInfo()?.refresh_token ?? null;
+    public getUsername(): string | undefined {
+        return this.getDecodedToken()?.preferred_username;
     }
 
-    private setTokenInfo(token: TokenResponse): void {
-        return this.storage.setItem(tokenStorageKey, JSON.stringify(token));
-    }
-
-    private getTokenInfo(): TokenResponse | undefined {
-        const t = this.storage.getItem(tokenStorageKey);
-        if (t) {
-            return JSON.parse(t) as TokenResponse;
+    public isAuthenticated(): boolean {
+        const tokens = this.fetchTokens();
+        if (tokens) {
+            return tokens.expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
         }
+
+        return false;
     }
 
-    /**
-     * @deprecated
-     */
-    public setUsername(username: string): void {
-        return this.storage.setItem(usernameStorageKey, username);
+    public getDecodedToken(): UserInfoResponse | undefined {
+        const accessToken = this.getAccessToken();
+        if (!accessToken) {
+            return;
+        }
+
+        console.debug('accessToken', accessToken);
+
+        return jwtDecode<UserInfoResponse>(accessToken);
     }
 
-    /**
-     * @deprecated
-     */
-    public getUsername(): string | null {
-        return this.storage.getItem(usernameStorageKey);
-    }
-
-    isAuthenticated(): boolean {
-        return this.authenticated;
-    }
-
-    logout(): void {
-        this.authenticated = false;
+    logout(redirectPath: string = '/'): void {
         this.storage.removeItem(tokenStorageKey);
-        this.storage.removeItem(usernameStorageKey);
+        this.tokensCache = undefined;
         this.triggerEvent(logoutEventType);
+
+        document.location.href = this.createLogoutUrl({redirectPath});
     }
 
     registerListener(event: string, callback: AuthEventHandler): void {
@@ -137,7 +132,7 @@ export default class OAuthClient {
         }
     }
 
-    async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
+    private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
         event.type = type;
 
         if (!this.listeners[type]) {
@@ -147,61 +142,93 @@ export default class OAuthClient {
         await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
     }
 
-    async authenticate(authUrl?: string): Promise<UserInfoResponse> {
-        if (!this.hasAccessToken()) {
-            throw new Error(`Missing access token`);
-        }
-
-        try {
-            const data = (await axios.get(authUrl ?? `${this.baseUrl}/userinfo`, {
-                headers: {
-                    authorization: `Bearer ${this.getAccessToken()}`,
-                } as any
-            })).data as UserInfoResponse;
-
-            this.authenticated = true;
-            await this.triggerEvent<AuthenticationEvent>(authenticationEventType, {user: data});
-            this.setUsername(data.username);
-
-            return data;
-        } catch (e: any) {
-            if (axios.isAxiosError(e)) {
-                const err = e as AxiosError;
-
-                if (err.response?.status === 401) {
-                    this.logout();
-                }
-            }
-
-            throw e;
-        }
-    }
-
-    async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
+    public async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
         const res = await this.getToken({
             code,
             grant_type: 'authorization_code',
             redirect_uri: redirectUri,
         });
 
+        this.persistTokens(res);
+
         await this.triggerEvent(loginEventType);
 
         return res;
     }
 
-    async login(username: string, password: string): Promise<TokenResponse> {
-        const res = await this.doLogin(username, password);
-        await this.triggerEvent(loginEventType);
-
-        return res;
-    }
-
-    private async doLogin(username: string, password: string): Promise<TokenResponse> {
-        return await this.getToken({
-            username,
-            password,
-            grant_type: 'password',
+    async refreshToken(): Promise<TokenResponse> {
+        const res = await this.getToken({
+            refresh_token: this.getRefreshToken()!,
+            grant_type: 'refresh_token',
         });
+
+        await this.triggerEvent(loginEventType);
+
+        return res;
+    }
+
+    public async wrapPromiseWithValidToken<T = any>(callback: (tokens: TokenResponse) => Promise<T>): Promise<T> {
+        if (!this.isAuthenticated()) {
+            await this.refreshToken();
+        }
+
+        return await callback(this.fetchTokens()!);
+    }
+
+    public createAuthorizeUrl({
+        redirectPath = '/auth',
+        connectTo,
+        state,
+    }: {
+        redirectPath?: string;
+        connectTo?: string | undefined;
+        state?: string | undefined;
+    }): string {
+        const baseUrl = [
+            window.location.protocol,
+            '//',
+            window.location.host,
+        ].join('');
+
+        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
+        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
+
+        return `${this.baseUrl}/auth?${queryString}`;
+    }
+
+    public createLogoutUrl({
+        redirectPath = '/',
+    }: {
+        redirectPath?: string;
+    }): string {
+        const baseUrl = [
+            window.location.protocol,
+            '//',
+            window.location.host,
+        ].join('');
+
+        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
+        const queryString = `client_id=${encodeURIComponent(this.clientId)}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+        return `${this.baseUrl}/logout?${queryString}`;
+    }
+
+    private persistTokens(token: TokenResponse): void {
+        token.expires_at = new Date().getTime() / 1000 + token.expires_in;
+        this.tokensCache = token;
+
+        this.storage.setItem(tokenStorageKey, JSON.stringify(token));
+    }
+
+    private fetchTokens(): TokenResponse | undefined {
+        if (this.tokensCache) {
+            return this.tokensCache;
+        }
+
+        const t = this.storage.getItem(tokenStorageKey);
+        if (t) {
+            return this.tokensCache = JSON.parse(t) as TokenResponse;
+        }
     }
 
     private async getToken(data: Record<string, string>): Promise<TokenResponse> {
@@ -217,29 +244,8 @@ export default class OAuthClient {
 
         const res = (await axios.post(`${this.baseUrl}/token`, params)).data as TokenResponse;
 
-        this.setTokenInfo(res);
+        this.persistTokens(res);
 
         return res;
-    }
-
-    public createAuthorizeUrl({
-                                  redirectPath = '/auth',
-                                  connectTo,
-                                  state,
-                              }: {
-        redirectPath?: string;
-        connectTo?: string | undefined;
-        state?: string | undefined;
-    }): string {
-        const baseUrl = [
-            window.location.protocol,
-            '//',
-            window.location.host,
-        ].join('');
-
-        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
-        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&connect=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
-
-        return `${this.baseUrl}/auth?${queryString}`;
     }
 }

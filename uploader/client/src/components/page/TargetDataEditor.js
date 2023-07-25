@@ -1,11 +1,9 @@
 import React, {Component} from 'react';
 import {Button, Form} from "react-bootstrap";
-import config from "../../config";
-import request from "superagent";
 import Container from "../Container";
-import {oauthClient} from "../../oauth";
 import {getTargetParams, getTargets} from "../../requests";
 import FullPageLoader from "../FullPageLoader";
+import {authenticatedRequest} from "../../lib/api";
 
 export default class TargetDataEditor extends Component {
     state = {
@@ -60,29 +58,26 @@ export default class TargetDataEditor extends Component {
         });
     };
 
-    handleSubmit = event => {
+    handleSubmit = async (event) => {
         event.preventDefault();
 
         const {params, value, selected} = this.state;
-        const accessToken = oauthClient.getAccessToken();
+        const data = {data: JSON.parse(value)};
 
-        let r, data = {data: JSON.parse(value)};
-        if (params) {
-            r = request.put(`${config.getUploadBaseURL()}/target-params/${params.id}`);
-        } else {
-            r = request.post(`${config.getUploadBaseURL()}/target-params`);
-            data = {
-                ...data,
-                target: `/targets/${selected}`
-            };
+        const requestConfig = {
+            data,
         }
 
-        r.accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send(data)
-            .end((err, res) => {
-                oauthClient.isResponseValid(err, res);
-            })
+        if (params) {
+            requestConfig.method = 'PUT';
+            requestConfig.url = `/target-params/${params.id}`;
+        } else {
+            requestConfig.method = 'POST';
+            requestConfig.url = `/target-params`;
+            data.target = `/targets/${selected}`;
+        }
+
+        await authenticatedRequest(requestConfig);
 
         this.setState({
             saved: true,

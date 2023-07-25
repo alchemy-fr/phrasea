@@ -4,7 +4,6 @@ import Upload from "./components/page/Upload";
 import {slide as Menu} from 'react-burger-menu';
 import {BrowserRouter as Router, Route, Link} from "react-router-dom";
 import Login from "./components/page/Login";
-import DevSettings from "./components/page/DevSettings";
 import config from './config';
 import PrivateRoute from "./components/PrivateRoute";
 import UserInfo from "./components/UserInfo";
@@ -18,6 +17,7 @@ import AuthError from "./components/page/AuthError";
 import SelectTarget from "./components/page/SelectTarget";
 import {DashboardMenu} from "react-ps";
 import FullPageLoader from "./components/FullPageLoader";
+import {authenticatedRequest} from "./lib/api";
 
 class App extends Component {
     state = {
@@ -35,30 +35,20 @@ class App extends Component {
             });
         });
         oauthClient.registerListener('login', this.authenticate);
-
-        oauthClient.registerListener('logout', () => {
-            if (config.isDirectLoginForm()) {
-                this.setState({
-                    user: null,
-                });
-            }
-        });
     }
 
     componentDidMount() {
-        if (oauthClient.hasAccessToken()) {
+        if (oauthClient.isAuthenticated()) {
             this.authenticate();
         }
     }
 
-    authenticate = () => {
-        return new Promise((resolve) => {
-            this.setState({authenticating: true}, () => {
-                oauthClient.authenticate(config.getUploadBaseURL()+'/me').then(() => {
-                    this.setState({authenticating: false}, resolve);
-                });
-            });
+    authenticate = async () => {
+        this.setState({authenticating: true});
+        await authenticatedRequest({
+            url: '/me',
         });
+        this.setState({authenticating: false});
     }
 
     handleStateChange(state) {
@@ -71,11 +61,7 @@ class App extends Component {
 
     logout = () => {
         oauthClient.logout();
-        if (!config.isDirectLoginForm()) {
-            document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
-        } else {
-            this.closeMenu();
-        }
+        document.location.reload();
     }
 
     render() {
@@ -101,9 +87,6 @@ class App extends Component {
                     <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
                 {perms && perms.target_data ?
                     <Link onClick={() => this.closeMenu()} to="/target-data-editor">Target data editor</Link> : ''}
-                {config.devModeEnabled() ?
-                    <Link onClick={() => this.closeMenu()} to="/dev-settings">DEV Settings</Link>
-                    : ''}
                 {oauthClient.isAuthenticated() ?
                     <a onClick={this.logout} href={'javascript:void(0)'}>Logout</a>
                     : ''}
@@ -118,9 +101,6 @@ class App extends Component {
                 {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
                 {perms && perms.target_data ?
                     <PrivateRoute path="/target-data-editor" exact component={TargetDataEditor}/> : ''}
-                {config.devModeEnabled() ?
-                    <Route path="/dev-settings" exact component={DevSettings}/>
-                    : ''}
             </div>
         </Router>
     }
