@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import config from '../../config';
-import {oauthClient} from "../../oauth";
 import {useLocation} from "react-router-dom";
+import {oauthClient} from "../../api/api-client";
 
 export default function Login() {
     const {state} = useLocation() as {

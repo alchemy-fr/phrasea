@@ -12,7 +12,7 @@ import EmbeddedAsset from "./EmbeddedAsset";
 
 class App extends PureComponent {
     state = {
-        authenticated: false,
+        username: false,
     };
 
     componentDidMount() {
@@ -29,20 +29,16 @@ class App extends PureComponent {
 
     init = () => {
         if (oauthClient.isAuthenticated()) {
-            this.authenticate();
+            this.onLogin();
         }
     }
 
     onLogin = () => {
-        this.authenticate();
+        this.setState({username: oauthClient.getUsername()});
     }
 
     onLogout = async () => {
-        this.setState({authenticated: false});
-    }
-
-    authenticate() {
-        this.setState({authenticated: true});
+        this.setState({username: false});
     }
 
     render() {
@@ -86,11 +82,11 @@ class App extends PureComponent {
                 />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}
-                    authenticated={this.state.authenticated}
+                    username={this.state.username}
                 />}/>
                 <Route path="/:publication/:asset" exact render={props => <AssetRoute
                     {...props}
-                    authenticated={this.state.authenticated}
+                    username={this.state.username}
                 />}/>
                 <Route path="/" exact render={() => <ErrorPage
                     title={'Not found'}

@@ -20,7 +20,7 @@ class Publication extends PureComponent {
     static propTypes = {
         id: PropTypes.string.isRequired,
         assetId: PropTypes.string,
-        authenticated: PropTypes.object,
+        username: PropTypes.string,
     };
 
     state = {
@@ -132,7 +132,7 @@ class Publication extends PureComponent {
         }
 
         return <Layout
-            authenticated={this.props.authenticated}
+            username={this.props.username}
         >
             {err}
         </Layout>
@@ -140,7 +140,7 @@ class Publication extends PureComponent {
 
     renderLayout = (data) => {
         return <Layout
-            authenticated={this.props.authenticated}
+            username={this.props.username}
             menu={<>
                 {data && <PublicationNavigation
                     publication={data}

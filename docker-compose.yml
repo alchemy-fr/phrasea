@@ -83,7 +83,6 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_URL
       - AUTO_CONNECT_IDP
-      - KEYCLOAK_JWT_PUBLIC_KEY
     volumes:
       - ./configs:/configs
     labels:
@@ -120,7 +119,6 @@ services:
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - KEYCLOAK_URL
-      - KEYCLOAK_JWT_PUBLIC_KEY
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:

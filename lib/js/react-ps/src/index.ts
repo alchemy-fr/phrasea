@@ -5,12 +5,16 @@ import OAuthClient, {
     authenticationEventType,
     loginEventType,
     logoutEventType,
+    RequestConfigWithAuth,
+    configureClientAuthentication,
 } from "./lib/oauth-client";
 
 export {
     IdentityProviders,
     FormLayout,
     OAuthClient,
+    RequestConfigWithAuth,
+    configureClientAuthentication,
     authenticationEventType,
     loginEventType,
     logoutEventType,

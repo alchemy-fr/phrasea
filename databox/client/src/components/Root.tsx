@@ -1,11 +1,11 @@
 import React, {Suspense} from 'react';
-import {oauthClient} from "../oauth";
 import {User} from "../types";
 import {UserContext} from "./Security/UserContext";
 import Routes from "./Routing/Routes";
 import {BrowserRouter} from "react-router-dom";
 import ModalStack from "../hooks/useModalStack";
 import UserPreferencesProvider from "./User/Preferences/UserPreferencesProvider";
+import {oauthClient} from "../api/api-client";
 
 type Props = {};
 

@@ -52,11 +52,11 @@ class EntityHttpCacheListener implements EventSubscriber
     private function invalidatePublicationCache(Publication $publication): void
     {
         $this->proxyCachePurger->purgeRoute(Publication::GET_PUBLICATION_ROUTE_NAME, [
-            'id' => $publication->getId(),
+            'slug' => $publication->getId(),
         ]);
         if ($publication->getSlug()) {
             $this->proxyCachePurger->purgeRoute(Publication::GET_PUBLICATION_ROUTE_NAME, [
-                'id' => $publication->getSlug(),
+                'slug' => $publication->getSlug(),
             ]);
         }
     }

@@ -1,5 +1,4 @@
 import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from "axios";
-import {oauthClient} from "../oauth";
 
 type HttpClient = {
     errorListeners: ErrorListener[];
@@ -64,22 +63,4 @@ export function createHttpClient(baseURL: string): HttpClient {
     }
 
     return client;
-}
-
-// TODO move to lib
-export function configureClientAuthentication(client: AxiosInstance) {
-    client.interceptors.request.use(async (config: RequestConfig) => {
-        if (config.anonymous || !oauthClient.isAuthenticated()) {
-            return config;
-        }
-
-        if (!oauthClient.isAccessTokenValid()) {
-            await oauthClient.refreshToken();
-        }
-
-        config.headers ??= {};
-        config.headers['Authorization'] = `Bearer ${oauthClient.getAccessToken()!}`;
-
-        return config;
-    });
 }

@@ -1,14 +1,8 @@
 import React, {useEffect} from "react";
-import config from "./config";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "./routes";
 import {toast} from "react-toastify";
-import {OAuthClient} from "react-ps";
-
-export const oauthClient = new OAuthClient({
-    clientId: config.getClientId(),
-    baseUrl: config.getAuthBaseUrl(),
-});
+import {oauthClient} from "./api/api-client";
 
 export default function OAuthRedirect() {
     const navigate = useNavigate();

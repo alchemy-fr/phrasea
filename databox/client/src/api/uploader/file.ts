@@ -1,9 +1,9 @@
 import {UploadedFile, uploadMultipartFile} from "./multiPartUpload";
-import {oauthClient} from "../../oauth";
 import {RawAxiosRequestHeaders} from "axios";
 import config from "../../config";
 import uploaderClient from "../uploader-client";
 import {promiseConcurrency} from "../../lib/promises";
+import {oauthClient} from "../api-client";
 
 interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;

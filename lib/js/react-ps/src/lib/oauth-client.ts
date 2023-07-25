@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
 import CookieStorage from "./cookieStorage";
 import jwtDecode from "jwt-decode";
 
@@ -78,6 +78,10 @@ export default class OAuthClient {
 
     public getAccessToken(): string | undefined {
         return this.fetchTokens()?.access_token;
+    }
+
+    public getTokenType(): string | undefined {
+        return this.fetchTokens()?.token_type;
     }
 
     public getRefreshToken(): string | undefined {
@@ -262,4 +266,25 @@ export default class OAuthClient {
 
         return res;
     }
+}
+
+export type RequestConfigWithAuth = {
+    anonymous?: boolean;
+} & AxiosRequestConfig;
+
+export function configureClientAuthentication(client: AxiosInstance, oauthClient: OAuthClient): void {
+    client.interceptors.request.use(async (config: RequestConfigWithAuth) => {
+        if (config.anonymous || !oauthClient.isAuthenticated()) {
+            return config;
+        }
+
+        if (!oauthClient.isAccessTokenValid()) {
+            await oauthClient.refreshToken();
+        }
+
+        config.headers ??= {};
+        config.headers['Authorization'] = `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`;
+
+        return config;
+    });
 }

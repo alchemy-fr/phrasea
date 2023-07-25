@@ -31,7 +31,6 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
             $def = new Definition(EntityLoadListener::class);
             $def->setArgument('$workflowStateEntity', $config['doctrine']['workflow_state_entity']);
             $def->setArgument('$jobStateEntity', $config['doctrine']['job_state_entity']);
-            $def->addTag('doctrine.event_subscriber');
             $container->setDefinition(EntityLoadListener::class, $def);
         }
 

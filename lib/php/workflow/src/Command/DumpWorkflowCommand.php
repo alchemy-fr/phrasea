@@ -8,11 +8,13 @@ use Alchemy\Workflow\Dumper\ConsoleWorkflowDumper;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand('alchemy:workflow:dump-workflow')]
 class DumpWorkflowCommand extends Command
 {
     public function __construct(

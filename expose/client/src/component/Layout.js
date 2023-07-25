@@ -5,12 +5,11 @@ import {oauthClient} from "../lib/oauth";
 import config from '../lib/config';
 import {Logo} from "./Logo";
 import {Trans} from "react-i18next";
-import FullPageLoader from "./FullPageLoader";
 
 class Layout extends PureComponent {
     static propTypes = {
         menu: PropTypes.node,
-        authenticated: PropTypes.object,
+        username: PropTypes.string,
     };
 
     constructor(props) {
@@ -64,18 +63,14 @@ class Layout extends PureComponent {
     }
 
     renderAuthenticated() {
-        const {authenticated} = this.props;
+        const {username} = this.props;
 
-        if (null === authenticated) {
+        if (!username) {
             return '';
         }
 
-        if (!authenticated) {
-            return <FullPageLoader/>
-        }
-
         return <div className={'authenticated-user'}>
-            Authenticated as {authenticated.username}
+            Authenticated as {username}
             <br/>
             <button
                 onClick={this.logout}
