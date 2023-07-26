@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DtoTransformer;
+namespace App\Api\OutputTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Api\Model\Output\AttributeDefinitionOutput;

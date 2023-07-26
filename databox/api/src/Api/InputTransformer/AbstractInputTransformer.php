@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
 use ApiPlatform\Exception\ItemNotFoundException;
 use ApiPlatform\Metadata\Operation;
@@ -20,14 +20,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractInputProcessor implements ProcessorInterface
+abstract class AbstractInputTransformer implements InputTransformerInterface
 {
     use SecurityAwareTrait;
 
-    private ValidatorInterface $validator;
     protected EntityManagerInterface $em;
     protected EntityIriConverter $entityIriConverter;
-    protected RequestStack $requestStack;
 
     protected function transformPrivacy(AssetInput|CollectionInput $data, Asset|Collection $object): void
     {
@@ -41,22 +39,6 @@ abstract class AbstractInputProcessor implements ProcessorInterface
             }
             $object->setPrivacy(constant($constantName));
         }
-    }
-
-    abstract protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed;
-
-    final public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
-    {
-        $object = $this->transform($data, $operation, $uriVariables, $context);
-
-        $this->validator->validate($object, $context);
-
-        $this->em->persist($object);
-        $this->em->flush();
-
-        $this->requestStack->getCurrentRequest()->attributes->set('data', $object);
-
-        return $object;
     }
 
     /**
@@ -82,20 +64,8 @@ abstract class AbstractInputProcessor implements ProcessorInterface
     }
 
     #[Required]
-    public function setValidator(ValidatorInterface $validator): void
-    {
-        $this->validator = $validator;
-    }
-
-    #[Required]
     public function setEntityIriConverter(EntityIriConverter $entityIriConverter): void
     {
         $this->entityIriConverter = $entityIriConverter;
-    }
-
-    #[Required]
-    public function setRequestStack(RequestStack $requestStack): void
-    {
-        $this->requestStack = $requestStack;
     }
 }

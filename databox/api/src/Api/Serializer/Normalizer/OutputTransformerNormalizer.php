@@ -7,7 +7,7 @@ namespace App\Api\Serializer\Normalizer;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use ApiPlatform\Serializer\InputOutputMetadataTrait;
-use App\Api\DtoTransformer\OutputTransformerInterface;
+use App\Api\OutputTransformer\OutputTransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\WorkspaceInput;
+use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Workspace;
 
-class WorkspaceInputProcessor extends AbstractInputProcessor
+class WorkspaceInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
 
     /**
      * @param WorkspaceInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */
@@ -41,5 +41,10 @@ class WorkspaceInputProcessor extends AbstractInputProcessor
         }
 
         return $this->processOwnerId($object);
+    }
+
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return $resourceClass === Workspace::class && $data instanceof WorkspaceInput;
     }
 }

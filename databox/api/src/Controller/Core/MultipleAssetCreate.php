@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Api\DtoTransformer\AssetOutputTransformer;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
+use App\Api\OutputTransformer\AssetOutputTransformer;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;

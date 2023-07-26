@@ -17,24 +17,20 @@ class WorkspaceVoter extends AbstractVoter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $subject instanceof Workspace || $attribute === self::CREATE && $subject instanceof WorkspaceInput;
+        return $subject instanceof Workspace && !is_numeric($attribute);
     }
 
     /**
-     * @param Workspace|WorkspaceInput $subject
+     * @param Workspace $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($subject instanceof WorkspaceInput) {
-            return $this->doVote($attribute, $subject, $token);
-        }
-
         $key = sprintf('%s:%s:%s', $attribute, $subject->getId(), spl_object_id($token));
 
         return $this->cache[$key] ?? ($this->cache[$key] = $this->doVote($attribute, $subject, $token));
     }
 
-    private function doVote(string $attribute, Workspace|WorkspaceInput $subject, TokenInterface $token): bool
+    private function doVote(string $attribute, Workspace $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;

@@ -3,6 +3,7 @@
 namespace App;
 
 use App\DependencyInjection\Compiler\AttributeTypePass;
+use App\DependencyInjection\Compiler\FixApiPlatformPass;
 use App\DependencyInjection\Compiler\RemoveUnwantedAutoWiredServicesPass;
 use App\DependencyInjection\Compiler\SearchIndexPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -33,5 +34,6 @@ class Kernel extends BaseKernel
         $container->addCompilerPass(new SearchIndexPass());
         $container->addCompilerPass(new AttributeTypePass());
         $container->addCompilerPass(new RemoveUnwantedAutoWiredServicesPass());
+        $container->addCompilerPass(new FixApiPlatformPass());
     }
 }

@@ -14,7 +14,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Api\Processor\WorkspaceInputProcessor;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -30,7 +29,6 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'workspace',
@@ -45,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [Workspace::GROUP_READ],
             ],
-            security: 'is_granted("EDIT", object)'
+            securityPostDenormalize: 'is_granted("EDIT", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
@@ -76,7 +74,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     input: WorkspaceInput::class,
     output: WorkspaceOutput::class,
-    processor: WorkspaceInputProcessor::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]

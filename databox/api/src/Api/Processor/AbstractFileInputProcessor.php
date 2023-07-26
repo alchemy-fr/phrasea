@@ -23,7 +23,6 @@ abstract class AbstractFileInputProcessor extends AbstractInputProcessor
     protected PostFlushStack $postFlushStackListener;
     protected RenditionManager $renditionManager;
     private UploadManager $uploadManager;
-    private RequestStack $requestStack;
     private FileUploadManager $fileUploadManager;
 
     protected function handleFromFile(?string $fileId): ?File
@@ -111,12 +110,6 @@ abstract class AbstractFileInputProcessor extends AbstractInputProcessor
     public function setUploadManager(UploadManager $uploadManager): void
     {
         $this->uploadManager = $uploadManager;
-    }
-
-    #[Required]
-    public function setRequestStack(RequestStack $requestStack): void
-    {
-        $this->requestStack = $requestStack;
     }
 
     #[Required]

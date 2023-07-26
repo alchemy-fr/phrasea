@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\DtoTransformer;
+namespace App\Api\OutputTransformer;
 
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\Template\AssetDataTemplate;
