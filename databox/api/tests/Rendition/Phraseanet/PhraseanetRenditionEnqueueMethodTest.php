@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Controller\Integration\PhraseanetIntegrationController;

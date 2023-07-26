@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
+import axios, {Axios, AxiosInstance, AxiosRequestConfig} from "axios";
 import CookieStorage from "./cookieStorage";
 import jwtDecode from "jwt-decode";
 
@@ -13,6 +13,11 @@ type TokenResponse = {
     expires_at?: number;
     refresh_expires_at?: number;
 };
+
+interface ValidationError {
+    error: string;
+    error_description: string;
+}
 
 type UserInfoResponse = {
     preferred_username: string;
@@ -173,14 +178,24 @@ export default class OAuthClient {
     }
 
     async refreshToken(): Promise<TokenResponse> {
-        const res = await this.getToken({
-            refresh_token: this.getRefreshToken()!,
-            grant_type: 'refresh_token',
-        });
+        try {
+            const res = await this.getToken({
+                refresh_token: this.getRefreshToken()!,
+                grant_type: 'refresh_token',
+            });
 
-        await this.triggerEvent(loginEventType);
+            await this.triggerEvent(loginEventType);
 
-        return res;
+            return res;
+        } catch (e: any) {
+            if (axios.isAxiosError<ValidationError>(e)) {
+                if (e.response?.data?.error === 'invalid_grant') {
+                    this.logout();
+                }
+            }
+
+            throw e;
+        }
     }
 
     public async wrapPromiseWithValidToken<T = any>(callback: (tokens: TokenResponse) => Promise<T>): Promise<T> {

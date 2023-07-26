@@ -14,6 +14,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  */
 trait WithOwnerIdProcessorTrait
 {
+    /**
+     * @template T
+     *
+     * @param T $data
+     *
+     * @return T
+     */
     protected function processOwnerId(WithOwnerIdInterface $data): WithOwnerIdInterface
     {
         $user = $this->getUser();

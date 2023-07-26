@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Workflow;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
@@ -19,7 +20,22 @@ use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ApiResource(operations: [new Get(security: 'is_granted("READ", object)', controller: GetWorkflowAction::class, output: false), new Post(uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun', controller: RerunJobAction::class), new GetCollection(security: 'is_granted("ROLE_USER")')], shortName: 'workflows')]
+#[ApiResource(
+    shortName: 'workflows',
+    operations: [
+    new Get(
+        controller: GetWorkflowAction::class,
+        security: 'is_granted("READ", object)',
+        output: false
+    ),
+    new Post(
+        uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
+        controller: RerunJobAction::class
+    ),
+    new GetCollection(
+        security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+    )]
+)]
 #[ORM\Entity]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class WorkflowState extends BaseWorkflowState

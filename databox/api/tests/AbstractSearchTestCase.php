@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\TestBundle\Helper\FixturesTrait;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Tests\Search\SearchTestTrait;
 use Symfony\Component\HttpKernel\KernelInterface;
 

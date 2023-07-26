@@ -1,8 +1,8 @@
 import apiClient from "./api-client";
-import {RequestConfig} from "./http-client";
 import {Asset, AssetFileVersion, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
+import {RequestConfig} from "react-ps";
 
 export interface GetAssetOptions {
     url?: string;

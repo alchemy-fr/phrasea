@@ -36,10 +36,8 @@ class AssetInputProcessor extends AbstractFileInputProcessor
     /**
      * @param AssetInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        $this->validator->validate($data);
-
         $workspace = null;
         if ($data->workspace) {
             $workspace = $data->workspace;

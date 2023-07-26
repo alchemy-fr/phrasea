@@ -1,6 +1,4 @@
 import React, {PureComponent} from 'react';
-import apiClient from "../../lib/apiClient";
-import config from "../../lib/config";
 import {Link} from "react-router-dom";
 import Description from "../layouts/shared-components/Description";
 import moment from "moment";
@@ -10,6 +8,7 @@ import {Logo} from "../Logo";
 import {Translation} from "react-i18next";
 import FullPageLoader from "../FullPageLoader";
 import {getThumbPlaceholder} from "../layouts/shared-components/placeholders";
+import apiClient from "../../lib/api-client";
 
 const SORT_BY_DATE = 'date';
 const SORT_BY_NAME = 'name';
@@ -36,9 +35,9 @@ class PublicationIndex extends PureComponent {
 
     load() {
         apiClient
-            .get(`${config.getApiBaseUrl()}/publications?${orders[this.state.sortBy].query}`)
+            .get(`/publications?${orders[this.state.sortBy].query}`)
             .then((res) => {
-                this.setState({data: res});
+                this.setState({data: res.data['hydra:member']});
             });
     }
 

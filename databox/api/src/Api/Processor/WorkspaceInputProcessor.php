@@ -16,7 +16,7 @@ class WorkspaceInputProcessor extends AbstractInputProcessor
     /**
      * @param WorkspaceInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */

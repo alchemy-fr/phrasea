@@ -12,11 +12,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\DtoTransformer\WorkspaceDtoTransformer;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Processor\WorkspaceInputProcessor;
-use App\Api\Provider\WorkspaceProvider;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
@@ -26,10 +24,13 @@ use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'workspace',
@@ -67,7 +68,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
             normalizationContext: [
                 'groups' => [Workspace::GROUP_READ],
             ],
-            security: 'is_granted("ROLE_ADMIN")'
+            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
         ),
     ],
     normalizationContext: [
@@ -79,6 +80,9 @@ use Gedmo\Mapping\Annotation as Gedmo;
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
+#[UniqueEntity(fields: [
+    'slug',
+], message: 'Slug is already taken')]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -90,7 +94,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(type: 'string', length: 50, unique: true, nullable: false)]
     private ?string $slug = null;
 
     #[ORM\Column(type: 'string', length: 255)]

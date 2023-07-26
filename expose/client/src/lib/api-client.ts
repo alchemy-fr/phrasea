@@ -1,5 +1,5 @@
 import {configureClientAuthentication, createHttpClient, OAuthClient} from 'react-ps';
-import config from "../config";
+import config from "./config";
 
 export const oauthClient = new OAuthClient({
     clientId: config.getClientId(),

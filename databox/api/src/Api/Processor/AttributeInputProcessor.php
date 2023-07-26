@@ -21,7 +21,7 @@ class AttributeInputProcessor extends AbstractInputProcessor
     /**
      * @param AttributeInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Attribute $object */

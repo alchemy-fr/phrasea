@@ -30,9 +30,19 @@ final readonly class JwtExtractor
         return $token;
     }
 
-    public function getUserFromToken(UnencryptedToken $token): JwtUser
+    public function getUserFromToken(UnencryptedToken $token): JwtUser|JwtOauthClient
     {
         $claims = $token->claims();
+
+        $scopes = explode(' ', $claims->get('scope', ''));
+
+        if (!empty($clientId = $claims->get('client_id'))) {
+            return new JwtOauthClient(
+                $token->toString(),
+                $clientId,
+                $scopes,
+            );
+        }
 
         if (empty($claims->get('preferred_username'))) {
             throw new \InvalidArgumentException('Missing "preferred_username" from Keycloak');
@@ -44,6 +54,7 @@ final readonly class JwtExtractor
             $claims->get('preferred_username'),
             $this->roleMapper->getRoles($claims->get('roles', [])),
             $claims->get('groups', []),
+            $scopes,
         );
     }
 }

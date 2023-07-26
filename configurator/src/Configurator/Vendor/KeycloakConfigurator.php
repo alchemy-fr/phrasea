@@ -39,12 +39,24 @@ final class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output): void
     {
-        $this->configureScope('openid');
-        $this->configureScope('groups');
+        foreach ([
+                     'openid',
+                     'groups',
+                 ] as $scope) {
+            $this->createScope($scope);
+        }
+        foreach ($this->getAppScopes() as $app => $appScopes) {
+            foreach ($appScopes as $scope) {
+                $this->createScope($scope, [
+                    'description' => sprintf('%s in %s', $scope, ucwords($app))
+                ]);
+            }
+        }
 
         foreach ($this->symfonyApplications as $app) {
+            $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
             $client = $this->createClient(
-                getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app))),
+                $clientId,
                 getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
                 getenv(sprintf('%s_API_URL', strtoupper($app))).'/admin',
                 [
@@ -68,11 +80,38 @@ final class KeycloakConfigurator implements ConfiguratorInterface
         }
     }
 
-    private function configureScope(string $name): void
+    private function getAppScopes(): array
+    {
+        return [
+            'databox' => [
+                'chuck-norris',
+                'asset:create',
+                'asset:delete',
+                'asset:edit',
+                'collection:create',
+                'collection:delete',
+                'collection:edit',
+                'rendition:create',
+                'rendition:delete',
+                'rendition:edit',
+                'workspace:create',
+                'workspace:delete',
+                'workspace:edit',
+            ],
+            'expose' => [
+                'publish',
+            ],
+            'uploader' => [
+                'commit:list',
+            ],
+        ];
+    }
+
+    private function createScope(string $name, array $data = []): void
     {
         $scopes = $this->getScopes();
         $scope = $this->getScopeByName($scopes, $name);
-        $data = [
+        $data = array_merge([
             'name' => $name,
             'protocol' => 'openid-connect',
             'type' => 'default',
@@ -80,7 +119,7 @@ final class KeycloakConfigurator implements ConfiguratorInterface
                 'include.in.token.scope' => 'true',
                 'display.on.consent.screen' => 'false',
             ],
-        ];
+        ], $data);
 
         if (!$scope) {
             $this->getAuthenticatedClient()
@@ -147,22 +186,11 @@ final class KeycloakConfigurator implements ConfiguratorInterface
             $client = $this->getClientByClientId($clients, $clientId);
         }
 
-        $scopes = $this->getScopes();
-
         foreach ([
             'openid',
             'profile',
                  ] as $scope) {
-            $scopeData = $this->getScopeByName($scopes, $scope);
-
-            HttpClientUtil::catchHttpCode(fn () => $this->getAuthenticatedClient()
-                ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
-                    'realm' => $this->realm,
-                    'clientId' => $client['id'],
-                    'scopeId' => $scopeData['id'],
-                ]), [
-                    'json' => $data,
-                ]), 409);
+            $this->addScopeToClient($scope, $client['id']);
         }
 
         $this->configureClientClaim($client, [
@@ -196,6 +224,19 @@ final class KeycloakConfigurator implements ConfiguratorInterface
         ]);
 
         return $client;
+    }
+
+    private function addScopeToClient(string $scope, string $clientId): void
+    {
+        $scopes = $this->getScopes();
+        $scopeData = $this->getScopeByName($scopes, $scope);
+
+        HttpClientUtil::catchHttpCode(fn () => $this->getAuthenticatedClient()
+            ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
+                'realm' => $this->realm,
+                'clientId' => $clientId,
+                'scopeId' => $scopeData['id'],
+            ])), 409);
     }
 
     private function configureClientClaim(

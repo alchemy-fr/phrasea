@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
-import {Modal, Button} from 'react-bootstrap';
+import {Button, Modal} from 'react-bootstrap';
 import {Trans} from "react-i18next";
 
 export default class TermsModal extends PureComponent {

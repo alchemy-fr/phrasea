@@ -3,17 +3,16 @@ import config from '../lib/config';
 import {PropTypes} from 'prop-types';
 import {layouts} from "./layouts";
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
-import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
 import {isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import TermsModal from "./layouts/shared-components/TermsModal";
-import {oauthClient} from "../lib/oauth";
 import ErrorPage from "./ErrorPage";
 import {loadPublication} from "./api";
 import PublicationSecurityProxy from "./security/PublicationSecurityProxy";
+import {oauthClient} from "../lib/api-client";
 
 
 class Publication extends PureComponent {
@@ -195,29 +194,6 @@ class Publication extends PureComponent {
             text={text}
             url={url}
         />
-    }
-
-    renderSecurityAccess() {
-        const {data} = this.state;
-        const {securityContainerId} = data;
-
-        if (data.authorizationError === 'not_allowed') {
-            return <div>
-                Sorry! You are not allowed to access this publication.
-            </div>
-        }
-
-        if (securityMethods[data.securityMethod]) {
-            return React.createElement(securityMethods[data.securityMethod], {
-                error: data.authorizationError,
-                onAuthorization: this.onAuthorizationChange,
-                securityContainerId,
-            });
-        }
-
-        return <div>
-            Sorry! You cannot access this publication.
-        </div>
     }
 }
 

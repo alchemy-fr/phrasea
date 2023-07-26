@@ -21,10 +21,8 @@ class TemplateAttributeInputProcessor extends AbstractInputProcessor
     /**
      * @param TemplateAttributeInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        $this->validator->validate($data);
-
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var TemplateAttribute $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new TemplateAttribute();

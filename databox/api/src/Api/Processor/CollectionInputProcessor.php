@@ -18,7 +18,7 @@ class CollectionInputProcessor extends AbstractInputProcessor
     /**
      * @param CollectionInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Collection();

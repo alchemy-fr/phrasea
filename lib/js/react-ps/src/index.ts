@@ -9,6 +9,13 @@ import OAuthClient, {
     configureClientAuthentication,
 } from "./lib/oauth-client";
 
+import {
+    createHttpClient,
+    RequestConfig,
+} from "./lib/http-client";
+
+import useEffectOnce from "./hooks//useEffectOnce";
+
 export {
     IdentityProviders,
     FormLayout,
@@ -19,4 +26,7 @@ export {
     loginEventType,
     logoutEventType,
     DashboardMenu,
+    createHttpClient,
+    RequestConfig,
+    useEffectOnce,
 };

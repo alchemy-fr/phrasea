@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Symfony\Component\Security\Core\User\UserInterface;
-
-class JwtUser implements UserInterface, JwtUserInterface
+class JwtUser implements JwtInterface, JwtUserInterface
 {
     /**
      * @deprecated Use IS_AUTHENTICATED_FULLY instead
      */
-    const ROLE_USER = 'ROLE_USER';
-    const IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
-    const ROLE_ADMIN = 'ROLE_ADMIN';
+    final public const ROLE_USER = 'ROLE_USER';
+    final public const IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
+    final public const ROLE_ADMIN = 'ROLE_ADMIN';
 
     private ?string $refreshToken = null;
 
@@ -22,7 +20,8 @@ class JwtUser implements UserInterface, JwtUserInterface
         private readonly string $id,
         private readonly string $username,
         private readonly array $roles = [],
-        private readonly array $groups = []
+        private readonly array $groups = [],
+        private readonly array $scopes = [],
     )
     {
     }
@@ -89,5 +88,10 @@ class JwtUser implements UserInterface, JwtUserInterface
     public function setRefreshToken(?string $refreshToken): void
     {
         $this->refreshToken = $refreshToken;
+    }
+
+    public function getScopes(): array
+    {
+        return $this->scopes;
     }
 }

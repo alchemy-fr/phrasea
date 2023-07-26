@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
-import {Modal, Button} from 'react-bootstrap';
-import apiClient from "../../../lib/apiClient";
+import {Button, Modal} from 'react-bootstrap';
 import {Trans} from "react-i18next";
+import apiClient from "../../../lib/api-client";
 
 export default class DownloadViaEmailModal extends PureComponent {
     static propTypes = {

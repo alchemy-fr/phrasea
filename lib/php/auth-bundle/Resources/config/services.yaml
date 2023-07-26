@@ -25,3 +25,6 @@ services:
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
   Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
   Alchemy\AuthBundle\Security\RoleMapper: ~
+
+  Alchemy\AuthBundle\Controller\OAuthProxyController:
+      public: true

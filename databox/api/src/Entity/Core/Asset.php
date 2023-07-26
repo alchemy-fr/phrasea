@@ -79,7 +79,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: [
                 'groups' => [Asset::GROUP_READ],
             ],
-            security: 'is_granted("CREATE", object)',
             input: MultipleAssetInput::class,
             output: MultipleAssetOutput::class,
             validate: false,

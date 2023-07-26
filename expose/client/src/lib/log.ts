@@ -1,5 +1,4 @@
-import apiClient from "./apiClient";
-import config from "./config";
+import apiClient from "./api-client";
 
 let assetLogTimeout: ReturnType<typeof setTimeout>;
 
@@ -9,10 +8,10 @@ export function logAssetView(id: string): void {
     }
 
     assetLogTimeout = setTimeout(() => {
-        apiClient.post(`${config.getApiBaseUrl()}/logs/asset-view/${id}`);
+        apiClient.post(`/logs/asset-view/${id}`);
     }, 1000);
 }
 
 export function logPublicationView(id: string): void {
-    apiClient.post(`${config.getApiBaseUrl()}/logs/publication-view/${id}`);
+    apiClient.post(`/logs/publication-view/${id}`);
 }

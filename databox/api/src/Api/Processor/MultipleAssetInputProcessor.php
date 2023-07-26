@@ -17,7 +17,7 @@ class MultipleAssetInputProcessor extends AbstractFileInputProcessor
     /**
      * @param MultipleAssetInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         $assets = [];
         $context[AssetInputProcessor::CONTEXT_CREATION_MICRO_TIME] = microtime(true);

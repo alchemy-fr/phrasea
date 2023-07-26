@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
+    final public const SCOPE_PREFIX = 'ROLE_WORKSPACE:';
     final public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const SHARE = 'SHARE';
@@ -39,6 +40,7 @@ class AssetVoter extends AbstractVoter
                 return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
             case self::READ:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
@@ -47,6 +49,7 @@ class AssetVoter extends AbstractVoter
                 ;
             case self::EDIT:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
@@ -54,6 +57,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::EDIT_ATTRIBUTES:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->security->isGranted(PermissionInterface::EDIT, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
@@ -61,6 +65,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::EDIT_RENDITIONS:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
@@ -68,6 +73,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::SHARE:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->security->isGranted(PermissionInterface::SHARE, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
@@ -75,6 +81,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::DELETE:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
                     || $this->security->isGranted(PermissionInterface::DELETE, $subject)
                     || (
                         null !== $subject->getReferenceCollection()
@@ -82,6 +89,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::EDIT_PERMISSIONS:
                 return $isOwner
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->security->isGranted(PermissionInterface::OWNER, $subject)
                     || (
                         null !== $subject->getReferenceCollection()

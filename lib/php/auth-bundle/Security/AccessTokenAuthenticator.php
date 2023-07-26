@@ -59,7 +59,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
         $accessTokenBadge = new AccessTokenBadge($accessToken);
 
-        return new SelfValidatingPassport(new UserBadge($accessToken, function () use ($token): JwtUser {
+        return new SelfValidatingPassport(new UserBadge($accessToken, function () use ($token): JwtUser|JwtOauthClient {
             return $this->jwtExtractor->getUserFromToken($token);
         }), [$accessTokenBadge]);
     }

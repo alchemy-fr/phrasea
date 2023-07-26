@@ -16,7 +16,7 @@ class RenditionRuleInputProcessor extends AbstractInputProcessor
     /**
      * @param RenditionRuleInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         /** @var RenditionRule $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new RenditionRule();

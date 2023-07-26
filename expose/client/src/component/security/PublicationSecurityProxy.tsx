@@ -3,8 +3,8 @@ import {Publication} from "../../types";
 import {securityMethods} from "./methods";
 import FullPageLoader from "../FullPageLoader";
 import {logPublicationView} from "../../lib/log";
-import {oauthClient} from "../../lib/oauth";
 import config from "../../lib/config";
+import {oauthClient} from "../../lib/api-client";
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -26,14 +26,18 @@ export default function PublicationSecurityProxy({
 
     const logout = () => {
         oauthClient.logout();
-        document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.href)}`;
     };
 
     if (!publication) {
         return <FullPageLoader/>
     }
 
-    const {authorized, securityContainerId, authorizationError, securityMethod} = publication!;
+    const {
+        authorized,
+        securityContainerId,
+        authorizationError,
+        securityMethod
+    } = publication!;
 
     if (authorized) {
         return children as JSX.Element;

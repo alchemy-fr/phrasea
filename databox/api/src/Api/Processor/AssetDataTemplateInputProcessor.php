@@ -24,10 +24,8 @@ class AssetDataTemplateInputProcessor extends AbstractInputProcessor
     /**
      * @param AssetDataTemplateInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
-        $this->validator->validate($data);
-
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetDataTemplate $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AssetDataTemplate();

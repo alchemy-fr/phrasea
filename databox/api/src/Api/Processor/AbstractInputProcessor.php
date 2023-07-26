@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\EntityIriConverter;
@@ -22,7 +23,7 @@ abstract class AbstractInputProcessor implements ProcessorInterface
 {
     use SecurityAwareTrait;
 
-    protected ValidatorInterface $validator;
+    private ValidatorInterface $validator;
     protected EntityManagerInterface $em;
     protected EntityIriConverter $entityIriConverter;
 
@@ -38,6 +39,21 @@ abstract class AbstractInputProcessor implements ProcessorInterface
             }
             $object->setPrivacy(constant($constantName));
         }
+    }
+
+    abstract protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed;
+
+    final public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
+    {
+        $this->validator->validate($data, $context);
+        $object = $this->transform($data, $operation, $uriVariables, $context);
+
+        $this->validator->validate($object, $context);
+
+        $this->em->persist($object);
+        $this->em->flush();
+
+        return $object;
     }
 
     /**

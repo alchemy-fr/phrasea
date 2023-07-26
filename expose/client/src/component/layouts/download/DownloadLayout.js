@@ -2,8 +2,10 @@ import React from 'react';
 import {dataShape} from "../../props/dataShape";
 import DownloadAsset from "./DownloadAsset";
 import {
-    downloadContainerDefaultState, onDownload,
-    renderDownloadTermsModal, renderDownloadViaEmail
+    downloadContainerDefaultState,
+    onDownload,
+    renderDownloadTermsModal,
+    renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";
 import PublicationHeader from "../shared-components/PublicationHeader";
 
