@@ -2,21 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\RenditionRuleInput;
+use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\RenditionRule;
 
-class RenditionRuleInputProcessor extends AbstractInputProcessor
+class RenditionRuleInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
+
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return RenditionRule::class === $resourceClass && $data instanceof RenditionRuleInput;
+    }
 
     /**
      * @param RenditionRuleInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         /** @var RenditionRule $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new RenditionRule();

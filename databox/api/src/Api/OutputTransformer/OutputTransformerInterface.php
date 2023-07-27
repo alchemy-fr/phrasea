@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
-
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag('api.output_transformer')]

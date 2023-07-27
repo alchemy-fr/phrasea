@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
+use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Asset\AssetManager;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
@@ -19,7 +19,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AssetInputProcessor extends AbstractFileInputProcessor
+class AssetInputTransformer extends AbstractFileInputTransformer
 {
     use WithOwnerIdProcessorTrait;
     use AttributeInputTrait;
@@ -28,15 +28,20 @@ class AssetInputProcessor extends AbstractFileInputProcessor
 
     public function __construct(
         private readonly OriginalRenditionManager $originalRenditionManager,
-        private readonly AttributeInputProcessor $attributeInputProcessor,
+        private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
     ) {
+    }
+
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return Asset::class === $resourceClass && $data instanceof AssetInput;
     }
 
     /**
      * @param AssetInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $workspace = null;
         if ($data->workspace) {

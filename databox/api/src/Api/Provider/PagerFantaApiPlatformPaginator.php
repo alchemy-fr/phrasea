@@ -11,7 +11,7 @@ final class PagerFantaApiPlatformPaginator implements PaginatorInterface, \Itera
 {
     private $transformer;
 
-    public function __construct(private readonly Pagerfanta $pagerfanta, ?callable $transformer = null)
+    public function __construct(private readonly Pagerfanta $pagerfanta, callable $transformer = null)
     {
         $this->transformer = $transformer;
     }

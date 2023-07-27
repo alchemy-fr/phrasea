@@ -2,23 +2,28 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\CollectionInput;
+use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class CollectionInputProcessor extends AbstractInputProcessor
+class CollectionInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
+
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return Collection::class === $resourceClass && $data instanceof CollectionInput;
+    }
 
     /**
      * @param CollectionInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Collection();

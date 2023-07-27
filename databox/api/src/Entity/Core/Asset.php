@@ -12,6 +12,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\AssetInputTransformer;
+use App\Api\InputTransformer\MultipleAssetInputTransformer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -19,11 +21,9 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
-use App\Api\Processor\AssetInputProcessor;
 use App\Api\Processor\BatchAssetAttributeInputProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
-use App\Api\Processor\MultipleAssetInputProcessor;
 use App\Api\Provider\AssetCollectionDataProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\CopyAssetsAction;
@@ -83,7 +83,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             output: MultipleAssetOutput::class,
             validate: false,
             name: 'post_multiple',
-            processor: MultipleAssetInputProcessor::class,
+            processor: MultipleAssetInputTransformer::class,
         ),
         new Post(
             uriTemplate: '/assets/move',
@@ -116,7 +116,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     input: AssetInput::class,
     output: AssetOutput::class,
     provider: AssetCollectionDataProvider::class,
-    processor: AssetInputProcessor::class,
+    processor: AssetInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]

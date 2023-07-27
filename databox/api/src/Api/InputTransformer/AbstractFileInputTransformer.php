@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
@@ -18,12 +18,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractFileInputProcessor extends AbstractInputProcessor
+abstract class AbstractFileInputTransformer extends AbstractInputTransformer
 {
     protected PostFlushStack $postFlushStackListener;
     protected RenditionManager $renditionManager;
     private UploadManager $uploadManager;
     private FileUploadManager $fileUploadManager;
+    private RequestStack $requestStack;
 
     protected function handleFromFile(?string $fileId): ?File
     {
@@ -122,5 +123,11 @@ abstract class AbstractFileInputProcessor extends AbstractInputProcessor
     public function setPostFlushStackListener(PostFlushStack $postFlushStackListener): void
     {
         $this->postFlushStackListener = $postFlushStackListener;
+    }
+
+    #[Required]
+    public function setRequestStack(RequestStack $requestStack): void
+    {
+        $this->requestStack = $requestStack;
     }
 }

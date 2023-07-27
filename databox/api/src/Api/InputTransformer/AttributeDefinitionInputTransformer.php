@@ -2,21 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AttributeDefinitionInputProcessor extends AbstractInputProcessor
+class AttributeDefinitionInputTransformer extends AbstractInputTransformer
 {
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return AttributeDefinition::class === $resourceClass && $data instanceof AttributeDefinitionInput;
+    }
+
     /**
      * @param AttributeDefinitionInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var AttributeDefinition $object */

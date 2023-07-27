@@ -17,7 +17,6 @@ class BatchAssetAttributeInputProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
     {
-        throw new \InvalidArgumentException(sprintf('OK'));
         /** @var Asset $object */
         $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset();
 

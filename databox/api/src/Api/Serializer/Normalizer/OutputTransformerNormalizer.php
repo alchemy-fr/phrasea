@@ -30,9 +30,8 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         private readonly NormalizerInterface $decorated,
         #[TaggedIterator('api.output_transformer')]
         iterable $transformers,
-        ?ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
-    )
-    {
+        ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
+    ) {
         $this->transformers = $transformers;
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
@@ -101,7 +100,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
 
     public function setSerializer(SerializerInterface $serializer)
     {
-        if($this->decorated instanceof SerializerAwareInterface) {
+        if ($this->decorated instanceof SerializerAwareInterface) {
             $this->decorated->setSerializer($serializer);
         }
     }

@@ -18,7 +18,6 @@ class AttributeOutputTransformer implements OutputTransformerInterface
     {
     }
 
-
     public function supports(string $outputClass, object $data): bool
     {
         return AttributeOutput::class === $outputClass && $data instanceof AbstractBaseAttribute;

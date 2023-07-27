@@ -12,9 +12,9 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\AttributeDefinitionInputTransformer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
-use App\Api\Processor\AttributeDefinitionInputProcessor;
 use App\Api\Provider\AttributeDefinitionCollectionDataProvider;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
@@ -67,7 +67,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
     provider: AttributeDefinitionCollectionDataProvider::class,
-    processor: AttributeDefinitionInputProcessor::class,
+    processor: AttributeDefinitionInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]

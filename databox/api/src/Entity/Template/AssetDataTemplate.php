@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\AssetDataTemplateInputTransformer;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
-use App\Api\Processor\AssetDataTemplateInputProcessor;
 use App\Api\Provider\AssetDataTemplateCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
@@ -64,7 +64,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     input: AssetDataTemplateInput::class,
     output: AssetDataTemplateOutput::class,
     provider: AssetDataTemplateCollectionDataProvider::class,
-    processor: AssetDataTemplateInputProcessor::class,
+    processor: AssetDataTemplateInputTransformer::class,
 )]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable

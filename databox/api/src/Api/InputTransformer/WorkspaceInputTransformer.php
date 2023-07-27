@@ -16,7 +16,7 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
     /**
      * @param WorkspaceInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */
@@ -45,6 +45,6 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
 
     public function supports(string $resourceClass, object $data): bool
     {
-        return $resourceClass === Workspace::class && $data instanceof WorkspaceInput;
+        return Workspace::class === $resourceClass && $data instanceof WorkspaceInput;
     }
 }

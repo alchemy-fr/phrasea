@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;

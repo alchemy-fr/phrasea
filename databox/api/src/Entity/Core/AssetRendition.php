@@ -12,8 +12,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\RenditionInputTransformer;
 use App\Api\Model\Input\RenditionInput;
-use App\Api\Processor\RenditionInputProcessor;
 use App\Api\Provider\RenditionCollectionDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -113,7 +113,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: RenditionInput::class,
     provider: RenditionCollectionDataProvider::class,
-    processor: RenditionInputProcessor::class,
+    processor: RenditionInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]

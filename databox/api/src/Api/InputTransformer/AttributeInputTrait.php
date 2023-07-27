@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
+use App\Api\Processor\AttributeInputProcessorInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 /**
- * @extends AbstractInputProcessor
+ * @extends AbstractInputTransformer
  */
 trait AttributeInputTrait
 {
@@ -50,10 +50,9 @@ trait AttributeInputTrait
      * @param AbstractBaseAttributeInput[] $attributes
      */
     protected function assignAttributes(
-        AbstractInputProcessor $attributeInputProcessor,
+        AbstractInputTransformer $attributeInputProcessor,
         Asset|AssetDataTemplate $object,
         iterable $attributes,
-        Operation $operation,
         array $context
     ): void {
         unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
@@ -76,7 +75,7 @@ trait AttributeInputTrait
                         $attr = clone $attribute;
                         $attr->value = $value;
                         /** @var Attribute|TemplateAttribute $returnedAttribute */
-                        $returnedAttribute = $attributeInputProcessor->process($attr, $operation, $subContext);
+                        $returnedAttribute = $attributeInputProcessor->transform($attr, $returnedAttribute::class, $subContext);
                         $object->addAttribute($returnedAttribute);
                     }
 
@@ -86,7 +85,7 @@ trait AttributeInputTrait
             }
 
             /** @var Attribute|TemplateAttribute $returnedAttribute */
-            $returnedAttribute = $attributeInputProcessor->process($attribute, $operation, $subContext);
+            $returnedAttribute = $attributeInputProcessor->transform($attribute, $attribute::class, $subContext);
             $object->addAttribute($returnedAttribute);
         }
     }

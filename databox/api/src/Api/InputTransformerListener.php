@@ -31,8 +31,7 @@ final class InputTransformerListener
         iterable $transformers,
         private readonly IriConverterInterface $iriConverter,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
         $this->transformers = $transformers;
     }
 

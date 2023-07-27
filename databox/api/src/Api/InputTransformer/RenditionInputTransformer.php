@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Input\RenditionInput;
 use App\Consumer\Handler\File\CopyFileToRenditionHandler;
 use App\Entity\Core\Asset;
@@ -13,12 +12,17 @@ use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class RenditionInputProcessor extends AbstractFileInputProcessor
+class RenditionInputTransformer extends AbstractFileInputTransformer
 {
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return AssetRendition::class === $resourceClass && $data instanceof RenditionInput;
+    }
+
     /**
      * @param RenditionInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetRendition $object */

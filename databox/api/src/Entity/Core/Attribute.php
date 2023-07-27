@@ -13,10 +13,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\AttributeInputTransformer;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
-use App\Api\Processor\AttributeInputProcessor;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionDataProvider;
 use App\Controller\Core\AttributeBatchUpdateAction;
@@ -50,7 +50,7 @@ use Doctrine\ORM\Mapping as ORM;
     input: AttributeInput::class,
     output: AttributeOutput::class,
     provider: AttributeCollectionDataProvider::class,
-    processor: AttributeInputProcessor::class,
+    processor: AttributeInputTransformer::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]

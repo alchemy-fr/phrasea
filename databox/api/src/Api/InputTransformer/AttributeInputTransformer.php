@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
 
-class AttributeInputProcessor extends AbstractInputProcessor
+class AttributeInputTransformer extends AbstractInputTransformer
 {
     use AttributeInputTrait;
 
@@ -18,10 +17,15 @@ class AttributeInputProcessor extends AbstractInputProcessor
     {
     }
 
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return Attribute::class === $resourceClass && $data instanceof AttributeInput;
+    }
+
     /**
      * @param AttributeInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
         /** @var Attribute $object */

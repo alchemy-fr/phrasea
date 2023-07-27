@@ -9,7 +9,6 @@ use App\Entity\Core\TagFilterRule;
 
 class TagFilterRuleOutputProcessor implements OutputTransformerInterface
 {
-
     public function supports(string $outputClass, object $data): bool
     {
         return TagFilterRuleOutput::class === $outputClass && $data instanceof TagFilterRule;

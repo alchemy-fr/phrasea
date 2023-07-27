@@ -2,29 +2,28 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
+use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AssetDataTemplateInputProcessor extends AbstractInputProcessor
+class AssetDataTemplateInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
     use AttributeInputTrait;
 
-    public function __construct(private readonly TemplateAttributeInputProcessor $templateAttributeInputProcessor)
+    public function __construct(private readonly TemplateAttributeInputTransformer $templateAttributeInputProcessor)
     {
     }
 
     /**
      * @param AssetDataTemplateInput $data
      */
-    protected function transform(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AssetDataTemplate $object */
@@ -44,7 +43,7 @@ class AssetDataTemplateInputProcessor extends AbstractInputProcessor
 
         if (!empty($data->attributes)) {
             $object->getAttributes()->clear();
-            $this->assignAttributes($this->templateAttributeInputProcessor, $object, $data->attributes, $operation, $context);
+            $this->assignAttributes($this->templateAttributeInputProcessor, $object, $data->attributes, $context);
         }
 
         if (null !== $data->name) {

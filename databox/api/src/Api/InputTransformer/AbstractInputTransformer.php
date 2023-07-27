@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use ApiPlatform\Exception\ItemNotFoundException;
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
-use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\CollectionInput;
@@ -16,7 +13,6 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 

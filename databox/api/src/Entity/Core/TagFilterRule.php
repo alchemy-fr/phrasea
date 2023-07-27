@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping as ORM;
         new Put(security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)')
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ], normalizationContext: ['groups' => ['_',
     TagFilterRule::GROUP_READ,
     Tag::GROUP_READ]],

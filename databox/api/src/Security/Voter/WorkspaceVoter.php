@@ -6,7 +6,6 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use App\Api\Model\Input\WorkspaceInput;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 

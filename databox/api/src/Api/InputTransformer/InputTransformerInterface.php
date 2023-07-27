@@ -11,5 +11,5 @@ interface InputTransformerInterface
 {
     public function supports(string $resourceClass, object $data): bool;
 
-    public function transform(object $data, string $resourceClass, array $context = []): object;
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable;
 }
