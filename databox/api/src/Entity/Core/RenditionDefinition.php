@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\AbstractUuidEntity;
 
@@ -61,7 +62,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: [
         'groups' => [RenditionDefinition::GROUP_WRITE],
     ],
-    order: ['priority' => 'DESC']
+    order: ['priority' => 'DESC'],
+    provider: RenditionDefinitionCollectionProvider::class,
 )]
 
 #[ORM\Table]

@@ -18,7 +18,7 @@ class AssetTest extends AbstractSearchTestCase
         self::enableFixtures();
         $response = static::createClient()->request('GET', '/assets?limit='.$limit, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             ],
         ]);
 
@@ -48,13 +48,17 @@ class AssetTest extends AbstractSearchTestCase
 
     public function testCreateAsset(): void
     {
+        self::enableFixtures();
+
         $response = static::createClient()->request('POST', '/assets', [
             'headers' => [
                 'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
-                'workspace' => $this->findIriBy(Workspace::class, []),
+                'workspace' => $this->findIriBy(Workspace::class, [
+                    'slug' => 'test-workspace',
+                ]),
             ],
         ]);
 
@@ -101,7 +105,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('PUT', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             ],
             'json' => [
                 'title' => 'updated title',
@@ -123,7 +127,7 @@ class AssetTest extends AbstractSearchTestCase
 
         $client->request('DELETE', $iri, [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             ],
         ]);
 

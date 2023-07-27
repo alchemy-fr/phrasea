@@ -32,7 +32,7 @@ class AttributeOutput extends AbstractUuidOutput
     public $definition;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ, AssetDataTemplate::GROUP_READ])]
-    public string|int|bool|array|null|float $value;
+    public $value;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public string|array|null $highlight;

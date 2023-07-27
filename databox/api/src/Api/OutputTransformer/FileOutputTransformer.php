@@ -30,7 +30,7 @@ class FileOutputTransformer implements OutputTransformerInterface
     /**
      * @param File $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new FileOutput();
         $output->setCreatedAt($data->getCreatedAt());

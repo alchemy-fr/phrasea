@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\InputTransformer\AttributeDefinitionInputTransformer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
-use App\Api\Provider\AttributeDefinitionCollectionDataProvider;
+use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -66,7 +66,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
-    provider: AttributeDefinitionCollectionDataProvider::class,
+    provider: AttributeDefinitionCollectionProvider::class,
     processor: AttributeDefinitionInputTransformer::class,
 )]
 #[ORM\Table]

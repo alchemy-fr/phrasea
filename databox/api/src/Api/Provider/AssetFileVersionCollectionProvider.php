@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetFileVersion;
 
-class AssetFileVersionCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
+class AssetFileVersionCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {

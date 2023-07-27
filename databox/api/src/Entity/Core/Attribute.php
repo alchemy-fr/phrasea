@@ -18,7 +18,7 @@ use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
-use App\Api\Provider\AttributeCollectionDataProvider;
+use App\Api\Provider\AttributeCollectionProvider;
 use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Repository\Core\AttributeRepository;
@@ -33,7 +33,9 @@ use Doctrine\ORM\Mapping as ORM;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            securityPostDenormalize: 'is_granted("CREATE", object)'
+        ),
         new Post(
             uriTemplate: '/attributes/batch-update',
             controller: AttributeBatchUpdateAction::class,
@@ -49,7 +51,7 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     input: AttributeInput::class,
     output: AttributeOutput::class,
-    provider: AttributeCollectionDataProvider::class,
+    provider: AttributeCollectionProvider::class,
     processor: AttributeInputTransformer::class,
 )]
 

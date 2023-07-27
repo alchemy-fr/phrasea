@@ -24,7 +24,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
     /**
      * @param Workspace $data
      */
-    public function transform($data, string $outputClass, array $context = []): object
+    public function transform($data, string $outputClass, array &$context = []): object
     {
         $output = new WorkspaceOutput();
         $output->setId($data->getId());

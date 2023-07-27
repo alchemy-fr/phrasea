@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\InputTransformer\AttributeClassInputTransformer;
 use App\Api\Model\Input\AttributeClassInput;
-use App\Api\Provider\AttributeClassCollectionDataProvider;
+use App\Api\Provider\AttributeClassCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [AttributeClass::GROUP_LIST],
     ],
     input: AttributeClassInput::class,
-    provider: AttributeClassCollectionDataProvider::class,
+    provider: AttributeClassCollectionProvider::class,
     processor: AttributeClassInputTransformer::class,
 )]
 #[ORM\Table]

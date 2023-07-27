@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use App\Api\Provider\FieldTypeProvider;
 
 #[ApiResource(
     shortName: 'field-type',
@@ -15,7 +16,8 @@ use ApiPlatform\Metadata\GetCollection;
         new Get(),
         new GetCollection(),
     ],
-    normalizationContext: ['enable_max_depth' => true]
+    normalizationContext: ['enable_max_depth' => true],
+    provider: FieldTypeProvider::class,
 )]
 class FieldType
 {

@@ -21,6 +21,14 @@ class AssetOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
+    #[ApiProperty(jsonSchemaContext: [
+        'type' => 'object',
+        'properties' => [
+            'canEdit' => 'boolean',
+            'canDelete' => 'boolean',
+            'canEditPermissions' => 'boolean',
+        ],
+    ])]
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     protected array $capabilities = [];
 

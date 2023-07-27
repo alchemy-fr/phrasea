@@ -17,7 +17,7 @@ class RenditionRuleOutputProcessor implements OutputTransformerInterface
     /**
      * @param RenditionRule $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new RenditionRuleOutput();
         $output->setId($data->getId());

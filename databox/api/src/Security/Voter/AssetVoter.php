@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetVoter extends AbstractVoter
 {
-    final public const SCOPE_PREFIX = 'ROLE_WORKSPACE:';
+    final public const SCOPE_PREFIX = 'ROLE_ASSET:';
     final public const EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const EDIT_RENDITIONS = 'EDIT_RENDITIONS';
     final public const SHARE = 'SHARE';

@@ -22,7 +22,7 @@ class IntegrationDataOutputTransformer implements OutputTransformerInterface
     /**
      * @param IntegrationData $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $this->dataProcessor->process($data);
 

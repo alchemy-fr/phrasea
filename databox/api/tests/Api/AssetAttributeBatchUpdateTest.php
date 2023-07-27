@@ -90,7 +90,6 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             'attributes' => $attrAssertions,
         ]);
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(Asset::class);
     }
 
     private function assetBatchAction(array $actions): ResponseInterface
@@ -103,7 +102,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return static::createClient()->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => $actions,

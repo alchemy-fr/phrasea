@@ -21,7 +21,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
     /**
      * @param AttributeDefinition $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new AttributeDefinitionOutput();
         $output->setCreatedAt($data->getCreatedAt());

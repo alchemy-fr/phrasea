@@ -70,7 +70,7 @@ class BatchAttributeManager
 
         foreach ($assets as $asset) {
             if (!$this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset)) {
-                throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset %s', $asset->getId()));
+                throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset "%s"', $asset->getId()));
             }
         }
 

@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\AssetDataTemplateSearch;
 use Symfony\Bundle\SecurityBundle\Security;
 
-class AssetDataTemplateCollectionDataProvider extends AbstractCollectionProvider
+class AssetDataTemplateCollectionProvider extends AbstractCollectionProvider
 {
     public function __construct(private readonly AssetDataTemplateSearch $search, private readonly Security $security)
     {

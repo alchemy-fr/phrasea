@@ -13,7 +13,6 @@ use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
-use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -99,7 +98,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
 
             if (!empty($data->attributes)) {
-                $this->assignAttributes($this->attributeInputProcessor, $object, $data->attributes, Attribute::class, $context);
+                $this->assignAttributes($this->attributeInputProcessor, $object, $data->attributes, $context);
             }
 
             if ($data->relationship) {

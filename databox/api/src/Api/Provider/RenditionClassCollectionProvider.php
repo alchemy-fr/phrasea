@@ -9,7 +9,7 @@ use App\Entity\Core\RenditionClass;
 use App\Security\Voter\RenditionClassVoter;
 use App\Util\SecurityAwareTrait;
 
-class RenditionClassCollectionDataProvider extends AbstractCollectionProvider
+class RenditionClassCollectionProvider extends AbstractCollectionProvider
 {
     use SecurityAwareTrait;
 
@@ -28,10 +28,5 @@ class RenditionClassCollectionDataProvider extends AbstractCollectionProvider
         $classes = $this->em->getRepository(RenditionClass::class)->findBy($criteria);
 
         return array_filter($classes, fn (RenditionClass $renditionClass): bool => $this->security->isGranted(RenditionClassVoter::READ, $renditionClass));
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return RenditionClass::class === $resourceClass;
     }
 }

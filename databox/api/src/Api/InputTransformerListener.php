@@ -53,33 +53,33 @@ final class InputTransformerListener
             return;
         }
 
-        if (!$operation->getInput()) {
-            return;
-        }
-
         $context = [
             'operation' => $operation,
             'resource_class' => $attributes['resource_class'],
             'previous_data' => $attributes['previous_data'] ?? null,
         ];
 
+        if (is_object($attributes['previous_data'] ?? null)) {
+            $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] = $this->em->find($attributes['previous_data']::class, $attributes['previous_data']->getId());
+            $request->attributes->set('data', $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        }
+
+        $inputAttr = $operation->getInput();
+        if (!$inputAttr || $inputAttr['class'] !== $input::class) {
+            return;
+        }
+
         $resourceClass = $operation->getClass();
         foreach ($this->transformers as $transformer) {
             if ($transformer->supports($resourceClass, $input)) {
-                if (is_object($attributes['previous_data'] ?? null)) {
-                    $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] = $this->em->find($attributes['previous_data']::class, $attributes['previous_data']->getId());
-                }
-
                 $object = $transformer->transform($input, $resourceClass, $context);
-
                 $request->attributes->set('data', $object);
-
                 $event->setControllerResult($object);
 
                 return;
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('No transformer found for resource "%s"', $input::class));
+        throw new \InvalidArgumentException(sprintf('No input transformer found for resource "%s"', $input::class));
     }
 }

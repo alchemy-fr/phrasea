@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Attribute\BatchAttributeManager;
 use App\Controller\Traits\UserControllerTrait;
 use App\Entity\Core\Asset;
@@ -18,18 +19,18 @@ final class AssetAttributeBatchUpdateAction extends AbstractController
     {
     }
 
-    public function __invoke(string $id, Asset $data, Request $request)
+    public function __invoke(string $id, Asset $asset, AssetAttributeBatchUpdateInput $data, Request $request)
     {
-        $this->batchAttributeManager->validate([$data->getId()], $data->attributeActions);
+        $this->batchAttributeManager->validate([$asset->getId()], $data);
 
         $this->batchAttributeManager->handleBatch(
-            $data->getWorkspaceId(),
-            [$data->getId()],
-            $data->attributeActions,
+            $asset->getWorkspaceId(),
+            [$asset->getId()],
+            $data,
             $this->getStrictUser(),
             true,
         );
 
-        return $data;
+        return $asset;
     }
 }

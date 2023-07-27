@@ -18,7 +18,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
     /**
      * @param AssetDataTemplate $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new AssetDataTemplateOutput();
         $output->name = $data->getName();

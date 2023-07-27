@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 
+use App\Api\Provider\RenditionClassCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -32,7 +33,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     normalizationContext: [
         'groups' => [RenditionClass::GROUP_LIST],
-    ]
+    ],
+    provider: RenditionClassCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'rend_class_uniq', columns: ['workspace_id', 'name'])]

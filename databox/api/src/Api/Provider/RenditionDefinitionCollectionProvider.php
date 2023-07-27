@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\RenditionDefinition;
 
-class RenditionDefinitionCollectionDataProvider extends AbstractCollectionProvider
+class RenditionDefinitionCollectionProvider extends AbstractCollectionProvider
 {
     protected function provideCollection(
         Operation $operation,
@@ -31,10 +31,5 @@ class RenditionDefinitionCollectionDataProvider extends AbstractCollectionProvid
             ->addOrderBy('t.priority', 'DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return RenditionDefinition::class === $resourceClass;
     }
 }

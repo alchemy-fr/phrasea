@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\TagFilterRule;
 
-class TagFilterRuleCollectionDataProvider extends AbstractCollectionProvider
+class TagFilterRuleCollectionProvider extends AbstractCollectionProvider
 {
     protected function provideCollection(
         Operation $operation,
@@ -26,10 +26,5 @@ class TagFilterRuleCollectionDataProvider extends AbstractCollectionProvider
         }
 
         return $this->em->getRepository(TagFilterRule::class)->findBy($criteria);
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return TagFilterRule::class === $resourceClass;
     }
 }

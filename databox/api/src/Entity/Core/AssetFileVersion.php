@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use App\Api\Provider\AssetFileVersionCollectionDataProvider;
+use App\Api\Provider\AssetFileVersionCollectionProvider;
 
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             AssetFileVersion::GROUP_LIST,
         ],
     ],
-    provider: AssetFileVersionCollectionDataProvider::class,
+    provider: AssetFileVersionCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Entity]

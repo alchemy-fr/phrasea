@@ -10,7 +10,7 @@ use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
 use Symfony\Bundle\SecurityBundle\Security;
 
-class AssetCollectionDataProvider extends AbstractCollectionProvider
+class AssetCollectionProvider extends AbstractCollectionProvider
 {
     public function __construct(private readonly AssetSearch $assetSearch, private readonly Security $security)
     {

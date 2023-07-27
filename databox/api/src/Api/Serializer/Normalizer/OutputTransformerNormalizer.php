@@ -46,7 +46,9 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
                     'output' => $outputClass,
                 ];
 
-                return $this->decorated->normalize($this->transform($object, $outputClass, $context), $format, $context);
+                $output = $this->transform($object, $outputClass, $context);
+
+                return $this->decorated->normalize($output, $format, $context);
             }
         }
 
@@ -72,15 +74,17 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         return null;
     }
 
-    private function transform(object $object, string $outputClass, array $context): object
+    private function transform(object $object, string $outputClass, array &$context): object
     {
         foreach ($this->transformers as $transformer) {
             if ($transformer->supports($outputClass, $object)) {
+                $context['api_resource'] = $object;
+
                 return $transformer->transform($object, $outputClass, $context);
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('No transformer found for resource "%s"', $outputClass));
+        throw new \InvalidArgumentException(sprintf('No output transformer found for resource "%s"', $outputClass));
     }
 
     public function supportsNormalization($data, $format = null, array $context = []): bool

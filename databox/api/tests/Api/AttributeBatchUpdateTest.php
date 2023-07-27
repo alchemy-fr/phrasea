@@ -105,7 +105,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return $client->request('POST', '/attributes/batch-update', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => $actions,

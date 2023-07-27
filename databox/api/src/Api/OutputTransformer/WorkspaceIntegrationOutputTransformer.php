@@ -28,7 +28,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
     /**
      * @param WorkspaceIntegration $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new WorkspaceIntegrationOutput();
         $output->setCreatedAt($data->getCreatedAt());

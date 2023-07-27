@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Attribute;
 
-class AttributeCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
+class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {

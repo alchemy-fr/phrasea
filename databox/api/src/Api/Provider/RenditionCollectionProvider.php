@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetRendition;
 use App\Security\Voter\RenditionVoter;
 
-class RenditionCollectionDataProvider extends AbstractAssetFilteredCollectionDataProvider
+class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {

@@ -12,8 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AssetInputTransformer;
-use App\Api\InputTransformer\MultipleAssetInputTransformer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
@@ -21,10 +19,9 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
-use App\Api\Processor\BatchAssetAttributeInputProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
-use App\Api\Provider\AssetCollectionDataProvider;
+use App\Api\Provider\AssetCollectionProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\CopyAssetsAction;
 use App\Controller\Core\DeleteAssetByIdsAction;
@@ -43,6 +40,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
+use App\Security\Voter\AssetVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -66,13 +64,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(
             uriTemplate: '/assets/{id}/attributes',
             controller: AssetAttributeBatchUpdateAction::class,
-            security: 'is_granted("EDIT_ATTRIBUTES", object)',
+            securityPostDenormalize: 'is_granted("'.AssetVoter::EDIT_ATTRIBUTES.'", object)',
             input: AssetAttributeBatchUpdateInput::class,
             name: 'post_batch_attributes',
-            processor: BatchAssetAttributeInputProcessor::class,
         ),
         new GetCollection(),
-        new Post(security: 'is_granted("CREATE", object)'),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/assets/multiple',
             controller: MultipleAssetCreate::class,
@@ -83,7 +80,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             output: MultipleAssetOutput::class,
             validate: false,
             name: 'post_multiple',
-            processor: MultipleAssetInputTransformer::class,
         ),
         new Post(
             uriTemplate: '/assets/move',
@@ -115,8 +111,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AssetInput::class,
     output: AssetOutput::class,
-    provider: AssetCollectionDataProvider::class,
-    processor: AssetInputTransformer::class,
+    provider: AssetCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
@@ -187,8 +182,6 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     private ?DoctrineCollection $renditions = null;
 
     private ?array $highlights = null;
-
-    public ?AssetAttributeBatchUpdateInput $attributeActions = null;
 
     public ?CopyAssetInput $copyAction = null;
     public ?MoveAssetInput $moveAction = null;

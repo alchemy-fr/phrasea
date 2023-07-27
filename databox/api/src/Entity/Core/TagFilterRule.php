@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Api\Processor\TagFilterRuleInputProcessor;
+use App\Api\Provider\TagFilterRuleCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -34,6 +35,7 @@ use Doctrine\ORM\Mapping as ORM;
     input: TagFilterRuleInput::class,
     output: TagFilterRuleOutput::class,
     security: 'is_granted("ROLE_USER")',
+    provider: TagFilterRuleCollectionProvider::class,
     processor: TagFilterRuleInputProcessor::class,
 )]
 #[ORM\Table]

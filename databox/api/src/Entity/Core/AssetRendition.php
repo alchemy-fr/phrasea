@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\InputTransformer\RenditionInputTransformer;
 use App\Api\Model\Input\RenditionInput;
-use App\Api\Provider\RenditionCollectionDataProvider;
+use App\Api\Provider\RenditionCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -112,7 +112,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [AssetRendition::GROUP_LIST],
     ],
     input: RenditionInput::class,
-    provider: RenditionCollectionDataProvider::class,
+    provider: RenditionCollectionProvider::class,
     processor: RenditionInputTransformer::class,
 )]
 #[ORM\Table]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
@@ -21,6 +22,14 @@ class CollectionOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
+    #[ApiProperty(jsonSchemaContext: [
+        'type' => 'object',
+        'properties' => [
+            'canEdit' => 'boolean',
+            'canDelete' => 'boolean',
+            'canEditPermissions' => 'boolean',
+        ],
+    ])]
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     protected array $capabilities = [];
 

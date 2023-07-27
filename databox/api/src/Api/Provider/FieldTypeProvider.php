@@ -10,7 +10,7 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\FieldType;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class FieldTypeDataProvider extends AbstractCollectionProvider
+class FieldTypeProvider extends AbstractCollectionProvider
 {
     public function __construct(
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
@@ -35,10 +35,5 @@ class FieldTypeDataProvider extends AbstractCollectionProvider
         usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
         return $results;
-    }
-
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
-    {
-        return FieldType::class === $resourceClass;
     }
 }

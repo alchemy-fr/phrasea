@@ -29,10 +29,19 @@ class AssetOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
+
     private ?string $lastGroupKey = null;
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly AttributesResolver $attributesResolver, private readonly AssetTitleResolver $assetTitleResolver, private readonly RequestStack $requestStack, private readonly FieldNameResolver $fieldNameResolver, private readonly FacetRegistry $facetRegistry, private readonly AttributeTypeRegistry $attributeTypeRegistry)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly RenditionPermissionManager $renditionPermissionManager,
+        private readonly AttributesResolver $attributesResolver,
+        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly RequestStack $requestStack,
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly FacetRegistry $facetRegistry,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry
+    ) {
     }
 
     private function getUserLocales(): array
@@ -53,7 +62,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
     /**
      * @param Asset $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $userLocales = $this->getUserLocales();
         $preferredLocales = array_unique(array_filter(array_merge($userLocales, $data->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
@@ -73,7 +82,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $highlights = $data->getElasticHighlights();
 
-        if (isset($context['groups']) && in_array(Asset::GROUP_LIST, $context['groups'], true)) {
+        if ($this->hasGroup([
+                Asset::GROUP_LIST,
+                Asset::GROUP_READ,
+            ], $context)) {
             $attributes = $this->attributesResolver->resolveAssetAttributes($data, true);
 
             if (!empty($highlights)) {
@@ -108,7 +120,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $groupBy = $context['groupBy'][0] ?? null;
             if (null !== $groupBy) {
                 $groupValue = $this->getGroupValue($groupBy, $data, $indexByAttrName[$groupBy] ?? null);
-                $groupKey = $groupValue ? $groupValue->getKey() : null;
+                $groupKey = $groupValue->getKey();
 
                 if ($this->lastGroupKey !== $groupKey) {
                     $output->setGroupValue($groupValue);
@@ -143,7 +155,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection())
+        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset
+        ): Collection => $collectionAsset->getCollection())
             ->filter(fn (Collection $collection): bool => $this->isGranted(CollectionVoter::LIST, $collection))
             ->getValues());
 

@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributeClass;
 use App\Util\SecurityAwareTrait;
 
-class AttributeClassCollectionDataProvider extends AbstractCollectionProvider
+class AttributeClassCollectionProvider extends AbstractCollectionProvider
 {
     use SecurityAwareTrait;
 

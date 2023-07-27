@@ -26,7 +26,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
     /**
      * @param AbstractBaseAttribute $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $type = $this->attributeTypeRegistry->getStrictType($data->getDefinition()->getFieldType());
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
+use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Attribute\BatchAttributeManager;
 use App\Controller\Traits\UserControllerTrait;
-use App\Entity\Core\Attribute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,16 +19,15 @@ final class AttributeBatchUpdateAction extends AbstractController
     {
     }
 
-    public function __invoke(Attribute $data, Request $request)
+    public function __invoke(AssetAttributeBatchUpdateInput $data, Request $request)
     {
-        $input = $data->batchUpdate;
-        $workspaceId = $this->batchAttributeManager->validate($input->assets, $input);
+        $workspaceId = $this->batchAttributeManager->validate($data->assets, $data);
 
         if (null !== $workspaceId) {
             $this->batchAttributeManager->handleBatch(
                 $workspaceId,
-                $input->assets,
-                $input,
+                $data->assets,
+                $data,
                 $this->getStrictUser(),
                 true,
             );

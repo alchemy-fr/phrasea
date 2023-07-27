@@ -34,7 +34,9 @@ final readonly class JwtExtractor
     {
         $claims = $token->claims();
 
-        $scopes = explode(' ', $claims->get('scope', ''));
+        $scope = $claims->get('scope', '');
+
+        $scopes = !empty($scope) ? explode(' ', $scope) : [];
 
         if (!empty($clientId = $claims->get('client_id'))) {
             return new JwtOauthClient(

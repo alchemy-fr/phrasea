@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\CollectionInputTransformer;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
 use App\Api\Provider\CollectionProvider;
@@ -78,7 +77,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     input: CollectionInput::class,
     output: CollectionOutput::class,
     provider: CollectionProvider::class,
-    processor: CollectionInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]

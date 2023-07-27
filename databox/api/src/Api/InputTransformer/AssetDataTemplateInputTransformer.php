@@ -20,6 +20,11 @@ class AssetDataTemplateInputTransformer extends AbstractInputTransformer
     {
     }
 
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return AssetDataTemplate::class === $resourceClass && $data instanceof AssetDataTemplateInput;
+    }
+
     /**
      * @param AssetDataTemplateInput $data
      */

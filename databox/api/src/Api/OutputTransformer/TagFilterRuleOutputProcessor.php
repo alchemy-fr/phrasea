@@ -17,7 +17,7 @@ class TagFilterRuleOutputProcessor implements OutputTransformerInterface
     /**
      * @param TagFilterRule $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new TagFilterRuleOutput();
         $output->setId($data->getId());

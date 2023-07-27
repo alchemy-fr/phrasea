@@ -17,7 +17,7 @@ class TagOutputProcessor implements OutputTransformerInterface
     /**
      * @param Tag $data
      */
-    public function transform(object $data, string $outputClass, array $context = []): object
+    public function transform(object $data, string $outputClass, array &$context = []): object
     {
         $output = new TagOutput();
         $output->setId($data->getId());

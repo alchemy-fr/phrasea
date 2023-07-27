@@ -65,8 +65,6 @@ abstract class AbstractIntegrationAction implements IfActionInterface
             return false;
         }
 
-        dump($context->getInputs()->getArrayCopy());
-
         $config = $this->getIntegrationConfig($context);
         $workspaceIntegration = $config['workspaceIntegration'];
         if (null !== $if = $workspaceIntegration->getIf()) {

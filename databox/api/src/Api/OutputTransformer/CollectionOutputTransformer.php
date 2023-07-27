@@ -29,7 +29,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
     /**
      * @param Collection $data
      */
-    public function transform($data, string $outputClass, array $context = []): object
+    public function transform($data, string $outputClass, array &$context = []): object
     {
         $output = new CollectionOutput();
         $output->setCreatedAt($data->getCreatedAt());
