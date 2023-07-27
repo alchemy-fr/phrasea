@@ -7,6 +7,7 @@ App\Entity\Core\Workspace:
     name: Test Workspace
     slug: test-workspace
     ownerId: <{admin_user_id}>
+    public: true
 
 Alchemy\AclBundle\Entity\AccessControlEntry:
   acl_user_ws:
