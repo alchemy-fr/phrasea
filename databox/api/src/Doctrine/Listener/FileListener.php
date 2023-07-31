@@ -9,16 +9,17 @@ use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::preRemove)]
-class FileListener implements EventSubscriber
+readonly class FileListener implements EventSubscriber
 {
-    public function __construct(private readonly PostFlushStack $postFlushStack)
+    public function __construct(private PostFlushStack $postFlushStack)
     {
     }
 
-    public function preRemove(LifecycleEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs $args): void
     {
         $object = $args->getObject();
 

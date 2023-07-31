@@ -52,6 +52,9 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         if (isset($options['profile'])) {
             $publication->setProfile($options['profile']);
         }
+        if (isset($options['slug'])) {
+            $publication->setSlug($options['slug']);
+        }
         if (isset($options['parent_id'])) {
             /** @var Publication $parent */
             $parent = $this->findPublication($options['parent_id']);
@@ -206,7 +209,7 @@ abstract class AbstractExposeTestCase extends ApiTestCase
     protected function assertNotAssetExist(string $id): void
     {
         $obj = self::getEntityManager()->find(Asset::class, $id);
-        $this->assertNull($obj, 'Asset exists.');
+        $this->assertTrue(null === $obj, 'Asset exists.');
     }
 
     protected static function getStorageManager(): FileStorageManager

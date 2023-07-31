@@ -69,9 +69,10 @@ class AssetDeleteTest extends AbstractExposeTestCase
             '/assets/'.$assetId
         );
         if (500 === $response->getStatusCode()) {
-            var_dump($response->getContent());
+            dump($response->getContent());
         }
         $this->assertEquals(204, $response->getStatusCode());
+        $this->clearEmBeforeApiCall();
         $this->assertNotAssetExist($assetId);
         $this->assertNotSubDefinitionExist($subDef1Id);
         $this->assertNotSubDefinitionExist($subDef2Id);

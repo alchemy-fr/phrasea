@@ -307,6 +307,29 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals('user42', $json['ownerId']);
     }
 
+    public function testGetPublicationWithSlug(): void
+    {
+        $publication = $this->createPublication([
+            'slug' => 'foo',
+        ]);
+        $this->createAsset($publication);
+        $this->createAsset($publication);
+
+        $this->clearEmBeforeApiCall();
+
+        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/foo');
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+
+        $this->assertArrayHasKey('id', $json);
+        $this->assertArrayHasKey('title', $json);
+        $this->assertArrayHasKey('assets', $json);
+        $this->assertCount(2, $json['assets']);
+        $this->assertArrayHasKey('id', $json['assets'][0]);
+        $this->assertNotNull($json['assets'][0]['id']);
+    }
+
     /**
      * @dataProvider publicationAndProfilesProvider
      */

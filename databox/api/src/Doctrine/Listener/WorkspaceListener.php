@@ -8,7 +8,6 @@ use App\Consumer\Handler\Workspace\OnWorkspaceDeleteHandler;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 

@@ -10,7 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 #[AsDoctrineListener(SoftDeleteableListener::PRE_SOFT_DELETE)]

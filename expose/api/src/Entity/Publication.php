@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Controller\GetPublicationAction;
+use App\Api\Provider\PublicationProvider;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
 use App\Entity\Traits\CapabilitiesTrait;
@@ -38,13 +38,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiResource(
     operations: [
         new Get(
-            uriTemplate: '/publications/{slug}',
+            uriTemplate: '/publications/{id}',
             uriVariables: [
-                'slug',
+                'id',
             ],
-            controller: GetPublicationAction::class,
             security: 'is_granted("'.PublicationVoter::READ.'", object)',
             name: self::GET_PUBLICATION_ROUTE_NAME,
+            provider: PublicationProvider::class,
         ),
         new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
         new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
@@ -121,14 +121,11 @@ class Publication implements AclObjectInterface, \Stringable
     final public const SECURITY_METHOD_PASSWORD = 'password';
     final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
-    /**
-     * @var Uuid
-     */
     #[ApiProperty(identifier: true)]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private UuidInterface $id;
+    private string $id;
 
     #[ApiProperty]
     #[ORM\Column(type: 'string', length: 255)]
@@ -262,12 +259,12 @@ class Publication implements AclObjectInterface, \Stringable
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::uuid4()->toString();
     }
 
     public function getId(): string
     {
-        return $this->id->__toString();
+        return $this->id;
     }
 
     /**

@@ -8,15 +8,18 @@ use App\Entity\AbstractUuidEntity;
 use App\Repository\Cache\CacheRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 #[AsDoctrineListener(Events::preRemove)]
 #[AsDoctrineListener(Events::prePersist)]
 #[AsDoctrineListener(Events::preUpdate)]
-class CacheInvalidatorListener implements EventSubscriber
+readonly class CacheInvalidatorListener implements EventSubscriber
 {
-    public function __construct(private readonly PostFlushStack $postFlushStack)
+    public function __construct(private PostFlushStack $postFlushStack)
     {
     }
 
@@ -38,17 +41,17 @@ class CacheInvalidatorListener implements EventSubscriber
         }
     }
 
-    public function preRemove(LifecycleEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }
 
-    public function prePersist(LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }
 
-    public function preUpdate(LifecycleEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }

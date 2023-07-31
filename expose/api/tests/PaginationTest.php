@@ -23,6 +23,7 @@ class PaginationTest extends AbstractExposeTestCase
         $em->flush();
 
         $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
+        $this->assertResponseIsSuccessful();
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         foreach (range(1, $defaultLimit) as $i) {
