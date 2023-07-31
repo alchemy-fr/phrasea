@@ -14,9 +14,9 @@ use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::postRemove)]
-class AssetListener implements EventSubscriber
+readonly class AssetListener implements EventSubscriber
 {
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private EventProducer $eventProducer)
     {
     }
 

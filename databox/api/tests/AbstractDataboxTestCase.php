@@ -134,6 +134,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $definition = new AttributeDefinition();
         $definition->setClass($options['class'] ?? $this->getOrCreateDefaultAttributeClass([
             'no_flush' => $options['no_flush'] ?? null,
+            'workspace' => $options['workspace'] ?? null,
         ]));
         $definition->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
@@ -156,7 +157,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         $em = self::getEntityManager();
 
         $attributeClass = new AttributeClass();
-        $attributeClass->setWorkspace($options['workspaceId'] ?? $this->getOrCreateDefaultWorkspace());
+        $attributeClass->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $attributeClass->setEditable($options['editable'] ?? true);
         $attributeClass->setPublic($options['public'] ?? true);
         $attributeClass->setName($options['name']);

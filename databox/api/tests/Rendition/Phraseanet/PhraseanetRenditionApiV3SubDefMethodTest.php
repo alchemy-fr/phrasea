@@ -142,7 +142,6 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 ],
             ],
         ]);
-        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertResponseStatusCodeSame(200);
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [

@@ -32,7 +32,7 @@ class PhraseanetIntegrationController extends AbstractController
 {
     final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
-    #[Route(path: '/{integrationId}/renditions/incoming/{assetId}', methods: ['POST'], name: 'incoming_rendition')]
+    #[Route(path: '/{integrationId}/renditions/incoming/{assetId}', name: 'incoming_rendition', methods: ['POST'])]
     public function incomingRenditionAction(
         string $integrationId,
         string $assetId,
@@ -54,7 +54,7 @@ class PhraseanetIntegrationController extends AbstractController
         }
 
         ini_set('max_execution_time', '600');
-        $fileInfo = $request->request->get('file_info');
+        $fileInfo = $request->request->all('file_info');
         if (empty($fileInfo)) {
             throw new BadRequestHttpException('Missing "file_info"');
         }
