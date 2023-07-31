@@ -16,6 +16,7 @@ use Twig\Error\RuntimeError;
 class Mailer implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
     public function __construct(private readonly Environment $templating, private readonly MailerInterface $mailer, private readonly RenderingContext $renderingContext, private readonly string $from)
     {
     }

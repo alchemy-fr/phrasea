@@ -17,8 +17,7 @@ class AttributeTypeRegistry
     public function __construct(
         #[TaggedIterator(AttributeTypeInterface::TAG, defaultIndexMethod: 'getName')]
         iterable $types
-    )
-    {
+    ) {
         $this->types = iterator_to_array($types);
     }
 

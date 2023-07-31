@@ -17,8 +17,7 @@ class EntityNormalizer
     public function __construct(
         #[TaggedIterator(EntityNormalizerInterface::TAG)]
         iterable $normalizers
-    )
-    {
+    ) {
         $this->normalizers = $normalizers;
     }
 

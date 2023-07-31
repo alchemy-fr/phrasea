@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 interface AttributeTypeInterface
 {
     final public const TAG = 'app.attribute_type';
+
     public static function getName(): string;
 
     public function getElasticSearchType(): string;

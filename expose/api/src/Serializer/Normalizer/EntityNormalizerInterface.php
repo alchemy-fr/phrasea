@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 interface EntityNormalizerInterface
 {
     final public const TAG = 'app.entity_normalizer';
+
     public function normalize($object, array &$context = []): void;
 
     public function support($object): bool;

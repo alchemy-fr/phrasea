@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Publication;
@@ -16,8 +15,7 @@ final class PublicationProvider implements ProviderInterface
     public function __construct(
         private readonly ProviderInterface $itemsProvider,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
