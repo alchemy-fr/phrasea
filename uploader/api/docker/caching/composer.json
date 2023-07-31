@@ -70,7 +70,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/acl-bundle": "dev-main",
-        "api-platform/core": "^2.6,<=2.6.8",
+        "api-platform/core": "^3.1",
         "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
@@ -78,7 +78,6 @@
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
-        "eightpoints/guzzle-bundle": "^8.0",
         "fig/link-util": "^1.1",
         "guzzlehttp/guzzle": "^7.2",
         "nelmio/cors-bundle": "^2.1",
@@ -89,7 +88,6 @@
         "ramsey/uuid": "^4.2.3",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^6.2",
-        "snc/redis-bundle": "^3.2",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",
@@ -115,7 +113,6 @@
         "aws/aws-sdk-php": "^3.20",
         "oneup/flysystem-bundle": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "symfony/templating": "^4.0 || ^5.0 || ^6",
         "lcobucci/jwt": "^5.0",
         "symfony/http-client": "^6",
         "opis/json-schema": "^1.0",
@@ -124,6 +121,7 @@
     "require-dev": {
         "ext-json": "*",
         "alchemy/api-test": "@dev",
+        "colinodell/psr-testlogger": "*",
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
@@ -176,6 +174,8 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "rector": "vendor/bin/rector",
+        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },

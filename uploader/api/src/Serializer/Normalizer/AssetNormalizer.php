@@ -7,9 +7,9 @@ namespace App\Serializer\Normalizer;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Asset;
 
-class AssetNormalizer implements EntityNormalizerInterface
+readonly class AssetNormalizer implements EntityNormalizerInterface
 {
-    public function __construct(private readonly UrlSigner $urlSigner)
+    public function __construct(private UrlSigner $urlSigner)
     {
     }
 
