@@ -42,9 +42,7 @@ services:
         tags:
             - { name: controller.service_arguments }
 
-    Alchemy\StorageBundle\Doctrine\MultipartUploadListener:
-        tags:
-            - { name: doctrine.event_subscriber }
+    Alchemy\StorageBundle\Doctrine\MultipartUploadListener: ~
 
     Alchemy\StorageBundle\Storage\PathGenerator: ~
 

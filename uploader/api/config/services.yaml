@@ -33,12 +33,6 @@ services:
         tags: ['controller.service_arguments']
 
     _instanceof:
-        App\Serializer\Normalizer\EntityNormalizerInterface:
-            tags: ['app.entity_normalizer']
-        Doctrine\Common\EventSubscriber:
-            tags: ['doctrine.event_subscriber']
-        App\Form\Resolver\WidgetResolverInterface:
-            tags: ['widget_resolver']
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
             tags: ['arthem_rabbit.event_handler']
 

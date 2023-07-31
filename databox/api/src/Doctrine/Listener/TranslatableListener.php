@@ -11,9 +11,9 @@ use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::prePersist)]
-class TranslatableListener implements EventSubscriber
+readonly class TranslatableListener implements EventSubscriber
 {
-    public function __construct(private readonly string $defaultLocale)
+    public function __construct(private string $defaultLocale)
     {
     }
 

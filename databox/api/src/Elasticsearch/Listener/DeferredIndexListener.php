@@ -9,6 +9,7 @@ use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\Event\OnFlushEventArgs;

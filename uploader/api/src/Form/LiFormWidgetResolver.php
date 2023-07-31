@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Form\Resolver\WidgetResolverInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LiFormWidgetResolver
@@ -12,11 +13,14 @@ class LiFormWidgetResolver
     /**
      * @var WidgetResolverInterface[]
      */
-    private array $resolvers = [];
+    private iterable $resolvers;
 
-    public function addResolver(WidgetResolverInterface $resolver)
+    public function __construct(
+        #[TaggedIterator(WidgetResolverInterface::TAG)]
+        iterable $resolvers
+    )
     {
-        $this->resolvers[] = $resolver;
+        $this->resolvers = $resolvers;
     }
 
     public function getFormType(array $config): string

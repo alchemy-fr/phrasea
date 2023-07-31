@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\AttributeTypePass;
 use App\DependencyInjection\Compiler\FixApiPlatformPass;
 use App\DependencyInjection\Compiler\RemoveUnwantedAutoWiredServicesPass;
 use App\DependencyInjection\Compiler\SearchIndexPass;
@@ -32,7 +31,6 @@ class Kernel extends BaseKernel
     {
         parent::build($container);
         $container->addCompilerPass(new SearchIndexPass());
-        $container->addCompilerPass(new AttributeTypePass());
         $container->addCompilerPass(new RemoveUnwantedAutoWiredServicesPass());
         $container->addCompilerPass(new FixApiPlatformPass());
     }

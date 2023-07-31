@@ -14,9 +14,9 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 #[AsDoctrineListener(SoftDeleteableListener::PRE_SOFT_DELETE)]
-class SoftDeleteListener implements EventSubscriber
+readonly class SoftDeleteListener implements EventSubscriber
 {
-    public function __construct(private readonly PostFlushStack $postFlushStack)
+    public function __construct(private PostFlushStack $postFlushStack)
     {
     }
 

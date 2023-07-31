@@ -30,12 +30,6 @@ class Kernel extends BaseKernel
         return \dirname(__DIR__);
     }
 
-    protected function prepareContainer(ContainerBuilder $container)
-    {
-        parent::prepareContainer($container);
-        $container->addCompilerPass(new EntityNormalizerPass());
-    }
-
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->addResource(new FileResource($this->getProjectDir().'/config/bundles.php'));
