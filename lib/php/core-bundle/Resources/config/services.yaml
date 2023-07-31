@@ -3,10 +3,6 @@ services:
     autowire: true
     autoconfigure: true
 
-  Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker:
-    arguments:
-      - '@service_container'
-
   Alchemy\CoreBundle\Listener\JsonConverterSubscriber:
     tags:
       - { name: kernel.event_subsriber }

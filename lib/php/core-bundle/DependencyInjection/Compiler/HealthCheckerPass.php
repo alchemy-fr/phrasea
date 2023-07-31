@@ -25,14 +25,17 @@ class HealthCheckerPass implements CompilerPassInterface
 
         $definition = $container->getDefinition(HealthChecker::class);
 
-        foreach ($container->findTaggedServiceIds(self::TAG) as $id => $tag) {
-            /* @var HealthCheckerInterface|string $id */
-            $definition->addMethodCall('addChecker', [new Reference($id)]);
-        }
-
         $redisMap = [
             Client::class => PredisConnectionChecker::class,
         ];
+
+        if ($container->hasDefinition('alchemy_core.redis')) {
+            $definition = $container->getDefinition(PredisConnectionChecker::class);
+
+
+            $definition->addMethodCall('addChecker', [$container->getDefinition('alchemy_core.redis')]);
+
+        }
 
         foreach ($container->findTaggedServiceIds('snc_redis.client') as $id => $tag) {
             $clientDefinition = $container->getDefinition($id);
@@ -42,7 +45,6 @@ class HealthCheckerPass implements CompilerPassInterface
                 $checkerDefinition = new Definition($checkerClass, [
                     new Reference($id),
                 ]);
-                $definition->addMethodCall('addChecker', [$checkerDefinition]);
             }
         }
     }

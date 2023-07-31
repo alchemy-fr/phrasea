@@ -9,7 +9,7 @@
         "version": "dev-expose"
     },
     "alchemy/auth-bundle": {
-        "version": "dev-PS-bump-sf6"
+        "version": "dev-main"
     },
     "alchemy/core-bundle": {
         "version": "dev-main"
@@ -18,9 +18,6 @@
         "version": "dev-main"
     },
     "alchemy/oauth-server-bundle": {
-        "version": "dev-main"
-    },
-    "alchemy/auth-bundle": {
         "version": "dev-main"
     },
     "alchemy/report-bundle": {
@@ -198,9 +195,6 @@
             "config/packages/test/hautelook_alice.yaml",
             "fixtures/.gitignore"
         ]
-    },
-    "klapaudius/oauth-server-bundle": {
-        "version": "4.0.3"
     },
     "monolog/monolog": {
         "version": "1.24.0"
@@ -435,18 +429,6 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "snc/redis-bundle": {
-        "version": "2.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "2.0",
-            "ref": "85bbdb3d2db531e20874de29bab0587f93604fa8"
-        },
-        "files": [
-            "config/packages/snc_redis.yaml"
         ]
     },
     "stof/doctrine-extensions-bundle": {

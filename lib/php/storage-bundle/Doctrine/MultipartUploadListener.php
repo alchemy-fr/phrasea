@@ -8,22 +8,22 @@ use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Aws\S3\Exception\S3Exception;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostRemoveEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
-class MultipartUploadListener implements EventSubscriber
+#[AsDoctrineListener(Events::postRemove)]
+#[AsDoctrineListener(Events::prePersist)]
+final readonly class MultipartUploadListener implements EventSubscriber
 {
-    private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
 
-    public function __construct(UploadManager $uploadManager, PathGenerator $pathGenerator)
+    public function __construct(private UploadManager $uploadManager, private PathGenerator $pathGenerator)
     {
-        $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
     }
 
-    public function postRemove(LifecycleEventArgs $args): void
+    public function postRemove(PostRemoveEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof MultipartUpload && !$entity->isComplete()) {
@@ -37,7 +37,7 @@ class MultipartUploadListener implements EventSubscriber
         }
     }
 
-    public function prePersist(LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof MultipartUpload && !$entity->hasPath()) {
@@ -50,7 +50,7 @@ class MultipartUploadListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postRemove,

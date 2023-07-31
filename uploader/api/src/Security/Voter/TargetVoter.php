@@ -28,7 +28,7 @@ class TargetVoter extends Voter
      */
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->security->isGranted('ROLE_ADMIN')) {
+        if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;
         }
 

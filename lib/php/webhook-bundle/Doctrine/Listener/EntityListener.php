@@ -10,12 +10,14 @@ use Alchemy\WebhookBundle\Consumer\WebhookHandler;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
 use Alchemy\WebhookBundle\Listener\TerminateStackListener;
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::onFlush)]
 class EntityListener implements EventSubscriber
 {
     final public const EVENT_CREATE = 'create';
@@ -163,10 +165,10 @@ class EntityListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
-            Events::onFlush => 'onFlush',
+            Events::onFlush,
         ];
     }
 }

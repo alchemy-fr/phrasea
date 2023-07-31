@@ -8,10 +8,12 @@ use App\Consumer\Handler\Collection\DeleteCollectionHandler;
 use App\Consumer\Handler\Workspace\DeleteWorkspaceHandler;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
+#[AsDoctrineListener(SoftDeleteableListener::PRE_SOFT_DELETE)]
 class SoftDeleteListener implements EventSubscriber
 {
     public function __construct(private readonly PostFlushStack $postFlushStack)
@@ -44,7 +46,7 @@ class SoftDeleteListener implements EventSubscriber
     public function getSubscribedEvents(): array
     {
         return [
-            SoftDeleteableListener::PRE_SOFT_DELETE => 'preSoftDelete',
+            SoftDeleteableListener::PRE_SOFT_DELETE,
         ];
     }
 }

@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Yaml\Yaml;
 
@@ -30,6 +31,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('services.yaml');
+        $loader->load('redis.yaml');
         $this->loadFixtures($container, $loader);
 
         $bundles = $container->getParameter('kernel.bundles');
@@ -64,20 +66,25 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 $container->prependExtensionConfig('monolog', Yaml::parseFile($configFile)['monolog']);
             }
         }
+        if (isset($bundles['FrameworkBundle'])) {
+            $container->prependExtensionConfig('framework', [
+                'http_method_override' => false,
+                'session' => [
+                    'handler_id' => RedisSessionHandler::class,
+                ]
+            ]);
+        }
     }
 
     private function loadHealthCheckers(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
-        if (isset($bundles['DoctrineBundle'])) {
-            $definition = $this->createHealthCheckerDefinition(DoctrineConnectionChecker::class);
-            $definition->setArgument('$connectionRegistry', new Reference('doctrine'));
-            $container->setDefinition(DoctrineConnectionChecker::class, $definition);
+        if (!isset($bundles['DoctrineBundle'])) {
+            $container->removeDefinition(DoctrineConnectionChecker::class);
         }
 
-        if (isset($bundles['OldSoundRabbitMqBundle'])) {
-            $definition = $this->createHealthCheckerDefinition(RabbitMQConnectionChecker::class);
-            $container->setDefinition(RabbitMQConnectionChecker::class, $definition);
+        if (!isset($bundles['OldSoundRabbitMqBundle'])) {
+            $container->removeDefinition(RabbitMQConnectionChecker::class);
         }
     }
 

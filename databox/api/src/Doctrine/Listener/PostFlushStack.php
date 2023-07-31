@@ -7,11 +7,13 @@ namespace App\Doctrine\Listener;
 use App\Listener\TerminateStackListener;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Contracts\Service\Attribute\Required;
 
+#[AsDoctrineListener(Events::postFlush)]
 final class PostFlushStack implements EventSubscriber
 {
     private array $callbacks = [];

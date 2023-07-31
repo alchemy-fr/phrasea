@@ -67,6 +67,33 @@ class OAuthClientTestMock implements HttpClientInterface
         return $token->toString();
     }
 
+    public static function generateExpiresJwt(string $userId): string
+    {
+        $configuration = Configuration::forAsymmetricSigner(
+            new Sha256(),
+            InMemory::file(__DIR__ . '/key.pem'),
+            InMemory::file(__DIR__ . '/key.pub'),
+        );
+
+        $now = new DateTimeImmutable();
+        $token = $configuration
+            ->builder()
+            ->issuedBy('https://keycloak.phrasea.local/realms/master')
+            // Configures the time that the token was issue (iat claim)
+            ->issuedAt($now)
+            // Configures the time that the token can be used (nbf claim)
+            ->canOnlyBeUsedAfter($now->modify('+1 minute'))
+            ->expiresAt($now->modify('-1 hour'))
+            ->relatedTo($userId)
+            ->withClaim('azp', 'test')
+            ->withClaim('preferred_username', self::USERS[$userId]['username'])
+            ->withClaim('roles', self::USERS[$userId]['roles'] ?? [])
+            ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
+            ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
+
+        return $token->toString();
+    }
+
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $args = [$method, $url, $options];

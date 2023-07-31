@@ -13,7 +13,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 final readonly class TargetDataProvider implements ProviderInterface
 {
     public function __construct(
-        private ProviderInterface $inner,
+        private ProviderInterface $itemsProvider,
         private Security $security
     ) {
     }
@@ -25,7 +25,7 @@ final readonly class TargetDataProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $items = $this->inner->provide($operation, $uriVariables, $context);
+        $items = $this->itemsProvider->provide($operation, $uriVariables, $context);
 
         return array_values(array_filter($items, fn (Target $target): bool => $this->security->isGranted(TargetVoter::READ, $target)));
     }

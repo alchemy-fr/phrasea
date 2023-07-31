@@ -89,12 +89,22 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
 
     public function supportsNormalization($data, $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsNormalization($data, $format);
+        if (!\is_object($data) || is_iterable($data)) {
+            return false;
+        }
+
+        $class = $context['force_resource_class'] ?? $this->getObjectClass($data);
+        $output = $context['output']['class'] ?? null;
+        if ($output && $output !== $class) {
+            return true;
+        }
+
+        return $this->decorated->supportsNormalization($data, $format, $context);
     }
 
     public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsDenormalization($data, $type, $format);
+        return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 
     public function denormalize($data, string $type, string $format = null, array $context = [])

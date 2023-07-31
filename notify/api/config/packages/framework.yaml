@@ -2,7 +2,7 @@ framework:
     secret: '%env(APP_SECRET)%'
 
     session:
-        handler_id: snc_redis.session.handler
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
         name: expose_sess
         cookie_secure: auto
         cookie_httponly: true

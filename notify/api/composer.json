@@ -47,7 +47,6 @@
         "qandidate/symfony-json-request-transformer": "^2.2",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^6.2",
-        "snc/redis-bundle": "^3.2",
         "symfony/amazon-mailer": "^6.3",
         "symfony/console": "^6.3",
         "symfony/dotenv": "^6.3",

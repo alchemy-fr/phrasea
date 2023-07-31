@@ -26,8 +26,6 @@ services:
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:
             tags: ['alchemy_workflow.action']
-        Doctrine\Common\EventSubscriber:
-            tags: ['doctrine.event_subscriber']
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
             tags: ['arthem_rabbit.event_handler']
         Symfony\Component\EventDispatcher\EventSubscriberInterface:
@@ -207,6 +205,7 @@ services:
             $pool: '@budget_limit.cache'
 
     App\Integration\ApiBudgetLimiter:
+        lazy: true
         arguments:
             $storage: '@app.budget_limit.cache_storage'
 

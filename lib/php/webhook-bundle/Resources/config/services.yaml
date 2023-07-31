@@ -21,8 +21,7 @@ services:
   Alchemy\WebhookBundle\Consumer\WebhookHandler:
     tags: ['arthem_rabbit.event_handler']
 
-  Alchemy\WebhookBundle\Doctrine\Listener\EntityListener:
-    tags: ['doctrine.event_subscriber']
+  Alchemy\WebhookBundle\Doctrine\Listener\EntityListener: ~
 
   Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~
 

@@ -2,11 +2,11 @@
     "alchemy/admin-bundle": {
         "version": "dev-master"
     },
-    "alchemy/core-bundle": {
-        "version": "dev-core-bundle"
-    },
     "alchemy/auth-bundle": {
         "version": "dev-master"
+    },
+    "alchemy/core-bundle": {
+        "version": "dev-core-bundle"
     },
     "arthem/rabbit-bundle": {
         "version": "dev-master"
@@ -326,18 +326,6 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "snc/redis-bundle": {
-        "version": "2.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "2.0",
-            "ref": "85bbdb3d2db531e20874de29bab0587f93604fa8"
-        },
-        "files": [
-            "config/packages/snc_redis.yaml"
         ]
     },
     "symfony/amazon-mailer": {

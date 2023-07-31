@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\DataProvider\TargetDataProvider;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,7 +24,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Put(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
         new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
-        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
+        new GetCollection(
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            provider: TargetDataProvider::class,
+        ),
     ],
     normalizationContext: [
         'groups' => ['target:index'],

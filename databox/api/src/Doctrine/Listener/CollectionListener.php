@@ -7,10 +7,12 @@ namespace App\Doctrine\Listener;
 use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::postUpdate)]
 class CollectionListener implements EventSubscriber
 {
     use ChangeFieldListenerTrait;
@@ -19,7 +21,7 @@ class CollectionListener implements EventSubscriber
     {
     }
 
-    public function postUpdate(LifecycleEventArgs $args): void
+    public function postUpdate(PostUpdateEventArgs $args): void
     {
         $entity = $args->getEntity();
 
@@ -43,7 +45,7 @@ class CollectionListener implements EventSubscriber
     public function getSubscribedEvents(): array
     {
         return [
-            Events::postUpdate => 'postUpdate',
+            Events::postUpdate,
         ];
     }
 }

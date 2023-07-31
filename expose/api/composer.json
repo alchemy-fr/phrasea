@@ -92,7 +92,6 @@
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.5",
-        "snc/redis-bundle": "^3.2",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",
         "symfony/dotenv": "^6.3",

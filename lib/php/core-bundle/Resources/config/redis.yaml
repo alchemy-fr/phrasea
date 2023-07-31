@@ -1,0 +1,18 @@
+parameters:
+    env(REDIS_URL): 'redis://redis:6379'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@alchemy_core.redis'
+            - { 'prefix': 'session', 'ttl': 3600 }
+
+    alchemy_core.redis:
+        lazy: true
+        class: \Predis\Client
+        arguments:
+            - "%env(REDIS_URL)%"

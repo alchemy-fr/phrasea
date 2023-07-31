@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security;
 
 use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 final readonly class JwtExtractor
 {
@@ -21,10 +23,14 @@ final readonly class JwtExtractor
 
     public function parseJwt(string $jwt): UnencryptedToken
     {
-        $token = $this->parser->parse($jwt);
+        try {
+            $token = $this->parser->parse($jwt);
+        } catch (InvalidTokenStructure) {
+            throw new UnauthorizedHttpException('Invalid token');
+        }
 
         if (!$token instanceof UnencryptedToken) {
-            throw new \InvalidArgumentException('Token is not unencrypted');
+            throw new \InvalidArgumentException(sprintf('Token is not a %s', UnencryptedToken::class));
         }
 
         return $token;

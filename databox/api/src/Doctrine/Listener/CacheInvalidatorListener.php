@@ -6,10 +6,14 @@ namespace App\Doctrine\Listener;
 
 use App\Entity\AbstractUuidEntity;
 use App\Repository\Cache\CacheRepositoryInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::preRemove)]
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::preUpdate)]
 class CacheInvalidatorListener implements EventSubscriber
 {
     public function __construct(private readonly PostFlushStack $postFlushStack)

@@ -7,13 +7,10 @@ namespace Alchemy\CoreBundle\Health\Checker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Doctrine\Persistence\ConnectionRegistry;
 
-class DoctrineConnectionChecker implements HealthCheckerInterface
+final readonly class DoctrineConnectionChecker implements HealthCheckerInterface
 {
-    private readonly ConnectionRegistry $connectionRegistry;
-
-    public function __construct(ConnectionRegistry $connectionRegistry, private readonly ?string $connectionName = null)
+    public function __construct(private ConnectionRegistry $connectionRegistry, private ?string $connectionName = null)
     {
-        $this->connectionRegistry = $connectionRegistry;
     }
 
     public function getName(): string

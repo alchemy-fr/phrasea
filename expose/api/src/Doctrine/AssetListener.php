@@ -9,14 +9,17 @@ use App\Entity\Asset;
 use App\Entity\SubDefinition;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\ObjectManager;
 
+#[AsDoctrineListener(Events::onFlush)]
+#[AsDoctrineListener(Events::postFlush)]
+#[AsDoctrineListener(Events::prePersist)]
 class AssetListener implements EventSubscriber
 {
     /**
@@ -29,7 +32,7 @@ class AssetListener implements EventSubscriber
     {
     }
 
-    public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof Asset) {
@@ -88,7 +91,7 @@ class AssetListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::onFlush,

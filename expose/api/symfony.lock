@@ -193,9 +193,6 @@
             "fixtures/.gitignore"
         ]
     },
-    "klapaudius/oauth-server-bundle": {
-        "version": "4.0.3"
-    },
     "lcobucci/jwt": {
         "version": "4.0.0-alpha3"
     },
@@ -406,18 +403,6 @@
     },
     "sebastian/version": {
         "version": "3.0.2"
-    },
-    "snc/redis-bundle": {
-        "version": "2.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "2.0",
-            "ref": "85bbdb3d2db531e20874de29bab0587f93604fa8"
-        },
-        "files": [
-            "config/packages/snc_redis.yaml"
-        ]
     },
     "symfony/asset": {
         "version": "v4.3.4"
