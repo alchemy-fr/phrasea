@@ -204,6 +204,8 @@ jobs:
           bin/setup.sh
       - name: Debug
         run: |
+            echo "DOCKER_TAG"
+            echo $DOCKER_TAG
             cat databox/api/tests/Admin/AdminTest.php
             docker compose run --rm databox-api-php cat tests/Admin/AdminTest.php
       - name: Test
