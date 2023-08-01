@@ -202,6 +202,10 @@ jobs:
           docker compose down --volumes
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh
+      - name: Debug
+        run: |
+            cat databox/api/tests/Admin/AdminTest.php
+            docker compose run --rm databox-api-php cat tests/Admin/AdminTest.php
       - name: Test
         run: bin/test.sh
       - name: Clean containers
