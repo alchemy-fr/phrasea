@@ -96,7 +96,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             '@type' => 'asset',
             'title' => 'Dummy asset',
         ]);
-        $json = \GuzzleHttp\json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true);
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
