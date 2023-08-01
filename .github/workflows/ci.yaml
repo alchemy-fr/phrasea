@@ -109,15 +109,20 @@ jobs:
     needs:
       - build_nodejs-base
 
-  build_matomo:
-    name: 'Build Matomo'
-    strategy:
-      matrix:
-        images: [php, nginx]
+  build_matomo_php:
+    name: 'Build Matomo PHP'
     uses: ./.github/workflows/build.yaml
     with:
-      image: matomo-${{ matrix.images }}
-      context: ./infra/docker/matomo-${{ matrix.images }}
+      image: matomo-php
+      context: ./infra/docker/matomo-php
+    secrets: inherit
+
+  build_matomo_nginx:
+    name: 'Build Matomo NGINX'
+    uses: ./.github/workflows/build.yaml
+    with:
+      image: matomo-nginx
+      context: ./infra/docker/matomo-nginx
     secrets: inherit
 
   build_notify_api:
@@ -173,7 +178,8 @@ jobs:
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
-      - build_matomo
+      - build_matomo_php
+      - build_matomo_nginx
       - build_notify_api
       - build_report_api
       - build_uploader_api
