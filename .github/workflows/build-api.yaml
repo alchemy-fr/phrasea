@@ -44,7 +44,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build and push
+      - name: Build and Push API PHP
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
@@ -52,14 +52,14 @@ jobs:
           target: api-php
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
-          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}-api-php:build-cache
+          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:${{ env.DOCKER_TAG }}
 
-      - name: build and push
+      - name: Build and Push API NGINX
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
@@ -67,14 +67,14 @@ jobs:
           target: api-nginx
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
-          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}-api-nginx:build-cache
+          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:${{ env.DOCKER_TAG }}
 
-      - name: build and push
+      - name: Build and Push Worker
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
@@ -82,7 +82,7 @@ jobs:
           target: worker
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache
-          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}-worker:build-cache
+          cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
