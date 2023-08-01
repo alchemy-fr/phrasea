@@ -167,7 +167,6 @@ jobs:
     name: 'Setup stack'
     runs-on: ubuntu-latest
     needs:
-      - build_auth_api
       - build_dashboard
       - build_databox_api
       - build_databox_client
