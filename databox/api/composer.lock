@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d2e11e1a50ac7fbbf50e2b3ce92e8cb",
+    "content-hash": "f5127cda632691471b6774994592ef0c",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "68c2f22c9914c81a05971bff40410726e414fcc5"
+                "reference": "c6f19b803b9afe749e5f90ece5b7e45751b5bd71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/68c2f22c9914c81a05971bff40410726e414fcc5",
-                "reference": "68c2f22c9914c81a05971bff40410726e414fcc5",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/c6f19b803b9afe749e5f90ece5b7e45751b5bd71",
+                "reference": "c6f19b803b9afe749e5f90ece5b7e45751b5bd71",
                 "shasum": ""
             },
             "require": {
@@ -55,7 +55,7 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-07-31T08:12:23+00:00"
+            "time": "2023-08-01T07:48:32+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
@@ -9340,6 +9340,85 @@
             "time": "2023-07-20T07:43:09+00:00"
         },
         {
+            "name": "symfony/lock",
+            "version": "v6.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/lock.git",
+                "reference": "cde6dbd72d217024b1049d42a4519e713e2f18af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/lock/zipball/cde6dbd72d217024b1049d42a4519e713e2f18af",
+                "reference": "cde6dbd72d217024b1049d42a4519e713e2f18af",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "psr/log": "^1|^2|^3",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "doctrine/dbal": "<2.13",
+                "symfony/cache": "<6.2"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^2.13|^3.0",
+                "predis/predis": "^1.1|^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Lock\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jérémy Derussé",
+                    "email": "jeremy@derusse.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Creates and manages locks, a mechanism to provide exclusive access to a shared resource",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cas",
+                "flock",
+                "locking",
+                "mutex",
+                "redlock",
+                "semaphore"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/lock/tree/v6.3.2"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-06-28T15:25:15+00:00"
+        },
+        {
             "name": "symfony/mime",
             "version": "v6.3.3",
             "source": {
@@ -14746,85 +14825,6 @@
                 }
             ],
             "time": "2023-07-13T14:29:38+00:00"
-        },
-        {
-            "name": "symfony/lock",
-            "version": "v6.3.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/lock.git",
-                "reference": "cde6dbd72d217024b1049d42a4519e713e2f18af"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/lock/zipball/cde6dbd72d217024b1049d42a4519e713e2f18af",
-                "reference": "cde6dbd72d217024b1049d42a4519e713e2f18af",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.1",
-                "psr/log": "^1|^2|^3",
-                "symfony/deprecation-contracts": "^2.5|^3"
-            },
-            "conflict": {
-                "doctrine/dbal": "<2.13",
-                "symfony/cache": "<6.2"
-            },
-            "require-dev": {
-                "doctrine/dbal": "^2.13|^3.0",
-                "predis/predis": "^1.1|^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Lock\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jérémy Derussé",
-                    "email": "jeremy@derusse.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Creates and manages locks, a mechanism to provide exclusive access to a shared resource",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "cas",
-                "flock",
-                "locking",
-                "mutex",
-                "redlock",
-                "semaphore"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/lock/tree/v6.3.2"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2023-06-28T15:25:15+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",
