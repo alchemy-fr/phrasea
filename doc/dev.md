@@ -89,10 +89,10 @@ You can use the following helper to do so automatically:
 ```bash
 # Usage
 # optimize-composer-docker-cache [app-path]
-./bin/optimize-composer-docker-cache ./auth/api
+./bin/optimize-composer-docker-cache ./databox/api
 
 # You can update multiple projects at the same time
-./bin/optimize-composer-docker-cache ./auth/api ./uploader/api
+./bin/optimize-composer-docker-cache ./databox/api ./uploader/api
 ```
 
 ## Further reading

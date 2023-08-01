@@ -6,11 +6,6 @@
     "fr_CA"
   ],
   "auth": {
-    "loginFormLayout": {
-      "defaultHiddenForm": false,
-      "displayIdPTitle": false,
-      "externalIdpOnTop": false
-    },
     "identity_providers": [
       {
         "title": "Phraseanet",
@@ -108,22 +103,7 @@
           }
         }
       }
-    ],
-    "admin": {
-      "logo": {
-        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
-        "with": "80px"
-      }
-    },
-    "client": {
-      "css": "",
-      "logo": {
-        "src": "https://www.phraseanet.com/wp-content/uploads/2014/05/PICTO_PHRASEANET.png",
-        "style": "display:flex;flex-direction: column;align-items:center;justify-content:center;text-align: center;padding: 20px;box-shadow: 0 0 25px rgba(255, 255, 255);background: #FFF;text-align:center",
-        "image_style": "width: 80px"
-      },
-      "name": "Alchemy"
-    }
+    ]
   },
   "uploader": {
     "max_upload_file_size": null,

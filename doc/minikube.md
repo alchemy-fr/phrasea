@@ -18,7 +18,7 @@ Add these domains to your `/etc/hosts`:
 
 ```
 # Alchemy Minikube
-192.168.49.2 api-auth.alchemy.kube
+192.168.49.2 api-uploader.alchemy.kube
 192.168.49.2 uploader.alchemy.kube
 # ... add other domains
 ```

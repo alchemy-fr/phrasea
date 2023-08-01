@@ -57,7 +57,7 @@ jobs:
 
   build_databox_api:
     name: 'Build Databox API'
-    uses: ./.github/workflows/build-api.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
       prefix: databox
       context: ./databox/api
@@ -88,7 +88,7 @@ jobs:
 
   build_expose_api:
     name: 'Build Expose API'
-    uses: ./.github/workflows/build-api.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
       prefix: expose
       context: ./expose/api
@@ -127,7 +127,7 @@ jobs:
 
   build_notify_api:
     name: 'Build Notify API'
-    uses: ./.github/workflows/build-api.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
       prefix: notify
       context: ./notify/api
@@ -147,7 +147,7 @@ jobs:
 
   build_uploader_api:
     name: 'Build Uploader API'
-    uses: ./.github/workflows/build-api.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
       prefix: uploader
       context: ./uploader/api
