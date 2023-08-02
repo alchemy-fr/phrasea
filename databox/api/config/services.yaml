@@ -16,7 +16,7 @@ services:
         bind:
             string $defaultLocale: '%default_locale%'
             string $zippyBaseUrl: '%env(ZIPPY_URL)%'
-            string $zippyClient: '@app.zippy_client'
+            $zippyClient: '@app.zippy_client'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             $integrationClient: '@app.integrations.http_client'
