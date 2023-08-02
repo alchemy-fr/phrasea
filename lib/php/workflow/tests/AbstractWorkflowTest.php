@@ -22,8 +22,8 @@ use Alchemy\Workflow\Tests\State\TestStateStateRepository;
 use Alchemy\Workflow\Trigger\RuntimeJobTrigger;
 use Alchemy\Workflow\Validator\EventValidator;
 use Alchemy\Workflow\WorkflowOrchestrator;
+use ColinODell\PsrTestLogger\TestLogger;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\Test\TestLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractWorkflowTest extends TestCase
