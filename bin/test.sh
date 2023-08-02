@@ -11,11 +11,6 @@ export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
 export COMPOSE_PROFILES=db,uploader,report,databox,expose,notify
 
-# TODO debug
-echo "DOCKER_TAG"
-echo $DOCKER_TAG
-env
-
 docker compose up -d
 
 docker compose run --rm dockerize
