@@ -35,7 +35,7 @@ report-bundle
 report-sdk
 "
 for lib in ${LIBS}; do
-    docker compose run -T --rm uploader-api-php su app -c "cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
+    docker compose run -T --rm uploader-api-php su app -c "composer install && cd vendor/alchemy/${lib} && composer install --no-interaction && composer test"
 done
 
 docker compose run -T --rm databox-api-php su app -c "cd vendor/alchemy/workflow && composer install --no-interaction && composer test"
