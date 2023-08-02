@@ -86,12 +86,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/${INDEXER_BUCKET_NAME} \
 "
-exec_container databox-api-php "bin/console alchemy:oauth:create-client ${INDEXER_DATABOX_CLIENT_ID} \
-    --random-id=${INDEXER_DATABOX_CLIENT_RANDOM_ID} \
-    --secret=${INDEXER_DATABOX_CLIENT_SECRET} \
-    --grant-type authorization_code \
-    --grant-type client_credentials \
-    --scope chuck-norris"
 exec_container rabbitmq "rabbitmqctl add_vhost s3events && rabbitmqctl set_permissions -p s3events ${RABBITMQ_USER} '.*' '.*' '.*'"
 exec_container rabbitmq "\
   rabbitmqadmin declare exchange --vhost=s3events name=s3events type=direct durable='true' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD} \
