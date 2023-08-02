@@ -46,7 +46,7 @@ class ZippyManager
                     ],
                 ]);
 
-                $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+                $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                 $publication->setZippyId($json['id']);
                 $publication->setZippyHash($hash);
@@ -81,7 +81,7 @@ class ZippyManager
     private function fetchDownloadUrlFromId(string $id): string
     {
         $response = $this->client->request('GET', '/archives/'.$id);
-        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         return $json['downloadUrl'];
     }

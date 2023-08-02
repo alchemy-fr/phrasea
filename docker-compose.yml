@@ -164,7 +164,7 @@ services:
     volumes:
       - uploader_vol:/var/data/upload
     extra_hosts:
-      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-worker:
     extends:
@@ -281,7 +281,7 @@ services:
       - CLOUD_FRONT_KEY_PAIR_ID=${EXPOSE_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${EXPOSE_CLOUD_FRONT_TTL}
     extra_hosts:
-      - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-worker:
     extends:
@@ -687,9 +687,9 @@ services:
       - elasticsearch
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     extends:
@@ -767,7 +767,7 @@ services:
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-indexer:
     extends:
@@ -880,6 +880,8 @@ services:
     networks:
       - internal
     environment:
+      - APP_ENV
+      - VERIFY_SSL
       - RABBITMQ_USER
       - RABBITMQ_PASSWORD
       - TRUSTED_PROXIES
@@ -899,7 +901,7 @@ services:
     image: alchemyfr/zippy-api:latest
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.zippy-svc.rule=Host(`zippy-svc.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.zippy.rule=Host(`zippy.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   zippy-worker:

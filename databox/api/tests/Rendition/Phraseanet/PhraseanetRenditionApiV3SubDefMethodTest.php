@@ -94,7 +94,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             '@type' => 'asset',
             'title' => 'Dummy asset',
         ]);
-        $json = \GuzzleHttp\json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();

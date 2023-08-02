@@ -25,7 +25,7 @@ expose:
       token: "pk.eyJ1IjoiYXJ0aHVyZGVtb3VsaW5zIiwiYSI6ImNrYXAybGNodTBqdGIycnBvNGs0cWhsanYifQ.AafKAw4dVuEOVvbnwWG9Vw"
   zippy:
     enabled: true
-    baseUrl: "https://zippy-svc.phrasea.minikube"
+    baseUrl: "https://zippy.phrasea.minikube"
     clientId: client
     clientSecret: secret
 

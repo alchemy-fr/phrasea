@@ -31,7 +31,7 @@ class UpdateUserPreferenceAction extends AbstractController
     {
         $user = $this->getRemoteUser();
 
-        $data = \GuzzleHttp\json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (empty($name = ($data['name'] ?? null))) {
             throw new BadRequestHttpException('Missing or empty name');
         }

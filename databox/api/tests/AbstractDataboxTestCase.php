@@ -182,7 +182,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
         }
         $this->assertEquals($expectedCode, $response->getStatusCode());
 
-        return \GuzzleHttp\json_decode($response->getContent(), true);
+        return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     protected function createWorkspace(array $options = []): Workspace

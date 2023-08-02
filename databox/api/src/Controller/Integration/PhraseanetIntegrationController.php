@@ -113,7 +113,7 @@ class PhraseanetIntegrationController extends AbstractController
         EventProducer $eventProducer,
         LoggerInterface $logger
     ): Response {
-        $json = \GuzzleHttp\json_decode($request->getContent(), true);
+        $json = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         switch ($json['event']) {
             case 'record.subdef.created':

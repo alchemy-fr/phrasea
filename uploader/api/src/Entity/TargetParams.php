@@ -95,7 +95,7 @@ class TargetParams implements AclObjectInterface
     {
         $jsonData ??= '{}';
 
-        $this->data = \GuzzleHttp\json_decode($jsonData, true);
+        $this->data = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function getAclOwnerId(): string

@@ -57,9 +57,9 @@ class AssetSearch extends AbstractSearch
 
         if (null !== $attrFilters = ($options['filters'] ?? null)) {
             if (is_string($attrFilters)) {
-                $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
+                $attrFilters = json_decode($attrFilters, true, 512, JSON_THROW_ON_ERROR);
             } else {
-                $attrFilters = array_map(fn ($f): array => is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f, $attrFilters);
+                $attrFilters = array_map(fn ($f): array => is_string($f) ? json_decode($f, true, 512, JSON_THROW_ON_ERROR) : $f, $attrFilters);
             }
             if (!empty($attrFilters)) {
                 $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);

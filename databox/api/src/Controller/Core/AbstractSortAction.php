@@ -19,7 +19,7 @@ abstract class AbstractSortAction extends AbstractController
 
     protected function sort(Request $request, string $class, string $positionField, bool $reverse = false): void
     {
-        $ids = \GuzzleHttp\json_decode($request->getContent(), true);
+        $ids = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (empty($ids)) {
             return;
         }

@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Util\FileUtil;
-use ApiPlatform\Core\Validator\Exception\ValidationException;
+use ApiPlatform\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
@@ -34,10 +34,7 @@ class ExportAction extends AbstractController
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupsIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
-        $errors = $this->validator->validate($data);
-        if (!empty($errors)) {
-            throw new ValidationException($errors);
-        }
+        $this->validator->validate($data);
 
         $renditionIds = $data->renditions;
         $files = [];
@@ -74,7 +71,7 @@ class ExportAction extends AbstractController
                 'files' => $files,
             ],
         ]);
-        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         $data->downloadUrl = $json['downloadUrl'];
 

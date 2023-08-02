@@ -157,7 +157,7 @@ class Commit extends AbstractUuidEntity
     public function setFormDataJson(?string $json): void
     {
         $json ??= '{}';
-        $this->formData = \GuzzleHttp\json_decode($json, true);
+        $this->formData = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
     }
 
     #[Groups(['__NONE__'])]
@@ -170,7 +170,7 @@ class Commit extends AbstractUuidEntity
     {
         $json ??= '{}';
 
-        $this->options = \GuzzleHttp\json_decode($json, true);
+        $this->options = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function setFormData(array $formData): void

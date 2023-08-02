@@ -41,7 +41,7 @@ final readonly class RekognitionAnalyzer
 
         $path = $this->fileFetcher->getFile($file);
         if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $category)) {
-            $result = \GuzzleHttp\json_decode($data->getValue(), true);
+            $result = json_decode($data->getValue(), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 

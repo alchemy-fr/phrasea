@@ -129,7 +129,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     {
         $this->optionsJson = $options;
         try {
-            $this->config = \GuzzleHttp\json_decode($options, true);
+            $this->config = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
         } catch (InvalidArgumentException) {
         }
     }
