@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Serializer\Normalizer;
 
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
-#[AsTaggedItem(self::TAG)]
+#[AutoconfigureTag(self::TAG)]
 interface EntityNormalizerInterface
 {
     final public const TAG = 'app.entity_normalizer';

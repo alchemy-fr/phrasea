@@ -117,9 +117,9 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'commit_id' => $assetId,
         ], $phraseanetBodyData);
         $this->assertMatchesRegularExpression(sprintf(
-                '#https://api-databox\.[^/]+/integrations/phraseanet/%s/$#',
-                preg_quote($integration->getId(), '#')
-            ), $phraseanetBodyData['base_url']);
+            '#https://api-databox\.[^/]+/integrations/phraseanet/%s/$#',
+            preg_quote($integration->getId(), '#')
+        ), $phraseanetBodyData['base_url']);
 
         $endpoint = sprintf('/integrations/phraseanet/%s/assets/%s', $integration->getId(), $assetId);
         // Call from Phraseanet without token

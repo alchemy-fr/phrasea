@@ -2,16 +2,13 @@
 
 namespace Alchemy\CoreBundle\DependencyInjection;
 
-use Alchemy\CoreBundle\DependencyInjection\Compiler\HealthCheckerPass;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Yaml\Yaml;
@@ -94,16 +91,5 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         if (isset($bundles['AlchemyStorageBundle'], $bundles['HautelookAliceBundle'])) {
             $loader->load('fixtures.yaml');
         }
-    }
-
-    private function createHealthCheckerDefinition(string $class): Definition
-    {
-        $definition = new Definition($class);
-        $definition->setAutowired(true);
-        $definition->setAutoconfigured(true);
-
-        $definition->addTag(HealthCheckerPass::TAG);
-
-        return $definition;
     }
 }

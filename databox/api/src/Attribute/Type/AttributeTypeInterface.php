@@ -6,10 +6,10 @@ namespace App\Attribute\Type;
 
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-#[AsTaggedItem(self::TAG)]
+#[AutoconfigureTag(self::TAG)]
 interface AttributeTypeInterface
 {
     final public const TAG = 'app.attribute_type';

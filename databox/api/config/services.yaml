@@ -14,9 +14,9 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $defaultLocale: '%default_locale%'
-            $zippyBaseUrl: '%env(ZIPPY_URL)%'
-            $zippyClient: '@app.zippy_client'
+            string $defaultLocale: '%default_locale%'
+            string $zippyBaseUrl: '%env(ZIPPY_URL)%'
+            string $zippyClient: '@app.zippy_client'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             $integrationClient: '@app.integrations.http_client'
