@@ -23,12 +23,12 @@ class AssetDataTemplateVoter extends AbstractVoter
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = $userId && $subject->getOwnerId() === $userId;
+        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::READ => $subject->isPublic() || $isOwner || $this->security->isGranted(PermissionInterface::VIEW, $subject),
-            self::EDIT => $isOwner || $this->security->isGranted(PermissionInterface::EDIT, $subject),
-            self::DELETE => $isOwner || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::READ => $subject->isPublic() || $isOwner() || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
+            self::EDIT => $isOwner() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
+            self::DELETE => $isOwner() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::CREATE => (bool) $userId,
             default => false,
         };

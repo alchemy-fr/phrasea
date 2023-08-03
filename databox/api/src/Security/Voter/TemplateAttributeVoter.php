@@ -24,7 +24,7 @@ class TemplateAttributeVoter extends AbstractVoter
             self::READ => $this->security->isGranted(self::READ, $subject->getTemplate())
                 && (
                     $subject->getDefinition()->getClass()->isPublic()
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
+                    || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getClass(), $token)
                 ),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AbstractVoter::EDIT, $subject->getTemplate()),
             default => false,

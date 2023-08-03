@@ -24,12 +24,12 @@ class AttributeVoter extends AbstractVoter
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
                 && (
                     $subject->getDefinition()->getClass()->isPublic()
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject->getDefinition()->getClass())
+                    || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getClass(), $token)
                 ),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                 && (
                     $subject->getDefinition()->getClass()->isEditable()
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject->getDefinition()->getClass())
+                    || $this->hasAcl(PermissionInterface::EDIT, $subject->getDefinition()->getClass(), $token)
                 ),
             default => false,
         };

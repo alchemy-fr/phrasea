@@ -29,71 +29,64 @@ class AssetVoter extends AbstractVoter
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = $userId && $subject->getOwnerId() === $userId;
+        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         switch ($attribute) {
             case self::CREATE:
                 if (null !== $collection = $subject->getReferenceCollection()) {
-                    return $this->security->isGranted(CollectionVoter::EDIT, $collection);
+                    return $this->security->isGranted(AbstractVoter::EDIT, $collection);
                 }
 
-                return $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+                return $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
             case self::READ:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                     || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
                     || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject)
+                    || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                     || $this->collectionGrantsAccess($subject)
                 ;
+            case self::EDIT_RENDITIONS:
             case self::EDIT:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
+                    || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::OPERATOR, $subject->getReferenceCollection())
+                        && $this->hasAcl(PermissionInterface::OPERATOR, $subject->getReferenceCollection(), $token)
                     );
             case self::EDIT_ATTRIBUTES:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
+                    || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
-                    );
-            case self::EDIT_RENDITIONS:
-                return $isOwner
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                    || $this->security->isGranted(PermissionInterface::OPERATOR, $subject)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::OPERATOR, $subject->getReferenceCollection())
+                        && $this->hasAcl(PermissionInterface::EDIT, $subject->getReferenceCollection(), $token)
                     );
             case self::SHARE:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                    || $this->security->isGranted(PermissionInterface::SHARE, $subject)
+                    || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::EDIT, $subject->getReferenceCollection())
+                        && $this->hasAcl(PermissionInterface::EDIT, $subject->getReferenceCollection(), $token)
                     );
             case self::DELETE:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
+                    || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::DELETE, $subject->getReferenceCollection())
+                        && $this->hasAcl(PermissionInterface::DELETE, $subject->getReferenceCollection(), $token)
                     );
             case self::EDIT_PERMISSIONS:
-                return $isOwner
+                return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                    || $this->security->isGranted(PermissionInterface::OWNER, $subject)
+                    || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()
-                        && $this->security->isGranted(PermissionInterface::OWNER, $subject->getReferenceCollection())
+                        && $this->hasAcl(PermissionInterface::OWNER, $subject->getReferenceCollection(), $token)
                     );
         }
 
@@ -103,7 +96,7 @@ class AssetVoter extends AbstractVoter
     private function collectionGrantsAccess(Asset $subject): bool
     {
         foreach ($subject->getCollections() as $collectionAsset) {
-            if ($this->security->isGranted(CollectionVoter::READ, $collectionAsset->getCollection())) {
+            if ($this->security->isGranted(AbstractVoter::READ, $collectionAsset->getCollection())) {
                 return true;
             }
         }
