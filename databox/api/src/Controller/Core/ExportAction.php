@@ -14,14 +14,14 @@ use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ExportAction extends AbstractController
 {
     public function __construct(
-        private readonly Client $zippyClient,
+        private readonly HttpClientInterface $zippyClient,
         private readonly ValidatorInterface $validator,
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
@@ -71,7 +71,7 @@ class ExportAction extends AbstractController
                 'files' => $files,
             ],
         ]);
-        $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $data->downloadUrl = $json['downloadUrl'];
 

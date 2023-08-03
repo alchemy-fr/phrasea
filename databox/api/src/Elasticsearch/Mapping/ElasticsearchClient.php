@@ -7,9 +7,9 @@ namespace App\Elasticsearch\Mapping;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Exception\AliasIsIndexException;
 
-class ElasticsearchClient
+readonly class ElasticsearchClient
 {
-    public function __construct(private readonly Client $client)
+    public function __construct(private Client $client)
     {
     }
 

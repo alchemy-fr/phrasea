@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Model\AclUserInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -52,5 +53,10 @@ abstract class AbstractVoter extends Voter
         }
 
         return false;
+    }
+
+    protected function isAdmin(): bool
+    {
+        return $this->security->isGranted(JwtUser::ROLE_ADMIN);
     }
 }

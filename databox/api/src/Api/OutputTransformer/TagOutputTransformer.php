@@ -7,7 +7,7 @@ namespace App\Api\OutputTransformer;
 use App\Api\Model\Output\TagOutput;
 use App\Entity\Core\Tag;
 
-class TagOutputProcessor implements OutputTransformerInterface
+class TagOutputTransformer implements OutputTransformerInterface
 {
     public function supports(string $outputClass, object $data): bool
     {

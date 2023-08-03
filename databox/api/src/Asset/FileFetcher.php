@@ -7,10 +7,12 @@ namespace App\Asset;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
 
-class FileFetcher
+readonly class FileFetcher
 {
-    public function __construct(private readonly FileUrlResolver $fileUrlResolver, private readonly UriDownloader $fileDownloader)
-    {
+    public function __construct(
+        private FileUrlResolver $fileUrlResolver,
+        private UriDownloader $fileDownloader
+    ) {
     }
 
     public function getFile(File $file, array &$headers = []): string

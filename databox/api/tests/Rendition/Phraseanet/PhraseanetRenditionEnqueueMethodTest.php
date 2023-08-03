@@ -22,6 +22,7 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
@@ -51,7 +52,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
         $clientMock = $clientFactory->getMock();
-        $clientMock->append(new Response(200));
+        $mockResponse = new MockResponse('');
+        $clientMock->setResponseFactory($mockResponse);
 
         /** @var Workspace $workspace */
         $workspace = $em->getRepository(Workspace::class)->findOneBy([
@@ -104,13 +106,11 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
-        $transaction = $clientFactory->shiftHistory();
-        /** @var Request $trRequest */
-        $trRequest = $transaction['request'];
-        self::assertEquals('POST', $trRequest->getMethod());
-        self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
-        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', (string) $trRequest->getUri());
-        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertEquals('POST', $mockResponse->getRequestMethod());
+        $requestOptions = $mockResponse->getRequestOptions();
+        self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
+        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', $mockResponse->getRequestUrl());
+        $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'assets' => [$assetId],
             'publisher' => '4242',

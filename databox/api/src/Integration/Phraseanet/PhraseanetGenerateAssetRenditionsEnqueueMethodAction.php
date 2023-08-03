@@ -9,8 +9,8 @@ use App\Entity\Core\Asset;
 use App\External\PhraseanetApiClientFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\Exception\ClientException;
 
 final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends AbstractIntegrationAction implements IfActionInterface
 {
@@ -43,12 +43,12 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
         );
 
         try {
-            $client->post('/api/v1/upload/enqueue/', [
+            $client->request('POST', '/api/v1/upload/enqueue/', [
                 'json' => $data,
             ]);
-        } catch (BadResponseException $e) {
-            $this->logger->debug('Payload sent before error: '.\GuzzleHttp\json_encode($data));
-            $this->logger->debug('Response: '.\GuzzleHttp\json_encode($e->getResponse()->getBody()->getContents()));
+        } catch (ClientException $e) {
+            $this->logger->debug('Payload sent before error: '.json_encode($data, JSON_THROW_ON_ERROR));
+            $this->logger->debug('Response: '.json_encode($e->getResponse()->getContent(false), JSON_THROW_ON_ERROR));
 
             throw $e;
         }

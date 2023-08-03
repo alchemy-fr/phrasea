@@ -6,12 +6,12 @@ namespace App\Integration\Core\Webhook;
 
 use Alchemy\Workflow\Executor\RunContext;
 use App\Integration\AbstractIntegrationAction;
-use GuzzleHttp\Client;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class WebhookAction extends AbstractIntegrationAction
 {
     public function __construct(
-        private readonly Client $client,
+        private readonly HttpClientInterface $client,
         private readonly string $databoxBaseUrl,
     ) {
     }
@@ -50,6 +50,6 @@ final class WebhookAction extends AbstractIntegrationAction
         );
 
         $context->setOutput('status_code', $response->getStatusCode());
-        $context->setOutput('body', $response->getBody());
+        $context->setOutput('body', $response->getContent(false));
     }
 }

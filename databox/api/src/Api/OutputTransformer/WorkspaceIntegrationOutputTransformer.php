@@ -14,10 +14,12 @@ use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
 
-class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
+readonly class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IntegrationManager $integrationManager)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private IntegrationManager $integrationManager
+    ) {
     }
 
     public function supports(string $outputClass, object $data): bool

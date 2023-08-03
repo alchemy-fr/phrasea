@@ -73,6 +73,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
 
             $path = tempnam(sys_get_temp_dir(), self::class);
             $image->save($path);
+            unlink($src);
 
             $newRenditionFile = $this->fileManager->createFileFromPath(
                 $asset->getWorkspace(),

@@ -16,10 +16,8 @@ services:
         bind:
             string $defaultLocale: '%default_locale%'
             string $zippyBaseUrl: '%env(ZIPPY_URL)%'
-            $zippyClient: '@app.zippy_client'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
-            $integrationClient: '@app.integrations.http_client'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
             ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
 
@@ -92,37 +90,6 @@ services:
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]
         autoconfigure: false
 
-    app.border.http_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                verify: '%env(bool:VERIFY_SSL)%'
-
-    app.file_downloader.http_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                verify: '%env(bool:VERIFY_SSL)%'
-
-    app.integrations.http_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                verify: '%env(bool:VERIFY_SSL)%'
-
-    App\Border\UploaderClient:
-        arguments:
-            $client: '@app.border.http_client'
-
-    App\Border\UriDownloader:
-        arguments:
-            $client: '@app.file_downloader.http_client'
-
-    App\External\PhraseanetApiClientFactory:
-        arguments:
-            $options:
-              verify: '%env(bool:VERIFY_SSL)%'
-
     App\Security\JWTTokenManager:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
@@ -169,20 +136,6 @@ services:
         arguments: [ '@App\Api\Serializer\GroupNormalizerContextBuilder.inner' ]
         autoconfigure: false
 
-    app.zippy_client:
-        class: GuzzleHttp\Client
-        arguments:
-            -
-                base_uri: '%env(ZIPPY_URL)%'
-                verify: '%env(bool:VERIFY_SSL)%'
-                headers:
-                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
-                options:
-                    timeout: 10
-                    http_errors: false
-                    headers:
-                        Accept: "application/json"
-
     App\Elasticsearch\Facet\FacetRegistry:
         arguments:
             - !tagged_iterator { tag: 'app.search.facet', default_index_method: 'getKey' }
@@ -217,7 +170,3 @@ services:
         decorates: 'alchemy.workflow.workflow_repository.default'
         arguments:
             $decorated: '@.inner'
-
-    App\Integration\Core\Webhook\WebhookAction:
-        arguments:
-            $client: '@app.integrations.http_client'

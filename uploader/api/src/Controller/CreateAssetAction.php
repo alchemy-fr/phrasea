@@ -76,7 +76,7 @@ final class CreateAssetAction extends AbstractController
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getSize(),
             $user->getId(),
-            $request->request->get('data')
+            $request->request->all('data')
         );
     }
 
@@ -94,7 +94,7 @@ final class CreateAssetAction extends AbstractController
             $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
             $user->getId(),
-            $request->request->get('data')
+            $request->request->all('data')
         );
     }
 }

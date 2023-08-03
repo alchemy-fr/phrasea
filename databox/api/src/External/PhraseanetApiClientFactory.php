@@ -4,32 +4,25 @@ declare(strict_types=1);
 
 namespace App\External;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Middleware;
-use Psr\Http\Message\RequestInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PhraseanetApiClientFactory
 {
-    public function __construct(private readonly array $options = [])
+    public function __construct(private readonly HttpClientInterface $client)
     {
     }
 
-    public function create(string $baseUri, string $oauthToken): Client
+    public function create(string $baseUri, string $oauthToken): HttpClientInterface
     {
         if (empty($oauthToken)) {
             throw new \InvalidArgumentException('Phraseanet token is empty');
         }
 
-        $options = array_merge($this->options, [
+        return $this->client->withOptions([
             'base_uri' => $baseUri,
+            'headers' => [
+                'Authorization' => 'OAuth '.$oauthToken,
+            ]
         ]);
-
-        $client = new Client($options);
-
-        $handler = $client->getConfig('handler');
-        $handler->unshift(Middleware::mapRequest(fn (RequestInterface $request): RequestInterface => $request
-            ->withAddedHeader('Authorization', 'OAuth '.$oauthToken)));
-
-        return $client;
     }
 }

@@ -47,7 +47,7 @@ final readonly class RekognitionAnalyzer
 
             $method = $methods[$category];
             $result = call_user_func([$this->client, $method], $path, $config);
-            $this->dataManager->storeData($wsIntegration, $file, $category, \GuzzleHttp\json_encode($result));
+            $this->dataManager->storeData($wsIntegration, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
         }
 
         if (!empty($result) && $asset instanceof Asset) {

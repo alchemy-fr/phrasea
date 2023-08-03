@@ -184,10 +184,9 @@ export default class OAuthClient {
                 grant_type: 'refresh_token',
             });
 
-            await this.triggerEvent(loginEventType);
-
             return res;
         } catch (e: any) {
+            console.log('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
                 if (e.response?.data?.error === 'invalid_grant') {
                     this.logout();

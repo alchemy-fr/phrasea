@@ -21,8 +21,6 @@ use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
-use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -122,7 +120,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
             return $this->optionsJson;
         }
 
-        return \GuzzleHttp\json_encode($this->config, JSON_PRETTY_PRINT);
+        return json_encode($this->config, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
     }
 
     public function setOptionsJson(string $options): void
@@ -130,7 +128,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
         $this->optionsJson = $options;
         try {
             $this->config = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
-        } catch (InvalidArgumentException) {
+        } catch (\Throwable) {
         }
     }
 

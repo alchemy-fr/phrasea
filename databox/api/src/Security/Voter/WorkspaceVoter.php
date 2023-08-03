@@ -36,20 +36,24 @@ class WorkspaceVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $this->security->isGranted(JwtUser::ROLE_ADMIN)
+            self::CREATE => $this->isAdmin()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
             self::READ => $isOwner()
                 || $subject->isPublic()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
-                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
+                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
+                || $this->isAdmin(),
             self::EDIT => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
+                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+                || $this->isAdmin(),
             self::DELETE => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
-                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
+                || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
+                || $this->isAdmin(),
             self::EDIT_PERMISSIONS => $isOwner()
-                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
+                || $this->isAdmin(),
             default => false,
         };
     }

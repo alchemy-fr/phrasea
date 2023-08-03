@@ -17,7 +17,15 @@ use App\Entity\TranslatableInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource(shortName: 'tag', normalizationContext: ['groups' => ['_', Tag::GROUP_LIST]], input: false, output: TagOutput::class)]
+#[ApiResource(
+    shortName: 'tag',
+    normalizationContext: ['groups' => [
+        '_',
+        Tag::GROUP_LIST,
+    ]],
+    input: false,
+    output: TagOutput::class
+)]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]

@@ -30,7 +30,7 @@ class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
             $workspaceIntegration,
             null,
             self::DATA_EVENT_MESSAGE,
-            \GuzzleHttp\json_encode($payload)
+            json_encode($payload, JSON_THROW_ON_ERROR)
         );
 
         if ('SubscriptionConfirmation' === $payload['Type']) {
