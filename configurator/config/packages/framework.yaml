@@ -12,6 +12,13 @@ framework:
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
 
+    http_client:
+        default_options:
+            verify_peer: '%env(bool:VERIFY_SSL)%'
+        scoped_clients:
+            keycloak.client:
+                base_uri: '%env(KEYCLOAK_URL)%/admin/realms/'
+
     #esi: true
     #fragments: true
     php_errors:

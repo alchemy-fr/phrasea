@@ -152,6 +152,7 @@ services:
       # Configurator
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
+      #- VERIFY_SSL
       - EXPOSE_ADMIN_CLIENT_ID
       - EXPOSE_ADMIN_CLIENT_SECRET
       - UPLOADER_ADMIN_CLIENT_ID
@@ -170,6 +171,15 @@ services:
       - DATABOX_CLIENT_URL
       - EXPOSE_CLIENT_URL
       - UPLOADER_CLIENT_URL
+#      - POSTGRES_USER
+#      - POSTGRES_PASSWORD
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - AUTH_DB_NAME=auth
+      - DATABOX_DB_NAME=databox
+      - EXPOSE_DB_NAME=expose
+      - NOTIFY_DB_NAME=notify
+      - UPLOADER_DB_NAME=uploader
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

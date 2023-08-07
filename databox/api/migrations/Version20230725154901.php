@@ -26,7 +26,6 @@ final class Version20230725154901 extends AbstractMigration
         $this->addSql('DROP TABLE access_token');
         $this->addSql('DROP TABLE auth_code');
         $this->addSql('DROP TABLE refresh_token');
-        $this->addSql('DROP TABLE oauth_client');
         $this->addSql('DROP INDEX uniq_ace');
         $this->addSql('ALTER TABLE access_control_entry ADD parent_id VARCHAR(39) DEFAULT NULL');
         $this->addSql('CREATE INDEX parent_idx ON access_control_entry (parent_id)');

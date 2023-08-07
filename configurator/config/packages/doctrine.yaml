@@ -1,0 +1,40 @@
+
+parameters:
+    env(AUTH_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(AUTH_DB_NAME)%'
+    env(DATABOX_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(DATABOX_DB_NAME)%'
+    env(EXPOSE_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(EXPOSE_DB_NAME)%'
+    env(NOTIFY_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(NOTIFY_DB_NAME)%'
+    env(UPLOADER_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(UPLOADER_DB_NAME)%'
+
+doctrine:
+    dbal:
+        connections:
+            auth:
+                driver: 'pdo_pgsql'
+                server_version: '11.2'
+                charset: utf8
+                url: '%env(resolve:AUTH_DATABASE_URL)%'
+
+            databox:
+                driver: 'pdo_pgsql'
+                server_version: '11.2'
+                charset: utf8
+                url: '%env(resolve:DATABOX_DATABASE_URL)%'
+
+            expose:
+                driver: 'pdo_pgsql'
+                server_version: '11.2'
+                charset: utf8
+                url: '%env(resolve:EXPOSE_DATABASE_URL)%'
+
+            notify:
+                driver: 'pdo_pgsql'
+                server_version: '11.2'
+                charset: utf8
+                url: '%env(resolve:NOTIFY_DATABASE_URL)%'
+
+            uploader:
+                driver: 'pdo_pgsql'
+                server_version: '11.2'
+                charset: utf8
+                url: '%env(resolve:UPLOADER_DATABASE_URL)%'

@@ -921,8 +921,6 @@ services:
       - '--hostname-strict-https=false'
     networks:
       - internal
-    profiles:
-      - openid
     environment:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN
