@@ -83,6 +83,7 @@ FROM oauth_client');
             }
         }
 
+        $output->writeln('Migrating Users');
         $connection = $this->connections->getConnection('auth');
         $users = $connection->fetchAllAssociative('SELECT
 id,
@@ -93,10 +94,20 @@ roles,
 password,
 locale,
 created_at
-FROM user');
+FROM "user"');
 
-        foreach ($users as $user) {
-            $this->keycloakManager->createUser();
+        foreach ($users as $row) {
+            $this->keycloakManager->createUser([
+                'id' => $row['id'],
+                'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
+                'username' => $row['username'],
+                'email' => $row['username'],
+                'emailVerified' => $row['email_verified'],
+                'enabled' => $row['enabled'],
+                'requiredActions' => [
+                    'UPDATE_PASSWORD',
+                ]
+            ]);
         }
 
 

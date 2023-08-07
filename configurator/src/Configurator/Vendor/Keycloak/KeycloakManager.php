@@ -250,4 +250,16 @@ final class KeycloakManager
                 ]);
         }
     }
+
+    public function createUser(array $data): array
+    {
+        $response = $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/users', [
+                'realm' => $this->keycloakRealm,
+            ]), [
+                'json' => $data,
+            ]);
+
+        return $response->toArray();
+    }
 }

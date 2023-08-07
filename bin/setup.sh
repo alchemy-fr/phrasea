@@ -77,6 +77,7 @@ exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADE
 create_db "${REPORT_DB_NAME}"
 
 create_db "${KEYCLOAK_DB_NAME}"
+create_db "${KEYCLOAK2_DB_NAME}"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer

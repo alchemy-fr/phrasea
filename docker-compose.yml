@@ -930,10 +930,36 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK_DB_NAME}
+    extra_hosts:
+      - keycloak2.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  keycloak2:
+    image: quay.io/keycloak/keycloak:21.1.2
+    command:
+      - 'start'
+      - '--hostname-strict-https=false'
+    networks:
+      - internal
+    profiles:
+      - openid
+    environment:
+      - KC_PROXY=edge
+      - KEYCLOAK_ADMIN=${KEYCLOAK2_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK2_ADMIN_PASSWORD}
+      - KC_HOSTNAME=keycloak2.${PHRASEA_DOMAIN}
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK2_DB_NAME}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak2.rule=Host(`keycloak2.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.keycloak2.loadbalancer.server.port=8080"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
 volumes:
