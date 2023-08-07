@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Entity\Core\Asset;
@@ -39,9 +38,8 @@ class PhraseanetIntegrationController extends AbstractController
         Request $request,
         RenditionManager $renditionManager,
         FileManager $fileManager,
-        FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ): Response {
         $token = $request->request->get('token');
         if (!$token) {
@@ -107,7 +105,7 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    #[Route(path: '/{integrationId}/events', methods: ['POST'], name: 'webhook_event')]
+    #[Route(path: '/{integrationId}/events', name: 'webhook_event', methods: ['POST'])]
     public function webhookEventAction(
         Request $request,
         EventProducer $eventProducer,
@@ -146,7 +144,7 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    #[Route(path: '/{integrationId}/assets/{id}', methods: ['GET'], name: 'asset')]
+    #[Route(path: '/{integrationId}/assets/{id}', name: 'asset', methods: ['GET'])]
     public function assetAction(
         $integrationId,
         string $id,
@@ -185,7 +183,7 @@ class PhraseanetIntegrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{integrationId}/commits/{id}/ack', methods: ['POST'], name: 'enqueue_ack')]
+    #[Route(path: '/{integrationId}/commits/{id}/ack', name: 'enqueue_ack', methods: ['POST'])]
     public function enqueueAckAction(
         string $integrationId,
         string $id,

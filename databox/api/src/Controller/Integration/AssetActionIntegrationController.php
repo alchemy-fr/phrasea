@@ -6,7 +6,7 @@ namespace App\Controller\Integration;
 
 use App\Entity\Core\File;
 use App\Integration\IntegrationManager;
-use App\Security\Voter\FileVoter;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +32,7 @@ class AssetActionIntegrationController extends AbstractController
             throw new NotFoundHttpException(sprintf('File "%s" not found', $fileId));
         }
 
-        $this->denyAccessUnlessGranted(FileVoter::EDIT, $file, sprintf('Not allowed to edit file "%s"', $fileId));
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $file, sprintf('Not allowed to edit file "%s"', $fileId));
 
         return $integrationManager->handleFileAction($wsIntegration, $action, $request, $file);
     }

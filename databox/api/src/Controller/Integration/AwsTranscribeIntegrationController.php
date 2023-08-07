@@ -18,7 +18,7 @@ class AwsTranscribeIntegrationController extends AbstractController
     {
     }
 
-    #[Route(path: '/{integrationId}/events', methods: ['POST'], name: 'event')]
+    #[Route(path: '/{integrationId}/events', name: 'event', methods: ['POST'])]
     public function incomingEventAction(
         string $integrationId,
         Request $request

@@ -25,7 +25,7 @@ abstract class AbstractVoter extends Voter
 
     protected EntityManagerInterface $em;
     protected Security $security;
-    private  PermissionManager $permissionManager;
+    private PermissionManager $permissionManager;
 
     #[Required]
     public function setEm(EntityManagerInterface $em): void

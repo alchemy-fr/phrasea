@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Entity\Core\Workspace;
-use App\Security\Voter\WorkspaceVoter;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +38,7 @@ abstract class AbstractSortAction extends AbstractController
 
         /** @var Workspace $workspace */
         $workspace = $firstItem->getWorkspace();
-        $this->denyAccessUnlessGranted(WorkspaceVoter::EDIT, $workspace);
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);
 
         $this->em->wrapInTransaction(function () use ($class, $ids, $positionField, $workspace) {
             $i = 0;

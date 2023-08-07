@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Rendition\Phraseanet;
 
 use App\External\PhraseanetApiClientFactory;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use Symfony\Component\HttpClient\MockHttpClient;
 
 class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory

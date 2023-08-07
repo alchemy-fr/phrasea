@@ -6,6 +6,7 @@ namespace App\Controller\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Api\IriConverterInterface;
+use App\Api\Model\Input\CopyAssetInput;
 use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopyHandler;
 use App\Entity\Core\Asset;
@@ -25,10 +26,8 @@ class CopyAssetsAction extends AbstractController
     ) {
     }
 
-    public function __invoke(Asset $data, Request $request)
+    public function __invoke(CopyAssetInput $data, Request $request): Response
     {
-        $data = $data->copyAction;
-
         /** @var JwtUser $user */
         $user = $this->getUser();
         $assets = $this->em->getRepository(Asset::class)

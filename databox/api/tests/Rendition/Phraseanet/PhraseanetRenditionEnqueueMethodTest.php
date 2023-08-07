@@ -20,8 +20,6 @@ use App\Tests\FileUploadTrait;
 use App\Tests\Mock\EventProducerMock;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 

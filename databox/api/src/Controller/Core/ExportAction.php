@@ -6,7 +6,6 @@ namespace App\Controller\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Util\FileUtil;
-use ApiPlatform\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;

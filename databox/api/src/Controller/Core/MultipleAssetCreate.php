@@ -25,8 +25,9 @@ final readonly class MultipleAssetCreate
     ) {
     }
 
-    public function __invoke(MultipleAssetInput $data)
+    public function __invoke(MultipleAssetInput $data): MultipleAssetOutput
     {
+        /** @var array $assets */
         $assets = $this->inputTransformer->transform($data, Asset::class);
         foreach ($assets as $asset) {
             $this->em->persist($asset);

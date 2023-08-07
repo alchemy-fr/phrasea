@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use ApiPlatform\Api\IriConverterInterface;
+use App\Api\Model\Input\MoveAssetInput;
 use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
@@ -23,10 +24,8 @@ class MoveAssetsAction extends AbstractController
     ) {
     }
 
-    public function __invoke(Asset $data, Request $request)
+    public function __invoke(MoveAssetInput $data, Request $request)
     {
-        $data = $data->moveAction;
-
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);
 

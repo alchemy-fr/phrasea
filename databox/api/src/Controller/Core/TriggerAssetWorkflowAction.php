@@ -23,7 +23,7 @@ final class TriggerAssetWorkflowAction extends AbstractController
     ) {
     }
 
-    public function __invoke(string $id, Request $request)
+    public function __invoke(string $id, Request $request): Response
     {
         $asset = $this->em->find(Asset::class, $id);
         if (!$asset instanceof Asset) {

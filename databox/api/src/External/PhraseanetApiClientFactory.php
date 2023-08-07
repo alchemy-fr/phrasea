@@ -22,7 +22,7 @@ class PhraseanetApiClientFactory
             'base_uri' => $baseUri,
             'headers' => [
                 'Authorization' => 'OAuth '.$oauthToken,
-            ]
+            ],
         ]);
     }
 }

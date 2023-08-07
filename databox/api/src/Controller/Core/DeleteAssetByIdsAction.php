@@ -20,10 +20,10 @@ class DeleteAssetByIdsAction extends AbstractController
     {
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Response
     {
         /** @var array $ids */
-        $ids = $request->request->get('ids');
+        $ids = $request->request->all('ids');
         if (!$ids) {
             throw new BadRequestHttpException('Missing "ids"');
         }

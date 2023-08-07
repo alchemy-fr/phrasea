@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
+use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Attribute\BatchAttributeManager;
 use App\Controller\Traits\UserControllerTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,7 +19,7 @@ final class AttributeBatchUpdateAction extends AbstractController
     {
     }
 
-    public function __invoke(AssetAttributeBatchUpdateInput $data, Request $request)
+    public function __invoke(AttributeBatchUpdateInput $data, Request $request): Response
     {
         $workspaceId = $this->batchAttributeManager->validate($data->assets, $data);
 

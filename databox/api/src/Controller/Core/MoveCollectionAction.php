@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Entity\Core\Collection;
-use App\Security\Voter\CollectionVoter;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,10 +19,10 @@ class MoveCollectionAction extends AbstractController
 
     public function __invoke(Collection $data, string $dest, Request $request): Collection
     {
-        $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $data);
 
         $isRoot = 'root' === $dest;
-        $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $data);
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $data);
 
         if ($isRoot) {
             $destination = null;
@@ -31,7 +31,7 @@ class MoveCollectionAction extends AbstractController
             if (!$destination instanceof Collection) {
                 throw new NotFoundHttpException(sprintf('Collection destination "%s" not found', $dest));
             }
-            $this->denyAccessUnlessGranted(CollectionVoter::EDIT, $destination);
+            $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $destination);
         }
 
         $data->setParent($destination);

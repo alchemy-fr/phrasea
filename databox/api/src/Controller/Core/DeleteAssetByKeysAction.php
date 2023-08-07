@@ -20,10 +20,9 @@ class DeleteAssetByKeysAction extends AbstractController
     {
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Response
     {
-        /** @var array $keys */
-        $keys = $request->request->get('keys');
+        $keys = $request->request->all('keys');
         if (!$keys) {
             throw new BadRequestHttpException('Missing "keys"');
         }

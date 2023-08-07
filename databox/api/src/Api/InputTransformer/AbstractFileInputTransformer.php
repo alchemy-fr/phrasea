@@ -50,7 +50,7 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $file->setWorkspace($workspace);
         $file->setStorage(File::STORAGE_S3_MAIN);
 
-        if (null !== $request->request->get('multipart')) {
+        if ($request->request->has('multipart')) {
             $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
             $file->setType($multipartUpload->getType());

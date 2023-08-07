@@ -178,13 +178,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     private bool $noFileVersion = false;
 
-    #[ORM\OneToMany(targetEntity: AssetRendition::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetRendition::class, cascade: ['remove'])]
     private ?DoctrineCollection $renditions = null;
 
     private ?array $highlights = null;
-
-    public ?CopyAssetInput $copyAction = null;
-    public ?MoveAssetInput $moveAction = null;
 
     /**
      * Last update time of attribute.
