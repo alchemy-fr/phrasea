@@ -7,6 +7,7 @@ namespace App\Configurator\Vendor\Keycloak;
 use App\Util\HttpClientUtil;
 use App\Util\UriTemplate;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class KeycloakManager
 {
@@ -228,7 +229,7 @@ final class KeycloakManager
         array $client,
         array $data,
     ): void {
-        $protocolMappers = $client['protocolMappers'];
+        $protocolMappers = $client['protocolMappers'] ?? [];
         $protocolMapper = array_values(array_filter($protocolMappers, fn(array $pm): bool => $pm['name'] === $data['name']))[0] ?? null;
 
         if ($protocolMapper) {
@@ -253,13 +254,161 @@ final class KeycloakManager
 
     public function createUser(array $data): array
     {
-        $response = $this->getAuthenticatedClient()
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users', [
                 'realm' => $this->keycloakRealm,
             ]), [
                 'json' => $data,
+            ]), 409);
+
+        $user = $this->getUsers([
+            'query' => [
+                'username' => $data['username'],
+            ]
+        ])[0];
+
+        if ($user['username'] !== $data['username']) {
+            throw new \InvalidArgumentException(sprintf('Invalid user "%s" "%s"', $user['username'], $data['username']));
+        }
+
+        return $user;
+    }
+
+    public function getUsers(array $options = []): array
+    {
+        return $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/users', [
+                'realm' => $this->keycloakRealm,
+            ]), $options)->toArray();
+    }
+
+    public function createGroup(array $data): array
+    {
+        $groupName = $data['name'];
+        $existingGroup = $this->getGroupByName($groupName);
+
+        if ($existingGroup) {
+            $this->getAuthenticatedClient()
+                ->request('PUT', UriTemplate::resolve('{realm}/groups/{groupId}', [
+                    'realm' => $this->keycloakRealm,
+                    'groupId' => $existingGroup['id'],
+                ]), [
+                    'json' => $data,
+                ]);
+        } else {
+            $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/groups', [
+                'realm' => $this->keycloakRealm,
+            ]), [
+                'json' => $data,
             ]);
+        }
+
+        $group = $this->getGroupByName($groupName);
+        if ($group['name'] !== $groupName) {
+            throw new \InvalidArgumentException(sprintf('Invalid group "%s" "%s"', $group['name'], $groupName));
+        }
+
+        return $group;
+    }
+
+    public function getGroupByName(string $name): ?array
+    {
+        return $this->getGroups([
+            'query' => [
+                'exact' => 'true',
+                'search' => $name,
+            ]
+        ])[0] ?? null;
+    }
+
+    public function getGroups(array $options = []): array
+    {
+        return $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/groups', [
+                'realm' => $this->keycloakRealm,
+            ]), $options)->toArray();
+    }
+
+    public function createRole(string $name, string $description): void
+    {
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/roles', [
+                'realm' => $this->keycloakRealm,
+            ]), [
+                'json' => [
+                    'name' => $name,
+                    'clientRole' => false,
+                    'description' => $description,
+                ],
+            ]), 409);
+    }
+
+    public function getRealmRoles(): array
+    {
+        $response = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/roles', [
+                'realm' => $this->keycloakRealm,
+            ]));
 
         return $response->toArray();
+    }
+
+    public function getUserRoles(string $userId): array
+    {
+        return $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $userId,
+            ]))->toArray();
+    }
+
+    public function addRolesToUser(string $userId, array $roleNames): void
+    {
+        $allRoles = $this->getRealmRoles();
+        $userRoles = array_map(fn (array $r): string => $r['id'], $this->getUserRoles($userId));
+
+        $roles = array_map(function (string $roleName) use ($userRoles, $allRoles): ?array {
+            foreach ($allRoles as $r) {
+                if ($roleName === $r['name']) {
+                    if (!in_array($r['id'], $userRoles, true)) {
+                        return $r;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+
+            throw new \InvalidArgumentException(sprintf('Role "%s" not found', $roleName));
+        }, $roleNames);
+        $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
+
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $userId,
+            ]), [
+                'json' => $roles,
+            ]), 409);
+    }
+
+    public function addUserToGroup(string $userId, string $groupId): void
+    {
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+            ->request('PUT', UriTemplate::resolve('{realm}/users/{userId}/groups/{groupId}', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $userId,
+                'groupId' => $groupId,
+            ])), 409);
+    }
+
+    public function putRealm(array $data): ResponseInterface
+    {
+        return $this->getAuthenticatedClient()
+            ->request('PUT', UriTemplate::resolve('{realm}', [
+                'realm' => $this->keycloakRealm,
+            ]), [
+                'json' => $data,
+            ]);
     }
 }

@@ -180,6 +180,8 @@ services:
       - EXPOSE_DB_NAME=expose
       - NOTIFY_DB_NAME=notify
       - UPLOADER_DB_NAME=uploader
+      - MAIL_FROM
+      - MAILER_DSN
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

@@ -1,6 +1,6 @@
 # Setup (with docker-compose)
 
-## Using a env.local (custom .env)
+## Using a .env.local (custom .env)
 
 It may be easier to deal with a local file to manage our env variables.
 

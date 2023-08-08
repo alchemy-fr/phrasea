@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Configurator\Vendor\Keycloak\KeycloakInterface;
 use App\Configurator\Vendor\Keycloak\KeycloakManager;
 use App\Doctrine\DoctrineConnectionManager;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -73,7 +74,7 @@ FROM oauth_client');
                 $this->keycloakManager->createClient(
                     $row['id'].'_'.$row['random_id'],
                     $row['secret'],
-                    $redirectUris[0],
+                    $redirectUris[0] ?? null,
                     [
                         'standardFlowEnabled' => in_array('authorization_code', $allowedGrantTypes, true),
                         'serviceAccountsEnabled' => in_array('client_credentials', $allowedGrantTypes, true),
@@ -85,6 +86,23 @@ FROM oauth_client');
 
         $output->writeln('Migrating Users');
         $connection = $this->connections->getConnection('auth');
+        $groups = $connection->fetchAllAssociative('SELECT
+id,
+name,
+created_at
+FROM "group"');
+
+        $groupMap = [];
+        foreach ($groups as $row) {
+            $group = $this->keycloakManager->createGroup([
+                'name' => $row['name'],
+                'attributes' => [
+                    'ps-auth-legacy-id' => [$row['id']],
+                ],
+            ]);
+            $groupMap[$row['id']] = $group['id'];
+        }
+
         $users = $connection->fetchAllAssociative('SELECT
 id,
 username,
@@ -96,21 +114,128 @@ locale,
 created_at
 FROM "user"');
 
+        $userMap = [];
         foreach ($users as $row) {
-            $this->keycloakManager->createUser([
-                'id' => $row['id'],
+            $roles = json_decode($row['roles'], true, 512, JSON_THROW_ON_ERROR);
+            $realmRoles = [];
+            foreach ($roles as $role) {
+                $realmRoles = array_merge($realmRoles, match ($role) {
+                    'ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_CHUCK-NORRIS' => [
+                        KeycloakInterface::GROUP_ADMIN,
+                        KeycloakInterface::GROUP_SUPER_ADMIN,
+                    ],
+                    'ROLE_TECH' => [KeycloakInterface::GROUP_TECH],
+                    'ROLE_ADMIN_OAUTH_CLIENTS',
+                    'ROLE_ADMIN_USERS' => [KeycloakInterface::GROUP_USER_ADMIN, KeycloakInterface::GROUP_GROUP_ADMIN],
+                    default => [],
+                });
+            }
+            $realmRoles = array_unique($realmRoles);
+
+            $user = $this->keycloakManager->createUser([
                 'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
                 'username' => $row['username'],
                 'email' => $row['username'],
                 'emailVerified' => $row['email_verified'],
                 'enabled' => $row['enabled'],
+                'attributes' => [
+                    'ps-auth-legacy-id' => $row['id'],
+                ],
                 'requiredActions' => [
                     'UPDATE_PASSWORD',
                 ]
             ]);
+            $userMap[$row['id']] = $user['id'];
+
+            $userGroups = $connection->fetchAllAssociative('SELECT
+group_id
+FROM "user_group" WHERE user_id = :uid', [
+                'uid' => $row['id'],
+            ]);
+
+            foreach ($userGroups as $userGroupRow) {
+                $this->keycloakManager->addUserToGroup($user['id'], $groupMap[$userGroupRow['group_id']]);
+            }
+
+            $this->keycloakManager->addRolesToUser($user['id'], $realmRoles);
         }
+
+        $this->replaceInDb([
+            'databox' => [
+                'asset_data_template' => [
+                    'owner_id',
+                ],
+                'asset' => [
+                    'owner_id',
+                ],
+                'collection' => [
+                    'owner_id',
+                ],
+                'tag_filter_rule' => [
+                    'user_id',
+                ],
+                'rendition_rule' => [
+                    'user_id',
+                ],
+                'user_preference' => [
+                    'user_id',
+                ],
+                'workspace' => [
+                    'owner_id',
+                ],
+            ],
+            'expose' => [
+                'asset' => [
+                    'owner_id',
+                ],
+                'publication_profile' => [
+                    'owner_id',
+                ],
+                'publication' => [
+                    'owner_id',
+                ],
+            ],
+            'notify' => [
+                'contact' => [
+                    'user_id',
+                ],
+            ],
+            'uploader' => [
+                'asset' => [
+                    'user_id',
+                ],
+                'asset_commit' => [
+                    'user_id',
+                ],
+            ],
+        ], $userMap);
+
+        $this->replaceInDb([
+            'databox' => [
+                'access_control_entry' => [
+                    'user_id',
+                ]
+            ]
+        ], $groupMap);
 
 
         return Command::SUCCESS;
+    }
+
+    private function replaceInDb(array $tableMap, array $valueMap): void
+    {
+        foreach ($tableMap as $connectionName => $tables) {
+            $connection = $this->connections->getConnection($connectionName);
+            foreach ($tables as $tbl => $columns) {
+                foreach ($columns as $col) {
+                    foreach ($valueMap as $old => $new) {
+                        $connection->executeQuery(sprintf('UPDATE "%1$s" SET %2$s = :new WHERE %2$s = :old', $tbl, $col), [
+                            'old' => $old,
+                            'new' => $new,
+                        ]);
+                    }
+                }
+            }
+        }
     }
 }

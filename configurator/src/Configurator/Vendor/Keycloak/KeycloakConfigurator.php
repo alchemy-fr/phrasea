@@ -19,6 +19,17 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output): void
     {
+        $this->configureMail();
+
+        foreach ([
+                     KeycloakInterface::GROUP_SUPER_ADMIN => 'Can do anything',
+                     KeycloakInterface::GROUP_TECH => 'Access to Dev/Ops Operations',
+                     KeycloakInterface::GROUP_USER_ADMIN => 'Manage Users',
+                     KeycloakInterface::GROUP_GROUP_ADMIN => 'Manage Groups',
+                 ] as $role => $desc) {
+            $this->keycloakManager->createRole($role, $desc);
+        }
+
         foreach ([
                      'openid',
                      'groups',
@@ -138,5 +149,26 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         ]);
 
         return $clientData;
+    }
+
+    private function configureMail(): void
+    {
+        $from = getenv('MAIL_FROM');
+        $mailer = parse_url(getenv('MAILER_DSN'));
+
+        dump($mailer);
+
+        $this->keycloakManager->putRealm([
+            'smtpServer' => [
+                'auth' => '',
+                'from' => $from,
+                'fromDisplayName' => '',
+                'host' => $mailer['host'],
+                'port' => $mailer['port'],
+                'replyTo' => '',
+                'ssl' => false,
+                'starttls' => false,
+            ],
+        ]);
     }
 }
