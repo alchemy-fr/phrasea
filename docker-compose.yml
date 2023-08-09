@@ -915,7 +915,10 @@ services:
     command: ['/srv/app/docker/cron/start-cron.sh']
 
   keycloak:
-    image: quay.io/keycloak/keycloak:21.1.2
+    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
+    build:
+      context: ./infra/docker/keycloak
+      target: keycloak
     command:
       - 'start'
       - '--hostname-strict-https=false'
@@ -961,6 +964,13 @@ services:
       - "traefik.http.routers.keycloak2.rule=Host(`keycloak2.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.keycloak2.loadbalancer.server.port=8080"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+
+  hellojava:
+    profiles:
+      - javaplay
+    build:
+      context: ./infra/docker/keycloak
+      target: java
 
 volumes:
   db_vol:

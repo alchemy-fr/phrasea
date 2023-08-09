@@ -19,7 +19,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
     public function configure(OutputInterface $output): void
     {
-        $this->configureMail();
+        $this->configureRealm();
 
         foreach ([
                      KeycloakInterface::GROUP_SUPER_ADMIN => 'Can do anything',
@@ -138,31 +138,30 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'name' => 'groups',
             'consentRequired' => false,
             'protocol' => 'openid-connect',
-            'protocolMapper' => 'oidc-group-membership-mapper',
+            'protocolMapper' => 'oidc-group-uuid-mapper',
             'config' => [
                 'claim.name' => 'groups',
                 'access.token.claim' => 'true',
                 'userinfo.token.claim' => 'true',
                 'id.token.claim' => 'true',
-                'full.path' => 'false',
             ],
         ]);
 
         return $clientData;
     }
 
-    private function configureMail(): void
+    private function configureRealm(): void
     {
         $from = getenv('MAIL_FROM');
         $mailer = parse_url(getenv('MAILER_DSN'));
 
-        dump($mailer);
-
         $this->keycloakManager->putRealm([
+            'displayName' => 'Phrasea Auth',
+            'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
             'smtpServer' => [
                 'auth' => '',
                 'from' => $from,
-                'fromDisplayName' => '',
+                'fromDisplayName' => 'Phrasea',
                 'host' => $mailer['host'],
                 'port' => $mailer['port'],
                 'replyTo' => '',
