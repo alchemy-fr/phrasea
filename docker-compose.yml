@@ -423,7 +423,7 @@ services:
       - "-wait"
       - "tcp://minio:9000"
       - "-timeout"
-      - "100s"
+      - "200s"
       - "--"
       - "echo"
       - "ready"
