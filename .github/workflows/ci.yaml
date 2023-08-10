@@ -25,12 +25,12 @@ jobs:
     secrets: inherit
 
   build_php-fpm-base:
-      name: 'Build php-fpm-base'
-      uses: ./.github/workflows/build_base.yaml
-      with:
-          image: php-fpm-base
-          context: ./infra/docker/php-fpm-base
-      secrets: inherit
+    name: 'Build php-fpm-base'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: php-fpm-base
+      context: ./infra/docker/php-fpm-base
+    secrets: inherit
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
