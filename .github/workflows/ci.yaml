@@ -24,6 +24,14 @@ jobs:
       target: keycloak
     secrets: inherit
 
+  build_php-fpm-base:
+      name: 'Build php-fpm-base'
+      uses: ./.github/workflows/build_base.yaml
+      with:
+          image: php-fpm-base
+          context: ./infra/docker/php-fpm-base
+      secrets: inherit
+
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
     uses: ./.github/workflows/build_base.yaml
@@ -179,8 +187,9 @@ jobs:
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
-      - build_matomo_php
+      - build_keycloak
       - build_matomo_nginx
+      - build_matomo_php
       - build_notify_api
       - build_report_api
       - build_uploader_api
