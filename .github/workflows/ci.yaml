@@ -196,7 +196,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull images
         run: |
-            docker compose pull --quiet
+            docker compose pull
       - name: Setup
         run: |
           docker compose down --volumes
