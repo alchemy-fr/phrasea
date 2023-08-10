@@ -9,6 +9,9 @@ on:
       context:
         required: true
         type: string
+      target:
+        required: false
+        type: string
 
 env:
   COMPOSE_PROJECT_NAME: build
@@ -38,6 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
+          target: ${{ inputs.target }}
           file: ${{ inputs.context }}/Dockerfile
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache

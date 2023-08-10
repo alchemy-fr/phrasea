@@ -15,12 +15,13 @@ env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
-  build_php-fpm-base:
-    name: 'Build php-fpm-base'
+  build_keycloak:
+    name: 'Build Keycloak'
     uses: ./.github/workflows/build_base.yaml
     with:
-      image: php-fpm-base
-      context: ./infra/docker/php-fpm-base
+      image: keycloak
+      context: ./infra/docker/keycloak
+      target: keycloak
     secrets: inherit
 
   build_nginx-fpm-base:
