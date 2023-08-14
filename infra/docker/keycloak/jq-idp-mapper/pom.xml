@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.arakelian</groupId>
             <artifactId>java-jq</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
+
 </project>
