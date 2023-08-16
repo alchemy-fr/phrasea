@@ -26,6 +26,9 @@ final readonly class TargetDataProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $items = $this->itemsProvider->provide($operation, $uriVariables, $context);
+        if (!is_array($items)) {
+            $items = iterator_to_array($items);
+        }
 
         return array_values(array_filter($items, fn (Target $target): bool => $this->security->isGranted(TargetVoter::READ, $target)));
     }
