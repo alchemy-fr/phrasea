@@ -149,39 +149,6 @@ services:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
       - KEYCLOAK_URL
-      # Configurator
-      - KEYCLOAK_ADMIN
-      - KEYCLOAK_ADMIN_PASSWORD
-      #- VERIFY_SSL
-      - EXPOSE_ADMIN_CLIENT_ID
-      - EXPOSE_ADMIN_CLIENT_SECRET
-      - UPLOADER_ADMIN_CLIENT_ID
-      - UPLOADER_ADMIN_CLIENT_SECRET
-      - NOTIFY_ADMIN_CLIENT_ID
-      - NOTIFY_ADMIN_CLIENT_SECRET
-      - DATABOX_ADMIN_CLIENT_ID
-      - DATABOX_ADMIN_CLIENT_SECRET
-      - NOTIFY_API_URL
-      - DATABOX_CLIENT_ID
-      - DATABOX_CLIENT_SECRET
-      - EXPOSE_CLIENT_ID
-      - EXPOSE_CLIENT_SECRET
-      - UPLOADER_CLIENT_ID
-      - UPLOADER_CLIENT_SECRET
-      - DATABOX_CLIENT_URL
-      - EXPOSE_CLIENT_URL
-      - UPLOADER_CLIENT_URL
-#      - POSTGRES_USER
-#      - POSTGRES_PASSWORD
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - AUTH_DB_NAME=auth
-      - DATABOX_DB_NAME=databox
-      - EXPOSE_DB_NAME=expose
-      - NOTIFY_DB_NAME=notify
-      - UPLOADER_DB_NAME=uploader
-      - MAIL_FROM
-      - MAILER_DSN
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace
@@ -208,6 +175,10 @@ services:
     - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
+
+  configurator:
+    volumes:
+      - ./configurator:/usr/app
 
   databox-watcher:
     command: ["yarn", "start:dev"]

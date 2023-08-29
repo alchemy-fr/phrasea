@@ -1,0 +1,7 @@
+Dockerfile
+.dockerignore
+/var
+/vendor
+.idea
+/.php-cs-fixer.php
+/.php-cs-fixer.cache

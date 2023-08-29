@@ -106,4 +106,8 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
     && (mc event add minio/${INDEXER_BUCKET_NAME} arn:minio:sqs::primary:amqp || echo ok)
 "
 
+docker compose restart keycloak
+docker compose run --rm dockerize -wait http://keycloak:8080
+docker compose run --rm configurator
+
 echo "Done."

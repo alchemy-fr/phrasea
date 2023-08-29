@@ -409,11 +409,10 @@ services:
   dockerize:
     profiles:
       - setup
-    image: jwilder/dockerize
+    image: jwilder/dockerize:0.6.1
     networks:
       - internal
     command:
-      - "dockerize"
       - "-wait"
       - "tcp://db:5432"
       - "-wait"
@@ -790,7 +789,7 @@ services:
   elasticsearch:
     profiles:
       - databox
-    image: elasticsearch:7.10.1
+    image: elasticsearch:7.17.3
     networks:
       - internal
     volumes:
@@ -873,7 +872,7 @@ services:
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  a_zippy:
+  zippy-api: &zippy
     image: alchemyfr/zippy-api:latest
     profiles:
       - zippy
@@ -894,20 +893,15 @@ services:
       - rabbitmq
     extra_hosts:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-
-  zippy-api:
-    extends:
-      service: a_zippy
-    image: alchemyfr/zippy-api:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.zippy.rule=Host(`zippy.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   zippy-worker:
-    extends:
-      service: a_zippy
+    <<: *zippy
     image: alchemyfr/zippy-worker:latest
+    labels: []
 
   zippy-cron:
     extends:
@@ -942,7 +936,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   keycloak2:
-    image: quay.io/keycloak/keycloak:21.1.2
+    image: quay.io/keycloak/keycloak:22.0.1
     command:
       - 'start'
       - '--hostname-strict-https=false'
@@ -965,12 +959,53 @@ services:
       - "traefik.http.services.keycloak2.loadbalancer.server.port=8080"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
-  hellojava:
-    profiles:
-      - javaplay
+  configurator:
+    image: ${REGISTRY_NAMESPACE}configurator:${DOCKER_TAG}
     build:
-      context: ./infra/docker/keycloak
-      target: java
+      context: ./configurator
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    profiles:
+      - configurator
+    environment:
+      - KEYCLOAK_URL
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+      - VERIFY_SSL
+      - DATABOX_API_URL
+      - NOTIFY_API_URL
+      - EXPOSE_API_URL
+      - UPLOADER_API_URL
+      - EXPOSE_ADMIN_CLIENT_ID
+      - EXPOSE_ADMIN_CLIENT_SECRET
+      - UPLOADER_ADMIN_CLIENT_ID
+      - UPLOADER_ADMIN_CLIENT_SECRET
+      - NOTIFY_ADMIN_CLIENT_ID
+      - NOTIFY_ADMIN_CLIENT_SECRET
+      - DATABOX_ADMIN_CLIENT_ID
+      - DATABOX_ADMIN_CLIENT_SECRET
+      - DATABOX_CLIENT_ID
+      - DATABOX_CLIENT_SECRET
+      - EXPOSE_CLIENT_ID
+      - EXPOSE_CLIENT_SECRET
+      - UPLOADER_CLIENT_ID
+      - UPLOADER_CLIENT_SECRET
+      - DATABOX_CLIENT_URL
+      - EXPOSE_CLIENT_URL
+      - UPLOADER_CLIENT_URL
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - DATABOX_DB_NAME
+      - EXPOSE_DB_NAME
+      - NOTIFY_DB_NAME
+      - UPLOADER_DB_NAME
+      - MAIL_FROM
+      - MAILER_DSN
+    extra_hosts:
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
 volumes:
   db_vol:
