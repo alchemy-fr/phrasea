@@ -966,6 +966,8 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+    networks:
+      - internal
     profiles:
       - configurator
     environment:
