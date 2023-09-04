@@ -46,5 +46,8 @@ jobs:
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
+          build-args: |
+            BASE_TAG=${{ env.DOCKER_TAG }}
+            REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}
