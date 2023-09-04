@@ -25,6 +25,14 @@ jobs:
       target: keycloak
     secrets: inherit
 
+  build_configurator:
+    name: 'Build Configurator'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: configurator
+      context: ./configurator
+    secrets: inherit
+
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml

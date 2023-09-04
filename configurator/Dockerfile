@@ -12,4 +12,6 @@ RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritati
     && composer clear-cache \
     && chown -R app: .
 
-CMD ["bin/console", "configure"]
+ENTRYPOINT ["bin/console"]
+
+CMD ["configure"]
