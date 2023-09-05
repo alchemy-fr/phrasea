@@ -19,7 +19,7 @@ function load-env {
     exit 1
   fi
 
-  tmp="/tmp/env-$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 13 ; echo '')"
+  tmp="/tmp/env-$(LC_CTYPE=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 13 ; echo '')"
   env > "${tmp}"
 
   export_env_from_file ".env"
