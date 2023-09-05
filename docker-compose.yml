@@ -1000,6 +1000,7 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
+      - AUTH_DB_NAME
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
       - NOTIFY_DB_NAME
