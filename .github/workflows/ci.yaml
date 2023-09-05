@@ -6,7 +6,6 @@ env:
   COMPOSE_PROJECT_NAME: build
   PS_SUBNET: 172.34.202.0/16
   PS_GATEWAY_IP: 172.34.0.1
-  PHRASEA_DOMAIN: phrasea.local
   TRAEFIK_HTTPS_PORT: 4442
   TRAEFIK_HTTP_PORT: 8042
   HTTPS_PORT_PREFIX: ':4442'
@@ -17,11 +16,14 @@ env:
 
 jobs:
   debug:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Debug Env
-      run: |
-        bin/dev/debug-env.sh
+    name: 'Debug Env'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Debug Env
+        run: |
+          bin/dev/debug-env.sh
 
   build_keycloak:
     name: 'Build Keycloak'
