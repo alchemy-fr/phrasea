@@ -16,6 +16,13 @@ env:
   VERIFY_SSL: "false"
 
 jobs:
+  debug:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Debug Env
+      run: |
+        bin/dev/debug-env.sh
+
   build_keycloak:
     name: 'Build Keycloak'
     uses: ./.github/workflows/build_base.yaml
