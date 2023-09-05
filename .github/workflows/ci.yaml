@@ -210,10 +210,10 @@ jobs:
     steps:
       - name: Install mkcert
         run: |
-          apt-get install wget libnss3-tools
+          sudo apt-get install wget libnss3-tools
           wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
-          mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
-          chmod +x /usr/bin/mkcert
+          sudo mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
+          sudo chmod +x /usr/bin/mkcert
           mkcert -install
       - name: Checkout code
         uses: actions/checkout@v3
