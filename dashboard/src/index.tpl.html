@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>[Dashboard] ${COMPOSE_PROJECT_NAME}</title>
+    <title>Dashboard ${STACK_NAME}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
@@ -72,12 +72,12 @@
     <div class="container">
         <h1>
             Dashboard for stack
-            <strong>${COMPOSE_PROJECT_NAME}</strong>
+            <strong>${STACK_NAME}</strong>
         </h1>
 
         <ul class="services">
             <li>
-                <img src="/images/auth.png">
+                <img src="/images/keycloak.png">
                 <a target="_blank" href="${KEYCLOAK_URL}">
                     <h3>Keycloak</h3>
                 </a>
@@ -128,7 +128,7 @@
 
                 <ul class="sub-svc">
                     <li><a target="_blank" href="${NOTIFY_API_URL}">API</a></li>
-                    <li><a target="_blank" href="${NOTIFY_API_BASE_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${NOTIFY_API_URL}/admin">Admin</a></li>
                 </ul>
             </li>
         </ul>
