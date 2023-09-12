@@ -110,7 +110,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     /**
      * @var self[]
      */
-    #[ORM\OneToMany(targetEntity: Collection::class, mappedBy: 'parent')]
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Collection::class)]
     #[ORM\JoinColumn(nullable: true)]
     #[MaxDepth(1)]
     private ?DoctrineCollection $children = null;
@@ -120,10 +120,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
      */
     private ?bool $hasChildren = null;
 
-    #[ORM\OneToMany(targetEntity: CollectionAsset::class, mappedBy: 'collection', cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: CollectionAsset::class, cascade: ['persist'])]
     private ?DoctrineCollection $assets = null;
 
-    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'referenceCollection')]
+    #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]

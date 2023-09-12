@@ -18,17 +18,25 @@ class WorkspaceOutput extends AbstractUuidOutput
     use CapabilitiesDTOTrait;
     use CreatedAtDTOTrait;
 
-    #[Groups(['_', Workspace::GROUP_LIST, Workspace::GROUP_READ, Collection::GROUP_LIST, Collection::GROUP_READ])]
+    #[Groups([
+        '_',
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+    ])]
     protected array $capabilities = [];
 
-    #[Groups([Workspace::GROUP_LIST,
+    #[Groups([
+        Workspace::GROUP_LIST,
         Workspace::GROUP_READ,
         Collection::GROUP_LIST,
         Collection::GROUP_READ,
         Asset::GROUP_LIST,
         Asset::GROUP_READ,
         WebhookSerializationInterface::DEFAULT_GROUP,
-        RenditionDefinition::GROUP_LIST])]
+        RenditionDefinition::GROUP_LIST,
+    ])]
     private string $name;
 
     #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]

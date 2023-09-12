@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Util\SecurityAwareTrait;
@@ -45,7 +46,9 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         }
 
         if ($this->hasGroup([
-            Workspace::GROUP_READ,
+            Collection::GROUP_READ,
+            Collection::GROUP_LIST,
+            Workspace::GROUP_LIST,
             Workspace::GROUP_LIST,
         ], $context)) {
             $output->setCapabilities($this->capCache[$k]);
