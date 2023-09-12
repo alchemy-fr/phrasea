@@ -110,39 +110,39 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private ?array $localeFallbacks = ['en'];
 
     /**
-     * @var Collection[]
+     * @var DoctrineCollection<Collection>
      */
-    #[ORM\OneToMany(targetEntity: Collection::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: Collection::class)]
     protected ?DoctrineCollection $collections = null;
 
     /**
-     * @var Tag[]
+     * @var DoctrineCollection<Tag>
      */
-    #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: Tag::class)]
     protected ?DoctrineCollection $tags = null;
 
     /**
-     * @var RenditionClass[]
+     * @var DoctrineCollection<RenditionClass>
      */
-    #[ORM\OneToMany(targetEntity: RenditionClass::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionClass::class)]
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
-     * @var RenditionDefinition[]
+     * @var DoctrineCollection<RenditionDefinition>
      */
-    #[ORM\OneToMany(targetEntity: RenditionDefinition::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionDefinition::class)]
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: AttributeDefinition::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: AttributeDefinition::class)]
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
      */
-    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'workspace')]
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
 
     public function __construct()
@@ -213,7 +213,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function setEnabledLocales(array $enabledLocales): void
     {
-        $this->enabledLocales = $enabledLocales;
+        $this->enabledLocales = array_values($enabledLocales);
     }
 
     public function getSlug(): ?string
@@ -233,7 +233,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function setLocaleFallbacks(?array $localeFallbacks): void
     {
-        $this->localeFallbacks = $localeFallbacks;
+        $this->localeFallbacks = array_values($localeFallbacks);
     }
 
     public function isPublic(): bool
