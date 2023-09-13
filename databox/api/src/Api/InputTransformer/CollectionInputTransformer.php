@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Collection;
@@ -25,8 +25,8 @@ class CollectionInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Collection();
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Collection();
         $object->setTitle($data->title);
         $this->transformPrivacy($data, $object);
 

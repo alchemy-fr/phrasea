@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Workspace;
@@ -18,9 +18,9 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var Workspace $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Workspace();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Workspace();
         if (null !== $data->name) {
             $object->setName($data->name);
         }

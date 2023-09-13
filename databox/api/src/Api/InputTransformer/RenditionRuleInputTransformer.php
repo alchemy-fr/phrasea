@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\RenditionRule;
@@ -24,7 +24,7 @@ class RenditionRuleInputTransformer extends AbstractInputTransformer
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         /** @var RenditionRule $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new RenditionRule();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new RenditionRule();
 
         $object->setUserId($data->userId ?? $data->groupId);
         $object->setUserType($data->groupId ? RenditionRule::TYPE_GROUP : RenditionRule::TYPE_USER);

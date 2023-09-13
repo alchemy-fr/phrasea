@@ -23,6 +23,6 @@ class TagFilterRuleVoter extends AbstractVoter
         $objectClass = TagFilterRule::OBJECT_CLASSES[$subject->getObjectType()];
         $object = $this->em->getRepository($objectClass)->find($subject->getObjectId());
 
-        return $this->hasAcl(PermissionInterface::OWNER, $object, $token);
+        return $this->security->isGranted(AbstractVoter::EDIT, $object);
     }
 }

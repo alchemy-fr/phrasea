@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Template\TemplateAttribute;
@@ -27,9 +27,9 @@ class TemplateAttributeInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var TemplateAttribute $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new TemplateAttribute();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new TemplateAttribute();
 
         if ($isNew) {
             $object->setTemplate($data->template);

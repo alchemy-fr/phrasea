@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AttributeClassInputTransformer;
 use App\Api\Model\Input\AttributeClassInput;
 use App\Api\Provider\AttributeClassCollectionProvider;
 use App\Entity\AbstractUuidEntity;
@@ -37,8 +36,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [AttributeClass::GROUP_LIST],
     ],
     input: AttributeClassInput::class,
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
     provider: AttributeClassCollectionProvider::class,
-    processor: AttributeClassInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_class_ws_name', columns: ['workspace_id', 'name'])]

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
 use App\Api\Model\Input\AttributeClassInput;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AttributeClassInputTransformer extends AbstractInputTransformer
 {
@@ -22,9 +22,9 @@ class AttributeClassInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AttributeClass $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new AttributeClass();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeClass();
 
         $workspace = null;
         if ($data->workspace) {

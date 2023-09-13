@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
@@ -49,9 +49,9 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $workspace = $data->collection->getWorkspace();
         }
 
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var Asset $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new Asset(
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Asset(
             $context[self::CONTEXT_CREATION_MICRO_TIME] ?? null,
             $data->sequence
         );

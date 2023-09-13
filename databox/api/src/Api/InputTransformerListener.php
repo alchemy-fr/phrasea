@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use ApiPlatform\Api\IriConverterInterface;
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use ApiPlatform\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\Util\RequestAttributesExtractor;
 use App\Api\InputTransformer\InputTransformerInterface;
@@ -60,8 +60,8 @@ final class InputTransformerListener
         ];
 
         if (is_object($attributes['previous_data'] ?? null)) {
-            $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] = $this->em->find($attributes['previous_data']::class, $attributes['previous_data']->getId());
-            $request->attributes->set('data', $context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+            $context[AbstractNormalizer::OBJECT_TO_POPULATE] = $this->em->find($attributes['previous_data']::class, $attributes['previous_data']->getId());
+            $request->attributes->set('data', $context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         }
 
         $inputAttr = $operation->getInput();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\RenditionClass;
+use App\Entity\Core\AttributeClass;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeClassVoter extends AbstractVoter
@@ -15,11 +15,11 @@ class AttributeClassVoter extends AbstractVoter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $subject instanceof RenditionClass;
+        return $subject instanceof AttributeClass;
     }
 
     /**
-     * @param RenditionClass $subject
+     * @param AttributeClass $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {

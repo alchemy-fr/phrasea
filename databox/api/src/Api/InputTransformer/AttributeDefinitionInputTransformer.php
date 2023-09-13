@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use ApiPlatform\Serializer\AbstractItemNormalizer;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
@@ -22,9 +22,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var AttributeDefinition $object */
-        $object = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new AttributeDefinition();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeDefinition();
 
         $workspace = null;
         if ($data->workspace) {
