@@ -66,8 +66,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
     provider: AttributeDefinitionCollectionProvider::class,
-    processor: AttributeDefinitionInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]

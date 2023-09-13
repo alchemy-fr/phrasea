@@ -20,8 +20,10 @@ export async function postAttributeDefinition(
 
 export async function putAttributeClass(
     id: string | undefined,
-    data: AttributeClass
+    data: Partial<AttributeClass>
 ): Promise<AttributeClass> {
+    delete data.workspace;
+
     return ((await apiClient.put(`${attributeClassNS}/${id}`, data)).data);
 }
 
