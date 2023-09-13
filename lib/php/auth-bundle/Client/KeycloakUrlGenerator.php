@@ -12,8 +12,12 @@ final readonly class KeycloakUrlGenerator
     ) {
     }
 
-    public function getLogoutUrl(string $clientId, string $redirectUri): string
+    public function getLogoutUrl(string $clientId = null, string $redirectUri = null): string
     {
+        if (null === $clientId) {
+            return $this->getOpenIdConnectBaseUrl().'/logout';
+        }
+
         return sprintf(
             '%s/logout?client_id=%s&post_logout_redirect_uri=%s',
             $this->getOpenIdConnectBaseUrl(),

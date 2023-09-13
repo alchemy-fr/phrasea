@@ -18,8 +18,7 @@ final readonly class OAuthClient
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
-    )
-    {
+    ) {
     }
 
     public function getTokenInfo(string $accessToken): array
@@ -73,14 +72,41 @@ final readonly class OAuthClient
                 'body' => [
                     'client_id' => $this->clientId,
                     'refresh_token' => $refreshToken,
-                ]
+                ],
             ]);
         });
     }
 
-    public function getUsers(string $accessToken, int $limit = null, int $offset = null): array
+    public function createUser(array $data, string $accessToken): array
     {
-        return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset);
+        try {
+            $this->keycloakClient->request('POST', $this->urlGenerator->getUsersApiUrl(), [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$accessToken,
+                ],
+                'json' => $data,
+            ])->getStatusCode();
+        } catch (ClientException $e) {
+            $statusCode = $e->getResponse()?->getStatusCode();
+            if (401 === $statusCode) {
+                throw new UnauthorizedHttpException('access_token', $e->getResponse()->getContent(false), $e);
+            } elseif ($statusCode !== 409) {
+                throw $e;
+            }
+        }
+
+        $users = $this->getUsers($accessToken, 1, null, [
+            'query' => [
+                'username' => $data['username'],
+            ]
+        ]);
+
+        return $users[0];
+    }
+
+    public function getUsers(string $accessToken, int $limit = null, int $offset = null, array $options = []): array
+    {
+        return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset, $options);
     }
 
     public function getGroups(string $accessToken, int $limit = null, int $offset = null): array
@@ -88,10 +114,10 @@ final readonly class OAuthClient
         return $this->get($this->urlGenerator->getGroupsApiUrl(), $accessToken, $limit, $offset);
     }
 
-    private function get(string $path, string $accessToken, int $limit = null, int $offset = null): array
+    private function get(string $path, string $accessToken, int $limit = null, int $offset = null, array $options = []): array
     {
-        return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset) {
-            return $this->keycloakClient->request('GET', $path, [
+        return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset, $options) {
+            return $this->keycloakClient->request('GET', $path, array_merge([
                 'headers' => [
                     'Authorization' => 'Bearer '.$accessToken,
                 ],
@@ -99,7 +125,7 @@ final readonly class OAuthClient
                     'limit' => $limit,
                     'offset' => $offset,
                 ],
-            ]);
+            ], $options));
         });
     }
 

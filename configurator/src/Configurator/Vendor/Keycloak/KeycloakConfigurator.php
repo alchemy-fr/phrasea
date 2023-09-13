@@ -56,7 +56,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
 
             $this->keycloakManager->addServiceAccountRole($client, 'view-users', $this->keycloakRealm.'-realm');
-            $this->keycloakManager->addServiceAccountRole($client, 'view-groups', 'account');
+
+            foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
+                $this->keycloakManager->addServiceAccountRole($client, $role, $this->keycloakRealm.'-realm');
+            }
         }
 
         foreach ($this->frontendApplications as $app) {
@@ -94,6 +97,15 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ],
             'uploader' => [
                 'commit:list',
+            ],
+        ];
+    }
+
+    private function getAdminClientServiceAccountRoles(): array
+    {
+        return [
+            'databox' => [
+                'manage-users',
             ],
         ];
     }

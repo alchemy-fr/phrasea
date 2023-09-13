@@ -1,9 +1,3 @@
-parameters:
-  user_admin: 97594c35-0486-48df-a581-734be0a9530e
-  user_alice: b5bb691d-4a0b-447c-acc2-abed6b0d7887
-  user_bob: 8a93be06-613d-4b32-8abb-7eb747898333
-  user_jack: 74f21e72-3c42-4f17-abc3-e74ec61b0e15
-
 App\Entity\Core\Workspace:
   w_newspaper:
     name: Newspaper
@@ -196,7 +190,7 @@ App\Entity\Core\RenditionDefinition:
 App\Entity\Core\Collection:
   collection_n (template):
     workspace: '@w_newspaper'
-    ownerId: <{user_admin}>
+    ownerId: <keycloakUser("admin", ["admin"])>
 
   c_n_special_chars (extends collection_n):
     title: 'D&D \@][ \<ap>++"='
@@ -217,18 +211,18 @@ App\Entity\Core\Collection:
     title: '<ucwords($current)>'
 
   c_n_entertainment_{public_videos} (extends collection_n):
-    ownerId: <{user_alice}>
+    ownerId: <keycloakUser("alice")>
     privacy: 3
     parent: '@c_n_entertainment'
     title: '<ucwords($current)>'
 
   c_n_entertainment_public_videos_{movies, series, shows} (extends collection_n):
-    ownerId: <{user_alice}>
+    ownerId: <keycloakUser("alice")>
     parent: '@c_n_entertainment_public_videos'
     title: '<ucwords($current)>'
 
   c_n_entertainment_archives_{movies, series, shows} (extends collection_n):
-    ownerId: <{user_alice}>
+    ownerId: <keycloakUser("alice")>
     parent: '@c_n_entertainment_archives'
     title: '<ucwords($current)>'
 
@@ -246,19 +240,19 @@ App\Entity\Core\Asset:
 
   a_img{1..50} (extends asset):
     title: 'Image #<ucwords($current)>'
-    ownerId: <{user_bob}>
+    ownerId: <keycloakUser("bob")>
     source: '@f_img_o<current()>'
   a_audio{1..10} (extends asset):
     title: 'Audio #<ucwords($current)>'
-    ownerId: <{user_bob}>
+    ownerId: <keycloakUser("bob")>
     source: '@f_audio_o<current()>'
   a_video{1..10} (extends asset):
     title: 'Video #<ucwords($current)>'
-    ownerId: <{user_alice}>
+    ownerId: <keycloakUser("alice")>
     source: '@f_video_o<current()>'
   a_pdf{1..10} (extends asset):
     title: 'PDF #<ucwords($current)>'
-    ownerId: <{user_jack}>
+    ownerId: <keycloakUser("jack")>
     source: '@f_pdf_o<current()>'
 
 App\Entity\Core\File:
