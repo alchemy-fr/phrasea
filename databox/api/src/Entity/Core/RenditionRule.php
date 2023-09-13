@@ -42,7 +42,7 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     input: RenditionRuleInput::class,
     output: RenditionRuleOutput::class,
-    security: 'is_granted("ROLE_USER")',
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
     processor: RenditionRuleInputTransformer::class,
 )]
 #[ORM\Table]

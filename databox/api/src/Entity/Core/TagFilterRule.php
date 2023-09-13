@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
-use App\Api\Processor\TagFilterRuleInputProcessor;
 use App\Api\Provider\TagFilterRuleCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -24,19 +23,21 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
     shortName: 'tag-filter-rule',
-    operations: [new Get(security: 'is_granted("READ", object)'),
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
-    ], normalizationContext: ['groups' => ['_',
-    TagFilterRule::GROUP_READ,
-    Tag::GROUP_READ]],
+    ],
+    normalizationContext: ['groups' => ['_',
+        TagFilterRule::GROUP_READ,
+        Tag::GROUP_READ],
+    ],
     input: TagFilterRuleInput::class,
     output: TagFilterRuleOutput::class,
-    security: 'is_granted("ROLE_USER")',
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
     provider: TagFilterRuleCollectionProvider::class,
-    processor: TagFilterRuleInputProcessor::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'tfr_user_idx')]
@@ -48,6 +49,7 @@ class TagFilterRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+
     final public const GROUP_READ = 'tfr:read';
     final public const GROUP_LIST = 'tfr:index';
 

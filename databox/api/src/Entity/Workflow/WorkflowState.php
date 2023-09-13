@@ -30,7 +30,9 @@ use Doctrine\ORM\Mapping as ORM;
     ),
     new Post(
         uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
-        controller: RerunJobAction::class
+        uriVariables: [],
+        controller: RerunJobAction::class,
+        deserialize: false,
     ),
     new GetCollection(
         security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',

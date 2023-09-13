@@ -120,7 +120,7 @@ export async function deleteAssetAttribute(id: string): Promise<void> {
 }
 
 export async function triggerAssetWorkflow(id: string): Promise<void> {
-    await apiClient.post(`/assets/${id}/trigger-workflow`, {});
+    await apiClient.put(`/assets/${id}/trigger-workflow`, {});
 }
 
 export async function deleteAsset(id: string): Promise<void> {

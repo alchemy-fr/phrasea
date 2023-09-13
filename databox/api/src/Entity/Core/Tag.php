@@ -7,6 +7,11 @@ namespace App\Entity\Core;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\TagOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -19,11 +24,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     shortName: 'tag',
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
     normalizationContext: ['groups' => [
         '_',
         Tag::GROUP_LIST,
     ]],
-    input: false,
     output: TagOutput::class
 )]
 #[ORM\Table]

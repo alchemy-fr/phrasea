@@ -21,6 +21,7 @@ use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
+use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\CopyAssetsAction;
@@ -28,7 +29,6 @@ use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Controller\Core\MoveAssetsAction;
 use App\Controller\Core\MultipleAssetCreate;
-use App\Controller\Core\TriggerAssetWorkflowAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
@@ -40,6 +40,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -54,19 +55,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new Post(
+        new Put(
             uriTemplate: '/assets/{id}/trigger-workflow',
-            controller: TriggerAssetWorkflowAction::class,
-            security: 'is_granted("EDIT", object)',
-            read: false,
-            name: 'post_trigger_workflow',
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: TriggerAssetWorkflowProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/{id}/attributes',
             controller: AssetAttributeBatchUpdateAction::class,
             securityPostDenormalize: 'is_granted("'.AssetVoter::EDIT_ATTRIBUTES.'", object)',
             input: AssetAttributeBatchUpdateInput::class,
-            name: 'post_batch_attributes',
         ),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),

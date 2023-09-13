@@ -2,23 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Api\Processor;
+namespace App\Api\InputTransformer;
 
-use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Serializer\AbstractItemNormalizer;
-use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Entity\Core\TagFilterRule;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class TagFilterRuleInputProcessor implements ProcessorInterface
+class TagFilterRuleInputTransformer implements InputTransformerInterface
 {
     /**
      * @param TagFilterRuleInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractItemNormalizer::OBJECT_TO_POPULATE]);
-        $tagFilterRule = $context[AbstractItemNormalizer::OBJECT_TO_POPULATE] ?? new TagFilterRule();
+        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $tagFilterRule = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new TagFilterRule();
 
         if ($data->collectionId) {
             $tagFilterRule->setObjectType(TagFilterRule::TYPE_COLLECTION);
@@ -51,5 +49,10 @@ class TagFilterRuleInputProcessor implements ProcessorInterface
         }
 
         return $tagFilterRule;
+    }
+
+    public function supports(string $resourceClass, object $data): bool
+    {
+        return TagFilterRule::class === $resourceClass && $data instanceof TagFilterRuleInput;
     }
 }

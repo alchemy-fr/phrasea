@@ -113,7 +113,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: RenditionInput::class,
     provider: RenditionCollectionProvider::class,
-    processor: RenditionInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]
