@@ -106,9 +106,9 @@
         "ext-sodium": "*",
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/auth-bundle": "*",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
-        "alchemy/auth-bundle": "*",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
@@ -146,6 +146,7 @@
         "symfony/mime": "^6.3",
         "symfony/property-access": "^6.3",
         "symfony/property-info": "^6.3",
+        "symfony/psr-http-message-bridge": "^2.3",
         "symfony/rate-limiter": "^6.3",
         "symfony/security-bundle": "^6.3",
         "symfony/security-core": "^6.3",
@@ -176,7 +177,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {

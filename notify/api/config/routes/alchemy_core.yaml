@@ -1,3 +1,6 @@
 alchemy_core_healthcheck:
-  controller: Alchemy\CoreBundle\Controller\HealthCheckAction
-  path: /_healthcheck
+    controller: Alchemy\CoreBundle\Controller\HealthCheckAction
+    path: /
+alchemy_core_sentry_test:
+    controller: Alchemy\CoreBundle\Controller\SentryTestController
+    path: /

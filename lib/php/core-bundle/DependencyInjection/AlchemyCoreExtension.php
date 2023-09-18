@@ -4,13 +4,16 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -45,6 +48,43 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $loader->load('healthcheck.yaml');
             $this->loadHealthCheckers($container);
         }
+
+        if ($config['sentry']['enabled']) {
+            $loader->load('sentry.yaml');
+            $this->loadSentry($container);
+        }
+    }
+
+    private function loadHealthCheckers(ContainerBuilder $container): void
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+        if (!isset($bundles['DoctrineBundle'])) {
+            $container->removeDefinition(DoctrineConnectionChecker::class);
+        }
+
+        if (!isset($bundles['OldSoundRabbitMqBundle'])) {
+            $container->removeDefinition(RabbitMQConnectionChecker::class);
+        }
+    }
+
+    private function loadSentry(ContainerBuilder $container): void
+    {
+        $env = $container->getParameter('kernel.environment');
+        if ('prod' === $env) {
+            $def = new Definition(PsrLogMessageProcessor::class);
+            $def->addTag('monolog.processor', [
+                'handler' =>'sentry',
+            ]);
+            $container->setDefinition(PsrLogMessageProcessor::class, $def);
+        }
+    }
+
+    private function loadFixtures(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['AlchemyStorageBundle'], $bundles['HautelookAliceBundle'])) {
+            $loader->load('fixtures.yaml');
+        }
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -71,25 +111,24 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 ]
             ]);
         }
-    }
-
-    private function loadHealthCheckers(ContainerBuilder $container): void
-    {
-        $bundles = $container->getParameter('kernel.bundles');
-        if (!isset($bundles['DoctrineBundle'])) {
-            $container->removeDefinition(DoctrineConnectionChecker::class);
-        }
-
-        if (!isset($bundles['OldSoundRabbitMqBundle'])) {
-            $container->removeDefinition(RabbitMQConnectionChecker::class);
-        }
-    }
-
-    private function loadFixtures(ContainerBuilder $container, LoaderInterface $loader): void
-    {
-        $bundles = $container->getParameter('kernel.bundles');
-        if (isset($bundles['AlchemyStorageBundle'], $bundles['HautelookAliceBundle'])) {
-            $loader->load('fixtures.yaml');
+        if (isset($bundles['SentryBundle']) && 'prod' === $env) {
+            $container->prependExtensionConfig('sentry', [
+                'dsn' => '%env(SENTRY_DSN)%',
+                'register_error_listener' => false, // Disables the ErrorListener to avoid duplicated log in sentry
+                'tracing' => [
+                    'dbal' => [
+                        'enabled' => false,
+                    ],
+                ],
+                'options' => [
+                    'environment' => '%env(SENTRY_ENVIRONMENT)%',
+                    'release' => '%env(SENTRY_RELEASE)%',
+                    'send_default_pii' => true,
+                    'ignore_exceptions' => [
+                        TooManyRequestsHttpException::class,
+                    ],
+                ]
+            ]);
         }
     }
 }

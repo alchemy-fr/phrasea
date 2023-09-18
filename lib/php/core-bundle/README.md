@@ -15,14 +15,17 @@ Enable the feature:
 # config/packages/alchemy_core.yml
 alchemy_core:
   healthcheck: ~
+  sentry: ~
 ```
 
 Add route:
 ```yaml
 # config/routes/alchemy_core.yaml
 alchemy_core_healthcheck:
-  controller: Alchemy\CoreBundle\Controller\HealthCheckAction
-  path: /_healthcheck
+    controller: Alchemy\CoreBundle\Controller\HealthCheckAction
+alchemy_core_sentry_test:
+    controller: Alchemy\CoreBundle\Controller\SentryTestController
+
 ```
 
 Ensure the route is not protected:

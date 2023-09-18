@@ -1,2 +1,0 @@
-alchemy_core_healthcheck:
-  resource: 'Alchemy\CoreBundle\Controller\HealthCheckController'

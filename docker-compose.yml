@@ -118,6 +118,9 @@ services:
       - DASHBOARD_URL
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
+      - SENTRY_DSN
+      - SENTRY_ENVIRONMENT
+      - SENTRY_RELEASE
       - KEYCLOAK_URL
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

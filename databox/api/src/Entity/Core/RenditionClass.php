@@ -34,6 +34,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: [
         'groups' => [RenditionClass::GROUP_LIST],
     ],
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
     provider: RenditionClassCollectionProvider::class,
 )]
 #[ORM\Table]

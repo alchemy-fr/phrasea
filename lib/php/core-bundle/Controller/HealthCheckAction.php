@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class HealthCheckAction extends AbstractController
 {
@@ -16,6 +17,7 @@ class HealthCheckAction extends AbstractController
     {
     }
 
+    #[Route(path: '/_health/check')]
     public function __invoke(Request $request): Response
     {
         $checks = $this->healthChecker->getChecks();

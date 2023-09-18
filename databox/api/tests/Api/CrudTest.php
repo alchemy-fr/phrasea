@@ -110,6 +110,12 @@ final class CrudTest extends AbstractDataboxTestCase
             'editable' => false,
         ]];
 
+        $createRenditionClass = ['POST', '/rendition-classes', OAuthClientTestMock::ADMIN_UID, [
+            'workspace' => '/workspaces/{workspaceId}',
+            'name' => 'RendClass Test',
+            'public' => true,
+        ]];
+
         $createAttributeDefinition = ['POST', '/attribute-definitions', OAuthClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
@@ -117,6 +123,7 @@ final class CrudTest extends AbstractDataboxTestCase
         ]];
 
         return [
+            // AttributeClass
             ['POST', '/attribute-classes', null, [], [
                 'code' => 401
             ]],
@@ -152,6 +159,41 @@ final class CrudTest extends AbstractDataboxTestCase
                 'createItem' => $createAttributeClass,
             ]],
 
+            // RenditionClass
+            ['POST', '/rendition-classes', null, [], [
+                'code' => 401
+            ]],
+
+            ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+            ], [
+                'code' => 422
+            ]],
+
+            ['POST', '/rendition-classes', OAuthClientTestMock::ADMIN_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+            ], [
+                'code' => 422
+            ]],
+
+            ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
+                'workspace' => '/workspaces/{workspaceId}',
+                'name' => 'RendClass Test',
+                'public' => true,
+            ], [
+                'code' => 403
+            ]],
+
+            $createRenditionClass,
+
+            ['PUT', '/rendition-classes/{lastId}', OAuthClientTestMock::ADMIN_UID, [
+                'name' => 'RendClass Test 2',
+                'public' => false,
+            ], [], [
+                'createItem' => $createRenditionClass,
+            ]],
+
+            // AttributeDefinition
             ['POST', '/attribute-definitions', null, [], [
                 'code' => 401
             ]],
