@@ -15,7 +15,6 @@ Enable the feature:
 # config/packages/alchemy_core.yml
 alchemy_core:
   healthcheck: ~
-  sentry: ~
 ```
 
 Add route:

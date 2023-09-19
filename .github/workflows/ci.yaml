@@ -14,6 +14,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
+  SENTRY_RELEASE: ${{ github.sha }}
 
 jobs:
   build_keycloak:

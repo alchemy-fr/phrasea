@@ -25,11 +25,6 @@ class Configuration implements ConfigurationInterface
                     ->children()
                     ->end()
                 ->end()
-                ->arrayNode('sentry')
-                    ->canBeEnabled()
-                    ->children()
-                    ->end()
-                ->end()
             ->end()
         ;
 

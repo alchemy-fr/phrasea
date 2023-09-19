@@ -52,7 +52,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $this->loadHealthCheckers($container);
         }
 
-        if ($config['sentry']['enabled']) {
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['SentryBundle'])) {
             $loader->load('sentry.yaml');
             $this->loadSentry($container);
         }
@@ -72,14 +73,11 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
     private function loadSentry(ContainerBuilder $container): void
     {
-        $bundles = $container->getParameter('kernel.bundles');
-        if (isset($bundles['SentryBundle'])) {
-            $def = new Definition(PsrLogMessageProcessor::class);
-            $def->addTag('monolog.processor', [
-                'handler' =>'sentry',
-            ]);
-            $container->setDefinition(PsrLogMessageProcessor::class, $def);
-        }
+        $def = new Definition(PsrLogMessageProcessor::class);
+        $def->addTag('monolog.processor', [
+            'handler' =>'sentry',
+        ]);
+        $container->setDefinition(PsrLogMessageProcessor::class, $def);
     }
 
     private function loadFixtures(ContainerBuilder $container, LoaderInterface $loader): void

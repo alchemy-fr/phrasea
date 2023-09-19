@@ -97,6 +97,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+        SENTRY_RELEASE: ${SENTRY_RELEASE}
     networks:
       - internal
     depends_on:

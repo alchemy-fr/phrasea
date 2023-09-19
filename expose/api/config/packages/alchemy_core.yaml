@@ -2,4 +2,3 @@ alchemy_core:
     app_name: expose
     app_url: '%env(EXPOSE_API_URL)%'
     healthcheck: ~
-    sentry: ~

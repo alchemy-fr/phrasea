@@ -1,11 +1,5 @@
 monolog:
     handlers:
-        sentry:
-            type: fingers_crossed
-            action_level: error
-            handler: sentry_nested
-            excluded_http_codes: [ 405, 401, 403, 404, 400 ]
-            buffer_size: 5
 #         main:
 #             type: fingers_crossed
 #             action_level: error
