@@ -101,6 +101,10 @@ final readonly class OAuthClient
             ]
         ]);
 
+        if (empty($users)) {
+            throw new \RuntimeException(sprintf('Cannot find newly created user. Please check client permissions!'));
+        }
+
         return $users[0];
     }
 

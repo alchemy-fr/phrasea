@@ -36,12 +36,24 @@ abstract class AbstractCachedFaker extends BaseProvider
             }
             $cacheKey = $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
             if (!file_exists($cacheKey)) {
-                file_put_contents($cacheKey, fopen($url, 'r'));
+                $resource = fopen($url, 'r');
+                if (!is_resource($resource)) {
+                    throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
+                }
+
+                file_put_contents($cacheKey, $resource);
+                fclose($resource);
             }
 
             $stream = fopen($cacheKey, 'r');
+            if (!is_resource($stream)) {
+                throw new \InvalidArgumentException(sprintf('Cannot open cached file "%s"', $url));
+            }
         } else {
             $stream = fopen($url, 'r');
+            if (!is_resource($stream)) {
+                throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
+            }
         }
 
         $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');
