@@ -6,10 +6,12 @@ If user is authenticated, user ID will be provided automatically.
 
 ## Configuration
 
-```yaml
-# config/packages/alchemy_report.yml
+Config is taken from alchemy_core extension:
 
-alchemy_report:
+```yaml
+# config/packages/alchemy_core.yml
+
+alchemy_core:
   app_name: my-app-name
 ```
 

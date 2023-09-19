@@ -1,3 +1,4 @@
 alchemy_core:
-  healthcheck: ~
-  sentry: ~
+    app_name: notify
+    healthcheck: ~
+    sentry: ~

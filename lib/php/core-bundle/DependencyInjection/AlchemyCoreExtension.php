@@ -28,6 +28,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('alchemy_core.app_id', $config['app_id']);
+        $container->setParameter('alchemy_core.app_name', $config['app_name']);
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('services.yaml');
@@ -69,8 +72,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
     private function loadSentry(ContainerBuilder $container): void
     {
-        $env = $container->getParameter('kernel.environment');
-        if ('prod' === $env) {
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['SentryBundle'])) {
             $def = new Definition(PsrLogMessageProcessor::class);
             $def->addTag('monolog.processor', [
                 'handler' =>'sentry',
@@ -111,9 +114,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 ]
             ]);
         }
-        if (isset($bundles['SentryBundle']) && 'prod' === $env) {
+        if (isset($bundles['SentryBundle'])) {
             $container->prependExtensionConfig('sentry', [
-                'dsn' => '%env(SENTRY_DSN)%',
                 'register_error_listener' => false, // Disables the ErrorListener to avoid duplicated log in sentry
                 'tracing' => [
                     'dbal' => [
@@ -124,11 +126,26 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     'environment' => '%env(SENTRY_ENVIRONMENT)%',
                     'release' => '%env(SENTRY_RELEASE)%',
                     'send_default_pii' => true,
+                    'tags' => [
+                        'app.name' => '%alchemy_core.app_name%',
+                        'app.id' => '%alchemy_core.app_id%',
+                    ],
                     'ignore_exceptions' => [
                         TooManyRequestsHttpException::class,
                     ],
                 ]
             ]);
+
+            if (isset($bundles['MonologBundle'])) {
+                $container->prependExtensionConfig('monolog', [
+                    'handlers' => [
+                        'sentry' => [
+                            'type' => 'service',
+                            'id' => \Sentry\Monolog\Handler::class,
+                        ],
+                    ],
+                ]);
+            }
         }
     }
 }

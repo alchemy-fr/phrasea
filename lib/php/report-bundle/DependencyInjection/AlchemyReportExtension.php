@@ -19,9 +19,6 @@ class AlchemyReportExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('alchemy_report.app_name', $config['app_name']);
-        $container->setParameter('alchemy_report.app_id', $config['app_id']);
-
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 

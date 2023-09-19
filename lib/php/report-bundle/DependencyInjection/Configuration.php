@@ -17,8 +17,6 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('alchemy_report');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('app_id')->defaultValue('%env(APP_ID)%')->end()
-                ->scalarNode('app_name')->isRequired()->end()
             ->end()
         ;
 

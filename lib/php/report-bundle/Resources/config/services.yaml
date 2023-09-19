@@ -20,8 +20,8 @@ services:
 
   Alchemy\ReportSDK\ReportClient:
     arguments:
-      $appName: "%alchemy_report.app_name%"
-      $appId: "%alchemy_report.app_id%"
+      $appName: "%alchemy_core.app_name%"
+      $appId: "%alchemy_core.app_id%"
       $client: "@alchemy_report.http_client"
 
   Alchemy\ReportBundle\ReportUserService:

@@ -1,6 +1,6 @@
 alchemy_core_healthcheck:
-    controller: Alchemy\CoreBundle\Controller\HealthCheckAction
-    path: /
+    resource: Alchemy\CoreBundle\Controller\HealthCheckAction
+    type: attribute
 alchemy_core_sentry_test:
-    controller: Alchemy\CoreBundle\Controller\SentryTestController
-    path: /
+    resource: Alchemy\CoreBundle\Controller\SentryTestController
+    type: attribute

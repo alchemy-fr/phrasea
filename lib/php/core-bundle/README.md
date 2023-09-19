@@ -22,10 +22,11 @@ Add route:
 ```yaml
 # config/routes/alchemy_core.yaml
 alchemy_core_healthcheck:
-    controller: Alchemy\CoreBundle\Controller\HealthCheckAction
+    resource: Alchemy\CoreBundle\Controller\HealthCheckAction
+    type: attribute
 alchemy_core_sentry_test:
-    controller: Alchemy\CoreBundle\Controller\SentryTestController
-
+    resource: Alchemy\CoreBundle\Controller\SentryTestController
+    type: attribute
 ```
 
 Ensure the route is not protected:
