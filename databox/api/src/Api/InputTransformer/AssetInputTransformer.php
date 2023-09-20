@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
@@ -17,6 +16,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetInputTransformer extends AbstractFileInputTransformer
 {

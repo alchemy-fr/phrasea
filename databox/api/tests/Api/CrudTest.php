@@ -20,8 +20,7 @@ final class CrudTest extends AbstractDataboxTestCase
         array $data = null,
         array $expectations = [],
         array $options = []
-    ): void
-    {
+    ): void {
         if ($options['createItem'] ?? false) {
             $response = $this->testCase(...$options['createItem']);
             $options['itemId'] = $response->toArray()['id'];
@@ -37,8 +36,7 @@ final class CrudTest extends AbstractDataboxTestCase
         array $data = null,
         array $expectations = [],
         array $options = []
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         $workspace = $this->getOrCreateDefaultWorkspace();
         $attributeClass = $this->getOrCreateDefaultAttributeClass();
 
@@ -48,7 +46,7 @@ final class CrudTest extends AbstractDataboxTestCase
             'lastId' => $options['itemId'] ?? 'Undefined Item ID',
         ]);
 
-        $expectedStatusCode = $expectations['code'] ?? match($method) {
+        $expectedStatusCode = $expectations['code'] ?? match ($method) {
             'POST' => 201,
             'DELETE' => 204,
             default => 200,
@@ -125,19 +123,19 @@ final class CrudTest extends AbstractDataboxTestCase
         return [
             // AttributeClass
             ['POST', '/attribute-classes', null, [], [
-                'code' => 401
+                'code' => 401,
             ]],
 
             ['POST', '/attribute-classes', OAuthClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/attribute-classes', OAuthClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/attribute-classes', OAuthClientTestMock::USER_UID, [
@@ -146,7 +144,7 @@ final class CrudTest extends AbstractDataboxTestCase
                 'public' => true,
                 'editable' => false,
             ], [
-                'code' => 403
+                'code' => 403,
             ]],
 
             $createAttributeClass,
@@ -161,19 +159,19 @@ final class CrudTest extends AbstractDataboxTestCase
 
             // RenditionClass
             ['POST', '/rendition-classes', null, [], [
-                'code' => 401
+                'code' => 401,
             ]],
 
             ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/rendition-classes', OAuthClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
@@ -181,7 +179,7 @@ final class CrudTest extends AbstractDataboxTestCase
                 'name' => 'RendClass Test',
                 'public' => true,
             ], [
-                'code' => 403
+                'code' => 403,
             ]],
 
             $createRenditionClass,
@@ -195,19 +193,19 @@ final class CrudTest extends AbstractDataboxTestCase
 
             // AttributeDefinition
             ['POST', '/attribute-definitions', null, [], [
-                'code' => 401
+                'code' => 401,
             ]],
 
             ['POST', '/attribute-definitions', OAuthClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/attribute-definitions', OAuthClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422
+                'code' => 422,
             ]],
 
             ['POST', '/attribute-definitions', OAuthClientTestMock::USER_UID, [
@@ -215,7 +213,7 @@ final class CrudTest extends AbstractDataboxTestCase
                 'name' => 'AttrClass Test',
                 'class' => '/attribute-classes/{attributeClassId}',
             ], [
-                'code' => 403
+                'code' => 403,
             ]],
 
             $createAttributeDefinition,

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AttributeDefinitionInputTransformer extends AbstractInputTransformer
 {

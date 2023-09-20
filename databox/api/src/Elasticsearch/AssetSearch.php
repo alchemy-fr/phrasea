@@ -9,7 +9,6 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;

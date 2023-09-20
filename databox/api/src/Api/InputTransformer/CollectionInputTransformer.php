@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class CollectionInputTransformer extends AbstractInputTransformer
 {

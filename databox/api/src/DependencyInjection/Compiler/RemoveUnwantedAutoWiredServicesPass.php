@@ -6,7 +6,6 @@ namespace App\DependencyInjection\Compiler;
 
 use App\Annotation\IgnoreAutowire;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Exception;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -24,7 +23,7 @@ final class RemoveUnwantedAutoWiredServicesPass implements CompilerPassInterface
                     if (null !== $result) {
                         $container->removeDefinition($fqcn);
                     }
-                } catch (Exception) {
+                } catch (\Exception) {
                     // Ignore
                 }
             }

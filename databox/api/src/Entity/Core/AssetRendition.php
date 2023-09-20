@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\RenditionInputTransformer;
 use App\Api\Model\Input\RenditionInput;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Entity\AbstractUuidEntity;

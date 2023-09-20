@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\RenditionRule;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class RenditionRuleInputTransformer extends AbstractInputTransformer
 {

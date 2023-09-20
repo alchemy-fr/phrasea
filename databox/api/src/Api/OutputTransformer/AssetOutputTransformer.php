@@ -21,7 +21,6 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Security\Voter\CollectionVoter;
 use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;

@@ -67,7 +67,7 @@ trait SecurityAwareTrait
         return $user;
     }
 
-    public function denyAccessUnlessGranted(mixed $attributes, mixed $subject = null, ?string $message = null): void
+    public function denyAccessUnlessGranted(mixed $attributes, mixed $subject = null, string $message = null): void
     {
         if (!$this->isGranted($attributes, $subject)) {
             throw new AccessDeniedException($message ?? 'Access denied.');

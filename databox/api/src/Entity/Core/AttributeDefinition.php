@@ -12,7 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AttributeDefinitionInputTransformer;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Provider\AttributeDefinitionCollectionProvider;

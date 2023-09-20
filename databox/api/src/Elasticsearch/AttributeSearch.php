@@ -13,7 +13,6 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
-use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;

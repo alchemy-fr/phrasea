@@ -24,8 +24,7 @@ class MoveAssetProcessor implements ProcessorInterface
         private readonly EventProducer $eventProducer,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter
-    )
-    {
+    ) {
     }
 
     /**

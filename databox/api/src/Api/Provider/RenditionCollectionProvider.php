@@ -7,7 +7,6 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetRendition;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\RenditionVoter;
 
 class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {

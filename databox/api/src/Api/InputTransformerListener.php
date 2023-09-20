@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Api;
 
 use ApiPlatform\Api\IriConverterInterface;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use ApiPlatform\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\Util\RequestAttributesExtractor;
 use App\Api\InputTransformer\InputTransformerInterface;
@@ -15,6 +14,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[AsEventListener(event: KernelEvents::VIEW, method: 'transform', priority: 255)]
 final class InputTransformerListener

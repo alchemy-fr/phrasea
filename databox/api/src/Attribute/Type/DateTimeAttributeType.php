@@ -9,7 +9,6 @@ use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\Range;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Throwable;
 
 class DateTimeAttributeType extends AbstractAttributeType
 {
@@ -116,7 +115,7 @@ class DateTimeAttributeType extends AbstractAttributeType
             }
 
             return $date;
-        } catch (Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -138,7 +137,7 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function normalizeBucket(array $bucket): ?array
     {
-        $bucket['key'] = $bucket['key'] / 1000;
+        $bucket['key'] /= 1000;
 
         return $bucket;
     }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AttributeInputTransformer extends AbstractInputTransformer
 {

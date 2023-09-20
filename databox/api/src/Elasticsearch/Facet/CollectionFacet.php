@@ -8,7 +8,6 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\CollectionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 

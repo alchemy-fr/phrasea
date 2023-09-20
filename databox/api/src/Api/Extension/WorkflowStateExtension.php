@@ -8,15 +8,12 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Workflow\WorkflowState;
-use App\Integration\IntegrationRegistry;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
 class WorkflowStateExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(
-    )
-    {
+    ) {
     }
 
     public function applyToCollection(
