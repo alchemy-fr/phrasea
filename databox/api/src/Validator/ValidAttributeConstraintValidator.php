@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Validator;
 
 use App\Attribute\AttributeTypeRegistry;
-use App\Entity\Core\Attribute;
+use App\Entity\Core\AbstractBaseAttribute;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -16,7 +16,7 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param Attribute               $value
+     * @param AbstractBaseAttribute               $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint): void

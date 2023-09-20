@@ -48,7 +48,6 @@ App\Entity\Core\Attribute:
 
 App\Entity\Core\AbstractBaseAttribute:
   constraints:
-    - App\Validator\UniqueAttributeConstraint: ~
     - App\Validator\ValidAttributeConstraint: ~
   properties:
     value:
