@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class WorkspaceSecretCrudController extends AbstractAdminCrudController
 {
@@ -38,7 +39,8 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
     {
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
-        $plainValue = TextField::new('plainValue');
+        $plainValue = TextField::new('plainValue', 'Value')
+            ->setFormType(PasswordType::class);
         $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
 

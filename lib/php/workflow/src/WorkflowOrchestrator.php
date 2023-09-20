@@ -242,15 +242,12 @@ class WorkflowOrchestrator
             $this->stateRepository->acquireJobLock($workflowId, $jobId);
         }
 
-        try {
-            $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
-            $this->stateRepository->persistJobState($jobState);
-        } finally {
-            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                $this->stateRepository->releaseJobLock($workflowId, $jobId);
-            }
-        }
+        $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
+        $this->stateRepository->persistJobState($jobState);
 
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        }
 
         return $this->trigger->triggerJob($state->getId(), $jobId);
     }

@@ -1,9 +1,13 @@
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
+    _defaults:
+        autowire: true
+        autoconfigure: true
 
-  alchemy_core.monolog.line_formatter_stack_trace:
-    class: Monolog\Formatter\LineFormatter
-    calls:
-      - [includeStacktraces]
+    alchemy_core.monolog.line_formatter_stack_trace:
+        class: Monolog\Formatter\LineFormatter
+        calls:
+            - [includeStacktraces]
+
+    Monolog\Handler\TestHandler:
+        public: true
+        alias: monolog.handler.test

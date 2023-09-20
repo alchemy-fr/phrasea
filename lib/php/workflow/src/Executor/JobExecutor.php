@@ -79,7 +79,7 @@ class JobExecutor
             }
 
             $status = $jobState->getStatus();
-            if (JobState::STATUS_TRIGGERED !== $status && JobState::STATUS_ERROR !== $status) {
+            if (JobState::STATUS_TRIGGERED !== $status) {
                 throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s" (got "%s")', $jobId, $workflowId, JobState::STATUS_LABELS[$status]));
             }
 

@@ -395,7 +395,6 @@ App\Entity\Integration\WorkspaceIntegration:
     integration: phraseanet.renditions
     workspace: '@w_newspaper'
     config:
-      baseUrl: https://phraseanet.phrasea.local
       databoxId: 1
       method: api
   wi_watermark:
