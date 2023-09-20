@@ -15,24 +15,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
-#[ORM\UniqueConstraint(name: 'uniq_key', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_env_key', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
-class WorkspaceSecret extends AbstractUuidEntity
+class WorkspaceEnv extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
     #[ORM\Column(type: 'string', length: 100, nullable: false)]
-    #[Groups(['secret:index'])]
+    #[Groups(['env:index'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(type: 'text', nullable: false)]
+    #[Assert\NotNull]
     private ?string $value = null;
-
-    private ?string $plainValue = null;
 
     public function getName(): ?string
     {
@@ -52,15 +51,5 @@ class WorkspaceSecret extends AbstractUuidEntity
     public function setValue(?string $value): void
     {
         $this->value = $value;
-    }
-
-    public function getPlainValue(): ?string
-    {
-        return $this->plainValue;
-    }
-
-    public function setPlainValue(?string $plainValue): void
-    {
-        $this->plainValue = $plainValue;
     }
 }

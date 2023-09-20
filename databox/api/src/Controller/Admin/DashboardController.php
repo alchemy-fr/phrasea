@@ -25,6 +25,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
+use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
@@ -84,6 +85,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $submenu4 = [
             MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
+            MenuItem::linkToCrud('Env', '', WorkspaceEnv::class),
             MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];

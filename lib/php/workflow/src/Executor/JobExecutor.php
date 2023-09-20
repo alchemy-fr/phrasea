@@ -119,13 +119,23 @@ class JobExecutor
             $jobState->setStatus(JobState::STATUS_RUNNING);
             $jobState->setStartedAt(new MicroDateTime());
             $this->persistJobState($jobState);
-
-            $this->runJob($context, $job);
-        } finally {
-            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        } catch (\Throwable $e) {
+            try {
+                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                    $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                }
+            } catch (\Throwable $e2) {
+                throw new \RuntimeException(sprintf(
+                    'Error while releasing job lock after another error: %s (First error was: %s)',
+                    $e2->getMessage(),
+                    $e->getMessage(),
+                ), 0, $e);
             }
+
+            throw $e;
         }
+
+        $this->runJob($context, $job);
     }
 
     private function persistJobState(JobState $jobState): void
