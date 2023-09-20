@@ -129,11 +129,21 @@ class WorkflowOrchestrator
                     continue;
                 }
 
-                $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
-                    $this->stateRepository->removeJobState($workflowId, $jobId);
+                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                    $this->stateRepository->acquireJobLock($workflowId, $jobId);
+                }
 
-                    $jobsToTrigger[] = $jobId;
+                try {
+                    $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+                    if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
+                        $this->stateRepository->removeJobState($workflowId, $jobId);
+
+                        $jobsToTrigger[] = $jobId;
+                    }
+                } finally {
+                    if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                        $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                    }
                 }
 
                 if (null !== $jobIdFilter) {
@@ -232,12 +242,15 @@ class WorkflowOrchestrator
             $this->stateRepository->acquireJobLock($workflowId, $jobId);
         }
 
-        $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
-        $this->stateRepository->persistJobState($jobState);
-
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        try {
+            $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
+            $this->stateRepository->persistJobState($jobState);
+        } finally {
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->releaseJobLock($workflowId, $jobId);
+            }
         }
+
 
         return $this->trigger->triggerJob($state->getId(), $jobId);
     }

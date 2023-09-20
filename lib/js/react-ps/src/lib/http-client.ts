@@ -40,7 +40,7 @@ export function createHttpClient(baseURL: string): HttpClient {
 
         const responseTime = new Date().getTime() - meta.requestStartedAt!;
         meta.responseTime = responseTime;
-        console.log(`Execution time for: ${r.config.method?.toUpperCase()} ${r.config.url} - ${responseTime} ms`)
+        console.debug(`Execution time for: ${r.config.method?.toUpperCase()} ${r.config.url} - ${responseTime} ms`)
 
         return r;
     }, (error: AxiosError) => {

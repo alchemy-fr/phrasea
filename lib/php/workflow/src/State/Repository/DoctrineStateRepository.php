@@ -69,6 +69,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         if ($entity instanceof JobStateEntity) {
             $this->em->remove($entity);
             $this->em->flush();
+
+            unset($this->jobs[$workflowId][$jobId]);
         }
     }
 

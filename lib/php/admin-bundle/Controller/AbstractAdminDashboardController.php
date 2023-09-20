@@ -45,6 +45,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
+            ->setFaviconPath('favicon.ico')
             ->setTitle('<div>'.($this->adminConfigRegistry->getSiteLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>');
     }
 

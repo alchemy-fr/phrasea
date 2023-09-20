@@ -21,7 +21,6 @@ export default class CollectionsPanel extends PureComponent<{}, State> {
     }
 
     render() {
-        console.log('this.state.workspaces', this.state.workspaces);
         return <>
             {this.state.workspaces.map(w => <WorkspaceMenuItem
                 {...w}
