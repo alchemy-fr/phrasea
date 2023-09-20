@@ -1,6 +1,6 @@
 parameters:
   env(REPORT_API_URL): ''
-  alchemy_report.report_base_url: '%env(REPORT_API_URL)%'
+  alchemy_report.report_url: '%env(REPORT_API_URL)%'
 
 services:
   _defaults:
@@ -11,7 +11,7 @@ services:
     class: GuzzleHttp\Client
     arguments:
       -
-        base_uri: "%alchemy_report.report_base_url%"
+        base_uri: "%alchemy_report.report_url%"
         timeout: 3.0
         connect_timeout: 0.5
         http_errors: false
@@ -26,4 +26,4 @@ services:
 
   Alchemy\ReportBundle\ReportUserService:
     arguments:
-      $reportBaseUrl: "%alchemy_report.report_base_url%"
+      $reportBaseUrl: "%alchemy_report.report_url%"
