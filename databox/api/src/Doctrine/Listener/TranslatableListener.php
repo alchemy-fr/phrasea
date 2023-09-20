@@ -19,7 +19,7 @@ readonly class TranslatableListener implements EventSubscriber
 
     public function prePersist(PrePersistEventArgs $args): void
     {
-        $object = $args->getEntity();
+        $object = $args->getObject();
 
         if ($object instanceof TranslatableInterface) {
             if (!$object->hasLocale()) {

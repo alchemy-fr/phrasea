@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Security\Voter\ChuckNorrisVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait SecurityAwareTrait
@@ -64,5 +65,12 @@ trait SecurityAwareTrait
         }
 
         return $user;
+    }
+
+    public function denyAccessUnlessGranted(mixed $attributes, mixed $subject = null, ?string $message = null): void
+    {
+        if (!$this->isGranted($attributes, $subject)) {
+            throw new AccessDeniedException($message ?? 'Access denied.');
+        }
     }
 }

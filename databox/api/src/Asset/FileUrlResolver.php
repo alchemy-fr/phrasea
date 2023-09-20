@@ -7,9 +7,9 @@ namespace App\Asset;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Core\File;
 
-class FileUrlResolver
+final readonly class FileUrlResolver
 {
-    public function __construct(private readonly UrlSigner $urlSigner)
+    public function __construct(private UrlSigner $urlSigner)
     {
     }
 

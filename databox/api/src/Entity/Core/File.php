@@ -76,7 +76,7 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $extension = null;
 
-    #[ORM\Column(type: 'array', nullable: true)]
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $alternateUrls = null;
 
     /**

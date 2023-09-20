@@ -119,7 +119,7 @@ class DeferredIndexListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $uow = $args->getEntityManager()->getUnitOfWork();
+        $uow = $args->getObjectManager()->getUnitOfWork();
 
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             if ($collection instanceof PersistentCollection) {

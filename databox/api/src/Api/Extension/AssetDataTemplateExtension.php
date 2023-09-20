@@ -15,9 +15,9 @@ use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
-class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
+readonly class AssetDataTemplateExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private readonly Security $security, private readonly ObjectMapping $objectMapping)
+    public function __construct(private Security $security, private ObjectMapping $objectMapping)
     {
     }
 

@@ -6,6 +6,7 @@ namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetRendition;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\RenditionVoter;
 
 class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvider
@@ -23,6 +24,6 @@ class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvide
             ->getQuery()
             ->getResult();
 
-        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(RenditionVoter::READ, $rendition));
+        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(AbstractVoter::READ, $rendition));
     }
 }

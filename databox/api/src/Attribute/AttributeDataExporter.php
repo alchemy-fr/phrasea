@@ -9,9 +9,9 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AttributeDataExporter
+final readonly class AttributeDataExporter
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 

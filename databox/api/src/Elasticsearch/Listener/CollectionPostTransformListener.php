@@ -11,9 +11,9 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class CollectionPostTransformListener implements EventSubscriberInterface
+final readonly class CollectionPostTransformListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly PermissionManager $permissionManager)
+    public function __construct(private PermissionManager $permissionManager)
     {
     }
 

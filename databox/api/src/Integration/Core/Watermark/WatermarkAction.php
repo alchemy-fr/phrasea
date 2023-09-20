@@ -43,7 +43,9 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
 
         $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
             ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrName, $asset->getWorkspaceId()));
-        $text = $attributes[$attrDef->getId()][IndexMappingUpdater::NO_LOCALE]?->getValue() ?? null;
+
+        $attr = $attributes[$attrDef->getId()][IndexMappingUpdater::NO_LOCALE] ?? null;
+        $text = $attr?->getValue() ?? null;
 
         if (empty($text)) {
             return;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Border\Model;
 
-class FileContent
+final readonly class FileContent
 {
-    public function __construct(private readonly InputFile $file, private readonly string $path)
+    public function __construct(private InputFile $file, private string $path)
     {
     }
 

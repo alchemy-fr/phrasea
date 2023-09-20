@@ -23,7 +23,7 @@ class CollectionListener implements EventSubscriber
 
     public function postUpdate(PostUpdateEventArgs $args): void
     {
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if (!$entity instanceof Collection) {
             return;
@@ -33,7 +33,7 @@ class CollectionListener implements EventSubscriber
             'public',
             'owner',
             'parent',
-        ], $args->getEntityManager(), $entity)) {
+        ], $args->getObjectManager(), $entity)) {
             return;
         }
 

@@ -24,10 +24,8 @@ use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
-use App\Controller\Core\CopyAssetsAction;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use App\Controller\Core\MoveAssetsAction;
 use App\Controller\Core\MultipleAssetCreate;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
@@ -81,14 +79,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Post(
             uriTemplate: '/assets/move',
-            controller: MoveAssetsAction::class,
             input: MoveAssetInput::class,
             name: 'post_move',
             processor: MoveAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/copy',
-            controller: CopyAssetsAction::class,
             input: CopyAssetInput::class,
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
@@ -149,7 +145,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $pendingUploadToken = null;
 
-    #[ORM\OneToMany(targetEntity: CollectionAsset::class, mappedBy: 'asset', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
@@ -167,7 +163,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
-    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'asset', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
     #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]

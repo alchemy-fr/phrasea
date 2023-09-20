@@ -6,9 +6,9 @@ namespace App\Api\Serializer;
 
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
 
-class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
+final readonly class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
 {
-    public function __construct(private readonly NormalizerContextBuilderInterface $decorated)
+    public function __construct(private NormalizerContextBuilderInterface $decorated)
     {
     }
 

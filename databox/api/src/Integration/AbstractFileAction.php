@@ -8,6 +8,7 @@ use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;

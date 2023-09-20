@@ -19,6 +19,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Security\Voter\CollectionVoter;
 use App\Util\SecurityAwareTrait;
@@ -157,7 +158,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset
         ): Collection => $collectionAsset->getCollection())
-            ->filter(fn (Collection $collection): bool => $this->isGranted(CollectionVoter::LIST, $collection))
+            ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
             ->getValues());
 
         if (null !== $data->getPendingUploadToken()) {
@@ -167,11 +168,11 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AssetVoter::EDIT, $data),
+                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
                 'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
-                'canDelete' => $this->isGranted(AssetVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AssetVoter::EDIT_PERMISSIONS, $data),
+                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

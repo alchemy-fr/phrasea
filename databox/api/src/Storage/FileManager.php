@@ -10,9 +10,9 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 
-class FileManager
+final readonly class FileManager
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $filePathGenerator)
+    public function __construct(private EntityManagerInterface $em, private FileStorageManager $storageManager, private FilePathGenerator $filePathGenerator)
     {
     }
 

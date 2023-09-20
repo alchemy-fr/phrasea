@@ -56,7 +56,7 @@ final class PostFlushStack implements EventSubscriber
         $this->callbacks = [];
         $this->events = [];
 
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
         if ($em->getConnection()->getTransactionNestingLevel() > 0) {
             while ($callback = array_shift($callbacks)) {
                 $this->terminateStackListener->addCallback($callback);

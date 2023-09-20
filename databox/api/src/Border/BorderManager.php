@@ -13,9 +13,9 @@ use App\Entity\Core\Workspace;
 use App\Storage\FilePathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 
-class BorderManager
+final readonly class BorderManager
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly UriDownloader $fileDownloader, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $pathGenerator)
+    public function __construct(private EntityManagerInterface $em, private UriDownloader $fileDownloader, private FileStorageManager $storageManager, private FilePathGenerator $pathGenerator)
     {
     }
 

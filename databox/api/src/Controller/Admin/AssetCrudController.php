@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
@@ -54,11 +55,16 @@ class AssetCrudController extends AbstractAclAdminCrudController
         /** @var Asset $asset */
         $asset = $context->getEntity()->getInstance();
 
+        $user = $context->getUser();
+        if (!$user instanceof JwtUser) {
+            throw new \InvalidArgumentException(sprintf('Invalid user: %s', get_debug_type($user)));
+        }
+
         $this->workflowOrchestrator->dispatchEvent(new WorkflowEvent('asset_ingest', [
             'assetId' => $asset->getId(),
             'workspaceId' => $asset->getWorkspaceId(),
         ]), [
-            WorkflowState::INITIATOR_ID => $context->getUser()->getId(),
+            WorkflowState::INITIATOR_ID => $user->getId(),
         ]);
 
         return $this->redirect($context->getReferrer());

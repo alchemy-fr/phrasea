@@ -25,9 +25,9 @@ readonly class CacheInvalidatorListener implements EventSubscriber
 
     private function invalidateEntity(LifecycleEventArgs $args): void
     {
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
 
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof AbstractUuidEntity) {
             $repo = $em->getRepository($entity::class);

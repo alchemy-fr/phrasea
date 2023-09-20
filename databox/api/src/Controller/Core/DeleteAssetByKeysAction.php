@@ -6,6 +6,7 @@ namespace App\Controller\Core;
 
 use App\Consumer\Handler\Asset\AssetDeleteHandler;
 use App\Entity\Core\Asset;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,7 +36,7 @@ class DeleteAssetByKeysAction extends AbstractController
             ->findByKeys($keys, $workspaceId);
 
         foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AssetVoter::DELETE, $asset);
+            $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
             $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
         }
 

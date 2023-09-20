@@ -10,9 +10,9 @@ use App\Storage\FileManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class FileUploadManager
+final readonly class FileUploadManager
 {
-    public function __construct(private readonly FileManager $fileManager)
+    public function __construct(private FileManager $fileManager)
     {
     }
 

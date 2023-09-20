@@ -73,7 +73,7 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     /**
      * @var AttributeDefinition[]
      */
-    #[ORM\OneToMany(targetEntity: AttributeDefinition::class, mappedBy: 'class', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'class', targetEntity: AttributeDefinition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
 
     /**

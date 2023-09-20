@@ -20,7 +20,7 @@ class DateAttributeType extends DateTimeAttributeType
                 $date = clone $value;
             }
 
-            $date->setTime(0, 0, 0);
+            $date->setTime(0, 0);
 
             return $date->format(\DateTimeInterface::ATOM);
         }

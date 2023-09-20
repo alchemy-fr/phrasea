@@ -33,7 +33,7 @@ class CollectionSearch extends AbstractSearch
 
         $query = new Query();
         $query->setQuery($filterQuery);
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setSort([
             'sortName' => ['order' => 'asc'],
         ]);

@@ -41,7 +41,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
             case self::ACTION_DELETE:
                 $dataId = $request->request->get('id');
                 if (!$dataId) {
-                    throw new BadRequestHttpException(sprintf('Missing "id"'));
+                    throw new BadRequestHttpException('Missing "id"');
                 }
                 $this->integrationDataManager->deleteById($wsIntegration, $dataId);
 

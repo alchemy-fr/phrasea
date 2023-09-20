@@ -99,6 +99,8 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                 'workspaceIntegration' => $workspaceIntegration,
             ] = $config;
 
+            assert($integration instanceof WorkflowIntegrationInterface);
+
             /** @var Job $jobDefinition */
             foreach ($integration->getWorkflowJobDefinitions($config, $workflow) as $jobDefinition) {
                 $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);

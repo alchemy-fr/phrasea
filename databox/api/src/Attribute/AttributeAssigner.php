@@ -10,9 +10,9 @@ use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Util\LocaleUtils;
 
-class AttributeAssigner
+final readonly class AttributeAssigner
 {
-    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
+    public function __construct(private AttributeTypeRegistry $attributeTypeRegistry)
     {
     }
 

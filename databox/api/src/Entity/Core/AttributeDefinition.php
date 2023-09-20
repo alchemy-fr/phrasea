@@ -103,7 +103,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     /**
      * @var Attribute[]
      */
-    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'definition', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'definition', targetEntity: Attribute::class, cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
@@ -111,7 +111,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    #[Gedmo\Slug(fields: ['name'], style: 'lower', separator: '', unique: false)]
+    #[Gedmo\Slug(fields: ['name'], style: 'lower', unique: false, separator: '')]
     private ?string $slug = null;
 
     /**
@@ -165,7 +165,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'array', nullable: true)]
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $fallback = null;
 
     /**

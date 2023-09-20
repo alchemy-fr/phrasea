@@ -17,9 +17,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AssetDataTemplateSearch
+final readonly class AssetDataTemplateSearch
 {
-    public function __construct(private readonly PaginatedFinderInterface $finder, private readonly Security $security, private readonly EntityIriConverter $iriConverter)
+    public function __construct(private PaginatedFinderInterface $finder, private Security $security, private EntityIriConverter $iriConverter)
     {
     }
 
@@ -82,7 +82,7 @@ class AssetDataTemplateSearch
         }
 
         $query = new Query();
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
         $query->setSort([
             'collectionDepth' => 'asc',

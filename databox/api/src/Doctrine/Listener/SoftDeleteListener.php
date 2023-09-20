@@ -22,7 +22,7 @@ readonly class SoftDeleteListener implements EventSubscriber
 
     public function preSoftDelete(LifecycleEventArgs $args): void
     {
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof SoftDeleteableInterface) {
             if (null !== $entity->getDeletedAt()) {
@@ -37,8 +37,6 @@ readonly class SoftDeleteListener implements EventSubscriber
             }
             if ($entity instanceof Workspace) {
                 $this->postFlushStack->addEvent(DeleteWorkspaceHandler::createEvent($entity->getId()));
-
-                return;
             }
         }
     }

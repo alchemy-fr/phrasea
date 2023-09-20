@@ -22,10 +22,15 @@ class FileVoter extends AbstractVoter
     {
         $assets = $this->em->createQueryBuilder('a')
             ->select('a')
+            ->distinct()
             ->from(Asset::class, 'a')
             ->leftJoin('a.renditions', 'r')
-            ->andWhere('a.file = :f OR r.file = :f')
-            ->addGroupBy('a.id');
+            ->andWhere('a.source = :f OR r.file = :f')
+            ->addGroupBy('a.id')
+            ->setParameter('f', $subject->getId())
+            ->getQuery()
+            ->toIterable()
+        ;
 
         foreach ($assets as $asset) {
             if ($this->security->isGranted($attribute, $asset)) {

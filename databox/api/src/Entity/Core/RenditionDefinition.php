@@ -137,7 +137,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     /**
      * @var AssetRendition[]
      */
-    #[ORM\OneToMany(targetEntity: AssetRendition::class, mappedBy: 'definition', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'definition', targetEntity: AssetRendition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $renditions = null;
 
     public function __construct()

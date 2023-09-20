@@ -101,9 +101,9 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     private ?DoctrineCollection $tags = null;
 
     /**
-     * @var TemplateAttribute[]
+     * @var DoctrineCollection<TemplateAttribute>|null
      */
-    #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'template', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'template', targetEntity: TemplateAttribute::class, cascade: ['persist', 'remove'])]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?DoctrineCollection $attributes = null;
 

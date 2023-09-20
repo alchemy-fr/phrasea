@@ -14,7 +14,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class SameWorkspaceConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly PropertyAccessorInterface $propertyAccessor)
+    public function __construct(private PropertyAccessorInterface $propertyAccessor)
     {
     }
 

@@ -14,7 +14,8 @@ use Doctrine\ORM\QueryBuilder;
 
 class WorkflowStateExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly EntityManagerInterface $em)
+    public function __construct(
+    )
     {
     }
 

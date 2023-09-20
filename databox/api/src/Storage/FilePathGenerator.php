@@ -6,9 +6,9 @@ namespace App\Storage;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
 
-class FilePathGenerator
+final readonly class FilePathGenerator
 {
-    public function __construct(private readonly PathGenerator $pathGenerator)
+    public function __construct(private PathGenerator $pathGenerator)
     {
     }
 

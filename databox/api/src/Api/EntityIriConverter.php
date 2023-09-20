@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use ApiPlatform\Api\IriConverterInterface;
-use ApiPlatform\Core\Exception\ItemNotFoundException;
+use ApiPlatform\Exception\ItemNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class EntityIriConverter

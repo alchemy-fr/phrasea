@@ -8,6 +8,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
@@ -113,7 +114,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $query = new Query();
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
 
         $this->applySort($query, $options);
@@ -137,7 +138,7 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AssetVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage((int) $options['page']);
