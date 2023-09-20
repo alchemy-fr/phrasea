@@ -25,9 +25,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(security: 'is_granted("READ_META", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
-            defaults: ['_api_respond' => true],
             controller: AssetAckAction::class,
             security: 'is_granted("'.AssetVoter::ACK.'", object)',
+            deserialize: false,
             name: 'post_ack',
         ),
         new GetCollection(),

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiController extends AbstractController
 {
     #[Route(path: '/send-email')]
-    public function sendEmail(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    public function sendEmail(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->sendEmail($request);
 
@@ -22,7 +22,7 @@ class ApiController extends AbstractController
     }
 
     #[Route(path: '/notify-user')]
-    public function notifyUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    public function notifyUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->notifyUser($request);
 
@@ -30,7 +30,7 @@ class ApiController extends AbstractController
     }
 
     #[Route(path: '/notify-topic/{topic}')]
-    public function notifyTopic(string $topic, Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    public function notifyTopic(string $topic, Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->notifyTopic($topic, $request);
 
@@ -38,7 +38,7 @@ class ApiController extends AbstractController
     }
 
     #[Route(path: '/register-user')]
-    public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->registerUser($request);
 
@@ -46,7 +46,7 @@ class ApiController extends AbstractController
     }
 
     #[Route(path: '/delete-user')]
-    public function deleteUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    public function deleteUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->deleteUser($request);
 

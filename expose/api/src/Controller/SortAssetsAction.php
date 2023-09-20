@@ -15,7 +15,7 @@ final class SortAssetsAction extends AbstractAssetAction
     {
         $publication = $this->getPublication($id, PublicationVoter::EDIT);
 
-        $order = $request->request->get('order', []);
+        $order = $request->request->all('order');
         if (empty($order)) {
             throw new BadRequestHttpException('Missing order');
         }

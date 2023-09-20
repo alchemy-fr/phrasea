@@ -8,6 +8,8 @@ services:
         calls:
             - [includeStacktraces]
 
-    Monolog\Handler\TestHandler:
-        public: true
-        alias: monolog.handler.test
+when@test:
+    services:
+        Monolog\Handler\TestHandler:
+            public: true
+            alias: monolog.handler.test

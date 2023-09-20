@@ -14,13 +14,13 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class MailerRabbitProxy
+final readonly class MailerRabbitProxy
 {
-    public function __construct(private readonly EventProducer $eventProducer, private readonly Mailer $mailer)
+    public function __construct(private EventProducer $eventProducer, private Mailer $mailer)
     {
     }
 
-    public function sendEmail(Request $request)
+    public function sendEmail(Request $request): void
     {
         $email = $request->request->get('email');
         if (!$email) {
@@ -31,13 +31,10 @@ class MailerRabbitProxy
             throw new BadRequestHttpException('Missing template');
         }
         $locale = $request->request->get('locale');
-        if (!$template) {
+        if (!$locale) {
             throw new BadRequestHttpException('Missing locale');
         }
-        $parameters = $request->request->get('parameters', []);
-        if (!is_array($parameters)) {
-            throw new BadRequestHttpException('parameters must be an array');
-        }
+        $parameters = $request->request->all('parameters');
 
         $this->mailer->validateParameters($template, $parameters);
 
@@ -49,26 +46,20 @@ class MailerRabbitProxy
         ]));
     }
 
-    public function notifyUser(Request $request)
+    public function notifyUser(Request $request): void
     {
         $userId = $request->request->get('user_id');
         if (!$userId) {
             throw new BadRequestHttpException('Missing user_id');
         }
-        $contactInfo = $request->request->get('contact_info', []);
-        if (!is_array($contactInfo)) {
-            throw new BadRequestHttpException('contact_info must be an array');
-        }
+        $contactInfo = $request->request->get('contact_info');
 
         $template = $request->request->get('template');
         if (!$template) {
             throw new BadRequestHttpException('Missing template');
         }
 
-        $parameters = $request->request->get('parameters', []);
-        if (!is_array($parameters)) {
-            throw new BadRequestHttpException('parameters must be an array');
-        }
+        $parameters = $request->request->all('parameters');
 
         $this->mailer->validateParameters($template, $parameters);
 
@@ -80,17 +71,14 @@ class MailerRabbitProxy
         ]));
     }
 
-    public function notifyTopic(string $topic, Request $request)
+    public function notifyTopic(string $topic, Request $request): void
     {
         $template = $request->request->get('template');
         if (!$template) {
             throw new BadRequestHttpException('Missing template');
         }
 
-        $parameters = $request->request->get('parameters', []);
-        if (!is_array($parameters)) {
-            throw new BadRequestHttpException('parameters must be an array');
-        }
+        $parameters = $request->request->all('parameters');
 
         $this->mailer->validateParameters($template, $parameters);
 
@@ -101,7 +89,7 @@ class MailerRabbitProxy
         ]));
     }
 
-    public function registerUser(Request $request)
+    public function registerUser(Request $request): void
     {
         $userId = $request->request->get('user_id');
         if (!$userId) {
@@ -121,7 +109,7 @@ class MailerRabbitProxy
         ]));
     }
 
-    public function deleteUser(Request $request)
+    public function deleteUser(Request $request): void
     {
         $userId = $request->request->get('user_id');
         if (!$userId) {

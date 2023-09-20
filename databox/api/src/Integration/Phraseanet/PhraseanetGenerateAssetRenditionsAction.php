@@ -62,7 +62,6 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
                 $config['token'],
             )->request('POST', '/api/v3/subdefs_service/', [
                 'json' => $data,
-                'read_timeout' => 10,
             ]);
         } catch (ClientException $e) {
             $this->logger->debug('Payload sent before error: '.json_encode($data, JSON_THROW_ON_ERROR));

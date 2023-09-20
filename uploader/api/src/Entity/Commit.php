@@ -30,8 +30,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     new Get(security: 'is_granted("READ", object)'),
     new Post(
         uriTemplate: '/commits/{id}/ack',
-        defaults: ['_api_receive' => false, '_api_respond' => true],
         controller: CommitAckAction::class,
+        deserialize: false,
         name: 'ack',
     ),
     new Post(
