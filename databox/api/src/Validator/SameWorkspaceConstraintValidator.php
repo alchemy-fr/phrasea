@@ -29,7 +29,7 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
 
             foreach ($workspaces as $workspace) {
                 /* @var Workspace $workspace */
-                $wId = $workspace ? $workspace->getId() : null;
+                $wId = $workspace?->getId();
 
                 if (null === $wId) {
                     return;

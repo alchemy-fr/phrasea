@@ -86,6 +86,18 @@ abstract class AbstractSearch
         return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
+    protected function findEntityByIds(string $entityName, array $ids): array
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('t')
+            ->from($entityName, 't')
+            ->where('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
     #[Required]
     public function setEm(EntityManagerInterface $em): void
     {

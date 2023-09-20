@@ -73,7 +73,7 @@ class IntegrationDataManager
 
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
-            'file' => $file ? $file->getId() : null,
+            'file' => $file?->getId(),
             'name' => $name,
         ];
 

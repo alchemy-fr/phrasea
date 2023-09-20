@@ -19,7 +19,7 @@ class AceEditorType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        // Remove id from ace editor wrapper attributes. Id must be generated.
+        // Remove id from ace editor wrapper attributes. ID must be generated.
         $wrapperAttrNormalizer = function (Options $options, $aceAttr) {
             if (is_array($aceAttr)) {
                 if (array_key_exists('id', $aceAttr)) {

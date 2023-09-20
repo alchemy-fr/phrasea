@@ -103,7 +103,7 @@ final readonly class AssetDataTemplateSearch
 
     protected function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): ?Query\BoolQuery
     {
-        $workspaceId = $filters['workspace'] ?? ($collection ? $collection->getWorkspaceId() : null) ?? null;
+        $workspaceId = $filters['workspace'] ?? ($collection?->getWorkspaceId()) ?? null;
 
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');

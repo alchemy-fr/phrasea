@@ -15,7 +15,7 @@ interface WorkspaceItemPrivacyInterface
     // Open to users allowed in the workspace
     public const PUBLIC_IN_WORKSPACE = 2;
 
-    // Item is listed to every users, but content is not accessible
+    // Item is listed to every user, but content is not accessible
     public const PRIVATE = 3;
 
     // Public to every authenticated users

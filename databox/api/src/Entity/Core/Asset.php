@@ -339,11 +339,8 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getReferenceCollectionId(): ?string
     {
-        if (!$this->referenceCollection) {
-            return null;
-        }
+        return $this->referenceCollection?->getId();
 
-        return $this->referenceCollection->getId();
     }
 
     public function getReferenceCollection(): ?Collection

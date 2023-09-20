@@ -140,29 +140,4 @@ class CollectionSearch extends AbstractSearch
     {
         return $this->findEntityByIds(Collection::class, $ids);
     }
-
-    private function findCollection(string $id): Collection
-    {
-        return $this->em->find(Collection::class, $id);
-    }
-
-    /**
-     * @return Workspace[]
-     */
-    private function findWorkspaces(array $ids): array
-    {
-        return $this->findEntityByIds(Workspace::class, $ids);
-    }
-
-    private function findEntityByIds(string $entityName, array $ids): array
-    {
-        return $this->em
-            ->createQueryBuilder()
-            ->select('t')
-            ->from($entityName, 't')
-            ->where('t.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
-    }
 }
