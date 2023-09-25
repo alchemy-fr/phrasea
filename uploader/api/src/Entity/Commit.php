@@ -108,12 +108,12 @@ class Commit extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['asset:read', 'commit:read'])]
-    private ?\DateTime $acknowledgedAt = null;
+    private ?\DateTimeImmutable $acknowledgedAt = null;
 
     #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['asset:read', 'commit:read'])]
-    private readonly \DateTime $createdAt;
+    private readonly \DateTimeImmutable $createdAt;
 
     /**
      * Not mapped.
@@ -125,7 +125,7 @@ class Commit extends AbstractUuidEntity
     {
         parent::__construct();
         $this->assets = new ArrayCollection();
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     #[Groups(['asset:read', 'commit:read'])]
@@ -254,7 +254,7 @@ class Commit extends AbstractUuidEntity
         return $instance;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -267,7 +267,7 @@ class Commit extends AbstractUuidEntity
     public function setAcknowledged(bool $acknowledged): void
     {
         if ($acknowledged) {
-            $this->acknowledgedAt = new \DateTime();
+            $this->acknowledgedAt = new \DateTimeImmutable();
         }
         $this->acknowledged = $acknowledged;
     }

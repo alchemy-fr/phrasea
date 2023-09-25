@@ -47,11 +47,11 @@ class Contact implements \Stringable
     protected $locale;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private readonly \DateTime $createdAt;
+    private readonly \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->id = Uuid::uuid4();
     }
 
@@ -100,7 +100,7 @@ class Contact implements \Stringable
         $this->locale = $locale;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -26,8 +26,8 @@ class AssetRepository extends EntityRepository
      */
     public function findExpiredAssets(int $maxDaysRetention): iterable
     {
-        $expirationDate = new \DateTime();
-        $expirationDate->sub(new \DateInterval('P'.$maxDaysRetention.'D'));
+        $expirationDate = (new \DateTimeImmutable())
+            ->sub(new \DateInterval('P'.$maxDaysRetention.'D'));
 
         return $this
             ->createQueryBuilder('a')

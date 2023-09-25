@@ -12,8 +12,8 @@ abstract class Time
             return '0 seconds';
         }
 
-        $t1 = new \DateTime();
-        $t2 = new \DateTime("+$time seconds");
+        $t1 = new \DateTimeImmutable();
+        $t2 = new \DateTimeImmutable("+$time seconds");
         $diff = $t1->diff($t2);
         $units = [
             'days' => 'day',

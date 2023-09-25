@@ -6,6 +6,12 @@ import {BrowserRouter} from "react-router-dom";
 import ModalStack from "../hooks/useModalStack";
 import UserPreferencesProvider from "./User/Preferences/UserPreferencesProvider";
 import {oauthClient} from "../api/api-client";
+import {toast} from "react-toastify";
+import {
+    loginEventType,
+    logoutEventType,
+    sessionExpiredEventType,
+} from 'react-ps';
 
 type Props = {};
 
@@ -28,8 +34,11 @@ export default function Root({}: Props) {
             setUser(undefined);
         };
 
-        oauthClient.registerListener('login', onLogin);
-        oauthClient.registerListener('logout', onLogout);
+        oauthClient.registerListener(loginEventType, onLogin);
+        oauthClient.registerListener(logoutEventType, onLogout);
+        oauthClient.registerListener(sessionExpiredEventType, async () => {
+            toast.warning('Session has expired')
+        });
 
         if (oauthClient.isAuthenticated()) {
             onLogin();
@@ -38,13 +47,13 @@ export default function Root({}: Props) {
         }
 
         return () => {
-            oauthClient.unregisterListener('login', onLogin);
-            oauthClient.unregisterListener('logout', onLogout);
+            oauthClient.unregisterListener(loginEventType, onLogin);
+            oauthClient.unregisterListener(logoutEventType, onLogout);
         }
     }, [setUser]);
 
-    const logout = React.useCallback(() => {
-        oauthClient.logout();
+    const logout = React.useCallback((redirectUri: string|false = '/') => {
+        oauthClient.logout(redirectUri);
     }, []);
 
     return <UserContext.Provider value={{

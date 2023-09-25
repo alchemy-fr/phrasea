@@ -26,25 +26,26 @@ type UserInfoResponse = {
     sub: string;
 }
 
-type AuthEvent = {
+export type AuthEvent = {
     type: string;
 };
 
-type LoginEvent = {
-    accessToken: string;
+export type LoginEvent = {
+    response: TokenResponse;
 } & AuthEvent;
 
-type AuthenticationEvent = {
-    user: UserInfoResponse;
+export type RefreshTokenEvent = {
+    response: TokenResponse;
 } & AuthEvent;
 
-type LogoutEvent = AuthEvent;
+export type LogoutEvent = AuthEvent;
 
-type AuthEventHandler = (event: AuthEvent) => Promise<void>;
+export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
 
-export const authenticationEventType = 'authentication';
 export const loginEventType = 'login';
+export const refreshTokenEventType = 'refreshToken';
 export const logoutEventType = 'logout';
+export const sessionExpiredEventType = 'sessionExpired';
 
 export interface IStorage {
     getItem(key: string): string | null;
@@ -61,12 +62,13 @@ type Options = {
 }
 
 export default class OAuthClient {
+    public tokenPromise: Promise<any> | undefined;
     private listeners: Record<string, AuthEventHandler[]> = {};
     private clientId: string;
     private baseUrl: string;
     private storage: IStorage;
     private tokensCache: TokenResponse | undefined;
-    public tokenPromise: Promise<any> | undefined;
+    private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
 
     constructor({
         clientId,
@@ -128,12 +130,14 @@ export default class OAuthClient {
         return jwtDecode<UserInfoResponse>(accessToken);
     }
 
-    logout(redirectPath: string = '/'): void {
-        this.storage.removeItem(tokenStorageKey);
-        this.tokensCache = undefined;
-        this.triggerEvent(logoutEventType);
+    logout(redirectPath: string | false = '/'): void {
+        this.clearSessionTimeout();
 
-        document.location.href = this.createLogoutUrl({redirectPath});
+        this.doLogout();
+
+        if (false !== redirectPath) {
+            document.location.href = this.createLogoutUrl({redirectPath});
+        }
     }
 
     registerListener(event: string, callback: AuthEventHandler): void {
@@ -154,16 +158,6 @@ export default class OAuthClient {
         }
     }
 
-    private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
-        event.type = type;
-
-        if (!this.listeners[type]) {
-            return Promise.resolve();
-        }
-
-        await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
-    }
-
     public async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
         const res = await this.getToken({
             code,
@@ -173,7 +167,11 @@ export default class OAuthClient {
 
         this.persistTokens(res);
 
-        await this.triggerEvent(loginEventType);
+        this.handleSessionTimeout(res);
+
+        await this.triggerEvent<LoginEvent>(loginEventType, {
+            response: res,
+        });
 
         return res;
     }
@@ -183,6 +181,12 @@ export default class OAuthClient {
             const res = await this.getToken({
                 refresh_token: this.getRefreshToken()!,
                 grant_type: 'refresh_token',
+            });
+
+            this.handleSessionTimeout(res);
+
+            await this.triggerEvent<RefreshTokenEvent>(refreshTokenEventType, {
+                response: res,
             });
 
             return res;
@@ -242,6 +246,46 @@ export default class OAuthClient {
         const queryString = `client_id=${encodeURIComponent(this.clientId)}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
 
         return `${this.baseUrl}/logout?${queryString}`;
+    }
+
+    public getTokenResponse(): TokenResponse | undefined {
+        return this.fetchTokens();
+    }
+
+    private doLogout(): void {
+        this.triggerEvent(logoutEventType);
+        this.storage.removeItem(tokenStorageKey);
+        this.tokensCache = undefined;
+    }
+
+    private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
+        event.type = type;
+
+        if (!this.listeners[type]) {
+            return Promise.resolve();
+        }
+
+        await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
+    }
+
+    private handleSessionTimeout(res: TokenResponse): void {
+        this.clearSessionTimeout();
+
+        this.sessionTimeout = setTimeout(() => {
+            this.sessionExpired();
+        }, res.refresh_expires_in * 1000);
+    }
+
+    private sessionExpired(): void {
+        this.triggerEvent<LogoutEvent>(sessionExpiredEventType);
+        this.doLogout();
+    }
+
+    private clearSessionTimeout(): void {
+        if (this.sessionTimeout) {
+            clearTimeout(this.sessionTimeout);
+            this.sessionTimeout = undefined;
+        }
     }
 
     private persistTokens(token: TokenResponse): void {

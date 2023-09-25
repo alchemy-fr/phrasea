@@ -2,11 +2,17 @@ import IdentityProviders from "./components/IdentityProviders";
 import FormLayout from "./components/FormLayout";
 import DashboardMenu from "./components/DashboardMenu/DashboardMenu";
 import OAuthClient, {
-    authenticationEventType,
     loginEventType,
     logoutEventType,
+    sessionExpiredEventType,
+    refreshTokenEventType,
     RequestConfigWithAuth,
     configureClientAuthentication,
+    RefreshTokenEvent,
+    AuthEventHandler,
+    LoginEvent,
+    AuthEvent,
+    LogoutEvent,
 } from "./lib/oauth-client";
 
 import {
@@ -22,11 +28,17 @@ export {
     OAuthClient,
     RequestConfigWithAuth,
     configureClientAuthentication,
-    authenticationEventType,
     loginEventType,
     logoutEventType,
+    sessionExpiredEventType,
+    refreshTokenEventType,
     DashboardMenu,
     createHttpClient,
     RequestConfig,
     useEffectOnce,
+    RefreshTokenEvent,
+    AuthEventHandler,
+    LoginEvent,
+    AuthEvent,
+    LogoutEvent,
 };

@@ -20,6 +20,7 @@ services:
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
             ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
+            bool $useAlias: '%elastica.use_alias%'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:

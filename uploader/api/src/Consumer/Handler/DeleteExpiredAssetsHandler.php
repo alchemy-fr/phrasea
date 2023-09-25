@@ -26,8 +26,8 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
             return;
         }
 
-        $date = new \DateTime();
-        $date->setTimestamp(time() - $this->deleteAssetGracefulTime);
+        $date = (new \DateTimeImmutable())
+            ->setTimestamp(time() - $this->deleteAssetGracefulTime);
 
         $em = $this->getEntityManager();
         $commits = $em

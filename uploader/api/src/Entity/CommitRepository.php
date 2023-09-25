@@ -11,7 +11,7 @@ class CommitRepository extends EntityRepository
     /**
      * @return Commit[]
      */
-    public function getAcknowledgedBefore(\DateTime $date): array
+    public function getAcknowledgedBefore(\DateTimeImmutable $date): array
     {
         return $this
             ->createQueryBuilder('c')

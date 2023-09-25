@@ -9,7 +9,10 @@ use FOS\ElasticaBundle\Exception\AliasIsIndexException;
 
 readonly class ElasticsearchClient
 {
-    public function __construct(private Client $client)
+    public function __construct(
+        private Client $client,
+        private bool $useAlias,
+    )
     {
     }
 
@@ -29,6 +32,10 @@ readonly class ElasticsearchClient
      */
     public function getAliasedIndex(string $aliasName): ?string
     {
+        if (!$this->useAlias) {
+            return $aliasName;
+        }
+
         $aliasesInfo = $this->client->request('_aliases', 'GET')->getData();
         $aliasedIndexes = [];
 

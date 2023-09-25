@@ -176,7 +176,7 @@ class Asset extends AbstractUuidEntity
     #[ApiProperty]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups('asset:read')]
-    private \DateTime $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $userId = null;
@@ -184,7 +184,7 @@ class Asset extends AbstractUuidEntity
     public function __construct()
     {
         parent::__construct();
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     #[Groups('asset:read')]
@@ -241,13 +241,13 @@ class Asset extends AbstractUuidEntity
     #[Groups('asset:read')]
     public function getFormData(): ?array
     {
-        return $this->commit ? $this->commit->getFormData() : null;
+        return $this->commit?->getFormData();
     }
 
     #[ApiProperty]
     public function getToken(): ?string
     {
-        return $this->commit ? $this->commit->getToken() : null;
+        return $this->commit?->getToken();
     }
 
     public function getCommit(): ?Commit
@@ -260,7 +260,7 @@ class Asset extends AbstractUuidEntity
         $this->commit = $commit;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

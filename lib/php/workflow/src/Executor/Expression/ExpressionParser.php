@@ -32,7 +32,7 @@ class ExpressionParser extends ExpressionLanguage
         return $this->replaceVars($expression, $variables);
     }
 
-    protected function registerFunctions()
+    protected function registerFunctions(): void
     {
         parent::registerFunctions();
 

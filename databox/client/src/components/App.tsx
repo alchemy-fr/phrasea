@@ -94,7 +94,7 @@ export default function App() {
             switch (status) {
                 case 401:
                     toast.error(t('error.session_expired', 'Your session has expired'));
-                    userContext.logout && userContext.logout();
+                    userContext.logout && userContext.logout(false);
                     break;
                 case 403:
                     toast.error(t('error.http_unauthorized', 'Unauthorized'));

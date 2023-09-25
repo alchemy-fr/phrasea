@@ -14,8 +14,13 @@ class IndexMappingUpdater
 {
     final public const NO_LOCALE = '_';
 
-    public function __construct(private readonly ElasticsearchClient $client, private readonly Index $index, private readonly EntityManagerInterface $em, private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly FieldNameResolver $fieldNameResolver)
-    {
+    public function __construct(
+        private readonly ElasticsearchClient $client,
+        private readonly Index $index,
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        private readonly FieldNameResolver $fieldNameResolver,
+    ) {
     }
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
