@@ -18,6 +18,7 @@ use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
 use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
@@ -44,7 +45,7 @@ class WorkflowState extends BaseWorkflowState
 {
     final public const INITIATOR_ID = 'initiatorId';
 
-    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $initiatorId = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]

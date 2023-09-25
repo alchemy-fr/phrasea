@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
@@ -15,7 +17,7 @@ class Contact implements \Stringable
      * @var string
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
@@ -23,28 +25,28 @@ class Contact implements \Stringable
     /**
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 128, unique: true, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 128, unique: true, nullable: true)]
     protected $userId;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     protected $email;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     protected $phone;
 
     /**
      * @var string|null
      */
-    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     protected $locale;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private readonly \DateTime $createdAt;
 
     public function __construct()

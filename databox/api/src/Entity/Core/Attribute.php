@@ -23,7 +23,9 @@ use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 #[ApiResource(
     shortName: 'attribute',
@@ -88,7 +90,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $locked = false;
 
     #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
@@ -98,7 +100,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     /**
      * Unique ID to group translations of the same attribute.
      */
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $translationId = null;
 
     /**
@@ -111,7 +113,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
     /**
      * Hashed value of the original translated string.
      */
-    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $translationOriginHash = null;
 
     #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
@@ -128,28 +130,28 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
      */
     private ?array $highlights = null;
 
-    #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private ?int $origin = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $originVendor = null;
 
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $originUserId = null;
 
     /**
      * Could include vendor version, AI parameters, etc.
      */
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $originVendorContext = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $coordinates = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private int $status = self::STATUS_VALID;
 
-    #[ORM\Column(type: 'float', nullable: false)]
+    #[ORM\Column(type: Types::FLOAT, nullable: false)]
     private float $confidence = 1.0;
 
     public ?AttributeBatchUpdateInput $batchUpdate = null;

@@ -15,6 +15,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\File;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -51,15 +52,15 @@ class IntegrationData extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $keyId = null;
 
-    #[ORM\Column(type: 'text', nullable: false)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([IntegrationData::GROUP_LIST])]
     private $value;
 

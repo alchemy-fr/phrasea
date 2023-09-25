@@ -21,6 +21,7 @@ use App\Security\ScopeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -68,28 +69,28 @@ class Commit extends AbstractUuidEntity
 
     #[ApiProperty(writable: false)]
     #[Groups(['asset:read', 'commit:read'])]
-    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $totalSize = null;
 
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     #[Groups(['asset:read', 'commit:read'])]
     private array $formData = [];
 
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     private array $options = [];
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?string $userId = null;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups(['commit:read'])]
     private ?string $token = null;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(['asset:read', 'commit:read'])]
     #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
@@ -97,20 +98,20 @@ class Commit extends AbstractUuidEntity
     /**
      * If set, this email will be notified when asset consumer acknowledges the commit.
      */
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['commit:read', 'commit:write'])]
     private ?string $notifyEmail = null;
 
-    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private ?string $locale = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['asset:read', 'commit:read'])]
     private ?\DateTime $acknowledgedAt = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['asset:read', 'commit:read'])]
     private readonly \DateTime $createdAt;
 

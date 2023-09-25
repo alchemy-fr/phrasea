@@ -11,7 +11,9 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -76,15 +78,15 @@ class MultipartUpload
 {
     #[Groups(['upload:read'])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ApiProperty(identifier: true)]
     private string $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups(['upload:read', 'upload:write'])]
     private ?string $filename = null;
 
-    #[ORM\Column(type: 'string', length: 150)]
+    #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups(['upload:read', 'upload:write'])]
     private ?string $type = null;
 
@@ -92,22 +94,22 @@ class MultipartUpload
     private ?string $sizeAsString = null;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'string', length: 150)]
+    #[ORM\Column(type: Types::STRING, length: 150)]
     private string $uploadId;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(['upload:read'])]
     private bool $complete = false;
 
     #[ApiProperty(writable: false)]
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['upload:read'])]
-    private ?\DateTimeInterface $createdAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
@@ -150,7 +152,7 @@ class MultipartUpload
         $this->uploadId = $uploadId;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

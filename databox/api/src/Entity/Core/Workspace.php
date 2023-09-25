@@ -26,6 +26,7 @@ use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -88,25 +89,25 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     final public const GROUP_READ = 'workspace:read';
     final public const GROUP_LIST = 'workspace:index';
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 50, unique: true, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 50, unique: true, nullable: false)]
     private ?string $slug = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $ownerId = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $enabledLocales = [];
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $localeFallbacks = ['en'];
 
     /**

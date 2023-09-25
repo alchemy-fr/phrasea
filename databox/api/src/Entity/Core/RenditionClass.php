@@ -18,6 +18,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -56,11 +57,11 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     protected ?Workspace $workspace = null;
 
     #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 80)]
+    #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
     #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
     /**

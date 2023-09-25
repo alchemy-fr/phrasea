@@ -8,6 +8,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table]
@@ -20,13 +21,13 @@ class AssetRelationship extends AbstractUuidEntity
     /**
      * The type of relationship.
      */
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: Types::STRING, length: 20)]
     private ?string $type = null;
 
     /**
      * Whether the two assets can't live alone (being deleted, moved to another collection...).
      */
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $sticky = false;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]

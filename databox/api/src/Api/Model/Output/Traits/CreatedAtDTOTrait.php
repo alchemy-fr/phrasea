@@ -11,14 +11,14 @@ trait CreatedAtDTOTrait
 {
     #[Groups(['dates'])]
     #[ApiProperty]
-    protected \DateTimeInterface $createdAt;
+    protected \DateTimeImmutable $createdAt;
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    public function setCreatedAt(\DateTimeImmutable $createdAt): void
     {
         $this->createdAt = $createdAt;
     }

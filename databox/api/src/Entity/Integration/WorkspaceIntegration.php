@@ -20,6 +20,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -53,26 +54,26 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     final public const GROUP_READ = 'wi:read';
     final public const GROUP_LIST = 'wi:index';
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $integration = null;
 
     #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
     private ?Collection $needs = null;
 
-    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 2048, nullable: true)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $if = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
     private ?string $optionsJson = null;

@@ -7,6 +7,7 @@ namespace App\Entity\Media;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]

@@ -12,6 +12,7 @@ use App\Api\Provider\AssetFileVersionCollectionProvider;
 
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -37,7 +38,7 @@ class AssetFileVersion extends AbstractUuidEntity
     final public const GROUP_READ = 'afv:read';
     final public const GROUP_LIST = 'afv:index';
 
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
     private ?string $versionName = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
@@ -50,7 +51,7 @@ class AssetFileVersion extends AbstractUuidEntity
     #[Groups([AssetFileVersion::GROUP_LIST])]
     private ?File $file = null;
 
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     private array $context = [];
 
     public function getVersionName(): ?string

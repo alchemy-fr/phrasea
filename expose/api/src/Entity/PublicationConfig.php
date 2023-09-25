@@ -21,12 +21,12 @@ class PublicationConfig implements MergeableValueObjectInterface
     final public const SECURITY_METHOD_PASSWORD = 'password';
     final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?bool $enabled = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?bool $downloadViaEmail = null;
@@ -34,7 +34,7 @@ class PublicationConfig implements MergeableValueObjectInterface
     /**
      * Download Terms URL must also be set.
      */
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?bool $includeDownloadTermsInZippy = null;
@@ -42,34 +42,34 @@ class PublicationConfig implements MergeableValueObjectInterface
     /**
      * @var Url[]|array
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private array $urls = [];
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?string $copyrightText = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?string $css = null;
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $layout = null;
 
-    #[ORM\Column(type: 'string', length: 30, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $theme = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $publiclyListed = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?bool $downloadEnabled = null;
 
@@ -94,7 +94,7 @@ class PublicationConfig implements MergeableValueObjectInterface
     /**
      * "password" or "authentication".
      */
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private ?string $securityMethod = null;
@@ -103,7 +103,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      * If securityMethod="password", you must provide:
      * {"password":"$3cr3t!"}.
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty]
     private array $securityOptions = [];
@@ -111,14 +111,14 @@ class PublicationConfig implements MergeableValueObjectInterface
     /**
      * @var MapOptions|array|null
      */
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private $mapOptions;
 
     /**
      * @var LayoutOptions|array|null
      */
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     private $layoutOptions;
 

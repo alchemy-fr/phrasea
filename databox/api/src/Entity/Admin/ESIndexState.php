@@ -7,6 +7,7 @@ namespace App\Entity\Admin;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table]
@@ -17,10 +18,10 @@ class ESIndexState extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    #[ORM\Column(type: 'string', length: 150, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: false)]
     private string $indexName;
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $mapping;
 
     public function getIndexName(): string

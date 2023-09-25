@@ -21,6 +21,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -87,7 +88,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     protected ?Workspace $workspace = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'string', length: 80)]
+    #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
@@ -96,41 +97,41 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     protected ?RenditionClass $class = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $download = true;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $pickSourceFile = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsOriginal = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsPreview = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnail = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnailActive = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'text')]
+    #[ORM\Column(type: Types::TEXT)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private ?string $definition = '';
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $priority = 0;
 

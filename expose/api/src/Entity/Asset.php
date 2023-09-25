@@ -21,6 +21,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -289,43 +290,43 @@ class Asset implements MediaInterface, \Stringable
     #[ApiProperty(identifier: true)]
     #[Groups(['_', self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ApiProperty]
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $assetId = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
-    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $title = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $description = null;
 
     #[ApiProperty(iris: ['http://schema.org/name'])]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $originalName = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, Publication::GROUP_LIST])]
     private ?string $mimeType = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['publication:admin:read'])]
     private ?string $ownerId = null;
 
@@ -334,11 +335,11 @@ class Asset implements MediaInterface, \Stringable
      */
     #[ApiProperty]
     #[Groups([Publication::GROUP_READ, self::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     protected ?string $slug = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
     protected int $position = 0;
 
     #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'assets')]
@@ -360,7 +361,7 @@ class Asset implements MediaInterface, \Stringable
      * Location latitude.
      */
     #[ApiProperty]
-    #[ORM\Column(type: 'float', nullable: true)]
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lat = null;
 
@@ -368,12 +369,12 @@ class Asset implements MediaInterface, \Stringable
      * Location longitude.
      */
     #[ApiProperty]
-    #[ORM\Column(type: 'float', nullable: true)]
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $lng = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['asset:admin:read'])]
     private ?string $webVTT = null;
 
@@ -385,7 +386,7 @@ class Asset implements MediaInterface, \Stringable
      * Location altitude.
      */
     #[ApiProperty]
-    #[ORM\Column(type: 'float', nullable: true)]
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?float $altitude = null;
 

@@ -33,6 +33,7 @@ use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\CollectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -96,10 +97,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     final public const GROUP_CHILDREN = 'coll:ic';
     final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: Types::STRING, length: 36)]
     private ?string $ownerId = null;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
@@ -134,7 +135,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
-    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 4096, nullable: true)]
     private ?string $key = null;
 
     public function __construct()

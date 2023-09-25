@@ -19,6 +19,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -59,15 +60,15 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     protected ?Workspace $workspace = null;
 
     #[Groups([AttributeClass::GROUP_LIST, AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 80)]
+    #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
     #[Groups([AttributeClass::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private ?bool $editable = null;
 
     #[Groups([AttributeClass::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private ?bool $public = null;
 
     /**
@@ -79,7 +80,7 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
-    #[ORM\Column(type: 'string', length: 150, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
     public function __construct()

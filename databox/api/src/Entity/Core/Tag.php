@@ -19,6 +19,7 @@ use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -50,10 +51,10 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     final public const GROUP_READ = 'tag:read';
     final public const GROUP_LIST = 'tag:index';
 
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private string $name;
 
-    #[ORM\Column(type: 'string', length: 6, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 6, nullable: true)]
     private ?string $color = null;
 
     /**

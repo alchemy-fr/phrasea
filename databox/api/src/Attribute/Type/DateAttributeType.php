@@ -14,15 +14,9 @@ class DateAttributeType extends DateTimeAttributeType
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
-            if ($value instanceof \DateTimeImmutable) {
-                $date = \DateTime::createFromImmutable($value);
-            } else {
-                $date = clone $value;
-            }
-
-            $date->setTime(0, 0);
-
-            return $date->format(\DateTimeInterface::ATOM);
+            return \DateTimeImmutable::createFromInterface($value)
+                ->setTime(0, 0)
+                ->format(\DateTimeInterface::ATOM);
         }
 
         return parent::getGroupValueLabel($value);

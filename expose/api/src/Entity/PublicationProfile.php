@@ -20,6 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -61,11 +62,11 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     #[ApiProperty(identifier: true)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 150)]
+    #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $name = null;
 
@@ -74,7 +75,7 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     private PublicationConfig $config;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 

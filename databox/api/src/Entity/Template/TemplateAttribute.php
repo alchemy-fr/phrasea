@@ -16,7 +16,9 @@ use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
@@ -49,7 +51,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     /**
      * Unique ID to group translations of the same attribute.
      */
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $translationId = null;
 
     /**
@@ -62,7 +64,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     /**
      * Hashed value of the original translated string.
      */
-    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $translationOriginHash = null;
 
     #[ORM\OneToMany(targetEntity: TemplateAttribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]

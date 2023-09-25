@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
@@ -15,7 +17,7 @@ class WebhookLog
      * @var Uuid
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
@@ -24,17 +26,17 @@ class WebhookLog
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Webhook $webhook = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $event = null;
 
-    #[ORM\Column(type: 'json', nullable: false)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $payload = [];
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $response = null;
 
-    #[ORM\Column(type: 'datetime', nullable: false)]
-    private readonly \DateTimeInterface $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private readonly \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
@@ -46,7 +48,7 @@ class WebhookLog
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

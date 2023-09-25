@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\DataProvider\TargetDataProvider;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -42,41 +43,41 @@ class Target extends AbstractUuidEntity implements \Stringable
 {
     #[Groups(['target:index'])]
     #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
-    #[ORM\Column(type: 'string', length: 100, unique: true, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
 
-    #[ORM\Column(type: 'string', length: 1000)]
+    #[ORM\Column(type: Types::STRING, length: 1000)]
     #[Assert\Length(max: 1000)]
     #[Assert\NotBlank]
     #[Groups(['target:index'])]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups(['target:read'])]
     private bool $enabled = true;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['target:index'])]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Assert\Length(max: 255)]
     #[Assert\Url]
     #[Assert\NotBlank]
     #[Groups(['target:write'])]
     private ?string $targetUrl = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Groups(['target:write'])]
     private ?string $defaultDestination = null;
 
-    #[ORM\Column(type: 'string', length: 2000, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
     #[Assert\Length(max: 2000)]
     #[Groups(['target:write'])]
     private ?string $targetAccessToken = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     #[Groups(['target:write'])]
     private ?string $targetTokenType = null;
@@ -84,13 +85,13 @@ class Target extends AbstractUuidEntity implements \Stringable
     /**
      * Null value allows everyone.
      */
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['target:write'])]
     private ?array $allowedGroups = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['target:index'])]
-    private readonly \DateTimeInterface $createdAt;
+    private readonly \DateTimeImmutable $createdAt;
 
     #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
     private ?TargetParams $targetParams = null;

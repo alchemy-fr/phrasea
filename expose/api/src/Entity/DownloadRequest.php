@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Put;
 use App\Security\Voter\DownloadRequestVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -34,14 +35,14 @@ class DownloadRequest
     #[ApiProperty(identifier: true)]
     #[Groups(['publication:index', 'publication:index', Publication::GROUP_READ, Asset::GROUP_READ])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     private UuidInterface $id;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     protected ?string $locale = null;
 
     #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Publication'])]

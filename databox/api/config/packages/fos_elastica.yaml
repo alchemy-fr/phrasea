@@ -1,5 +1,6 @@
 parameters:
     es_index_prefix: '%env(ELASTICSEARCH_INDEX_PREFIX)%'
+    elastica.use_alias: true
 
 # Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
 fos_elastica:
@@ -7,7 +8,7 @@ fos_elastica:
         default: { url: '%env(ELASTICSEARCH_URL)%/' }
     indexes:
         asset:
-            use_alias: true
+            use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%asset_%kernel.environment%"
             settings:
                 index:
@@ -85,7 +86,7 @@ fos_elastica:
                 listener: { enabled: false }
 
         collection:
-            use_alias: true
+            use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%collection_%kernel.environment%"
             settings:
                 index:
@@ -129,7 +130,7 @@ fos_elastica:
                 listener: { enabled: false }
 
         asset_data_template:
-            use_alias: true
+            use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%asset_data_template_%kernel.environment%"
             properties:
                 name:
@@ -159,3 +160,11 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Template\AssetDataTemplate
                 listener: { enabled: false }
+
+when@dev:
+    parameters:
+        elastica.use_alias: false
+
+when@test:
+    parameters:
+        elastica.use_alias: false

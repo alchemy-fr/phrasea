@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use App\Controller\AssetAckAction;
 use App\Controller\CreateAssetAction;
 use App\Security\Voter\AssetVoter;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -132,10 +133,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity
 {
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups('asset:read')]
     private ?array $data = [];
 
@@ -147,16 +148,16 @@ class Asset extends AbstractUuidEntity
     private ?string $url = null;
 
     #[Groups('asset:read')]
-    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty(iris: ['http://schema.org/name'])]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups('asset:read')]
     private ?string $originalName = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups('asset:read')]
     private ?string $mimeType = null;
 
@@ -167,17 +168,17 @@ class Asset extends AbstractUuidEntity
     #[ORM\ManyToOne(targetEntity: Commit::class, inversedBy: 'assets')]
     private ?Commit $commit = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups('asset:read')]
     #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups('asset:read')]
     private \DateTime $createdAt;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $userId = null;
 
     public function __construct()

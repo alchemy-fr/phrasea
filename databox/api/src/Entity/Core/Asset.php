@@ -42,6 +42,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -121,28 +122,28 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     final public const GROUP_LIST = 'asset:index';
     final public const GROUP_WRITE = 'asset:w';
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $sequence = 0;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: Types::STRING, length: 36)]
     private ?string $ownerId = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
 
     /**
      * Token sent to Uploader.
      */
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $pendingUploadToken = null;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
@@ -181,14 +182,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
      * Last update time of attribute.
      */
     #[Groups(['dates'])]
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
 
     /**
      * Last update time of tags.
      */
     #[Groups(['dates'])]
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $tagsEditedAt = null;
 
     /**

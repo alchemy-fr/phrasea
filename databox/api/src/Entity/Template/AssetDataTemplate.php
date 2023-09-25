@@ -26,6 +26,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -78,21 +79,21 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     /**
      * Template name.
      */
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private bool $public = false;
 
-    #[ORM\Column(type: 'string', length: 36)]
+    #[ORM\Column(type: Types::STRING, length: 36)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $ownerId = null;
 
     /**
      * Asset title.
      */
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $title = null;
 
@@ -111,13 +112,13 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $collection = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $includeCollectionChildren = false;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $privacy = null;
 
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     private array $data = [];
 
     public function __construct()

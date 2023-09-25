@@ -66,6 +66,7 @@ export default class OAuthClient {
     private baseUrl: string;
     private storage: IStorage;
     private tokensCache: TokenResponse | undefined;
+    public tokenPromise: Promise<any> | undefined;
 
     constructor({
         clientId,
@@ -293,7 +294,19 @@ export function configureClientAuthentication(client: AxiosInstance, oauthClient
         }
 
         if (!oauthClient.isAccessTokenValid()) {
-            await oauthClient.refreshToken();
+            let p = oauthClient.tokenPromise;
+            if (p) {
+                await p;
+            } else {
+                const p = oauthClient.refreshToken();
+                oauthClient.tokenPromise = p;
+
+                try {
+                    await p;
+                } finally {
+                    oauthClient.tokenPromise = undefined;
+                }
+            }
         }
 
         config.headers ??= {};

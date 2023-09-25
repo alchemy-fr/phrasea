@@ -11,14 +11,14 @@ trait UpdatedAtDTOTrait
 {
     #[Groups(['dates'])]
     #[ApiProperty]
-    protected \DateTimeInterface $updatedAt;
+    protected \DateTimeImmutable $updatedAt;
 
-    public function getUpdatedAt(): \DateTimeInterface
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }

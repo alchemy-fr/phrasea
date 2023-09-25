@@ -15,6 +15,7 @@ use App\Controller\CreateSubDefinitionAction;
 use App\Repository\SubDefinitionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -186,7 +187,7 @@ class SubDefinition implements MediaInterface
     #[ApiProperty(identifier: true)]
     #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     protected $id;
 
     #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'subDefinitions')]
@@ -195,18 +196,18 @@ class SubDefinition implements MediaInterface
 
     #[ApiProperty]
     #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 30)]
+    #[ORM\Column(type: Types::STRING, length: 30)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
     #[Groups([self::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
-    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $mimeType = null;
 

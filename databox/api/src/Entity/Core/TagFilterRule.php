@@ -19,7 +19,9 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\TagFilterRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 #[ApiResource(
     shortName: 'tag-filter-rule',
@@ -63,16 +65,16 @@ class TagFilterRule extends AbstractUuidEntity
         self::TYPE_COLLECTION => Collection::class,
     ];
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: Types::SMALLINT)]
     protected ?int $userType = null;
 
-    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     protected ?string $userId = null;
 
-    #[ORM\Column(type: 'smallint')]
+    #[ORM\Column(type: Types::SMALLINT)]
     protected int $objectType;
 
-    #[ORM\Column(type: 'uuid', nullable: false)]
+    #[ORM\Column(type: UuidType::NAME, nullable: false)]
     protected string $objectId;
 
     #[ORM\JoinTable(name: 'tfr_includes')]

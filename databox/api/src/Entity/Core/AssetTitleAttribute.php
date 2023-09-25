@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use App\Entity\AbstractUuidEntity;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -18,13 +19,13 @@ class AssetTitleAttribute extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: false)]
     protected ?AttributeDefinition $definition = null;
 
-    #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private int $priority = 0;
 
     /**
      * Whether to override "title" attribute set on asset.
      */
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $overrides = false;
 
     public function getWorkspace(): ?Workspace

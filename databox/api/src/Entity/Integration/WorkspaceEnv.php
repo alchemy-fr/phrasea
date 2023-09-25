@@ -10,6 +10,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,12 +25,12 @@ class WorkspaceEnv extends AbstractUuidEntity
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['env:index'])]
     #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'text', nullable: false)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Assert\NotNull]
     private ?string $value = null;
 

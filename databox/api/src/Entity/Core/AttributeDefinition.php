@@ -24,6 +24,7 @@ use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -106,10 +107,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     private ?DoctrineCollection $attributes = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Gedmo\Slug(fields: ['name'], style: 'lower', unique: false, separator: '')]
     private ?string $slug = null;
 
@@ -118,63 +119,63 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
      * If null, applied to all files.
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $fileType = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
-    #[ORM\Column(type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $facetEnabled = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $sortable = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $translatable = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $multiple = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'boolean', nullable: false)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $allowInvalid = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
     /**
      * Initialize attributes after asset creation; key=locale.
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
-    #[ORM\Column(type: 'json', nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $fallback = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
-    #[ORM\Column(type: 'string', length: 150, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: 'smallint', nullable: false)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
 

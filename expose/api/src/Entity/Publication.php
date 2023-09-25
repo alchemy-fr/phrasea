@@ -28,6 +28,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
@@ -123,16 +124,16 @@ class Publication implements AclObjectInterface, \Stringable
     #[ApiProperty(identifier: true)]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     #[ORM\Id]
-    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     private string $id;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $title = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $description = null;
 
@@ -174,7 +175,7 @@ class Publication implements AclObjectInterface, \Stringable
     private ?string $archiveDownloadUrl = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: 'string', nullable: true)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 
@@ -231,7 +232,7 @@ class Publication implements AclObjectInterface, \Stringable
      */
     #[ApiProperty]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, self::GROUP_READ])]
-    #[ORM\Column(type: 'string', length: 100, nullable: true, unique: true)]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true, unique: true)]
     protected ?string $slug = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
@@ -246,10 +247,10 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $cssLink = null;
 
-    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $zippyId = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $zippyHash = null;
 
     public function __construct()
