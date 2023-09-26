@@ -51,7 +51,7 @@ class OAuthClientTestMock implements HttpClientInterface
         $now = new DateTimeImmutable();
         $token = $configuration
             ->builder()
-            ->issuedBy(getenv('KEYCLOAK_URL').'/realms/master')
+            ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
             // Configures the time that the token was issue (iat claim)
             ->issuedAt($now)
             // Configures the time that the token can be used (nbf claim)
@@ -83,11 +83,11 @@ class OAuthClientTestMock implements HttpClientInterface
         }
 
         return match (true) {
-            str_ends_with($url, '/realms/master') => $this->createResponse($args, 200, [
+            str_ends_with($url, '/realms/phrasea') => $this->createResponse($args, 200, [
                 'public_key' => file_get_contents(__DIR__.'/key.pub'),
             ]),
-            str_ends_with($url, '/admin/realms/master/users'),
-            str_ends_with($url, '/admin/realms/master/groups') => $this->createResponse($args, 200, []),
+            str_ends_with($url, '/admin/realms/phrasea/users'),
+            str_ends_with($url, '/admin/realms/phrasea/groups') => $this->createResponse($args, 200, []),
             default => throw new InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
