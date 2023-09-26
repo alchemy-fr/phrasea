@@ -37,7 +37,7 @@ final class KeycloakManager
         }
 
         $response = $this->keycloakClient->request('POST', UriTemplate::resolve('/realms/{realm}/protocol/openid-connect/token', [
-            'realm' => $this->keycloakRealm,
+            'realm' => 'master',
         ]), [
             'base_uri' => getenv('KEYCLOAK_URL'),
             'body' => [
@@ -51,16 +51,26 @@ final class KeycloakManager
         return $this->token = $response->toArray()['access_token'];
     }
 
-    protected function getClients(): array
+    public function createRealm(): void
+    {
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()->request('POST', '', [
+            'json' => [
+                'realm' => $this->keycloakRealm,
+                'enabled' => true,
+            ],
+        ])->getContent(), 409);
+    }
+
+    protected function getClients(string $realm = null): array
     {
         return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/clients', [
-            'realm' => $this->keycloakRealm,
+            'realm' => $realm ?? $this->keycloakRealm,
         ]))->toArray();
     }
 
-    public function getClientByClientId(string $clientId): ?array
+    public function getClientByClientId(string $clientId, string $realm = null): ?array
     {
-        $clients = $this->getClients();
+        $clients = $this->getClients($realm);
         foreach ($clients as $client) {
             if ($clientId === $client['clientId']) {
                 return $client;
@@ -162,6 +172,9 @@ final class KeycloakManager
 
 
         $realmClient = $this->getClientByClientId($fromClientId);
+        if (null === $realmClient) {
+            throw new \InvalidArgumentException(sprintf('Client "%s" not found in realm "%s"', $fromClientId, $this->keycloakRealm));
+        }
 
         $roleToGrant = $this->getAuthenticatedClient()
             ->request('GET', UriTemplate::resolve('{realm}/clients/{realmClientId}/roles/{roleName}', [

@@ -178,6 +178,7 @@ services:
       - EXPOSE_DB_NAME
       - NOTIFY_DB_NAME
       - UPLOADER_DB_NAME
+      - KEYCLOAK_REALM_NAME
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

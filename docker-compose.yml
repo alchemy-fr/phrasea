@@ -1008,6 +1008,7 @@ services:
       - UPLOADER_DB_NAME
       - MAIL_FROM
       - MAILER_DSN
+      - KEYCLOAK_REALM_NAME
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 

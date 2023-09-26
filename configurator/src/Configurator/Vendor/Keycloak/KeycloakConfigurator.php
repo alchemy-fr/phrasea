@@ -55,10 +55,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 ]
             );
 
-            $this->keycloakManager->addServiceAccountRole($client, 'view-users', $this->keycloakRealm.'-realm');
+            $this->keycloakManager->addServiceAccountRole($client, 'view-users', 'realm-management');
 
             foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
-                $this->keycloakManager->addServiceAccountRole($client, $role, $this->keycloakRealm.'-realm');
+                $this->keycloakManager->addServiceAccountRole($client, $role, 'realm-management');
             }
         }
 
@@ -166,6 +166,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     {
         $from = getenv('MAIL_FROM');
         $mailer = parse_url(getenv('MAILER_DSN'));
+
+        $this->keycloakManager->createRealm();
 
         $this->keycloakManager->putRealm([
             'displayName' => 'Phrasea Auth',
