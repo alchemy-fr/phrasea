@@ -21,7 +21,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('url')->defaultValue('%env(KEYCLOAK_URL)%')->end()
-                        ->scalarNode('realm')->defaultValue('%env(KEYCLOAK_REALM)%')->end()
+                        ->scalarNode('realm')->defaultValue('%env(KEYCLOAK_REALM_NAME)%')->end()
                     ->end()
                 ->end()
                 ->scalarNode('client_id')->defaultValue('%env(ADMIN_CLIENT_ID)%')->end()

@@ -18,6 +18,9 @@ final class KeycloakManager
         private readonly string $keycloakRealm,
     )
     {
+        if ('master' === $this->keycloakRealm) {
+            throw new \LogicException('Your Keycloak Realm cannot be named "master".');
+        }
     }
 
     private function getAuthenticatedClient(): HttpClientInterface
@@ -367,6 +370,19 @@ final class KeycloakManager
         return $response->toArray();
     }
 
+    public function getRealmClientRoles(): array
+    {
+        $realmClient = $this->getClientByClientId('realm-management');
+
+        $response = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/clients/{realmClientId}/roles', [
+                'realm' => $this->keycloakRealm,
+                'realmClientId' => $realmClient['id'],
+            ]));
+
+        return $response->toArray();
+    }
+
     public function getUserRoles(string $userId): array
     {
         return $this->getAuthenticatedClient()
@@ -400,6 +416,37 @@ final class KeycloakManager
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
+            ]), [
+                'json' => $roles,
+            ]), 409);
+    }
+
+    public function addClientRolesToUser(string $userId, array $roleNames): void
+    {
+        $realmClient = $this->getClientByClientId('realm-management');
+        $allRoles = $this->getRealmClientRoles();
+        $userRoles = array_map(fn (array $r): string => $r['id'], $this->getUserRoles($userId));
+
+        $roles = array_map(function (string $roleName) use ($userRoles, $allRoles): ?array {
+            foreach ($allRoles as $r) {
+                if ($roleName === $r['name']) {
+                    if (!in_array($r['id'], $userRoles, true)) {
+                        return $r;
+                    } else {
+                        return null;
+                    }
+                }
+            }
+
+            throw new \InvalidArgumentException(sprintf('Role "%s" not found', $roleName));
+        }, $roleNames);
+        $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
+
+        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/clients/{realmClientId}', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $userId,
+                'realmClientId' => $realmClient['id'],
             ]), [
                 'json' => $roles,
             ]), 409);

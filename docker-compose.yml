@@ -975,6 +975,7 @@ services:
     profiles:
       - configurator
     environment:
+      - APP_ENV
       - KEYCLOAK_URL
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
@@ -1009,6 +1010,8 @@ services:
       - MAIL_FROM
       - MAILER_DSN
       - KEYCLOAK_REALM_NAME
+      - DEFAULT_ADMIN_USERNAME
+      - DEFAULT_ADMIN_PASSWORD
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 

@@ -179,6 +179,8 @@ services:
       - NOTIFY_DB_NAME
       - UPLOADER_DB_NAME
       - KEYCLOAK_REALM_NAME
+      - DEFAULT_ADMIN_USERNAME
+      - DEFAULT_ADMIN_PASSWORD
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

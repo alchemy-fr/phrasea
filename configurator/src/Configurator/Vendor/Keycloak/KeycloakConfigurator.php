@@ -13,7 +13,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         private KeycloakManager $keycloakManager,
         private array $symfonyApplications,
         private array $frontendApplications,
-        private string $keycloakRealm,
     ) {
     }
 
@@ -22,10 +21,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->configureRealm();
 
         foreach ([
-                     KeycloakInterface::GROUP_SUPER_ADMIN => 'Can do anything',
-                     KeycloakInterface::GROUP_TECH => 'Access to Dev/Ops Operations',
-                     KeycloakInterface::GROUP_USER_ADMIN => 'Manage Users',
-                     KeycloakInterface::GROUP_GROUP_ADMIN => 'Manage Groups',
+                     KeycloakInterface::ROLE_ADMIN => 'Can do anything',
+                     KeycloakInterface::ROLE_TECH => 'Access to Dev/Ops Operations',
+                     KeycloakInterface::ROLE_USER_ADMIN => 'Manage Users',
+                     KeycloakInterface::ROLE_GROUP_ADMIN => 'Manage Groups',
                  ] as $role => $desc) {
             $this->keycloakManager->createRole($role, $desc);
         }
@@ -72,6 +71,23 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 ]
             );
         }
+
+        $defaultAdmin = $this->keycloakManager->createUser([
+            'username' => getenv('DEFAULT_ADMIN_USERNAME'),
+            'enabled' => true,
+            'credentials' => [[
+                'type' => 'password',
+                'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
+                'temporary' => true,
+            ]]
+        ]);
+
+        $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
+            KeycloakInterface::ROLE_ADMIN,
+        ]);
+        $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
+            'realm-admin',
+        ]);
     }
 
     private function getAppScopes(): array

@@ -121,12 +121,11 @@ FROM "user"');
             foreach ($roles as $role) {
                 $realmRoles = array_merge($realmRoles, match ($role) {
                     'ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_CHUCK-NORRIS' => [
-                        KeycloakInterface::GROUP_ADMIN,
-                        KeycloakInterface::GROUP_SUPER_ADMIN,
+                        KeycloakInterface::ROLE_ADMIN,
                     ],
-                    'ROLE_TECH' => [KeycloakInterface::GROUP_TECH],
+                    'ROLE_TECH' => [KeycloakInterface::ROLE_TECH],
                     'ROLE_ADMIN_OAUTH_CLIENTS',
-                    'ROLE_ADMIN_USERS' => [KeycloakInterface::GROUP_USER_ADMIN, KeycloakInterface::GROUP_GROUP_ADMIN],
+                    'ROLE_ADMIN_USERS' => [KeycloakInterface::ROLE_USER_ADMIN, KeycloakInterface::ROLE_GROUP_ADMIN],
                     default => [],
                 });
             }

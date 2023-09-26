@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-final class RoleMapper
+final readonly class RoleMapper
 {
     public function __construct(
-        private readonly array $mapping = [
+        private array $mapping = [
             'admin' => 'ROLE_ADMIN',
         ]
     )
     {
-
     }
 
     public function getRoles(array $idpRoles): array
