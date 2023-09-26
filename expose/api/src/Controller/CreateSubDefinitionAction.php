@@ -11,11 +11,11 @@ use App\Entity\Asset;
 use App\Entity\SubDefinition;
 use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
-use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Mime\MimeTypes;
 
 final class CreateSubDefinitionAction extends AbstractController
 {
@@ -38,7 +38,7 @@ final class CreateSubDefinitionAction extends AbstractController
         $asset = $this->findAsset($assetId);
         $this->denyAccessUnlessGranted(AssetVoter::EDIT, $asset);
 
-        if (null !== $request->request->get('multipart')) {
+        if ($request->request->has('multipart')) {
             return $this->handleMultipartUpload($request, $asset, $name);
         }
 
@@ -69,22 +69,20 @@ final class CreateSubDefinitionAction extends AbstractController
                 $uploadedFile->getSize(),
                 $request->request->all()
             );
-        } elseif (null !== $upload = $request->request->get('upload')) {
-            if (!is_array($upload)) {
-                throw new BadRequestHttpException('"upload" must be an array');
-            }
+        } elseif ($request->request->has('upload')) {
+            $upload = $request->request->all('upload');
 
             $originalFilename = $upload['name'] ?? null;
             $contentType = $upload['type'] ?? null;
             if (null === $contentType && !empty($originalFilename)) {
                 $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
-                $contentType = (new MimeTypes())->getMimeType($extension);
+                $contentType = (new MimeTypes())->getMimeTypes($extension)[0];
             }
 
             $contentType ??= 'application/octet-stream';
 
             if (null === $originalFilename) {
-                $extension = (new MimeTypes())->getExtension($contentType);
+                $extension = (new MimeTypes())->getExtensions($contentType)[0];
             } else {
                 $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
             }

@@ -17,7 +17,7 @@
     }
   ],
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.2",
     "alchemy/auth-bundle": "@dev",
     "easycorp/easyadmin-bundle": "^4.0",
     "guzzlehttp/guzzle": "^7.2",

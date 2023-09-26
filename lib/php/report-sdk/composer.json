@@ -1,39 +1,39 @@
 {
-  "name": "alchemy/report-sdk",
-  "type": "library",
-  "description": "Symfony report SDK",
-  "keywords": [],
-  "homepage": "https://www.alchemy.fr/",
-  "license": "MIT",
-  "require": {
-    "php": "^7.4 || ^8.0",
-    "guzzlehttp/guzzle": "^7.2",
-    "opis/json-schema": "^1.0"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "autoload": {
-    "psr-4": {
-      "Alchemy\\ReportSDK\\": "src/"
+    "name": "alchemy/report-sdk",
+    "type": "library",
+    "description": "Symfony report SDK",
+    "keywords": [],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.2",
+        "opis/json-schema": "^1.0"
     },
-    "exclude-from-classmap": [
-      "/tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Alchemy\\ReportSDK\\Tests\\": "tests/"
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\ReportSDK\\": "src/"
+        },
+        "exclude-from-classmap": [
+            "/tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\ReportSDK\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "./vendor/bin/phpunit"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.17.1"
     }
-  },
-  "scripts": {
-    "rector": "vendor/bin/rector",
-    "cs": "vendor/bin/php-cs-fixer fix",
-    "test": "./vendor/bin/phpunit"
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.17",
-    "phpunit/phpunit": "^9.5",
-    "rector/rector": "^0.17.1"
-  }
 }

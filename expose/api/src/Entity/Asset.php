@@ -166,6 +166,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/publications/{id}/assets.{_format}',
     shortName: 'asset',
     operations: [
+        new GetCollection(),
         new Post(
             controller: CreateAssetAction::class,
             openapiContext: [
@@ -273,7 +274,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     uriVariables: [
-        'id' => new Link(fromClass: Publication::class, identifiers: ['id']),
+        'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
     ],
 
 )]

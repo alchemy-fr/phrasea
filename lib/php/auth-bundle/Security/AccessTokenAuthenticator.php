@@ -76,6 +76,9 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
         $user = $passport->getUser();
         $token = new JwtToken($accessTokenBadge->getAccessToken(), $user->getRoles());
         $token->setUser($user);
+        if ($user instanceof JwtInterface) {
+            $token->setScopes($user->getScopes());
+        }
 
         return $token;
     }
