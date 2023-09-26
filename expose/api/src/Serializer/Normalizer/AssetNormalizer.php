@@ -20,7 +20,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
-        if (in_array(Asset::GROUP_READ, $context['groups'])) {
+        if (in_array(Asset::GROUP_READ, $context['groups'] ?? [])) {
             $publication = $object->getPublication();
             $isAuthorized = $this->security->isGranted(PublicationVoter::READ_DETAILS, $publication);
             $publication->setAuthorized($isAuthorized);
