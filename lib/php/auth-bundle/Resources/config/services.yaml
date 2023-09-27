@@ -1,6 +1,6 @@
 parameters:
   env(VERIFY_SSL): true
-  env(KEYCLOAK_REALM_NAME): phrasea2
+  env(KEYCLOAK_REALM_NAME): phrasea
 
 services:
   _defaults:
