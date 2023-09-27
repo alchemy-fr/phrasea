@@ -28,13 +28,6 @@ abstract class AbstractSearch
 
         $publicWorkspaceIds = $this->getPublicWorkspaceIds();
         if (null !== $userId) {
-            $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
-
-            $aclBoolQuery->addMust(new Query\Terms(
-                'workspaceId',
-                array_values(array_unique(array_merge($allowedWorkspaceIds, $publicWorkspaceIds)))
-            ));
-
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
@@ -44,6 +37,7 @@ abstract class AbstractSearch
                 $shoulds[] = $publicWorkspaceBoolQuery;
             }
 
+            $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
             if (!empty($allowedWorkspaceIds)) {
                 $workspaceBoolQuery = new Query\BoolQuery();
 
@@ -61,8 +55,6 @@ abstract class AbstractSearch
                 $shoulds[] = new Query\Terms('groups', $groupIds);
             }
         } else {
-            $aclBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
-
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
