@@ -15,6 +15,11 @@ class FileVoter extends AbstractVoter
         return $subject instanceof File;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, File::class, true);
+    }
+
     /**
      * @param File $subject
      */

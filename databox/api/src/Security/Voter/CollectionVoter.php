@@ -19,6 +19,11 @@ class CollectionVoter extends AbstractVoter
         return $subject instanceof Collection;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Collection::class, true);
+    }
+
     /**
      * @param Collection $subject
      */
@@ -35,19 +40,24 @@ class CollectionVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
+        $workspace = $subject->getWorkspace();
+        if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
+            return false;
+        }
+
         return match ($attribute) {
             self::CREATE => $subject->getParent() ? $this->security->isGranted(AbstractVoter::EDIT, $subject->getParent())
-                : $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace()),
+                : $this->security->isGranted(AbstractVoter::EDIT, $workspace),
             self::LIST => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
-                || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                || ($this->security->isGranted(AbstractVoter::READ, $workspace) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::READ => $isOwner()
                 || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
                 || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                || ($this->security->isGranted(AbstractVoter::READ, $subject->getWorkspace()) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
+                || ($this->security->isGranted(AbstractVoter::READ, $workspace) && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::EDIT => $isOwner()

@@ -14,6 +14,11 @@ class AssetFileVersionVoter extends AbstractVoter
         return $subject instanceof AssetFileVersion;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, AssetFileVersion::class, true);
+    }
+
     /**
      * @param AssetFileVersion $subject
      */

@@ -14,6 +14,11 @@ class AttributeDefinitionVoter extends AbstractVoter
         return $subject instanceof AttributeDefinition;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, AttributeDefinition::class, true);
+    }
+
     /**
      * @param AttributeDefinition $subject
      */

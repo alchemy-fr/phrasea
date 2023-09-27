@@ -22,6 +22,11 @@ class AssetVoter extends AbstractVoter
         return $subject instanceof Asset;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Asset::class, true);
+    }
+
     /**
      * @param Asset $subject
      */
@@ -30,6 +35,11 @@ class AssetVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
+
+        $workspace = $subject->getWorkspace();
+        if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
+            return false;
+        }
 
         switch ($attribute) {
             case self::CREATE:

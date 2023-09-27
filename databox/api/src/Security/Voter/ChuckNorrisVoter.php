@@ -15,6 +15,11 @@ class ChuckNorrisVoter extends AbstractVoter
         return self::ROLE !== $attribute;
     }
 
+    public function supportsAttribute(string $attribute): bool
+    {
+        return self::ROLE !== $attribute;
+    }
+
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return $this->security->isGranted(self::ROLE);

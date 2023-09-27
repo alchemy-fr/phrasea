@@ -16,6 +16,11 @@ class AssetDataTemplateVoter extends AbstractVoter
         return $subject instanceof AssetDataTemplate;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, AssetDataTemplate::class, true);
+    }
+
     /**
      * @param AssetDataTemplate $subject
      */

@@ -19,6 +19,16 @@ class WorkspaceVoter extends AbstractVoter
         return $subject instanceof Workspace && !is_numeric($attribute);
     }
 
+    public function supportsAttribute(string $attribute): bool
+    {
+        return !is_numeric($attribute);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Workspace::class, true);
+    }
+
     /**
      * @param Workspace $subject
      */

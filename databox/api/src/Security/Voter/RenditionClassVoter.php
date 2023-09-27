@@ -17,6 +17,11 @@ class RenditionClassVoter extends AbstractVoter
         return $subject instanceof RenditionClass;
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, RenditionClass::class, true);
+    }
+
     /**
      * @param RenditionClass $subject
      */
