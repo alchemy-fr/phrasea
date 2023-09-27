@@ -27,6 +27,9 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->slug) {
             $object->setSlug($data->slug);
         }
+        if (null !== $data->public) {
+            $object->setPublic($data->public);
+        }
         if (null !== $data->enabledLocales) {
             $object->setEnabledLocales(array_values($data->enabledLocales));
         }

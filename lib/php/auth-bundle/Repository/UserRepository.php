@@ -26,6 +26,6 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
      */
     public function getAclGroupsId(AclUserInterface $user): array
     {
-        return $user->getGroupIds();
+        return $user->getGroups();
     }
 }

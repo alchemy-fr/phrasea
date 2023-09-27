@@ -23,6 +23,7 @@ class KeycloakFaker extends BaseProvider
     public function keycloakUser(
         string $username,
         array $roles = [],
+        string $password = 'xxx',
     ): string {
         if (null === $this->accessToken) {
             ['access_token' => $this->accessToken] = $this->keycloakClient->getClientCredentialAccessToken();
@@ -36,6 +37,11 @@ class KeycloakFaker extends BaseProvider
             'emailVerified' => true,
             'enabled' => true,
             'realmRoles' => $roles,
+            'credentials' => [[
+                'type' => 'password',
+                'value' => $password,
+                'temporary' => true,
+            ]]
         ], $this->accessToken);
 
         return $response['id'];
