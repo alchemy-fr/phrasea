@@ -78,8 +78,8 @@ services:
       - internal
     environment:
       - DEV_MODE
-      - OPENID_CONNECT_URL
-      - USER_ACCOUNT_URL
+      - KEYCLOAK_URL
+      - KEYCLOAK_REALM_NAME
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_URL
@@ -123,6 +123,7 @@ services:
       - SENTRY_DSN
       - SENTRY_ENVIRONMENT
       - KEYCLOAK_URL
+      - KEYCLOAK_REALM_NAME
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:
@@ -977,6 +978,7 @@ services:
     environment:
       - APP_ENV
       - KEYCLOAK_URL
+      - KEYCLOAK_REALM_NAME
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
       - VERIFY_SSL
@@ -1009,7 +1011,6 @@ services:
       - UPLOADER_DB_NAME
       - MAIL_FROM
       - MAILER_DSN
-      - KEYCLOAK_REALM_NAME
       - DEFAULT_ADMIN_USERNAME
       - DEFAULT_ADMIN_PASSWORD
     extra_hosts:

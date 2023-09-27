@@ -3,7 +3,8 @@ import config from "../config";
 
 export const oauthClient = new OAuthClient({
     clientId: config.clientId,
-    baseUrl: config.authBaseUrl,
+    baseUrl: config.keycloakUrl,
+    realm: config.realmName,
 });
 
 const apiClient = createHttpClient(window.config.baseUrl);

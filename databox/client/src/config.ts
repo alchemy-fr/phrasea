@@ -8,8 +8,8 @@ declare global {
             baseUrl: Readonly<string>;
             uploaderApiBaseUrl: Readonly<string>;
             uploaderTargetSlug: Readonly<string>;
-            authBaseUrl: Readonly<string>;
-            userAccountUrl: Readonly<string>;
+            keycloakUrl: Readonly<string>;
+            realmName: Readonly<string>;
             clientId: Readonly<string>;
             devMode: Readonly<boolean>;
             requestSignatureTtl: Readonly<string>;

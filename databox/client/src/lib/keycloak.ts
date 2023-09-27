@@ -10,6 +10,6 @@ export function useKeycloakUrls() {
             connectTo: config.autoConnectIdP || undefined,
             state: btoa(JSON.stringify({r: location})),
         }),
-        getAccountUrl: () => `${config.userAccountUrl}?referrer=${config.clientId}&referrer_uri=${encodeURIComponent(location.toString())}#/personal-info`,
+        getAccountUrl: () => `${oauthClient.getAccountUrl()}`,
     }
 }

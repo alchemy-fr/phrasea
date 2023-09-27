@@ -2,8 +2,9 @@ import {configureClientAuthentication, createHttpClient, OAuthClient} from 'reac
 import config from "./config";
 
 export const oauthClient = new OAuthClient({
-    clientId: config.getClientId(),
-    baseUrl: config.getAuthBaseUrl(),
+    clientId: config.clientId,
+    baseUrl: config.keycloakUrl,
+    realm: config.realmName,
 });
 
 const apiClient = createHttpClient(window.config.baseUrl);

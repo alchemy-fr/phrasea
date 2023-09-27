@@ -6,8 +6,9 @@ import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
 export const oauthClient = new OAuthClient({
-    clientId: config.getClientId(),
-    baseUrl: config.getAuthBaseUrl(),
+    clientId: config.clientId,
+    baseUrl: config.keycloakUrl,
+    realm: config.realmName,
 });
 
 // TODO should be remove when moving to axios

@@ -17,7 +17,7 @@ export default class Login extends Component {
         }
 
         document.location.href = oauthClient.createAuthorizeUrl({
-            connectTo: config.get('autoConnectIdP') || undefined,
+            connectTo: config.autoConnectIdP || undefined,
         });
 
         return '';

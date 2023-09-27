@@ -59,13 +59,15 @@ type Options = {
     storage?: IStorage;
     clientId: string;
     baseUrl: string;
+    realm: string;
 }
 
 export default class OAuthClient {
     public tokenPromise: Promise<any> | undefined;
     private listeners: Record<string, AuthEventHandler[]> = {};
-    private clientId: string;
-    private baseUrl: string;
+    private readonly clientId: string;
+    private readonly baseUrl: string;
+    private realm: string;
     private storage: IStorage;
     private tokensCache: TokenResponse | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -73,10 +75,12 @@ export default class OAuthClient {
     constructor({
         clientId,
         baseUrl,
+        realm,
         storage = new CookieStorage()
     }: Options) {
         this.clientId = clientId;
         this.baseUrl = baseUrl;
+        this.realm = realm;
 
         if (!storage) {
             throw new Error(`Unable to store session`);
@@ -219,16 +223,39 @@ export default class OAuthClient {
         connectTo?: string | undefined;
         state?: string | undefined;
     }): string {
-        const baseUrl = [
-            window.location.protocol,
-            '//',
-            window.location.host,
-        ].join('');
-
-        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
+        const redirectUri = this.normalizeRedirectUri(redirectPath)!;
         const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&kc_idp_hint=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
 
-        return `${this.baseUrl}/auth?${queryString}`;
+        return `${this.getOpenIdConnectBaseUrl()}/auth?${queryString}`;
+    }
+
+    private normalizeRedirectUri(uri: string): string {
+        if (uri.indexOf('/') === 0) {
+            const url = [
+                window.location.protocol,
+                '//',
+                window.location.host,
+            ].join('');
+
+            return `${url}${uri}`;
+        }
+
+        return uri;
+    }
+
+    private getRealmUrl(): string {
+        return `${this.baseUrl}/realms/${this.realm}`;
+    }
+
+    private getOpenIdConnectBaseUrl(): string {
+        return `${this.getRealmUrl()}/protocol/openid-connect`;
+    }
+
+    public getAccountUrl(redirect: string = '/'): string {
+        redirect ??= document.location.toString();
+        const redirectUri = this.normalizeRedirectUri(redirect);
+
+        return `${this.getRealmUrl()}/account/?referrer=${this.clientId}&referrer_uri=${encodeURIComponent(redirectUri)}#/personal-info`
     }
 
     public createLogoutUrl({
@@ -236,16 +263,10 @@ export default class OAuthClient {
     }: {
         redirectPath?: string;
     }): string {
-        const baseUrl = [
-            window.location.protocol,
-            '//',
-            window.location.host,
-        ].join('');
-
-        const redirectUri = `${redirectPath.indexOf('/') === 0 ? baseUrl : ''}${redirectPath}`;
+        const redirectUri = this.normalizeRedirectUri(redirectPath);
         const queryString = `client_id=${encodeURIComponent(this.clientId)}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
 
-        return `${this.baseUrl}/logout?${queryString}`;
+        return `${this.getOpenIdConnectBaseUrl()}/logout?${queryString}`;
     }
 
     public getTokenResponse(): TokenResponse | undefined {
@@ -319,7 +340,7 @@ export default class OAuthClient {
             params.append(k, formData[k]);
         });
 
-        const res = (await axios.post(`${this.baseUrl}/token`, params)).data as TokenResponse;
+        const res = (await axios.post(`${this.getOpenIdConnectBaseUrl()}/token`, params)).data as TokenResponse;
 
         this.persistTokens(res);
 

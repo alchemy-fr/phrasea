@@ -3,7 +3,7 @@ import config from '../config';
 import {oauthClient} from "../oauth";
 
 export const apiClient = axios.create({
-    baseURL: config.getUploadBaseURL(),
+    baseURL: config.baseUrl,
 })
 
 export function authenticatedRequest(config) {

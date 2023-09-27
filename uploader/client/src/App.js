@@ -61,7 +61,6 @@ class App extends Component {
 
     logout = () => {
         oauthClient.logout();
-        document.location.reload();
     }
 
     render() {
@@ -69,8 +68,8 @@ class App extends Component {
         const perms = user && user.permissions;
 
         return <Router>
-            {config.get('displayServicesMenu') && <DashboardMenu
-                dashboardBaseUrl={config.get('dashboardBaseUrl')}
+            {config.displayServicesMenu && <DashboardMenu
+                dashboardBaseUrl={config.dashboardBaseUrl}
             />}
             {this.state.authenticating ? <FullPageLoader/> : ''}
             <Route path={`/auth`} component={OAuthRedirect}/>
