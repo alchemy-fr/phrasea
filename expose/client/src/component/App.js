@@ -41,18 +41,18 @@ class App extends PureComponent {
     }
 
     render() {
-        const css = config.get('globalCSS');
+        const css = config.globalCSS;
 
         return <Router>
             {css && <style>
                 {css}
             </style>}
-            {config.get('displayServicesMenu') && <DashboardMenu
-                dashboardBaseUrl={config.get('dashboardBaseUrl')}
+            {config.displayServicesMenu && <DashboardMenu
+                dashboardBaseUrl={config.dashboardBaseUrl}
             />}
             <Switch>
                 <Route path="/auth" component={OAuthR}/>
-                {!config.get('disableIndexPage') && <Route path="/" exact component={PublicationIndex} />}
+                {!config.disableIndexPage && <Route path="/" exact component={PublicationIndex} />}
                 <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
                     id={params.asset}
                 />}/>

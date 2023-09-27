@@ -23,7 +23,7 @@ export default class PublicationHeader extends PureComponent {
                 </div>}
                 <h1>{title}</h1>
                 {date ? <time>{moment(date).format('LLLL')}</time> : ''}
-                {assets.length > 0 && config.get('zippyEnabled') && <div style={{
+                {assets.length > 0 && config.zippyEnabled && <div style={{
                     position: 'absolute',
                     top: 0,
                     right: 0,
@@ -33,7 +33,7 @@ export default class PublicationHeader extends PureComponent {
             {description && <Description
                 descriptionHtml={description}
             />}
-            {data.downloadEnabled && config.get('zippyEnabled') && assets.length > 0 && <div className={'download-archive'}>
+            {data.downloadEnabled && config.zippyEnabled && assets.length > 0 && <div className={'download-archive'}>
                 <ZippyDownloadButton id={data.id} data={data} />
             </div>}
         </div>

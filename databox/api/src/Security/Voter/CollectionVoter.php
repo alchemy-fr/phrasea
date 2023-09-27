@@ -41,9 +41,6 @@ class CollectionVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         $workspace = $subject->getWorkspace();
-        if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
-            return false;
-        }
 
         return match ($attribute) {
             self::CREATE => $subject->getParent() ? $this->security->isGranted(AbstractVoter::EDIT, $subject->getParent())

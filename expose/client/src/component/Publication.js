@@ -84,7 +84,7 @@ class Publication extends PureComponent {
 
             this.timeout && clearTimeout(this.timeout);
 
-            const ttl = config.get('requestSignatureTtl');
+            const ttl = config.requestSignatureTtl;
 
             if (!ttl) {
                 throw new Error(`Missing requestSignatureTtl`);

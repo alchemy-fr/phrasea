@@ -3,7 +3,6 @@ import {Publication} from "../../types";
 import {securityMethods} from "./methods";
 import FullPageLoader from "../FullPageLoader";
 import {logPublicationView} from "../../lib/log";
-import config from "../../lib/config";
 import {oauthClient} from "../../lib/api-client";
 
 type Props = PropsWithChildren<{

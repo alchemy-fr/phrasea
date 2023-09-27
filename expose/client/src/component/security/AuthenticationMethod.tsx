@@ -7,7 +7,7 @@ import {oauthClient} from "../../lib/api-client";
 type Props = {};
 
 function createLoginUrl(): string {
-    const autoConnectIdP = config.get('autoConnectIdP');
+    const autoConnectIdP = config.autoConnectIdP;
 
     setAuthRedirect(document.location.pathname);
 

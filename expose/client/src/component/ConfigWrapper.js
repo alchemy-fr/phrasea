@@ -12,7 +12,8 @@ export default function ConfigWrapper() {
             .get(`/config`)
             .then((res) => {
                 Object.keys(res).forEach(k => {
-                    config.set(k, res[k]);
+                    // @ts-ignore bypass readonly
+                    config[k] = res[k];
                 });
 
                 setLoaded(true);

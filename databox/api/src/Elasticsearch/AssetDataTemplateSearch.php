@@ -115,14 +115,19 @@ final readonly class AssetDataTemplateSearch
             throw new BadRequestHttpException('Collection is not in the same workspace');
         }
 
-        if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
-            throw new AccessDeniedHttpException('Cannot read workspace');
+        $aclBoolQuery = new Query\BoolQuery();
+
+        if (null !== $collection) {
+            if (!$this->security->isGranted(AbstractVoter::EDIT, $collection)) {
+                $aclBoolQuery->addMust(new Query\Term(['collectionId' => 'NONE']));
+            }
+        } elseif (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
+            $aclBoolQuery->addMust(new Query\Term(['workspaceId' => 'NONE']));
         }
 
         $rootQuery = new Query\BoolQuery();
         $rootQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
 
-        $aclBoolQuery = new Query\BoolQuery();
         $rootQuery->addMust($aclBoolQuery);
         $shoulds = [];
 

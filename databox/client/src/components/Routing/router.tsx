@@ -1,7 +1,8 @@
 import React, {Component, FunctionComponent, useContext} from 'react';
-import {Navigate, Route} from 'react-router-dom';
-import {getPath, RouteDefinition} from "../../routes";
+import {Route} from 'react-router-dom';
+import {RouteDefinition} from "../../routes";
 import {UserContext} from "../Security/UserContext";
+import {useKeycloakUrls} from "../../lib/keycloak";
 
 type WrapperProps = {
     component: FunctionComponent<any>
@@ -12,16 +13,12 @@ function RouteProxy({
     public: isPublic,
 }: WrapperProps) {
     const {user} = useContext(UserContext);
+    const {getLoginUrl} = useKeycloakUrls();
 
     if (!isPublic && !user) {
-        const currentPath = getCurrentPath();
+        document.location.href = getLoginUrl();
 
-        return <Navigate
-            to={getPath('login')}
-            state={{
-                from: currentPath,
-            }}
-        />
+        return <></>
     }
 
     return <Component/>
@@ -67,7 +64,3 @@ export default function createRoute(
         />}
     />
 };
-
-function getCurrentPath(): string {
-    return window.location.href.replace(window.location.origin, '');
-}

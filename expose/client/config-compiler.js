@@ -55,7 +55,7 @@
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
+        requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL ? parseInt(env.S3_REQUEST_SIGNATURE_TTL) : 86400,
         disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),
     };
 });

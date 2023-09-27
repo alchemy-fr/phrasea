@@ -16,7 +16,7 @@ class Layout extends PureComponent {
         super(props);
 
         this.state = {
-            displayMenu: config.get('sidebarDefaultOpen'),
+            displayMenu: config.sidebarDefaultOpen,
         }
     }
 
@@ -42,7 +42,7 @@ class Layout extends PureComponent {
                     {this.renderAuthenticated()}
                     <div className="p-3">
                         <h1>
-                            {!config.get('disableIndexPage') ? <Link to={'/'} className="logo">
+                            {!config.disableIndexPage ? <Link to={'/'} className="logo">
                                 <Logo/>
                             </Link> : <Logo/>}
                         </h1>
