@@ -69,7 +69,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
+        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         $output = new AssetOutput();
         $output->setCreatedAt($data->getCreatedAt());

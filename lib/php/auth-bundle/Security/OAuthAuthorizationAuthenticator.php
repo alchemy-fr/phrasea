@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AuthBundle\Security;
 
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Http\AuthStateEncoder;
 use Alchemy\AuthBundle\Security\Badge\AccessTokenBadge;
 use Alchemy\AuthBundle\Security\Badge\RefreshTokenBadge;
@@ -30,7 +30,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
     private const CHECK_ROUTE = 'alchemy_auth_oauth_check';
 
     public function __construct(
-        private readonly OAuthClient $oauthClient,
+        private readonly KeycloakClient $oauthClient,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
         private readonly AuthStateEncoder $authStateEncoder,

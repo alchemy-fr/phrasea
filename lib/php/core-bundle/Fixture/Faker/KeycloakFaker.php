@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Fixture\Faker;
 
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Faker\Generator;
 use Faker\Provider\Base as BaseProvider;
 
@@ -14,7 +14,7 @@ class KeycloakFaker extends BaseProvider
 
     public function __construct(
         Generator $generator,
-        private readonly OAuthClient $authClient,
+        private readonly KeycloakClient $keycloakClient,
     )
     {
         parent::__construct($generator);
@@ -25,12 +25,12 @@ class KeycloakFaker extends BaseProvider
         array $roles = [],
     ): string {
         if (null === $this->accessToken) {
-            ['access_token' => $this->accessToken] = $this->authClient->getClientCredentialAccessToken();
+            ['access_token' => $this->accessToken] = $this->keycloakClient->getClientCredentialAccessToken();
         }
 
         $email = $username.'@phrasea.local';
 
-        $response = $this->authClient->createUser([
+        $response = $this->keycloakClient->createUser([
             'email' => $email,
             'username' => $username,
             'emailVerified' => true,

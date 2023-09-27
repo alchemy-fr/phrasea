@@ -375,7 +375,7 @@ class BatchAttributeManager
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
             $user->getId(),
-            $user->getGroupIds(),
+            $user->getGroups(),
             'attribute_class',
             'ac',
             PermissionInterface::EDIT,

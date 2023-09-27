@@ -32,7 +32,7 @@ class ExportAction extends AbstractController
     {
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupsIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
+        $groupsIds = $user instanceof JwtUser ? $user->getGroups() : [];
         $this->validator->validate($data);
 
         $renditionIds = $data->renditions;

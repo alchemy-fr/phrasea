@@ -6,7 +6,7 @@ namespace App\Tests;
 
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Search\AbstractSearchTest;
 
 class CollectionSearchTest extends AbstractSearchTest
@@ -84,13 +84,13 @@ class CollectionSearchTest extends AbstractSearchTest
     {
         $asset = $this->createCollection([
             'title' => 'Foo',
-            'ownerId' => OAuthClientTestMock::USER_UID,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
 
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/collections'
         );
@@ -111,7 +111,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/collections'
         );
@@ -129,7 +129,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $this->grantUserOnObject(
-            OAuthClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             $collection,
             PermissionInterface::VIEW
         );
@@ -137,7 +137,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/collections'
         );
@@ -158,7 +158,7 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::getPermissionManager()->updateOrCreateAce(
             AccessControlEntryInterface::TYPE_USER_VALUE,
-            OAuthClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             'collection',
             null,
             PermissionInterface::VIEW
@@ -166,7 +166,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/collections'
         );

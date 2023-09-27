@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class PaginationTest extends AbstractExposeTestCase
 {
@@ -22,7 +22,7 @@ class PaginationTest extends AbstractExposeTestCase
         $em = self::getEntityManager();
         $em->flush();
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publications');
         $this->assertResponseIsSuccessful();
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -30,7 +30,7 @@ class PaginationTest extends AbstractExposeTestCase
             $this->assertEquals('Pub '.$this->addZero($i), $json[$i - 1]['title']);
         }
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID), 'GET', '/publications?page=2');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publications?page=2');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         foreach (range($defaultLimit + 1, $nbItems) as $i) {

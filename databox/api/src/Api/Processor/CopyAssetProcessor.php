@@ -56,7 +56,7 @@ class CopyAssetProcessor implements ProcessorInterface
 
             $this->eventProducer->publish(AssetCopyHandler::createEvent(
                 $user->getId(),
-                $user->getGroupIds(),
+                $user->getGroups(),
                 $asset->getId(),
                 $data->destination,
                 $symlink,

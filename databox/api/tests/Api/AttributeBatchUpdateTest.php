@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,7 +78,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
             ]);
             static::createClient()->request('GET', '/assets/'.$asset->getId(), [
                 'headers' => [
-                    'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
                 ],
             ]);
 
@@ -105,7 +105,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return $client->request('POST', '/attributes/batch-update', [
             'headers' => [
-                'Authorization' => 'Bearer '.OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => $actions,

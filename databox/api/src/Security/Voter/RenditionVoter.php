@@ -30,7 +30,7 @@ class RenditionVoter extends AbstractVoter
         $groupIds = [];
         if ($user instanceof JwtUser) {
             $userId = $user->getId();
-            $groupIds = $user->getGroupIds();
+            $groupIds = $user->getGroups();
         }
 
         return match ($attribute) {

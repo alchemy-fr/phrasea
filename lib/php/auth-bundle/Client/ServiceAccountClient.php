@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
-use Alchemy\AuthBundle\Client\OAuthClient as AuthClient;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -14,7 +13,7 @@ final class ServiceAccountClient
     private const ACCESS_TOKEN_CACHE_KEY = 'admin_access_token';
 
     public function __construct(
-        protected readonly AuthClient $serviceClient,
+        protected readonly KeycloakClient $serviceClient,
         private readonly CacheInterface $keycloakRealmCache,
     )
     {

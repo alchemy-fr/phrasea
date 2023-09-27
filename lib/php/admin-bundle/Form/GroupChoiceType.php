@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Form;
 
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -12,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class GroupChoiceType extends AbstractType
 {
-    public function __construct(private readonly ServiceAccountClient $serviceAccountClient, private readonly OAuthClient $authServiceClient)
+    public function __construct(private readonly ServiceAccountClient $serviceAccountClient, private readonly KeycloakClient $authServiceClient)
     {
     }
 

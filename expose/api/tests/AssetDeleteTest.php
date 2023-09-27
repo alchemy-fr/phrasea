@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\SubDefinition;
 
 class AssetDeleteTest extends AbstractExposeTestCase
@@ -19,7 +19,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -39,7 +39,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::USER_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -64,7 +64,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertSubDefinitionExist($subDef1Id);
         $this->assertSubDefinitionExist($subDef2Id);
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -81,7 +81,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
     public function testDeleteNonExistingAssetWillReturn404(): void
     {
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/invalid-asset'
         );
@@ -105,7 +105,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/delete-by-asset-id/foo'
         );

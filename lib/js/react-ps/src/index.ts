@@ -1,7 +1,7 @@
 import IdentityProviders from "./components/IdentityProviders";
 import FormLayout from "./components/FormLayout";
 import DashboardMenu from "./components/DashboardMenu/DashboardMenu";
-import OAuthClient, {
+import KeycloakClient, {
     loginEventType,
     logoutEventType,
     sessionExpiredEventType,
@@ -25,7 +25,7 @@ import useEffectOnce from "./hooks//useEffectOnce";
 export {
     IdentityProviders,
     FormLayout,
-    OAuthClient,
+    KeycloakClient,
     RequestConfigWithAuth,
     configureClientAuthentication,
     loginEventType,

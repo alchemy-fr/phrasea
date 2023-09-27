@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -15,7 +15,7 @@ readonly class JwtUserProvider implements UserProviderInterface
     public function __construct(
         private JwtExtractor $jwtExtractor,
         private JwtValidatorInterface $jwtValidator,
-        private OAuthClient $oauthClient,
+        private KeycloakClient $oauthClient,
     )
     {
     }

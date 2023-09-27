@@ -44,7 +44,7 @@ readonly class AssetDataTemplateExtension implements QueryCollectionExtensionInt
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),
-                $user->getGroupIds(),
+                $user->getGroups(),
                 $this->objectMapping->getObjectKey(AssetDataTemplate::class),
                 $rootAlias,
                 PermissionInterface::VIEW,

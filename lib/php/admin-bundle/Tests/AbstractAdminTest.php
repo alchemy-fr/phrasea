@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Tests;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -91,7 +91,7 @@ abstract class AbstractAdminTest extends WebTestCase
 
     protected function getAuthAdminUser(): UserInterface
     {
-        return new JwtUser(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), OAuthClientTestMock::ADMIN_UID, 'admin', [
+        return new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
             JwtUser::ROLE_ADMIN,
         ]);
     }

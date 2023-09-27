@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
@@ -15,7 +15,7 @@ class CommitTest extends AbstractUploaderTestCase
         [$commitId, $assetId] = $this->createCommit();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/commits/'.$commitId
         );
@@ -29,7 +29,7 @@ class CommitTest extends AbstractUploaderTestCase
     public function testGetCommitListOK(): void
     {
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/commits'
         );

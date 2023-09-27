@@ -1,11 +1,11 @@
 import React from 'react';
-import {OAuthClient, useEffectOnce} from "react-ps";
+import {KeycloakClient, useEffectOnce} from "react-ps";
 import qs from "querystring";
 import {useHistory, useLocation} from "react-router-dom";
 import * as H from "history";
 
 type Props = {
-    oauthClient: OAuthClient,
+    oauthClient: KeycloakClient,
     successUri: string,
     errorUri: string,
     successHandler: (history: H.History) => void,

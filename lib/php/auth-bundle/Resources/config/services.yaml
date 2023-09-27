@@ -9,7 +9,7 @@ services:
     public: false
 
   Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
-  Alchemy\AuthBundle\Client\OAuthClient: ~
+  Alchemy\AuthBundle\Client\KeycloakClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
   Alchemy\AuthBundle\Http\AuthStateEncoder: ~
   Alchemy\AuthBundle\Listener\LogoutListener: ~

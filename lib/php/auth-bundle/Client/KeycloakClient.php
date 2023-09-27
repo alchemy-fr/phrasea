@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class OAuthClient
+final readonly class KeycloakClient
 {
     public function __construct(
         private HttpClientInterface $keycloakClient,

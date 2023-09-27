@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends AbstractExposeTestCase
@@ -15,12 +15,12 @@ class AssetUploadTest extends AbstractExposeTestCase
         $id = $publication->getId();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/assets',
             [
                 'publication_id' => $publication->getId(),
-                'asset_id' => OAuthClientTestMock::ADMIN_UID,
+                'asset_id' => KeycloakClientTestMock::ADMIN_UID,
             ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
@@ -40,7 +40,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         // Test the asset is added to the publication
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -54,7 +54,7 @@ class AssetUploadTest extends AbstractExposeTestCase
     {
         $publication = $this->createPublication();
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets', [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [
             'publication_id' => $publication->getId(),
         ]);
         $this->assertEquals(400, $response->getStatusCode());
@@ -64,7 +64,7 @@ class AssetUploadTest extends AbstractExposeTestCase
     {
         $publication = $this->createPublication();
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets', [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [
             'publication_id' => $publication->getId(),
         ], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
@@ -74,7 +74,7 @@ class AssetUploadTest extends AbstractExposeTestCase
 
     public function testUploadWithoutPublicationIdGenerates400(): void
     {
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());

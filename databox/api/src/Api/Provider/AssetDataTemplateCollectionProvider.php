@@ -22,7 +22,7 @@ class AssetDataTemplateCollectionProvider extends AbstractCollectionProvider
     ): array|object {
         $user = $this->security->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
+        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         return $this->search->search($userId, $groupIds, $context['filters'] ?? []);
     }

@@ -25,7 +25,7 @@ readonly class SecurityContextBuilder implements SerializerContextBuilderInterfa
 
         $user = $this->security->getUser();
         $context['userId'] = $user instanceof JwtUser ? $user->getId() : null;
-        $context['groupIds'] = $user instanceof JwtUser ? $user->getGroupIds() : [];
+        $context['groupIds'] = $user instanceof JwtUser ? $user->getGroups() : [];
         $context['groupBy'] = $request->query->all('group');
         $context['filters'] = $request->query->get('filters');
 

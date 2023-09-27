@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends AbstractUploaderTestCase
@@ -14,7 +14,7 @@ class AssetUploadTest extends AbstractUploaderTestCase
         $this->markTestIncomplete();
 
         return;
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
         $json = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -48,13 +48,13 @@ class AssetUploadTest extends AbstractUploaderTestCase
 
     public function testUploadAssetWithoutFileGenerates400(): void
     {
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testUploadEmptyFileGenerates400(): void
     {
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());

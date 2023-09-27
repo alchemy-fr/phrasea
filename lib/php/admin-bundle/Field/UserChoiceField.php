@@ -2,14 +2,14 @@
 
 namespace Alchemy\AdminBundle\Field;
 
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Alchemy\AuthBundle\Security\JwtUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 final readonly class UserChoiceField
 {
-    public function __construct(private ServiceAccountClient $serviceAccountClient, private OAuthClient $authServiceClient)
+    public function __construct(private ServiceAccountClient $serviceAccountClient, private KeycloakClient $authServiceClient)
     {
     }
 

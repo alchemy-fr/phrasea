@@ -41,7 +41,7 @@ class AttributeClassCollectionProvider extends AbstractCollectionProvider
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),
-                $user->getGroupIds(),
+                $user->getGroups(),
                 'workspace',
                 'w',
                 PermissionInterface::EDIT,

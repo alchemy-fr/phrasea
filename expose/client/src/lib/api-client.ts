@@ -1,7 +1,7 @@
-import {configureClientAuthentication, createHttpClient, OAuthClient} from 'react-ps';
+import {configureClientAuthentication, createHttpClient, KeycloakClient} from 'react-ps';
 import config from "./config";
 
-export const oauthClient = new OAuthClient({
+export const oauthClient = new KeycloakClient({
     clientId: config.clientId,
     baseUrl: config.keycloakUrl,
     realm: config.realmName,

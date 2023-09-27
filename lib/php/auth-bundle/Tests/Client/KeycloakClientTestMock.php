@@ -17,7 +17,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
-class OAuthClientTestMock implements HttpClientInterface
+class KeycloakClientTestMock implements HttpClientInterface
 {
     final public const USER_TOKEN = '__VALID_USER_TOKEN__';
     final public const ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';

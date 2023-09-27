@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Security\PasswordSecurityMethodInterface;
 
 class PublicationPasswordTest extends AbstractExposeTestCase
@@ -56,7 +56,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
             'password' => 'xxx',
         ])->getId();
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);

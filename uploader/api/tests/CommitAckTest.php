@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
@@ -22,7 +22,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/commits/'.$commit->getId().'/ack'
         );
@@ -46,7 +46,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/assets/'.$asset1->getId().'/ack',
             [],
@@ -59,7 +59,7 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/assets/'.$asset2->getId().'/ack',
             [],

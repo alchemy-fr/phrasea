@@ -20,7 +20,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
     {
         $user = $this->security->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroupIds() : [];
+        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
 

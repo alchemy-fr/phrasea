@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class SubDefinitionUploadTest extends AbstractExposeTestCase
@@ -15,7 +15,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $assetId = $this->createAsset($publication);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/sub-definitions', [
             'asset_id' => $assetId,
@@ -39,7 +39,7 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         // Test the sub definition is added to the asset
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/assets/'.$assetId.'/sub-definitions');
 

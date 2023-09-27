@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class NestedPublicationTest extends AbstractExposeTestCase
 {
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'ownerId' => OAuthClientTestMock::ADMIN_UID,
+            'ownerId' => KeycloakClientTestMock::ADMIN_UID,
         ])->getId();
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/publications',
             [
@@ -34,12 +34,12 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Sub Foo', $json['title']);
         $this->assertMatchesUuid($json['id']);
-        $this->assertEquals(OAuthClientTestMock::ADMIN_UID, $json['ownerId']);
+        $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $json['ownerId']);
 
         $this->assertArrayHasKey('parent', $json);
         $this->assertEquals($id, $json['parent']['id']);
         $this->assertArrayHasKey('title', $json['parent']);
-        $this->assertEquals(OAuthClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
+        $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
     }
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
@@ -55,7 +55,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
                      'application/ld+json',
                  ] as $accept) {
             $response = $this->request(
-                OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+                KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
                 'GET',
                 '/publications/'.$childId,
                 [],
@@ -92,7 +92,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$parentId
         );
@@ -112,7 +112,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
         // Test child
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$childId
         );
@@ -164,7 +164,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(
-            OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID),
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/publications/'.$ids['p1']
         );
@@ -190,7 +190,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(OAuthClientTestMock::getJwtFor(OAuthClientTestMock::ADMIN_UID), 'GET', '/publications');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());

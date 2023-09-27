@@ -62,7 +62,7 @@ type Options = {
     realm: string;
 }
 
-export default class OAuthClient {
+export default class KeycloakClient {
     public tokenPromise: Promise<any> | undefined;
     private listeners: Record<string, AuthEventHandler[]> = {};
     private readonly clientId: string;
@@ -198,7 +198,7 @@ export default class OAuthClient {
             console.log('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
                 if (e.response?.data?.error === 'invalid_grant') {
-                    this.logout();
+                    this.sessionExpired();
                 }
             }
 
@@ -298,6 +298,7 @@ export default class OAuthClient {
     }
 
     private sessionExpired(): void {
+        this.clearSessionTimeout();
         this.triggerEvent<LogoutEvent>(sessionExpiredEventType);
         this.doLogout();
     }
@@ -352,7 +353,7 @@ export type RequestConfigWithAuth = {
     anonymous?: boolean;
 } & AxiosRequestConfig;
 
-export function configureClientAuthentication(client: AxiosInstance, oauthClient: OAuthClient): void {
+export function configureClientAuthentication(client: AxiosInstance, oauthClient: KeycloakClient): void {
     client.interceptors.request.use(async (config: RequestConfigWithAuth) => {
         if (config.anonymous || !oauthClient.isAuthenticated()) {
             return config;

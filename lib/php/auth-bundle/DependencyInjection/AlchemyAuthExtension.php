@@ -3,7 +3,7 @@
 namespace Alchemy\AuthBundle\DependencyInjection;
 
 use Alchemy\AuthBundle\Client\AdminClient;
-use Alchemy\AuthBundle\Client\OAuthClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
@@ -34,7 +34,7 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
             $loader->load('services_test.yaml');
         }
 
-        $def = $container->findDefinition(OAuthClient::class);
+        $def = $container->findDefinition(KeycloakClient::class);
         $def->setArgument('$clientId', $config['client_id']);
         $def->setArgument('$clientSecret', $config['client_secret']);
 

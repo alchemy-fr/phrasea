@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use Alchemy\AuthBundle\Tests\Client\OAuthClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\AbstractDataboxTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -57,7 +57,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
         if (null !== $userId) {
             $defaultOptions['headers'] ??= [];
-            $defaultOptions['headers']['Authorization'] = 'Bearer '.OAuthClientTestMock::getJwtFor($userId);
+            $defaultOptions['headers']['Authorization'] = 'Bearer '.KeycloakClientTestMock::getJwtFor($userId);
         }
 
         if (null !== $data) {
@@ -101,20 +101,20 @@ final class CrudTest extends AbstractDataboxTestCase
 
     public function getCases(): array
     {
-        $createAttributeClass = ['POST', '/attribute-classes', OAuthClientTestMock::ADMIN_UID, [
+        $createAttributeClass = ['POST', '/attribute-classes', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrClass Test',
             'public' => true,
             'editable' => false,
         ]];
 
-        $createRenditionClass = ['POST', '/rendition-classes', OAuthClientTestMock::ADMIN_UID, [
+        $createRenditionClass = ['POST', '/rendition-classes', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'RendClass Test',
             'public' => true,
         ]];
 
-        $createAttributeDefinition = ['POST', '/attribute-definitions', OAuthClientTestMock::ADMIN_UID, [
+        $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
             'class' => '/attribute-classes/{attributeClassId}',
@@ -126,19 +126,19 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 401,
             ]],
 
-            ['POST', '/attribute-classes', OAuthClientTestMock::USER_UID, [
+            ['POST', '/attribute-classes', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/attribute-classes', OAuthClientTestMock::ADMIN_UID, [
+            ['POST', '/attribute-classes', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/attribute-classes', OAuthClientTestMock::USER_UID, [
+            ['POST', '/attribute-classes', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
                 'public' => true,
@@ -149,7 +149,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributeClass,
 
-            ['PUT', '/attribute-classes/{lastId}', OAuthClientTestMock::ADMIN_UID, [
+            ['PUT', '/attribute-classes/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrClass Test 2',
                 'public' => false,
                 'editable' => true,
@@ -162,19 +162,19 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 401,
             ]],
 
-            ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
+            ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/rendition-classes', OAuthClientTestMock::ADMIN_UID, [
+            ['POST', '/rendition-classes', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/rendition-classes', OAuthClientTestMock::USER_UID, [
+            ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'RendClass Test',
                 'public' => true,
@@ -184,7 +184,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createRenditionClass,
 
-            ['PUT', '/rendition-classes/{lastId}', OAuthClientTestMock::ADMIN_UID, [
+            ['PUT', '/rendition-classes/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'RendClass Test 2',
                 'public' => false,
             ], [], [
@@ -196,19 +196,19 @@ final class CrudTest extends AbstractDataboxTestCase
                 'code' => 401,
             ]],
 
-            ['POST', '/attribute-definitions', OAuthClientTestMock::USER_UID, [
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/attribute-definitions', OAuthClientTestMock::ADMIN_UID, [
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
 
-            ['POST', '/attribute-definitions', OAuthClientTestMock::USER_UID, [
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
                 'class' => '/attribute-classes/{attributeClassId}',
@@ -218,7 +218,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributeDefinition,
 
-            ['PUT', '/attribute-definitions/{lastId}', OAuthClientTestMock::ADMIN_UID, [
+            ['PUT', '/attribute-definitions/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrDef Test 2',
             ], [], [
                 'createItem' => $createAttributeDefinition,

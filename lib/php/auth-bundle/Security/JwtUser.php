@@ -41,11 +41,6 @@ class JwtUser implements JwtInterface, JwtUserInterface
         return $this->groups;
     }
 
-    public function getGroupIds(): array
-    {
-        return array_keys($this->groups);
-    }
-
     public function getPassword()
     {
         return null;
