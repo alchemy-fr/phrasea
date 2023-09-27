@@ -47,7 +47,7 @@ readonly class PublicationProfileExtension implements QueryCollectionExtensionIn
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
-                    $user->getGroupIds(),
+                    $user->getGroups(),
                     'profile',
                     'o',
                     PermissionInterface::VIEW,

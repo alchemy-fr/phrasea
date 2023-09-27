@@ -55,7 +55,7 @@ class PublicationExtension implements QueryCollectionExtensionInterface
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
-                    $user->getGroupIds(),
+                    $user->getGroups(),
                     'publication',
                     $rootAlias,
                     PermissionInterface::EDIT,

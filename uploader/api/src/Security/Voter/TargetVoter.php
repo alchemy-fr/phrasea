@@ -35,7 +35,7 @@ class TargetVoter extends Voter
         $user = $token->getUser();
         $groups = [];
         if ($user instanceof JwtUser) {
-            $groups = $user->getGroupIds();
+            $groups = $user->getGroups();
         }
 
         return match ($attribute) {

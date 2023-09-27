@@ -112,7 +112,7 @@ class PublicationFilter extends AbstractFilter
                     AccessControlEntryRepository::joinAcl(
                         $queryBuilder,
                         $user->getId(),
-                        $user->getGroupIds(),
+                        $user->getGroups(),
                         'publication',
                         'o',
                         PermissionInterface::EDIT,
