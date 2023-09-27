@@ -24,7 +24,7 @@ export async function makeAuthorizationHeaders(): Promise<MyHeaders> {
 type FormData = Record<string, any> | undefined;
 
 export async function UploadFiles(userId: string, files: UploadedFile[], formData?: FormData): Promise<void> {
-    const targetSlug = config.get('uploaderTargetSlug');
+    const targetSlug = config.uploaderTargetSlug;
     const assets = await promiseConcurrency(files.map(f => () => UploadFile(targetSlug, userId, f)), 2);
 
     await CommitUpload(targetSlug, assets, formData);

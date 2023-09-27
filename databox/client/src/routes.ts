@@ -1,6 +1,5 @@
 import {FunctionComponent} from "react";
 import App from "./components/App";
-import Login from "./pages/Security/Login";
 import OAuthRedirect from "./oauth";
 import WorkspaceDialog from "./components/Dialog/Workspace/WorkspaceDialog";
 import CollectionDialog from "./components/Dialog/Collection/CollectionDialog";
@@ -58,12 +57,6 @@ export const routes: RouteDefinition[] = [
         path: appPathPrefix,
         component: App,
         routes: modalRoutes,
-        public: true,
-    },
-    {
-        name: 'login',
-        path: '/login',
-        component: Login,
         public: true,
     },
     {

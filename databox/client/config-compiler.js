@@ -1,12 +1,6 @@
 (function (config, env) {
     config = config || {};
 
-    const identityProviders = config.auth && config.auth.identity_providers ? config.auth.identity_providers.map(idp => {
-        delete idp.options;
-
-        return idp;
-    }) : [];
-
     let scriptTpl = '';
     const analytics = config.databox.analytics;
 
@@ -75,12 +69,12 @@
             __TPL_HEAD__: scriptTpl,
         },
         locales: config.available_locales,
-        identityProviders,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_URL,
         uploaderTargetSlug: env.UPLOADER_TARGET_SLUG,
         authBaseUrl: env.OPENID_CONNECT_URL,
+        userAccountUrl: env.USER_ACCOUNT_URL,
         clientId: env.CLIENT_ID,
         devMode: env.DEV_MODE === 'true',
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,

@@ -79,6 +79,7 @@ services:
     environment:
       - DEV_MODE
       - OPENID_CONNECT_URL
+      - USER_ACCOUNT_URL
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_URL
@@ -121,7 +122,6 @@ services:
       - NEWRELIC_LICENSE_KEY
       - SENTRY_DSN
       - SENTRY_ENVIRONMENT
-      - SENTRY_RELEASE
       - KEYCLOAK_URL
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
