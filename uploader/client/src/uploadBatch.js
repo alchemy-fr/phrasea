@@ -126,7 +126,6 @@ export default class UploadBatch {
             formData: this.formData,
             target: `/targets/${this.targetId}`,
         };
-        const accessToken = oauthClient.getAccessToken();
 
         authenticatedRequest({
             url: '/commit',

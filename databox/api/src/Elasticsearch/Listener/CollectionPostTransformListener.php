@@ -26,26 +26,23 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
 
         $document = $event->getDocument();
 
-        $bestPrivacy = $collection->getBestPrivacyInParentHierarchy();
-
-        if ($bestPrivacy < WorkspaceItemPrivacyInterface::PUBLIC) {
-            $bestPrivacy = max($bestPrivacy, $collection->getBestPrivacyInDescendantHierarchy());
-        }
+        $bestPrivacy = $collection->getBestPrivacyInDescendantHierarchy();
 
         [$users, $groups] = $this->discoverChildren($collection);
 
-        if (!in_array(null, $users, true)) {
-            $parent = $collection->getParent();
-            while (null !== $parent) {
-                $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
-                if (in_array(null, $users, true)) {
-                    break;
-                }
-
-                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
-                $parent = $parent->getParent();
-            }
-        }
+        // TODO check impact
+//        if (!in_array(null, $users, true)) {
+//            $parent = $collection->getParent();
+//            while (null !== $parent) {
+//                $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
+//                if (in_array(null, $users, true)) {
+//                    break;
+//                }
+//
+//                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
+//                $parent = $parent->getParent();
+//            }
+//        }
 
         if (in_array(null, $users, true)) {
             $users = ['*'];
