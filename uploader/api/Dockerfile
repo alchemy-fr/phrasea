@@ -4,10 +4,6 @@ FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 RUN printf "\nrequest_terminate_timeout = 600\n" >> /usr/local/etc/php-fpm.d/large-upload.conf
 
-ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
-RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \
-    && update-ca-certificates
-
 # Warm up composer cache for faster builds
 COPY docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
