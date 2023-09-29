@@ -10,7 +10,7 @@ ENV SERVER_PORT=3000
 
 EXPOSE 3000
 
-COPY . .
+COPY --chown=node:node . .
 
 RUN yarn install \
     && yarn build
