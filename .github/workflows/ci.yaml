@@ -105,6 +105,7 @@ jobs:
     with:
       image: databox-indexer
       context: ./databox/indexer
+      withLibs: true
     secrets: inherit
 
   build_expose_api:
