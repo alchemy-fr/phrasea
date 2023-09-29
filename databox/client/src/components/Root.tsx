@@ -5,13 +5,13 @@ import Routes from "./Routing/Routes";
 import {BrowserRouter} from "react-router-dom";
 import ModalStack from "../hooks/useModalStack";
 import UserPreferencesProvider from "./User/Preferences/UserPreferencesProvider";
-import {oauthClient} from "../api/api-client";
+import {keycloakClient, oauthClient} from "../api/api-client";
 import {toast} from "react-toastify";
 import {
     loginEventType,
     logoutEventType,
     sessionExpiredEventType,
-} from 'react-ps';
+} from '@alchemy/auth';
 
 type Props = {};
 
@@ -53,7 +53,7 @@ export default function Root({}: Props) {
     }, [setUser]);
 
     const logout = React.useCallback((redirectUri: string|false = '/') => {
-        oauthClient.logout(redirectUri);
+        keycloakClient.logout(redirectUri);
     }, []);
 
     return <UserContext.Provider value={{

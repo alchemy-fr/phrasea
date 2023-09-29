@@ -12,7 +12,7 @@ interface MyHeaders extends RawAxiosRequestHeaders {
 export async function makeAuthorizationHeaders(): Promise<MyHeaders> {
     if (oauthClient.isAuthenticated()) {
         if (!oauthClient.isAccessTokenValid()) {
-            await oauthClient.refreshToken();
+            await oauthClient.getTokenFromRefreshToken();
         }
 
         return {Authorization: `Bearer ${oauthClient.getAccessToken()!}`};

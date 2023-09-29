@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import config from '../lib/config';
 import {Logo} from "./Logo";
 import {Trans} from "react-i18next";
-import {oauthClient} from "../lib/api-client";
+import {keycloakClient} from "../lib/api-client";
 
 class Layout extends PureComponent {
     static propTypes = {
@@ -58,7 +58,7 @@ class Layout extends PureComponent {
     }
 
     logout = () => {
-        oauthClient.logout();
+        keycloakClient.logout();
     }
 
     renderAuthenticated() {

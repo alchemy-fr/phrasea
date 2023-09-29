@@ -1,8 +1,6 @@
-import axios, {Axios, AxiosInstance, AxiosRequestConfig} from "axios";
-import CookieStorage from "./cookieStorage";
+import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
+import CookieStorage from "../storage/cookieStorage";
 import jwtDecode from "jwt-decode";
-
-const tokenStorageKey = 'token';
 
 type TokenResponse = {
     access_token: string;
@@ -58,34 +56,40 @@ export interface IStorage {
 type Options = {
     storage?: IStorage;
     clientId: string;
+    clientSecret?: string;
     baseUrl: string;
-    realm: string;
-}
+    tokenStorageKey?: string;
+};
 
-export default class KeycloakClient {
+export type {Options as OAuthClientOptions};
+
+export default class OAuthClient {
     public tokenPromise: Promise<any> | undefined;
+    public readonly clientId: string;
+    public readonly clientSecret: string | undefined;
+    public readonly baseUrl: string;
     private listeners: Record<string, AuthEventHandler[]> = {};
-    private readonly clientId: string;
-    private readonly baseUrl: string;
-    private realm: string;
-    private storage: IStorage;
+    private readonly storage: IStorage;
     private tokensCache: TokenResponse | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
+    private readonly tokenStorageKey: string = 'token';
 
     constructor({
         clientId,
+        clientSecret,
         baseUrl,
-        realm,
-        storage = new CookieStorage()
+        storage = new CookieStorage(),
+        tokenStorageKey,
     }: Options) {
         this.clientId = clientId;
+        this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
-        this.realm = realm;
 
         if (!storage) {
             throw new Error(`Unable to store session`);
         }
         this.storage = storage;
+        this.tokenStorageKey = tokenStorageKey ?? 'token';
     }
 
     public getAccessToken(): string | undefined {
@@ -117,7 +121,6 @@ export default class KeycloakClient {
 
     public isAccessTokenValid(): boolean {
         const tokens = this.fetchTokens();
-        console.debug('isAccessTokenValid tokens', tokens);
         if (tokens) {
             return tokens.expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
         }
@@ -134,24 +137,22 @@ export default class KeycloakClient {
         return jwtDecode<UserInfoResponse>(accessToken);
     }
 
-    logout(redirectPath: string | false = '/'): void {
+    public logout(): void {
         this.clearSessionTimeout();
 
-        this.doLogout();
-
-        if (false !== redirectPath) {
-            document.location.href = this.createLogoutUrl({redirectPath});
-        }
+        this.triggerEvent(logoutEventType);
+        this.storage.removeItem(this.tokenStorageKey);
+        this.tokensCache = undefined;
     }
 
-    registerListener(event: string, callback: AuthEventHandler): void {
+    public registerListener(event: string, callback: AuthEventHandler): void {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
         }
         this.listeners[event].push(callback);
     }
 
-    unregisterListener(event: string, callback: AuthEventHandler): void {
+    public unregisterListener(event: string, callback: AuthEventHandler): void {
         if (!this.listeners[event]) {
             return;
         }
@@ -162,7 +163,7 @@ export default class KeycloakClient {
         }
     }
 
-    public async getAccessTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
+    public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
         const res = await this.getToken({
             code,
             grant_type: 'authorization_code',
@@ -180,7 +181,7 @@ export default class KeycloakClient {
         return res;
     }
 
-    async refreshToken(): Promise<TokenResponse> {
+    async getTokenFromRefreshToken(): Promise<TokenResponse> {
         try {
             const res = await this.getToken({
                 refresh_token: this.getRefreshToken()!,
@@ -206,9 +207,23 @@ export default class KeycloakClient {
         }
     }
 
+    public async getTokenFromClientCredentials(): Promise<TokenResponse> {
+        const res = await this.getToken({
+            grant_type: 'client_credentials',
+            client_id: this.clientId,
+            client_secret: this.clientSecret,
+        });
+
+        await this.triggerEvent<RefreshTokenEvent>(refreshTokenEventType, {
+            response: res,
+        });
+
+        return res;
+    }
+
     public async wrapPromiseWithValidToken<T = any>(callback: (tokens: TokenResponse) => Promise<T>): Promise<T> {
         if (!this.isAccessTokenValid()) {
-            await this.refreshToken();
+            await this.getTokenFromRefreshToken();
         }
 
         return await callback(this.fetchTokens()!);
@@ -223,60 +238,14 @@ export default class KeycloakClient {
         connectTo?: string | undefined;
         state?: string | undefined;
     }): string {
-        const redirectUri = this.normalizeRedirectUri(redirectPath)!;
+        const redirectUri = normalizeRedirectUri(redirectPath)!;
         const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&kc_idp_hint=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
 
-        return `${this.getOpenIdConnectBaseUrl()}/auth?${queryString}`;
-    }
-
-    private normalizeRedirectUri(uri: string): string {
-        if (uri.indexOf('/') === 0) {
-            const url = [
-                window.location.protocol,
-                '//',
-                window.location.host,
-            ].join('');
-
-            return `${url}${uri}`;
-        }
-
-        return uri;
-    }
-
-    private getRealmUrl(): string {
-        return `${this.baseUrl}/realms/${this.realm}`;
-    }
-
-    private getOpenIdConnectBaseUrl(): string {
-        return `${this.getRealmUrl()}/protocol/openid-connect`;
-    }
-
-    public getAccountUrl(redirect: string = '/'): string {
-        redirect ??= document.location.toString();
-        const redirectUri = this.normalizeRedirectUri(redirect);
-
-        return `${this.getRealmUrl()}/account/?referrer=${this.clientId}&referrer_uri=${encodeURIComponent(redirectUri)}#/personal-info`
-    }
-
-    public createLogoutUrl({
-        redirectPath = '/',
-    }: {
-        redirectPath?: string;
-    }): string {
-        const redirectUri = this.normalizeRedirectUri(redirectPath);
-        const queryString = `client_id=${encodeURIComponent(this.clientId)}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
-
-        return `${this.getOpenIdConnectBaseUrl()}/logout?${queryString}`;
+        return `${this.baseUrl}/auth?${queryString}`;
     }
 
     public getTokenResponse(): TokenResponse | undefined {
         return this.fetchTokens();
-    }
-
-    private doLogout(): void {
-        this.triggerEvent(logoutEventType);
-        this.storage.removeItem(tokenStorageKey);
-        this.tokensCache = undefined;
     }
 
     private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
@@ -298,9 +267,8 @@ export default class KeycloakClient {
     }
 
     private sessionExpired(): void {
-        this.clearSessionTimeout();
         this.triggerEvent<LogoutEvent>(sessionExpiredEventType);
-        this.doLogout();
+        this.logout();
     }
 
     private clearSessionTimeout(): void {
@@ -316,7 +284,7 @@ export default class KeycloakClient {
         token.refresh_expires_at = now + token.refresh_expires_in;
         this.tokensCache = token;
 
-        this.storage.setItem(tokenStorageKey, JSON.stringify(token));
+        this.storage.setItem(this.tokenStorageKey, JSON.stringify(token));
     }
 
     private fetchTokens(): TokenResponse | undefined {
@@ -324,24 +292,27 @@ export default class KeycloakClient {
             return this.tokensCache;
         }
 
-        const t = this.storage.getItem(tokenStorageKey);
+        const t = this.storage.getItem(this.tokenStorageKey);
         if (t) {
             return this.tokensCache = JSON.parse(t) as TokenResponse;
         }
     }
 
-    private async getToken(data: Record<string, string>): Promise<TokenResponse> {
+    private async getToken(data: Record<string, string | undefined>): Promise<TokenResponse> {
         const params = new URLSearchParams();
-        const formData: Record<string, string> = {
+        const formData: Record<string, string | undefined> = {
             ...data,
             client_id: this.clientId,
+            client_secret: this.clientSecret,
         };
 
         Object.keys(formData).map(k => {
-            params.append(k, formData[k]);
+            if (undefined !== formData[k]) {
+                params.append(k, formData[k] as string);
+            }
         });
 
-        const res = (await axios.post(`${this.getOpenIdConnectBaseUrl()}/token`, params)).data as TokenResponse;
+        const res = (await axios.post(`${this.baseUrl}/token`, params)).data as TokenResponse;
 
         this.persistTokens(res);
 
@@ -353,9 +324,17 @@ export type RequestConfigWithAuth = {
     anonymous?: boolean;
 } & AxiosRequestConfig;
 
-export function configureClientAuthentication(client: AxiosInstance, oauthClient: KeycloakClient): void {
-    client.interceptors.request.use(async (config: RequestConfigWithAuth) => {
-        if (config.anonymous || !oauthClient.isAuthenticated()) {
+export function configureClientAuthentication(client: AxiosInstance, oauthClient: OAuthClient): void {
+    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromRefreshToken"));
+}
+
+export function configureClientCredentialsGrantType(client: AxiosInstance, oauthClient: OAuthClient): void {
+    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromClientCredentials"));
+}
+
+function createAxiosInterceptor(oauthClient: OAuthClient, method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials") {
+    return async (config: RequestConfigWithAuth) => {
+        if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {
             return config;
         }
 
@@ -364,7 +343,7 @@ export function configureClientAuthentication(client: AxiosInstance, oauthClient
             if (p) {
                 await p;
             } else {
-                const p = oauthClient.refreshToken();
+                const p = oauthClient[method]();
                 oauthClient.tokenPromise = p;
 
                 try {
@@ -379,5 +358,19 @@ export function configureClientAuthentication(client: AxiosInstance, oauthClient
         config.headers['Authorization'] = `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`;
 
         return config;
-    });
+    };
+}
+
+export function normalizeRedirectUri(uri: string): string {
+    if (uri.indexOf('/') === 0) {
+        const url = [
+            window.location.protocol,
+            '//',
+            window.location.host,
+        ].join('');
+
+        return `${url}${uri}`;
+    }
+
+    return uri;
 }

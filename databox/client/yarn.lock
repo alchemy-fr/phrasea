@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@alchemy/auth@link:./__lib/auth":
+  version "0.0.0"
+  uid ""
+
 "@alchemy/visual-workflow@link:./__lib/visual-workflow":
   version "0.0.0"
   uid ""

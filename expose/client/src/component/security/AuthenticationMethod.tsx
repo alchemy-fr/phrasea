@@ -1,8 +1,8 @@
 import React from 'react';
 import config from "../../lib/config";
-import {FormLayout} from "react-ps";
 import {setAuthRedirect} from "../../lib/oauth";
 import {oauthClient} from "../../lib/api-client";
+import FormLayout from "./FormLayout";
 
 type Props = {};
 

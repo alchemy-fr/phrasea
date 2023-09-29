@@ -12,7 +12,7 @@ import Download from "./components/page/Download";
 import TargetDataEditor from "./components/page/TargetDataEditor";
 import Languages from "./components/Languages";
 import {withTranslation} from 'react-i18next';
-import {oauthClient, OAuthRedirect} from "./oauth";
+import {keycloakClient, oauthClient, OAuthRedirect} from "./oauth";
 import AuthError from "./components/page/AuthError";
 import SelectTarget from "./components/page/SelectTarget";
 import {DashboardMenu} from "react-ps";
@@ -60,7 +60,7 @@ class App extends Component {
     }
 
     logout = () => {
-        oauthClient.logout();
+        keycloakClient.logout();
     }
 
     render() {

@@ -3,8 +3,8 @@ import React, {PropsWithChildren} from 'react';
 type Props = PropsWithChildren<{}>;
 
 export default function FormLayout({
-                                       children,
-                                   }: Props) {
+    children,
+}: Props) {
     return <>
         <div className="container">
             <div className="row">

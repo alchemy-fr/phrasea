@@ -12,7 +12,7 @@ export default function OAuthRedirect() {
         const state = params.get('state');
 
         oauthClient
-            .getAccessTokenFromAuthCode(
+            .getTokenFromAuthCode(
                 params.get('code') as string,
                 window.location.href.split('?')[0]
             )

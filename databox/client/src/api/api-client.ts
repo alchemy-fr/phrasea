@@ -1,11 +1,12 @@
-import {configureClientAuthentication, createHttpClient, KeycloakClient} from 'react-ps';
+import {configureClientAuthentication, createHttpClient, KeycloakClient} from '@alchemy/auth';
 import config from "../config";
 
-export const oauthClient = new KeycloakClient({
+export const keycloakClient = new KeycloakClient({
     clientId: config.clientId,
     baseUrl: config.keycloakUrl,
     realm: config.realmName,
 });
+export const oauthClient = keycloakClient.client;
 
 const apiClient = createHttpClient(window.config.baseUrl);
 

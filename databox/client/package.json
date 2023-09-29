@@ -50,6 +50,7 @@
     "react-nl2br": "^1.0.3",
     "react-pdf": "^5.7.2",
     "react-player": "^2.10.1",
+    "@alchemy/auth": "link:./__lib/auth",
     "react-ps": "link:./__lib/react-ps",
     "react-router-dom": "6",
     "react-scripts": "^5.0.1",
@@ -62,7 +63,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "postinstall": "yarn install-react-ps; yarn install-visual-workflow",
+    "postinstall": "yarn install-react-ps; yarn install-auth; yarn install-visual-workflow",
+    "install-auth": "cd ./__lib/auth && yarn install && yarn build && rm -rf node_modules",
     "install-react-ps": "cd ./__lib/react-ps && yarn install && yarn build && rm -rf node_modules",
     "install-visual-workflow": "cd ./__lib/visual-workflow && yarn install && yarn build && rm -rf node_modules",
     "start": "react-scripts start",

@@ -2,7 +2,7 @@ import apiClient from "./api-client";
 import {Asset, AssetFileVersion, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
-import {RequestConfig} from "react-ps";
+import {RequestConfig} from "@alchemy/auth";
 
 export interface GetAssetOptions {
     url?: string;

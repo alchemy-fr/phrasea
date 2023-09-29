@@ -11,6 +11,7 @@ JS_PROJECTS="
 databox/client
 expose/client
 uploader/client
+databox/indexer
 "
 
 PHP_LIBS="

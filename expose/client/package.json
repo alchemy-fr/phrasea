@@ -25,6 +25,7 @@
     "react-image-magnifiers": "^1.3.2",
     "react-images": "^1.1.7",
     "react-loader-spinner": "^3.1.4",
+    "@alchemy/auth": "link:./__lib/auth",
     "react-ps": "link:./__lib/react-ps",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.2.0",
@@ -35,7 +36,9 @@
     "video.js": "^7.8.3"
   },
   "scripts": {
-    "postinstall": "cd ./__lib/react-ps && yarn install && yarn build && rm -rf node_modules",
+    "postinstall": "yarn install-auth; yarn install-react-ps",
+    "install-auth": "cd ./__lib/auth && yarn install && yarn build && rm -rf node_modules",
+    "install-react-ps": "cd ./__lib/react-ps && yarn install && yarn build && rm -rf node_modules",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

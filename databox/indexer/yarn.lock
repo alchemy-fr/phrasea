@@ -2,6 +2,10 @@
 # yarn lockfile v1
 
 
+"@alchemy/auth@link:./__lib/auth":
+  version "0.0.0"
+  uid ""
+
 "@api-platform/api-doc-parser@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@api-platform/api-doc-parser/-/api-doc-parser-0.12.0.tgz#13cb91f621673014b46fc5030930bea2680f415a"
@@ -2432,6 +2436,11 @@ jest-util@^27.0.0:
     graceful-fs "^4.2.9"
     picomatch "^2.2.3"
 
+js-cookie@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.5.tgz#0b7e2fd0c01552c58ba86e0841f94dc2557dcdbc"
+  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
+
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
@@ -2489,6 +2498,11 @@ jsprim@^1.2.2:
     extsprintf "1.3.0"
     json-schema "0.4.0"
     verror "1.10.0"
+
+jwt-decode@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-3.1.2.tgz#3fb319f3675a2df0c2895c8f5e9fa4b67b04ed59"
+  integrity sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==
 
 keyv@^3.0.0:
   version "3.1.0"

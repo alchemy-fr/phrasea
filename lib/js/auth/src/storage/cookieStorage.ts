@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import {IStorage} from "./oauth-client";
+import {IStorage} from "../client/OAuthClient";
 
 export default class CookieStorage implements IStorage {
     getItem(key: string): string | null {

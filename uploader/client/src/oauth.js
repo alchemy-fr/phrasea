@@ -1,15 +1,17 @@
 import React, {PureComponent} from "react";
 import config from "./config";
-import {KeycloakClient} from "react-ps";
+import {KeycloakClient} from "@alchemy/auth";
 import qs from 'querystring';
 import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
-export const oauthClient = new KeycloakClient({
+export const keycloakClient = new KeycloakClient({
     clientId: config.clientId,
     baseUrl: config.keycloakUrl,
     realm: config.realmName,
 });
+
+export const oauthClient = keycloakClient.client;
 
 export class OAuthRedirect extends PureComponent {
     static propTypes = {
@@ -48,8 +50,8 @@ export class OAuthRedirect extends PureComponent {
     };
 
     componentDidMount() {
-        oauthClient
-            .getAccessTokenFromAuthCode(
+        keycloakClient
+            .getTokenFromAuthCode(
                 this.getCode(),
                 window.location.href.split('?')[0]
             )

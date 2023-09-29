@@ -1,0 +1,40 @@
+{
+  "name": "@alchemy/auth",
+  "version": "0.0.1",
+  "description": "Auth library",
+  "keywords": [],
+  "main": "dist/index.js",
+  "module": "dist/index.es5.js",
+  "typings": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "Arthur de Moulins <arthurdemoulins@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "build-commonjs": "tsc --module commonjs"
+  },
+  "peerDependencies": {
+    "axios": "^1.1.3"
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^3.1.2"
+  },
+  "devDependencies": {
+    "@types/i18next": "^13.0.0",
+    "@types/jest": "^23.3.2",
+    "@types/js-cookie": "^3.0.3",
+    "@types/node": "^10.11.0",
+    "@types/react": "^18.0.21",
+    "axios": "^1.1.3",
+    "rimraf": "^2.6.2",
+    "ts-node": "^7.0.1",
+    "typescript": "^4.8.4"
+  }
+}
