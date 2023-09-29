@@ -49,5 +49,6 @@ jobs:
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}

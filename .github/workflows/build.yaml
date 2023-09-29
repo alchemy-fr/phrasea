@@ -23,7 +23,6 @@ env:
   REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  SENTRY_RELEASE: ${{ github.sha }}
 
 jobs:
   build:
@@ -61,5 +60,6 @@ jobs:
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}
