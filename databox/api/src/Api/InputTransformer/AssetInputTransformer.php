@@ -118,10 +118,19 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
         if (!empty($data->renditions)) {
             foreach ($data->renditions as $renditionInput) {
-                $definition = $this->renditionManager->getRenditionDefinitionByName(
-                    $workspace,
-                    $renditionInput->definition
-                );
+                if ($renditionInput->definitionId) {
+                    $definition = $this->renditionManager->getRenditionDefinitionById(
+                        $workspace,
+                        $renditionInput->definitionId
+                    );
+                } elseif ($renditionInput->name) {
+                    $definition = $this->renditionManager->getRenditionDefinitionByName(
+                        $workspace,
+                        $renditionInput->name
+                    );
+                } else {
+                    throw new BadRequestHttpException('Rendition input error: You must provide either "name" or "definitionId"');
+                }
                 $rendition = $this->renditionManager->getOrCreateRendition($object, $definition);
                 $file = $this->handleSource($renditionInput->source, $workspace);
                 $rendition->setFile($file);

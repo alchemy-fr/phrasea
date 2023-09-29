@@ -75,7 +75,7 @@ trait AttributeInputTrait
                         $attr = clone $attribute;
                         $attr->value = $value;
                         /** @var Attribute|TemplateAttribute $returnedAttribute */
-                        $returnedAttribute = $attributeInputProcessor->transform($attr, $returnedAttribute::class, $subContext);
+                        $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
                         $object->addAttribute($returnedAttribute);
                     }
 
@@ -85,7 +85,7 @@ trait AttributeInputTrait
             }
 
             /** @var Attribute|TemplateAttribute $returnedAttribute */
-            $returnedAttribute = $attributeInputProcessor->transform($attribute, $attribute::class, $subContext);
+            $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
             $object->addAttribute($returnedAttribute);
         }
     }

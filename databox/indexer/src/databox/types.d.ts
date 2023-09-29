@@ -43,7 +43,8 @@ export type AttributeInput = ({value: any} | {values: any[]}) & {
 }
 
 export type RenditionInput = {
-    definition: string;
+    definitionId?: string;
+    name?: string;
     source?: Source;
 }
 

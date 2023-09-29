@@ -40,7 +40,7 @@ export function createAsset(
             const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
 
             const d = {
-                definition: `/attribute-definitions/${ad.id}`,
+                definitionId: ad.id,
                 origin: 'machine',
                 originVendor: 'indexer-import',
             } as Partial<AttributeInput>;
@@ -59,7 +59,7 @@ export function createAsset(
             }
 
             return {
-                definition: defName,
+                name: defName,
                 sourceFile: {
                     url: s.permalink.url,
                     isPrivate: false,
