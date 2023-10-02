@@ -301,9 +301,12 @@ class BatchAttributeManager
                 $attribute->setDefinition($definition);
             }
 
-            $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
-
-            $this->em->persist($attribute);
+            try {
+                $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
+                $this->em->persist($attribute);
+            } catch (InvalidAttributeValueException) {
+                // Ignore invalid values
+            }
 
             $attribute = null;
         }

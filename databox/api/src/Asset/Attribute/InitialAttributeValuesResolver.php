@@ -6,6 +6,7 @@ namespace App\Asset\Attribute;
 
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
+use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -72,8 +73,9 @@ class InitialAttributeValuesResolver
                         $attribute->setUpdatedAt($now);
                         $attribute->setAsset($asset);
 
-                        $this->attributeAssigner->assignAttributeFromInput($attribute, $input);
-                        if (null === $attribute->getValue()) {
+                        try {
+                            $this->attributeAssigner->assignAttributeFromInput($attribute, $input);
+                        } catch (InvalidAttributeValueException) {
                             // this can happen for e.g. if a date is invalid and cannot be normalized
                             continue;
                         }

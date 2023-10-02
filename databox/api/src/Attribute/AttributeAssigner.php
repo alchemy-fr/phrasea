@@ -16,7 +16,7 @@ final readonly class AttributeAssigner
     {
     }
 
-    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): AbstractBaseAttribute
+    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): void
     {
         if ($data instanceof AbstractExtendedAttributeInput) {
             assert($attribute instanceof Attribute);
@@ -53,9 +53,11 @@ final readonly class AttributeAssigner
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
         $value = $type->normalizeValue($data->value);
 
-        $attribute->setValue($value ?? '');
-        $attribute->setPosition($data->position ?? 0);
+        if (null === $value) {
+            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s")', $type::getName(), get_debug_type($data->value)));
+        }
 
-        return $attribute;
+        $attribute->setValue($value);
+        $attribute->setPosition($data->position ?? 0);
     }
 }

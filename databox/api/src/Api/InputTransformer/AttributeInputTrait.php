@@ -8,6 +8,7 @@ use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Api\Processor\AttributeInputProcessorInterface;
+use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -74,9 +75,13 @@ trait AttributeInputTrait
                     foreach ($attribute->value as $value) {
                         $attr = clone $attribute;
                         $attr->value = $value;
-                        /** @var Attribute|TemplateAttribute $returnedAttribute */
-                        $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
-                        $object->addAttribute($returnedAttribute);
+
+                        try {
+                            /** @var Attribute|TemplateAttribute $returnedAttribute */
+                            $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
+                            $object->addAttribute($returnedAttribute);
+                        } catch (InvalidAttributeValueException) {
+                        }
                     }
 
                     continue;
@@ -84,9 +89,12 @@ trait AttributeInputTrait
                 // else add single attr below
             }
 
-            /** @var Attribute|TemplateAttribute $returnedAttribute */
-            $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
-            $object->addAttribute($returnedAttribute);
+            try {
+                /** @var Attribute|TemplateAttribute $returnedAttribute */
+                $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
+                $object->addAttribute($returnedAttribute);
+            } catch (InvalidAttributeValueException) {
+            }
         }
     }
 }

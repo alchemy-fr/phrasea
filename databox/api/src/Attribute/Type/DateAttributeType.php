@@ -22,7 +22,7 @@ class DateAttributeType extends DateTimeAttributeType
         return parent::getGroupValueLabel($value);
     }
 
-    public function denormalizeValue(?string $value): ?\DateTimeImmutable
+    public function denormalizeValue(?string $value): ?string
     {
         if (null === $value) {
             return null;
@@ -31,10 +31,14 @@ class DateAttributeType extends DateTimeAttributeType
         try {
             $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
             if (false === $date) {
-                return parent::denormalizeValue($value);
+                $date = parent::denormalizeValue($value);
             }
 
-            return $date;
+            if ($date instanceof \DateTimeInterface) {
+                return $date->format('Y-m-d');
+            }
+
+            return null;
         } catch (\Throwable) {
             return null;
         }

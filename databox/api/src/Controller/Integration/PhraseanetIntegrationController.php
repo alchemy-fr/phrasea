@@ -193,4 +193,15 @@ class PhraseanetIntegrationController extends AbstractController
 
         return new Response();
     }
+
+    #[Route(path: '/{integrationId}/assets/{assetId}/ack', name: 'enqueue_asset_ack', methods: ['POST'])]
+    public function enqueueAssetAckAction(
+        string $integrationId,
+        string $assetId,
+        LoggerInterface $logger
+    ): Response {
+        $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset ID "%s"', $assetId));
+
+        return new Response();
+    }
 }
