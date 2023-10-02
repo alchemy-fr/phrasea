@@ -18,8 +18,8 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
 
     public function getUser(string $userId): ?array
     {
-        return $this->keycloakRealmCache->get('users_'.$userId, function () use ($userId): array {
-            return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUser($accessToken, $userId));
+        return $this->keycloakRealmCache->get('users_'.$userId, function () use ($userId): ?array {
+            return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getUser($accessToken, $userId));
         });
     }
 

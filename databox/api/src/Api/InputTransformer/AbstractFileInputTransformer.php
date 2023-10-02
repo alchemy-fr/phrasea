@@ -80,7 +80,9 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $file = new File();
         $file->setPath($source->url);
         $file->setOriginalName($source->originalName);
-        $file->setExtension(FileUtil::getExtensionFromPath($source->originalName ?: $source->url));
+        $extension = FileUtil::getExtensionFromPath($source->originalName ?: $source->url);
+        $file->setExtension($extension);
+        $file->setType($source->type ?? FileUtil::getTypeFromExtension($extension));
         $file->setPathPublic(!$source->isPrivate);
         $file->setStorage(File::STORAGE_URL);
         $file->setWorkspace($workspace);

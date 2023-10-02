@@ -25,7 +25,7 @@ class RenditionInput
     /**
      * @var AssetSourceInput|null
      */
-    public $source;
+    public $sourceFile;
 
     /**
      * @var string|null

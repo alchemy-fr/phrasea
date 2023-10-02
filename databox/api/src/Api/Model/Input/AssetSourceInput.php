@@ -12,6 +12,7 @@ class AssetSourceInput
     public ?string $url = null;
 
     public ?string $originalName = null;
+    public ?string $type = null;
 
     public bool $isPrivate = false;
 

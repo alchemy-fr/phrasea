@@ -43,7 +43,7 @@ class RenditionInputTransformer extends AbstractFileInputTransformer
 
         $workspace = $object->getAsset()->getWorkspace();
 
-        if (null !== $file = $this->handleSource($data->source, $workspace)) {
+        if (null !== $file = $this->handleSource($data->sourceFile, $workspace)) {
             $object->setFile($file);
         } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
             $this->postFlushStackListener->addEvent(CopyFileToRenditionHandler::createEvent($object->getId(), $file->getId()));

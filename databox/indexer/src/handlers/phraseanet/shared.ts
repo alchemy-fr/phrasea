@@ -64,6 +64,7 @@ export function createAsset(
                     url: s.permalink.url,
                     isPrivate: false,
                     importFile: importFiles,
+                    type: s.mime_type,
                 }
             };
         }).filter(s => Boolean(s)),

@@ -31,7 +31,7 @@ export default function InfoAsset({
             <Divider/>
             <InfoRow
                 label={'Owner'}
-                value={data.owner?.username ?? '-'}
+                value={data.owner?.username ?? data.owner?.id ?? '-'}
                 copyValue={data.owner?.id}
                 icon={<PersonIcon/>}
             />

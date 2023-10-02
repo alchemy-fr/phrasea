@@ -132,7 +132,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
                     throw new BadRequestHttpException('Rendition input error: You must provide either "name" or "definitionId"');
                 }
                 $rendition = $this->renditionManager->getOrCreateRendition($object, $definition);
-                $file = $this->handleSource($renditionInput->source, $workspace);
+                $file = $this->handleSource($renditionInput->sourceFile, $workspace);
                 $rendition->setFile($file);
 
                 $this->em->persist($rendition);

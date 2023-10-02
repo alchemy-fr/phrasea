@@ -9,6 +9,7 @@ type Source = {
     isPrivate?: boolean;
     alternateUrls?: AlternateUrl[];
     importFile?: boolean;
+    type?: string;
 };
 
 export type AssetInput = {

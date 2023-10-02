@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -18,6 +19,7 @@ final readonly class KeycloakClient
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -110,13 +112,19 @@ final readonly class KeycloakClient
 
     public function getUser(string $accessToken, string $userId, array $options = []): ?array
     {
-        return $this->wrapRequest(function () use ($userId, $accessToken, $options) {
-            return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getUsersApiUrl(), $userId), array_merge([
-                'headers' => [
-                    'Authorization' => 'Bearer '.$accessToken,
-                ],
-            ], $options));
-        });
+        try {
+            return $this->wrapRequest(function () use ($userId, $accessToken, $options) {
+                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getUsersApiUrl(), $userId), array_merge([
+                    'headers' => [
+                        'Authorization' => 'Bearer '.$accessToken,
+                    ],
+                ], $options));
+            });
+        } catch (ClientException $e) {
+            $this->logger->error($e->getMessage());
+
+            return null;
+        }
     }
 
     public function getUsers(string $accessToken, int $limit = null, int $offset = null, array $options = []): array

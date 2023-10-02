@@ -72,6 +72,6 @@ export default function FilePlayer({
                     width: '100%',
                     height: '100%',
                 }}
-            ></div>
+            >Unsupported format</div>
     }
 }

@@ -32,7 +32,7 @@ export default function InfoCollection({
             <Divider/>
             <InfoRow
                 label={'Owner'}
-                value={data.owner?.username ?? '-'}
+                value={data.owner?.username ?? data.owner?.id ?? '-'}
                 copyValue={data.owner?.id}
                 icon={<PersonIcon/>}
             />
