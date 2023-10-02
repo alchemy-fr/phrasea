@@ -82,6 +82,12 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]);
         }
 
+        if (1 === preg_match('#/admin/realms/phrasea/users/(\d+)$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_merge(self::USERS[$match[1]], [
+                'id' => $match[1],
+            ]));
+        }
+
         return match (true) {
             str_ends_with($url, '/realms/phrasea') => $this->createResponse($args, 200, [
                 'public_key' => file_get_contents(__DIR__.'/key.pub'),

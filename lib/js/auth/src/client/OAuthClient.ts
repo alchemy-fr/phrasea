@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
+import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from "axios";
 import CookieStorage from "../storage/cookieStorage";
 import jwtDecode from "jwt-decode";
 
@@ -324,15 +324,27 @@ export type RequestConfigWithAuth = {
     anonymous?: boolean;
 } & AxiosRequestConfig;
 
-export function configureClientAuthentication(client: AxiosInstance, oauthClient: OAuthClient): void {
-    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromRefreshToken"));
+type OnTokenError = (error: AxiosError) => void;
+
+export function configureClientAuthentication(
+    client: AxiosInstance,
+    oauthClient: OAuthClient,
+    onTokenError?: OnTokenError,): void {
+    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromRefreshToken", onTokenError));
 }
 
-export function configureClientCredentialsGrantType(client: AxiosInstance, oauthClient: OAuthClient): void {
-    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromClientCredentials"));
+export function configureClientCredentialsGrantType(
+    client: AxiosInstance,
+    oauthClient: OAuthClient,
+    onTokenError?: OnTokenError,): void {
+    client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromClientCredentials", onTokenError));
 }
 
-function createAxiosInterceptor(oauthClient: OAuthClient, method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials") {
+function createAxiosInterceptor(
+    oauthClient: OAuthClient,
+    method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials",
+    onTokenError?: OnTokenError,
+) {
     return async (config: RequestConfigWithAuth) => {
         if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {
             return config;
@@ -348,6 +360,17 @@ function createAxiosInterceptor(oauthClient: OAuthClient, method: "getTokenFromR
 
                 try {
                     await p;
+                } catch (e: any) {
+                    if (e.isAxiosError) {
+                        const err = e as AxiosError<any>;
+                        if (err.response && [400].includes(err.response.status)) {
+                            oauthClient.logout();
+
+                            onTokenError && onTokenError(err);
+
+                            throw e;
+                        }
+                    }
                 } finally {
                     oauthClient.tokenPromise = undefined;
                 }
