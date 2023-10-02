@@ -6,6 +6,10 @@
   version "0.0.0"
   uid ""
 
+"@alchemy/react-ps@link:./__lib/react-ps":
+  version "0.0.0"
+  uid ""
+
 "@ampproject/remapping@^2.1.0":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.1.2.tgz#4edca94973ded9630d20101cd8559cedb8d8bd34"
@@ -9862,10 +9866,6 @@ react-property@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-property/-/react-property-1.0.1.tgz#4ae4211557d0a0ae050a71aa8ad288c074bea4e6"
   integrity sha512-1tKOwxFn3dXVomH6pM9IkLkq2Y8oh+fh/lYW3MJ/B03URswUTqttgckOlbxY2XHF3vPG6uanSc4dVsLW/wk3wQ==
-
-"react-ps@link:./__lib/react-ps":
-  version "0.0.0"
-  uid ""
 
 react-remove-scroll-bar@^2.1.0:
   version "2.2.0"

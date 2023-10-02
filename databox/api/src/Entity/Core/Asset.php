@@ -50,7 +50,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'asset',
     operations: [
-        new Get(),
+        new Get(
+            normalizationContext: [
+                'groups' => [Asset::GROUP_READ],
+            ]
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
@@ -176,6 +180,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetRendition::class, cascade: ['remove'])]
     private ?DoctrineCollection $renditions = null;
 
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetFileVersion::class, cascade: ['remove'])]
+    private ?DoctrineCollection $fileVersions = null;
+
     private ?array $highlights = null;
 
     /**
@@ -202,6 +209,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+        $this->fileVersions = new ArrayCollection();
 
         /* @var $now float */
         $now ??= microtime(true);

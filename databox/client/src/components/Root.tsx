@@ -1,5 +1,5 @@
 import React, {Suspense} from 'react';
-import {User} from "../types";
+import {AuthUser} from "../types";
 import {UserContext} from "./Security/UserContext";
 import Routes from "./Routing/Routes";
 import {BrowserRouter} from "react-router-dom";
@@ -16,7 +16,7 @@ import {
 type Props = {};
 
 export default function Root({}: Props) {
-    const [user, setUser] = React.useState<User | undefined>();
+    const [user, setUser] = React.useState<AuthUser | undefined>();
 
     React.useEffect(() => {
         const onLogin = async () => {

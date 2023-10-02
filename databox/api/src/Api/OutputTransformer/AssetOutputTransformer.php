@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class AssetOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use UserOutputTransformerTrait;
     use GroupsHelperTrait;
 
     private ?string $lastGroupKey = null;
@@ -81,6 +82,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->setSource($data->getSource());
 
         $highlights = $data->getElasticHighlights();
+
+        if ($this->hasGroup([
+            Asset::GROUP_READ,
+        ], $context)) {
+            $output->owner = $this->transformUser($data->getOwnerId());
+        }
 
         if ($this->hasGroup([
                 Asset::GROUP_LIST,

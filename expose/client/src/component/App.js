@@ -7,7 +7,7 @@ import {getAuthRedirect, unsetAuthRedirect} from "../lib/oauth";
 import config from "../lib/config";
 import ErrorPage from "./ErrorPage";
 import OAuthRedirect from "./OAuthRedirect";
-import {DashboardMenu} from "react-ps";
+import {DashboardMenu} from "@alchemy/react-ps";
 import EmbeddedAsset from "./EmbeddedAsset";
 import {oauthClient} from "../lib/api-client";
 

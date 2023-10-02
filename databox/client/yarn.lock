@@ -6,6 +6,10 @@
   version "0.0.0"
   uid ""
 
+"@alchemy/react-ps@link:./__lib/react-ps":
+  version "0.0.0"
+  uid ""
+
 "@alchemy/visual-workflow@link:./__lib/visual-workflow":
   version "0.0.0"
   uid ""
@@ -9191,10 +9195,6 @@ react-player@^2.10.1:
     memoize-one "^5.1.1"
     prop-types "^15.7.2"
     react-fast-compare "^3.0.1"
-
-"react-ps@link:./__lib/react-ps":
-  version "0.0.0"
-  uid ""
 
 react-refresh@^0.11.0:
   version "0.11.0"

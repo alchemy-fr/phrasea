@@ -6,6 +6,7 @@ import {Divider, MenuList} from "@mui/material";
 import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
 import InfoRow from "../Info/InfoRow";
+import PersonIcon from "@mui/icons-material/Person";
 
 type Props = {
     id: string;
@@ -29,6 +30,12 @@ export default function InfoCollection({
                 icon={<KeyIcon/>}
             />
             <Divider/>
+            <InfoRow
+                label={'Owner'}
+                value={data.owner?.username ?? '-'}
+                copyValue={data.owner?.id}
+                icon={<PersonIcon/>}
+            />
             <InfoRow
                 label={'Creation date'}
                 value={data.createdAt}

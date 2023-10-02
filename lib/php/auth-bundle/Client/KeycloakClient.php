@@ -108,6 +108,17 @@ final readonly class KeycloakClient
         return $users[0];
     }
 
+    public function getUser(string $accessToken, string $userId, array $options = []): ?array
+    {
+        return $this->wrapRequest(function () use ($userId, $accessToken, $options) {
+            return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getUsersApiUrl(), $userId), array_merge([
+                'headers' => [
+                    'Authorization' => 'Bearer '.$accessToken,
+                ],
+            ], $options));
+        });
+    }
+
     public function getUsers(string $accessToken, int $limit = null, int $offset = null, array $options = []): array
     {
         return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset, $options);

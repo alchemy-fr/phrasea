@@ -1,5 +1,5 @@
 import React from 'react';
-import {useEffectOnce} from "react-ps";
+import {useEffectOnce} from "@alchemy/react-ps";
 import {OAuthClient} from "@alchemy/auth";
 import qs from "querystring";
 import {useHistory, useLocation} from "react-router-dom";

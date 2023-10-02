@@ -186,6 +186,7 @@ services:
       - ./:/var/workspace
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
+      - ${HOME}/.composer:/home/app/.composer
       - dev_vol:/home/app
       - ./configs:/configs
     extra_hosts:

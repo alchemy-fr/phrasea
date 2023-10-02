@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 class CollectionOutputTransformer implements OutputTransformerInterface
 {
     use GroupsHelperTrait;
+    use UserOutputTransformerTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -38,6 +39,12 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setTitle($data->getTitle());
         $output->setPrivacy($data->getPrivacy());
         $output->setWorkspace($data->getWorkspace());
+
+        if ($this->hasGroup([
+            Collection::GROUP_READ,
+        ], $context)) {
+            $output->owner = $this->transformUser($data->getOwnerId());
+        }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
             $maxChildrenLimit = 30;

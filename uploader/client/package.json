@@ -15,7 +15,7 @@
     "react-i18next": "^11.15.1",
     "react-loader-spinner": "^3.1.14",
     "@alchemy/auth": "link:./__lib/auth",
-    "react-ps": "link:./__lib/react-ps",
+    "@alchemy/react-ps": "link:./__lib/react-ps",
     "react-redux": "^5.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^4.0.3",

@@ -15,7 +15,7 @@ import {withTranslation} from 'react-i18next';
 import {keycloakClient, oauthClient, OAuthRedirect} from "./oauth";
 import AuthError from "./components/page/AuthError";
 import SelectTarget from "./components/page/SelectTarget";
-import {DashboardMenu} from "react-ps";
+import {DashboardMenu} from "@alchemy/react-ps";
 import FullPageLoader from "./components/FullPageLoader";
 import {authenticatedRequest} from "./lib/api";
 

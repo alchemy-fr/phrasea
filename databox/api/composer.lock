@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "c6f19b803b9afe749e5f90ece5b7e45751b5bd71"
+                "reference": "5a0316c05d67e0674674a87b1b007453b3d13ce8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/c6f19b803b9afe749e5f90ece5b7e45751b5bd71",
-                "reference": "c6f19b803b9afe749e5f90ece5b7e45751b5bd71",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/5a0316c05d67e0674674a87b1b007453b3d13ce8",
+                "reference": "5a0316c05d67e0674674a87b1b007453b3d13ce8",
                 "shasum": ""
             },
             "require": {
@@ -28,6 +28,7 @@
                 "symfony/event-dispatcher": "^4.0|^5.4|^6.1",
                 "symfony/framework-bundle": "^4.0|^5.4|^6.1",
                 "symfony/security-bundle": "^4.0|^5.4|^6.1",
+                "symfony/validator": "^6.3",
                 "symfony/yaml": "^4.4|^5.4|^6.1"
             },
             "require-dev": {
@@ -55,7 +56,7 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-08-01T07:48:32+00:00"
+            "time": "2023-10-02T12:29:19+00:00"
         },
         {
             "name": "alchemy/admin-bundle",

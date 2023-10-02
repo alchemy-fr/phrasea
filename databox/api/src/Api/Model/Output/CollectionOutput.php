@@ -37,6 +37,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private ?string $ownerId = null;
 
+    #[Groups([Collection::GROUP_READ])]
+    public ?UserOutput $owner = null;
+
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private int $privacy;
 

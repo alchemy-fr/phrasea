@@ -50,7 +50,7 @@ export class OAuthRedirect extends PureComponent {
     };
 
     componentDidMount() {
-        keycloakClient
+        oauthClient
             .getTokenFromAuthCode(
                 this.getCode(),
                 window.location.href.split('?')[0]

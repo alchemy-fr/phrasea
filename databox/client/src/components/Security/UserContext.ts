@@ -1,8 +1,8 @@
 import React from "react";
-import {User} from "../../types";
+import {AuthUser} from "../../types";
 
 export type TUserContext = {
-    user?: User | undefined;
+    user?: AuthUser | undefined;
     logout?: (redirectUri?: string |false) => void | undefined;
 }
 

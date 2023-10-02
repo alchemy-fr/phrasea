@@ -1,6 +1,5 @@
 import apiClient from "./api-client";
 import {Group, User} from "../types";
-import config from "../config";
 import {UserPreferences} from "../components/User/Preferences/UserPreferencesContext";
 
 export async function getUsers(): Promise<User[]> {
