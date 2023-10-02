@@ -11,7 +11,6 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Repository\Core\CollectionAssetRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(

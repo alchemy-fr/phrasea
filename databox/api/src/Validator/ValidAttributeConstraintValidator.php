@@ -16,7 +16,7 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param AbstractBaseAttribute               $value
+     * @param AbstractBaseAttribute   $value
      * @param SameWorkspaceConstraint $constraint
      */
     public function validate($value, Constraint $constraint): void

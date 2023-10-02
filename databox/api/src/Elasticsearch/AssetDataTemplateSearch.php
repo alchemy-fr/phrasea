@@ -14,7 +14,6 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AssetDataTemplateSearch
@@ -103,7 +102,7 @@ final readonly class AssetDataTemplateSearch
 
     protected function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): ?Query\BoolQuery
     {
-        $workspaceId = $filters['workspace'] ?? ($collection?->getWorkspaceId()) ?? null;
+        $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
 
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');

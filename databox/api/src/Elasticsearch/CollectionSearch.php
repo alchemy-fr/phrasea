@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;

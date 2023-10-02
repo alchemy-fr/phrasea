@@ -12,8 +12,7 @@ readonly class ElasticsearchClient
     public function __construct(
         private Client $client,
         private bool $useAlias,
-    )
-    {
+    ) {
     }
 
     public function updateMapping(string $indexName, array $mapping): void

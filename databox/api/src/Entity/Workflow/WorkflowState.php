@@ -17,8 +17,8 @@ use App\Controller\Workflow\GetWorkflowAction;
 use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
 use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(

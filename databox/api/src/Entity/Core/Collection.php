@@ -9,13 +9,14 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Provider\CollectionProvider;
-use App\Controller\Core\MoveCollectionAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
@@ -49,7 +50,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(
             uriTemplate: '/collections/{id}/move/{dest}',
-            controller: MoveCollectionAction::class,
+            uriVariables: [
+                'dest' => new Link(fromClass: Collection::class, identifiers: ['id'], expandedValue: '{dest}'),
+                'id' => new Link(fromClass: Collection::class, identifiers: ['id']),
+            ],
             openapiContext: [
                 'parameters' => [
                     [
@@ -62,7 +66,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             ],
             security: 'is_granted("EDIT", object)',
             deserialize: false,
-            name: 'put_move'
+            name: 'put_move',
+            processor: MoveCollectionProcessor::class
         ),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
