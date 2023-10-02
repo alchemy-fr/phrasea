@@ -110,7 +110,6 @@ export default class OAuthClient {
 
     public isAuthenticated(): boolean {
         const tokens = this.fetchTokens();
-        console.debug('isAuthenticated tokens', tokens);
 
         if (tokens) {
             return tokens.refresh_expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);

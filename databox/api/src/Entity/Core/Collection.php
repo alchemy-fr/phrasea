@@ -44,7 +44,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ApiResource(
     shortName: 'collection',
     operations: [
-        new Get(security: 'is_granted("READ", object)'),
+        new Get(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("READ", object)'
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
