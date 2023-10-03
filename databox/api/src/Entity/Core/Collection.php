@@ -32,6 +32,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\CollectionRepository;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -48,7 +49,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            security: 'is_granted("READ", object)'
+            security: 'is_granted("'.AbstractVoter::LIST.'", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),

@@ -20,28 +20,30 @@ use App\Controller\CommitAction;
 use App\Security\ScopeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'commit', operations: [
-    new Get(security: 'is_granted("READ", object)'),
-    new Post(
-        uriTemplate: '/commits/{id}/ack',
-        controller: CommitAckAction::class,
-        deserialize: false,
-        name: 'ack',
-    ),
-    new Post(
-        uriTemplate: '/commit',
-        controller: CommitAction::class
-    ),
-    new GetCollection(
-        security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")'),
-],
+    shortName: 'commit',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Post(
+            uriTemplate: '/commits/{id}/ack',
+            controller: CommitAckAction::class,
+            deserialize: false,
+            name: 'ack',
+        ),
+        new Post(
+            uriTemplate: '/commit',
+            controller: CommitAction::class
+        ),
+        new GetCollection(
+            security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")'
+        ),
+    ],
     normalizationContext: ['groups' => ['commit:read']],
     denormalizationContext: ['groups' => ['commit:write']],
     order: [

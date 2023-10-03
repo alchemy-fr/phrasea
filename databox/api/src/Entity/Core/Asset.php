@@ -26,7 +26,7 @@ use App\Api\Provider\AssetCollectionProvider;
 use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use App\Controller\Core\MultipleAssetCreate;
+use App\Controller\Core\MultipleAssetCreateAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
@@ -73,7 +73,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/assets/multiple',
-            controller: MultipleAssetCreate::class,
+            controller: MultipleAssetCreateAction::class,
             normalizationContext: [
                 'groups' => [Asset::GROUP_READ],
             ],

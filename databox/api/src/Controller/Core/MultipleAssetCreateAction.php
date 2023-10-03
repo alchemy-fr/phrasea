@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-final readonly class MultipleAssetCreate
+final readonly class MultipleAssetCreateAction
 {
     public function __construct(
         private EntityManagerInterface $em,
@@ -30,6 +30,9 @@ final readonly class MultipleAssetCreate
         /** @var array $assets */
         $assets = $this->inputTransformer->transform($data, Asset::class);
         foreach ($assets as $asset) {
+            if (!$this->security->isGranted(AbstractVoter::CREATE, $asset)) {
+                throw new AccessDeniedHttpException();
+            }
             $this->em->persist($asset);
         }
 
@@ -37,10 +40,6 @@ final readonly class MultipleAssetCreate
 
         $output = new MultipleAssetOutput();
         $output->assets = array_map(function (Asset $asset): AssetOutput {
-            if (!$this->security->isGranted(AbstractVoter::CREATE, $asset)) {
-                throw new AccessDeniedHttpException();
-            }
-
             $context = [
                 'groups' => [
                     '_',

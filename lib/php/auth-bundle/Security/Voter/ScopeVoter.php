@@ -22,4 +22,14 @@ final class ScopeVoter extends Voter
     {
         return $this->hasScope(substr($attribute, strlen(self::PREFIX)), $token);
     }
+
+    public function supportsAttribute(string $attribute): bool
+    {
+        return str_starts_with($attribute, self::PREFIX);
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return 'null' === $subjectType;
+    }
 }

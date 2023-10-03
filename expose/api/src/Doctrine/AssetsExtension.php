@@ -6,6 +6,7 @@ namespace App\Doctrine;
 
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Asset;
 use Doctrine\ORM\QueryBuilder;
@@ -19,7 +20,7 @@ class AssetsExtension implements QueryCollectionExtensionInterface
         Operation $operation = null,
         array $context = []
     ): void {
-        if (Asset::class !== $resourceClass || !($context['collection'] ?? false)) {
+        if (Asset::class !== $resourceClass || !($context['operation'] instanceof CollectionOperationInterface)) {
             return;
         }
 

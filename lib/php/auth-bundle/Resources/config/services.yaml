@@ -28,3 +28,5 @@ services:
 
   Alchemy\AuthBundle\Controller\OAuthProxyController:
       public: true
+
+  Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~

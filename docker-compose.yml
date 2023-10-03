@@ -152,7 +152,6 @@ services:
     build:
       context: ./uploader/api
     environment:
-      - APP_ID=uploader
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
       - RABBITMQ_VHOST=${UPLOADER_RABBITMQ_VHOST}
@@ -262,7 +261,6 @@ services:
       context: ./expose/api
     environment:
       - DEV_MODE
-      - APP_ID=expose
       - RABBITMQ_VHOST=${EXPOSE_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
@@ -332,7 +330,6 @@ services:
     build:
       context: ./notify/api
     environment:
-      - APP_ID=notify
       - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
@@ -361,9 +358,7 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     networks:
-      internal:
-        aliases:
-          - notify-api
+      - internal
     depends_on:
       - notify-api-php
     labels:
@@ -659,7 +654,6 @@ services:
     build:
       context: ./databox/api
     environment:
-      - APP_ID=databox
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
       - RABBITMQ_VHOST=${DATABOX_RABBITMQ_VHOST}
