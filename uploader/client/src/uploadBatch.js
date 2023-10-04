@@ -1,6 +1,6 @@
 import {oauthClient} from "./oauth";
 import {uploadMultipartFile} from "./multiPartUpload";
-import {authenticatedRequest} from "./lib/api";
+import apiClient from "./lib/api";
 
 export default class UploadBatch {
     files = [];
@@ -127,11 +127,7 @@ export default class UploadBatch {
             target: `/targets/${this.targetId}`,
         };
 
-        authenticatedRequest({
-            url: '/commit',
-            method: 'POST',
-            data: formData,
-        });
+        apiClient.post('/commit', formData);
     }
 
     async uploadFile(index, retry = 0) {

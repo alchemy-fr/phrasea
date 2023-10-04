@@ -1,28 +1,21 @@
-import {authenticatedRequest} from "./lib/api";
+import apiClient from "./lib/api";
 
-export function getFormSchema(targetId) {
-    return authenticatedRequest({
-        url: `/targets/${targetId}/form-schema`,
-    });
+export async function getFormSchema(targetId) {
+    return (await apiClient.get(`/targets/${targetId}/form-schema`)).data;
 }
 
 export async function getTargets() {
-    return (await authenticatedRequest({
-        url: `/targets`,
-    }))['hydra:member'];
+    return (await apiClient.get(`/targets`)).data['hydra:member'];
 }
 
-export function getTarget(id) {
-    return authenticatedRequest({
-        url: `/targets/${id}`,
-    });
+export async function getTarget(id) {
+    return (await apiClient.get(`/targets/${id}`)).data;
 }
 
-export function getTargetParams(targetId) {
-    return authenticatedRequest({
-        url: `/target-params`,
+export async function getTargetParams(targetId) {
+    return (await apiClient.get(`/target-params`, {
         params: {
             target: targetId,
         },
-    });
+    })).data['hydra:member'];
 }

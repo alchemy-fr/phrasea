@@ -75,7 +75,7 @@ class Commit extends AbstractUuidEntity
     private ?string $totalSize = null;
 
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['asset:read', 'commit:read'])]
+    #[Groups(['asset:read', 'commit:read', 'commit:write'])]
     private array $formData = [];
 
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]

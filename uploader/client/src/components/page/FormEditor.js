@@ -4,7 +4,7 @@ import FormPreview from "../FormPreview";
 import Container from "../Container";
 import {getFormSchema, getTargets} from "../../requests";
 import FullPageLoader from "../FullPageLoader";
-import {authenticatedRequest} from "../../lib/api";
+import apiClient from "../../lib/api";
 
 export default class FormEditor extends Component {
     state = {
@@ -73,7 +73,7 @@ export default class FormEditor extends Component {
             data.target = `/targets/${selected}`;
         }
 
-        await authenticatedRequest(requestConfig);
+        await apiClient.request(requestConfig);
 
         this.setState({
             saved: true,

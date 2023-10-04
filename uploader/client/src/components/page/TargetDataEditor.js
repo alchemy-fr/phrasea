@@ -3,7 +3,7 @@ import {Button, Form} from "react-bootstrap";
 import Container from "../Container";
 import {getTargetParams, getTargets} from "../../requests";
 import FullPageLoader from "../FullPageLoader";
-import {authenticatedRequest} from "../../lib/api";
+import apiClient from "../../lib/api";
 
 export default class TargetDataEditor extends Component {
     state = {
@@ -77,7 +77,7 @@ export default class TargetDataEditor extends Component {
             data.target = `/targets/${selected}`;
         }
 
-        await authenticatedRequest(requestConfig);
+        await apiClient.request(requestConfig);
 
         this.setState({
             saved: true,

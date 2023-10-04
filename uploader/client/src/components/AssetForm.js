@@ -5,7 +5,7 @@ import AssetLiForm from "./AssetLiForm";
 import {SubmissionError} from 'redux-form';
 import {Translation} from "react-i18next";
 import {getFormSchema} from "../requests";
-import {authenticatedRequest} from "../lib/api";
+import apiClient from "../lib/api";
 
 export default class AssetForm extends Component {
     static propTypes = {
@@ -79,10 +79,7 @@ export default class AssetForm extends Component {
 
         let r;
         try {
-            r = await authenticatedRequest({
-                url: submitPath,
-                data,
-            });
+            r = (await apiClient.post(submitPath, data)).data;
         } catch (e) {
             console.log(e);
             throw new SubmissionError({_error: e.toString()});

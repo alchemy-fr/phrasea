@@ -1,48 +1,7 @@
-import {oauthClient} from "./oauth";
 import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
-import {apiClient} from "./lib/api";
+import apiClient from "./lib/api";
 
 const fileChunkSize = 5242880 // 5242880 is the minimum allowed by AWS S3;
-
-async function asyncRequest(file, method, uri, auth, postData, onProgress, options = {}) {
-    const config = {
-        url: uri,
-        method,
-    };
-    if (postData) {
-        config.data = postData;
-    }
-
-    if (onProgress) {
-        config.onUploadProgress = onProgress;
-        /*{
-            function (axiosProgressEvent) {
-          loaded: number;
-          total?: number;
-          progress?: number; // in range [0..1]
-          bytes: number; // how many bytes have been transferred since the last trigger (delta)
-          estimated?: number; // estimated time in seconds
-          rate?: number; // upload speed in bytes
-          upload: true; // upload sign
-    }*/
-    }
-
-    if (file) {
-        file.abortController = new AbortController();
-        config.signal = file.abortController.signal;
-    }
-
-    if (auth) {
-        return oauthClient.wrapPromiseWithValidToken(({access_token, token_type}) => {
-            config.headers ??= {};
-            config.headers['Authorization'] = `${token_type} ${access_token}`;
-
-            return apiClient.request(config);
-        });
-    } else {
-        return apiClient.request(config);
-    }
-}
 
 export async function uploadMultipartFile(targetId, userId, file, onProgress) {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
@@ -65,12 +24,16 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
                 });
             }
         } else {
-            const res = await asyncRequest(file, 'POST', `/uploads`, true, {
+            file.abortController = new AbortController();
+
+            const res = await apiClient.post(`/uploads`, {
                 filename: file.file.name,
                 type: file.file.type,
                 size: file.file.size,
+            }, {
+                signal: file.abortController.signal,
             });
-            console.log('res', res);
+            console.debug('res', res);
             uploadId = res.data.id;
             path = res.data.path;
             uploadStateStorage.initUpload(userId, fileUID, uploadId, path);
@@ -83,22 +46,32 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
             const start = (index - 1) * fileChunkSize;
             const end = (index) * fileChunkSize;
 
-            const getUploadUrlResp = await asyncRequest(file, 'POST', `/uploads/${uploadId}/part`, true, {
+            file.abortController = new AbortController();
+
+            const getUploadUrlResp = await apiClient.post(`/uploads/${uploadId}/part`, {
                 part: index,
+            }, {
+                signal: file.abortController.signal,
             });
-            console.log('getUploadUrlResp', getUploadUrlResp);
+            console.debug('getUploadUrlResp', getUploadUrlResp);
 
             const {url} = getUploadUrlResp.data;
 
             const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
 
-            const uploadResp = await asyncRequest(file, 'PUT', url, null, blob, (e) => {
-                const multiPartEvent = {
-                    ...e,
-                    loaded: e.loaded + start,
-                };
+            file.abortController = new AbortController();
 
-                onProgress(multiPartEvent);
+            const uploadResp = await apiClient.put(url, blob, {
+                signal: file.abortController.signal,
+                anonymous: true,
+                onUploadProgress: (e) => {
+                    const multiPartEvent = {
+                        ...e,
+                        loaded: e.loaded + start,
+                    };
+
+                    onProgress(multiPartEvent);
+                }
             });
 
             const eTag = uploadResp.headers.etag;
@@ -110,12 +83,16 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
             uploadStateStorage.updateUpload(userId, fileUID, eTag);
         }
 
-        const finalRes = await asyncRequest(file, 'POST', `/assets`, true, {
+        file.abortController = new AbortController();
+
+        const finalRes = await apiClient.post(`/assets`, {
             targetId,
             multipart: {
                 uploadId,
                 parts: uploadParts,
             }
+        }, {
+            signal: file.abortController.signal,
         });
 
         uploadStateStorage.removeUpload(userId, fileUID);

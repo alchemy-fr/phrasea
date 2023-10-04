@@ -17,7 +17,7 @@ import AuthError from "./components/page/AuthError";
 import SelectTarget from "./components/page/SelectTarget";
 import {DashboardMenu} from "@alchemy/react-ps";
 import FullPageLoader from "./components/FullPageLoader";
-import {authenticatedRequest} from "./lib/api";
+import apiClient from "./lib/api";
 
 class App extends Component {
     state = {
@@ -45,10 +45,12 @@ class App extends Component {
 
     authenticate = async () => {
         this.setState({authenticating: true});
-        await authenticatedRequest({
-            url: '/me',
-        });
-        this.setState({authenticating: false});
+        const user = (await apiClient.get('/me')).data;
+
+        this.setState({
+            user,
+            authenticating: false,
+        })
     }
 
     handleStateChange(state) {
@@ -65,7 +67,7 @@ class App extends Component {
 
     render() {
         const {user} = this.state;
-        const perms = user && user.permissions;
+        const perms = user?.permissions ?? {};
 
         return <Router>
             {config.displayServicesMenu && <DashboardMenu
@@ -82,9 +84,9 @@ class App extends Component {
                     email={this.state.user.email}
                 /> : ''}
                 <Link onClick={() => this.closeMenu()} to="/" className="menu-item">Home</Link>
-                {perms && perms.form_schema ?
+                {perms.form_schema ?
                     <Link onClick={() => this.closeMenu()} to="/form-editor">Form editor</Link> : ''}
-                {perms && perms.target_data ?
+                {perms.target_data ?
                     <Link onClick={() => this.closeMenu()} to="/target-data-editor">Target data editor</Link> : ''}
                 {oauthClient.isAuthenticated() ?
                     <a onClick={this.logout} href={'javascript:void(0)'}>Logout</a>
@@ -97,8 +99,8 @@ class App extends Component {
                 <PrivateRoute path="/download/:id" exact component={Download}/>
                 <Route path="/login" exact component={Login}/>
                 <Route path="/auth-error" exact component={AuthError}/>
-                {perms && perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
-                {perms && perms.target_data ?
+                {perms.form_schema ? <PrivateRoute path="/form-editor" exact component={FormEditor}/> : ''}
+                {perms.target_data ?
                     <PrivateRoute path="/target-data-editor" exact component={TargetDataEditor}/> : ''}
             </div>
         </Router>

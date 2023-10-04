@@ -1,11 +1,7 @@
-import {authenticatedRequest} from "../lib/api";
+import apiClient from "../lib/api";
 
 export function Download(url, callback, errCallback) {
-    authenticatedRequest({
-        url: '/downloads',
-        method: 'POST',
-        data: {
-            url,
-        },
-    }).then(() => callback());
+    apiClient.post('/downloads', {
+        url,
+    }).then(() => callback()).catch(errCallback);
 }
