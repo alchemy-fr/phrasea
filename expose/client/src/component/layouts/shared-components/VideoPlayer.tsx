@@ -10,6 +10,7 @@ type Props = {
     webVTTLink?: string,
     fluid?: boolean,
     mimeType: string,
+    assetId: string | undefined,
 };
 
 export default React.forwardRef(function VideoPlayer({
@@ -20,6 +21,7 @@ export default React.forwardRef(function VideoPlayer({
     webVTTLink,
     fluid,
     mimeType,
+    assetId,
 }: Props, ref) {
     const player = React.useRef<VideoJsPlayer>();
 
@@ -64,6 +66,7 @@ export default React.forwardRef(function VideoPlayer({
             <video
                 ref={setRef}
                 className="video-js vjs-big-play-centered"
+                data-matomo-resource={assetId}
                 data-matomo-title={title}
             >
                 {webVTTLink && <track

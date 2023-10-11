@@ -53,6 +53,7 @@ export default function AssetProxy({
                 webVTTLink={asset.webVTTLink}
                 fluid={fluid}
                 mimeType={type}
+                assetId={asset.assetId}
             />
             break;
         case type.startsWith('image/'):
