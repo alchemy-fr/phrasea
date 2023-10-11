@@ -28,23 +28,34 @@ export default function AssetProxy({
         }
     }, [isCurrent]);
 
+    const type = asset.mimeType;
+    const mediaType = getMediaType(type);
+
     React.useEffect(() => {
         if (isCurrent && containerRef.current) {
-            pushInstruction('MediaAnalytics::enableMediaAnalytics');
-            pushInstruction('MediaAnalytics::setPingInterval', 1);
-            pushInstruction('MediaAnalytics::scanForMedia');
+            if (process.env.NODE_ENV !== 'production') {
+                pushInstruction('MediaAnalytics::enableDebugMode');
+            }
+
+            if (asset.assetId) {
+                pushInstruction('trackContentImpression', asset.title ?? asset.id, asset.assetId);
+            }
+
+            if ([MediaType.Audio, MediaType.Video].includes(mediaType)) {
+                pushInstruction('MediaAnalytics::setPingInterval', 10);
+                pushInstruction('MediaAnalytics::scanForMedia', containerRef.current);
+            }
         }
-    }, [containerRef, isCurrent]);
+    }, [containerRef, isCurrent, mediaType]);
 
     let content: JSX.Element;
-    const type = asset.mimeType;
 
-    switch (true) {
-        case 'application/pdf' === type:
+    switch (mediaType) {
+        case MediaType.Document:
             content = <PDFViewer file={asset.previewUrl}/>
             break;
-        case type.startsWith('video/'):
-        case type.startsWith('audio/'):
+        case MediaType.Video:
+        case MediaType.Audio:
             content = <VideoPlayer
                 ref={videoRef}
                 url={asset.previewUrl}
@@ -56,7 +67,7 @@ export default function AssetProxy({
                 assetId={asset.assetId}
             />
             break;
-        case type.startsWith('image/'):
+        case MediaType.Image:
             if (magnifier) {
                 content = <Magnifier
                     imageSrc={asset.previewUrl}
@@ -71,6 +82,7 @@ export default function AssetProxy({
                 />
             }
             break;
+        case MediaType.Unknown:
         default:
             content = <div>Unsupported media type</div>
             break;
@@ -82,4 +94,26 @@ export default function AssetProxy({
     >
         {content}
     </div>
+}
+
+enum MediaType {
+    Image,
+    Video,
+    Audio,
+    Document,
+    Unknown,
+}
+
+function getMediaType(type: string): MediaType {
+    switch (true) {
+        case 'application/pdf' === type:
+            return MediaType.Document;
+        case type.startsWith('video/'):
+            return MediaType.Video;
+        case type.startsWith('audio/'):
+        case type.startsWith('image/'):
+            return MediaType.Image;
+        default:
+            return MediaType.Unknown;
+    }
 }

@@ -153,7 +153,7 @@ class GalleryLayout extends React.Component {
     };
 
     render() {
-        const {assetId, data, options} = this.props;
+        const {data, options} = this.props;
         const {currentIndex} = this.state;
         const {
             assets,
