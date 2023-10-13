@@ -33,15 +33,16 @@ export default function AssetProxy({
 
     React.useEffect(() => {
         if (isCurrent && containerRef.current) {
-            if (process.env.NODE_ENV !== 'production') {
-                pushInstruction('MediaAnalytics::enableDebugMode');
-            }
-
-            if (asset.assetId) {
-                pushInstruction('trackContentImpression', asset.title ?? asset.id, asset.assetId);
-            }
+            // TODO
+            // if (asset.assetId) {
+            //     pushInstruction('trackContentImpression', asset.title ?? asset.id, asset.assetId);
+            // }
 
             if ([MediaType.Audio, MediaType.Video].includes(mediaType)) {
+                if (process.env.NODE_ENV !== 'production') {
+                    pushInstruction('MediaAnalytics::enableDebugMode');
+                }
+
                 pushInstruction('MediaAnalytics::setPingInterval', 10);
                 pushInstruction('MediaAnalytics::scanForMedia', containerRef.current);
             }

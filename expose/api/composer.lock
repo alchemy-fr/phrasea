@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10abe8d693829ef872186e28bde69703",
+    "content-hash": "07ad74b98b2bbce106d8216bb31ba8a9",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -58,7 +58,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
@@ -112,7 +112,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
@@ -162,7 +162,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
@@ -213,7 +213,7 @@
         },
         {
             "name": "alchemy/oauth-server-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/oauth-server-bundle",
@@ -262,7 +262,7 @@
         },
         {
             "name": "alchemy/remote-auth-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/remote-auth-bundle",
@@ -314,7 +314,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
@@ -363,7 +363,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
@@ -412,11 +412,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "9df7fdb9f15f19d7519b479faac075738c890592"
+                "reference": "add4ce1f483c3af69e021cbaaf77caff7b9456e9"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -424,7 +424,8 @@
                 "oneup/flysystem-bundle": "^3.1",
                 "php": "^7.4 || ^8.0",
                 "ramsey/uuid": "^4.2.3",
-                "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0"
+                "symfony/framework-bundle": "^4.0|^5.0",
+                "symfony/mime": "^4|^5|^6|^7"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.16"
@@ -6825,6 +6826,87 @@
             "time": "2022-11-05T15:42:31+00:00"
         },
         {
+            "name": "symfony/http-client",
+            "version": "v4.4.49",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/http-client.git",
+                "reference": "0185497cd61440bdf68df7d81241b97a543e9c3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/0185497cd61440bdf68df7d81241b97a543e9c3f",
+                "reference": "0185497cd61440bdf68df7d81241b97a543e9c3f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.3",
+                "psr/log": "^1|^2|^3",
+                "symfony/http-client-contracts": "^1.1.10|^2",
+                "symfony/polyfill-php73": "^1.11",
+                "symfony/polyfill-php80": "^1.16",
+                "symfony/service-contracts": "^1.0|^2"
+            },
+            "provide": {
+                "php-http/async-client-implementation": "*",
+                "php-http/client-implementation": "*",
+                "psr/http-client-implementation": "1.0",
+                "symfony/http-client-implementation": "1.1|2.0"
+            },
+            "require-dev": {
+                "guzzlehttp/promises": "^1.4",
+                "nyholm/psr7": "^1.0",
+                "php-http/httplug": "^1.0|^2.0",
+                "psr/http-client": "^1.0",
+                "symfony/dependency-injection": "^4.3|^5.0",
+                "symfony/http-kernel": "^4.4.13",
+                "symfony/process": "^4.2|^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\HttpClient\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides powerful methods to fetch HTTP resources synchronously or asynchronously",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/http-client/tree/v4.4.49"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-11-03T19:03:45+00:00"
+        },
+        {
             "name": "symfony/http-client-contracts",
             "version": "v2.5.2",
             "source": {
@@ -10569,7 +10651,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-531-workflow",
+            "version": "dev-PS-586-matomo-stats",
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",

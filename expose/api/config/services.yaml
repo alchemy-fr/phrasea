@@ -18,6 +18,9 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
+            string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
+            string $matomoAuthToken: '%env(MATOMO_AUTH_TOKEN)%'
+            string $phraseanetAuthToken: '%env(PHRASEANET_APP_OAUTH_TOKEN)%'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
