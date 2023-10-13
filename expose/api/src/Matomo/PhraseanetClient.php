@@ -32,6 +32,9 @@ final class PhraseanetClient
         unset($stat['idsubdatatable']);
 
         $this->client->request('GET', sprintf('/records/%s/%s', $baseId, $recordId), [
+            'headers' => [
+                'Authorization' => 'OAuth '.$this->authToken,
+            ],
             'json' => [
                 'metadatas' => [
                     [
