@@ -27,16 +27,15 @@ final class PhraseanetClient
             return;
         }
 
-        [, $baseId, $recordId] = $regs;
+        [, $databoxId, $recordId] = $regs;
 
         unset($stat['label']);
         unset($stat['idsubdatatable']);
 
         try {
-            $data = $this->client->request('GET', sprintf('/api/v3/records/%s/%s/', $baseId, $recordId), [
+            $data = $this->client->request('GET', sprintf('/api/v1/records/%s/%s/metadatas/', $databoxId, $recordId), [
                 'headers' => [
                     'Authorization' => 'OAuth '.$this->authToken,
-                    'Accept' => 'application/vnd.phraseanet.record-extended+json',
                 ],
             ])->toArray();
         } catch (HttpExceptionInterface $e) {
@@ -48,9 +47,9 @@ final class PhraseanetClient
         }
 
         $currentAttr = [];
-        foreach ($data['response']['metadata'] as $meta) {
+        foreach ($data['response']['record_metadatas'] as $meta) {
             if ('MatomoMediaMetrics' === $meta['name']) {
-                $currentAttr = json_decode($meta['value']['value'], true);
+                $currentAttr = json_decode($meta['value'], true);
                 break;
             }
         }
@@ -59,7 +58,7 @@ final class PhraseanetClient
             return;
         }
 
-        $res = $this->client->request('PATCH', sprintf('/api/v3/records/%s/%s/', $baseId, $recordId), [
+        $res = $this->client->request('PATCH', sprintf('/api/v3/records/%s/%s/', $databoxId, $recordId), [
             'headers' => [
                 'Authorization' => 'OAuth '.$this->authToken,
             ],
