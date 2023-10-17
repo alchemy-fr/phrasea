@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Command;
 
 use App\Matomo\MatomoClient;
 use App\Matomo\PhraseanetClient;

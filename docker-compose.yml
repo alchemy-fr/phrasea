@@ -533,6 +533,11 @@ services:
     extra_hosts:
       - zippy-svc.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
+  expose-cron:
+    extends:
+      service: expose-worker
+    command: ['/srv/app/docker/cron/start-cron.sh']
+
   expose-api-nginx:
     profiles:
       - expose

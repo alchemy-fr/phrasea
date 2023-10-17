@@ -44,4 +44,7 @@ RUN apk add --no-cache \
 
 COPY docker/supervisor/* /etc/supervisor.d/
 
+RUN touch /var/log/cron.log \
+    && chmod 755 /srv/app/docker/cron/scripts/*.sh
+
 CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]

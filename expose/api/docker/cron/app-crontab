@@ -1,0 +1,1 @@
+30 4 * * * /srv/app/docker/cron/scripts/matomo-sync-phraseanet.sh 2>&1
