@@ -59,10 +59,6 @@ services:
       - ./expose/api:/srv/app
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
-  expose-cron:
-    volumes:
-      - ./expose/api:/srv/app
-
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED

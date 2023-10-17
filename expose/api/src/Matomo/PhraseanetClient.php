@@ -33,31 +33,67 @@ final class PhraseanetClient
         unset($stat['idsubdatatable']);
 
         try {
-            $res = $this->client->request('PATCH', sprintf('/api/v3/records/%s/%s/', $baseId, $recordId), [
+            $data = $this->client->request('GET', sprintf('/api/v3/records/%s/%s/', $baseId, $recordId), [
                 'headers' => [
                     'Authorization' => 'OAuth '.$this->authToken,
+                    'Accept' => 'application/vnd.phraseanet.record-extended+json',
                 ],
-                'json' => [
-                    'metadatas' => [
-                        [
-                            'field_name' => 'MatomoMediaMetrics',
-                            'value' => \GuzzleHttp\json_encode($stat)
-                        ]
-                    ]
-                ]
-            ]);
-            $code = $res->getStatusCode();
-            if (in_array($code, [200, 404], true)) {
-                return;
-            }
-
-            throw new \Exception(sprintf('Got invalid HTTP response code %d: %s', $code, $res->getContent(false)));
+            ])->toArray();
         } catch (HttpExceptionInterface $e) {
-            if (404 !== $e->getResponse()->getStatusCode()) {
+            if (404 === $e->getResponse()->getStatusCode()) {
                 return;
             }
 
             throw $e;
         }
+
+        $currentAttr = [];
+        foreach ($data['response']['metadata'] as $meta) {
+            if ('MatomoMediaMetrics' === $meta['name']) {
+                $currentAttr = json_decode($meta['value']['value'], true);
+                break;
+            }
+        }
+
+        if (!shouldUpdate($currentAttr, $stat)) {
+            return;
+        }
+
+        $res = $this->client->request('PATCH', sprintf('/api/v3/records/%s/%s/', $baseId, $recordId), [
+            'headers' => [
+                'Authorization' => 'OAuth '.$this->authToken,
+            ],
+            'json' => [
+                'metadatas' => [
+                    [
+                        'field_name' => 'MatomoMediaMetrics',
+                        'value' => \GuzzleHttp\json_encode($stat)
+                    ]
+                ]
+            ]
+        ]);
+
+        $code = $res->getStatusCode();
+        if (200 !== $code) {
+            throw new \Exception(sprintf('Got invalid HTTP response code %d: %s', $code, $res->getContent(false)));
+        }
     }
+}
+
+function shouldUpdate(array $current, array $new): bool {
+    if (empty($current)) {
+        return true;
+    }
+
+    if (count($new) !== count($current)) {
+        return true;
+    }
+
+    foreach ($new as $k => $v) {
+        if (!isset($current[$k]) || $current[$k] !== $v) {
+            return true;
+        }
+    }
+
+    return false;
 }
