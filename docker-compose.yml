@@ -546,9 +546,7 @@ services:
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
-      internal:
-        aliases:
-          - expose_api
+      - internal
     depends_on:
       - expose-api-php
     environment:
