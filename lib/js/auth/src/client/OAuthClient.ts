@@ -17,7 +17,7 @@ interface ValidationError {
     error_description: string;
 }
 
-type UserInfoResponse = {
+export type UserInfoResponse = {
     preferred_username: string;
     groups: string[];
     roles: string[];
