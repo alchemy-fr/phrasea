@@ -19,15 +19,16 @@ function load-env {
     exit 1
   fi
 
-  tmp="/tmp/env-$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')"
+  tmp="/tmp/env-$(cat /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 13 ; echo '')"
   env > "${tmp}"
 
+  export_env_from_file ".env.local"
   export_env_from_file ".env"
   export_env_from_file ".env.local"
 
   eval "$(
     while read -r LINE; do
-      if [[ $LINE =~ ^[A-Za-z0-9]+= ]] && [[ $LINE != '#'* ]]; then
+      if [[ $LINE =~ ^[A-Za-z0-9_]+= ]] && [[ $LINE != '#'* ]]; then
         key=$(printf '%s\n' "$LINE"| sed 's/"/\\"/g' | cut -d '=' -f 1)
         value=$(printf '%s\n' "$LINE" | cut -d '=' -f 2- | sed 's/"/\\\"/g')
         printf '%s\n' "export $key=\"$value\""
@@ -40,13 +41,13 @@ function load-env {
 
 # execute a shell commmand in a container defined in docker-compose.yml
 function exec_container() {
-    docker compose exec -T "$1" sh -c "$2"
+  docker compose exec -T "$1" sh -c "$2"
 }
 
 function exec_container_as() {
-    docker compose exec -T "$1" su "$3" sh -c "$2"
+  docker compose exec -T "$1" su "$3" sh -c "$2"
 }
 
 function create_db() {
-    exec_container db "psql -U \"${POSTGRES_USER}\" -tc \"SELECT 1 FROM pg_database WHERE datname = '$1'\" | grep -q 1 || psql -U \"${POSTGRES_USER}\" -c \"CREATE DATABASE $1\""
+  exec_container db "psql -U \"${POSTGRES_USER}\" -tc \"SELECT 1 FROM pg_database WHERE datname = '$1'\" | grep -q 1 || psql -U \"${POSTGRES_USER}\" -c \"CREATE DATABASE $1\""
 }

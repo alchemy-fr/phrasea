@@ -10,8 +10,11 @@ use Psr\Http\Message\RequestInterface;
 
 class PhraseanetApiClientFactory
 {
-    public function __construct(private readonly array $options = [])
+    private array $options;
+
+    public function __construct(array $options = [])
     {
+        $this->options = $options;
     }
 
     public function create(string $baseUri, string $oauthToken): Client

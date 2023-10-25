@@ -10,14 +10,6 @@ bin/create-config.sh
 
 set -ex
 
-export AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}
-export UPLOADER_CLIENT_BASE_URL=https://uploader.${PHRASEA_DOMAIN}
-export DATABOX_CLIENT_BASE_URL=https://databox.${PHRASEA_DOMAIN}
-export UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}
-export DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}
-export NOTIFY_API_BASE_URL=https://api-notify.${PHRASEA_DOMAIN}
-export EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}
-
 docker compose up -d
 
 # Wait for services to be ready
