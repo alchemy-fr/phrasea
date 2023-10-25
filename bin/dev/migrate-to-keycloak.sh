@@ -24,7 +24,9 @@ fi
 
 kubectl config use-context minikube
 
-if [ ! -z "${PS_RESET_RELEASE}" ]; then
+read -p "Reset? (y/N)" RESET_RELEASE
+
+if [[ $RESET_RELEASE == "y" ]]; then
   echo "Resetting release..."
   if [ -z "${OLD_CHART_VALUES}" ]; then
     >&2 echo "Missing OLD_CHART_VALUES env"
@@ -44,6 +46,8 @@ if [ ! -z "${PS_RESET_RELEASE}" ]; then
 
   echo ""
   echo ""
+
+  read -p "Ready to migrate? Press enter!"
 fi
 
 echo "Migrating..."
