@@ -590,8 +590,6 @@ services:
       - internal
     environment:
       - APP_ENV
-      - AUTH_PORT
-      - AUTH_REGISTRATION_VALIDATE_EMAIL
       - STACK_NAME=${COMPOSE_PROJECT_NAME}
       - DEV_MODE
       - DOCKER_TAG

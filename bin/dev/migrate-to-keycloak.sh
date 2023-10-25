@@ -5,6 +5,8 @@ set -e
 NS=${NS:-"ps"}
 RELEASE_NAME=${4:-"ps"}
 
+kubectl config use-context minikube
+
 source ./tmp/.helm.env
 
 if [ -z "${OLD_CHART_DIR}" ]; then
@@ -22,7 +24,23 @@ if [ -z "${NEW_CHART_VALUES}" ]; then
   exit 1
 fi
 
-kubectl config use-context minikube
+MIGRATION_NAME=20230807
+
+
+# <TODO remove>
+(cd ${NEW_CHART_DIR} \
+  && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml \
+  && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
+    -f ${NEW_CHART_VALUES} \
+    -f /tmp/.current-values.yaml \
+    --set "configurator.executeMigration=${MIGRATION_NAME}" \
+    --set "stack.runMigrations=false" \
+)
+
+exit
+# </TODO remove>
+
+
 
 read -p "Reset? (y/N)" RESET_RELEASE
 
@@ -55,8 +73,13 @@ echo "Migrating..."
 (cd ${NEW_CHART_DIR} \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml \
   && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
-    -f /tmp/.current-values.yaml \
     -f ${NEW_CHART_VALUES} \
-  && helm -n ${NS} template ${RELEASE_NAME} -f /tmp/.current-values.yaml \
-    --set "configurator.executeMigration=${MIGRATION_NAME}"
+  && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
+      -f ${NEW_CHART_VALUES} \
+      -f /tmp/.current-values.yaml \
+      --set "configurator.executeMigration=${MIGRATION_NAME}" \
+  && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
+      -f ${NEW_CHART_VALUES} \
+      -f /tmp/.current-values.yaml \
+      --set "configurator.executeMigration="
 )
