@@ -5,4 +5,4 @@ doctrine_migrations:
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
     storage:
         table_storage:
-            table_name: 'migration_versions'
+            table_name: 'doctrine_migration_versions'
