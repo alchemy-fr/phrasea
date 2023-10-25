@@ -3,9 +3,9 @@
 
     const analytics = {};
 
-    if (env.MATOMO_BASE_URL) {
+    if (env.MATOMO_URL) {
         analytics.matomo = {
-            baseUrl: env.MATOMO_BASE_URL,
+            baseUrl: env.MATOMO_URL,
             siteId: env.MATOMO_SITE_ID,
         };
     }
@@ -16,7 +16,6 @@
         baseUrl: env.EXPOSE_API_URL,
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
-        matomoBaseUrl: env.MATOMO_BASE_URL,
         clientId: env.CLIENT_ID,
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL ? parseInt(env.S3_REQUEST_SIGNATURE_TTL) : 86400,
         disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),

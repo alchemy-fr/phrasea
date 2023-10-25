@@ -84,6 +84,7 @@ services:
       - DISPLAY_SERVICES_MENU
       - DASHBOARD_URL
       - AUTO_CONNECT_IDP
+      - MATOMO_URL
     volumes:
       - ./configs:/configs
     labels:
@@ -233,6 +234,7 @@ services:
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
+      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
     labels:
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
 
@@ -283,8 +285,14 @@ services:
       - CLOUD_FRONT_PRIVATE_KEY=${EXPOSE_CLOUD_FRONT_PRIVATE_KEY}
       - CLOUD_FRONT_KEY_PAIR_ID=${EXPOSE_CLOUD_FRONT_KEY_PAIR_ID}
       - CLOUD_FRONT_TTL=${EXPOSE_CLOUD_FRONT_TTL}
+      - MATOMO_URL
+      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
+      - MATOMO_AUTH_TOKEN
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_URL
     extra_hosts:
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-worker:
     extends:
@@ -308,9 +316,7 @@ services:
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
-      internal:
-        aliases:
-          - expose_api
+      - internal
     depends_on:
       - expose-api-php
     environment:

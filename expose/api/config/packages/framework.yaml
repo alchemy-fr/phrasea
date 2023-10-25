@@ -18,6 +18,15 @@ framework:
                 base_urls:
                     - '%env(EXPOSE_API_URL)%'
 
+    http_client:
+        default_options:
+            verify_peer: '%env(bool:VERIFY_SSL)%'
+        scoped_clients:
+            matomo.client:
+                base_uri: '%env(MATOMO_URL)%'
+            phraseanet.client:
+                base_uri: '%env(PHRASEANET_URL)%'
+
 when@dev:
     framework:
         router:

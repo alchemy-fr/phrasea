@@ -1436,6 +1436,18 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@jonkoops/matomo-tracker-react@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@jonkoops/matomo-tracker-react/-/matomo-tracker-react-0.7.0.tgz#08a337005bd095148f7cad5ec1dff69b8fd64d7b"
+  integrity sha512-3iwG/QM1T6KokU/NZNCkhOccIkhaNnO1+0bTv2JsLbsS7u7hWxpio20gfBjCRd/9N1AMiGidvytG2FK9tu7WFw==
+  dependencies:
+    "@jonkoops/matomo-tracker" "^0.7.0"
+
+"@jonkoops/matomo-tracker@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@jonkoops/matomo-tracker/-/matomo-tracker-0.7.0.tgz#38bd15352cd6a2115eb863a9ba582a1c0f52fc32"
+  integrity sha512-ppCXiDaVytTQOP6hNZIBwjUph5IrGgDoQw4IF5sBoA3PBpMAc5tWtPExbVWTR5pJWpTcp11dv2M83n9pm7LpeQ==
+
 "@jridgewell/resolve-uri@^3.0.3":
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@jridgewell/resolve-uri/-/resolve-uri-3.0.5.tgz#68eb521368db76d040a6315cdb24bf2483037b9c"
@@ -1774,6 +1786,13 @@
   dependencies:
     "@types/react" "^16"
 
+"@types/react-image-magnifiers@^1.3.2":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@types/react-image-magnifiers/-/react-image-magnifiers-1.3.4.tgz#3b9a729aad4a61018b4525344f73f2db5a55e56e"
+  integrity sha512-84UK4lTZv0xaE568nWqYsWl9CK04utMXpjSnVRc0gAJ5FFS0T0dT1KvaFShDiKBO3dzFvhLBDxronWg0EFkoNw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^5.3.3":
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.3.3.tgz#e9d6b4a66fcdbd651a5f106c2656a30088cc1e83"
@@ -1783,7 +1802,7 @@
     "@types/react" "*"
     "@types/react-router" "*"
 
-"@types/react-router@*":
+"@types/react-router@*", "@types/react-router@^5.1.20":
   version "5.1.20"
   resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-5.1.20.tgz#88eccaa122a82405ef3efbcaaa5dcdd9f021387c"
   integrity sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==
@@ -9909,6 +9928,21 @@ react-router@5.2.1:
     hoist-non-react-statics "^3.1.0"
     loose-envify "^1.3.1"
     mini-create-react-context "^0.4.0"
+    path-to-regexp "^1.7.0"
+    prop-types "^15.6.2"
+    react-is "^16.6.0"
+    tiny-invariant "^1.0.2"
+    tiny-warning "^1.0.0"
+
+react-router@^5.1.2:
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.3.4.tgz#8ca252d70fcc37841e31473c7a151cf777887bb5"
+  integrity sha512-Ys9K+ppnJah3QuaRiLxk+jDWOR1MekYQrlytiXxC1RyfbdsZkS5pvKAzCCr031xHixZwpnsYNT5xysdFHQaYsA==
+  dependencies:
+    "@babel/runtime" "^7.12.13"
+    history "^4.9.0"
+    hoist-non-react-statics "^3.1.0"
+    loose-envify "^1.3.1"
     path-to-regexp "^1.7.0"
     prop-types "^15.6.2"
     react-is "^16.6.0"
