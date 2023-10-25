@@ -43,6 +43,10 @@ class AssetManager
             $asset->setSlug($options['slug']);
         }
 
+        if (isset($options['title'])) {
+            $asset->setTitle($options['title']);
+        }
+
         if (isset($options['description'])) {
             $asset->setDescription($options['description']);
         }

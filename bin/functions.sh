@@ -22,6 +22,7 @@ function load-env {
   tmp="/tmp/env-$(cat /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 13 ; echo '')"
   env > "${tmp}"
 
+  export_env_from_file ".env.local"
   export_env_from_file ".env"
   export_env_from_file ".env.local"
 

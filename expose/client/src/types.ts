@@ -17,4 +17,10 @@ export type Publication = {
 export type Asset = {
     id: string;
     publication: Publication;
+    mimeType: string;
+    assetId: string | undefined;
+    previewUrl: string;
+    posterUrl: string;
+    title: string;
+    webVTTLink: string;
 }

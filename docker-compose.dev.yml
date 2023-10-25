@@ -181,6 +181,11 @@ services:
       - KEYCLOAK_REALM_NAME
       - DEFAULT_ADMIN_USERNAME
       - DEFAULT_ADMIN_PASSWORD
+      - MATOMO_BASE_URL
+      - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
+      - MATOMO_AUTH_TOKEN
+      - PHRASEANET_APP_OAUTH_TOKEN
+      - PHRASEANET_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

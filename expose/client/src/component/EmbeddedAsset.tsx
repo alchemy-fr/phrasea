@@ -71,6 +71,7 @@ export default function EmbeddedAsset({
                 <AssetProxy
                     asset={data}
                     fluid={true}
+                    isCurrent={true}
                 />
             </div>}
         </PublicationSecurityProxy>
