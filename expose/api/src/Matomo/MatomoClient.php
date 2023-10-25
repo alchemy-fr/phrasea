@@ -32,7 +32,7 @@ final class MatomoClient
                 'method' => 'MediaAnalytics.getGroupedVideoResources',
                 'format' => 'JSON',
                 'token_auth' => $this->authToken,
-                'date' => '2000-01-01,'.date('Y-m-d'),
+                'date' => '2020-01-01,'.date('Y-m-d'),
                 'period' => 'range',
                 'filter_offset' => $offset,
                 'filter_limit' => $limit,

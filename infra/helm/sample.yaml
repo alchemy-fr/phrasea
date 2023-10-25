@@ -172,3 +172,6 @@ globalConfig:
         }
       }
     }
+
+zippy:
+  enabled: false
