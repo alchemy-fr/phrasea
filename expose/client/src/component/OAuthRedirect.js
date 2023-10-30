@@ -40,12 +40,15 @@ export default class OAuthRedirect extends PureComponent {
         }
 
         console.error(e);
-        alert(e);
         history.push(errorUri || '/');
     };
 
     componentDidMount() {
         const {oauthClient} = this.props;
+
+        if (oauthClient.getAccessToken()) {
+            this.handleSuccess();
+        }
 
         oauthClient
             .getAccessTokenFromAuthCode(

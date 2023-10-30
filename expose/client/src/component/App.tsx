@@ -63,30 +63,7 @@ export default function App({}: Props) {
                 dashboardBaseUrl={config.get('dashboardBaseUrl') as string}
             />}
             <Switch>
-                <Route path="/auth/:provider" component={(props: any) => {
-                    return <OAuthRedirect
-                        {...props}
-                        oauthClient={oauthClient}
-                        successHandler={(history: any) => {
-                            const redirectUri = getAuthRedirect() || '/';
-                            unsetAuthRedirect();
-                            if (window.opener) {
-                                try {
-                                    if (window.opener.isPhraseaApp) {
-                                        window.opener.document.location.href = redirectUri;
-                                        window.close();
-                                    }
-
-                                    return;
-                                } catch (err) {
-                                    console.error(err);
-                                }
-                            }
-
-                            history.replace(redirectUri);
-                        }}
-                    />
-                }}/>
+                <Route path="/auth/:provider" component={OAuthRedirectProxy}/>
                 {!config.get('disableIndexPage') as boolean && <Route path="/" exact component={PublicationIndex}/>}
                 <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
                     id={params.asset}
@@ -106,4 +83,29 @@ export default function App({}: Props) {
             </Switch>
         </AnalyticsRouterProvider>
     </Router>
+}
+
+function OAuthRedirectProxy(props: any) {
+    return <OAuthRedirect
+        {...props}
+        oauthClient={oauthClient}
+        successHandler={(history: any) => {
+            const redirectUri = getAuthRedirect() || '/';
+            unsetAuthRedirect();
+            if (window.opener) {
+                try {
+                    if (window.opener.isPhraseaApp) {
+                        window.opener.document.location.href = redirectUri;
+                        window.close();
+                    }
+
+                    return;
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            history.replace(redirectUri);
+        }}
+    />
 }
