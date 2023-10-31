@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -36,6 +37,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+
+    /**
+     * @var MetadataTag[]
+     *
+     * @ORM\OneToMany(targetEntity="App\Entity\Core\MetadataTag", mappedBy="id")
+     */
+    private ?DoctrineCollection $initialValuesSource = null;
 
     /**
      * Override trait for annotation.

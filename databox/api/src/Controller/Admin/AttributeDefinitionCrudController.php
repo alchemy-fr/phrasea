@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -13,11 +14,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+
 
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
@@ -29,6 +30,14 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
     {
         return AttributeDefinition::class;
     }
+
+    public function configureAssets($assets): Assets
+    {
+        return parent::configureAssets($assets)
+            ->addWebpackEncoreEntry('admin')
+            ;
+    }
+
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -59,21 +68,63 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $workspace = AssociationField::new('workspace');
         $class = AssociationField::new('class');
         $name = TextField::new('name');
-        $fileType = TextField::new('fileType');
         $fieldType = ChoiceField::new('fieldType')->setChoices($fileTypeChoices);
+        $fileType = TextField::new('fileType');
+
         $allowInvalid = BooleanField::new('allowInvalid')->renderAsSwitch(false);
         $translatable = BooleanField::new('translatable')->renderAsSwitch(false);
-        $sortable = BooleanField::new('sortable');
+        $sortable = BooleanField::new('sortable')->renderAsSwitch(false);
         $multiple = BooleanField::new('multiple')->renderAsSwitch(false);
         $searchable = BooleanField::new('searchable')->renderAsSwitch(false);
+
         $searchBoost = IntegerField::new('searchBoost');
-        $initialValuesAll = TextareaField::new('initialValuesAll');
+
+        $initialValuesSource = AssociationField::new('initialValuesSource')
+            ->addCssClass('initialValuesSource')
+            ->setHelp('type "dic ad dat" (with SPACES) to find sources like  "<b>DI</b>COM:<b>Ad</b>mitting<b>Dat</b>e"')
+            ->autocomplete()
+            ->setCrudController(MetadataTagCrudController::class)
+            ->setFormTypeOptions([
+                'mapped' => false,
+                'multiple' => false,
+                'row_attr' => [
+                    'data-controller' => 'initialValuesSource',
+                    'data-action' => 'initialValuesSource:tagChanged->initialValuesAll#tagChanged',
+                ],
+                'attr' => [
+                    'data-initialValuesSource-target' => 'input',
+                    'data-action' => 'initialValuesSource#render',
+                ],
+            ]);
+
+        $initialValuesAll = TextareaField::new('initialValuesAll')
+            ->addCssClass("initialValuesAll")
+            ->addCssClass("helpAtRight")
+            ->setLabel("InitialValues (advanced)")
+            ->setNumOfRows(6)
+            ->setHelp('<div class="label">Template example:</div><code>{
+    "type": "template",
+    "value": "{{ file.metadata(\'Composite:GPSLongitude\').value }}, {{ file.metadata(\'Composite:GPSLatitude\').value }}"
+}</code>')
+            ->setFormTypeOptions([
+                'row_attr' => [
+                    'data-controller' => 'initialValuesAll', // initialValuesSource',
+                    'data-action' => "initialValuesAll:jsTagChangedEvt->initialValuesSource#jsTagChangedEvt",
+                    'data-initialValuesAll-initialValuesSource-outlet' => '.initialValuesSource'
+                ],
+                'attr' => [
+                    'data-initialValuesAll-target' => 'input',
+                    'data-action' => 'initialValuesAll#render',
+                ],
+            ])
+            ->setColumns(12);
+
         $fallbackAll = TextareaField::new('fallbackAll')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackEN = TextareaField::new('fallbackEN', 'Fallback value template EN')->setHelp('e.g. Dimensions are: {{ file.width }}x{{ file.height }}');
         $fallbackFR = TextareaField::new('fallbackFR', 'Fallback value template FR')->setHelp('ex. Les dimensions sont : {{ file.width }}x{{ file.height }}');
         $id = IdField::new();
         $slug = TextField::new('slug');
-        $facetEnabled = Field::new('facetEnabled');
+        $facetEnabled = BooleanField::new('facetEnabled')->renderAsSwitch(false);
         $fallback = ArrayField::new('fallback');
         $key = TextField::new('key');
         $position = IntegerField::new('position');
@@ -82,13 +133,30 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         $attributes = AssociationField::new('attributes');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $class, $name, $fileType, $fieldType, $multiple, $facetEnabled, $sortable, $searchable, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $fileType, $fieldType, $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, $searchBoost, $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $initialValuesAll, $fallbackAll, $fallbackEN, $fallbackFR];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $class, $name, $fileType, $fieldType, $allowInvalid, $sortable, $translatable, $multiple, $searchable, $searchBoost, $initialValuesAll, $fallbackAll, $fallbackEN, $fallbackFR];
+            return [$id, $workspace, $class, $name, $fieldType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid,
+                $createdAt];
+        }
+        elseif (Crud::PAGE_DETAIL === $pageName) {
+            return [$id, $name, $slug, $fileType, $fieldType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid,
+                $searchBoost,
+                $initialValuesAll,
+                $fallback, $key, $position, $createdAt, $updatedAt, $workspace, $class, $attributes];
+        }
+        elseif (Crud::PAGE_NEW === $pageName) {
+            return [$workspace, $class, $name, $fieldType, $fileType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
+                $searchBoost,
+                $initialValuesSource, $initialValuesAll,
+                $fallbackAll, $fallbackEN, $fallbackFR];
+        }
+        elseif (Crud::PAGE_EDIT === $pageName) {
+            return [$workspace, $class, $name, $fieldType, $fileType,
+                $searchable, $facetEnabled, $sortable, $translatable, $multiple, $allowInvalid, // $brk,
+                $searchBoost,
+                $initialValuesSource, $initialValuesAll,
+                $fallbackAll, $fallbackEN, $fallbackFR];
         }
 
         return [];

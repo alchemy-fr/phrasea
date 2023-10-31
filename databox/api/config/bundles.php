@@ -33,4 +33,5 @@ return [
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
     Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
     Alchemy\WorkflowBundle\AlchemyWorkflowBundle::class => ['all' => true],
+    Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class => ['all' => true],
 ];
