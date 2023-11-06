@@ -37,7 +37,9 @@ export default function App({}: Props) {
     }, []);
 
     React.useEffect(() => {
-        authenticate();
+        if (oauthClient.getAccessToken()) {
+            authenticate();
+        }
         oauthClient.registerListener('login', onLogin);
         oauthClient.registerListener('logout', onLogout);
 
