@@ -195,7 +195,7 @@ export default class OAuthClient {
 
             return res;
         } catch (e: any) {
-            console.log('e', e);
+            console.debug('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
                 if (e.response?.data?.error === 'invalid_grant') {
                     this.sessionExpired();
@@ -328,21 +328,23 @@ type OnTokenError = (error: AxiosError) => void;
 export function configureClientAuthentication(
     client: AxiosInstance,
     oauthClient: OAuthClient,
-    onTokenError?: OnTokenError,): void {
+    onTokenError?: OnTokenError
+): void {
     client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromRefreshToken", onTokenError));
 }
 
 export function configureClientCredentialsGrantType(
     client: AxiosInstance,
     oauthClient: OAuthClient,
-    onTokenError?: OnTokenError,): void {
+    onTokenError?: OnTokenError
+): void {
     client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromClientCredentials", onTokenError));
 }
 
 function createAxiosInterceptor(
     oauthClient: OAuthClient,
     method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials",
-    onTokenError?: OnTokenError,
+    onTokenError?: OnTokenError
 ) {
     return async (config: RequestConfigWithAuth) => {
         if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {

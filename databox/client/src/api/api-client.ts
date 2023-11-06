@@ -1,6 +1,5 @@
 import {configureClientAuthentication, createHttpClient, KeycloakClient} from '@alchemy/auth';
 import config from "../config";
-import {toast} from "react-toastify";
 
 export const keycloakClient = new KeycloakClient({
     clientId: config.clientId,
@@ -11,8 +10,6 @@ export const oauthClient = keycloakClient.client;
 
 const apiClient = createHttpClient(window.config.baseUrl);
 
-configureClientAuthentication(apiClient, oauthClient, () => {
-    toast.error('Your session has expired');
-});
+configureClientAuthentication(apiClient, oauthClient);
 
 export default apiClient;
