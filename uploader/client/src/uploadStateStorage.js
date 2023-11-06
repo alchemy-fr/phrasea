@@ -15,13 +15,12 @@ class UploadStateStorage {
         return d[userId][fileUID];
     }
 
-    initUpload(userId, fileUID, uploadId, path) {
+    initUpload(userId, fileUID, uploadId) {
         const d = this.getData();
 
         d[userId] = d[userId] || {};
         d[userId][fileUID] = {
             u: uploadId,
-            p: path,
             c: [],
         };
 
@@ -29,6 +28,7 @@ class UploadStateStorage {
     }
 
     updateUpload(userId, fileUID, chunkETag) {
+        console.debug('updateUpload', userId, fileUID, chunkETag);
         const d = this.getData();
         d[userId][fileUID].c.push(chunkETag);
         this.setData(d);
