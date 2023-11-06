@@ -3,14 +3,8 @@ services:
     autowire: true
     autoconfigure: true
 
-  Alchemy\Workflow\Command\DumpWorkflowCommand:
-    tags:
-      - { name: 'console.command', command: 'alchemy:workflow:dump-workflow' }
-
-  Alchemy\Workflow\Command\RunCommand:
-    tags:
-      - { name: 'console.command', command: 'alchemy:workflow:run' }
-
+  Alchemy\Workflow\Command\DumpWorkflowCommand: ~
+  Alchemy\Workflow\Command\RunCommand: ~
   Alchemy\Workflow\Loader\YamlLoader: ~
 
   Alchemy\WorkflowBundle\Loader\KernelCacheLoader:

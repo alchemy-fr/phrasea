@@ -8,24 +8,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class MapOptions extends AbstractOptions
 {
-    /**
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?float $lat = null;
 
-    /**
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?float $lng = null;
 
-    /**
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?int $zoom = null;
 
-    /**
-     * @Groups({"profile:read", "publication:admin:read"})
-     */
+    #[Groups(['profile:read', 'publication:admin:read'])]
     private ?string $mapLayout = null;
 
     public function jsonSerialize(): array

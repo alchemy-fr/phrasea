@@ -6,35 +6,40 @@ namespace App\Doctrine;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\PublicationProfile;
+use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Security\Core\Security;
 
-class PublicationProfileExtension implements QueryCollectionExtensionInterface
+readonly class PublicationProfileExtension implements QueryCollectionExtensionInterface
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private Security $security)
     {
-        $this->security = $security;
     }
 
-    public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
-    {
+    public function applyToCollection(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $resourceClass,
+        Operation $operation = null,
+        array $context = []
+    ): void {
         if (PublicationProfile::class === $resourceClass) {
             $rootAlias = $queryBuilder->getRootAliases()[0];
             $queryBuilder->addOrderBy(sprintf('%s.name', $rootAlias), 'ASC');
 
             if (
-                !$this->security->isGranted('ROLE_ADMIN')
-                && !$this->security->isGranted('ROLE_PUBLISH')
+                !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+                && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
             ) {
                 $user = $this->security->getUser();
-                $userId = $user instanceof RemoteUser ? $user->getId() : null;
+                $userId = $user instanceof JwtUser ? $user->getId() : null;
                 if (!$userId) {
                     throw new AccessDeniedHttpException('User must be authenticated');
                 }
@@ -42,7 +47,7 @@ class PublicationProfileExtension implements QueryCollectionExtensionInterface
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
-                    $user->getGroupIds(),
+                    $user->getGroups(),
                     'profile',
                     'o',
                     PermissionInterface::VIEW,

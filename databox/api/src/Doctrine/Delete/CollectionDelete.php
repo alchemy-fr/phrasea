@@ -12,9 +12,9 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CollectionDelete
+final readonly class CollectionDelete
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexCleaner $indexCleaner, private readonly SoftDeleteToggler $softDeleteToggler)
+    public function __construct(private EntityManagerInterface $em, private IndexCleaner $indexCleaner, private SoftDeleteToggler $softDeleteToggler)
     {
     }
 
@@ -38,7 +38,7 @@ class CollectionDelete
 
             $configuration = $this->em->getConnection()->getConfiguration();
             $logger = $configuration->getSQLLogger();
-            $configuration->setSQLLogger(null);
+            $configuration->setSQLLogger();
 
             try {
                 $this->doDelete($collectionId);

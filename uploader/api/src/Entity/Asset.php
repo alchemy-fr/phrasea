@@ -4,149 +4,193 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Controller\AssetAckAction;
-use App\Controller\DownloadAssetAction;
-use DateTime;
+use App\Controller\CreateAssetAction;
+use App\Security\Voter\AssetVoter;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Entity\AssetRepository")
- * @ApiResource(
- *     normalizationContext={
- *         "groups"={"asset:read"},
- *     },
- *     denormalizationContext={
- *         "groups"={"asset:write"},
- *     },
- *     itemOperations={
- *         "get"={"access_control"="is_granted('READ_META', object)"},
- *         "download"={
- *             "access_control"="is_granted('DOWNLOAD', object)",
- *             "method"="GET",
- *             "path"="/assets/{id}/download",
- *             "controller"=DownloadAssetAction::class,
- *         },
- *         "ack"={
- *             "method"="POST",
- *             "path"="/assets/{id}/ack",
- *             "controller"=AssetAckAction::class,
- *              "defaults"={
- *                  "_api_receive"=false,
- *                  "_api_respond"=true,
- *             },
- *         }
- *     },
- * )
- */
-class Asset
+#[ApiResource(
+    shortName: 'asset',
+    operations: [
+
+        new Get(security: 'is_granted("READ_META", object)'),
+        new Post(
+            uriTemplate: '/assets/{id}/ack',
+            controller: AssetAckAction::class,
+            security: 'is_granted("'.AssetVoter::ACK.'", object)',
+            deserialize: false,
+            name: 'post_ack',
+        ),
+        new GetCollection(),
+        new Post(
+            defaults: ['_api_receive' => false],
+            controller: CreateAssetAction::class,
+            openapiContext: [
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'examples' => [
+                                'Multipart upload' => [
+                                    'value' => [
+                                        'targetId' => '8ad69673-e1cc-4081-8201-20677e9f9e9c',
+                                        'multipart' => [
+                                            'uploadId' => '123-456',
+                                            'parts' => [
+                                                [
+                                                    'ETag' => '812d692260ab94dd85a5aa7a6caef68d',
+                                                    'PartNumber' => 1,
+                                                ],
+                                                [
+                                                    'ETag' => '4dd85a5aa7a6caef68d812d692260ab9',
+                                                    'PartNumber' => 2,
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'schema' => [
+                                'oneOf' => [
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'targetId' => ['type' => 'string'],
+                                            'multipart' => [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'uploadId' => ['type' => 'string'],
+                                                    'parts' => [
+                                                        'type' => 'array',
+                                                        'items' => [
+                                                            'type' => 'object',
+                                                            'properties' => [
+                                                                'ETag' => ['type' => 'string'],
+                                                                'PartNumber' => ['type' => 'integer'],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'targetId' => ['type' => 'string'],
+                                            'upload' => [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'name' => ['type' => 'string'],
+                                                    'type' => ['type' => 'string'],
+                                                    'size' => ['type' => 'integer'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'targetId' => ['type' => 'string'],
+                                    'file' => [
+                                        'type' => 'string',
+                                        'format' => 'binary',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            validationContext: [
+                'groups' => [
+                    'Default',
+                    'asset_create',
+                ],
+            ]
+        ),
+    ],
+    normalizationContext: [
+        'groups' => ['asset:read'],
+    ],
+    denormalizationContext: [
+        'groups' => ['asset:write'],
+    ]
+)]
+#[ORM\Entity(repositoryClass: AssetRepository::class)]
+class Asset extends AbstractUuidEntity
 {
-    /**
-     * @ApiProperty(identifier=true)
-     * @Groups("asset:read")
-     *
-     * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    protected $id;
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $path = null;
 
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=255)
-     */
-    private $path;
-
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     * @Groups("asset:read", "asset:write")
-     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups('asset:read')]
     private ?array $data = [];
 
     /**
      * Dynamic signed URL.
-     *
-     * @ApiProperty()
-     * @Groups({"asset:read"})
      */
+    #[ApiProperty]
+    #[Groups(['asset:read'])]
     private ?string $url = null;
 
-    /**
-     * @var int|string
-     * @Groups("asset:read")
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
-     */
-    private $size;
+    #[Groups('asset:read')]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $size = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty(iri="http://schema.org/name")
-     * @Groups("asset:read")
-     */
-    private $originalName;
+    #[ApiProperty(iris: ['http://schema.org/name'])]
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Groups('asset:read')]
+    private ?string $originalName = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty()
-     * @Groups("asset:read")
-     */
-    private $mimeType;
+    #[ApiProperty]
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Groups('asset:read')]
+    private ?string $mimeType = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Target")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Target::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Target $target = null;
 
-    /**
-     * @var Commit|null
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Commit", inversedBy="assets")
-     */
-    private $commit;
+    #[ORM\ManyToOne(targetEntity: Commit::class, inversedBy: 'assets')]
+    private ?Commit $commit = null;
 
-    /**
-     * @var bool
-     * @ORM\Column(type="boolean")
-     * @Groups("asset:read")
-     * @ApiFilter(BooleanFilter::class)
-     */
-    private $acknowledged = false;
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Groups('asset:read')]
+    #[ApiFilter(filterClass: BooleanFilter::class)]
+    private bool $acknowledged = false;
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(type="datetime")
-     * @ApiProperty()
-     * @Groups("asset:read")
-     */
-    private $createdAt;
+    #[ApiProperty]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups('asset:read')]
+    private \DateTimeImmutable $createdAt;
 
-    /**
-     * @var string
-     * @ORM\Column(type="string", length=255)
-     */
-    private $userId;
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $userId = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
-        $this->id = Uuid::uuid4();
+        parent::__construct();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId()
+    #[Groups('asset:read')]
+    public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
 
     public function getPath(): string
@@ -194,20 +238,16 @@ class Asset
         return null !== $this->commit;
     }
 
-    /**
-     * @Groups("asset:read")
-     */
+    #[Groups('asset:read')]
     public function getFormData(): ?array
     {
-        return $this->commit ? $this->commit->getFormData() : null;
+        return $this->commit?->getFormData();
     }
 
-    /**
-     * @ApiProperty()
-     */
+    #[ApiProperty]
     public function getToken(): ?string
     {
-        return $this->commit ? $this->commit->getToken() : null;
+        return $this->commit?->getToken();
     }
 
     public function getCommit(): ?Commit
@@ -220,7 +260,7 @@ class Asset
         $this->commit = $commit;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -267,7 +307,7 @@ class Asset
 
     public function getData(): array
     {
-        return null !== $this->data ? $this->data : [];
+        return $this->data ?? [];
     }
 
     public function setData(?array $data): void

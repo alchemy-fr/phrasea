@@ -1,6 +1,8 @@
 import React from 'react';
-import {getAuthRedirect, oauthClient, unsetAuthRedirect} from "../lib/oauth";
-import {AuthEventHandler, DashboardMenu, UserInfoResponse} from "react-ps";
+import {getAuthRedirect, unsetAuthRedirect} from "../lib/oauth";
+import {UserInfoResponse, AuthEventHandler} from "@alchemy/auth";
+import {DashboardMenu} from "@alchemy/react-ps";
+import {oauthClient} from "../lib/api-client";
 import config from "../lib/config";
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import AnalyticsRouterProvider from "./anaytics/AnalyticsRouterProvider";
@@ -17,26 +19,21 @@ type Props = {};
 
 export default function App({}: Props) {
     const { pushInstruction } = useMatomo();
-    const [user, setUser] = React.useState<UserInfoResponse | null>(null);
+    const [user, setUser] = React.useState<UserInfoResponse | undefined>();
 
     const authenticate = React.useCallback(async () => {
-        if (user) {
-            return;
-        }
-
-        const res = await oauthClient.authenticate();
-        setUser(res);
+        setUser(oauthClient.isAuthenticated() ? oauthClient.getDecodedToken()! : undefined);
     }, [user]);
 
     React.useEffect(() => {
-        pushInstruction('setUserId', user?.user_id || null);
+        pushInstruction('setUserId', user?.sub || null);
     }, [user]);
 
     const onLogin = React.useCallback<AuthEventHandler>(async (event) => {
         await authenticate();
     }, [authenticate]);
     const onLogout = React.useCallback<AuthEventHandler>(async (event) => {
-        setUser(null);
+        setUser(undefined);
     }, []);
 
     React.useEffect(() => {
@@ -52,29 +49,29 @@ export default function App({}: Props) {
         }
     }, [onLogin, onLogout, authenticate]);
 
-    const css = config.get('globalCSS');
+    const css = config.globalCSS;
 
     return <Router>
         <AnalyticsRouterProvider>
             {css && <style>
                 {css}
             </style>}
-            {config.get('displayServicesMenu') && <DashboardMenu
-                dashboardBaseUrl={config.get('dashboardBaseUrl') as string}
+            {config.displayServicesMenu && <DashboardMenu
+                dashboardBaseUrl={config.dashboardBaseUrl}
             />}
             <Switch>
-                <Route path="/auth/:provider" component={OAuthRedirectProxy}/>
-                {!config.get('disableIndexPage') as boolean && <Route path="/" exact component={PublicationIndex}/>}
+                <Route path="/auth" component={OAuthR}/>
+                {!config.disableIndexPage && <Route path="/" exact component={PublicationIndex} />}
                 <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
                     id={params.asset}
                 />}/>
                 <Route path="/:publication" exact render={props => <PublicationRoute
                     {...props}
-                    authenticated={user}
+                    username={user?.preferred_username}
                 />}/>
                 <Route path="/:publication/:asset" exact render={props => <AssetRoute
                     {...props}
-                    authenticated={user}
+                    username={user?.preferred_username}
                 />}/>
                 <Route path="/" exact render={() => <ErrorPage
                     title={'Not found'}
@@ -85,11 +82,11 @@ export default function App({}: Props) {
     </Router>
 }
 
-function OAuthRedirectProxy(props: any) {
+const OAuthR = (props: {}) => {
     return <OAuthRedirect
-        {...props}
+        {...props as any}
         oauthClient={oauthClient}
-        successHandler={(history: any) => {
+        successHandler={(history) => {
             const redirectUri = getAuthRedirect() || '/';
             unsetAuthRedirect();
             if (window.opener) {
@@ -108,4 +105,4 @@ function OAuthRedirectProxy(props: any) {
             history.replace(redirectUri);
         }}
     />
-}
+};

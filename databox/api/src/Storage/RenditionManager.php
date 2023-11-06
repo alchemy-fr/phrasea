@@ -131,6 +131,23 @@ class RenditionManager
         return $definition;
     }
 
+    public function getRenditionDefinitionById(Workspace $workspace, string $id): RenditionDefinition
+    {
+        $definition = $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findOneBy([
+                'id' => $id,
+                'workspace' => $workspace->getId(),
+            ]);
+
+        if (!$definition instanceof RenditionDefinition) {
+            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $id));
+        }
+
+        return $definition;
+    }
+
     public function resetAssetRenditions(Asset $asset): void
     {
         $renditions = $asset->getRenditions();

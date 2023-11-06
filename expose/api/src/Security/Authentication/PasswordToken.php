@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace App\Security\Authentication;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
-use Throwable;
 
 class PasswordToken extends AbstractToken
 {
-    private string $passwords;
-
-    public function __construct(string $passwords)
+    public function __construct(private readonly string $passwords)
     {
         parent::__construct();
-        $this->passwords = $passwords;
     }
 
     public function getCredentials()
@@ -30,8 +26,8 @@ class PasswordToken extends AbstractToken
     public function getPublicationPassword(string $publicationId): ?string
     {
         try {
-            $passwords = json_decode(base64_decode($this->passwords), true);
-        } catch (Throwable $e) {
+            $passwords = json_decode(base64_decode($this->passwords), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
             return null;
         }
 

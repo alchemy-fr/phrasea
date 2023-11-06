@@ -1,6 +1,0 @@
-alchemy_oauth_server:
-  scopes:
-    - 'user:list'
-    - 'scope1'
-    - 'scope2'
-    - 'scope3'

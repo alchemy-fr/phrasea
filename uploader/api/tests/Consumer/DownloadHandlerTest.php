@@ -12,13 +12,12 @@ use App\Entity\Target;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\Test\TestLogger;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 class DownloadHandlerTest extends TestCase
 {
@@ -27,7 +26,7 @@ class DownloadHandlerTest extends TestCase
      */
     public function testDownload(
         string $url,
-        Response $response,
+        MockResponse $response,
         string $expectedMimeType,
         ?string $expectedExtension
     ): void {
@@ -37,10 +36,8 @@ class DownloadHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function ($subject) {
-                    return $subject instanceof EventMessage
-                        && is_string($subject->getPayload()['user_id']);
-                })
+                $this->callback(fn ($subject) => $subject instanceof EventMessage
+                    && is_string($subject->getPayload()['user_id']))
             );
 
         /** @var FileStorageManager|MockObject $storageStub */
@@ -70,11 +67,9 @@ class DownloadHandlerTest extends TestCase
             )
             ->willReturn('aa/bb/baz.'.$expectedExtension);
 
-        $handler = new MockHandler([
+        $clientStub = new MockHttpClient([
             $response,
         ]);
-
-        $clientStub = new Client(['handler' => $handler]);
 
         /** @var EntityManagerInterface|MockObject $em */
         $em = $this->createMock(EntityManagerInterface::class);
@@ -109,31 +104,31 @@ class DownloadHandlerTest extends TestCase
         return [
             [
                 'http://foo.bar/baz.jpg',
-                new Response(200, ['Content-Type' => 'image/jpeg'], 'foobar'),
+                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/jpeg']]),
                 'image/jpeg',
                 'jpg',
             ],
             [
                 'http://foo.bar/baz.jpg',
-                new Response(200, ['Content-Type' => 'image/gif'], 'foobar'),
+                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/gif']]),
                 'image/gif',
                 'jpg',
             ],
             [
                 'http://foo.bar/baz',
-                new Response(200, ['Content-Type' => 'image/gif'], 'foobar'),
+                new MockResponse('foobar', ['response_headers' => ['content-type' => 'image/gif']]),
                 'image/gif',
                 'gif',
             ],
             [
                 'http://foo.bar/baz.txt?foo=bar',
-                new Response(200, [], 'foobar'),
+                new MockResponse('foobar', []),
                 'application/octet-stream',
                 'txt',
             ],
             [
                 'http://foo.bar/baz',
-                new Response(200, [], 'foobar'),
+                new MockResponse('foobar', []),
                 'application/octet-stream',
                 null,
             ],

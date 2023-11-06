@@ -36,11 +36,13 @@ class PublicationCrudController extends AbstractAclAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $parent = AssociationField::new('parent');
+        $parent = AssociationField::new('parent')
+            ->setRequired(false);
         $title = TextField::new('title')->setTemplatePath('admin/list/publication_title_link.html.twig');
         $description = TextareaField::new('description');
         $slug = TextField::new('slug');
-        $profile = AssociationField::new('profile');
+        $profile = AssociationField::new('profile')
+            ->setRequired(false);
         $date = DateTimeField::new('date');
         $config = PublicationConfigField::new('config');
         $ownerId = TextField::new('ownerId');

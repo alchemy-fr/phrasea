@@ -30,7 +30,7 @@ class IndexMappingDiff
                 return true;
             }
 
-            $currentConfig = $current[$attr] ?? [];
+            $currentConfig = $current[$attr];
 
             if (($newConfig['analyzer'] ?? null) !== ($currentConfig['analyzer'] ?? null)) {
                 return true;

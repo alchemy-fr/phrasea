@@ -20,7 +20,7 @@ class ValidIntegrationOptionsConstraintValidator extends ConstraintValidator
      * @param WorkspaceIntegration              $value
      * @param ValidIntegrationOptionsConstraint $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (null === $value->getIntegration()) {
             return;

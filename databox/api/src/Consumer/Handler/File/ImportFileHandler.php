@@ -11,7 +11,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use GuzzleHttp\Psr7\Header;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\Exception\ClientException;
 
 class ImportFileHandler extends AbstractEntityManagerHandler
 {
@@ -20,9 +20,7 @@ class ImportFileHandler extends AbstractEntityManagerHandler
     public function __construct(
         private readonly FileManager $fileManager,
         private readonly FileFetcher $fileFetcher,
-        LoggerInterface $logger
     ) {
-        $this->logger = $logger;
     }
 
     public static function createEvent(string $fileId): EventMessage
@@ -50,41 +48,57 @@ class ImportFileHandler extends AbstractEntityManagerHandler
         }
 
         if (File::STORAGE_URL !== $file->getStorage()) {
-            throw new \InvalidArgumentException(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
+            $this->logger->error(sprintf('Import error: Storage of file "%s" should be "%s"', $file->getId(), File::STORAGE_URL));
+
+            // File may have already been imported
+            return;
         }
 
         $headers = [];
-        $src = $this->fileFetcher->getFile($file, $headers);
 
-        if (isset($headers['Content-Length'])) {
-            $size = Header::parse($headers['Content-Length']);
-            if (null === $file->getSize() && !empty($size)) {
-                $file->setSize((int) $size[0][0]);
+        try {
+            $src = $this->fileFetcher->getFile($file, $headers);
+        } catch (ClientException $e) {
+            if (404 === $e->getResponse()->getStatusCode()) {
+                $this->logger->error($e->getMessage());
+
+                return;
             }
-        }
-        $mimeType = null;
-        if (isset($headers['Content-Type'])) {
-            $type = Header::parse($headers['Content-Type']);
-            if (null === $file->getType() && !empty($type)) {
-                $mimeType = $type[0][0];
-            }
+
+            throw $e;
         }
 
-        $finalPath = $this->fileManager->storeFile(
-            $file->getWorkspace(),
-            $src,
-            $mimeType,
-            $file->getExtension(),
-            null
-        );
+        try {
+            if (isset($headers['Content-Length'])) {
+                $size = Header::parse($headers['Content-Length']);
+                if (null === $file->getSize() && !empty($size)) {
+                    $file->setSize((int) $size[0][0]);
+                }
+            }
+            $mimeType = null;
+            if (isset($headers['Content-Type'])) {
+                $type = Header::parse($headers['Content-Type']);
+                if (null === $file->getType() && !empty($type)) {
+                    $mimeType = $type[0][0];
+                }
+            }
 
-        $file->setPath($finalPath);
-        $file->setStorage(File::STORAGE_S3_MAIN);
-        $file->setPathPublic(true);
-        $em->persist($file);
-        $em->flush();
+            $finalPath = $this->fileManager->storeFile(
+                $file->getWorkspace(),
+                $src,
+                $mimeType,
+                $file->getExtension(),
+                null
+            );
 
-        unlink($src);
+            $file->setPath($finalPath);
+            $file->setStorage(File::STORAGE_S3_MAIN);
+            $file->setPathPublic(true);
+            $em->persist($file);
+            $em->flush();
+        } finally {
+            unlink($src);
+        }
     }
 
     public static function getHandledEvents(): array

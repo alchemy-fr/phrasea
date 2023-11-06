@@ -1,0 +1,5 @@
+framework:
+    http_client:
+        default_options:
+            verify_peer: '%env(bool:VERIFY_SSL)%'
+            timeout: 30

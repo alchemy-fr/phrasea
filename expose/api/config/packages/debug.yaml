@@ -1,0 +1,7 @@
+when@test:
+    debug:
+        dump_destination: "php://stderr"
+
+when@dev:
+    debug:
+        dump_destination: "php://stderr"

@@ -1,9 +1,0 @@
-Email,Admin,Enabled
-user1@foo.bar,0,1
-user2@foo.bar,0,1
-invalid_email,0,1
-user3@foo.bar,0,1
-disabled@foo.bar,0,0
-admin@foo.bar,1,1
-user4@foo.bar,0,1
-user5@foo.bar,0,1

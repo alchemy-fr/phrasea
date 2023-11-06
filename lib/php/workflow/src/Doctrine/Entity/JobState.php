@@ -7,6 +7,7 @@ namespace Alchemy\Workflow\Doctrine\Entity;
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\State\StateUtil;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 
@@ -14,36 +15,24 @@ class JobState
 {
     protected string $id;
 
-    protected ?WorkflowState $workflow = null;
-
-    protected string $jobId;
-
     protected ?string $state = null;
 
     protected int $status;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=false)
-     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
     protected \DateTimeImmutable $triggeredAt;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=true)
-     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?\DateTimeImmutable $startedAt = null;
 
-    /**
-     * @ORM\Column(type="date_immutable", nullable=true)
-     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?\DateTimeImmutable $endedAt = null;
 
     protected ?ModelJobState $jobState = null;
 
-    public function __construct(WorkflowState $workflow, string $jobId)
+    public function __construct(protected ?WorkflowState $workflow, protected string $jobId)
     {
         $this->id = Uuid::uuid4()->toString();
-        $this->workflow = $workflow;
-        $this->jobId = $jobId;
     }
 
     public function getId(): string

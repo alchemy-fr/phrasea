@@ -4,178 +4,179 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\AttributeDefinitionInput;
+use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\Type\TextAttributeType;
+use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
- * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeDefinitionRepository")
- * @ORM\Table(
- *     uniqueConstraints={
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_name",columns={"workspace_id", "name"}),
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_key",columns={"workspace_id", "key"}),
- *          @ORM\UniqueConstraint(name="uniq_attr_def_ws_slug",columns={"workspace_id", "slug"})
- *     },
- *     indexes={
- *       @ORM\Index(name="searchable_idx", columns={"searchable"}),
- *       @ORM\Index(name="type_idx", columns={"field_type"}),
- *     }
- * )
- */
+#[ApiResource(
+    shortName: 'attribute-definition',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Put(
+            uriTemplate: '/attribute-definitions/sort',
+            controller: AttributeDefinitionSortAction::class,
+            openapiContext: [
+                'summary' => 'Reorder items',
+                'description' => 'Reorder items',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'description' => 'Ordered list of IDs',
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            input: false,
+            output: false,
+            name: 'put_sort'
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [AttributeDefinition::GROUP_LIST],
+    ],
+    input: AttributeDefinitionInput::class,
+    output: AttributeDefinitionOutput::class,
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    provider: AttributeDefinitionCollectionProvider::class,
+)]
+#[ORM\Table]
+#[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
+#[ORM\Index(columns: ['field_type'], name: 'type_idx')]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
+#[ORM\ChangeTrackingPolicy('DEFERRED_EXPLICIT')]
+#[ORM\Entity(repositoryClass: AttributeDefinitionRepository::class)]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'attrdef:read';
+    final public const GROUP_LIST = 'attrdef:index';
+    final public const GROUP_WRITE = 'attrdef:w';
 
     /**
      * Override trait for annotation.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="attributeDefinitions")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"attributedef:index"})
      */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'attributeDefinitions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     protected ?Workspace $workspace = null;
 
-    /**
-     * @Groups({"attributedef:index", "attributedef:read", "attributedef:write"})
-     *
-     * @ORM\ManyToOne(targetEntity="AttributeClass", inversedBy="definitions")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST, AttributeDefinition::GROUP_READ, AttributeDefinition::GROUP_WRITE])]
+    #[ORM\ManyToOne(targetEntity: AttributeClass::class, inversedBy: 'definitions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     protected ?AttributeClass $class = null;
 
     /**
      * @var Attribute[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="definition", cascade={"remove"})
      */
+    #[ORM\OneToMany(mappedBy: 'definition', targetEntity: Attribute::class, cascade: ['remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "attributedef:index", "attribute:index"})
-     *
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
-     * @Gedmo\Slug(fields={"name"}, style="lower", separator="", unique=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Gedmo\Slug(fields: ['name'], style: 'lower', unique: false, separator: '')]
     private ?string $slug = null;
 
     /**
      * Apply this definition to files of this MIME type.
      * If null, applied to all files.
-     *
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="string", length=100, nullable=true)
      */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    /**
-     * @Groups({"attributedef:index", "asset:index"})
-     *
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $facetEnabled = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $sortable = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $translatable = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $multiple = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $allowInvalid = false;
 
-    /**
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
     /**
      * Initialize attributes after asset creation; key=locale.
-     *
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $initialValues = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
-     *
-     * @Groups({"attributedef:index"})
-     *
-     * @ORM\Column(type="array", nullable=true)
      */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $fallback = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=150, nullable=true)
      */
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="smallint", nullable=false)
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $position = 0;
 
     public function getName(): ?string

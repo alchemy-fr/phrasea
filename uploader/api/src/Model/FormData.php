@@ -4,37 +4,20 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
 use App\Controller\ValidateFormAction;
 use App\Entity\Target;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ApiResource(
- *     itemOperations={},
- *     collectionOperations={
- *         "validate"={
- *             "method"="POST",
- *             "path"="/form/validate",
- *             "controller"=ValidateFormAction::class,
- *             "description"="Retrieve form schema"
- *         }
- *     }
- * )
- */
+#[ApiResource(operations: [new Post(uriTemplate: '/form/validate', controller: ValidateFormAction::class, description: 'Retrieve form schema')])]
 final class FormData
 {
-    /**
-     * @var array
-     * @Assert\NotNull()
-     */
-    private $data;
+    #[Assert\NotNull]
+    private ?array $data = null;
 
-    /**
-     * @var Target
-     * @Assert\NotNull()
-     */
-    private $target;
+    #[Assert\NotNull]
+    private ?\App\Entity\Target $target = null;
 
     public function getData(): array
     {

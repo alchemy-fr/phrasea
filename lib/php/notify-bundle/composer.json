@@ -1,38 +1,40 @@
 {
-  "name": "alchemy/notify-bundle",
-  "type": "symfony-bundle",
-  "description": "Symfony notify bundle",
-  "keywords": [
-    "Notification email"
-  ],
-  "homepage": "https://www.alchemy.fr/",
-  "license": "MIT",
-  "require": {
-    "php": "^7.4 || ^8.0",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0",
-    "guzzlehttp/guzzle": "^6.3"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "scripts": {
-    "cs": "vendor/bin/php-cs-fixer fix",
-    "test": "echo 'This project has no test...'"
-  },
-  "autoload": {
-    "psr-4": {
-      "Alchemy\\NotifyBundle\\": ""
+    "name": "alchemy/notify-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony notify bundle",
+    "keywords": [
+        "Notification email"
+    ],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "symfony/framework-bundle": "2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
+        "guzzlehttp/guzzle": "^7.2"
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Alchemy\\NotifyBundle\\Tests\\": "/Tests/"
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\NotifyBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\NotifyBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "rector/rector": "^0.17.1"
     }
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.16"
-  }
 }

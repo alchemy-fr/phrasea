@@ -10,8 +10,7 @@ class MultipleAssetInput extends AbstractOwnerIdInput
 {
     /**
      * @var AssetInput[]
-     *
-     * @Assert\Valid()
      */
+    #[Assert\Valid]
     public ?array $assets = null;
 }

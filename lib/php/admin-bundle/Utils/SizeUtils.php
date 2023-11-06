@@ -26,7 +26,7 @@ class SizeUtils
             : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
 
         $u = -1;
-        $r = pow(10, 2);
+        $r = 10 ** 2;
         $unitLength = count($units);
         do {
             $size /= $base;

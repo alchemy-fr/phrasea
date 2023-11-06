@@ -11,17 +11,14 @@ use Twig\TwigFunction;
 
 class AdminExtension extends AbstractExtension
 {
-    private ClientUrlGenerator $clientUrlGenerator;
-
-    public function __construct(ClientUrlGenerator $clientUrlGenerator)
+    public function __construct(private readonly ClientUrlGenerator $clientUrlGenerator)
     {
-        $this->clientUrlGenerator = $clientUrlGenerator;
     }
 
     public function getFunctions()
     {
         return [
-            new TwigFunction('generate_publication_url', [$this, 'generatePublicationUrl']),
+            new TwigFunction('generate_publication_url', $this->generatePublicationUrl(...)),
         ];
     }
 

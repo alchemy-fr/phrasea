@@ -4,126 +4,141 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Provider\RenditionDefinitionCollectionProvider;
+use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\AbstractUuidEntity;
+
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(indexes={@ORM\Index(name="rend_def_ws_name", columns={"workspace_id", "name"})})
- */
+#[ApiResource(
+    shortName: 'rendition-definition',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Put(
+            uriTemplate: '/rendition-definitions/sort',
+            controller: RenditionDefinitionSortAction::class,
+            openapiContext: [
+                'summary' => 'Reorder items',
+                'description' => 'Reorder items',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'description' => 'Ordered list of IDs',
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            input: false,
+            output: false,
+            name: 'put_sort'
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [RenditionDefinition::GROUP_LIST],
+    ],
+    denormalizationContext: [
+        'groups' => [RenditionDefinition::GROUP_WRITE],
+    ],
+    order: ['priority' => 'DESC'],
+    provider: RenditionDefinitionCollectionProvider::class,
+)]
+
+#[ORM\Table]
+#[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
+#[ORM\Entity]
 class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'renddef:read';
+    final public const GROUP_LIST = 'renddef:index';
+    final public const GROUP_WRITE = 'renddef:w';
 
     /**
      * Override trait for annotation.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionDefinitions")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionDefinitions')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="string", length=80)
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\ManyToOne(targetEntity="RenditionClass", inversedBy="definitions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\ManyToOne(targetEntity: RenditionClass::class, inversedBy: 'definitions')]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?RenditionClass $class = null;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $download = true;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $pickSourceFile = false;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsOriginal = false;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsPreview = false;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnail = false;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="boolean")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private bool $useAsThumbnailActive = false;
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="text")
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::TEXT)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private ?string $definition = '';
 
-    /**
-     * @Groups({"renddef:index", "renddef:read", "renddef:write"})
-     *
-     * @ORM\Column(type="smallint", nullable=false)
-     *
-     * @ApiProperty(security="is_granted('READ_ADMIN', object)")
-     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     private int $priority = 0;
 
     /**
      * @var AssetRendition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="definition", cascade={"remove"})
      */
+    #[ORM\OneToMany(mappedBy: 'definition', targetEntity: AssetRendition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $renditions = null;
 
     public function __construct()

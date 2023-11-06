@@ -25,10 +25,10 @@
     ],
     "require": {
         "php": "^7.4 || ^8.0",
-        "symfony/process": "^5",
-        "symfony/framework-bundle": "^4.4 || ^5.0 || ^5",
-        "symfony/templating": "^4.4 || ^5.0",
-        "alchemy/phpexiftool": "^4.0.0"
+        "symfony/process": "^5 || ^6",
+        "symfony/framework-bundle": "^4.4 || ^5.0 || ^5 || ^6",
+        "symfony/templating": "^4.4 || ^5.0 || ^6",
+        "alchemy/phpexiftool": "^4.0.1"
     },
     "config": {
         "sort-packages": true
@@ -42,6 +42,7 @@
         ]
     },
     "scripts": {
+        "rector": "vendor/bin/rector",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "./vendor/bin/phpunit"
     },
@@ -51,7 +52,8 @@
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "phpunit/phpunit": "^8.4"
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.17.1"
     }
 }

@@ -5,6 +5,7 @@ import ContentTab from "../Tabbed/ContentTab";
 import {Divider, MenuList} from "@mui/material";
 import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
+import PersonIcon from '@mui/icons-material/Person';
 import InfoRow from "../Info/InfoRow";
 
 type Props = {
@@ -28,6 +29,12 @@ export default function InfoAsset({
                 icon={<KeyIcon/>}
             />
             <Divider/>
+            <InfoRow
+                label={'Owner'}
+                value={data.owner?.username ?? data.owner?.id ?? '-'}
+                copyValue={data.owner?.id}
+                icon={<PersonIcon/>}
+            />
             <InfoRow
                 label={'Date Added'}
                 value={data.createdAt}

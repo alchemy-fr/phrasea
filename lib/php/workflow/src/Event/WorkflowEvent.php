@@ -8,13 +8,10 @@ use Alchemy\Workflow\State\Inputs;
 
 final class WorkflowEvent
 {
-    private string $name;
-
     private Inputs $inputs;
 
-    public function __construct(string $name, array $inputs = [])
+    public function __construct(private string $name, array $inputs = [])
     {
-        $this->name = $name;
         $this->inputs = new Inputs($inputs);
     }
 

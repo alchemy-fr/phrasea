@@ -16,22 +16,8 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
 {
     private const EVENT = 'webhook_serialize_update';
 
-    private EntitySerializer $entitySerializer;
-    private EntityRegistry $entityRegistry;
-    private WebhookTrigger $webhookTrigger;
-    private ObjectNormalizer $objectNormalizer;
-
-    public function __construct(
-        EntitySerializer $entitySerializer,
-        EntityRegistry $entityRegistry,
-        WebhookTrigger $webhookTrigger,
-        ObjectNormalizer $objectNormalizer
-    )
+    public function __construct(private readonly EntitySerializer $entitySerializer, private readonly EntityRegistry $entityRegistry, private readonly WebhookTrigger $webhookTrigger, private readonly ObjectNormalizer $objectNormalizer)
     {
-        $this->entitySerializer = $entitySerializer;
-        $this->entityRegistry = $entityRegistry;
-        $this->webhookTrigger = $webhookTrigger;
-        $this->objectNormalizer = $objectNormalizer;
     }
 
     public function handle(EventMessage $message): void
@@ -79,7 +65,7 @@ class SerializeObjectHandler extends AbstractEntityManagerHandler
         return $this->objectNormalizer->normalize($entity, $groups);
     }
 
-    public static function createEvent(string $class, string $event, array $data, ?array $changeSet = null): EventMessage
+    public static function createEvent(string $class, string $event, array $data, array $changeSet = null): EventMessage
     {
         $payload = [
             'event' => $event,

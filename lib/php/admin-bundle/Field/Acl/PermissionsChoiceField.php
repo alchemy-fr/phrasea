@@ -7,7 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class PermissionsChoiceField
 {
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         $choices = [];
         foreach (PermissionInterface::PERMISSIONS as $name => $permission) {
@@ -18,6 +18,6 @@ class PermissionsChoiceField
             ->setChoices($choices)
             ->allowMultipleChoices()
             ->renderExpanded(true)
-            ;
+        ;
     }
 }

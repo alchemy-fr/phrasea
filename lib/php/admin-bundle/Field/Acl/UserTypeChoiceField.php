@@ -7,7 +7,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class UserTypeChoiceField
 {
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         $choices = [];
         foreach (AccessControlEntry::USER_TYPES as $name => $code) {
@@ -16,6 +16,6 @@ class UserTypeChoiceField
 
         return ChoiceField::new($propertyName, $label)
             ->setChoices($choices)
-            ;
+        ;
     }
 }

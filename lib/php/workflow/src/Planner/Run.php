@@ -12,13 +12,8 @@ use Alchemy\Workflow\Model\Workflow;
  */
 class Run
 {
-    private Workflow $workflow;
-    private Job $job;
-
-    public function __construct(Workflow $workflow, Job $job)
+    public function __construct(private readonly Workflow $workflow, private readonly Job $job)
     {
-        $this->workflow = $workflow;
-        $this->job = $job;
     }
 
     public function getWorkflow(): Workflow

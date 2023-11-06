@@ -12,7 +12,7 @@ class ArrayObjectField implements FieldInterface
 {
     use FieldTrait;
 
-    public static function new(string $propertyName, ?string $label = null)
+    public static function new(string $propertyName, string $label = null)
     {
         return ArrayField::new($propertyName, $label)
             ->setTemplatePath('@AlchemyAdmin/fields/array_object.html.twig')

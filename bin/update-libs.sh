@@ -23,7 +23,7 @@ for f in ${JS_PROJECTS}; do
     mkdir -p "${f}/__lib"
 
     if hash rsync 2>/dev/null; then
-        rsync -a lib/js/ "${f}/__lib/" --exclude=node_modules --exclude=dist --exclude=.idea
+        rsync -a --delete  lib/js/ "${f}/__lib/" --exclude=node_modules --exclude=dist --exclude=.idea
         rm -rf "${f}"/__lib/*/node_modules "${f}"/__lib/*/.idea
     else
         rm -rf "${f}/__lib"

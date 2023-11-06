@@ -18,20 +18,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class AccessControlEntryCrudController extends AbstractAdminCrudController
 {
-    private PermissionsChoiceField $permissionsChoiceField;
-    private UserTypeChoiceField $userTypeChoiceField;
-    private ObjectTypeChoiceField $objectTypeChoiceField;
-
     public static function getEntityFqcn(): string
     {
         return AccessControlEntry::class;
     }
 
-    public function __construct(PermissionsChoiceField $permissionsChoiceField, UserTypeChoiceField $userTypeChoiceField, ObjectTypeChoiceField $objectTypeChoiceField)
+    public function __construct(private readonly PermissionsChoiceField $permissionsChoiceField, private readonly UserTypeChoiceField $userTypeChoiceField, private readonly ObjectTypeChoiceField $objectTypeChoiceField)
     {
-        $this->permissionsChoiceField = $permissionsChoiceField;
-        $this->userTypeChoiceField = $userTypeChoiceField;
-        $this->objectTypeChoiceField = $objectTypeChoiceField;
     }
 
     public function configureCrud(Crud $crud): Crud

@@ -15,10 +15,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AlchemyStorageExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -30,7 +27,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $container->setParameter('alchemy_storage.upload.allowed_types', $config['upload']['allowed_types']);
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
         $bundle = 'OneupFlysystemBundle';
@@ -44,15 +41,15 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
                     'awss3v3' => [
                         'client' => 'alchemy_storage.s3_client',
                         'bucket' => '%env(S3_BUCKET_NAME)%',
-                        'prefix' => '%env(S3_PATH_PREFIX)%'
-                    ]
-                ]
+                        'prefix' => '%env(S3_PATH_PREFIX)%',
+                    ],
+                ],
             ],
             'filesystems' => [
                 'upload' => [
                     'adapter' => 'upload',
-                ]
-            ]
+                ],
+            ],
         ]);
 
         $container->prependExtensionConfig('framework', [
@@ -61,7 +58,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
                 'enable_annotations' => false,
                 'mapping' => [
                     'paths' => [
-                        __DIR__ . '/../Resources/config/validator/validation.yaml',
+                        __DIR__.'/../Resources/config/validator/validation.yaml',
                     ],
                 ],
             ],

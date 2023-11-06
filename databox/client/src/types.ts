@@ -23,6 +23,11 @@ type GroupValue = {
     type: AttributeType;
 }
 
+export type User = {
+    id: string;
+    username: string;
+}
+
 export interface Asset extends IPermissions<{
     canEditAttributes: boolean;
     canShare: boolean;
@@ -34,6 +39,7 @@ export interface Asset extends IPermissions<{
     description?: string;
     privacy: number;
     tags: Tag[];
+    owner?: User;
     workspace: Workspace;
     attributes: Attribute[];
     collections: Collection[];
@@ -169,10 +175,10 @@ export interface Tag extends ApiHydraObjectResponse {
     workspace: Workspace | string;
 }
 
-export interface User {
-    id: string;
-    username: string;
-}
+export type AuthUser = {
+    roles: string[];
+    groups: string[];
+} & User;
 
 export interface Group {
     id: string;
@@ -190,6 +196,7 @@ export interface Collection extends IPermissions {
     privacy: number;
     createdAt: string;
     updatedAt: string;
+    owner?: User;
 }
 
 export interface Workspace extends IPermissions {

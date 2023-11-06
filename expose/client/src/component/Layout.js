@@ -1,23 +1,22 @@
 import React, {PureComponent} from 'react';
 import {PropTypes} from 'prop-types';
 import {Link} from "react-router-dom";
-import {oauthClient} from "../lib/oauth";
 import config from '../lib/config';
 import {Logo} from "./Logo";
 import {Trans} from "react-i18next";
-import FullPageLoader from "./FullPageLoader";
+import {keycloakClient} from "../lib/api-client";
 
 class Layout extends PureComponent {
     static propTypes = {
         menu: PropTypes.node,
-        authenticated: PropTypes.object,
+        username: PropTypes.string,
     };
 
     constructor(props) {
         super(props);
 
         this.state = {
-            displayMenu: config.get('sidebarDefaultOpen'),
+            displayMenu: config.sidebarDefaultOpen,
         }
     }
 
@@ -43,7 +42,7 @@ class Layout extends PureComponent {
                     {this.renderAuthenticated()}
                     <div className="p-3">
                         <h1>
-                            {!config.get('disableIndexPage') ? <Link to={'/'} className="logo">
+                            {!config.disableIndexPage ? <Link to={'/'} className="logo">
                                 <Logo/>
                             </Link> : <Logo/>}
                         </h1>
@@ -59,23 +58,18 @@ class Layout extends PureComponent {
     }
 
     logout = () => {
-        oauthClient.logout();
-        document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.origin)}`;
+        keycloakClient.logout();
     }
 
     renderAuthenticated() {
-        const {authenticated} = this.props;
+        const {username} = this.props;
 
-        if (null === authenticated) {
+        if (!username) {
             return '';
         }
 
-        if (!authenticated) {
-            return <FullPageLoader/>
-        }
-
         return <div className={'authenticated-user'}>
-            Authenticated as {authenticated.username}
+            Authenticated as {username}
             <br/>
             <button
                 onClick={this.logout}

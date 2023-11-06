@@ -12,7 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 readonly class AttributesResolver
 {
@@ -66,7 +66,7 @@ readonly class AttributesResolver
                     && !isset($disallowedDefinitions[$k])
                 ) {
                     assert($attribute instanceof Attribute);
-                    $disallowedDefinitions[$k] = !$this->security->isGranted(AbstractVoter::READ, $attribute->getDefinition());
+                    $disallowedDefinitions[$k] = !$this->security->isGranted(AbstractVoter::READ, $attribute);
                 }
             }
 

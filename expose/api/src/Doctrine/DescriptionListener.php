@@ -9,33 +9,31 @@ use App\Entity\Publication;
 use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\TermsConfig;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use HTMLPurifier;
 
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::preUpdate)]
 class DescriptionListener implements EventSubscriber
 {
-    private HTMLPurifier $purifier;
-
-    public function __construct(HTMLPurifier $purifier)
+    public function __construct(private readonly \HTMLPurifier $purifier)
     {
-        $this->purifier = $purifier;
     }
 
-    public function prePersist(PrePersistEventArgs|LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function preUpdate(PreUpdateEventArgs|LifecycleEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    private function handle(PrePersistEventArgs|PreUpdateEventArgs|LifecycleEventArgs $args): void
+    private function handle(PrePersistEventArgs|PreUpdateEventArgs $args): void
     {
         $entity = $args->getObject();
         if ($entity instanceof Publication
@@ -73,7 +71,7 @@ class DescriptionListener implements EventSubscriber
         return $this->purifier->purify($data);
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::prePersist,

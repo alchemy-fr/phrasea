@@ -6,6 +6,10 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class FileOutput extends AbstractUuidOutput
@@ -15,28 +19,23 @@ class FileOutput extends AbstractUuidOutput
 
     /**
      * The MIME type.
-     *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index", "assetfileversion:index"})
      */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
     private ?string $type = null;
 
-    /**
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index", "assetfileversion:index"})
-     */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
     private ?int $size = null;
 
     /**
      * Signed URL.
-     *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index", "assetfileversion:index"})
      */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
     private ?string $url = null;
 
     /**
      * @var AlternateUrlOutput[]
-     *
-     * @Groups({"file:index", "file:read", "asset:index", "asset:read", "rendition:index"})
      */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST])]
     private ?array $alternateUrls = [];
 
     public function getUrl(): ?string

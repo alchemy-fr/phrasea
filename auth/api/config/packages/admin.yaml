@@ -1,4 +1,0 @@
-alchemy_admin:
-  service:
-    title: Auth
-    name: auth

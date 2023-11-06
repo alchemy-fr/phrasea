@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiSubresource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
-use App\Controller\GetPublicationAction;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Provider\PublicationProvider;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
 use App\Entity\Traits\CapabilitiesTrait;
@@ -19,347 +23,248 @@ use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Filter\PublicationFilter;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
-use DateTime;
-use DateTimeInterface;
+use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @ORM\Entity()
- * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
- * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
- * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
- * @ApiResource(
- *     attributes={
- *         "order"={"title": "ASC"},
- *         "denormalization_context"={"deep_object_to_populate"=true},
- *     },
- *     normalizationContext=Publication::API_READ,
- *     itemOperations={
- *         "get"={
- *              "controller"=GetPublicationAction::class,
- *              "defaults"={
- *                   "_api_receive"=false
- *              },
- *          },
- *         "put"={
- *              "security"="is_granted('EDIT', object)"
- *         },
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *         "sort_assets"={
- *             "defaults"={
- *                  "_api_receive"=false,
- *                  "_api_respond"=true,
- *             },
- *             "path"="/publications/{id}/sort-assets",
- *             "controller"=SortAssetsAction::class,
- *             "method"="POST",
- *         },
- *     },
- *     collectionOperations={
- *         "get"={
- *              "normalization_context"=Publication::API_LIST,
- *          },
- *         "post"={
- *             "security_post_denormalize"="is_granted('CREATE', object)"
- *         },
- *         "slug_availability"={
- *             "openapi_context"={
- *                 "summary"="Check whether a slug is available or not.",
- *                 "description"="Check whether a slug is available or not.",
- *                 "responses"={
- *                          "200"={
- *                          "description"="OK",
- *                          "content"={
- *                              "application/json"={
- *                                  "schema"={
- *                                     "type"="boolean",
- *                                  },
- *                              },
- *                          },
- *                      },
- *                 },
- *                 "parameters"={
- *                     {
- *                         "in"="path",
- *                         "name"="slug",
- *                         "type"="string",
- *                         "required"=true,
- *                         "description"="The slug to verify",
- *                     },
- *                 },
- *             },
- *             "controller"=GetPublicationSlugAvailabilityAction::class,
- *             "path"="/publications/slug-availability/{slug}",
- *             "pagination_enabled"=false,
- *             "filters"={},
- *             "defaults"={
- *                  "_api_receive"=false,
- *                  "input"=false,
- *                  "output"=false,
- *             },
- *         },
- *     }
- * )
- */
-class Publication implements AclObjectInterface
+#[ApiResource(
+    operations: [
+        new Get(
+            uriTemplate: '/publications/{id}',
+            uriVariables: [
+                'id',
+            ],
+            security: 'is_granted("'.PublicationVoter::READ.'", object)',
+            name: self::GET_PUBLICATION_ROUTE_NAME,
+            provider: PublicationProvider::class,
+        ),
+        new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
+        new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
+        new Post(
+            uriTemplate: '/publications/{id}/sort-assets',
+            defaults: [
+                '_api_receive' => false,
+                '_api_respond' => true,
+            ],
+            controller: SortAssetsAction::class
+        ),
+        new GetCollection(
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ]
+        ),
+        new Post(
+            securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
+        ),
+        new GetCollection(
+            uriTemplate: '/publications/slug-availability/{slug}',
+            defaults: ['_api_receive' => false, 'input' => false, 'output' => false],
+            controller: GetPublicationSlugAvailabilityAction::class,
+            openapiContext: [
+                'summary' => 'Check whether a slug is available or not.',
+                'description' => 'Check whether a slug is available or not.',
+                'responses' => [
+                    [
+                        'description' => 'OK',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => ['type' => 'boolean'],
+                            ],
+                        ],
+                    ],
+                ],
+                'parameters' => [
+                    [
+                        'in' => 'path',
+                        'name' => 'slug',
+                        'type' => 'string',
+                        'required' => true,
+                        'description' => 'The slug to verify'],
+                ],
+            ],
+            paginationEnabled: false,
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
+    ],
+    denormalizationContext: ['deep_object_to_populate' => true],
+    order: ['title' => 'ASC']
+)]
+#[ORM\Entity]
+#[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
+#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
+#[ApiFilter(filterClass: DateFilter::class, properties: ['config.beginsAt', 'config.expiresAt', 'createdAt'])]
+class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    const GROUP_READ = 'publication:read';
-    const GROUP_ADMIN_READ = 'publication:admin:read';
-    const GROUP_LIST = 'publication:index';
+    final public const GET_PUBLICATION_ROUTE_NAME = 'get_publication';
 
-    const API_READ = [
-        'groups' => [self::GROUP_READ],
-        'swagger_definition_name' => 'Read',
-    ];
-    const API_LIST = [
-        'groups' => [self::GROUP_LIST],
-        'swagger_definition_name' => 'List',
-    ];
+    final public const GROUP_READ = 'publication:read';
+    final public const GROUP_ADMIN_READ = 'publication:admin:read';
+    final public const GROUP_LIST = 'publication:index';
 
-    const SECURITY_METHOD_NONE = null;
-    const SECURITY_METHOD_PASSWORD = 'password';
-    const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    final public const SECURITY_METHOD_NONE = null;
+    final public const SECURITY_METHOD_PASSWORD = 'password';
+    final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
-    /**
-     * @ApiProperty(identifier=true)
-     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
-     *
-     * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private $id;
+    #[ApiProperty(identifier: true)]
+    #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    private string $id;
 
-    /**
-     * @ApiProperty()
-     *
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"publication:index", "publication:read"})
-     */
+    #[ApiProperty]
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $title = null;
 
-    /**
-     * @ApiProperty()
-     *
-     * @ORM\Column(type="text", nullable=true)
-     * @Groups({"publication:index", "publication:read"})
-     */
+    #[ApiProperty]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $description = null;
 
     /**
      * @var Asset[]|Collection
-     *
-     * @ApiSubresource(maxDepth=1)
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     * @Groups({"publication:read"})
-     * @MaxDepth(1)
-     * @ORM\OneToMany(targetEntity=Asset::class, mappedBy="publication", cascade={"remove"})
-     * @ORM\OrderBy({"position"="ASC", "createdAt"="ASC"})
      */
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
+    /**
+     * @var Asset[]|Collection
+     */
+    #[Groups([self::GROUP_READ])]
+    #[MaxDepth(1)]
+    #[ORM\OneToMany(mappedBy: 'publication', targetEntity: Asset::class, cascade: ['remove'])]
+    #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
     private Collection $assets;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/PublicationProfile",
-     *         }
-     *     },
-     * )
-     * @ORM\ManyToOne(targetEntity="PublicationProfile")
-     * @Groups({"publication:read", "publication:admin:read"})
-     */
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/PublicationProfile'])]
+    #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
+    #[Groups([self::GROUP_READ, self::GROUP_ADMIN_READ])]
     private ?PublicationProfile $profile = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     * @ORM\ManyToOne(targetEntity="Asset")
-     * @ORM\JoinColumn(onDelete="SET NULL")
-     */
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?Asset $package = null;
 
-    /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Asset",
-     *         }
-     *     }
-     * )
-     * @ORM\ManyToOne(targetEntity="Asset")
-     * @ORM\JoinColumn(onDelete="SET NULL")
-     * @Groups({"publication:admin:read", "publication:index", "publication:read"})
-     */
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Asset'])]
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    #[Groups([self::GROUP_ADMIN_READ, self::GROUP_LIST, self::GROUP_READ])]
     private ?Asset $cover = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     */
+    #[ApiProperty]
+    #[Groups([self::GROUP_READ])]
     private ?string $packageUrl = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"publication:read"})
-     */
+    #[ApiProperty]
+    #[Groups([self::GROUP_READ])]
     private ?string $archiveDownloadUrl = null;
 
-    /**
-     * @ApiProperty()
-     * @ORM\Column(type="string", nullable=true)
-     * @Groups({"publication:admin:read"})
-     */
+    #[ApiProperty]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups([self::GROUP_ADMIN_READ])]
     private ?string $ownerId = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
-     */
+    #[ApiProperty]
+    #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     private bool $authorized = false;
 
     /**
      * Password identifier for the current publication branch.
-     *
-     * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
      */
+    #[ApiProperty]
+    #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $securityContainerId = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"_", "publication:index", "asset:read"})
-     */
+    #[ApiProperty]
+    #[Groups(['_', self::GROUP_LIST, Asset::GROUP_READ])]
     private ?string $authorizationError = null;
 
-    /**
-     * @ApiProperty(
-     *     readableLink=true,
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Publication",
-     *         }
-     *     }
-     * )
-     * @Groups({"publication:read"})
-     * @MaxDepth(1)
-     *
-     * @ORM\ManyToOne(targetEntity="Publication", inversedBy="children")
-     */
+    #[ApiProperty(readableLink: true, openapiContext: ['$ref' => '#/definitions/Publication'])]
+    #[Groups([self::GROUP_READ])]
+    #[MaxDepth(1)]
+    #[ORM\ManyToOne(targetEntity: Publication::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Publication $parent = null;
 
     /**
-     * @ApiProperty(
-     *     attributes={
-     *         "swagger_context"={
-     *             "$ref"="#/definitions/Publication",
-     *         }
-     *     }
-     * )
-     * @Groups({"publication:read"})
-     * @MaxDepth(1)
-     *
      * @var Publication[]|Collection
-     *
-     * @ORM\OneToMany(targetEntity="Publication", mappedBy="parent", cascade={"remove"})
-     * @ORM\JoinTable(name="publication_children",
-     *      joinColumns={@ORM\JoinColumn(name="parent_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="child_id", referencedColumnName="id")}
-     * )
-     * @ORM\OrderBy({"title"="ASC"})
      */
+    #[ApiProperty(openapiContext: ['$ref' => '#/definitions/Publication'])]
+    #[ORM\JoinTable(name: 'publication_children')]
+    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'child_id', referencedColumnName: 'id')]
+    #[Groups([self::GROUP_READ])]
+    #[MaxDepth(1)]
+    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'parent', cascade: ['remove'])]
+    #[ORM\OrderBy(['title' => 'ASC'])]
     private Collection $children;
 
-    /**
-     * @ORM\Embedded(class="App\Entity\PublicationConfig")
-     * @Groups({"publication:index", "publication:admin:read"})
-     */
+    #[ORM\Embedded(class: PublicationConfig::class)]
+    #[Groups([self::GROUP_LIST, self::GROUP_ADMIN_READ])]
     private PublicationConfig $config;
 
     /**
      * Virtual property.
      *
      * @deprecated
-     * @ApiProperty()
-     *
-     * @Groups({"publication:write"})
      */
+    #[ApiProperty]
+    #[Groups(['publication:write'])]
     private ?string $parentId = null;
 
     /**
      * URL slug.
-     *
-     * @ApiProperty()
-     * @Groups({"_", "publication:index", "publication:index", "publication:read"})
-     *
-     * @ORM\Column(type="string", length=100, nullable=true, unique=true)
      */
+    #[ApiProperty]
+    #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, self::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true, unique: true)]
     protected ?string $slug = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"publication:read", "publication:index"})
-     */
-    private ?DateTime $date = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    private ?\DateTimeImmutable $date = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"publication:read"})
-     */
-    private DateTime $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups([self::GROUP_READ])]
+    private \DateTimeImmutable $createdAt;
 
-    /**
-     * @ApiProperty(writable=false)
-     * @Groups({"publication:read", "asset:read"})
-     */
+    #[ApiProperty(writable: false)]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $cssLink = null;
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $zippyId = null;
 
-    /**
-     * @ORM\Column(type="string", length=32, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $zippyHash = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->assets = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->config = new PublicationConfig();
-        $this->id = Uuid::uuid4();
+        $this->id = Uuid::uuid4()->toString();
     }
 
     public function getId(): string
     {
-        return $this->id->__toString();
+        return $this->id;
     }
 
     /**
@@ -380,14 +285,12 @@ class Publication implements AclObjectInterface
         $this->title = $title;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    /**
-     * @Groups({"publication:read", "publication:index"})
-     */
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
     public function isEnabled(): bool
     {
         if ($this->profile && null === $this->config->isEnabled()) {
@@ -397,9 +300,7 @@ class Publication implements AclObjectInterface
         return true === $this->config->isEnabled();
     }
 
-    /**
-     * @Groups({"publication:read", "publication:index"})
-     */
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
     public function isPubliclyListed(): bool
     {
         if ($this->profile && null === $this->config->isPubliclyListed()) {
@@ -409,17 +310,13 @@ class Publication implements AclObjectInterface
         return true === $this->config->isPubliclyListed();
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getLayout(): string
     {
         return $this->config->getLayout() ?? ($this->profile && $this->profile->getConfig()->getLayout() ? $this->profile->getConfig()->getLayout() : 'gallery');
     }
 
-    /**
-     * @Groups({"publication:admin:read"})
-     */
+    #[Groups([self::GROUP_ADMIN_READ])]
     public function getCss(): ?string
     {
         $css = [];
@@ -449,8 +346,8 @@ class Publication implements AclObjectInterface
 
     /**
      * @return Url[]|array
-     * @Groups({"publication:read"})
      */
+    #[Groups([self::GROUP_READ])]
     public function getUrls(): array
     {
         $urls = $this->config->getUrls();
@@ -461,33 +358,25 @@ class Publication implements AclObjectInterface
         return Url::mapUrls($urls);
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getCopyrightText(): ?string
     {
-        return $this->config->getCopyrightText() ?? ($this->profile ? $this->profile->getConfig()->getCopyrightText() : null);
+        return $this->config->getCopyrightText() ?? $this->profile?->getConfig()->getCopyrightText();
     }
 
-    /**
-     * @Groups({"publication:read", "asset:read"})
-     */
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     public function getTheme(): ?string
     {
-        return $this->config->getTheme() ?? ($this->profile ? $this->profile->getConfig()->getTheme() : null);
+        return $this->config->getTheme() ?? $this->profile?->getConfig()->getTheme();
     }
 
-    /**
-     * @Groups({"_", "publication:index", "publication:read", "asset:read"})
-     */
+    #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     public function getSecurityMethod(): ?string
     {
-        return $this->config->getSecurityMethod() ?? ($this->profile ? $this->profile->getConfig()->getSecurityMethod() : null);
+        return $this->config->getSecurityMethod() ?? $this->profile?->getConfig()->getSecurityMethod();
     }
 
-    /**
-     * @Groups({"publication:admin:read"})
-     */
+    #[Groups([self::GROUP_ADMIN_READ])]
     public function getSecurityOptions(): array
     {
         if (!empty($this->config->getSecurityOptions())) {
@@ -551,7 +440,7 @@ class Publication implements AclObjectInterface
         $this->slug = $slug;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->title ?? $this->getId() ?? '';
     }
@@ -608,9 +497,7 @@ class Publication implements AclObjectInterface
         $this->children = $children;
     }
 
-    /**
-     * @Groups({"publication:read", "publication:index"})
-     */
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
     public function getChildrenCount(): int
     {
         return $this->children->count();
@@ -672,9 +559,7 @@ class Publication implements AclObjectInterface
         $this->profile = $profile;
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getTerms(): TermsConfig
     {
         if ($this->profile) {
@@ -684,9 +569,7 @@ class Publication implements AclObjectInterface
         return $this->config->getTerms();
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getDownloadTerms(): TermsConfig
     {
         if ($this->profile) {
@@ -696,9 +579,7 @@ class Publication implements AclObjectInterface
         return $this->config->getDownloadTerms();
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function isDownloadViaEmail(): bool
     {
         if (null !== $this->config->getDownloadViaEmail()) {
@@ -712,9 +593,7 @@ class Publication implements AclObjectInterface
         return false;
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function isDownloadEnabled(): bool
     {
         if (null !== $this->config->getDownloadEnabled()) {
@@ -728,9 +607,7 @@ class Publication implements AclObjectInterface
         return false;
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function isIncludeDownloadTermsInZippy(): bool
     {
         if (null !== $this->config->getIncludeDownloadTermsInZippy()) {
@@ -754,54 +631,46 @@ class Publication implements AclObjectInterface
         $this->cover = $cover;
     }
 
-    public function isVisible(DateTimeInterface $now = null): bool
+    public function isVisible(\DateTimeImmutable $now = null): bool
     {
-        $now ??= new DateTime();
+        $now ??= new \DateTimeImmutable();
 
         return $this->isEnabled()
             && (null === $this->getBeginsAt() || $this->getBeginsAt() < $now)
             && (null === $this->getExpiresAt() || $this->getExpiresAt() > $now);
     }
 
-    public function getBeginsAt(): ?DateTime
+    public function getBeginsAt(): ?\DateTimeImmutable
     {
         if (null !== $this->config->getBeginsAt()) {
             return $this->config->getBeginsAt();
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getBeginsAt();
-        }
+        return $this->profile?->getConfig()->getBeginsAt();
 
-        return null;
     }
 
-    public function getExpiresAt(): ?DateTime
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
         if (null !== $this->config->getExpiresAt()) {
             return $this->config->getExpiresAt();
         }
 
-        if ($this->profile) {
-            return $this->profile->getConfig()->getExpiresAt();
-        }
+        return $this->profile?->getConfig()->getExpiresAt();
 
-        return null;
     }
 
-    public function getDate(): ?DateTime
+    public function getDate(): ?\DateTimeImmutable
     {
         return $this->date;
     }
 
-    public function setDate(?DateTime $date): void
+    public function setDate(?\DateTimeImmutable $date): void
     {
         $this->date = $date;
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getMapOptions(): MapOptions
     {
         if ($this->profile) {
@@ -811,9 +680,7 @@ class Publication implements AclObjectInterface
         return $this->config->getMapOptions();
     }
 
-    /**
-     * @Groups({"publication:read"})
-     */
+    #[Groups([self::GROUP_READ])]
     public function getLayoutOptions(): LayoutOptions
     {
         if ($this->profile) {
@@ -856,9 +723,7 @@ class Publication implements AclObjectInterface
         return [];
     }
 
-    /**
-     * @Assert\Callback
-     */
+    #[Assert\Callback]
     public function validateNoParentRecursion(ExecutionContextInterface $context, $payload): void
     {
         if ($this->hasRecursiveParent()) {

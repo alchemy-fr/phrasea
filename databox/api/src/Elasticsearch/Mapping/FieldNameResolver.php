@@ -9,9 +9,9 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Entity\Core\AttributeDefinition;
 
-class FieldNameResolver
+final readonly class FieldNameResolver
 {
-    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry, private readonly FacetRegistry $facetRegistry)
+    public function __construct(private AttributeTypeRegistry $attributeTypeRegistry, private FacetRegistry $facetRegistry)
     {
     }
 

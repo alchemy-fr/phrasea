@@ -18,10 +18,10 @@ class TermsConfigType extends AbstractType
         $builder
             ->add('text', TextareaType::class)
             ->add('url', UrlType::class)
-            ;
+        ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefault('data_class', TermsConfig::class)

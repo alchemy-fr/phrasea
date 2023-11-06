@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace App\Attribute;
 
 use App\Attribute\Type\AttributeTypeInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class AttributeTypeRegistry
 {
     /**
      * @var AttributeTypeInterface[]
      */
-    private array $types = [];
+    private array $types;
 
-    public function addType(AttributeTypeInterface $type)
-    {
-        $this->types[$type::getName()] = $type;
+    public function __construct(
+        #[TaggedIterator(AttributeTypeInterface::TAG, defaultIndexMethod: 'getName')]
+        iterable $types
+    ) {
+        $this->types = iterator_to_array($types);
     }
 
     public function getType(string $type): ?AttributeTypeInterface

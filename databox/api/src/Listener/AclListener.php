@@ -17,9 +17,9 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AclListener implements EventSubscriberInterface
+readonly class AclListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly ESSearchIndexer $searchIndexer, private readonly ObjectMapping $objectMapping, private readonly EventProducer $eventProducer)
+    public function __construct(private ESSearchIndexer $searchIndexer, private ObjectMapping $objectMapping, private EventProducer $eventProducer)
     {
     }
 
@@ -33,7 +33,7 @@ class AclListener implements EventSubscriberInterface
         $this->reIndexAsset($event->getObjectType(), $event->getObjectId());
     }
 
-    private function reIndexAsset(string $objectType, ?string $objectId = null): void
+    private function reIndexAsset(string $objectType, string $objectId = null): void
     {
         $objectClass = $this->objectMapping->getClassName($objectType);
 

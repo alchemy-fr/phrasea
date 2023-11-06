@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Rendition\Phraseanet;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;
@@ -17,8 +17,7 @@ use App\Tests\FileUploadTrait;
 use App\Tests\Mock\EventProducerMock;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
@@ -49,7 +48,8 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
         $clientMock = $clientFactory->getMock();
-        $clientMock->append(new Response(200));
+        $mockResponse = new MockResponse('');
+        $clientMock->setResponseFactory($mockResponse);
 
         /** @var Workspace $workspace */
         $workspace = $em->getRepository(Workspace::class)->findOneBy([
@@ -76,7 +76,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
 
         $response = $apiClient->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -94,7 +94,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             '@type' => 'asset',
             'title' => 'Dummy asset',
         ]);
-        $json = \GuzzleHttp\json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
@@ -102,13 +102,11 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
-        $transaction = $clientFactory->shiftHistory();
-        /** @var Request $trRequest */
-        $trRequest = $transaction['request'];
-        self::assertEquals('POST', $trRequest->getMethod());
-        self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
-        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string) $trRequest->getUri());
-        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
+        self::assertEquals('POST', $mockResponse->getRequestMethod());
+        $requestOptions = $mockResponse->getRequestOptions();
+        self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
+        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string) $mockResponse->getRequestUrl());
+        $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'databoxId' => 2,
             'source' => [],
@@ -142,15 +140,14 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
                 ],
             ],
         ]);
-        $data = json_decode($response->getContent(), true);
         $this->assertResponseStatusCodeSame(200);
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
         ]);
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'asset',

@@ -48,7 +48,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build and push
+      - name: Build and Push
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
@@ -60,5 +60,6 @@ jobs:
           build-args: |
             BASE_TAG=${{ env.DOCKER_TAG }}
             REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}

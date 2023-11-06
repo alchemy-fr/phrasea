@@ -17,8 +17,7 @@ class ProxyCachePurger
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly string $clientBaseUrl,
-    )
-    {
+    ) {
     }
 
     public function purgeUri(string $uri): void
@@ -35,10 +34,10 @@ class ProxyCachePurger
                         'application/ld+json',
                         'text/html',
                              ] as $contentType) {
-                    foreach ([
-                        $this->clientBaseUrl,
-                        null,
-                             ] as $origin) {
+                        foreach ([
+                            $this->clientBaseUrl,
+                            null,
+                                 ] as $origin) {
                             $this->client->get('/purge'.$uri, [
                                 'headers' => [
                                     'Accept' => $contentType,

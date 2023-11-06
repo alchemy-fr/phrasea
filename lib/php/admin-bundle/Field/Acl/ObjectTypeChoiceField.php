@@ -7,14 +7,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class ObjectTypeChoiceField
 {
-    private ObjectMapping $objectMapping;
+    private readonly ObjectMapping $objectMapping;
 
     public function __construct(ObjectMapping $objectMapping)
     {
         $this->objectMapping = $objectMapping;
     }
 
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
         $choices = [];
         foreach ($this->objectMapping->getObjectTypes() as $name) {

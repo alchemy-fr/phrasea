@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -11,7 +12,6 @@ use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -88,7 +88,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
                         ->prototype('array')
                             ->children()
                                 ->scalarNode('name')->isRequired()->cannotBeEmpty()->info('Attribute slug')->end()
-                                ->floatNode('threshold')->example(.5)->info('Minimum confidence to be saved into attribute')->end()
+                                ->floatNode('threshold')->example('.5')->info('Minimum confidence to be saved into attribute')->end()
                             ->end()
                         ->end()
                     ->end()

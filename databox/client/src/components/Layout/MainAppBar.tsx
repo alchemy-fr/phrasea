@@ -13,7 +13,6 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {UserContext} from "../Security/UserContext";
 import {useTranslation} from "react-i18next";
-import {useLocation, useNavigate} from "react-router-dom";
 import {Divider, ListItemIcon, ListItemText} from "@mui/material";
 import LogoutIcon from '@mui/icons-material/Logout';
 import {SearchContext} from "../Media/Search/SearchContext";
@@ -21,6 +20,7 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from "./ChangeTheme";
 import {zIndex} from "../../themes/zIndex";
+import {useKeycloakUrls} from "../../lib/keycloak";
 
 export const menuHeight = 42;
 
@@ -33,12 +33,11 @@ export default function MainAppBar({
     onToggleLeftPanel,
 }: Props) {
     const {t} = useTranslation();
-    const location = useLocation();
-    const navigate = useNavigate();
     const [changeTheme, setChangeTheme] = useState(false);
     const userContext = useContext(UserContext);
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
     const searchContext = useContext(SearchContext);
+    const {getAccountUrl, getLoginUrl} = useKeycloakUrls();
     const onTitleClick = () => searchContext.selectWorkspace(undefined, undefined, true);
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -119,9 +118,10 @@ export default function MainAppBar({
                     </Box>
 
                     <Box sx={{flexGrow: 0}}>
-                        {!username ? <MenuItem onClick={() => navigate('/login', {
-                            state: {from: location}
-                        })}>{t('menu.sign_in', 'Sign in')}</MenuItem> : <>
+                        {!username ? <MenuItem
+                            component={'a'}
+                            href={getLoginUrl()}
+                        >{t('menu.sign_in', 'Sign in')}</MenuItem> : <>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
                                     <Avatar
@@ -155,9 +155,8 @@ export default function MainAppBar({
                                 onClose={handleCloseUserMenu}
                             >
                                 <MenuItem
-                                    // component={Link}
-                                    // to={getPath('account')}
-                                    onClick={handleCloseUserMenu}
+                                    component={'a'}
+                                    href={getAccountUrl()}
                                 >
                                     <ListItemIcon>
                                         <AccountBoxIcon/>
@@ -168,8 +167,6 @@ export default function MainAppBar({
                                     />
                                 </MenuItem>
                                 <MenuItem
-                                    // component={Link}
-                                    // to={getPath('account')}
                                     onClick={() => {
                                         setChangeTheme(true);
                                         handleCloseUserMenu();

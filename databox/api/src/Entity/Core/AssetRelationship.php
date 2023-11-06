@@ -8,12 +8,11 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- * @ORM\Table()
- */
+#[ORM\Table]
+#[ORM\Entity]
 class AssetRelationship extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -21,40 +20,30 @@ class AssetRelationship extends AbstractUuidEntity
 
     /**
      * The type of relationship.
-     *
-     * @ORM\Column(type="string", length=20)
      */
+    #[ORM\Column(type: Types::STRING, length: 20)]
     private ?string $type = null;
 
     /**
      * Whether the two assets can't live alone (being deleted, moved to another collection...).
-     *
-     * @ORM\Column(type="boolean")
      */
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $sticky = false;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Asset::class)
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Asset $source = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=File::class)
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?File $sourceFile = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WorkspaceIntegration::class)
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?WorkspaceIntegration $integration = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Asset::class)
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Asset $target = null;
 
     public function getType(): ?string

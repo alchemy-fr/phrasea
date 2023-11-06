@@ -13,18 +13,15 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 {
-    private EntityManagerInterface $em;
-
     private array $jobs = [];
-    private string $workflowStateEntity;
-    private string $jobStateEntity;
+    private readonly string $workflowStateEntity;
+    private readonly string $jobStateEntity;
 
     public function __construct(
-        EntityManagerInterface $em,
+        private readonly EntityManagerInterface $em,
         string $workflowStateEntity = null,
         string $jobStateEntity = null,
     ) {
-        $this->em = $em;
         $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
         $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;
     }
@@ -72,6 +69,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         if ($entity instanceof JobStateEntity) {
             $this->em->remove($entity);
             $this->em->flush();
+
+            unset($this->jobs[$workflowId][$jobId]);
         }
     }
 

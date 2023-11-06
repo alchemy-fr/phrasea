@@ -4,30 +4,23 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Form;
 
-use Alchemy\RemoteAuthBundle\Client\AdminClient;
-use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Client\ServiceAccountClient;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserChoiceType extends AbstractType
 {
-    private AdminClient $adminClient;
-    private AuthServiceClient $authServiceClient;
-
-    public function __construct(AdminClient $adminClient, AuthServiceClient $authServiceClient)
+    public function __construct(private readonly ServiceAccountClient $serviceAccountClient, private readonly KeycloakClient $authServiceClient)
     {
-        $this->adminClient = $adminClient;
-        $this->authServiceClient = $authServiceClient;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {
-            return $this->authServiceClient->getUsers($accessToken);
-        });
+        /** @var JwtUser[] $users */
+        $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];
@@ -39,7 +32,7 @@ class UserChoiceType extends AbstractType
         );
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

@@ -4,32 +4,62 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\RenditionRuleInputTransformer;
+use App\Api\Model\Input\RenditionRuleInput;
+use App\Api\Model\Output\RenditionRuleOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use App\Repository\Core\RenditionRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 
-/**
- * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_uniq_rule", columns={"user_type", "user_id", "object_type", "object_id"})},
- *     indexes={
- *         @ORM\Index(name="rr_user_idx", columns={"user_type", "user_id"}),
- *         @ORM\Index(name="rr_object_idx", columns={"object_type", "object_id"}),
- *         @ORM\Index(name="rr_user_type_idx", columns={"user_type"}),
- *     }
- * )
- * @ORM\Entity(repositoryClass="App\Repository\Core\RenditionRuleRepository")
- *
- * @ApiFilter(SearchFilter::class, properties={"allowed"="exact", "userType"="exact", "userId"="exact", "objectType"="exact", "objectId"="exact"})
- */
+#[ApiResource(
+    shortName: 'rendition-rule',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+    ],
+    normalizationContext: [
+        'groups' => [
+            RenditionRule::GROUP_LIST,
+            RenditionClass::GROUP_READ,
+        ],
+    ],
+    input: RenditionRuleInput::class,
+    output: RenditionRuleOutput::class,
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    processor: RenditionRuleInputTransformer::class,
+)]
+#[ORM\Table]
+#[ORM\Index(columns: ['user_type', 'user_id'], name: 'rr_user_idx')]
+#[ORM\Index(columns: ['object_type', 'object_id'], name: 'rr_object_idx')]
+#[ORM\Index(columns: ['user_type'], name: 'rr_user_type_idx')]
+#[ORM\UniqueConstraint(name: 'rend_uniq_rule', columns: ['user_type', 'user_id', 'object_type', 'object_id'])]
+#[ORM\Entity(repositoryClass: RenditionRuleRepository::class)]
+#[ApiFilter(SearchFilter::class, properties: ['allowed' => 'exact', 'userType' => 'exact', 'userId' => 'exact', 'objectType' => 'exact', 'objectId' => 'exact'])]
 class RenditionRule extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'rendrule:read';
+    final public const GROUP_LIST = 'rendrule:index';
 
     final public const TYPE_USER = 0;
     final public const TYPE_GROUP = 1;
@@ -41,32 +71,23 @@ class RenditionRule extends AbstractUuidEntity
         self::TYPE_COLLECTION => Collection::class,
     ];
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: Types::SMALLINT)]
     protected ?int $userType = null;
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     protected ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: Types::SMALLINT)]
     protected int $objectType;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     */
+    #[ORM\Column(type: UuidType::NAME, nullable: false)]
     protected string $objectId;
 
     /**
      * @var RenditionClass[]|Collection
-     *
-     * @ORM\ManyToMany(targetEntity="RenditionClass")
-     * @ORM\JoinTable(name="sdr_allowed")
      */
+    #[ORM\JoinTable(name: 'sdr_allowed')]
+    #[ORM\ManyToMany(targetEntity: RenditionClass::class)]
     protected ?DoctrineCollection $allowed = null;
 
     public function __construct()

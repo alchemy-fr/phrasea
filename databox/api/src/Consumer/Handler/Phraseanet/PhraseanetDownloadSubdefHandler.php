@@ -64,12 +64,20 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 
         [$urlPart] = explode('?', (string) $url, 2);
 
-        $rendition = $this->renditionManager->createOrReplaceRenditionByPath(
-            $asset,
-            $this->renditionManager->getRenditionDefinitionByName(
+        try {
+            $renditionDefinition = $this->renditionManager->getRenditionDefinitionByName(
                 $workspace,
                 $payload['name']
-            ),
+            );
+        } catch (\InvalidArgumentException $e) {
+            $this->logger->warning($e->getMessage());
+
+            return;
+        }
+
+        $rendition = $this->renditionManager->createOrReplaceRenditionByPath(
+            $asset,
+            $renditionDefinition,
             File::STORAGE_URL,
             $url,
             $payload['type'] ?? null,

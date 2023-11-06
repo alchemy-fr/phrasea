@@ -2,28 +2,21 @@
 
 namespace Alchemy\AdminBundle\Field;
 
-use Alchemy\RemoteAuthBundle\Client\AdminClient;
-use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Client\ServiceAccountClient;
+use Alchemy\AuthBundle\Security\JwtUser;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
-final class UserChoiceField
+final readonly class UserChoiceField
 {
-    private AdminClient $adminClient;
-    private AuthServiceClient $authServiceClient;
-
-    public function __construct(AdminClient $adminClient, AuthServiceClient $authServiceClient)
+    public function __construct(private ServiceAccountClient $serviceAccountClient, private KeycloakClient $authServiceClient)
     {
-        $this->adminClient = $adminClient;
-        $this->authServiceClient = $authServiceClient;
     }
 
-    public function create(string $propertyName, ?string $label = null)
+    public function create(string $propertyName, string $label = null)
     {
-        /** @var RemoteUser[] $users */
-        $users = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {
-            return $this->authServiceClient->getUsers($accessToken);
-        });
+        /** @var JwtUser[] $users */
+        $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
         $choices = [];
         foreach ($users as $user) {
             $choices[$user['username']] = $user['id'];

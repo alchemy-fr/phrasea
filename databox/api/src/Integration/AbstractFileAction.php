@@ -8,6 +8,7 @@ use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractFileAction extends AbstractIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
@@ -51,7 +53,7 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     protected function serializeData(IntegrationData $data): string
     {
         return $this->serializer->serialize($data, 'json', [
-            'groups' => ['integration:index', '_'],
+            'groups' => [WorkspaceIntegration::GROUP_LIST, '_'],
         ]);
     }
 
@@ -70,49 +72,37 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataKey;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setFileManager(FileManager $fileManager): void
     {
         $this->fileManager = $fileManager;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setIntegrationDataManager(IntegrationDataManager $integrationDataManager): void
     {
         $this->integrationDataManager = $integrationDataManager;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setFileUrlResolver(FileUrlResolver $fileUrlResolver): void
     {
         $this->fileUrlResolver = $fileUrlResolver;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSerializer(SerializerInterface $serializer): void
     {
         $this->serializer = $serializer;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setFileUploadManager(FileUploadManager $fileUploadManager): void
     {
         $this->fileUploadManager = $fileUploadManager;

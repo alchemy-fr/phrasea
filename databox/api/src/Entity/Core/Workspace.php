@@ -5,104 +5,145 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\WorkspaceInput;
+use App\Api\Model\Output\WorkspaceOutput;
+use App\Controller\Core\FlushWorkspaceAction;
+use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\WorkspaceRepository;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- *
- * @ORM\Entity(repositoryClass="App\Repository\Core\WorkspaceRepository")
- */
+#[ApiResource(
+    shortName: 'workspace',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => [Workspace::GROUP_READ],
+            ],
+            security: 'is_granted("READ", object)'
+        ),
+        new Put(
+            normalizationContext: [
+                'groups' => [Workspace::GROUP_READ],
+            ],
+            securityPostDenormalize: 'is_granted("EDIT", object)'
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Post(
+            uriTemplate: '/workspaces/{id}/flush',
+            controller: FlushWorkspaceAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'flush'
+        ),
+        new GetCollection(),
+        new Get(
+            uriTemplate: '/workspaces-by-slug/{slug}',
+            uriVariables: [
+                'slug' => 'slug',
+            ],
+            controller: GetWorkspaceBySlugAction::class,
+            name: 'get_by_slug'
+        ),
+        new Post(
+            normalizationContext: [
+                'groups' => [Workspace::GROUP_READ],
+            ],
+            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [Workspace::GROUP_LIST],
+    ],
+    input: WorkspaceInput::class,
+    output: WorkspaceOutput::class,
+)]
+#[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
+#[UniqueEntity(fields: [
+    'slug',
+], message: 'Slug is already taken')]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use DeletedAtTrait;
+    final public const GROUP_READ = 'workspace:read';
+    final public const GROUP_LIST = 'workspace:index';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 50, unique: true, nullable: false)]
     private ?string $slug = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $ownerId = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $enabledLocales = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $localeFallbacks = ['en'];
 
     /**
-     * @var Collection[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="workspace")
+     * @var DoctrineCollection<Collection>
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: Collection::class)]
     protected ?DoctrineCollection $collections = null;
 
     /**
-     * @var Tag[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Tag", mappedBy="workspace")
+     * @var DoctrineCollection<Tag>
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: Tag::class)]
     protected ?DoctrineCollection $tags = null;
 
     /**
-     * @var RenditionClass[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionClass", mappedBy="workspace")
+     * @var DoctrineCollection<RenditionClass>
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionClass::class)]
     protected ?DoctrineCollection $renditionClasses = null;
 
     /**
-     * @var RenditionDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="workspace")
+     * @var DoctrineCollection<RenditionDefinition>
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: RenditionDefinition::class)]
     protected ?DoctrineCollection $renditionDefinitions = null;
 
     /**
      * @var AttributeDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AttributeDefinition", mappedBy="workspace")
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: AttributeDefinition::class)]
     protected ?DoctrineCollection $attributeDefinitions = null;
 
     /**
      * @var File[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\File", mappedBy="workspace")
      */
+    #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
 
     public function __construct()
@@ -150,9 +191,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         $this->ownerId = $ownerId;
     }
 
-    /**
-     * @ApiProperty(readable=false, writable=false)
-     */
+    #[ApiProperty(readable: false, writable: false)]
     public function getAclOwnerId(): string
     {
         return $this->getOwnerId() ?? '';
@@ -175,7 +214,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function setEnabledLocales(array $enabledLocales): void
     {
-        $this->enabledLocales = $enabledLocales;
+        $this->enabledLocales = array_values($enabledLocales);
     }
 
     public function getSlug(): ?string
@@ -195,7 +234,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function setLocaleFallbacks(?array $localeFallbacks): void
     {
-        $this->localeFallbacks = $localeFallbacks;
+        $this->localeFallbacks = array_values($localeFallbacks);
     }
 
     public function isPublic(): bool

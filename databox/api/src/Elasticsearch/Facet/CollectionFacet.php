@@ -7,9 +7,9 @@ namespace App\Elasticsearch\Facet;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
-use App\Security\Voter\CollectionVoter;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class CollectionFacet extends AbstractFacet
 {
@@ -95,7 +95,7 @@ final class CollectionFacet extends AbstractFacet
             return null;
         }
 
-        if (!$this->security->isGranted(CollectionVoter::READ, $collections[count($collections) - 1])) {
+        if (!$this->security->isGranted(AbstractVoter::READ, $collections[count($collections) - 1])) {
             return null;
         }
 

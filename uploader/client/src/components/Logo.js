@@ -1,10 +1,14 @@
 import React, {Component} from 'react';
 import config from '../config';
 
-const logo = config.all().client.logo;
-
 export default class Logo extends Component {
     render() {
+        const logo = config.client?.logo;
+
+        if (!logo) {
+            return <></>
+        }
+
         return (
             <div className="logo" style={{
                 margin: logo.margin

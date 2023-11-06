@@ -12,15 +12,14 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('alchemy_core');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('app_base_url')->defaultNull()->end()
+                ->scalarNode('app_name')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('app_id')->defaultValue('%env(APP_ID)%')->cannotBeEmpty()->end()
+                ->scalarNode('app_url')->defaultNull()->end()
                 ->arrayNode('healthcheck')
                     ->canBeEnabled()
                     ->children()

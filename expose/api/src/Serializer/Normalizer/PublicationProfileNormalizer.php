@@ -6,15 +6,12 @@ namespace App\Serializer\Normalizer;
 
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationProfileVoter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class PublicationProfileNormalizer extends AbstractRouterNormalizer
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     /**
@@ -22,7 +19,7 @@ class PublicationProfileNormalizer extends AbstractRouterNormalizer
      */
     public function normalize($object, array &$context = []): void
     {
-        if (in_array(PublicationProfile::GROUP_READ, $context['groups'])) {
+        if (in_array(PublicationProfile::GROUP_READ, $context['groups'] ?? [])) {
             if ($this->security->isGranted(PublicationProfileVoter::EDIT, $object)) {
                 $context['groups'][] = PublicationProfile::GROUP_ADMIN_READ;
             }

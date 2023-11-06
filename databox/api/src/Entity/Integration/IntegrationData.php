@@ -4,54 +4,65 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\File;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(indexes={@ORM\Index(name="name", columns={"integration_id", "file_id", "name"})})
- */
+#[ApiResource(
+    shortName: 'integration-data',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+    ],
+    normalizationContext: [
+        'groups' => [IntegrationData::GROUP_LIST],
+    ],
+    output: IntegrationDataOutput::class
+)]
+#[ORM\Table]
+#[ORM\Index(columns: ['integration_id', 'file_id', 'name'], name: 'name')]
+#[ORM\Entity]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'int-data:read';
+    final public const GROUP_LIST = 'int-data:index';
+    final public const GROUP_WRITE = 'int-data:w';
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WorkspaceIntegration::class)
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?WorkspaceIntegration $integration = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=File::class)
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     *
-     * @Groups({"integrationdata:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     *
-     * @Groups({"integrationdata:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Groups([IntegrationData::GROUP_LIST])]
     private ?string $keyId = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     *
-     * @Groups({"integrationdata:index"})
-     */
-    private $value = null;
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
+    #[Groups([IntegrationData::GROUP_LIST])]
+    private $value;
 
     public function getIntegration(): ?WorkspaceIntegration
     {

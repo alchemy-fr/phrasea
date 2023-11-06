@@ -11,19 +11,13 @@ use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Throwable;
 
 class CommitHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'commit';
+    final public const EVENT = 'commit';
 
-    private EventProducer $eventProducer;
-    private AssetManager $assetManager;
-
-    public function __construct(EventProducer $eventProducer, AssetManager $assetManager)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly AssetManager $assetManager)
     {
-        $this->eventProducer = $eventProducer;
-        $this->assetManager = $assetManager;
     }
 
     public function handle(EventMessage $message): void
@@ -58,7 +52,7 @@ class CommitHandler extends AbstractEntityManagerHandler
                 ->attachCommit($commit->getFiles(), $commit->getId());
 
             $em->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $em->rollback();
             throw $e;
         }

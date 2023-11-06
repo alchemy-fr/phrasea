@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Form\FormValidator;
 use App\Model\FormData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,13 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class ValidateFormAction extends AbstractController
 {
-    private FormValidator $formValidator;
-    private ValidatorInterface $validator;
-
-    public function __construct(FormValidator $formValidator, ValidatorInterface $validator)
-    {
-        $this->formValidator = $formValidator;
-        $this->validator = $validator;
+    public function __construct(
+        private readonly FormValidator $formValidator,
+        private readonly ValidatorInterface $validator
+    ) {
     }
 
     public function __invoke(FormData $data, Request $request)

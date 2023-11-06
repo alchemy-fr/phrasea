@@ -14,18 +14,11 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class JWTManager
 {
-    private string $signingKey;
-    private string $baseUri;
-    private int $ttl;
-
-    public function __construct(string $signingKey, string $baseUri, int $ttl)
+    public function __construct(private readonly string $signingKey, private readonly string $baseUri, private readonly int $ttl)
     {
-        $this->signingKey = $signingKey;
-        $this->baseUri = $baseUri;
-        $this->ttl = $ttl;
     }
 
-    public function signUri(string $uri, ?int $ttl = null): string
+    public function signUri(string $uri, int $ttl = null): string
     {
         $config = $this->getConfig();
         $token = $config->builder()
@@ -37,7 +30,7 @@ class JWTManager
 
         return implode('', [
             $uri,
-            false === strpos($uri, '?') ? '?' : '&',
+            !str_contains($uri, '?') ? '?' : '&',
             'jwt=',
             $token->toString(),
         ]);

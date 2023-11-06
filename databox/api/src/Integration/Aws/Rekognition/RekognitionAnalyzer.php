@@ -41,13 +41,13 @@ final readonly class RekognitionAnalyzer
 
         $path = $this->fileFetcher->getFile($file);
         if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $category)) {
-            $result = \GuzzleHttp\json_decode($data->getValue(), true);
+            $result = json_decode($data->getValue(), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
             $method = $methods[$category];
             $result = call_user_func([$this->client, $method], $path, $config);
-            $this->dataManager->storeData($wsIntegration, $file, $category, \GuzzleHttp\json_encode($result));
+            $this->dataManager->storeData($wsIntegration, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
         }
 
         if (!empty($result) && $asset instanceof Asset) {

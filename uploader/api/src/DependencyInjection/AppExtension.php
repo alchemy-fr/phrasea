@@ -14,7 +14,7 @@ class AppExtension extends Extension
     {
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {
-            $config = json_decode(file_get_contents($jsonConfigSrc), true);
+            $config = json_decode(file_get_contents($jsonConfigSrc), true, 512, JSON_THROW_ON_ERROR);
             // Add for fresh cache
             $container->addResource(new FileResource($jsonConfigSrc));
         } else {

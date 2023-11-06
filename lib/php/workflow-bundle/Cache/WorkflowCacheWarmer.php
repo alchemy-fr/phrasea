@@ -9,11 +9,8 @@ use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 class WorkflowCacheWarmer implements CacheWarmerInterface
 {
-    private WorkflowRepositoryInterface $fileWorkflowRepository;
-
-    public function __construct(WorkflowRepositoryInterface $workflowRepository)
+    public function __construct(private readonly WorkflowRepositoryInterface $fileWorkflowRepository)
     {
-        $this->fileWorkflowRepository = $workflowRepository;
     }
 
     public function isOptional()

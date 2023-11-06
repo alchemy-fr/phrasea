@@ -15,18 +15,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DumpCommand extends Command
 {
-    private MetadataManipulator $mm;
-
-    public function __construct(MetadataManipulator $mm)
+    public function __construct(private readonly MetadataManipulator $mm)
     {
         parent::__construct();
-        $this->mm = $mm;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -38,9 +32,6 @@ class DumpCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (null === $filter = $input->getOption('filter')) {
@@ -75,7 +66,7 @@ class DumpCommand extends Command
         } else {
             // no file arg: dump the dictionary
             foreach ($this->mm->getKnownTagGroups() as $tagGroup) {
-                if (preg_match($filter, $tagGroup)) {
+                if (preg_match($filter, (string) $tagGroup)) {
                     $output->writeln($tagGroup);
                 }
             }

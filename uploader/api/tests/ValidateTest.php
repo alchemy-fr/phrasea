@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class ValidateTest extends AbstractUploaderTestCase
 {
@@ -12,24 +12,24 @@ class ValidateTest extends AbstractUploaderTestCase
     {
         parent::setUp();
 
-        $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form-schemas', [
+        $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
-            'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true),
+            'data' => json_decode(file_get_contents(__DIR__.'/fixtures/liform-schema.json'), true, 512, JSON_THROW_ON_ERROR),
         ]);
     }
 
     public function testValidateOK(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form/validate', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => [
                 'album' => 'Foo',
                 'agreed' => true,
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
-
         $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
         $this->assertEquals(['errors' => []], $json);
     }
 
@@ -50,11 +50,11 @@ class ValidateTest extends AbstractUploaderTestCase
      */
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/form/validate', [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form/validate', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
             'data' => $data,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(['errors' => $exceptedErrors], $json);

@@ -24,13 +24,13 @@ class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
         $body = $payload['body'];
         $workspaceIntegration = $this->integrationDataManager->getWorkspaceIntegration($payload['integrationId']);
 
-        $payload = \GuzzleHttp\json_decode($body, true);
+        $payload = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
         $this->integrationDataManager->storeData(
             $workspaceIntegration,
             null,
             self::DATA_EVENT_MESSAGE,
-            \GuzzleHttp\json_encode($payload)
+            json_encode($payload, JSON_THROW_ON_ERROR)
         );
 
         if ('SubscriptionConfirmation' === $payload['Type']) {
@@ -38,7 +38,7 @@ class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
         }
 
         if ('Notification' === $payload['Type']) {
-            $message = \GuzzleHttp\json_decode($payload['Message'], true);
+            $message = json_decode($payload['Message'], true, 512, JSON_THROW_ON_ERROR);
 
             if ('aws.transcribe' === $message['source']) {
                 $this->eventProducer->publish(TranscribeJobStatusChangedHandler::createEvent(

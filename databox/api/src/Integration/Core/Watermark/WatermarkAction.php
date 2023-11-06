@@ -43,7 +43,9 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
 
         $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
             ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrName, $asset->getWorkspaceId()));
-        $text = $attributes[$attrDef->getId()][IndexMappingUpdater::NO_LOCALE]?->getValue() ?? null;
+
+        $attr = $attributes[$attrDef->getId()][IndexMappingUpdater::NO_LOCALE] ?? null;
+        $text = $attr?->getValue() ?? null;
 
         if (empty($text)) {
             return;
@@ -52,7 +54,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         $top = $config['position']['top'];
         $left = $config['position']['left'];
         $fontSize = (int) str_replace('px', '', (string) $config['fontSize']);
-        $color = preg_replace('/^#/', '', $config['color']);
+        $color = preg_replace('/^#/', '', (string) $config['color']);
 
         foreach ($config['applyToRenditions'] as $renditionName) {
             $rendition = $this->getRendition($asset->getId(), $renditionName);
@@ -71,8 +73,9 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
                 $font->valign('center');
             });
 
-            $path = tempnam(sys_get_temp_dir(), __CLASS__);
+            $path = tempnam(sys_get_temp_dir(), self::class);
             $image->save($path);
+            unlink($src);
 
             $newRenditionFile = $this->fileManager->createFileFromPath(
                 $asset->getWorkspace(),

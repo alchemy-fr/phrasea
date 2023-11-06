@@ -1,9 +1,9 @@
 import React from "react";
-import {User} from "../../types";
+import {AuthUser} from "../../types";
 
 export type TUserContext = {
-    user?: User | undefined;
-    logout?: () => void | undefined;
+    user?: AuthUser | undefined;
+    logout?: (redirectUri?: string |false) => void | undefined;
 }
 
 export const UserContext = React.createContext<TUserContext>({});

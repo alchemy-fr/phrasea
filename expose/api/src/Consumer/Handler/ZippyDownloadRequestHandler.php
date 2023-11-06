@@ -15,19 +15,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'zippy_download_request';
+    final public const EVENT = 'zippy_download_request';
 
-    private NotifierInterface $notifier;
-    private ZippyManager $zippyManager;
-    private JWTManager $JWTManager;
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(NotifierInterface $notifier, ZippyManager $zippyManager, JWTManager $JWTManager, UrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly NotifierInterface $notifier, private readonly ZippyManager $zippyManager, private readonly JWTManager $JWTManager, private readonly UrlGeneratorInterface $urlGenerator)
     {
-        $this->notifier = $notifier;
-        $this->zippyManager = $zippyManager;
-        $this->JWTManager = $JWTManager;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function handle(EventMessage $message): void
@@ -37,7 +28,7 @@ class ZippyDownloadRequestHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $downloadRequest = $em->find(DownloadRequest::class, $id);
         if (!$downloadRequest instanceof DownloadRequest) {
-            throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, self::class);
         }
 
         // Trigger ZIP preparation

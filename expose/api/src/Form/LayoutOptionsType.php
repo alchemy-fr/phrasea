@@ -19,10 +19,10 @@ class LayoutOptionsType extends AbstractType
             ->add('displayMap', CheckboxType::class)
             ->add('displayMapPins', CheckboxType::class)
             ->add('logoUrl', UrlType::class)
-            ;
+        ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefault('data_class', LayoutOptions::class)

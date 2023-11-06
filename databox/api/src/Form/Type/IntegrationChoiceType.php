@@ -15,7 +15,7 @@ class IntegrationChoiceType extends AbstractType
     {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         foreach ($this->integrationRegistry->getIntegrations() as $type) {
@@ -28,7 +28,7 @@ class IntegrationChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

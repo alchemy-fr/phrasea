@@ -11,14 +11,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrivacyChoiceType extends AbstractType
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = array_flip(WorkspaceItemPrivacyInterface::LABELS);
 
         $resolver->setDefault('choices', $choices);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

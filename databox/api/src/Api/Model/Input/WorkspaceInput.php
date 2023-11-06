@@ -8,6 +8,7 @@ class WorkspaceInput extends AbstractOwnerIdInput
 {
     public ?string $name = null;
     public ?string $slug = null;
+    public ?bool $public = null;
     public ?array $enabledLocales = null;
     public ?array $localeFallbacks = null;
 }

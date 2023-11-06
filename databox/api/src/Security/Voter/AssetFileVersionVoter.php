@@ -9,19 +9,24 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AssetFileVersionVoter extends AbstractVoter
 {
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof AssetFileVersion;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, AssetFileVersion::class, true);
     }
 
     /**
      * @param AssetFileVersion $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::READ => $this->security->isGranted(AssetVoter::READ, $subject->getAsset()),
-            self::DELETE => $this->security->isGranted(AssetVoter::DELETE, $subject->getAsset()),
+            self::READ => $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),
+            self::DELETE => $this->security->isGranted(AbstractVoter::DELETE, $subject->getAsset()),
             default => false,
         };
     }

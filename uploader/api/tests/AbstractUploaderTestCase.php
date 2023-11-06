@@ -6,7 +6,6 @@ namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
 use App\Entity\Target;
-use Doctrine\ORM\EntityManagerInterface;
 use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
 abstract class AbstractUploaderTestCase extends ApiTestCase
@@ -15,8 +14,7 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
 
     protected function getOrCreateDefaultTarget(): Target
     {
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
 
         $name = 'TestDefault';
         $target = $em->getRepository(Target::class)->findOneBy([

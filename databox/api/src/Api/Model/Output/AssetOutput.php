@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -19,132 +21,80 @@ class AssetOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    /**
-     * @ApiProperty(attributes={
-     *  "openapi_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"={
-     *         "type"="boolean"
-     *       },
-     *       "canDelete"={
-     *         "type"="boolean"
-     *       },
-     *       "canEditPermissions"={
-     *         "type"="boolean"
-     *       },
-     *     }
-     *  },
-     *  "json_schema_context"={
-     *     "type"="object",
-     *     "properties"={
-     *       "canEdit"="boolean",
-     *       "canDelete"="boolean",
-     *       "canEditPermissions"="boolean",
-     *     }
-     * }
-     * })
-     *
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[ApiProperty(jsonSchemaContext: [
+        'type' => 'object',
+        'properties' => [
+            'canEdit' => 'boolean',
+            'canDelete' => 'boolean',
+            'canEditPermissions' => 'boolean',
+        ],
+    ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     protected array $capabilities = [];
 
     /**
      * @var AttributeOutput[]
-     *
-     * @Groups({"asset:index", "asset:read"})
      */
-    protected ?array $attributes;
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    protected ?array $attributes = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private ?string $title = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private ?string $resolvedTitle = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?string $titleHighlight = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private int $privacy;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private bool $pendingSourceFile = false;
 
-    /**
-     * @Groups({"asset:read"})
-     */
+    #[Groups([Asset::GROUP_READ])]
     private ?string $pendingUploadToken = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "Webhook"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private $workspace;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $tags;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_READ])]
+    public ?UserOutput $owner = null;
+
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $collections;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?File $source = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?AssetRendition $original = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?AssetRendition $preview = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?AssetRendition $thumbnail = null;
 
-    /**
-     * @Groups({"asset:index", "asset:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private ?AssetRendition $thumbnailActive = null;
 
-    /**
-     * @ApiProperty()
-     *
-     * @Groups({"dates"})
-     */
+    #[Groups(['dates'])]
+    #[ApiProperty]
     private \DateTimeImmutable $editedAt;
 
-    /**
-     * @ApiProperty()
-     *
-     * @Groups({"dates"})
-     */
+    #[Groups(['dates'])]
+    #[ApiProperty]
     private \DateTimeImmutable $attributesEditedAt;
 
     /**
      * Used for result grouping.
-     *
-     * @Groups({"_"})
      */
+    #[Groups(['_'])]
     private ?GroupValue $groupValue = null;
 
     public function getOriginal(): ?AssetRendition

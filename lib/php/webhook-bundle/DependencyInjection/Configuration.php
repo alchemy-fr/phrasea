@@ -2,6 +2,7 @@
 
 namespace Alchemy\WebhookBundle\DependencyInjection;
 
+use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -13,10 +14,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('alchemy_webhook');
         $treeBuilder->getRootNode()
@@ -50,7 +48,7 @@ class Configuration implements ConfigurationInterface
                     ->arrayPrototype()
                         ->children()
                             ->scalarNode('name')->isRequired()->end()
-                            ->arrayNode('groups')->scalarPrototype()->end()->defaultValue(['Webhook'])->end()
+                            ->arrayNode('groups')->scalarPrototype()->end()->defaultValue([WebhookSerializationInterface::DEFAULT_GROUP])->end()
                             ->arrayNode('create')->canBeDisabled()->end()
                             ->arrayNode('update')->canBeDisabled()->end()
                             ->arrayNode('delete')->canBeDisabled()->end()
@@ -59,6 +57,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end()
-            ;
+        ;
     }
 }

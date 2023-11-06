@@ -4,26 +4,21 @@ declare(strict_types=1);
 
 namespace Alchemy\ReportBundle;
 
-use Alchemy\RemoteAuthBundle\Security\Token\RemoteAuthToken;
 use Alchemy\ReportSDK\ReportClient;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ReportUserService
 {
-    private ReportClient $client;
-    private Security $security;
-    private bool $enabled;
+    private readonly bool $enabled;
 
-    public function __construct(ReportClient $client, Security $security, string $reportBaseUrl)
+    public function __construct(private readonly ReportClient $client, private readonly Security $security, string $reportBaseUrl)
     {
-        $this->client = $client;
-        $this->security = $security;
         $this->enabled = !empty($reportBaseUrl);
     }
 
-    public function pushHttpRequestLog(Request $request, string $action, ?string $itemId = null, array $payload = []): void
+    public function pushHttpRequestLog(Request $request, string $action, string $itemId = null, array $payload = []): void
     {
         $payload['ip'] = $request->getClientIp();
         $payload['user_agent'] = $request->headers->get('User-Agent');
@@ -32,7 +27,7 @@ class ReportUserService
         $this->pushLog($action, $itemId, $payload);
     }
 
-    public function pushLog(string $action, ?string $itemId = null, array $payload = []): void
+    public function pushLog(string $action, string $itemId = null, array $payload = []): void
     {
         if (!$this->enabled) {
             return;
@@ -46,10 +41,8 @@ class ReportUserService
         $token = $this->security->getToken();
 
         return match (true) {
-            $token instanceof RemoteAuthToken,
-            $token instanceof PostAuthenticationGuardToken => $token->getUser()->getId(),
+            $token instanceof TokenInterface => $token->getUser()?->getId(),
             default => null,
         };
-
     }
 }

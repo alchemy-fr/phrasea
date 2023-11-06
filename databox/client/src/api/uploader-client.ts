@@ -1,6 +1,6 @@
-import {createHttpClient} from "./http-client";
 import config from "../config";
+import {createHttpClient} from "@alchemy/auth";
 
-const uploaderClient = createHttpClient(config.get('uploaderApiBaseUrl'));
+const uploaderClient = createHttpClient(config.uploaderApiBaseUrl);
 
 export default uploaderClient;

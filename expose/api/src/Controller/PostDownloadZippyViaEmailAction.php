@@ -20,18 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{id}/zippy/download-request", name="download_zippy_request_create", methods={"POST"})
- */
+#[Route(path: '/publications/{id}/zippy/download-request', name: 'download_zippy_request_create', methods: ['POST'])]
 final class PostDownloadZippyViaEmailAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private ReportUserService $reportClient;
-
-    public function __construct(EntityManagerInterface $em, ReportUserService $reportClient)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ReportUserService $reportClient)
     {
-        $this->em = $em;
-        $this->reportClient = $reportClient;
     }
 
     public function __invoke(string $id, Request $request, EventProducer $eventProducer): Response

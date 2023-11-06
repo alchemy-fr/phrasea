@@ -12,40 +12,48 @@ use Psr\Log\LoggerInterface;
 
 abstract class AbstractCachedFaker extends BaseProvider
 {
-    private FileStorageManager $fileStorageManager;
-    private PathGenerator $pathGenerator;
-    private LoggerInterface $logger;
-    private ?string $cacheDir;
+    private readonly FileStorageManager $fileStorageManager;
+    private readonly PathGenerator $pathGenerator;
 
     public function __construct(
-        string $fixturesCacheDir,
+        private readonly ?string $fixturesCacheDir,
         FileStorageManager $fileStorageManager,
         PathGenerator $pathGenerator,
         Generator $generator,
-        LoggerInterface $logger
+        private readonly LoggerInterface $logger
     ) {
         parent::__construct($generator);
-        $this->cacheDir = $fixturesCacheDir;
         $this->fileStorageManager = $fileStorageManager;
         $this->pathGenerator = $pathGenerator;
-        $this->logger = $logger;
     }
 
     protected function download(string $pathPrefix, string $cachePath, string $extension, string $url): string
     {
         $this->logger->debug(sprintf('Fetching "%s"', $url));
-        if (null !== $this->cacheDir) {
-            if (!is_dir($this->cacheDir)) {
-                mkdir($this->cacheDir);
+        if (null !== $this->fixturesCacheDir) {
+            if (!is_dir($this->fixturesCacheDir)) {
+                mkdir($this->fixturesCacheDir);
             }
-            $cacheKey = $this->cacheDir.'/'.$cachePath.'.'.$extension;
+            $cacheKey = $this->fixturesCacheDir.'/'.$cachePath.'.'.$extension;
             if (!file_exists($cacheKey)) {
-                file_put_contents($cacheKey, fopen($url, 'r'));
+                $resource = fopen($url, 'r');
+                if (!is_resource($resource)) {
+                    throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
+                }
+
+                file_put_contents($cacheKey, $resource);
+                fclose($resource);
             }
 
             $stream = fopen($cacheKey, 'r');
+            if (!is_resource($stream)) {
+                throw new \InvalidArgumentException(sprintf('Cannot open cached file "%s"', $url));
+            }
         } else {
             $stream = fopen($url, 'r');
+            if (!is_resource($stream)) {
+                throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
+            }
         }
 
         $finalPath = $this->pathGenerator->generatePath($extension, $pathPrefix.'/');

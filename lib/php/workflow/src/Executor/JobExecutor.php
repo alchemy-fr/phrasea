@@ -22,18 +22,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class JobExecutor
 {
-    private LoggerInterface $logger;
-    private OutputInterface $output;
-    private EnvContainer $envs;
+    private readonly LoggerInterface $logger;
+    private readonly OutputInterface $output;
+    private readonly EnvContainer $envs;
 
     public function __construct(
         private readonly iterable $executors,
         private readonly ActionRegistryInterface $actionRegistry,
         private readonly ExpressionParser $expressionParser,
         private readonly StateRepositoryInterface $stateRepository,
-        ?OutputInterface $output = null,
-        ?LoggerInterface $logger = null,
-        ?EnvContainer $envs = null,
+        OutputInterface $output = null,
+        LoggerInterface $logger = null,
+        EnvContainer $envs = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
@@ -71,53 +71,69 @@ class JobExecutor
             $this->stateRepository->acquireJobLock($workflowId, $jobId);
         }
 
-        $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-
-        if (null === $jobState) {
-            throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
-        }
-
-        $status = $jobState->getStatus();
-        if (JobState::STATUS_TRIGGERED !== $status && JobState::STATUS_ERROR !== $status) {
-            throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s" (got "%s")', $jobId, $workflowId, JobState::STATUS_LABELS[$status]));
-        }
-
-        $context = new JobExecutionContext(
-            $workflowState,
-            $jobState,
-            $this->output,
-            $this->envs->mergeWith($env),
-            $workflowState->getEvent()?->getInputs() ?? new Inputs()
-        );
-
-        $jobInputs = $context->getInputs()
-            ->mergeWith($this->expressionParser->evaluateArray($job->getWith()->getArrayCopy(), $context));
-        $context->replaceInputs($jobInputs);
-
-        $jobState->setInputs($jobInputs);
-
         try {
-            $shouldBeSkipped = $this->shouldBeSkipped($context, $job);
+            $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+
+            if (null === $jobState) {
+                throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
+            }
+
+            $status = $jobState->getStatus();
+            if (JobState::STATUS_TRIGGERED !== $status) {
+                throw new ConcurrencyException(sprintf('Job "%s" has not the TRIGGERED status for workflow "%s" (got "%s")', $jobId, $workflowId, JobState::STATUS_LABELS[$status]));
+            }
+
+            $context = new JobExecutionContext(
+                $workflowState,
+                $jobState,
+                $this->output,
+                $this->envs->mergeWith($env),
+                $workflowState->getEvent()?->getInputs() ?? new Inputs()
+            );
+
+            $jobInputs = $context->getInputs()
+                ->mergeWith($this->expressionParser->evaluateArray($job->getWith()->getArrayCopy(), $context));
+            $context->replaceInputs($jobInputs);
+
+            $jobState->setInputs($jobInputs);
+
+            try {
+                $shouldBeSkipped = $this->shouldBeSkipped($context, $job);
+            } catch (\Throwable $e) {
+                $error = sprintf('Error while evaluating if condition: %s', $e->getMessage());
+                $this->logger->error($error);
+                $jobState->addError($error);
+                $jobState->setStatus(JobState::STATUS_ERROR);
+                $this->persistJobState($jobState);
+
+                return;
+            }
+
+            if ($shouldBeSkipped) {
+                $jobState->setStatus(JobState::STATUS_SKIPPED);
+                $this->persistJobState($jobState);
+
+                return;
+            }
+
+            $jobState->setStatus(JobState::STATUS_RUNNING);
+            $jobState->setStartedAt(new MicroDateTime());
+            $this->persistJobState($jobState);
         } catch (\Throwable $e) {
-            $error = sprintf('Error while evaluating if condition: %s', $e->getMessage());
-            $this->logger->error($error);
-            $jobState->addError($error);
-            $jobState->setStatus(JobState::STATUS_ERROR);
-            $this->persistJobState($jobState);
+            try {
+                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                    $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                }
+            } catch (\Throwable $e2) {
+                throw new \RuntimeException(sprintf(
+                    'Error while releasing job lock after another error: %s (First error was: %s)',
+                    $e2->getMessage(),
+                    $e->getMessage(),
+                ), 0, $e);
+            }
 
-            return;
+            throw $e;
         }
-
-        if ($shouldBeSkipped) {
-            $jobState->setStatus(JobState::STATUS_SKIPPED);
-            $this->persistJobState($jobState);
-
-            return;
-        }
-
-        $jobState->setStatus(JobState::STATUS_RUNNING);
-        $jobState->setStartedAt(new MicroDateTime());
-        $this->persistJobState($jobState);
 
         $this->runJob($context, $job);
     }

@@ -1,4 +1,3 @@
-
 export type AnalyticsConfig = {
     matomo?: {
         baseUrl: string;
@@ -6,51 +5,25 @@ export type AnalyticsConfig = {
     }
 }
 
-export type TConfig = {
-    analytics?: AnalyticsConfig;
-    baseUrl: string;
-    authBaseUrl: string;
-    clientId: string;
-    clientSecret: string;
-    globalCSS: string;
-    displayServicesMenu: string;
-    dashboardBaseUrl: string;
-    disableIndexPage: string;
-}
-
-const configData = (globalThis as any as {
-    config: TConfig;
-}).config;
-
-class Config {
-    get(key: keyof TConfig) {
-        return configData[key];
-    }
-
-    set(key: keyof TConfig, value: string): any {
-        configData[key] = value;
-    }
-
-    getApiBaseUrl(): string {
-        return configData.baseUrl;
-    }
-
-    getAuthBaseUrl(): string  {
-        return configData.authBaseUrl;
-    }
-
-    getAnalytics(): AnalyticsConfig {
-        return (configData.analytics ?? {}) as AnalyticsConfig;
-    }
-
-    getClientCredential() {
-        return {
-            clientId: configData.clientId,
-            clientSecret: configData.clientSecret,
+declare global {
+    interface Window {
+        config: {
+            analytics?: AnalyticsConfig;
+            locales: string[];
+            autoConnectIdP: string | undefined | null;
+            baseUrl: string;
+            keycloakUrl: string;
+            realmName: string;
+            clientId: string;
+            displayServicesMenu: string;
+            requestSignatureTtl: string;
+            disableIndexPage: string;
+            dashboardBaseUrl: string;
+            globalCSS: string | undefined;
         };
     }
 }
 
-const config = new Config();
+const config = window.config;
 
 export default config;

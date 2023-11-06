@@ -5,25 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Rendition\Phraseanet;
 
 use App\External\PhraseanetApiClientFactory;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
+use Symfony\Component\HttpClient\MockHttpClient;
 
 class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
 {
-    private MockHandler $mock;
-    private array $container = [];
+    private readonly MockHttpClient $mockClient;
 
     public function __construct()
     {
-        $history = Middleware::history($this->container);
-        $this->mock = new MockHandler();
-        $handlerStack = HandlerStack::create($this->mock);
-        $handlerStack->push($history);
+        $this->mockClient = new MockHttpClient();
 
-        parent::__construct([
-            'handler' => $handlerStack,
-        ]);
+        parent::__construct($this->mockClient);
     }
 
     public function shiftHistory(): array
@@ -35,8 +27,8 @@ class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory
         return array_shift($this->container);
     }
 
-    public function getMock(): MockHandler
+    public function getMock(): MockHttpClient
     {
-        return $this->mock;
+        return $this->mockClient;
     }
 }

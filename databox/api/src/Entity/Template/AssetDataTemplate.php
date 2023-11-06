@@ -5,96 +5,120 @@ declare(strict_types=1);
 namespace App\Entity\Template;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\InputTransformer\AssetDataTemplateInputTransformer;
+use App\Api\Model\Input\Template\AssetDataTemplateInput;
+use App\Api\Model\Output\Template\AssetDataTemplateOutput;
+use App\Api\Provider\AssetDataTemplateCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
+use App\Entity\Core\Tag;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table()
- *
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
+#[ORM\Table]
+#[ORM\Entity]
+#[ApiResource(
+    shortName: 'asset-data-template',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => [
+                    AssetDataTemplate::GROUP_LIST,
+                    AssetDataTemplate::GROUP_READ,
+                ],
+            ],
+            security: 'is_granted("READ", object)'
+        ),
+        new Put(
+            normalizationContext: [
+                'groups' => [
+                    AssetDataTemplate::GROUP_LIST,
+                    AssetDataTemplate::GROUP_READ,
+                ],
+            ],
+            security: 'is_granted("EDIT", object)',
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new GetCollection(),
+        new Post(
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [AssetDataTemplate::GROUP_LIST],
+    ],
+    input: AssetDataTemplateInput::class,
+    output: AssetDataTemplateOutput::class,
+    provider: AssetDataTemplateCollectionProvider::class,
+    processor: AssetDataTemplateInputTransformer::class,
+)]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'adt:read';
+    final public const GROUP_LIST = 'adt:index';
 
     /**
      * Template name.
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private bool $public = false;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 36)]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $ownerId = null;
 
     /**
      * Asset title.
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Groups({"asset-data-template:read"})
      */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?string $title = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     *
-     * @Groups({"asset-data-template:read"})
-     */
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?DoctrineCollection $tags = null;
 
     /**
-     * @var TemplateAttribute[]
-     *
-     * @ORM\OneToMany(targetEntity=TemplateAttribute::class, mappedBy="template", cascade={"persist", "remove"})
-     *
-     * @Groups({"asset-data-template:read"})
+     * @var DoctrineCollection<TemplateAttribute>|null
      */
+    #[ORM\OneToMany(mappedBy: 'template', targetEntity: TemplateAttribute::class, cascade: ['persist', 'remove'])]
+    #[Groups([AssetDataTemplate::GROUP_READ])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Collection $collection = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $includeCollectionChildren = false;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $privacy = null;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: Types::JSON)]
     private array $data = [];
 
     public function __construct()
@@ -221,7 +245,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
 
     public function getCollectionId(): ?string
     {
-        return $this->collection ? $this->collection->getId() : null;
+        return $this->collection?->getId();
     }
 
     public function setIncludeCollectionChildren(bool $includeCollectionChildren): void

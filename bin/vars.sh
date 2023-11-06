@@ -1,7 +1,6 @@
 #!/bin/sh
 
 SYMFONY_PROJECTS="
-auth/api
 databox/api
 expose/api
 uploader/api
@@ -12,6 +11,7 @@ JS_PROJECTS="
 databox/client
 expose/client
 uploader/client
+databox/indexer
 "
 
 PHP_LIBS="
@@ -20,8 +20,7 @@ lib/php/api-test
 lib/php/core-bundle
 lib/php/metadata-manipulator-bundle
 lib/php/notify-bundle
-lib/php/oauth-server-bundle
-lib/php/remote-auth-bundle
+lib/php/auth-bundle
 lib/php/report-bundle
 lib/php/report-sdk
 lib/php/test-bundle

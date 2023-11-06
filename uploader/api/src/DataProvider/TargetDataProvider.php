@@ -4,41 +4,32 @@ declare(strict_types=1);
 
 namespace App\DataProvider;
 
-use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\ContextAwareCollectionDataProviderInterface;
-use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProviderInterface;
 use App\Entity\Target;
 use App\Security\Voter\TargetVoter;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-class TargetDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface
+final readonly class TargetDataProvider implements ProviderInterface
 {
-    private CollectionDataProviderInterface $inner;
-    private Security $security;
+    public function __construct(
+        private ProviderInterface $itemsProvider,
+        private Security $security
+    ) {
+    }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
         return Target::class === $resourceClass && 'get' === $operationName;
     }
 
-    public function __construct(CollectionDataProviderInterface $inner, Security $security)
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $this->inner = $inner;
-        $this->security = $security;
-    }
-
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
-        $list = $this->inner->getCollection($resourceClass, $operationName);
-
-        $items = [];
-        /* @var Target $item */
-        foreach ($list as $target) {
-            if ($this->security->isGranted(TargetVoter::READ, $target)) {
-                $items[] = $target;
-            }
+        $items = $this->itemsProvider->provide($operation, $uriVariables, $context);
+        if (!is_array($items)) {
+            $items = iterator_to_array($items);
         }
 
-        return $items;
+        return array_values(array_filter($items, fn (Target $target): bool => $this->security->isGranted(TargetVoter::READ, $target)));
     }
 }

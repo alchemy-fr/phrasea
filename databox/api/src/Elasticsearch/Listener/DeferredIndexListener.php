@@ -9,13 +9,20 @@ use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
 use App\Entity\SearchDeleteDependencyInterface;
 use App\Entity\SearchDependencyInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\PersistentCollection;
 
+#[AsDoctrineListener(Events::preRemove)]
+#[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::postPersist)]
+#[AsDoctrineListener(Events::onFlush)]
 class DeferredIndexListener implements EventSubscriber
 {
     private static bool $enabled = true;
@@ -59,7 +66,7 @@ class DeferredIndexListener implements EventSubscriber
     /**
      * Looks for new objects that should be indexed.
      */
-    public function postPersist(LifecycleEventArgs $eventArgs): void
+    public function postPersist(PostPersistEventArgs $eventArgs): void
     {
         if (!self::$enabled) {
             return;
@@ -77,7 +84,7 @@ class DeferredIndexListener implements EventSubscriber
     /**
      * Looks for objects being updated that should be indexed or removed from the index.
      */
-    public function postUpdate(LifecycleEventArgs $eventArgs): void
+    public function postUpdate(PostUpdateEventArgs $eventArgs): void
     {
         if (!self::$enabled) {
             return;
@@ -97,7 +104,7 @@ class DeferredIndexListener implements EventSubscriber
     /**
      * Delete objects preRemove instead of postRemove so that we have access to the id.
      */
-    public function preRemove(LifecycleEventArgs $eventArgs): void
+    public function preRemove(PreRemoveEventArgs $eventArgs): void
     {
         if (!self::$enabled) {
             return;
@@ -112,7 +119,7 @@ class DeferredIndexListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $uow = $args->getEntityManager()->getUnitOfWork();
+        $uow = $args->getObjectManager()->getUnitOfWork();
 
         foreach ($uow->getScheduledCollectionDeletions() as $collection) {
             if ($collection instanceof PersistentCollection) {
@@ -192,7 +199,7 @@ class DeferredIndexListener implements EventSubscriber
         return true;
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::preRemove,

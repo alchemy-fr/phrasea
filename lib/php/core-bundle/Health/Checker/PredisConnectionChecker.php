@@ -7,13 +7,10 @@ namespace Alchemy\CoreBundle\Health\Checker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Predis\Client;
 
-class PredisConnectionChecker implements HealthCheckerInterface
+final readonly class PredisConnectionChecker implements HealthCheckerInterface
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private Client $client)
     {
-        $this->client = $client;
     }
 
     public function getName(): string

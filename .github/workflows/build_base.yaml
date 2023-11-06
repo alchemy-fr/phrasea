@@ -9,6 +9,9 @@ on:
       context:
         required: true
         type: string
+      target:
+        required: false
+        type: string
 
 env:
   COMPOSE_PROJECT_NAME: build
@@ -34,13 +37,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build and push
+      - name: Build and Push
         uses: docker/build-push-action@v4
         with:
           context: ${{ inputs.context }}
+          target: ${{ inputs.target }}
           file: ${{ inputs.context }}/Dockerfile
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
+          build-args: |
+            BASE_TAG=${{ env.DOCKER_TAG }}
+            REGISTRY_NAMESPACE=${{ env.REGISTRY_NAMESPACE }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:${{ env.DOCKER_TAG }}

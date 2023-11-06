@@ -8,15 +8,11 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class Basket extends AbstractUuidEntity
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private Collection $collection;
 
     public function getTitle(): ?string

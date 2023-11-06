@@ -4,28 +4,21 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Form;
 
-use Alchemy\RemoteAuthBundle\Client\AdminClient;
-use Alchemy\RemoteAuthBundle\Client\AuthServiceClient;
+use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class GroupChoiceType extends AbstractType
 {
-    private AdminClient $adminClient;
-    private AuthServiceClient $authServiceClient;
-
-    public function __construct(AdminClient $adminClient, AuthServiceClient $authServiceClient)
+    public function __construct(private readonly ServiceAccountClient $serviceAccountClient, private readonly KeycloakClient $authServiceClient)
     {
-        $this->adminClient = $adminClient;
-        $this->authServiceClient = $authServiceClient;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $groups = $this->adminClient->executeWithAccessToken(function (string $accessToken): array {
-            return $this->authServiceClient->getGroups($accessToken);
-        });
+        $groups = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getGroups($accessToken));
         $choices = [];
         foreach ($groups as $group) {
             $choices[$group['name']] = $group['id'];
@@ -37,7 +30,7 @@ class GroupChoiceType extends AbstractType
         );
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

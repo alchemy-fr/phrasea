@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class NotFoundAction extends AbstractController
 {
-    public function __invoke(): void
+    public function __invoke(): never
     {
         throw new NotFoundHttpException('API route not defined');
     }

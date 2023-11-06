@@ -13,9 +13,13 @@ const logger = createLogger('http');
 
 export function createHttpClient({
                                      verifySSL = true,
-                                     retries = 20,
+                                     retries = 10,
                                      ...rest
                                  }: Options): AxiosInstance {
+    if (false === verifySSL) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
+
     const client = axios.create({
         timeout: 30000,
         headers: {

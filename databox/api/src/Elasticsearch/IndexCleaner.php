@@ -7,10 +7,13 @@ namespace App\Elasticsearch;
 use Elastica\Index;
 use FOS\ElasticaBundle\Elastica\Client;
 
-class IndexCleaner
+readonly class IndexCleaner
 {
-    public function __construct(private readonly Client $client, private readonly Index $assetIndex, private readonly Index $collectionIndex)
-    {
+    public function __construct(
+        private Client $client,
+        private Index $assetIndex,
+        private Index $collectionIndex
+    ) {
     }
 
     public function removeWorkspaceFromIndex(string $workspaceId): void

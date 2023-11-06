@@ -12,10 +12,10 @@ use App\Entity\TargetParams;
 use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\Test\TestLogger;
 
 class CommitHandlerTest extends TestCase
 {
@@ -44,11 +44,8 @@ class CommitHandlerTest extends TestCase
             ->expects($this->once())
             ->method('publish')
             ->with(
-                $this->callback(function ($subject) {
-                    return $subject instanceof EventMessage
-                        && is_string($subject->getPayload()['id'])
-                        ;
-                })
+                $this->callback(fn ($subject) => $subject instanceof EventMessage
+                    && is_string($subject->getPayload()['id']))
             );
 
         $assetManager = $this->createMock(AssetManager::class);

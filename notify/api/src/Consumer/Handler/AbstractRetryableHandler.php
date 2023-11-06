@@ -7,18 +7,16 @@ namespace App\Consumer\Handler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Throwable;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 {
     protected static int $retryCount = 2;
 
-    const RETRY_KEY = '_retry';
+    final public const RETRY_KEY = '_retry';
     protected EventProducer $eventProducer;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer): void
     {
         $this->eventProducer = $eventProducer;
@@ -30,7 +28,7 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 
         try {
             $this->doHandle($payload);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             if ($this->isRetryableException($e)) {
                 $retry = $payload[self::RETRY_KEY] ?? [];
                 $retryCount = ($retry['count'] ?? 0) + 1;
@@ -39,8 +37,8 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
                     $this->logger->error(sprintf(
                         'Retrying event: %s (%s): %s: %s',
                         $message->getType(),
-                        json_encode($payload),
-                        get_class($e),
+                        json_encode($payload, JSON_THROW_ON_ERROR),
+                        $e::class,
                         $e->getMessage()
                     ));
 
@@ -50,7 +48,7 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
                             self::RETRY_KEY => [
                                 'count' => $retryCount,
                                 'exception' => [
-                                    'class' => get_class($e),
+                                    'class' => $e::class,
                                     'message' => $e->getMessage(),
                                 ],
                             ],
@@ -67,5 +65,5 @@ abstract class AbstractRetryableHandler extends AbstractEntityManagerHandler
 
     abstract protected function doHandle(array $payload): void;
 
-    abstract protected function isRetryableException(Throwable $e): bool;
+    abstract protected function isRetryableException(\Throwable $e): bool;
 }

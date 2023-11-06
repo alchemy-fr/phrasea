@@ -14,19 +14,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SendEmailCommand extends Command
 {
-    private EventProducer $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private readonly EventProducer $eventProducer)
     {
         parent::__construct();
-
-        $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -40,17 +33,14 @@ class SendEmailCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $template = $input->getArgument('template');
         $email = $input->getArgument('email');
         $locale = $input->getArgument('locale');
 
         if ($input->getArgument('parameters')) {
-            $parameters = json_decode($input->getArgument('parameters'), true);
+            $parameters = json_decode((string) $input->getArgument('parameters'), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $parameters = [];
         }

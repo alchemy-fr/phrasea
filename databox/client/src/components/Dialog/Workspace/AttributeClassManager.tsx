@@ -32,10 +32,16 @@ function Item({
         control,
         watch,
         setValue,
+        reset,
         formState: {errors, isDirty}
     } = useForm<any>({
         defaultValues: data,
     });
+
+    React.useEffect(() => {
+        reset(data);
+    }, [data]);
+
     useDirtyFormPrompt(isDirty);
 
     const isPublic = watch('public');

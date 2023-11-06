@@ -12,7 +12,7 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
 {
     private const WORKFLOW_FILENAME = '__workflow';
     private const JOB_PREFIX = 'job::';
-    private string $path;
+    private readonly string $path;
 
     private array $fileDescriptors = [];
 

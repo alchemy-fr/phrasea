@@ -4,21 +4,23 @@ declare(strict_types=1);
 
 namespace App\Doctrine;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\ContextAwareQueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\CollectionOperationInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Asset;
 use Doctrine\ORM\QueryBuilder;
 
-class AssetsExtension implements ContextAwareQueryCollectionExtensionInterface
+class AssetsExtension implements QueryCollectionExtensionInterface
 {
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null,
+        Operation $operation = null,
         array $context = []
-    ) {
-        if ($resourceClass !== Asset::class || !($context['collection'] ?? false)) {
+    ): void {
+        if (Asset::class !== $resourceClass || !($context['operation'] instanceof CollectionOperationInterface)) {
             return;
         }
 

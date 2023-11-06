@@ -12,12 +12,12 @@ class AttributeDefinitionInput
     /**
      * @var Workspace
      */
-    public $workspace = null;
+    public $workspace;
 
     /**
      * @var AttributeClass
      */
-    public $class = null;
+    public $class;
 
     /**
      * Target definition by name. Or use $definition.

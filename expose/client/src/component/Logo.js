@@ -2,12 +2,12 @@ import React from 'react';
 import config from '../lib/config';
 
 export function Logo() {
-    const title = config.get('clientLogoAlt') || 'Expose.';
+    const title = config.clientLogoAlt || 'Expose.';
 
-    if (config.get('clientLogoUrl')) {
+    if (config.clientLogoUrl) {
         return <div className="exp-logo">
                 <img
-                src={config.get('clientLogoUrl')}
+                src={config.clientLogoUrl}
                 alt={title}
             />
         </div>

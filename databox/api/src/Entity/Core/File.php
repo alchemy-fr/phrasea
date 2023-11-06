@@ -4,91 +4,86 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use App\Api\Model\Output\FileOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- *
- * @ApiResource()
- */
+#[ApiResource(
+    shortName: 'file',
+    operations: [
+
+    ],
+    normalizationContext: [
+        'groups' => [File::GROUP_LIST],
+    ],
+    denormalizationContext: [
+        'groups' => [File::GROUP_WRITE],
+    ],
+    output: FileOutput::class
+)]
+#[ORM\Entity]
 class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'file:read';
+    final public const GROUP_LIST = 'file:index';
+    final public const GROUP_WRITE = 'file:write';
     final public const STORAGE_S3_MAIN = 's3_main';
     final public const STORAGE_URL = 'url';
 
     /**
      * Override trait for annotation.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="files")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'files')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     /**
      * The MIME type.
-     *
-     * @ORM\Column(type="string", length=100, nullable=true)
      */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=true)
-     */
+    #[ORM\Column(type: Types::BIGINT, nullable: true)]
     private ?int $size = null;
 
-    /**
-     * @ORM\Column(type="string", length=64, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $checksum = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $path = null;
 
     /**
      * Is path accessible from browser.
-     *
-     * @ORM\Column(type="boolean", nullable=false)
      */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $pathPublic = true;
 
-    /**
-     * @ORM\Column(type="string", length=150, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: false)]
     private ?string $storage = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $originalName = null;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     private ?string $extension = null;
 
-    /**
-     * @ORM\Column(type="array", nullable=true)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $alternateUrls = null;
 
     /**
      * Normalized metadata.
-     *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $metadata = null;
 
     public function getPath(): ?string

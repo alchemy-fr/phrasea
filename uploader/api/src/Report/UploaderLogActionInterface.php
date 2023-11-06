@@ -6,5 +6,5 @@ namespace App\Report;
 
 interface UploaderLogActionInterface
 {
-    const UPLOAD_COMMIT = 'upload_commit';
+    public const UPLOAD_COMMIT = 'upload_commit';
 }

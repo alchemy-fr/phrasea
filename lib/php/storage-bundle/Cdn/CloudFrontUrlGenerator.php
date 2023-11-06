@@ -18,15 +18,14 @@ class CloudFrontUrlGenerator
     public function __construct(
         CloudFrontClient $cloudFrontClient,
         int $ttl,
-        ?string $cloudFrontUrl = null,
-        ?string $cloudFrontPrivateKey = null,
-        ?string $cloudFrontKeyPairId = null,
+        string $cloudFrontUrl = null,
+        string $cloudFrontPrivateKey = null,
+        string $cloudFrontKeyPairId = null,
         string $pathPrefix = ''
-    )
-    {
+    ) {
         $this->cloudFrontClient = $cloudFrontClient;
         $this->cloudFrontUrl = $cloudFrontUrl;
-        if ($cloudFrontPrivateKey && strpos($cloudFrontPrivateKey, '-----BEGIN ') === false) {
+        if ($cloudFrontPrivateKey && false === strpos($cloudFrontPrivateKey, '-----BEGIN ')) {
             $cloudFrontPrivateKey = sprintf("-----BEGIN RSA PRIVATE KEY-----\n%s\n-----END RSA PRIVATE KEY-----\n", $cloudFrontPrivateKey);
             $cloudFrontPrivateKey = str_replace('\n', "\n", $cloudFrontPrivateKey);
         }

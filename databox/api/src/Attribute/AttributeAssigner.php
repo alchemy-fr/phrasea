@@ -10,13 +10,13 @@ use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Util\LocaleUtils;
 
-class AttributeAssigner
+final readonly class AttributeAssigner
 {
-    public function __construct(private readonly AttributeTypeRegistry $attributeTypeRegistry)
+    public function __construct(private AttributeTypeRegistry $attributeTypeRegistry)
     {
     }
 
-    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): AbstractBaseAttribute
+    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): void
     {
         if ($data instanceof AbstractExtendedAttributeInput) {
             assert($attribute instanceof Attribute);
@@ -53,9 +53,11 @@ class AttributeAssigner
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
         $value = $type->normalizeValue($data->value);
 
+        if (null === $value) {
+            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s")', $type::getName(), get_debug_type($data->value)));
+        }
+
         $attribute->setValue($value);
         $attribute->setPosition($data->position ?? 0);
-
-        return $attribute;
     }
 }

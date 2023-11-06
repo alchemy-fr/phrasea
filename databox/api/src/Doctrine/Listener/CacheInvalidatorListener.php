@@ -6,21 +6,28 @@ namespace App\Doctrine\Listener;
 
 use App\Entity\AbstractUuidEntity;
 use App\Repository\Cache\CacheRepositoryInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
-class CacheInvalidatorListener implements EventSubscriber
+#[AsDoctrineListener(Events::preRemove)]
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::preUpdate)]
+readonly class CacheInvalidatorListener implements EventSubscriber
 {
-    public function __construct(private readonly PostFlushStack $postFlushStack)
+    public function __construct(private PostFlushStack $postFlushStack)
     {
     }
 
     private function invalidateEntity(LifecycleEventArgs $args): void
     {
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
 
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof AbstractUuidEntity) {
             $repo = $em->getRepository($entity::class);
@@ -34,22 +41,22 @@ class CacheInvalidatorListener implements EventSubscriber
         }
     }
 
-    public function preRemove(LifecycleEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }
 
-    public function prePersist(LifecycleEventArgs $args): void
+    public function prePersist(PrePersistEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }
 
-    public function preUpdate(LifecycleEventArgs $args): void
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
         $this->invalidateEntity($args);
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::preRemove,

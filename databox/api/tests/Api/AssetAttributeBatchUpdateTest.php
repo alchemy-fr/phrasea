@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -90,7 +90,6 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             'attributes' => $attrAssertions,
         ]);
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
-        $this->assertMatchesResourceItemJsonSchema(Asset::class);
     }
 
     private function assetBatchAction(array $actions): ResponseInterface
@@ -103,7 +102,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return static::createClient()->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => $actions,
@@ -122,14 +121,12 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $replacedDesc['Description'] = 'This is a replaced test.';
 
         $replacedAll = self::$defaultAttributes;
-        $repl = function (string $str): string {
-            return str_replace(' is', ' IS', $str);
-        };
+        $repl = fn (string $str): string => str_replace(' is', ' IS', $str);
         $replacedAll['Description'] = $repl($replacedAll['Description']);
         $replacedAll['Keywords'] = array_map($repl, $replacedAll['Keywords']);
 
-//        $regexDesc = self::$defaultAttributes;
-//        $regexDesc['Description'] = 'This is a de!scription te!st.';
+        //        $regexDesc = self::$defaultAttributes;
+        //        $regexDesc['Description'] = 'This is a de!scription te!st.';
 
         return [
             [

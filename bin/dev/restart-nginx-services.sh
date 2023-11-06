@@ -6,7 +6,6 @@ set -e
 load-env
 
 docker compose restart \
-  auth-api-nginx \
   databox-api-nginx \
   expose-api-nginx \
   notify-api-nginx \

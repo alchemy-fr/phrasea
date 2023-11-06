@@ -8,7 +8,7 @@ export default class Languages extends Component {
     };
 
     render() {
-        const locales = config.getAvailableLocales();
+        const locales = config.locales;
 
         if (locales.length <= 1) {
             return null;

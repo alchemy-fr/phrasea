@@ -6,13 +6,8 @@ namespace Alchemy\AdminBundle;
 
 class AdminConfigRegistry
 {
-    private string $siteTitle;
-    private ?string $siteLogo;
-
-    public function __construct(string $siteTitle, ?string $siteLogo)
+    public function __construct(private readonly string $siteTitle, private readonly ?string $siteLogo)
     {
-        $this->siteTitle = $siteTitle;
-        $this->siteLogo = $siteLogo;
     }
 
     public function getLayoutParams(): array

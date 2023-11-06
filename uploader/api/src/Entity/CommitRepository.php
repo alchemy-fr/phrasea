@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 class CommitRepository extends EntityRepository
@@ -12,7 +11,7 @@ class CommitRepository extends EntityRepository
     /**
      * @return Commit[]
      */
-    public function getAcknowledgedBefore(DateTime $date): array
+    public function getAcknowledgedBefore(\DateTimeImmutable $date): array
     {
         return $this
             ->createQueryBuilder('c')

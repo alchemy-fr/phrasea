@@ -16,7 +16,7 @@ class IntegrationExtension extends AbstractExtension
     {
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('get_integration_options', $this->getIntegrationOptions(...)),

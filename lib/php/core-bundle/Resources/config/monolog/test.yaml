@@ -1,7 +1,12 @@
 monolog:
-  handlers:
-    nested:
-      type: stream
-      path: "%kernel.logs_dir%/%kernel.environment%.log"
-      level: debug
-      formatter: alchemy_core.monolog.line_formatter_stack_trace
+    handlers:
+        nested:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.log"
+            level: debug
+            formatter: alchemy_core.monolog.line_formatter_stack_trace
+        test:
+            type: test
+            level: debug
+            process_psr_3_messages: false
+            channels: ["!event", "!doctrine"]

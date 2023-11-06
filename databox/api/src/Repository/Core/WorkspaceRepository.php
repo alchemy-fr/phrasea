@@ -38,7 +38,7 @@ class WorkspaceRepository extends EntityRepository
         );
     }
 
-    private function createAllowedWorkspacesQueryBuilder(string $userId, ?array $groupIds = null): QueryBuilder
+    private function createAllowedWorkspacesQueryBuilder(string $userId, array $groupIds = null): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('w');
 

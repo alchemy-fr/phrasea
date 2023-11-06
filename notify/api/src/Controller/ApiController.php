@@ -10,55 +10,43 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/", methods={"POST"})
- */
+#[Route(path: '/', methods: ['POST'])]
 class ApiController extends AbstractController
 {
-    /**
-     * @Route("/send-email")
-     */
-    public function sendEmail(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    #[Route(path: '/send-email')]
+    public function sendEmail(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->sendEmail($request);
 
         return new JsonResponse(true);
     }
 
-    /**
-     * @Route("/notify-user")
-     */
-    public function notifyUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    #[Route(path: '/notify-user')]
+    public function notifyUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->notifyUser($request);
 
         return new JsonResponse(true);
     }
 
-    /**
-     * @Route("/notify-topic/{topic}")
-     */
-    public function notifyTopic(string $topic, Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    #[Route(path: '/notify-topic/{topic}')]
+    public function notifyTopic(string $topic, Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->notifyTopic($topic, $request);
 
         return new JsonResponse(true);
     }
 
-    /**
-     * @Route("/register-user")
-     */
-    public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    #[Route(path: '/register-user')]
+    public function registerUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->registerUser($request);
 
         return new JsonResponse(true);
     }
 
-    /**
-     * @Route("/delete-user")
-     */
-    public function deleteUser(Request $request, MailerRabbitProxy $mailerRabbitProxy)
+    #[Route(path: '/delete-user')]
+    public function deleteUser(Request $request, MailerRabbitProxy $mailerRabbitProxy): JsonResponse
     {
         $mailerRabbitProxy->deleteUser($request);
 

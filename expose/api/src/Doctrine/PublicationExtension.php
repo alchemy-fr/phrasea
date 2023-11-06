@@ -6,41 +6,41 @@ namespace App\Doctrine;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\ContextAwareQueryCollectionExtensionInterface;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Publication;
+use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-class PublicationExtension implements ContextAwareQueryCollectionExtensionInterface
+class PublicationExtension implements QueryCollectionExtensionInterface
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null,
+        Operation $operation = null,
         array $context = []
-    ) {
+    ): void {
         if (Publication::class !== $resourceClass) {
             return;
         }
 
         $user = $this->security->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         if (
-            !$this->security->isGranted('ROLE_ADMIN')
-            && !$this->security->isGranted('ROLE_PUBLISH')
+            !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+            && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
         ) {
             $queryBuilder->leftJoin($rootAlias.'.profile', 'p');
 
@@ -55,7 +55,7 @@ class PublicationExtension implements ContextAwareQueryCollectionExtensionInterf
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,
                     $user->getId(),
-                    $user->getGroupIds(),
+                    $user->getGroups(),
                     'publication',
                     $rootAlias,
                     PermissionInterface::EDIT,

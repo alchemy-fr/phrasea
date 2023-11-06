@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
@@ -19,28 +19,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreateAssetAction extends AbstractController
 {
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        FileStorageManager $storageManager,
-        AssetManager $assetManager,
-        UploadManager $uploadManager,
-        PathGenerator $pathGenerator,
-        EntityManagerInterface $em
-    ) {
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
-        $this->em = $em;
+    public function __construct(private readonly FileStorageManager $storageManager, private readonly AssetManager $assetManager, private readonly UploadManager $uploadManager, private readonly PathGenerator $pathGenerator, private readonly EntityManagerInterface $em)
+    {
     }
 
     public function __invoke(Request $request): Asset
     {
+        $targetId = null;
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug,
@@ -55,7 +40,7 @@ final class CreateAssetAction extends AbstractController
             throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
         }
 
-        if ($request->request->get('multipart')) {
+        if ($request->request->all('multipart')) {
             return $this->handleMultipartUpload($request, $target);
         }
 
@@ -81,7 +66,7 @@ final class CreateAssetAction extends AbstractController
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
@@ -91,7 +76,7 @@ final class CreateAssetAction extends AbstractController
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getSize(),
             $user->getId(),
-            $request->request->get('data')
+            $request->request->all('data')
         );
     }
 
@@ -99,7 +84,7 @@ final class CreateAssetAction extends AbstractController
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         return $this->assetManager->createAsset(
@@ -109,7 +94,7 @@ final class CreateAssetAction extends AbstractController
             $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
             $user->getId(),
-            $request->request->get('data')
+            $request->request->all('data')
         );
     }
 }

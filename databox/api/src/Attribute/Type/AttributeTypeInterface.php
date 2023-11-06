@@ -6,10 +6,14 @@ namespace App\Attribute\Type;
 
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+#[AutoconfigureTag(self::TAG)]
 interface AttributeTypeInterface
 {
+    final public const TAG = 'app.attribute_type';
+
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
@@ -29,8 +33,6 @@ interface AttributeTypeInterface
 
     /**
      * De-normalize value from database to PHP.
-     *
-     * @return mixed
      */
     public function denormalizeValue(?string $value);
 
@@ -46,8 +48,6 @@ interface AttributeTypeInterface
 
     /**
      * Normalize value from database to ES index.
-     *
-     * @return mixed
      */
     public function normalizeElasticsearchValue(?string $value);
 

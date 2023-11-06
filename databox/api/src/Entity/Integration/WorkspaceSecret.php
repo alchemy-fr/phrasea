@@ -4,37 +4,33 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_key",columns={"workspace_id", "name"})})
- *
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_key', columns: ['workspace_id', 'name'])]
+#[ORM\Entity]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class WorkspaceSecret extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     *
-     * @Groups({"secret:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    #[Groups(['secret:index'])]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     */
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     private ?string $value = null;
 
     private ?string $plainValue = null;

@@ -1,4 +1,5 @@
 import Cookies from 'universal-cookie';
+
 const passwordCookieName = 'passwds';
 const termsCookieName = 'terms';
 

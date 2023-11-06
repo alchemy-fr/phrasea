@@ -18,9 +18,11 @@
   "scripts": {
     "start": "node --enable-source-maps dist/index.js",
     "console": "node --enable-source-maps dist/console.js",
+    "console:dev": "ts-node --files ./src/console.ts",
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",
+    "postinstall": "cd ./__lib/auth && yarn install && yarn build-commonjs && rm -rf node_modules",
     "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "chokidar": "^3.5.3",
     "commander": "^9.0.0",
     "express": "^4.17.1",
+    "@alchemy/auth": "link:./__lib/auth",
     "minio": "^7.0.26",
     "winston": "^3.5.1"
   }

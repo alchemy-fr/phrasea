@@ -4,31 +4,28 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use ApiPlatform\Core\EventListener\EventPriorities;
+use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-final class CacheListener implements EventSubscriberInterface
+final readonly class CacheListener implements EventSubscriberInterface
 {
-    private const CACHE_ATTR = '_cache';
-    private SessionInterface $session;
+    private const CACHE_ATTR = '__cache';
 
-    public function __construct(SessionInterface $session)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->session = $session;
     }
 
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::VIEW => ['setCacheHeaders', EventPriorities::PRE_SERIALIZE],
-            KernelEvents::RESPONSE => 'applyCache',
         ];
     }
 
@@ -54,8 +51,13 @@ final class CacheListener implements EventSubscriberInterface
             return;
         }
 
-        if ($this->session->isStarted()) {
-            return;
+        try {
+            $session = $this->requestStack->getSession();
+            if ($session->isStarted()) {
+                return;
+            }
+        } catch (SessionNotFoundException) {
+            // continue
         }
 
         if ($request->headers->has('Authorization')) {
@@ -73,18 +75,5 @@ final class CacheListener implements EventSubscriberInterface
     {
         return $publication->isVisible()
             && Publication::SECURITY_METHOD_NONE === $publication->getSecurityContainer()->getSecurityMethod();
-    }
-
-    public function applyCache(ResponseEvent $event): void
-    {
-        $request = $event->getRequest();
-
-        if (null !== $cache = $request->attributes->get(self::CACHE_ATTR)) {
-            $response = $event->getResponse();
-
-            if ($response->getStatusCode() < 300) {
-                $response->setCache($cache);
-            }
-        }
     }
 }

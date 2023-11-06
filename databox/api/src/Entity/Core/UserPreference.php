@@ -7,24 +7,19 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class UserPreference extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    /**
-     * @ORM\Column(type="string", length=36, nullable=false, unique=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 36, unique: true, nullable: false)]
     private ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $data = [];
 
     public function getUserId(): ?string

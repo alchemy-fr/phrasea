@@ -202,13 +202,11 @@ class AssetSearchTest extends AbstractSearchTest
             '/assets?query='.urlencode($queryString)
         );
 
-        $getMessage = function (string $m) use ($queryString, $expectedResults): string {
-            return sprintf('%s [case "%s", ["%s"]]',
-                $m,
-                $queryString,
-                implode('", "', $expectedResults)
-            );
-        };
+        $getMessage = fn (string $m): string => sprintf('%s [case "%s", ["%s"]]',
+            $m,
+            $queryString,
+            implode('", "', $expectedResults)
+        );
 
         $data = $this->getDataFromResponse($response, 200);
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));

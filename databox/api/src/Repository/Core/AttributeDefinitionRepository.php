@@ -10,7 +10,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
 {
@@ -54,25 +54,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
                     'w_ace'
                 );
                 $queryBuilder->andWhere('c.public = true OR ac_ace.id IS NOT NULL');
-                $queryBuilder->andWhere('w.public = true OR w_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('w.public = true OR w.ownerId = :uid OR w_ace.id IS NOT NULL');
+                $queryBuilder->setParameter('uid', $userId);
             } else {
                 $queryBuilder->andWhere('c.public = true');
                 $queryBuilder->andWhere('w.public = true');
-            }
-
-            if (null !== $userId) {
-                AccessControlEntryRepository::joinAcl(
-                    $queryBuilder,
-                    $userId,
-                    $groupIds,
-                    'attribute_class',
-                    'c',
-                    PermissionInterface::VIEW,
-                    false
-                );
-                $queryBuilder->andWhere('c.public = true OR ace.id IS NOT NULL');
-            } else {
-                $queryBuilder->andWhere('c.public = true');
             }
         }
 

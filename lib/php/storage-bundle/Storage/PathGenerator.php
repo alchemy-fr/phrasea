@@ -24,5 +24,4 @@ class PathGenerator
 
         return $prefix.$path;
     }
-
 }

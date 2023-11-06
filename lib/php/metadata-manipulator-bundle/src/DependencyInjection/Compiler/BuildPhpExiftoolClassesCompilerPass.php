@@ -10,19 +10,19 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class BuildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $dir = $container->getParameter('alchemy_mm.classes_directory');
         $container->getParameterBag()->remove('alchemy_mm.classes_directory');
         @mkdir($dir, 0755, true);
-        if(!is_dir($dir) || !is_writable($dir)) {
+        if (!is_dir($dir) || !is_writable($dir)) {
             throw new BadConfigurationException(sprintf('Cannot access/create classes_directory "%s".', $dir));
         }
 
         /** @var MetadataManipulator $mm */
         $mm = $container->get(MetadataManipulator::class);
 
-        if (!file_exists($mm->getClassesDirectory() . '/TagGroup/Helper.php')) {
+        if (!file_exists($mm->getClassesDirectory().'/TagGroup/Helper.php')) {
             $mm->getPhpExifTool()->generateClasses([InformationDumper::LISTOPTION_MWG]);
         }
     }

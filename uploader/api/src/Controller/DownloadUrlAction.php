@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Consumer\Handler\DownloadHandler;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
@@ -19,29 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class DownloadUrlAction extends AbstractController
 {
-    private $validator;
-    private $resourceMetadataFactory;
-
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    /**
-     * @var FormValidator
-     */
-    private $formValidator;
-
     public function __construct(
-        ValidatorInterface $validator,
-        ResourceMetadataFactoryInterface $resourceMetadataFactory,
-        EventProducer $eventProducer,
-        FormValidator $formValidator
+        private readonly EventProducer $eventProducer,
+        private readonly FormValidator $formValidator
     ) {
-        $this->validator = $validator;
-        $this->resourceMetadataFactory = $resourceMetadataFactory;
-        $this->eventProducer = $eventProducer;
-        $this->formValidator = $formValidator;
     }
 
     public function __invoke(DownloadUrl $data, Request $request, ValidateFormAction $validateFormAction): Response
@@ -51,7 +30,7 @@ final class DownloadUrlAction extends AbstractController
             return new JsonResponse(['errors' => $errors]);
         }
 
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
         $this->eventProducer->publish(new EventMessage(DownloadHandler::EVENT, [

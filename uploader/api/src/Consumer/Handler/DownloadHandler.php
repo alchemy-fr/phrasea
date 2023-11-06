@@ -12,32 +12,20 @@ use App\Storage\AssetManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use GuzzleHttp\Client;
-use InvalidArgumentException;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class DownloadHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'download';
-
-    private Client $client;
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private EventProducer $eventProducer;
-    private PathGenerator $pathGenerator;
+    final public const EVENT = 'download';
 
     public function __construct(
-        FileStorageManager $storageManager,
-        Client $client,
-        AssetManager $assetManager,
-        EventProducer $eventProducer,
-        PathGenerator $pathGenerator
+        private readonly FileStorageManager $storageManager,
+        private readonly HttpClientInterface $client,
+        private readonly AssetManager $assetManager,
+        private readonly EventProducer $eventProducer,
+        private readonly PathGenerator $pathGenerator
     ) {
-        $this->client = $client;
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->eventProducer = $eventProducer;
-        $this->pathGenerator = $pathGenerator;
     }
 
     public function handle(EventMessage $message): void
@@ -50,9 +38,9 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $locale = $payload['locale'];
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
-        $contentType = $headers['Content-Type'][0] ?? 'application/octet-stream';
+        $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
 
-        $originalName = basename(explode('?', $url, 2)[0]);
+        $originalName = basename(explode('?', (string) $url, 2)[0]);
         if (isset($headers['Content-Disposition'][0])) {
             $contentDisposition = $headers['Content-Disposition'][0];
             if (preg_match('#\s+filename="(.+?)"#', $contentDisposition, $regs)) {
@@ -70,15 +58,16 @@ class DownloadHandler extends AbstractEntityManagerHandler
 
         $path = $this->pathGenerator->generatePath($extension);
 
-        $this->storageManager->store($path, $response->getBody()->getContents());
+        $content = $response->getContent();
+        $size = strlen($content);
+        $this->storageManager->store($path, $content);
 
         $em = $this->getEntityManager();
         $target = $em->find(Target::class, $targetId);
         if (!$target instanceof Target) {
-            throw new InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
+            throw new \InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
         }
 
-        $size = $response->getBody()->getSize();
         $asset = $this->assetManager->createAsset(
             $target,
             $path,

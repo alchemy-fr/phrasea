@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
@@ -33,7 +32,7 @@ class CollectionSearch extends AbstractSearch
 
         $query = new Query();
         $query->setQuery($filterQuery);
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setSort([
             'sortName' => ['order' => 'asc'],
         ]);
@@ -139,30 +138,5 @@ class CollectionSearch extends AbstractSearch
     private function findCollections(array $ids): array
     {
         return $this->findEntityByIds(Collection::class, $ids);
-    }
-
-    private function findCollection(string $id): Collection
-    {
-        return $this->em->find(Collection::class, $id);
-    }
-
-    /**
-     * @return Workspace[]
-     */
-    private function findWorkspaces(array $ids): array
-    {
-        return $this->findEntityByIds(Workspace::class, $ids);
-    }
-
-    private function findEntityByIds(string $entityName, array $ids): array
-    {
-        return $this->em
-            ->createQueryBuilder()
-            ->select('t')
-            ->from($entityName, 't')
-            ->where('t.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
     }
 }

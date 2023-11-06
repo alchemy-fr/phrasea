@@ -6,21 +6,23 @@ namespace App\Filter;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Core\Exception\InvalidArgumentException;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\Operation;
+use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
-class PublicationFilter extends AbstractContextAwareFilter
+class PublicationFilter extends AbstractFilter
 {
     private Security $security;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;
@@ -32,18 +34,20 @@ class PublicationFilter extends AbstractContextAwareFilter
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null
-    ) {
+        Operation $operation = null,
+        array $context = []
+    ): void {
+
     }
 
     public function apply(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null,
+        Operation $operation = null,
         array $context = []
-    ) {
-        parent::apply($queryBuilder, $queryNameGenerator, $resourceClass, $operationName, $context);
+    ): void {
+        parent::apply($queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);
 
         $filters = $context['filters'];
 
@@ -87,7 +91,7 @@ class PublicationFilter extends AbstractContextAwareFilter
 
         if (isset($filters['mine']) && true === $this->normalizeBoolValue($filters['mine'], 'mine')) {
             $user = $this->security->getUser();
-            if (!$user instanceof RemoteUser) {
+            if (!$user instanceof JwtUser) {
                 throw new AuthenticationException('User must be authenticated');
             }
             $queryBuilder
@@ -97,18 +101,18 @@ class PublicationFilter extends AbstractContextAwareFilter
 
         if (isset($filters['editable']) && true === $this->normalizeBoolValue($filters['editable'], 'editable')) {
             if (
-                !$this->security->isGranted('ROLE_ADMIN')
-                && !$this->security->isGranted('ROLE_PUBLISH')
+                !$this->security->isGranted(JwtUser::ROLE_ADMIN)
+                && !$this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH)
             ) {
                 $user = $this->security->getUser();
-                if (!$user instanceof RemoteUser) {
+                if (!$user instanceof JwtUser) {
                     throw new AuthenticationException('User must be authenticated');
                 }
                 if (!in_array('ace', $queryBuilder->getAllAliases(), true)) {
                     AccessControlEntryRepository::joinAcl(
                         $queryBuilder,
                         $user->getId(),
-                        $user->getGroupIds(),
+                        $user->getGroups(),
                         'publication',
                         'o',
                         PermissionInterface::EDIT,

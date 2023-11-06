@@ -4,16 +4,28 @@ import {lockPromise} from "../lib/promise";
 import {getConfig, getStrict} from "../configLoader";
 import {Logger} from "winston";
 import {createHttpClient} from "../lib/axios";
+import {configureClientCredentialsGrantType, MemoryStorage, OAuthClient} from "@alchemy/auth";
 
-const maxRetries = 10;
-const retryDelay = 5000;
+function createApiClient(baseURL: string, clientId: string, clientSecret: string, verifySSL: boolean) {
+    const oauthClient = new OAuthClient({
+        clientId,
+        clientSecret,
+        baseUrl: `${baseURL}/oauth/v2`,
+        storage: new MemoryStorage(),
+    })
 
-function createApiClient(baseURL: string, verifySSL: boolean) {
-    return createHttpClient({
+    const client = createHttpClient({
         baseURL,
         verifySSL,
         headers: {'Accept': 'application/ld+json'},
     });
+
+    configureClientCredentialsGrantType(client, oauthClient);
+
+    return {
+        client,
+        oauthClient,
+    };
 }
 
 type ClientParameters = {
@@ -31,8 +43,8 @@ const collectionKeyMap: Record<string, string> = {};
 
 export class DataboxClient {
     private readonly client: AxiosInstance;
+    private readonly oauthClient: OAuthClient;
     private readonly logger: Logger;
-    private authenticated: boolean = false;
     private readonly clientId: string;
     private readonly clientSecret: string;
     private readonly ownerId: string;
@@ -47,7 +59,9 @@ export class DataboxClient {
                     ownerId,
                     verifySSL = true,
                 }: ClientParameters, logger: Logger) {
-        this.client = createApiClient(apiUrl, verifySSL);
+        const {client, oauthClient} = createApiClient(apiUrl, clientId, clientSecret, verifySSL);
+        this.client = client;
+        this.oauthClient = oauthClient;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.ownerId = ownerId;
@@ -55,60 +69,7 @@ export class DataboxClient {
         this.logger = logger;
     }
 
-    public async authenticate() {
-        if (this.authPromise) {
-            return this.authPromise;
-        }
-
-        return this.authPromise = new Promise<void>((resolve, reject) => {
-            if (this.authenticated) {
-                resolve();
-                return;
-            }
-
-            this.logger.debug(`Authenticating to Databox...`);
-            const attempt = async (retry: number = 0) => {
-                try {
-                    const res = await this.client.post(`/oauth/v2/token`, {
-                        client_id: this.clientId,
-                        client_secret: this.clientSecret,
-                        grant_type: "client_credentials",
-                        scope: this.scope,
-                    });
-
-                    const data = res.data as {
-                        access_token: string;
-                    };
-
-                    this.authenticated = true;
-                    this.client.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-                    this.logger.info(`Authenticated to Databox!`);
-
-                    resolve();
-                } catch (e) {
-                    this.logger.warn(`Databox authentication error: ${e.toString()}`);
-                    if (retry >= maxRetries) {
-                        this.logger.error(`Too many retries for Databox authentication [${retry}]`);
-                        reject(e);
-
-                        return;
-                    }
-
-                    this.logger.info(`Retry Databox authentication [${retry}]`);
-
-                    setTimeout(() => {
-                        attempt(retry + 1);
-                    }, retryDelay);
-                }
-            };
-
-            attempt();
-        });
-    }
-
     async createAsset(data: AssetInput): Promise<void> {
-        await this.authenticate();
-
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
@@ -126,9 +87,15 @@ export class DataboxClient {
         });
     }
 
-    async deleteAsset(workspaceId: string, key: string): Promise<void> {
-        await this.authenticate();
+    public async authenticate() {
+        this.logger.debug(`Authenticating to Databox...`);
+        const res = await this.oauthClient.getTokenFromClientCredentials();
+        this.logger.info(`Authenticated to Databox!`);
 
+        return res;
+    }
+
+    async deleteAsset(workspaceId: string, key: string): Promise<void> {
         await this.client.delete(`/assets-by-keys`, {
             data: {
                 workspaceId,
@@ -138,8 +105,6 @@ export class DataboxClient {
     }
 
     async createCollection(key: string, data: CollectionInput): Promise<string> {
-        await this.authenticate();
-
         if (collectionKeyMap[key]) {
             return collectionKeyMap[key];
         }
@@ -162,8 +127,6 @@ export class DataboxClient {
     }
 
     async createCollectionTreeBranch(data: CollectionInput[]): Promise<string> {
-        await this.authenticate();
-
         let parentId: string = undefined;
         const previousKeys = [];
         for (let i = 0; i < data.length; ++i) {
@@ -224,8 +187,6 @@ export class DataboxClient {
     }
 
     async getWorkspaceIdFromSlug(slug: string): Promise<string> {
-        await this.authenticate();
-
         const res = await this.client.get(`/workspaces-by-slug/${slug}`);
 
         return res.data.id;

@@ -7,7 +7,8 @@ import {defaultMapProps, initMapbox} from "../mapbox/MapboxLayout";
 import mapboxgl from 'mapbox-gl';
 import DownloadButton from "../shared-components/DownloadButton";
 import {
-    downloadContainerDefaultState, onDownload,
+    downloadContainerDefaultState,
+    onDownload,
     renderDownloadTermsModal,
     renderDownloadViaEmail
 } from "../shared-components/DownloadViaEmailProxy";

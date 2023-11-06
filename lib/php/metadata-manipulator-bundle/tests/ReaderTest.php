@@ -12,12 +12,12 @@ use PHPUnit\Framework\TestCase;
 
 class ReaderTest extends TestCase
 {
-    const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
+    final public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
 
     private ?MetadataManipulator $service = null;
 
     /**
-     * @covers MetadataManipulator::getAllMetadata
+     * @covers \MetadataManipulator::getAllMetadata
      */
     public function testRead(): void
     {
@@ -34,7 +34,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers MetadataManipulator::getAllMetadata
+     * @covers \MetadataManipulator::getAllMetadata
      */
     public function testGetUnknown(): void
     {

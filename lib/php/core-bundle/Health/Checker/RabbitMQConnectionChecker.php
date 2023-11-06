@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Health\Checker;
 
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
+use OldSound\RabbitMqBundle\RabbitMq\AmqpPartsHolder;
 use OldSound\RabbitMqBundle\RabbitMq\BaseAmqp;
 use OldSound\RabbitMqBundle\RabbitMq\DynamicConsumer;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class RabbitMQConnectionChecker implements HealthCheckerInterface
+final readonly class RabbitMQConnectionChecker implements HealthCheckerInterface
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private AmqpPartsHolder $amqpPartsHolder)
     {
-        $this->container = $container;
     }
 
     public function getName(): string
@@ -25,10 +22,9 @@ class RabbitMQConnectionChecker implements HealthCheckerInterface
 
     public function check(): bool
     {
-        $amqpContainer = $this->container->get('old_sound_rabbit_mq.parts_holder');
         foreach (['base_amqp', 'binding'] as $key) {
             /** @var BaseAmqp $baseAmqp */
-            foreach ($amqpContainer->getParts('old_sound_rabbit_mq.'.$key) as $baseAmqp) {
+            foreach ($this->amqpPartsHolder->getParts('old_sound_rabbit_mq.'.$key) as $baseAmqp) {
                 if ($baseAmqp instanceof DynamicConsumer) {
                     continue;
                 }

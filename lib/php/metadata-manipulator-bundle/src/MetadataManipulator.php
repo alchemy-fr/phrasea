@@ -2,7 +2,6 @@
 
 namespace Alchemy\MetadataManipulatorBundle;
 
-use Exception;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
@@ -13,14 +12,12 @@ use Psr\Log\NullLogger;
 class MetadataManipulator
 {
     private static ?array $knownTagGroups = null;  // cache
-    private PHPExiftool $phpExifTool;
-    private bool $debug;
-    private LoggerInterface $logger;
+    private readonly PHPExiftool $phpExifTool;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(string $classesDirectory, ?LoggerInterface $logger = null, bool $debug = false)
+    public function __construct(string $classesDirectory, LoggerInterface $logger = null, private readonly bool $debug = false)
     {
         $this->phpExifTool = new PHPExiftool($classesDirectory);
-        $this->debug = $debug;
         $this->logger = $logger ?? new NullLogger();
 
         if ($debug) {
@@ -36,7 +33,6 @@ class MetadataManipulator
 
         return self::$knownTagGroups;
     }
-
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface
     {
@@ -58,7 +54,7 @@ class MetadataManipulator
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function setMetadata(\SplFileObject $file, MetadataBag $bag): void
     {

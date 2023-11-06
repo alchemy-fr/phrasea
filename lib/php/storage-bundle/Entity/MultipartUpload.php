@@ -4,158 +4,122 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
-use DateTimeImmutable;
-use DateTimeInterface;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ApiResource(
- *     shortName="Upload",
- *     normalizationContext={
- *         "groups"={"upload:read"},
- *     },
- *     denormalizationContext={
- *         "groups"={"upload:write"},
- *     },
- *     collectionOperations={
- *         "get"={
- *             "security"="is_granted('ROLE_ADMIN')"
- *         },
- *         "post"={
- *             "openapi_context"={
- *                 "summary"="Create a multi part upload.",
- *             }
- *         },
- *     },
- *     itemOperations={
- *         "get",
- *         "part"={
- *             "method"="POST",
- *             "path"="/uploads/{id}/part",
- *             "controller"=MultipartUploadPartAction::class,
-*              "openapi_context"={
- *                 "summary"="Get next upload URL for the next part of file to upload.",
- *                 "parameters"={
- *                     {
- *                         "in"="path",
- *                         "name"="id",
- *                         "type"="string",
- *                         "description"="The upload ID",
- *                     },
- *                 },
- *                 "requestBody": {
- *                     "required": true,
- *                     "content": {
- *                         "application/json": {
- *                             "schema": {
- *                                 "type": "object",
- *                                 "properties": {
- *                                     "part": {
- *                                         "type": "integer",
- *                                     },
- *                                 },
- *                             },
- *                         },
- *                     },
- *                 },
- *                 "responses": {
- *                     "200": {
- *                         "description"="An object containing signed URL for direct upload to S3",
- *                         "content"={
- *                             "application/json"={
- *                                 "schema": {
- *                                     "type": "object",
- *                                     "properties": {
- *                                         "url": {
- *                                             "type": "string",
- *                                         },
- *                                     },
- *                                 },
- *                             },
- *                         },
- *                     },
- *                 },
- *             },
- *         },
- *         "delete"={
- *             "openapi_context"={
- *                 "summary"="Cancel an upload",
- *                 "description"="Cancel an upload.",
- *             }
- *         },
- *     }
- * )
- */
+#[ApiResource(
+    shortName: 'Upload',
+    operations: [
+        new Get(),
+        new Post(openapiContext: ['summary' => 'Create a multi part upload.']),
+        new Post(
+            uriTemplate: '/uploads/{id}/part',
+            controller: MultipartUploadPartAction::class,
+            openapiContext: [
+                'summary' => 'Get next upload URL for the next part of file to upload.',
+                'parameters' => [
+                    [
+                        'in' => 'path',
+                        'name' => 'id',
+                        'type' => 'string',
+                        'description' => 'The upload ID',
+                    ],
+                ],
+                'requestBody' => [
+                    'required' => true,
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'part' => [
+                                        'type' => 'integer',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    [
+                        'description' => 'An object containing signed URL for direct upload to S3',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'url' => [
+                                            'type' => 'string',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]],
+                ],
+            ]),
+        new Delete(openapiContext: ['summary' => 'Cancel an upload', 'description' => 'Cancel an upload.']),
+        new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')'),
+    ],
+    normalizationContext: ['groups' => ['upload:read']],
+    denormalizationContext: ['groups' => ['upload:write']]
+)]
+#[ORM\Entity]
 class MultipartUpload
 {
-    /**
-     * @ApiProperty(identifier=true)
-     * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @Groups("upload:read")
-     */
-    private $id;
+    #[Groups(['upload:read'])]
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ApiProperty(identifier: true)]
+    private string $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"upload:read", "upload:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Groups(['upload:read', 'upload:write'])]
     private ?string $filename = null;
 
-    /**
-     * @ORM\Column(type="string", length=150)
-     * @Groups({"upload:read", "upload:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 150)]
+    #[Groups(['upload:read', 'upload:write'])]
     private ?string $type = null;
 
-    /**
-     * @ORM\Column(name="size", type="bigint", options={"unsigned"=true})
-     */
+    #[ORM\Column(name: 'size', type: 'bigint', options: ['unsigned' => true])]
     private ?string $sizeAsString = null;
 
-    /**
-     * @ORM\Column(type="string", length=150)
-     * @ApiProperty(writable=false)
-     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(type: Types::STRING, length: 150)]
     private string $uploadId;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty(writable=false)
-     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @ApiProperty(writable=false)
-     * @Groups("upload:read")
-     */
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Groups(['upload:read'])]
     private bool $complete = false;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @ApiProperty(writable=false)
-     * @Groups("upload:read")
-     */
-    private ?DateTimeInterface $createdAt = null;
+    #[ApiProperty(writable: false)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['upload:read'])]
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
-        $this->id = Uuid::uuid4();
-        $this->createdAt = new DateTimeImmutable();
+        $this->id = Uuid::uuid4()->toString();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): string
     {
-        return $this->id->toString();
+        return $this->id;
     }
 
     public function getFilename(): ?string
@@ -188,7 +152,7 @@ class MultipartUpload
         $this->uploadId = $uploadId;
     }
 
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -218,19 +182,13 @@ class MultipartUpload
         $this->complete = $complete;
     }
 
-    /**
-     * @ApiProperty()
-     * @Groups("upload:read")
-     */
+    #[Groups('upload:read')]
     public function getSize(): int
     {
         return (int) $this->sizeAsString;
     }
 
-    /**
-     * @ApiProperty()
-     * @Groups("upload:write")
-     */
+    #[Groups('upload:write')]
     public function setSize(int $size): void
     {
         $this->sizeAsString = (string) $size;

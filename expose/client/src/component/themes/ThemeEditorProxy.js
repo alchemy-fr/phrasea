@@ -10,7 +10,7 @@ class ThemeEditorProxy extends Component {
     };
 
     state = {
-        hidden: !config.get('devMode'),
+        hidden: !config.devMode,
     };
 
     static getDerivedStateFromProps(props, state) {

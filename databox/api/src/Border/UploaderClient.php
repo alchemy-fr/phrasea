@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Border;
 
-use GuzzleHttp\Client;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class UploaderClient
+readonly class UploaderClient
 {
-    public function __construct(private readonly Client $client)
+    public function __construct(private HttpClientInterface $client)
     {
     }
 
@@ -25,7 +25,7 @@ class UploaderClient
     public function ackAsset(string $baseUrl, string $id, string $token): void
     {
         $this->client
-            ->post(sprintf('%s/assets/%s/ack', $baseUrl, $id), [
+            ->request('POST', sprintf('%s/assets/%s/ack', $baseUrl, $id), [
                 'headers' => [
                     'Authorization' => 'AssetToken '.$token,
                 ],
@@ -35,12 +35,12 @@ class UploaderClient
     public function doRequest(string $path, string $token): array
     {
         $response = $this->client
-            ->get($path, [
+            ->request('GET', $path, [
                 'headers' => [
                     'Authorization' => 'AssetToken '.$token,
                 ],
             ]);
 
-        return \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

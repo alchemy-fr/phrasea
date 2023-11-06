@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Entity\Core\Workspace;
-use App\Security\Voter\WorkspaceVoter;
+use App\Security\Voter\AbstractVoter;
 use App\Workspace\WorkspaceDuplicateManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +17,7 @@ class FlushWorkspaceAction extends AbstractController
     {
     }
 
-    public function __invoke(string $id)
+    public function __invoke(string $id): Workspace
     {
         $workspace = $this->em->find(Workspace::class, $id);
 
@@ -25,7 +25,7 @@ class FlushWorkspaceAction extends AbstractController
             throw new NotFoundHttpException(sprintf('Workspace "%s" not found', $id));
         }
 
-        $this->denyAccessUnlessGranted(WorkspaceVoter::EDIT, $workspace);
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);
 
         $this->em->beginTransaction();
         try {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\UserPreference;
 use App\User\UserPreferencesManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,9 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UpdateUserPreferenceAction extends AbstractController
 {
-    /**
-     * @Route(path="/preferences", methods={"GET"})
-     */
+    #[Route(path: '/preferences', methods: ['GET'])]
     public function getUserPreferences(UserPreferencesManager $userPreferencesManager): Response
     {
         $user = $this->getRemoteUser();
@@ -28,14 +26,12 @@ class UpdateUserPreferenceAction extends AbstractController
         return $this->createResponse($pref);
     }
 
-    /**
-     * @Route(path="/preferences", methods={"PUT"})
-     */
+    #[Route(path: '/preferences', methods: ['PUT'])]
     public function updateUserPreferences(Request $request, UserPreferencesManager $userPreferencesManager): Response
     {
         $user = $this->getRemoteUser();
 
-        $data = \GuzzleHttp\json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (empty($name = ($data['name'] ?? null))) {
             throw new BadRequestHttpException('Missing or empty name');
         }
@@ -63,13 +59,13 @@ class UpdateUserPreferenceAction extends AbstractController
         return new JsonResponse($preferences->getData());
     }
 
-    private function getRemoteUser(): RemoteUser
+    private function getRemoteUser(): JwtUser
     {
-        /** @var RemoteUser $user */
+        /** @var JwtUser $user */
         $user = $this->getUser();
 
-        if (!$user instanceof RemoteUser) {
-            throw new AccessDeniedHttpException(sprintf('Invalid user %s', $user::class));
+        if (!$user instanceof JwtUser) {
+            throw new AccessDeniedHttpException(sprintf('Invalid user "%s"', get_debug_type($user)));
         }
 
         return $user;

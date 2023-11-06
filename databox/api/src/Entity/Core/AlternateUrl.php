@@ -7,24 +7,20 @@ namespace App\Entity\Core;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\AttributeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AttributeRepository")
- */
+#[ORM\Entity(repositoryClass: AttributeRepository::class)]
 class AlternateUrl extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $label = null;
 
     public function getType(): ?string

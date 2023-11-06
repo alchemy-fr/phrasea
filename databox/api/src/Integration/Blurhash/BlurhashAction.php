@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Blurhash;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
@@ -16,7 +17,6 @@ use App\Image\ImageManagerFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Storage\RenditionManager;
-use Alchemy\StorageBundle\Util\FileUtil;
 use kornrunner\Blurhash\Blurhash;
 
 class BlurhashAction extends AbstractIntegrationAction implements IfActionInterface

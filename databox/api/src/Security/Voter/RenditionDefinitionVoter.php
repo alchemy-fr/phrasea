@@ -12,23 +12,28 @@ class RenditionDefinitionVoter extends AbstractVoter
     final public const READ_ADMIN = 'READ_ADMIN';
     final public const SCOPE_PREFIX = 'ROLE_RENDITION-DEFINITION:';
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof RenditionDefinition;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, RenditionDefinition::class, true);
     }
 
     /**
      * @param RenditionDefinition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $workspaceEditor = $this->security->isGranted(WorkspaceVoter::EDIT, $subject->getWorkspace());
+        $workspaceEditor = fn (): bool => $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
-            self::EDIT => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
-            self::DELETE => $workspaceEditor || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
-            self::READ_ADMIN => $workspaceEditor
+            self::CREATE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'CREATE'),
+            self::EDIT => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT'),
+            self::DELETE => $workspaceEditor() || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE'),
+            self::READ_ADMIN => $workspaceEditor()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'READ'),
             self::READ => true,
             default => false,

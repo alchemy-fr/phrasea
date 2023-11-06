@@ -42,7 +42,7 @@ class WorkspaceDelete
 
         $configuration = $this->em->getConnection()->getConfiguration();
         $logger = $configuration->getSQLLogger();
-        $configuration->setSQLLogger(null);
+        $configuration->setSQLLogger();
         try {
             $collections = $this->em->getRepository(Collection::class)
                 ->createQueryBuilder('t')

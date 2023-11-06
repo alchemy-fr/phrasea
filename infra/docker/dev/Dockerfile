@@ -100,7 +100,7 @@ RUN set -eux; \
 	apk del .build-deps \
     && adduser -D -u 1000 app
 
-COPY --from=composer:2.3.2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
 ENV NODE_VERSION=18.8.0 \
     YARN_VERSION=1.22.19 \

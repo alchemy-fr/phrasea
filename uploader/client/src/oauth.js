@@ -1,31 +1,17 @@
 import React, {PureComponent} from "react";
 import config from "./config";
-import {OAuthClient} from "react-ps";
+import {KeycloakClient} from "@alchemy/auth";
 import qs from 'querystring';
 import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
-const {clientId, clientSecret} = config.getClientCredential();
-
-export const oauthClient = new OAuthClient({
-    clientId,
-    clientSecret,
-    baseUrl: config.getAuthBaseUrl(),
+export const keycloakClient = new KeycloakClient({
+    clientId: config.clientId,
+    baseUrl: config.keycloakUrl,
+    realm: config.realmName,
 });
 
-// TODO should be remove when moving to axios
-OAuthClient.prototype.isResponseValid = (err, res) => {
-    if (err) {
-        console.debug(err);
-        console.debug(res);
-        if (res && res.statusCode === 401) {
-            this.logout();
-        }
-        return false;
-    }
-
-    return true;
-}
+export const oauthClient = keycloakClient.client;
 
 export class OAuthRedirect extends PureComponent {
     static propTypes = {
@@ -65,7 +51,7 @@ export class OAuthRedirect extends PureComponent {
 
     componentDidMount() {
         oauthClient
-            .getAccessTokenFromAuthCode(
+            .getTokenFromAuthCode(
                 this.getCode(),
                 window.location.href.split('?')[0]
             )

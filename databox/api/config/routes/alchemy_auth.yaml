@@ -1,0 +1,9 @@
+alchemy_auth_security:
+    prefix: /admin
+    resource: '@AlchemyAuthBundle/Resources/routing/security.yaml'
+
+alchemy_auth_oauth_proxy:
+    resource: '@AlchemyAuthBundle/Resources/routing/oauth_proxy.yaml'
+
+alchemy_auth_permissions:
+    resource: '@AlchemyAuthBundle/Resources/routing/permissions.yaml'

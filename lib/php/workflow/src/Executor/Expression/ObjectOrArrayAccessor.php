@@ -8,11 +8,8 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 readonly class ObjectOrArrayAccessor
 {
-    private object|array $wrapped;
-
-    public function __construct(object|array $wrapped)
+    public function __construct(private object|array $wrapped)
     {
-        $this->wrapped = $wrapped;
     }
 
     public function __get(string $name): mixed

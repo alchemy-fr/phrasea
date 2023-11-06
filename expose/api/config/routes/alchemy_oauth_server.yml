@@ -1,2 +1,0 @@
-alchemy_oauth_server:
-  resource: "@AlchemyOAuthServerBundle/Resources/routing/routes.yaml"

@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -13,62 +20,60 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use GuzzleHttp\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_integration_key",columns={"workspace_id", "title", "integration"})})
- *
- * @ApiFilter(SearchFilter::class, properties={"workspace"="exact"})
- */
-class WorkspaceIntegration extends AbstractUuidEntity
+#[ApiResource(
+    shortName: 'integration',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+    ],
+    normalizationContext: [
+        'groups' => [WorkspaceIntegration::GROUP_LIST],
+    ],
+    output: WorkspaceIntegrationOutput::class
+)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
+#[ORM\Entity]
+#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'wi:read';
+    final public const GROUP_LIST = 'wi:index';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $integration = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=WorkspaceIntegration::class)
-     */
+    #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
     private ?Collection $needs = null;
 
-    /**
-     * @ORM\Column(type="string", length=2048, nullable=true)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 2048, nullable: true)]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?string $if = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     *
-     * @Groups({"integration:index"})
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private bool $enabled = true;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
     private ?string $optionsJson = null;
@@ -116,15 +121,15 @@ class WorkspaceIntegration extends AbstractUuidEntity
             return $this->optionsJson;
         }
 
-        return \GuzzleHttp\json_encode($this->config, JSON_PRETTY_PRINT);
+        return json_encode($this->config, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
     }
 
     public function setOptionsJson(string $options): void
     {
         $this->optionsJson = $options;
         try {
-            $this->config = \GuzzleHttp\json_decode($options, true);
-        } catch (InvalidArgumentException) {
+            $this->config = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
         }
     }
 

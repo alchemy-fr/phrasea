@@ -1,0 +1,16 @@
+parameters:
+    env(SENTRY_DSN): ~
+    env(SENTRY_ENVIRONMENT): prod
+    env(SENTRY_RELEASE): 'undefined'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\CoreBundle\Controller\SentryTestController: ~
+
+    Sentry\Monolog\Handler:
+        arguments:
+            $hub: '@Sentry\State\HubInterface'
+            $level: !php/const Monolog\Logger::ERROR

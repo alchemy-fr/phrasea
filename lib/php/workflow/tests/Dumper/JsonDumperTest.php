@@ -23,7 +23,7 @@ class JsonDumperTest extends AbstractDumperTest
         $output = new BufferedOutput();
         (new JsonWorkflowDumper())->dumpWorkflow($workflowState, $plan, $output);
 
-        $out = json_decode($output->fetch(), true);
+        $out = json_decode($output->fetch(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals([
             'id' => '42',

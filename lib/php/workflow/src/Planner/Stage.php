@@ -9,7 +9,7 @@ namespace Alchemy\Workflow\Planner;
  */
 class Stage
 {
-    private RunList $runs;
+    private readonly RunList $runs;
 
     public function __construct()
     {

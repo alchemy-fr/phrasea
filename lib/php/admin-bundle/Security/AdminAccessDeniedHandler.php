@@ -12,11 +12,8 @@ use Twig\Environment;
 
 class AdminAccessDeniedHandler implements AccessDeniedHandlerInterface
 {
-    private Environment $twig;
-
-    public function __construct(Environment $twig)
+    public function __construct(private readonly Environment $twig)
     {
-        $this->twig = $twig;
     }
 
     public function handle(Request $request, AccessDeniedException $accessDeniedException): ?Response

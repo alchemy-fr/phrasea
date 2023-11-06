@@ -1,37 +1,26 @@
 import {getPasswords} from "../lib/credential";
-import {oauthClient} from "../lib/oauth";
-import apiClient from "../lib/apiClient";
-import config from "../lib/config";
 import {Asset, Publication} from "../types";
+import {RawAxiosRequestHeaders} from "axios";
+import apiClient from "../lib/api-client";
 
 export async function loadPublication(id: string): Promise<Publication> {
-    const options: Record<string, any> = {};
-
-    const passwords = getPasswords();
-    if (passwords) {
-        options.headers = {'X-Passwords': passwords};
-    }
-
-    const accessToken = oauthClient.getAccessToken();
-    if (accessToken) {
-        options.headers = {'Authorization': `Bearer ${accessToken}`};
-    }
-
-    return await apiClient.get(`${config.getApiBaseUrl()}/publications/${id}`, {}, options);
+    return (await apiClient.get(`/publications/${id}`, {
+        headers: getPasswordHeaders(),
+    })).data;
 }
 
 export async function loadAsset(id: string): Promise<Asset> {
-    const options: Record<string, any> = {};
+    return (await apiClient.get(`/assets/${id}`, {
+        headers: getPasswordHeaders(),
+    })).data;
+}
+
+function getPasswordHeaders(): RawAxiosRequestHeaders {
+    const headers: RawAxiosRequestHeaders = {};
 
     const passwords = getPasswords();
     if (passwords) {
-        options.headers = {'X-Passwords': passwords};
+        headers['X-Passwords'] = passwords;
     }
-
-    const accessToken = oauthClient.getAccessToken();
-    if (accessToken) {
-        options.headers = {'Authorization': `Bearer ${accessToken}`};
-    }
-
-    return await apiClient.get(`${config.getApiBaseUrl()}/assets/${id}`, {}, options);
+    return headers;
 }

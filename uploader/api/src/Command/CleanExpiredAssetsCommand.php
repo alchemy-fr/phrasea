@@ -12,18 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class CleanExpiredAssetsCommand extends Command
 {
-    private AssetManager $assetManager;
-
-    public function __construct(AssetManager $assetManager)
+    public function __construct(private readonly AssetManager $assetManager)
     {
         parent::__construct();
-        $this->assetManager = $assetManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -31,13 +25,10 @@ class CleanExpiredAssetsCommand extends Command
             ->setName('app:asset:clean-expired')
             ->setDescription('Remove old assets')
             ->addOption('days-retention', 'r', InputOption::VALUE_REQUIRED, 'Number of days retention')
-            ;
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $assetDaysRetention = $input->getOption('days-retention');
 

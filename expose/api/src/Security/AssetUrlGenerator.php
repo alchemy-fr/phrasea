@@ -5,17 +5,13 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Alchemy\StorageBundle\Storage\UrlSigner;
-use App\Entity\Asset;
 use App\Entity\MediaInterface;
 use App\Entity\SubDefinition;
 
-class AssetUrlGenerator
+readonly class AssetUrlGenerator
 {
-    private UrlSigner $urlSigner;
-
-    public function __construct(UrlSigner $urlSigner)
+    public function __construct(private UrlSigner $urlSigner)
     {
-        $this->urlSigner = $urlSigner;
     }
 
     public function generateAssetUrl(MediaInterface $media, bool $download = false): string

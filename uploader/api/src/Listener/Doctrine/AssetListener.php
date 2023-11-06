@@ -8,23 +8,19 @@ use App\Consumer\Handler\DeleteAssetFileHandler;
 use App\Entity\Asset;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Events;
 
-class AssetListener implements EventSubscriber
+#[AsDoctrineListener(Events::postRemove)]
+readonly class AssetListener implements EventSubscriber
 {
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-
-    public function __construct(EventProducer $eventProducer)
+    public function __construct(private EventProducer $eventProducer)
     {
-        $this->eventProducer = $eventProducer;
     }
 
-    public function postRemove(LifecycleEventArgs $event)
+    public function postRemove(PostRemoveEventArgs $event)
     {
         $asset = $event->getEntity();
         if (!$asset instanceof Asset) {
@@ -36,7 +32,7 @@ class AssetListener implements EventSubscriber
         ]));
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postRemove,

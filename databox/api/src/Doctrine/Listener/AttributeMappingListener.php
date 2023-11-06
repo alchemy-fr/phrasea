@@ -8,10 +8,14 @@ use App\Consumer\Handler\Search\Mapping\UpdateAttributesMappingHandler;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::postPersist)]
 class AttributeMappingListener implements EventSubscriber
 {
     use ChangeFieldListenerTrait;
@@ -20,14 +24,14 @@ class AttributeMappingListener implements EventSubscriber
     {
     }
 
-    public function postUpdate(LifecycleEventArgs $args): void
+    public function postUpdate(PostUpdateEventArgs $args): void
     {
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof Workspace) {
             if ($this->hasChangedField([
                 'enabledLocales',
-            ], $args->getEntityManager(), $entity)) {
+            ], $args->getObjectManager(), $entity)) {
                 $this->updateWorkspace($entity->getId());
             }
         } elseif ($entity instanceof AttributeDefinition) {
@@ -35,15 +39,15 @@ class AttributeMappingListener implements EventSubscriber
                 'fieldType',
                 'name',
                 'searchable',
-            ], $args->getEntityManager(), $entity)) {
+            ], $args->getObjectManager(), $entity)) {
                 $this->updateWorkspace($entity->getWorkspaceId());
             }
         }
     }
 
-    public function postPersist(LifecycleEventArgs $args): void
+    public function postPersist(PostPersistEventArgs $args): void
     {
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof AttributeDefinition) {
             $this->updateWorkspace($entity->getWorkspaceId());
@@ -57,11 +61,11 @@ class AttributeMappingListener implements EventSubscriber
         ]));
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
-            Events::postUpdate => 'postUpdate',
-            Events::postPersist => 'postPersist',
+            Events::postUpdate,
+            Events::postPersist,
         ];
     }
 }

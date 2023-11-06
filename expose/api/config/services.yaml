@@ -4,10 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    env(S3_USE_PATH_STYLE_ENDPOINT): false
-    env(VERIFY_SSL): true
-
-    router.request_context.host: '%env(EXPOSE_API_BASE_URL)%'
+    router.request_context.host: '%env(EXPOSE_API_URL)%'
     router.request_context.scheme: 'https'
     asset.request_context.secure: true
 
@@ -17,7 +14,9 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $zippyBaseUrl: '%env(ZIPPY_BASE_URL)%'
+            $zippyBaseUrl: '%env(ZIPPY_URL)%'
+            ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
+            ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
             string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
             string $matomoAuthToken: '%env(MATOMO_AUTH_TOKEN)%'
             string $phraseanetAuthToken: '%env(PHRASEANET_APP_OAUTH_TOKEN)%'
@@ -32,8 +31,6 @@ services:
             tags: ['arthem_rabbit.event_handler']
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']
-        Doctrine\Common\EventSubscriber:
-            tags: ['doctrine.event_subscriber']
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -61,9 +58,6 @@ services:
         tags:
             - { name: serializer.normalizer, priority: -989 }
 
-    App\DataPersister\ExposeDataPersister:
-        decorates: 'api_platform.doctrine.orm.data_persister'
-
     App\Form\ThemeChoiceType:
         arguments:
             $choices:
@@ -90,7 +84,7 @@ services:
         class: GuzzleHttp\Client
         arguments:
             -
-                base_uri: '%env(ZIPPY_BASE_URL)%'
+                base_uri: '%env(ZIPPY_URL)%'
                 verify: '%env(bool:VERIFY_SSL)%'
                 headers:
                     Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
@@ -104,15 +98,20 @@ services:
         arguments:
             $client: '@app.zippy_client'
 
+    App\DataPersister\ExposeDataPersister:
+        decorates: api_platform.doctrine.orm.state.persist_processor
+        arguments:
+            $decorated: '@.inner'
+
     App\Security\Authentication\JWTManager:
         arguments:
             $signingKey: '%env(APP_SECRET)%'
-            $baseUri: '%env(EXPOSE_API_BASE_URL)%'
+            $baseUri: '%env(EXPOSE_API_URL)%'
             $ttl: '%env(JWT_TTL)%'
 
     App\Admin\ClientUrlGenerator:
         arguments:
-            $clientBaseUrl: '%env(EXPOSE_CLIENT_BASE_URL)%'
+            $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'
 
     app.proxy_purge_client:
         class: GuzzleHttp\Client
@@ -125,7 +124,7 @@ services:
     App\Http\Cache\ProxyCachePurger:
         arguments:
             $client: '@app.proxy_purge_client'
-            $clientBaseUrl: '%env(EXPOSE_CLIENT_BASE_URL)%'
+            $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'
 
     App\Listener\TerminateStackListener:
         tags:

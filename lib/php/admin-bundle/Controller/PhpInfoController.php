@@ -9,9 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PhpInfoController extends AbstractAdminController
 {
-    /**
-     * @Route("/php-info", name="phpinfo")
-     */
+    #[Route(path: '/php-info', name: 'phpinfo')]
     public function phpInfoAction()
     {
         $this->denyAccessUnlessGranted('ROLE_TECH');

@@ -7,10 +7,13 @@ namespace App\Doctrine\Listener;
 use App\Listener\TerminateStackListener;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Contracts\Service\Attribute\Required;
 
+#[AsDoctrineListener(Events::postFlush)]
 class PostFlushStackListener implements EventSubscriber
 {
     private array $callbacks = [];
@@ -18,17 +21,13 @@ class PostFlushStackListener implements EventSubscriber
     private EventProducer $eventProducer;
     private TerminateStackListener $terminateStackListener;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEventProducer(EventProducer $eventProducer)
     {
         $this->eventProducer = $eventProducer;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setTerminateStackListener(TerminateStackListener $terminateStackListener)
     {
         $this->terminateStackListener = $terminateStackListener;
@@ -79,7 +78,7 @@ class PostFlushStackListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postFlush,

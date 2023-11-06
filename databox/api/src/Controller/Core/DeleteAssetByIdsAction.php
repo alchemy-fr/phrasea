@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use App\Consumer\Handler\Asset\AssetDeleteHandler;
 use App\Entity\Core\Asset;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\AbstractVoter;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,11 +20,10 @@ class DeleteAssetByIdsAction extends AbstractController
     {
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Response
     {
-        /** @var array $ids */
-        $ids = $request->request->get('ids');
-        if (!$ids) {
+        $ids = $request->request->all('ids');
+        if (empty($ids)) {
             throw new BadRequestHttpException('Missing "ids"');
         }
 
@@ -32,7 +31,7 @@ class DeleteAssetByIdsAction extends AbstractController
             ->findByIds($ids);
 
         foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AssetVoter::DELETE, $asset);
+            $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
             $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
         }
 

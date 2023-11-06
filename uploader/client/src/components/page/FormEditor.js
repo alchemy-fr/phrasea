@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
 import {Button, Form} from "react-bootstrap";
 import FormPreview from "../FormPreview";
-import config from "../../config";
-import request from "superagent";
 import Container from "../Container";
-import {oauthClient} from "../../oauth";
 import {getFormSchema, getTargets} from "../../requests";
 import FullPageLoader from "../FullPageLoader";
+import apiClient from "../../lib/api";
 
 export default class FormEditor extends Component {
     state = {
@@ -56,42 +54,34 @@ export default class FormEditor extends Component {
         });
     };
 
-    handleSubmit = event => {
+    handleSubmit = async (event) => {
         event.preventDefault();
 
         const {schema, value, selected} = this.state;
-        const accessToken = oauthClient.getAccessToken();
+        const data = {data: JSON.parse(value)};
 
-        let r, data = {data: JSON.parse(value)};
-        if (schema) {
-            r = request.put(`${config.getUploadBaseURL()}/form-schemas/${schema.id}`);
-        } else {
-            r = request.post(`${config.getUploadBaseURL()}/form-schemas`);
-            data = {
-                ...data,
-                target: `/targets/${selected}`
-            };
+        const requestConfig = {
+            data,
         }
 
-        r.accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send(data)
-            .end((err, res) => {
-                if (oauthClient.isResponseValid(err, res)) {
-                    this.setState({
-                        saved: true,
-                    }, () => {
-                        setTimeout(() => {
-                            this.setState({saved: false});
-                        }, 3000);
-                    });
-                } else {
-                    const d = res.body;
-                    this.setState({
-                        error: d.title+"\n"+d.detail,
-                    });
-                }
-            })
+        if (schema) {
+            requestConfig.method = 'PUT';
+            requestConfig.url = `/form-schemas/${schema.id}`;
+        } else {
+            requestConfig.method = 'POST';
+            requestConfig.url = `/form-schemas`;
+            data.target = `/targets/${selected}`;
+        }
+
+        await apiClient.request(requestConfig);
+
+        this.setState({
+            saved: true,
+        }, () => {
+            setTimeout(() => {
+                this.setState({saved: false});
+            }, 3000);
+        });
     };
 
     render() {

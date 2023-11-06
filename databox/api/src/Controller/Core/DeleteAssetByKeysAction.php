@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use App\Consumer\Handler\Asset\AssetDeleteHandler;
 use App\Entity\Core\Asset;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\AbstractVoter;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,10 +20,9 @@ class DeleteAssetByKeysAction extends AbstractController
     {
     }
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Response
     {
-        /** @var array $keys */
-        $keys = $request->request->get('keys');
+        $keys = $request->request->all('keys');
         if (!$keys) {
             throw new BadRequestHttpException('Missing "keys"');
         }
@@ -36,7 +35,7 @@ class DeleteAssetByKeysAction extends AbstractController
             ->findByKeys($keys, $workspaceId);
 
         foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AssetVoter::DELETE, $asset);
+            $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
             $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
         }
 

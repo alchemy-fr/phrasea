@@ -22,9 +22,8 @@ Override environment variables defined in `.env` file:
 
 ```bash
 DEV_MODE=false
-CLIENT_ID=<THE_CLIENT_ID> # NOT the client ID from Phraseanet
-CLIENT_RANDOM_ID=<A_RANDOM_HASH>
-CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
+CLIENT_ID=<THE_CLIENT_ID>
+CLIENT_SECRET=<A_SECRET>
 ```
 
 ## Development

@@ -3,8 +3,7 @@ import {Publication} from "../../types";
 import {securityMethods} from "./methods";
 import FullPageLoader from "../FullPageLoader";
 import {logPublicationView} from "../../lib/log";
-import {oauthClient} from "../../lib/oauth";
-import config from "../../lib/config";
+import {keycloakClient} from "../../lib/api-client";
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -25,15 +24,19 @@ export default function PublicationSecurityProxy({
     }, [publication?.id, log]);
 
     const logout = () => {
-        oauthClient.logout();
-        document.location.href = `${config.getAuthBaseUrl()}/security/logout?r=${encodeURIComponent(document.location.href)}`;
+        keycloakClient.logout();
     };
 
     if (!publication) {
         return <FullPageLoader/>
     }
 
-    const {authorized, securityContainerId, authorizationError, securityMethod} = publication!;
+    const {
+        authorized,
+        securityContainerId,
+        authorizationError,
+        securityMethod
+    } = publication!;
 
     if (authorized) {
         return children as JSX.Element;

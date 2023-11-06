@@ -7,20 +7,13 @@ namespace Alchemy\Workflow\Repository;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Model\Workflow;
 
-final class ChainedWorkflowRepository implements WorkflowRepositoryInterface
+final readonly class ChainedWorkflowRepository implements WorkflowRepositoryInterface
 {
-    /**
-     * @var WorkflowRepositoryInterface[]
-     */
-    private array $repositories;
-
     /**
      * @param WorkflowRepositoryInterface[] $repositories
      */
-    public function __construct(
-        array $repositories,
-    ) {
-        $this->repositories = $repositories;
+    public function __construct(private array $repositories)
+    {
     }
 
     public function loadWorkflowByName(string $name): ?Workflow

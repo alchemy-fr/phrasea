@@ -41,9 +41,8 @@ RUN mkdir -p var/cache var/logs var/sessions \
     && composer clear-cache \
     && chown -R app: .
 
-ADD https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem /usr/local/share/ca-certificates/letsencrypt-root-ca.pem
-RUN chmod 644 /usr/local/share/ca-certificates/letsencrypt-root-ca.pem \
-    && update-ca-certificates
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
 

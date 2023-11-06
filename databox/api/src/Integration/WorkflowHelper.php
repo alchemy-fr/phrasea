@@ -13,8 +13,8 @@ abstract class WorkflowHelper
     public static function createIntegrationJob(
         array $config,
         string $action,
-        ?string $idSuffix = null,
-        ?string $nameSuffix = null,
+        string $idSuffix = null,
+        string $nameSuffix = null,
     ): Job {
         /** @var WorkspaceIntegration $workspaceIntegration */
         $workspaceIntegration = $config['workspaceIntegration'];

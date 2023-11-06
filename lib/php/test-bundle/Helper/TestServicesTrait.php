@@ -9,6 +9,7 @@ use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Consumer\EventConsumer;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Handler\TestHandler;
 use PhpAmqpLib\Message\AMQPMessage;
 
 trait TestServicesTrait
@@ -49,5 +50,14 @@ trait TestServicesTrait
 
         $message = new AMQPMessage($eventMessage->toJson());
         $eventConsumer->processMessage($message);
+
+        /** @var TestHandler $handler */
+        $handler = self::getService('monolog.handler.test');
+        $hasErrorRecords = $handler->hasErrorRecords();
+        if ($hasErrorRecords) {
+            dump($handler->getRecords());
+        }
+
+        self::assertFalse($hasErrorRecords);
     }
 }

@@ -6,16 +6,15 @@ namespace App\Api\Serializer;
 
 use Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface;
 
-class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
+final readonly class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
 {
-    public function __construct(private readonly NormalizerContextBuilderInterface $decorated)
+    public function __construct(private NormalizerContextBuilderInterface $decorated)
     {
     }
 
     public function buildContext(array $context = []): array
     {
         if (isset($context['groups'])) {
-            $context['groups'][] = '_';
             foreach ($context['groups'] as $group) {
                 if (1 === preg_match('#^([^:]+):read$#', (string) $group, $matches)) {
                     $context['groups'][] = $matches[1].':index';
@@ -23,6 +22,7 @@ class GroupNormalizerContextBuilder implements NormalizerContextBuilderInterface
             }
             $context['_level'] ??= 0;
             if (0 === $context['_level']) {
+                $context['groups'][] = '_';
                 $context['groups'][] = 'dates';
             }
             ++$context['_level'];

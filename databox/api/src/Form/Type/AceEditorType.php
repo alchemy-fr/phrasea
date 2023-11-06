@@ -17,9 +17,9 @@ class AceEditorType extends AbstractType
 
     public static array $UNITS = ['%', 'in', 'cm', 'mm', 'em', 'ex', 'pt', 'pc', 'px'];
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        // Remove id from ace editor wrapper attributes. Id must be generated.
+        // Remove id from ace editor wrapper attributes. ID must be generated.
         $wrapperAttrNormalizer = function (Options $options, $aceAttr) {
             if (is_array($aceAttr)) {
                 if (array_key_exists('id', $aceAttr)) {
@@ -126,10 +126,7 @@ class AceEditorType extends AbstractType
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getParent()
+    public function getParent(): ?string
     {
         return TextAreaType::class;
     }

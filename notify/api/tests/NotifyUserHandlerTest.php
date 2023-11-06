@@ -9,8 +9,8 @@ use App\Contact\ContactManager;
 use App\Entity\Contact;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use ColinODell\PsrTestLogger\TestLogger;
 use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Log\Test\TestLogger;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class NotifyUserHandlerTest extends WebTestCase

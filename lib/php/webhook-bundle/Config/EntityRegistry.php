@@ -6,17 +6,11 @@ namespace Alchemy\WebhookBundle\Config;
 
 class EntityRegistry
 {
-    private array $config;
-
-    public function __construct(array $config)
+    public function __construct(private readonly array $config)
     {
-        $this->config = $config;
     }
 
     /**
-     * @param string $class
-     * @param string $event
-     *
      * @return array{
      *           eventName: string,
      *           event: string,

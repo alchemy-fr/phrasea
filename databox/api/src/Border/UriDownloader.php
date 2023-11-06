@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Border;
 
-use GuzzleHttp\Client;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class UriDownloader
+readonly class UriDownloader
 {
-    public function __construct(private readonly Client $client)
+    public function __construct(private HttpClientInterface $client)
     {
     }
 
@@ -17,12 +17,16 @@ class UriDownloader
      */
     public function download(string $uri, array &$headers = []): string
     {
-        $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
-        $res = $this->client->get($uri, [
-            'sink' => $tmpFile,
-        ]);
+        $response = $this->client->request('GET', $uri);
 
-        $headers = $res->getHeaders();
+        $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
+        $fileHandler = fopen($tmpFile, 'w');
+        foreach ($this->client->stream($response) as $chunk) {
+            fwrite($fileHandler, $chunk->getContent());
+        }
+        fclose($fileHandler);
+
+        $headers = $response->getHeaders();
 
         return $tmpFile;
     }

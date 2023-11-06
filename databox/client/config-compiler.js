@@ -1,12 +1,6 @@
 (function (config, env) {
     config = config || {};
 
-    const identityProviders = config.auth && config.auth.identity_providers ? config.auth.identity_providers.map(idp => {
-        delete idp.options;
-
-        return idp;
-    }) : [];
-
     let scriptTpl = '';
     const analytics = config.databox.analytics;
 
@@ -75,18 +69,17 @@
             __TPL_HEAD__: scriptTpl,
         },
         locales: config.available_locales,
-        identityProviders,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
-        baseUrl: env.DATABOX_API_BASE_URL,
-        uploaderApiBaseUrl: env.UPLOADER_API_BASE_URL,
+        baseUrl: env.DATABOX_API_URL,
+        uploaderApiBaseUrl: env.UPLOADER_API_URL,
         uploaderTargetSlug: env.UPLOADER_TARGET_SLUG,
-        authBaseUrl: env.AUTH_API_BASE_URL,
-        clientId: env.CLIENT_ID + '_' + env.CLIENT_RANDOM_ID,
-        clientSecret: env.CLIENT_SECRET,
+        keycloakUrl: env.KEYCLOAK_URL,
+        realmName: env.KEYCLOAK_REALM_NAME,
+        clientId: env.CLIENT_ID,
         devMode: env.DEV_MODE === 'true',
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
         displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
-        dashboardBaseUrl: env.DASHBOARD_BASE_URL,
+        dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
     };
 });

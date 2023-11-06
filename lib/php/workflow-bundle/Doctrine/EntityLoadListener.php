@@ -6,21 +6,17 @@ namespace Alchemy\WorkflowBundle\Doctrine;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use Alchemy\Workflow\State\JobState;
-use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 
-final class EntityLoadListener implements EventSubscriberInterface
+#[AsDoctrineListener(Events::loadClassMetadata)]
+final readonly class EntityLoadListener
 {
-    private string $workflowStateEntity;
-    private string $jobStateEntity;
-
     public function __construct(
-        string $workflowStateEntity,
-        string $jobStateEntity,
+        private string $workflowStateEntity,
+        private string $jobStateEntity
     ) {
-        $this->workflowStateEntity = $workflowStateEntity;
-        $this->jobStateEntity = $jobStateEntity;
     }
 
     public function loadClassMetadata(LoadClassMetadataEventArgs $args): void
@@ -50,17 +46,9 @@ final class EntityLoadListener implements EventSubscriberInterface
                         'referencedColumnName' => 'id',
                         'onDelete' => 'CASCADE',
                         'nullable' => false,
-                    ]
+                    ],
                 ],
             ]);
         }
-
-    }
-
-    public function getSubscribedEvents()
-    {
-        return [
-            Events::loadClassMetadata,
-        ];
     }
 }

@@ -8,11 +8,8 @@ use Alchemy\Workflow\Executor\PlanExecutor;
 
 class RuntimeRunner implements RunnerInterface
 {
-    private PlanExecutor $planExecutor;
-
-    public function __construct(PlanExecutor $planExecutor)
+    public function __construct(private readonly PlanExecutor $planExecutor)
     {
-        $this->planExecutor = $planExecutor;
     }
 
     public function run(string $workflowId, string $jobId): void

@@ -5,7 +5,6 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    env(S3_USE_PATH_STYLE_ENDPOINT): false
     env(ASSET_DAYS_RETENTION): 31
 
 services:
@@ -14,8 +13,12 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
-            $storageBaseUrl: '%env(S3_ENDPOINT)%'
+            string $storageBaseUrl: '%env(S3_ENDPOINT)%'
+            string $uploaderUrl: '%env(UPLOADER_API_URL)%'
             $deleteAssetGracefulTime: '%env(int:DELETE_ASSET_GRACEFUL_TIME)%'
+            ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
+            ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -29,26 +32,11 @@ services:
         tags: ['controller.service_arguments']
 
     _instanceof:
-        App\Serializer\Normalizer\EntityNormalizerInterface:
-            tags: ['app.entity_normalizer']
-        Doctrine\Common\EventSubscriber:
-            tags: ['doctrine.event_subscriber']
-        App\Form\Resolver\WidgetResolverInterface:
-            tags: ['widget_resolver']
         Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
             tags: ['arthem_rabbit.event_handler']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    App\Consumer\Handler\DownloadHandler:
-        arguments:
-            $client: "@eight_points_guzzle.client.download"
-
-    App\Consumer\Handler\AssetConsumerNotifyHandler:
-        arguments:
-            $client: "@eight_points_guzzle.client.consumer_notify"
-            $uploadBaseUrl: '%env(UPLOADER_API_BASE_URL)%'
 
     App\Storage\AssetManager:
         arguments:
@@ -76,6 +64,3 @@ services:
         arguments: [ '@app.serializer.decorated_object.inner' ]
         tags:
             - { name: serializer.normalizer, priority: -989 }
-
-    App\DataProvider\TargetDataProvider:
-        arguments: [ '@api_platform.doctrine.orm.default.collection_data_provider' ]

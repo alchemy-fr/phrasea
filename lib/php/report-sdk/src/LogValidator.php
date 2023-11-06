@@ -11,17 +11,11 @@ use Opis\JsonSchema\Validator;
 
 class LogValidator
 {
-    /**
-     * @var Schema
-     */
-    private $schema;
+    private readonly \Opis\JsonSchema\Schema $schema;
 
-    /**
-     * @var Validator
-     */
-    private $validator;
+    private readonly \Opis\JsonSchema\Validator $validator;
 
-    public function __construct(?string $schema = null)
+    public function __construct(string $schema = null)
     {
         $this->schema = Schema::fromJsonString($schema ?? file_get_contents(__DIR__.'/log-schema.json'));
         $this->validator = new Validator();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,7 +78,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
             ]);
             static::createClient()->request('GET', '/assets/'.$asset->getId(), [
                 'headers' => [
-                    'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
                 ],
             ]);
 
@@ -97,9 +97,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
         $client = static::createClient();
 
         $em = static::getContainer()->get(EntityManagerInterface::class);
-        $assetsIds = array_map(function (array $r): string {
-            return $r['id'];
-        }, $em->getRepository(Asset::class)->createQueryBuilder('a')
+        $assetsIds = array_map(fn (array $r): string => $r['id'], $em->getRepository(Asset::class)->createQueryBuilder('a')
             ->select('a.id')
             ->andWhere('a.key IS NOT NULL')
             ->getQuery()
@@ -107,7 +105,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
 
         return $client->request('POST', '/attributes/batch-update', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => $actions,

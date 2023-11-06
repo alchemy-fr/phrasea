@@ -11,13 +11,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class WebhookTrigger
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
+    private readonly EntityManagerInterface $em;
     private ?array $webhooks = null;
 
-    public function __construct(EventProducer $eventProducer, EntityManagerInterface $em)
+    public function __construct(private readonly EventProducer $eventProducer, EntityManagerInterface $em)
     {
-        $this->eventProducer = $eventProducer;
         $this->em = $em;
     }
 
@@ -36,9 +34,7 @@ class WebhookTrigger
     {
         $this->loadWebhooks();
 
-        return array_filter($this->webhooks, function (Webhook $webhook) use ($event): bool {
-            return $webhook->hasEvent($event);
-        });
+        return array_filter($this->webhooks, fn (Webhook $webhook): bool => $webhook->hasEvent($event));
     }
 
     private function loadWebhooks(): void
@@ -47,7 +43,7 @@ class WebhookTrigger
             return;
         }
 
-        /** @var Webhook[] $webhooks */
+        /* @var Webhook[] $webhooks */
         $this->webhooks = $this->em->getRepository(Webhook::class)->findBy([
             'active' => true,
         ]);

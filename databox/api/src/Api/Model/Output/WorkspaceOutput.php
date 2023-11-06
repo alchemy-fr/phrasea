@@ -4,51 +4,51 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ApiResource(
- *     shortName="workspace",
- *     normalizationContext="workspace:read",
- * )
- */
 class WorkspaceOutput extends AbstractUuidOutput
 {
     use CapabilitiesDTOTrait;
     use CreatedAtDTOTrait;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read"})
-     */
+    #[Groups([
+        '_',
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+    ])]
     protected array $capabilities = [];
 
-    /**
-     * @Groups({"workspace:index", "workspace:read", "collection:index", "collection:read", "asset:index", "asset:read", "Webhook", "renddef:index"})
-     */
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Collection::GROUP_LIST,
+        Collection::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        WebhookSerializationInterface::DEFAULT_GROUP,
+        RenditionDefinition::GROUP_LIST,
+    ])]
     private string $name;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read"})
-     */
+    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private string $slug;
 
-    /**
-     * @Groups({"workspace:index", "workspace:read"})
-     */
+    #[Groups([Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private bool $public;
 
-    /**
-     * @Groups({"workspace:read"})
-     */
+    #[Groups([Workspace::GROUP_READ])]
     private ?array $enabledLocales = null;
 
-    /**
-     * @Groups({"workspace:read"})
-     */
+    #[Groups([Workspace::GROUP_READ])]
     private ?array $localeFallbacks = null;
 
     public function getName(): string

@@ -12,15 +12,12 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('alchemy_notify');
         $treeBuilder->getRootNode()
             ->children()
-                ->scalarNode('notify_base_url')->defaultValue('http://notify-api')->end()
+                ->scalarNode('notify_base_url')->defaultValue('http://notify-api-nginx')->end()
             ->end()
         ;
 

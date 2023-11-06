@@ -7,3 +7,4 @@ services:
 
   Alchemy\CoreBundle\Fixture\Faker\ImageUrlFaker: ~
   Alchemy\CoreBundle\Fixture\Faker\MediaFaker: ~
+  Alchemy\CoreBundle\Fixture\Faker\KeycloakFaker: ~

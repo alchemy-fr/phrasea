@@ -4,51 +4,39 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use DateTime;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="contact_topic_unique",columns={"topic", "contact_id"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'contact_topic_unique', columns: ['topic', 'contact_id'])]
+#[ORM\Entity]
 class TopicSubscriber
 {
     /**
      * @var string
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
-    protected $topic;
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    protected ?string $topic = null;
 
-    /**
-     * @var Contact
-     *
-     * @ORM\ManyToOne(targetEntity="Contact")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
-    protected $contact;
+    #[ORM\ManyToOne(targetEntity: Contact::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    protected ?Contact $contact = null;
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private readonly \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->id = Uuid::uuid4();
     }
 
@@ -77,7 +65,7 @@ class TopicSubscriber
         return $this->contact;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{publicationId}/assets/{assetId}/download", name="download_asset")
- */
+#[Route(path: '/publications/{publicationId}/assets/{assetId}/download', name: 'download_asset')]
 final class DownloadAssetAction extends AbstractAssetAction
 {
     public function __invoke(string $publicationId, string $assetId, Request $request): RedirectResponse

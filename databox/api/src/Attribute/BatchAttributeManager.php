@@ -6,7 +6,7 @@ namespace App\Attribute;
 
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChangedEventHandler;
@@ -19,9 +19,9 @@ use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Security;
 
 class BatchAttributeManager
 {
@@ -70,7 +70,7 @@ class BatchAttributeManager
 
         foreach ($assets as $asset) {
             if (!$this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset)) {
-                throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset %s', $asset->getId()));
+                throw new AccessDeniedHttpException(sprintf('Unauthorized to edit asset "%s"', $asset->getId()));
             }
         }
 
@@ -111,7 +111,7 @@ class BatchAttributeManager
         string $workspaceId,
         array $assetsId,
         AssetAttributeBatchUpdateInput $input,
-        ?RemoteUser $user,
+        ?JwtUser $user,
         bool $dispatchUpdateEvent = false,
     ): void {
         if (empty($assetsId)) {
@@ -228,7 +228,7 @@ class BatchAttributeManager
                                     ->from(AttributeDefinition::class, 'ad')
                                     ->andWhere('ad.workspace = :ws')
                                     ->setParameter('ws', $workspaceId);
-                                if ($user instanceof RemoteUser) {
+                                if ($user instanceof JwtUser) {
                                     $sub
                                         ->innerJoin('ad.class', 'ac')
                                         ->andWhere('ac.public = true OR ace.id IS NOT NULL');
@@ -301,9 +301,12 @@ class BatchAttributeManager
                 $attribute->setDefinition($definition);
             }
 
-            $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
-
-            $this->em->persist($attribute);
+            try {
+                $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
+                $this->em->persist($attribute);
+            } catch (InvalidAttributeValueException) {
+                // Ignore invalid values
+            }
 
             $attribute = null;
         }
@@ -331,7 +334,7 @@ class BatchAttributeManager
     private function deleteAttributes(
         array $assetsId,
         ?AttributeDefinition $definition,
-        ?RemoteUser $user,
+        ?JwtUser $user,
         array $options = []
     ): void {
         $qb = $this->em->createQueryBuilder()
@@ -344,7 +347,7 @@ class BatchAttributeManager
                 ->andWhere('a.definition = :def')
                 ->setParameter('def', $definition->getId());
         } else {
-            if ($user instanceof RemoteUser) {
+            if ($user instanceof JwtUser) {
                 $qb
                     ->innerJoin('a.definition', 'ad')
                     ->innerJoin('ad.class', 'ac')
@@ -370,12 +373,12 @@ class BatchAttributeManager
         $qb->getQuery()->execute();
     }
 
-    private function joinUserAcl(QueryBuilder $queryBuilder, RemoteUser $user): void
+    private function joinUserAcl(QueryBuilder $queryBuilder, JwtUser $user): void
     {
         AccessControlEntryRepository::joinAcl(
             $queryBuilder,
             $user->getId(),
-            $user->getGroupIds(),
+            $user->getGroups(),
             'attribute_class',
             'ac',
             PermissionInterface::EDIT,

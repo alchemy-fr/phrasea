@@ -6,9 +6,9 @@ namespace App\Elasticsearch;
 
 use Pagerfanta\Adapter\AdapterInterface;
 
-class FilteredPager implements AdapterInterface
+final readonly class FilteredPager implements AdapterInterface
 {
-    public function __construct(private readonly \Closure $filter, private readonly AdapterInterface $decorated)
+    public function __construct(private \Closure $filter, private AdapterInterface $decorated)
     {
     }
 

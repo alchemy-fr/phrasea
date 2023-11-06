@@ -1,0 +1,10 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock: ~
+
+    Alchemy\AuthBundle\Client\KeycloakClient:
+        arguments:
+            $keycloakClient: '@Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock'

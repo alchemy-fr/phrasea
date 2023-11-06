@@ -11,21 +11,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class ApiTestCase extends WebTestCase
 {
-    public const UUID_REGEX = '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}';
+    use ApiTestTrait;
 
     protected ?AbstractBrowser $client = null;
 
-    /**
-     * @param string|array|null $accessToken
-     */
     protected function request(
-        $accessToken,
+        string|array|null $accessToken,
         string $method,
         string $uri,
-        $params = [],
+        ?array $params = null,
         array $files = [],
         array $server = [],
-        ?string $content = null
+        string $content = null
     ): Response {
         if (null !== $accessToken) {
             if (is_array($accessToken)) {
@@ -40,11 +37,14 @@ abstract class ApiTestCase extends WebTestCase
             $server['CONTENT_TYPE'] = 'application/merge-patch+json';
         }
 
-        $server['CONTENT_TYPE'] = $server['CONTENT_TYPE'] ?? 'application/json';
-        $server['HTTP_ACCEPT'] = $server['HTTP_ACCEPT'] ?? 'application/json';
+        $server['CONTENT_TYPE'] ??= 'application/json';
+        $server['HTTP_ACCEPT'] ??= 'application/json';
 
-        if (empty($content) && !empty($params) && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
-            $content = json_encode($params);
+        if (empty($content) && null !== $params && in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true)) {
+            $content = json_encode($params, JSON_THROW_ON_ERROR);
+            $params = [];
+        } elseif (null === $params) {
+            $params = [];
         }
 
         $this->client->request($method, $uri, $params, $files, $server, $content);
@@ -57,8 +57,6 @@ abstract class ApiTestCase extends WebTestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->client = static::createClient();
         $this->client->disableReboot();
     }
@@ -72,33 +70,5 @@ abstract class ApiTestCase extends WebTestCase
         parent::tearDown();
 
         gc_collect_cycles();
-    }
-
-    protected function assertMatchesUuid($uuid): void
-    {
-        $this->assertMatchesRegularExpression('#^'.self::UUID_REGEX.'$#', $uuid);
-    }
-
-    /**
-     * @template T
-     *
-     * @param class-string<T> $name
-     *
-     * @return T
-     */
-    protected static function getService(string $name): object
-    {
-        if (method_exists(self::class, 'getContainer')) {
-            $container = static::getContainer();
-        } else {
-            $container = self::$container;
-        }
-
-        return $container->get($name);
-    }
-
-    protected static function getEntityManager(): EntityManagerInterface
-    {
-        return self::getService(EntityManagerInterface::class);
     }
 }

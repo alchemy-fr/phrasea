@@ -4,47 +4,32 @@ declare(strict_types=1);
 
 namespace App\DataPersister;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
-use ApiPlatform\Core\DataPersister\DataPersisterInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
-use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-class ExposeDataPersister implements ContextAwareDataPersisterInterface
+final readonly class ExposeDataPersister implements ProcessorInterface
 {
-    private DataPersisterInterface $decorated;
-    private EntityManagerInterface $em;
-    private Security $security;
-
     public function __construct(
-        DataPersisterInterface $decorated,
-        EntityManagerInterface $em,
-        Security $security
+        private ProcessorInterface $decorated,
+        private EntityManagerInterface $em,
+        private Security $security,
     ) {
-        $this->decorated = $decorated;
-        $this->em = $em;
-        $this->security = $security;
     }
 
-    public function supports($data, array $context = []): bool
-    {
-        return $this->decorated->supports($data, $context);
-    }
-
-    public function persist($data, array $context = [])
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         if ($data instanceof Publication) {
             // TODO remove after deprecation cycle
             if ($data->getParentId()) {
                 $parent = $this->em->find(Publication::class, $data->getParentId());
                 if (!$parent instanceof Publication) {
-                    throw new InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
+                    throw new \InvalidArgumentException(sprintf('Parent publication %s not found', $data->getParentId()));
                 }
 
                 $parent->addChild($data);
@@ -57,18 +42,13 @@ class ExposeDataPersister implements ContextAwareDataPersisterInterface
             || $data instanceof PublicationProfile
         ) {
             $user = $this->security->getUser();
-            if ($user instanceof RemoteUser && !$data->getOwnerId()) {
+            if ($user instanceof JwtUser && null === $data->getOwnerId()) {
                 $data->setOwnerId($user->getId());
             }
         }
 
-        $this->decorated->persist($data);
+        $this->decorated->process($data, $operation, $uriVariables, $context);
 
         return $data;
-    }
-
-    public function remove($data, array $context = [])
-    {
-        $this->decorated->remove($data, $context);
     }
 }

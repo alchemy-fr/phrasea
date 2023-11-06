@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Api;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 
@@ -25,7 +25,7 @@ class LongTextTest extends AbstractSearchTestCase
 
         $client->request('POST', $assetIri.'/attributes', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
                 'actions' => [
@@ -48,14 +48,14 @@ class LongTextTest extends AbstractSearchTestCase
 
         $response = $client->request('GET', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'query' => [
                 'query' => $searchKeyword,
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $data = \GuzzleHttp\json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true);
         $assetResult = $data['hydra:member'][0];
         $this->assertEquals($longText, $assetResult['attributes'][0]['value']);
     }

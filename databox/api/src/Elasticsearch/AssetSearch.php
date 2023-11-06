@@ -8,13 +8,13 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Security;
 
 class AssetSearch extends AbstractSearch
 {
@@ -57,9 +57,9 @@ class AssetSearch extends AbstractSearch
 
         if (null !== $attrFilters = ($options['filters'] ?? null)) {
             if (is_string($attrFilters)) {
-                $attrFilters = \GuzzleHttp\json_decode($attrFilters, true);
+                $attrFilters = json_decode($attrFilters, true, 512, JSON_THROW_ON_ERROR);
             } else {
-                $attrFilters = array_map(fn ($f): array => is_string($f) ? \GuzzleHttp\json_decode($f, true) : $f, $attrFilters);
+                $attrFilters = array_map(fn ($f): array => is_string($f) ? json_decode($f, true, 512, JSON_THROW_ON_ERROR) : $f, $attrFilters);
             }
             if (!empty($attrFilters)) {
                 $filterQueries[] = $this->attributeSearch->addAttributeFilters($attrFilters);
@@ -113,7 +113,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $query = new Query();
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
 
         $this->applySort($query, $options);
@@ -137,7 +137,7 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AssetVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setCurrentPage((int) $options['page']);

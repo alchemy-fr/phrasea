@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>[Dashboard] ${COMPOSE_PROJECT_NAME}</title>
+    <title>Dashboard ${STACK_NAME}</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
@@ -72,67 +72,63 @@
     <div class="container">
         <h1>
             Dashboard for stack
-            <strong>${COMPOSE_PROJECT_NAME}</strong>
+            <strong>${STACK_NAME}</strong>
         </h1>
 
         <ul class="services">
             <li>
-                <img src="/images/auth.png">
-                <a target="_blank" href="${AUTH_API_BASE_URL}">
-                    <h3>Auth</h3>
+                <img src="/images/keycloak.png">
+                <a target="_blank" href="${KEYCLOAK_URL}">
+                    <h3>Keycloak</h3>
                 </a>
                 <p>Authentication service</p>
-
-                <ul class="sub-svc">
-                    <li><a target="_blank" href="${AUTH_API_BASE_URL}/admin">Admin</a></li>
-                </ul>
             </li>
             <li>
                 <img src="/images/expose.png">
-                <a target="_blank" href="${EXPOSE_CLIENT_BASE_URL}">
+                <a target="_blank" href="${EXPOSE_CLIENT_URL}">
                     <h3>Expose</h3>
                 </a>
                 <p>Expose service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${EXPOSE_API_BASE_URL}">API</a></li>
-                    <li><a target="_blank" href="${EXPOSE_API_BASE_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${EXPOSE_API_URL}">API</a></li>
+                    <li><a target="_blank" href="${EXPOSE_API_URL}/admin">Admin</a></li>
                 </ul>
             </li>
             <li>
-                <img src="/images/expose.png">
-                <a target="_blank" href="${DATABOX_CLIENT_BASE_URL}">
+                <img src="/images/databox.png">
+                <a target="_blank" href="${DATABOX_CLIENT_URL}">
                     <h3>Databox</h3>
                 </a>
                 <p>Databox service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${DATABOX_API_BASE_URL}">API</a></li>
-                    <li><a target="_blank" href="${DATABOX_API_BASE_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${DATABOX_API_URL}">API</a></li>
+                    <li><a target="_blank" href="${DATABOX_API_URL}/admin">Admin</a></li>
                 </ul>
             </li>
             <li>
                 <img src="/images/uploader.png">
-                <a target="_blank" href="${UPLOADER_CLIENT_BASE_URL}">
+                <a target="_blank" href="${UPLOADER_CLIENT_URL}">
                     <h3>Uploader</h3>
                 </a>
                 <p>Uploader service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${UPLOADER_API_BASE_URL}">API</a></li>
-                    <li><a target="_blank" href="${UPLOADER_API_BASE_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${UPLOADER_API_URL}">API</a></li>
+                    <li><a target="_blank" href="${UPLOADER_API_URL}/admin">Admin</a></li>
                 </ul>
             </li>
             <li>
                 <img src="/images/notify.png">
-                <a target="_blank" href="${NOTIFY_API_BASE_URL}/admin">
+                <a target="_blank" href="${NOTIFY_API_URL}/admin">
                     <h3>Notify</h3>
                 </a>
                 <p>Admin of notify service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${NOTIFY_API_BASE_URL}">API</a></li>
-                    <li><a target="_blank" href="${NOTIFY_API_BASE_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${NOTIFY_API_URL}">API</a></li>
+                    <li><a target="_blank" href="${NOTIFY_API_URL}/admin">Admin</a></li>
                 </ul>
             </li>
         </ul>
@@ -143,7 +139,7 @@
                 Advanced
             </button>
             <ul style="display:none">
-                <li><a target="_blank" href="${MATOMO_BASE_URL}">Matomo</a></li>
+                <li><a target="_blank" href="${MATOMO_URL}">Matomo</a></li>
                 <li><a target="_blank" href="${PGADMIN_BASE_URL}">PG Admin</a></li>
                 <li><a target="_blank" href="${PHPMYADMIN_BASE_URL}">PHPMyAdmin</a></li>
                 <li><a target="_blank" href="${RABBITMQ_CONSOLE_BASE_URL}">RabbitMQ Console</a></li>

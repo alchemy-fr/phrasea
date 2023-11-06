@@ -1,0 +1,32 @@
+parameters:
+  env(VERIFY_SSL): true
+  env(KEYCLOAK_REALM_NAME): phrasea
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
+  Alchemy\AuthBundle\Client\KeycloakClient: ~
+  Alchemy\AuthBundle\Client\ServiceAccountClient: ~
+  Alchemy\AuthBundle\Http\AuthStateEncoder: ~
+  Alchemy\AuthBundle\Listener\LogoutListener: ~
+  Alchemy\AuthBundle\Repository\AbstractKeycloakRepository: ~
+  Alchemy\AuthBundle\Repository\GroupRepository: ~
+  Alchemy\AuthBundle\Repository\GroupRepositoryInterface: '@Alchemy\AuthBundle\Repository\GroupRepository'
+  Alchemy\AuthBundle\Repository\UserRepository: ~
+  Alchemy\AuthBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\UserRepository'
+  Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
+  Alchemy\AuthBundle\Security\JwtExtractor: ~
+  Alchemy\AuthBundle\Security\JwtUserProvider: ~
+  Alchemy\AuthBundle\Security\JwtValidator: ~
+  Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
+  Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
+  Alchemy\AuthBundle\Security\RoleMapper: ~
+
+  Alchemy\AuthBundle\Controller\OAuthProxyController:
+      public: true
+
+  Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~

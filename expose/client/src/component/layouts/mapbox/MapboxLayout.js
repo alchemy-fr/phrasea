@@ -12,7 +12,7 @@ import {logAssetView} from "../../../lib/log";
 import {getThumbPlaceholder} from "../shared-components/placeholders";
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
-    mapboxgl.accessToken = config.get('mapBoxToken');
+    mapboxgl.accessToken = config.mapBoxToken;
 
     let map = new mapboxgl.Map({
         container: mapContainer,

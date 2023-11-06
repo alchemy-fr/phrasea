@@ -8,11 +8,8 @@ use Alchemy\Workflow\Runner\RunnerInterface;
 
 class RuntimeJobTrigger implements JobTriggerInterface
 {
-    private RunnerInterface $runner;
-
-    public function __construct(RunnerInterface $runner)
+    public function __construct(private readonly RunnerInterface $runner)
     {
-        $this->runner = $runner;
     }
 
     public function triggerJob(string $workflowId, string $jobId): bool

@@ -17,10 +17,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AlchemyAdminExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $bundles = $container->getParameter('kernel.bundles');
@@ -37,7 +34,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
 
         $jsonConfigSrc = '/configs/config.json';
         if (file_exists($jsonConfigSrc)) {
-            $rootConfig = json_decode(file_get_contents($jsonConfigSrc), true);
+            $rootConfig = json_decode(file_get_contents($jsonConfigSrc), true, 512, JSON_THROW_ON_ERROR);
             // Add for fresh cache
             $container->addResource(new FileResource($jsonConfigSrc));
         } else {
@@ -73,7 +70,7 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $container->setParameter('easy_admin.site_title', $adminSiteTitle);
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
         if (!isset($bundles['EasyAdminBundle'])) {
@@ -107,18 +104,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 ],
             ]
         );
-
-        if (isset($bundles['AlchemyRemoteAuthBundle'])) {
-            $container->prependExtensionConfig('alchemy_remote_auth', [
-                    'login_forms' => [
-                        'admin' => [
-                            'route_name' => 'alchemy_admin_login',
-                            'default_target_path' => '/admin',
-                        ],
-                    ],
-                ]
-            );
-        }
 
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [

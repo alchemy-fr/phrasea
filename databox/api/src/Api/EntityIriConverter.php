@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
-use ApiPlatform\Core\Exception\ItemNotFoundException;
+use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Exception\ItemNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class EntityIriConverter
+readonly class EntityIriConverter
 {
-    public function __construct(private readonly IriConverterInterface $iriConverter, private readonly EntityManagerInterface $em)
+    public function __construct(private IriConverterInterface $iriConverter, private EntityManagerInterface $em)
     {
     }
 
@@ -24,7 +24,7 @@ class EntityIriConverter
     public function getItemFromIri(string $class, string $id): object
     {
         if (str_starts_with($id, '/')) {
-            return $this->iriConverter->getItemFromIri($id);
+            return $this->iriConverter->getResourceFromIri($id);
         }
 
         $object = $this->em->find($class, $id);

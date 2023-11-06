@@ -5,28 +5,27 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use App\Entity\PublicationProfile;
+use App\Security\ScopeInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class PublicationProfileVoter extends Voter
 {
-    const CREATE = 'profile:create';
-    const INDEX = 'profile:index';
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
+    final public const CREATE = 'profile:create';
+    final public const INDEX = 'profile:index';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof PublicationProfile || self::CREATE === $attribute;
     }
@@ -34,35 +33,27 @@ class PublicationProfileVoter extends Voter
     /**
      * @param PublicationProfile|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $isAdmin = $this->security->isGranted('ROLE_PUBLISH') || $this->security->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->security->isGranted(ScopeVoter::PREFIX.ScopeInterface::SCOPE_PUBLISH) || $this->security->isGranted(JwtUser::ROLE_ADMIN);
         $user = $token->getUser();
-        $isAuthenticated = $user instanceof RemoteUser;
+        $isAuthenticated = $user instanceof JwtUser;
         $isOwner = $isAuthenticated && $subject && $subject->getOwnerId() === $user->getId();
 
-        switch ($attribute) {
-            case self::CREATE:
-                return $isAdmin
-                    || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile());
-            case self::INDEX:
-                return $isAuthenticated;
-            case self::READ:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::VIEW, $subject);
-            case self::DELETE:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::DELETE, $subject)
-                    ;
-            case self::EDIT:
-                return $isAdmin
-                    || $isOwner
-                    || $this->security->isGranted(PermissionInterface::EDIT, $subject)
-                    ;
-            default:
-                return false;
-        }
+        return match ($attribute) {
+            self::CREATE => $isAdmin
+                || $this->security->isGranted(PermissionInterface::CREATE, new PublicationProfile()),
+            self::INDEX => $isAuthenticated,
+            self::READ => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::VIEW, $subject),
+            self::DELETE => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::DELETE, $subject),
+            self::EDIT => $isAdmin
+                || $isOwner
+                || $this->security->isGranted(PermissionInterface::EDIT, $subject),
+            default => false,
+        };
     }
 }

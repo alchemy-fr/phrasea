@@ -7,10 +7,12 @@ namespace App\Doctrine\Listener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::onFlush)]
 class AssetListener implements EventSubscriber
 {
     public function onFlush(OnFlushEventArgs $args): void
@@ -35,7 +37,7 @@ class AssetListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::onFlush,

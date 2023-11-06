@@ -8,21 +8,17 @@ use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AdminBundle\Controller\AbstractAdminController;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/acl", name="alchemy_admin_acl_")
- */
+#[Route(path: '/acl', name: 'alchemy_admin_acl_')]
 class GlobalPermissionsController extends AbstractAdminController
 {
-    private PermissionView $permissionView;
+    private readonly PermissionView $permissionView;
 
     public function __construct(PermissionView $permissionView)
     {
         $this->permissionView = $permissionView;
     }
 
-    /**
-     * @Route(path="/aces/{type}/global", name="global_permissions")
-     */
+    #[Route(path: '/aces/{type}/global', name: 'global_permissions')]
     public function globalPermissionsAction(string $type)
     {
         return $this->render(

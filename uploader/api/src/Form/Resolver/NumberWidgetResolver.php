@@ -23,6 +23,6 @@ class NumberWidgetResolver implements WidgetResolverInterface
         return 'number' === $config['type']
             || 'number' === $config['format']
             || 'number' === $config['widget']
-            ;
+        ;
     }
 }

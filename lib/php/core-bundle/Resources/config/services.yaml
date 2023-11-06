@@ -1,0 +1,10 @@
+
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Alchemy\CoreBundle\Listener\JsonConverterSubscriber:
+    tags:
+      - { name: kernel.event_subsriber }

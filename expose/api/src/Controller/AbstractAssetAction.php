@@ -13,6 +13,7 @@ use App\Security\Voter\PublicationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class AbstractAssetAction extends AbstractController
 {
@@ -62,29 +63,22 @@ class AbstractAssetAction extends AbstractController
             throw new NotFoundHttpException(sprintf('SubDef "%s" is not from publication "%s"', $subDef->getId(), $publication->getId()));
         }
 
-
         return $subDef;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setReportClient(ReportUserService $reportClient): void
     {
         $this->reportClient = $reportClient;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;

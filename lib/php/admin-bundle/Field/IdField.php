@@ -15,6 +15,7 @@ final class IdField
         }
 
         return BaseIdField::new($propertyName, $label)
+            ->hideOnForm()
             ->setTemplatePath('@AlchemyAdmin/list/id.html.twig');
     }
 }

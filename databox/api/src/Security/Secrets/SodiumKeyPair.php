@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Security\Secrets;
 
-final class SodiumKeyPair
+final readonly class SodiumKeyPair
 {
     public function __construct(
-        private readonly string $public,
-        private readonly string $secret,
+        private string $public,
+        private string $secret,
     ) {
     }
 

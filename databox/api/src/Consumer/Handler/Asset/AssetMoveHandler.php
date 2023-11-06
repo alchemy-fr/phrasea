@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -34,7 +34,7 @@ class AssetMoveHandler extends AbstractEntityManagerHandler
         }
 
         /** @var Collection|Workspace $destination */
-        $destination = $this->iriConverter->getItemFromIri($dest);
+        $destination = $this->iriConverter->getResourceFromIri($dest);
 
         $em->wrapInTransaction(function () use ($em, $asset, $destination): void {
             $from = $asset->getReferenceCollection();

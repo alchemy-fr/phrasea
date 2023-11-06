@@ -6,22 +6,15 @@ namespace App\Integration\RemoveBg;
 
 use App\Asset\FileFetcher;
 use App\Entity\Core\File;
-use GuzzleHttp\Client;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class RemoveBgClient
+readonly class RemoveBgClient
 {
-    public function __construct(private readonly FileFetcher $fileFetcher, private readonly string $cacheDir)
-    {
-    }
-
-    private function createClient(string $apiKey): Client
-    {
-        return new Client([
-            'base_uri' => 'https://api.remove.bg',
-            'headers' => [
-                'X-Api-Key' => $apiKey,
-            ],
-        ]);
+    public function __construct(
+        private FileFetcher $fileFetcher,
+        private string $cacheDir,
+        private HttpClientInterface $removeBgClient
+    ) {
     }
 
     public function getBgRemoved(File $file, string $apiKey): string
@@ -39,22 +32,21 @@ class RemoveBgClient
             return $cacheFile;
         }
 
-        $client = $this->createClient($apiKey);
-
-        $res = $client->post('/v1.0/removebg', [
-            'multipart' => [
-                [
-                    'name' => 'image_file',
-                    'contents' => fopen($path, 'r'),
-                ],
-                [
-                    'name' => 'size',
-                    'contents' => 'auto',
-                ],
+        $res = $this->removeBgClient->request('POST', '/v1.0/removebg', [
+            'headers' => [
+                'X-Api-Key' => $apiKey,
+            ],
+            'body' => [
+                'image_file' => fopen($path, 'r'),
+                'size' => 'auto',
             ],
         ]);
 
-        file_put_contents($cacheFile, $res->getBody());
+        $fileHandler = fopen($cacheFile, 'w');
+        foreach ($this->removeBgClient->stream($res) as $chunk) {
+            fwrite($fileHandler, $chunk->getContent());
+        }
+        fclose($fileHandler);
 
         return $cacheFile;
     }

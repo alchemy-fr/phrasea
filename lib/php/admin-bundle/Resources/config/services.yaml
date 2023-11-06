@@ -1,8 +1,7 @@
 parameters:
-  alchemy_admin.auth_base_url: '%env(AUTH_API_BASE_URL)%'
-  env(DASHBOARD_BASE_URL): ~
+  env(DASHBOARD_URL): ~
   env(DISPLAY_SERVICES_MENU): false
-  alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_BASE_URL)%/menu.html'
+  alchemy_admin.dashboard_menu_url: '%env(default::DASHBOARD_URL)%/menu.html'
   alchemy_admin.services_menu_enabled: '%env(bool:DISPLAY_SERVICES_MENU)%'
 
 services:
@@ -18,32 +17,10 @@ services:
     tags:
       - { name: twig.extension }
 
-  alchemy_admin.http_client:
-    class: GuzzleHttp\Client
-    arguments:
-      -
-        base_uri: "%alchemy_admin.auth_base_url%"
-        verify: false # TODO configure it for prod
-        options:
-          timeout: 10
-          http_errors: false
-          headers:
-            Accept: "application/json"
-
-  Alchemy\AdminBundle\Auth\OAuthClient:
-    arguments:
-      $client: "@alchemy_admin.http_client"
-      $clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
-      $clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-      $authBaseUrl: '%alchemy_admin.auth_base_url%'
-
   Alchemy\AclBundle\Controller\PermissionController: ~
 
   alchemy_admin.access_denied_handler:
     class: Alchemy\AdminBundle\Security\AdminAccessDeniedHandler
-
-  alchemy_admin.logout.success_handler:
-    class: Alchemy\AdminBundle\Security\LogoutSuccessHandler
 
   Alchemy\AdminBundle\Form\UserChoiceType: ~
   Alchemy\AdminBundle\Form\GroupChoiceType: ~

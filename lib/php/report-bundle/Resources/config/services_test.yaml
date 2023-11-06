@@ -12,7 +12,7 @@ services:
     arguments:
       -
         handler: '@alchemy_report.handler_stack'
-        base_uri: "%alchemy_report.report_base_url%"
+        base_uri: "%alchemy_report.report_url%"
         options:
           timeout: 10
           http_errors: false

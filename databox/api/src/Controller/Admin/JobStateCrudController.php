@@ -49,7 +49,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         ;
     }
 
-    public function retryJob(AdminContext $context)
+    public function retryJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
         $jobState = $context->getEntity()->getInstance();
@@ -58,7 +58,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         return new RedirectResponse($context->getReferrer());
     }
 
-    public function rerunJob(AdminContext $context)
+    public function rerunJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
         $jobState = $context->getEntity()->getInstance();

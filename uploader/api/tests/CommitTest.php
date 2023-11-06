@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Asset;
 use App\Entity\Commit;
 
@@ -15,11 +15,11 @@ class CommitTest extends AbstractUploaderTestCase
         [$commitId, $assetId] = $this->createCommit();
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/commits/'.$commitId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -29,16 +29,16 @@ class CommitTest extends AbstractUploaderTestCase
     public function testGetCommitListOK(): void
     {
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/commits'
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertTrue(is_array($json), 'Not an array');
-        $this->assertTrue(empty($json), 'Not empty');
+        $this->assertEmpty($json);
     }
 
     public function testGetCommittListWithAnonymousUser(): void

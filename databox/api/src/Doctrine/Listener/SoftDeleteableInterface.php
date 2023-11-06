@@ -6,5 +6,5 @@ namespace App\Doctrine\Listener;
 
 interface SoftDeleteableInterface
 {
-    public function getDeletedAt(): ?\DateTimeInterface;
+    public function getDeletedAt(): ?\DateTimeImmutable;
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Integration;
 
-use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Entity\Core\Asset;
@@ -27,25 +26,20 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(path="/integrations/phraseanet", name="integration_phraseanet_")
- */
+#[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_')]
 class PhraseanetIntegrationController extends AbstractController
 {
     final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
 
-    /**
-     * @Route(path="/{integrationId}/renditions/incoming/{assetId}", methods={"POST"}, name="incoming_rendition")
-     */
+    #[Route(path: '/{integrationId}/renditions/incoming/{assetId}', name: 'incoming_rendition', methods: ['POST'])]
     public function incomingRenditionAction(
         string $integrationId,
         string $assetId,
         Request $request,
         RenditionManager $renditionManager,
         FileManager $fileManager,
-        FileStorageManager $storageManager,
         JWTTokenManager $JWTTokenManager,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
     ): Response {
         $token = $request->request->get('token');
         if (!$token) {
@@ -58,7 +52,7 @@ class PhraseanetIntegrationController extends AbstractController
         }
 
         ini_set('max_execution_time', '600');
-        $fileInfo = $request->request->get('file_info');
+        $fileInfo = $request->request->all('file_info');
         if (empty($fileInfo)) {
             throw new BadRequestHttpException('Missing "file_info"');
         }
@@ -111,15 +105,13 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    /**
-     * @Route(path="/{integrationId}/events", methods={"POST"}, name="webhook_event")
-     */
+    #[Route(path: '/{integrationId}/events', name: 'webhook_event', methods: ['POST'])]
     public function webhookEventAction(
         Request $request,
         EventProducer $eventProducer,
         LoggerInterface $logger
     ): Response {
-        $json = \GuzzleHttp\json_decode($request->getContent(), true);
+        $json = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         switch ($json['event']) {
             case 'record.subdef.created':
@@ -152,9 +144,7 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    /**
-     * @Route(path="/{integrationId}/assets/{id}", methods={"GET"}, name="asset")
-     */
+    #[Route(path: '/{integrationId}/assets/{id}', name: 'asset', methods: ['GET'])]
     public function assetAction(
         $integrationId,
         string $id,
@@ -193,15 +183,24 @@ class PhraseanetIntegrationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/{integrationId}/commits/{id}/ack", methods={"POST"}, name="enqueue_ack")
-     */
+    #[Route(path: '/{integrationId}/commits/{id}/ack', name: 'enqueue_ack', methods: ['POST'])]
     public function enqueueAckAction(
         string $integrationId,
         string $id,
         LoggerInterface $logger
     ): Response {
         $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset "%s"', $id));
+
+        return new Response();
+    }
+
+    #[Route(path: '/{integrationId}/assets/{assetId}/ack', name: 'enqueue_asset_ack', methods: ['POST'])]
+    public function enqueueAssetAckAction(
+        string $integrationId,
+        string $assetId,
+        LoggerInterface $logger
+    ): Response {
+        $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset ID "%s"', $assetId));
 
         return new Response();
     }

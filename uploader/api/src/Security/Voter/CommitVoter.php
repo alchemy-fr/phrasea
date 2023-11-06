@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Commit;
 use App\Security\Authentication\AssetToken;
+use App\Security\ScopeInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class CommitVoter extends Voter
 {
-    const ACK = 'ACK';
-    const READ = 'READ';
+    use ScopeVoterTrait;
+    final public const ACK = 'ACK';
+    final public const READ = 'READ';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Commit;
     }
@@ -31,19 +32,19 @@ class CommitVoter extends Voter
      * @param AssetToken $token
      * @param Commit     $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (null === $subject->getToken()) {
             return false;
         }
 
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;
         }
 
         switch ($attribute) {
             case self::READ:
-                if ($this->security->isGranted('ROLE_COMMIT:LIST')) {
+                if ($this->hasScope(ScopeInterface::SCOPE_COMMIT_LIST, $token)) {
                     return true;
                 }
                 if ($token instanceof AssetToken && $token->getAccessToken() === $subject->getToken()) {

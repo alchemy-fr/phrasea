@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Command;
 
-use App\Consumer\Handler\Notify\RegisterUserToNotifierHandler;
 use Alchemy\StorageBundle\Upload\UploadManager;
-use App\User\UserManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Exception;
-use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class PruneMultipartUploadsCommand extends Command
 {
@@ -29,10 +20,7 @@ class PruneMultipartUploadsCommand extends Command
         $this->uploadManager = $uploadManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -42,10 +30,7 @@ class PruneMultipartUploadsCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->uploadManager->pruneParts();
 

@@ -11,22 +11,17 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ObjectNormalizer
 {
-    private NormalizerInterface $normalizer;
-    private TokenStorageInterface $tokenStorage;
-    private ?array $normalizerRoles;
-    private NormalizerContextBuilderInterface $normalizerContextBuilder;
+    private readonly NormalizerInterface $normalizer;
+    private readonly TokenStorageInterface $tokenStorage;
 
     public function __construct(
         NormalizerInterface $normalizer,
-        NormalizerContextBuilderInterface $normalizerContextBuilder,
+        private readonly NormalizerContextBuilderInterface $normalizerContextBuilder,
         TokenStorageInterface $tokenStorage,
-        ?array $normalizerRoles = null
-    )
-    {
+        private readonly ?array $normalizerRoles = null
+    ) {
         $this->normalizer = $normalizer;
-        $this->normalizerRoles = $normalizerRoles;
         $this->tokenStorage = $tokenStorage;
-        $this->normalizerContextBuilder = $normalizerContextBuilder;
     }
 
     public function normalize(object $object, array $groups): array

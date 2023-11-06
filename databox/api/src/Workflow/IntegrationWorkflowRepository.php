@@ -13,20 +13,19 @@ use App\Integration\IntegrationManager;
 use App\Integration\WorkflowIntegrationInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
+final readonly class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 {
     private const ASSET_INGEST_NAME = 'asset-ingest';
     private const ATTRIBUTES_UPDATE_NAME = 'attributes-update';
-
     private const ROOT_WORKFLOWS = [
         self::ATTRIBUTES_UPDATE_NAME,
         self::ASSET_INGEST_NAME,
     ];
 
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly IntegrationManager $integrationManager,
-        private readonly WorkflowRepositoryInterface $decorated,
+        private EntityManagerInterface $em,
+        private IntegrationManager $integrationManager,
+        private WorkflowRepositoryInterface $decorated,
     ) {
     }
 
@@ -99,6 +98,8 @@ final class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
                 'integration' => $integration,
                 'workspaceIntegration' => $workspaceIntegration,
             ] = $config;
+
+            assert($integration instanceof WorkflowIntegrationInterface);
 
             /** @var Job $jobDefinition */
             foreach ($integration->getWorkflowJobDefinitions($config, $workflow) as $jobDefinition) {

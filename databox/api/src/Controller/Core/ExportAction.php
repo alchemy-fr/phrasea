@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
-use ApiPlatform\Core\Validator\Exception\ValidationException;
-use ApiPlatform\Core\Validator\ValidatorInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\StorageBundle\Util\FileUtil;
+use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
-use Alchemy\StorageBundle\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ExportAction extends AbstractController
 {
     public function __construct(
-        private readonly Client $zippyClient,
+        private readonly HttpClientInterface $zippyClient,
         private readonly ValidatorInterface $validator,
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
@@ -32,12 +31,9 @@ class ExportAction extends AbstractController
     public function __invoke(Export $data, Request $request): Export
     {
         $user = $this->getUser();
-        $userId = $user instanceof RemoteUser ? $user->getId() : null;
-        $groupsIds = $user instanceof RemoteUser ? $user->getGroupIds() : [];
-        $errors = $this->validator->validate($data);
-        if (!empty($errors)) {
-            throw new ValidationException($errors);
-        }
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+        $groupsIds = $user instanceof JwtUser ? $user->getGroups() : [];
+        $this->validator->validate($data);
 
         $renditionIds = $data->renditions;
         $files = [];
@@ -74,7 +70,7 @@ class ExportAction extends AbstractController
                 'files' => $files,
             ],
         ]);
-        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $data->downloadUrl = $json['downloadUrl'];
 

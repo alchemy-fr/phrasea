@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
@@ -16,43 +20,38 @@ class CollectionOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[ApiProperty(jsonSchemaContext: [
+        'type' => 'object',
+        'properties' => [
+            'canEdit' => 'boolean',
+            'canDelete' => 'boolean',
+            'canEditPermissions' => 'boolean',
+        ],
+    ])]
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     protected array $capabilities = [];
 
-    /**
-     * @Groups({"collection:index", "collection:read", "asset:index", "asset:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private ?string $title = null;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private ?string $ownerId = null;
 
-    /**
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[Groups([Collection::GROUP_READ])]
+    public ?UserOutput $owner = null;
+
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private int $privacy;
 
-    /**
-     * @Groups({"collection:parent"})
-     */
+    #[Groups(['collection:parent'])]
     private ?self $parent = null;
 
-    /**
-     * @MaxDepth(2)
-     *
-     * @Groups({"collection:index", "collection:children", "workspace:index"})
-     */
+    #[MaxDepth(2)]
+    #[Groups([Collection::GROUP_LIST, 'collection:children', Workspace::GROUP_LIST])]
     private $children;
 
-    /**
-     * @MaxDepth(1)
-     *
-     * @Groups({"collection:index", "collection:read", "workspace:index", "workspace:read"})
-     */
+    #[MaxDepth(1)]
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private $workspace;
 
     public function getTitle(): ?string

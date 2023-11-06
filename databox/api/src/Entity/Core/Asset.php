@@ -5,9 +5,28 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Api\Model\Input\MoveAssetInput;
+use App\Api\Model\Input\MultipleAssetInput;
+use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Output\MultipleAssetOutput;
+use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\MoveAssetProcessor;
+use App\Api\Processor\TriggerAssetWorkflowProcessor;
+use App\Api\Provider\AssetCollectionProvider;
+use App\Controller\Core\AssetAttributeBatchUpdateAction;
+use App\Controller\Core\DeleteAssetByIdsAction;
+use App\Controller\Core\DeleteAssetByKeysAction;
+use App\Controller\Core\MultipleAssetCreateAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
 use App\Entity\SearchableEntityInterface;
@@ -18,16 +37,84 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\AssetRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Core\AssetRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_ws_key",columns={"workspace_id", "key"})})
- */
+#[ApiResource(
+    shortName: 'asset',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => [Asset::GROUP_READ],
+            ]
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new Put(
+            uriTemplate: '/assets/{id}/trigger-workflow',
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: TriggerAssetWorkflowProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/attributes',
+            controller: AssetAttributeBatchUpdateAction::class,
+            securityPostDenormalize: 'is_granted("'.AssetVoter::EDIT_ATTRIBUTES.'", object)',
+            input: AssetAttributeBatchUpdateInput::class,
+        ),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            uriTemplate: '/assets/multiple',
+            controller: MultipleAssetCreateAction::class,
+            normalizationContext: [
+                'groups' => [Asset::GROUP_READ],
+            ],
+            input: MultipleAssetInput::class,
+            output: MultipleAssetOutput::class,
+            validate: false,
+            name: 'post_multiple',
+        ),
+        new Post(
+            uriTemplate: '/assets/move',
+            input: MoveAssetInput::class,
+            name: 'post_move',
+            processor: MoveAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/copy',
+            input: CopyAssetInput::class,
+            name: 'post_copy',
+            processor: CopyAssetProcessor::class,
+        ),
+        new Delete(
+            uriTemplate: '/assets-by-keys',
+            controller: DeleteAssetByKeysAction::class,
+            name: 'delete_by_key',
+        ),
+        new Delete(
+            uriTemplate: '/assets',
+            controller: DeleteAssetByIdsAction::class,
+            name: 'delete_by_ids',
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [Asset::GROUP_LIST],
+    ],
+    input: AssetInput::class,
+    output: AssetOutput::class,
+    provider: AssetCollectionProvider::class,
+)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -35,122 +122,99 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use WorkspaceTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
+    final public const GROUP_READ = 'asset:read';
+    final public const GROUP_LIST = 'asset:index';
+    final public const GROUP_WRITE = 'asset:w';
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $sequence = 0;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     */
+    #[ORM\Column(type: Types::STRING, length: 36)]
     private ?string $ownerId = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
 
     /**
      * Token sent to Uploader.
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
      */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $pendingUploadToken = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="asset", cascade={"remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $collections = null;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Core\Tag")
-     */
+    #[ORM\ManyToMany(targetEntity: Tag::class)]
     private ?DoctrineCollection $tags = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?DoctrineCollection $storyCollection = null;
 
     /**
      * Asset will inherit permissions from this collection.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="referenceAssets")
-     * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'referenceAssets')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Attribute", mappedBy="asset", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\File", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: File::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(nullable: true)]
     private ?File $source = null;
 
     private bool $noFileVersion = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\AssetRendition", mappedBy="asset", cascade={"remove"})
-     */
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetRendition::class, cascade: ['remove'])]
     private ?DoctrineCollection $renditions = null;
+
+    #[ORM\OneToMany(mappedBy: 'asset', targetEntity: AssetFileVersion::class, cascade: ['remove'])]
+    private ?DoctrineCollection $fileVersions = null;
 
     private ?array $highlights = null;
 
-    public ?AssetAttributeBatchUpdateInput $attributeActions = null;
-
-    public ?CopyAssetInput $copyAction = null;
-    public ?MoveAssetInput $moveAction = null;
-
     /**
      * Last update time of attribute.
-     *
-     * @ORM\Column(type="datetime_immutable")
      */
     #[Groups(['dates'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $attributesEditedAt = null;
 
     /**
      * Last update time of tags.
-     *
-     * @ORM\Column(type="datetime_immutable")
      */
     #[Groups(['dates'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $tagsEditedAt = null;
 
     /**
      * @param float $now got from microtime(true)
      */
-    public function __construct(?float $now = null, ?int $sequence = null)
+    public function __construct(float $now = null, int $sequence = null)
     {
         parent::__construct();
         $this->collections = new ArrayCollection();
         $this->renditions = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->attributes = new ArrayCollection();
+        $this->fileVersions = new ArrayCollection();
 
         /* @var $now float */
         $now ??= microtime(true);
         $createdAt = new \DateTimeImmutable();
-        $this->createdAt = ($createdAt)->setTimestamp((int) floor($now));
+        $this->createdAt = $createdAt->setTimestamp((int) floor($now));
         $this->updatedAt = $this->createdAt;
         $this->microseconds = ($now * 1_000_000) % 1_000_000;
 
@@ -284,11 +348,8 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     public function getReferenceCollectionId(): ?string
     {
-        if (!$this->referenceCollection) {
-            return null;
-        }
+        return $this->referenceCollection?->getId();
 
-        return $this->referenceCollection->getId();
     }
 
     public function getReferenceCollection(): ?Collection

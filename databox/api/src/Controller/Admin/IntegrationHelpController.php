@@ -17,9 +17,7 @@ class IntegrationHelpController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/admin/integrations/help", name="admin_integrations_help")
-     */
+    #[Route(path: '/admin/integrations/help', name: 'admin_integrations_help')]
     public function __invoke(): Response
     {
         $integrations = array_map(fn (IntegrationInterface $integration): array => [

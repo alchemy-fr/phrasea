@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Rendition\Phraseanet;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Consumer\JobConsumer;
-use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Controller\Integration\PhraseanetIntegrationController;
@@ -20,8 +20,7 @@ use App\Tests\FileUploadTrait;
 use App\Tests\Mock\EventProducerMock;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
@@ -51,7 +50,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
         $clientMock = $clientFactory->getMock();
-        $clientMock->append(new Response(200));
+        $mockResponse = new MockResponse('');
+        $clientMock->setResponseFactory($mockResponse);
 
         /** @var Workspace $workspace */
         $workspace = $em->getRepository(Workspace::class)->findOneBy([
@@ -78,7 +78,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('POST', '/assets', [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
                 'title' => 'Dummy asset',
@@ -96,7 +96,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             '@type' => 'asset',
             'title' => 'Dummy asset',
         ]);
-        $json = \GuzzleHttp\json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true);
         $assetId = $json['id'];
 
         $eventMessage = $eventProducer->shiftEvent();
@@ -104,20 +104,20 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getPayload()['j']);
         $this->consumeEvent($eventMessage);
 
-        $transaction = $clientFactory->shiftHistory();
-        /** @var Request $trRequest */
-        $trRequest = $transaction['request'];
-        self::assertEquals('POST', $trRequest->getMethod());
-        self::assertEquals('OAuth baz', $trRequest->getHeaders()['Authorization'][0]);
-        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', (string) $trRequest->getUri());
-        $phraseanetBodyData = json_decode($trRequest->getBody()->getContents(), true);
+        self::assertEquals('POST', $mockResponse->getRequestMethod());
+        $requestOptions = $mockResponse->getRequestOptions();
+        self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
+        self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', $mockResponse->getRequestUrl());
+        $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'assets' => [$assetId],
             'publisher' => '4242',
             'commit_id' => $assetId,
         ], $phraseanetBodyData);
-        $this->assertMatchesRegularExpression(
-            sprintf('#https://api-databox\.[^/]+/integrations/phraseanet/%s/$#', preg_quote($integration->getId(), '#')), $phraseanetBodyData['base_url']);
+        $this->assertMatchesRegularExpression(sprintf(
+            '#https://api-databox\.[^/]+/integrations/phraseanet/%s/$#',
+            preg_quote($integration->getId(), '#')
+        ), $phraseanetBodyData['base_url']);
 
         $endpoint = sprintf('/integrations/phraseanet/%s/assets/%s', $integration->getId(), $assetId);
         // Call from Phraseanet without token
@@ -179,7 +179,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
 
         $response = $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
-                'Authorization' => 'Bearer '.AuthServiceClientTestMock::ADMIN_TOKEN,
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);

@@ -4,11 +4,7 @@ services:
   uploader-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./uploader/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./uploader/client:/usr/src/app
     environment:
@@ -17,11 +13,7 @@ services:
   expose-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./expose/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./expose/client:/usr/src/app
     environment:
@@ -30,11 +22,7 @@ services:
   databox-client:
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      context: ./databox/client
       target: client-build
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
       - ./databox/client:/usr/src/app
     environment:
@@ -44,6 +32,7 @@ services:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
@@ -63,6 +52,7 @@ services:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
@@ -76,27 +66,11 @@ services:
     volumes:
       - ./uploader/api/public:/srv/app/public
 
-  auth-worker:
-    volumes:
-      - ./auth/api:/srv/app
-      - ./auth/api/docker/supervisor:/etc/supervisor.d
-
-  auth-api-php:
-    environment:
-      - XDEBUG_ENABLED
-      - XDEBUG_SESSION
-      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
-    volumes:
-      - ./auth/api:/srv/app
-
-  auth-api-nginx:
-    volumes:
-      - ./auth/api/public:/srv/app/public
-
   notify-api-php:
     environment:
       - XDEBUG_ENABLED
       - XDEBUG_SESSION
+      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
@@ -143,8 +117,8 @@ services:
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
-      - UPLOADER_API_BASE_URL=https://api-uploader.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - DATABOX_API_BASE_URL=https://api-databox.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - UPLOADER_API_URL
+      - DATABOX_API_URL
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - MARIADB_NAME=databox
@@ -161,12 +135,11 @@ services:
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
       - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - S3_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
-      - AUTH_API_BASE_URL=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - EXPOSE_API_BASE_URL=https://api-expose.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
-      - REPORT_API_BASE_URL
+      - S3_PATH_PREFIX
+      - EXPOSE_API_URL
+      - REPORT_API_URL
       - MAPBOX_TOKEN
       - XDEBUG_ENABLED
       - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
@@ -176,19 +149,53 @@ services:
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
-      - MATOMO_BASE_URL
+      - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      - KEYCLOAK_URL
+      - MAILER_DSN
+      - MAIL_FROM
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+      - NOTIFY_API_URL
+      - EXPOSE_ADMIN_CLIENT_ID
+      - EXPOSE_ADMIN_CLIENT_SECRET
+      - UPLOADER_ADMIN_CLIENT_ID
+      - UPLOADER_ADMIN_CLIENT_SECRET
+      - NOTIFY_ADMIN_CLIENT_ID
+      - NOTIFY_ADMIN_CLIENT_SECRET
+      - DATABOX_ADMIN_CLIENT_ID
+      - DATABOX_ADMIN_CLIENT_SECRET
+      - DATABOX_CLIENT_ID
+      - EXPOSE_CLIENT_ID
+      - UPLOADER_CLIENT_ID
+      - DATABOX_CLIENT_URL
+      - EXPOSE_CLIENT_URL
+      - UPLOADER_CLIENT_URL
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - AUTH_DB_NAME
+      - DATABOX_DB_NAME
+      - EXPOSE_DB_NAME
+      - NOTIFY_DB_NAME
+      - UPLOADER_DB_NAME
+      - KEYCLOAK_REALM_NAME
+      - DEFAULT_ADMIN_USERNAME
+      - DEFAULT_ADMIN_PASSWORD
+      - MATOMO_URL
       - MATOMO_SITE_ID=${EXPOSE_MATOMO_SITE_ID}
       - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
-      - PHRASEANET_BASE_URL
+      - PHRASEANET_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
+      - ${HOME}/.composer:/home/app/.composer
       - dev_vol:/home/app
       - ./configs:/configs
     extra_hosts:
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-auth.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -207,6 +214,10 @@ services:
     - ./dashboard/src:/var/app
     - ./dashboard/src/public:/usr/share/nginx/html
 
+  configurator:
+    volumes:
+      - ./configurator:/usr/app
+
   databox-watcher:
     command: ["yarn", "start:dev"]
     volumes:
@@ -219,6 +230,17 @@ services:
   db:
     ports:
       - 127.0.0.1:${DB_DEV_PORT}:5432
+
+  keycloak:
+    command:
+      - 'start-dev'
+      - '--hostname-strict-https=false'
+      - '--spi-connections-http-client-default-disable-trust-manager=true'
+
+  keycloak2:
+    command:
+      - 'start-dev'
+      - '--hostname-strict-https=false'
 
 volumes:
   dev_vol:

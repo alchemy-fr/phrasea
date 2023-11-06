@@ -82,9 +82,7 @@ Override environment variables defined in `.env` file:
 
 ```bash
 DEV_MODE=false
-EXPOSE_CLIENT_ID=<THE_CLIENT_ID> # NOT the client ID from Phraseanet
-EXPOSE_CLIENT_RANDOM_ID=<A_RANDOM_HASH>
-EXPOSE_CLIENT_SECRET=<A_SECRET> # NOT the client secret from Phraseanet
+EXPOSE_CLIENT_ID=<THE_CLIENT_ID>
 ```
 
 ## Analytics

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -13,17 +12,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class NormalizerDecorator implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface, CacheableSupportsMethodInterface
 {
-    private NormalizerInterface $decorated;
-    private EntityNormalizer $entityNormalizer;
+    private readonly NormalizerInterface $decorated;
 
-    public function __construct(NormalizerInterface $decorated, EntityNormalizer $entityNormalizer)
+    public function __construct(NormalizerInterface $decorated, private readonly EntityNormalizer $entityNormalizer)
     {
         if (!$decorated instanceof DenormalizerInterface) {
-            throw new InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
+            throw new \InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
         }
 
         $this->decorated = $decorated;
-        $this->entityNormalizer = $entityNormalizer;
     }
 
     public function normalize($object, $format = null, array $context = [])

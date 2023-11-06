@@ -26,7 +26,7 @@ class CollectionInput extends AbstractOwnerIdInput
     /**
      * @var Workspace
      */
-    public $workspace = null;
+    public $workspace;
 
     public ?Collection $parent = null;
 }

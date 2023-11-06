@@ -65,7 +65,7 @@ RUN export NR_INSTALL_USE_CP_NOT_LN=1 \
 	&& rm -rf /tmp/newrelic-* /tmp/nrinstall* \
 	&& rm $PHP_INI_DIR/conf.d/newrelic.ini
 
-COPY --from=composer:2.0.3 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit

@@ -9,15 +9,16 @@
     "php": "^7.4 || ^8.0",
     "aws/aws-sdk-php": "^3.20",
     "ramsey/uuid": "^4.2.3",
-    "oneup/flysystem-bundle": "^3.1",
-    "league/flysystem-aws-s3-v3": "^1.0",
-    "symfony/framework-bundle": "^4.0|^5.0",
-    "symfony/mime": "^4|^5|^6|^7"
+    "oneup/flysystem-bundle": "^4.4",
+    "league/flysystem-aws-s3-v3": "^3.0",
+    "symfony/framework-bundle": "^6.2",
+    "symfony/mime": "^6|^7"
   },
   "config": {
     "sort-packages": true
   },
   "scripts": {
+    "rector": "vendor/bin/rector",
     "cs": "vendor/bin/php-cs-fixer fix",
     "test": "echo 'This project has no test...'"
   },
@@ -35,6 +36,6 @@
     }
   },
   "require-dev": {
-    "friendsofphp/php-cs-fixer": "^2.16"
+    "friendsofphp/php-cs-fixer": "^3.17"
   }
 }

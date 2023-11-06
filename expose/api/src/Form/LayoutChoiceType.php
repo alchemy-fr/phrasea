@@ -10,14 +10,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LayoutChoiceType extends AbstractType
 {
-    private array $choices;
-
-    public function __construct(array $choices)
+    public function __construct(private readonly array $choices)
     {
-        $this->choices = $choices;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [
             'None (inherit from profile)' => null,
@@ -31,7 +28,7 @@ class LayoutChoiceType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

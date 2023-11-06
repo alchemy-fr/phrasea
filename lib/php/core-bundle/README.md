@@ -5,7 +5,7 @@
 ```yaml
 # config/packages/alchemy_core.yml
 alchemy_core:
-  app_base_url: '%env(MYAPP_BASE_URL)%'
+  app_url: '%env(MYAPP_URL)%'
 ```
 
 ### Healthcheck
@@ -21,8 +21,11 @@ Add route:
 ```yaml
 # config/routes/alchemy_core.yaml
 alchemy_core_healthcheck:
-  controller: Alchemy\CoreBundle\Controller\HealthCheckAction
-  path: /_healthcheck
+    resource: Alchemy\CoreBundle\Controller\HealthCheckAction
+    type: attribute
+alchemy_core_sentry_test:
+    resource: Alchemy\CoreBundle\Controller\SentryTestController
+    type: attribute
 ```
 
 Ensure the route is not protected:

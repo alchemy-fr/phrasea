@@ -24,9 +24,6 @@ class SoftDeleteableListener extends BaseSoftDeleteableListener
         self::$enabled = false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function onFlush(EventArgs $args)
     {
         if (self::$enabled) {

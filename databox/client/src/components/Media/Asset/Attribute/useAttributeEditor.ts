@@ -11,8 +11,6 @@ import {getWorkspaceAttributeDefinitions} from "../../../../api/attributes";
 import {getAssetAttributes} from "../../../../api/asset";
 import {getBatchActions} from "./BatchActions";
 
-export type OnAttributesChange = (attributes: AttributeIndex<string | number> | undefined) => void;
-
 export function useAttributeEditor({
     workspaceId,
     assetId,
@@ -51,11 +49,12 @@ export function useAttributeEditor({
                 }
 
                 const attributeIndex = buildAttributeIndex(definitionIndex, attributes ?? []);
+
+                setAttributes(attributeIndex);
                 setState({
                     definitionIndex,
                     remoteAttributes: attributeIndex,
                 });
-                setAttributes(attributeIndex);
             })();
         }
     }, [workspaceId, assetId]);

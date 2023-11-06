@@ -25,7 +25,7 @@ final readonly class RemoveBgProcessor
 
     public function process(File $file, array $config): File
     {
-        $this->apiBudgetLimiter->acceptIntegrationApiCall($config, 1);
+        $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
         $src = $this->client->getBgRemoved($file, $config['apiKey']);
 

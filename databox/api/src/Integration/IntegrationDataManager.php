@@ -25,7 +25,7 @@ class IntegrationDataManager
         return $workspaceIntegration;
     }
 
-    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData
+    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, string $keyId = null, bool $multiple = false): IntegrationData
     {
         $data = null;
         if (!$multiple || null !== $keyId) {
@@ -47,7 +47,7 @@ class IntegrationDataManager
         return $data;
     }
 
-    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null): bool
+    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $keyId = null): bool
     {
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
@@ -67,13 +67,13 @@ class IntegrationDataManager
     /**
      * @return IntegrationData|IntegrationData[]|null
      */
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $keyId = null, bool $multiple = false): IntegrationData|array|null
     {
         $repository = $this->em->getRepository(IntegrationData::class);
 
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
-            'file' => $file ? $file->getId() : null,
+            'file' => $file?->getId(),
             'name' => $name,
         ];
 

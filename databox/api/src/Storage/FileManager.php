@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Storage;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use Alchemy\StorageBundle\Util\FileUtil;
 use Doctrine\ORM\EntityManagerInterface;
 
-class FileManager
+final readonly class FileManager
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $filePathGenerator)
+    public function __construct(private EntityManagerInterface $em, private FileStorageManager $storageManager, private FilePathGenerator $filePathGenerator)
     {
     }
 

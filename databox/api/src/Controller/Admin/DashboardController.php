@@ -4,8 +4,6 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\OAuthServerBundle\Entity\AccessToken;
-use Alchemy\OAuthServerBundle\Entity\OAuthClient;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
@@ -27,6 +25,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\FailedEvent;
+use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
@@ -39,9 +38,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractAdminDashboardController
 {
-    /**
-     * @Route("/admin")
-     */
+    #[Route(path: '/admin', name: 'easyadmin')]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -56,7 +53,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
             MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
-            MenuItem::linkToCrud('Access tokens', '', AccessToken::class),
         ];
 
         $submenu2 = [
@@ -89,6 +85,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $submenu4 = [
             MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
+            MenuItem::linkToCrud('Env', '', WorkspaceEnv::class),
             MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];
@@ -106,7 +103,6 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
-        yield MenuItem::linkToCrud('OAuthClient', 'fas fa-folder-open', OAuthClient::class);
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);

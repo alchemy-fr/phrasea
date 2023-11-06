@@ -11,9 +11,9 @@ use App\Entity\Core\Workspace;
 use App\Storage\FilePathGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 
-class FileCopier
+final readonly class FileCopier
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FileStorageManager $storageManager, private readonly FilePathGenerator $pathGenerator)
+    public function __construct(private EntityManagerInterface $em, private FileStorageManager $storageManager, private FilePathGenerator $pathGenerator)
     {
     }
 

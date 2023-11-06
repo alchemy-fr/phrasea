@@ -2,14 +2,16 @@
 
 This bundle provide [report-sdk](../report-sdk/README.md) as an extended service using Symfony security.
 
-If user is authenticated with a RemoteAuthToken (see [remote-auth-bundle](../remote-auth-bundle/README.md)), then user ID will be provided automatically.
+If user is authenticated, user ID will be provided automatically.
 
 ## Configuration
 
-```yaml
-# config/packages/alchemy_report.yml
+Config is taken from alchemy_core extension:
 
-alchemy_report:
+```yaml
+# config/packages/alchemy_core.yml
+
+alchemy_core:
   app_name: my-app-name
 ```
 
@@ -54,12 +56,7 @@ use Alchemy\ReportBundle\ReportUserService;
 
 final class MyService
 {
-    /**
-     * @var ReportUserService
-     */
-    private $reportClient;
-
-    public function __construct(ReportUserService $reportClient)
+    public function __construct(private readonly ReportUserService $reportClient)
     {
         $this->reportClient = $reportClient;
     }

@@ -4,7 +4,6 @@ api_platform:
         paths:
             - '%kernel.project_dir%/src/Model'
             - '%kernel.project_dir%/src/Entity'
-            - '%kernel.project_dir%/config/api-resources'
     formats:
         jsonld:   ['application/ld+json']
         jsonhal:  ['application/hal+json']
@@ -19,6 +18,6 @@ api_platform:
         enabled: true
         type: 'oauth2'
         flow: 'password'
-        tokenUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/token'
-        authorizationUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/auth'
+        tokenUrl: '%env(KEYCLOAK_URL)%/oauth/v2/token'
+        authorizationUrl: '%env(KEYCLOAK_URL)%/oauth/v2/auth'
         scopes: []

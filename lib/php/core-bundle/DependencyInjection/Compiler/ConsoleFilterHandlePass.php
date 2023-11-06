@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ConsoleFilterHandlePass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $serviceId = 'monolog.handler.console_filter';
         if (!$container->hasDefinition($serviceId)) {

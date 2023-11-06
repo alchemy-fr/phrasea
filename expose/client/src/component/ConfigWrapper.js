@@ -1,18 +1,19 @@
 import React, {useState} from 'react';
 import App from "./App";
-import apiClient from "../lib/apiClient";
 import config from "../lib/config";
 import FullPageLoader from "./FullPageLoader";
+import apiClient from "../lib/api-client";
 
 export default function ConfigWrapper() {
     const [loaded, setLoaded] = useState(false);
 
     if (!loaded) {
         apiClient
-            .get(`${config.getApiBaseUrl()}/config`)
+            .get(`/config`)
             .then((res) => {
                 Object.keys(res).forEach(k => {
-                    config.set(k, res[k]);
+                    // @ts-ignore bypass readonly
+                    config[k] = res[k];
                 });
 
                 setLoaded(true);

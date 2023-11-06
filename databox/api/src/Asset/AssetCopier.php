@@ -160,10 +160,6 @@ class AssetCopier
 
     private function copyFile(File $file, Workspace $workspace): File
     {
-        if (isset($this->fileCopies[$file->getId()])) {
-            return $this->fileCopies[$file->getId()];
-        }
-
-        return $this->fileCopies[$file->getId()] = $this->fileCopier->copyFile($file, $workspace);
+        return $this->fileCopies[$file->getId()] ?? ($this->fileCopies[$file->getId()] = $this->fileCopier->copyFile($file, $workspace));
     }
 }

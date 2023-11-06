@@ -4,54 +4,70 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+
+use App\Api\Provider\RenditionClassCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="rend_class_uniq",columns={"workspace_id", "name"})}
- * )
- */
+#[ApiResource(
+    shortName: 'rendition-class',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+    ],
+    normalizationContext: [
+        'groups' => [RenditionClass::GROUP_LIST],
+    ],
+    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    provider: RenditionClassCollectionProvider::class,
+)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'rend_class_uniq', columns: ['workspace_id', 'name'])]
+#[ORM\Entity]
 class RenditionClass extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'rendclass:read';
+    final public const GROUP_LIST = 'rendclass:index';
 
     /**
      * Override trait for annotation.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="renditionClasses")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'renditionClasses')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
-    /**
-     * @Groups({"rendclass:index", "rendclass:read"})
-     *
-     * @ORM\Column(type="string", length=80)
-     */
+    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: 80)]
     private ?string $name = null;
 
-    /**
-     * @Groups({"rendclass:index", "rendclass:read"})
-     *
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
     /**
      * @var RenditionDefinition[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\RenditionDefinition", mappedBy="class", cascade={"remove"})
      */
+    #[ORM\OneToMany(mappedBy: 'class', targetEntity: RenditionDefinition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $definitions = null;
 
     public function __construct()

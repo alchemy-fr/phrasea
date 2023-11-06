@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Integration\ToastUi;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
 use App\Integration\FileActionsIntegrationInterface;
-use Alchemy\StorageBundle\Util\FileUtil;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,7 +41,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
             case self::ACTION_DELETE:
                 $dataId = $request->request->get('id');
                 if (!$dataId) {
-                    throw new BadRequestHttpException(sprintf('Missing "id"'));
+                    throw new BadRequestHttpException('Missing "id"');
                 }
                 $this->integrationDataManager->deleteById($wsIntegration, $dataId);
 

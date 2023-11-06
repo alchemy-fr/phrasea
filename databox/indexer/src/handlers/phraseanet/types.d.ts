@@ -15,6 +15,7 @@ export type PhraseanetConfig = {
 
 export type SubDef = {
     name: string;
+    mime_type?: string;
     permalink: {
         url: string;
     }

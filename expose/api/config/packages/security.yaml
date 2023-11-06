@@ -1,8 +1,4 @@
 security:
-    role_hierarchy: '%core.role_hierarchy%'
-    providers:
-        remote_users:
-            id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -15,25 +11,19 @@ security:
         admin:
             pattern:    ^/admin
             stateless:  false
-            anonymous:  ~
             access_denied_handler: alchemy_admin.access_denied_handler
             logout:
-                path: alchemy_admin_logout
+                path: alchemy_auth_logout
                 target: easyadmin
-                success_handler: alchemy_admin.logout.success_handler
-            guard:
-                authenticators:
-                    - 'alchemy_remote.login_form.admin'
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
 
         api:
-            anonymous: ~
             stateless: true
-            fos_oauth:  true
-            remote_auth: true
-            password: true
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
+                - App\Security\Authenticator\PasswordTokenAuthenticator
 
     access_control:
-        - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/reset-password/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/auth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }

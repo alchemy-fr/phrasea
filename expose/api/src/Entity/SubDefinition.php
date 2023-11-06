@@ -4,109 +4,233 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use ApiPlatform\Core\Annotation\ApiResource;
-use DateTime;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Post;
+use App\Controller\CreateSubDefinitionAction;
+use App\Repository\SubDefinitionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SubDefinitionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_asset_type",columns={"asset_id", "name"})})
- * @ApiResource(
- *     normalizationContext=SubDefinition::API_READ,
- *     itemOperations={
- *         "get"={},
- *         "delete"={
- *              "security"="is_granted('DELETE', object)"
- *         },
- *     },
- *  )
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
+#[ORM\Entity(repositoryClass: SubDefinitionRepository::class)]
+#[ApiResource(
+    shortName: 'sub-definition',
+    operations: [
+        new Get(),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Post(
+            defaults: ['_api_receive' => false],
+            controller: CreateSubDefinitionAction::class,
+        ),
+        new GetCollection(),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
+    ])]
+#[ApiResource(
+    uriTemplate: '/assets/{id}/sub-definitions.{_format}',
+    shortName: 'sub-definition',
+    operations: [
+        new GetCollection(),
+        new Post(
+            defaults: ['_api_receive' => false],
+            controller: CreateSubDefinitionAction::class,
+            openapiContext: [
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'examples' => [
+                                'Multipart upload' => [
+                                    'value' => [
+                                        'asset_id' => '031657ca-532f-4460-963f-45ebf1c17c8c',
+                                        'multipart' => [
+                                            'uploadId' => '123-456',
+                                            'parts' => [
+                                                [
+                                                    'ETag' => '812d692260ab94dd85a5aa7a6caef68d',
+                                                    'PartNumber' => 1,
+                                                ],
+                                                [
+                                                    'ETag' => '4dd85a5aa7a6caef68d812d692260ab9',
+                                                    'PartNumber' => 2,
+                                                ],
+                                            ],
+                                        ],
+                                        'description' => 'My sub definition was uploaded to S3 first, then I created sub def in expose.',
+                                    ],
+                                ],
+                                'Create asset, then upload to S3' => [
+                                    'value' => [
+                                        'asset_id' => '031657ca-532f-4460-963f-45ebf1c17c8c',
+                                        'upload' => [
+                                            'name' => 'sub-def-foo.jpg',
+                                            'type' => 'image/jpeg',
+                                            'size' => 42,
+                                        ],
+                                        'title' => 'My first sub definition',
+                                        'description' => 'Here we create sub def with file info, then Expose returns a signed upload URL to push the data.',
+                                    ],
+                                ],
+                            ],
+                            'schema' => [
+                                'anyOf' => [
+                                    ['$ref' => '#/components/schemas/SubDefinition'],
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'asset_id' => [
+                                                'type' => 'string',
+                                                'required' => true,
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'oneOf' => [
+                                            [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'multipart' => [
+                                                        'type' => 'object',
+                                                        'properties' => [
+                                                            'uploadId' => ['type' => 'string'],
+                                                            'parts' => [
+                                                                'type' => 'array',
+                                                                'items' => [
+                                                                    'type' => 'object',
+                                                                    'properties' => [
+                                                                        'ETag' => ['type' => 'string'],
+                                                                        'PartNumber' => ['type' => 'integer'],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                            [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'upload' => [
+                                                        'type' => 'object',
+                                                        'properties' => [
+                                                            'name' => ['type' => 'string'],
+                                                            'type' => ['type' => 'string'],
+                                                            'size' => ['type' => 'integer'],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'anyOf' => [
+                                    ['$ref' => '#/components/schemas/SubDefinition'],
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'asset_id' => [
+                                                'type' => 'string',
+                                                'required' => true,
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'file' => [
+                                                'type' => 'string',
+                                                'format' => 'binary',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        ),
+    ],
+    uriVariables: [
+        'id' => new Link(
+            toProperty: 'asset',
+            fromClass: Asset::class,
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [self::GROUP_READ],
+    ],
+)]
 class SubDefinition implements MediaInterface
 {
-    const THUMBNAIL = 'thumbnail';
-    const PREVIEW = 'preview';
-    const POSTER = 'poster';
-
-    const API_READ = [
-        'groups' => ['subdef:read'],
-        'swagger_definition_name' => 'Read',
-    ];
+    final public const THUMBNAIL = 'thumbnail';
+    final public const PREVIEW = 'preview';
+    final public const POSTER = 'poster';
+    final public const GROUP_READ = 'subdef:read';
 
     /**
-     * @ApiProperty(identifier=true)
-     * @Groups({"asset:read", "publication:read", "subdef:read"})
-     *
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
      */
+    #[ApiProperty(identifier: true)]
+    #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     protected $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Asset", inversedBy="subDefinitions")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'subDefinitions')]
+    #[ORM\JoinColumn(nullable: false)]
     protected ?Asset $asset = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"asset:read", "publication:read", "subdef:read"})
-     * @ORM\Column(type="string", length=30)
-     */
+    #[ApiProperty]
+    #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: 30)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $path = null;
 
-    /**
-     * @Groups({"subdef:read", "publication:read", "asset:read"})
-     * @ORM\Column(type="bigint", options={"unsigned"=true})
-     */
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ, Asset::GROUP_READ])]
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $size = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @ApiProperty()
-     * @Groups({"subdef:read", "asset:read"})
-     */
+    #[ApiProperty]
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $mimeType = null;
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(type="datetime")
-     * @ApiProperty()
-     * @Groups({"subdef:read"})
-     */
-    private ?DateTime $createdAt = null;
+    #[ApiProperty]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups([self::GROUP_READ])]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"subdef:read", "asset:read", "publication:read"})
-     */
+    #[ApiProperty]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $url = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"subdef:read", "asset:read", "publication:read"})
-     */
+    #[ApiProperty]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ, Publication::GROUP_READ])]
     private ?string $downloadUrl = null;
 
-    /**
-     * @ApiProperty()
-     * @Groups({"subdef:read", "asset:read"})
-     */
+    #[ApiProperty]
+    #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $uploadURL = null;
 
     public function __construct()
     {
-        $this->createdAt = new DateTime();
+        $this->createdAt = new \DateTimeImmutable();
         $this->id = Uuid::uuid4();
     }
 
@@ -145,7 +269,7 @@ class SubDefinition implements MediaInterface
         $this->mimeType = $mimeType;
     }
 
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -139,7 +139,7 @@ export default function AssetResults() {
             files: [],
             userId: userContext.user!.id,
         });
-    }, []);
+    }, [userContext]);
 
     const onOpen = useCallback<OnOpen>((assetId: string, renditionId: string): void => {
         navigateToModal(getPath('app_asset_view', {

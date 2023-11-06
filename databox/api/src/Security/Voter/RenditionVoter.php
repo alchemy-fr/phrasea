@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\AssetRendition;
 use App\Security\RenditionPermissionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -15,22 +15,27 @@ class RenditionVoter extends AbstractVoter
     {
     }
 
-    protected function supports(string $attribute, $subject)
+    protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof AssetRendition;
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, AssetRendition::class, true);
     }
 
     /**
      * @param AssetRendition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
         $userId = null;
         $groupIds = [];
-        if ($user instanceof RemoteUser) {
+        if ($user instanceof JwtUser) {
             $userId = $user->getId();
-            $groupIds = $user->getGroupIds();
+            $groupIds = $user->getGroups();
         }
 
         return match ($attribute) {

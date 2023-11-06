@@ -8,24 +8,23 @@ use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationProfileVoter;
 use App\Security\Voter\PublicationVoter;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Security\Core\Security;
 
-class PublicationListener implements EventSubscriber
+#[AsDoctrineListener(Events::onFlush)]
+readonly class PublicationListener implements EventSubscriber
 {
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private Security $security)
     {
-        $this->security = $security;
     }
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
             if ($entity instanceof Publication) {
@@ -45,7 +44,7 @@ class PublicationListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::onFlush,

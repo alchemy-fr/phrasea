@@ -5,56 +5,68 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use DateTimeInterface;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity()
- */
+#[ApiResource(
+    shortName: 'target-params',
+    operations: [
+        new Get(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Delete(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Put(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Post(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new GetCollection(security: 'is_granted("EDIT_TARGET_DATA")'),
+    ],
+    normalizationContext: [
+        'groups' => ['targetparams:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['targetparams:write'],
+    ]
+)]
+#[ORM\Entity]
 class TargetParams implements AclObjectInterface
 {
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"targetparams:index"})
      */
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[Groups(['targetparams:index'])]
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Target", inversedBy="targetParams")
-     * @ORM\JoinColumn(nullable=false)
-     * @Groups({"targetparams:index", "targetparams:write"})
-     * @Assert\NotNull()
-     * @ApiFilter(filterClass=SearchFilter::class, strategy="exact")
-     */
+    #[ORM\OneToOne(targetEntity: Target::class, inversedBy: 'targetParams')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['targetparams:index', 'targetparams:write'])]
+    #[Assert\NotNull]
+    #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact')]
     private ?Target $target = null;
 
-    /**
-     * @ORM\Column(type="json")
-     * @Groups({"targetparams:index", "targetparams:write"})
-     */
+    #[ORM\Column(type: Types::JSON)]
+    #[Groups(['targetparams:index', 'targetparams:write'])]
     private array $data = [];
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Gedmo\Timestampable(on="create")
-     * @Groups({"targetparams:index"})
-     */
-    private ?DateTimeInterface $createdAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['targetparams:index'])]
+    #[Gedmo\Timestampable(on: 'create')]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Gedmo\Timestampable(on="update")
-     */
-    private ?DateTimeInterface $updatedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Gedmo\Timestampable(on: 'update')]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
@@ -85,7 +97,7 @@ class TargetParams implements AclObjectInterface
     {
         $jsonData ??= '{}';
 
-        $this->data = \GuzzleHttp\json_decode($jsonData, true);
+        $this->data = json_decode($jsonData, true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function getAclOwnerId(): string
@@ -103,12 +115,12 @@ class TargetParams implements AclObjectInterface
         $this->target = $target;
     }
 
-    public function getCreatedAt(): ?DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): ?DateTimeInterface
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;
     }

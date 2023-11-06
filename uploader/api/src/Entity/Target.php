@@ -4,108 +4,96 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
-use DateTimeImmutable;
-use DateTimeInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\DataProvider\TargetDataProvider;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity
- * @ORM\Table
- */
-class Target
+#[ApiResource(
+    shortName: 'target',
+    operations: [
+        new Get(security: 'is_granted("READ", object)'),
+        new Delete(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Put(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new Post(security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")'),
+        new GetCollection(
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            provider: TargetDataProvider::class,
+        ),
+    ],
+    normalizationContext: [
+        'groups' => ['target:index'],
+    ],
+    denormalizationContext: [
+        'groups' => ['target:write'],
+    ]
+)]
+#[ORM\Table]
+#[ORM\Entity]
+class Target extends AbstractUuidEntity implements \Stringable
 {
-    /**
-     * @ApiProperty(identifier=true)
-     * @Groups({"target:index"})
-     *
-     * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private $id;
-
-    /**
-     * @ApiProperty()
-     * @Groups({"target:index"})
-     * @Assert\Regex("/^[a-z][a-z0-9_-]+/")
-     *
-     * @ORM\Column(type="string", length=100, nullable=true, unique=true)
-     */
+    #[Groups(['target:index'])]
+    #[Assert\Regex('/^[a-z][a-z0-9_-]+/')]
+    #[ORM\Column(type: Types::STRING, length: 100, unique: true, nullable: true)]
     protected ?string $slug = null;
 
-    /**
-     * @ORM\Column(type="string", length=1000)
-     * @Assert\Length(max=1000)
-     * @Assert\NotBlank
-     * @Groups({"target:index"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 1000)]
+    #[Assert\Length(max: 1000)]
+    #[Assert\NotBlank]
+    #[Groups(['target:index'])]
     private ?string $name = null;
 
-    /**
-     * @ApiProperty()
-     * @ORM\Column(type="boolean", nullable=false)
-     * @Groups({"target:read"})
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups(['target:read'])]
     private bool $enabled = true;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Groups({"target:index"})
-     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['target:index'])]
     private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\Length(max=255)
-     * @Assert\Url()
-     * @Assert\NotBlank
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\Length(max: 255)]
+    #[Assert\Url]
+    #[Assert\NotBlank]
+    #[Groups(['target:write'])]
     private ?string $targetUrl = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Length(max=255)
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    #[Groups(['target:write'])]
     private ?string $defaultDestination = null;
 
-    /**
-     * @ORM\Column(type="string", length=2000, nullable=true)
-     * @Assert\Length(max=2000)
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 2000, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['target:write'])]
     private ?string $targetAccessToken = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     * @Assert\Length(max=100)
-     * @Groups({"target:write"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
+    #[Groups(['target:write'])]
     private ?string $targetTokenType = null;
 
     /**
      * Null value allows everyone.
-     *
-     * @ORM\Column(type="json", nullable=true)
-     * @Groups({"target:write"})
      */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups(['target:write'])]
     private ?array $allowedGroups = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"target:index"})
-     */
-    private DateTimeInterface $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['target:index'])]
+    private readonly \DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\TargetParams", mappedBy="target")
-     */
+    #[ORM\OneToOne(mappedBy: 'target', targetEntity: TargetParams::class)]
     private ?TargetParams $targetParams = null;
 
     /**
@@ -115,13 +103,14 @@ class Target
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable();
-        $this->id = Uuid::uuid4();
+        parent::__construct();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId()
+    #[Groups(['target:index'])]
+    public function getId(): string
     {
-        return $this->id->__toString();
+        return parent::getId();
     }
 
     public function getCreatedAt()
@@ -186,7 +175,7 @@ class Target
 
     public function getPullModeUrl(): string
     {
-        return sprintf('%s/commits?target=%s', getenv('UPLOADER_API_BASE_URL'), $this->getId());
+        return sprintf('%s/commits?target=%s', getenv('UPLOADER_API_URL'), $this->getId());
     }
 
     public function setDefaultDestination(?string $defaultDestination): void
@@ -194,9 +183,9 @@ class Target
         $this->defaultDestination = $defaultDestination;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName() ?? $this->getId();
+        return (string) ($this->getName() ?? $this->getId());
     }
 
     public function getTargetTokenType(): ?string

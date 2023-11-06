@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
-class FacetRegistry
+final readonly class FacetRegistry
 {
     /**
      * @var FacetInterface[]
      */
-    private readonly array $facets;
+    private array $facets;
 
     public function __construct(iterable $facets)
     {

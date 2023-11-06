@@ -1,16 +1,15 @@
 import apiClient from "./api-client";
 import {Group, User} from "../types";
-import config from "../config";
 import {UserPreferences} from "../components/User/Preferences/UserPreferencesContext";
 
 export async function getUsers(): Promise<User[]> {
-    const res = await apiClient.get(`${config.get('authBaseUrl')}/users`);
+    const res = await apiClient.get(`/permissions/users`);
 
     return res.data;
 }
 
 export async function getGroups(): Promise<Group[]> {
-    const res = await apiClient.get(`${config.get('authBaseUrl')}/groups`);
+    const res = await apiClient.get(`/permissions/groups`);
 
     return res.data;
 }

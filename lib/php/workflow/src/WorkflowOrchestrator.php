@@ -20,21 +20,8 @@ use Alchemy\Workflow\Validator\EventValidatorInterface;
 
 class WorkflowOrchestrator
 {
-    private WorkflowRepositoryInterface $workflowRepository;
-    private StateRepositoryInterface $stateRepository;
-    private JobTriggerInterface $trigger;
-    private EventValidatorInterface $eventValidator;
-
-    public function __construct(
-        WorkflowRepositoryInterface $workflowRepository,
-        StateRepositoryInterface $stateRepository,
-        JobTriggerInterface $trigger,
-        EventValidatorInterface $eventValidator,
-    ) {
-        $this->workflowRepository = $workflowRepository;
-        $this->stateRepository = $stateRepository;
-        $this->trigger = $trigger;
-        $this->eventValidator = $eventValidator;
+    public function __construct(private readonly WorkflowRepositoryInterface $workflowRepository, private readonly StateRepositoryInterface $stateRepository, private readonly JobTriggerInterface $trigger, private readonly EventValidatorInterface $eventValidator)
+    {
     }
 
     /**
@@ -67,7 +54,7 @@ class WorkflowOrchestrator
         }
     }
 
-    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, array $context = []): WorkflowState
+    public function startWorkflow(string $workflowName, WorkflowEvent $event = null, array $context = []): WorkflowState
     {
         $workflowState = new WorkflowState(
             $this->stateRepository,
@@ -84,7 +71,7 @@ class WorkflowOrchestrator
         return $workflowState;
     }
 
-    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null): void
+    public function continueWorkflow(string $workflowId, WorkflowState $workflowState = null): void
     {
         if (null === $workflowState) {
             $workflowState = $this->stateRepository->getWorkflowState($workflowId);
@@ -115,7 +102,7 @@ class WorkflowOrchestrator
         }
     }
 
-    public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
+    public function retryFailedJobs(string $workflowId, string $jobIdFilter = null): void
     {
         $this->rerunJobs($workflowId, $jobIdFilter, [
             JobState::STATUS_FAILURE,
@@ -123,7 +110,7 @@ class WorkflowOrchestrator
         ]);
     }
 
-    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?array $expectedStatuses = null): void
+    public function rerunJobs(string $workflowId, string $jobIdFilter = null, array $expectedStatuses = null): void
     {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
@@ -142,11 +129,21 @@ class WorkflowOrchestrator
                     continue;
                 }
 
-                $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
-                    $this->stateRepository->removeJobState($workflowId, $jobId);
+                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                    $this->stateRepository->acquireJobLock($workflowId, $jobId);
+                }
 
-                    $jobsToTrigger[] = $jobId;
+                try {
+                    $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+                    if (null === $expectedStatuses || (null !== $jobState && in_array($jobState->getStatus(), $expectedStatuses, true))) {
+                        $this->stateRepository->removeJobState($workflowId, $jobId);
+
+                        $jobsToTrigger[] = $jobId;
+                    }
+                } finally {
+                    if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                        $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                    }
                 }
 
                 if (null !== $jobIdFilter) {

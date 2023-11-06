@@ -9,7 +9,8 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\ChuckNorrisVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractSearch
 {
@@ -85,17 +86,25 @@ abstract class AbstractSearch
         return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
-    /**
-     * @required
-     */
+    protected function findEntityByIds(string $entityName, array $ids): array
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('t')
+            ->from($entityName, 't')
+            ->where('t.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    #[Required]
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;

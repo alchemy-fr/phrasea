@@ -1,7 +1,6 @@
-import request from "superagent";
-import config from "./config";
 import {oauthClient} from "./oauth";
 import {uploadMultipartFile} from "./multiPartUpload";
+import apiClient from "./lib/api";
 
 export default class UploadBatch {
     files = [];
@@ -42,8 +41,8 @@ export default class UploadBatch {
 
     abort() {
         this.files.forEach((file) => {
-            if (file.request) {
-                file.request.abort();
+            if (file.abortController) {
+                file.abortController.abort();
             }
         });
     }
@@ -74,7 +73,7 @@ export default class UploadBatch {
         this.files = this.files.concat(files.map(file => {
             return {
                 file,
-                request: null
+                abortController: null
             };
         }));
         this.totalSize += files.reduce((total, file) => total + file.size, 0)
@@ -127,30 +126,17 @@ export default class UploadBatch {
             formData: this.formData,
             target: `/targets/${this.targetId}`,
         };
-        const accessToken = oauthClient.getAccessToken();
 
-        request
-            .post(config.getUploadBaseURL() + '/commit')
-            .accept('json')
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send(formData)
-            .end((err, res) => {
-                if (!oauthClient.isResponseValid(err, res)) {
-                    alert('Failed to commit assets');
-                    console.log(res);
-                    throw err;
-                }
-            });
+        apiClient.post('/commit', formData);
     }
 
     async uploadFile(index, retry = 0) {
         const file = this.files[index];
 
-        const accessToken = oauthClient.getAccessToken();
         const username = oauthClient.getUsername();
 
         try {
-            const res = await uploadMultipartFile(this.targetId, username, accessToken, file, (e) => {
+            const res = await uploadMultipartFile(this.targetId, username, file, (e) => {
                 this.onUploadProgress(e, index);
             });
             this.onFileComplete(res, index);
@@ -185,8 +171,7 @@ export default class UploadBatch {
     }
 
     onFileComplete(res, index) {
-        const data = JSON.parse(res.text);
-        this.files[index].id = data.id;
+        this.files[index].id = res.data.id;
 
         let totalLoaded = 0;
         Object.keys(this.progresses).forEach((i) => {

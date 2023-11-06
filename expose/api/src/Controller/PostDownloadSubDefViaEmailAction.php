@@ -16,10 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/publications/{publicationId}/subdef/{subDefId}/download-request", name="download_subdef_request_create",
- *                                                                            methods={"POST"})
- */
+#[Route(path: '/publications/{publicationId}/subdef/{subDefId}/download-request', name: 'download_subdef_request_create', methods: ['POST'])]
 final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction
 {
     public function __invoke(

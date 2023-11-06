@@ -9,14 +9,15 @@ api_platform:
         paths:
         - '%kernel.project_dir%/src/Entity'
         - '%kernel.project_dir%/src/Border/Model'
-        - '%kernel.project_dir%/config/api-resources'
+        - '%kernel.project_dir%/src/Model'
+        - '%kernel.project_dir%/src/Api/Model/Output'
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
     oauth:
-        clientId: '%env(ADMIN_CLIENT_ID)%_%env(ADMIN_CLIENT_RANDOM_ID)%'
+        clientId: '%env(ADMIN_CLIENT_ID)%'
         clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-        tokenUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/token'
+        tokenUrl: '%env(KEYCLOAK_URL)%/oauth/v2/token'
         flow: authorizationCode
-        authorizationUrl: '%env(AUTH_API_BASE_URL)%/oauth/v2/auth'
+        authorizationUrl: '%env(KEYCLOAK_URL)%/oauth/v2/auth'

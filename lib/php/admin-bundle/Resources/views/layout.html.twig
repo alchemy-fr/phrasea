@@ -27,40 +27,4 @@
             integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.1/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-ugYHWSb0a7WzXb+yw+cdYxb3r3UEqQmcpQ8A9j/t6a7QJfMaHntJxEMTEWEK8jDGL52CIq/LUIdFhy9BbQA6FA==" crossorigin="anonymous"></script>
-    <script>
-        $(function () {
-            function initDatePicker($input, options) {
-                var $hidden = $('<input />', {
-                    name: $input.attr('name'),
-                    type: 'hidden',
-                });
-                $hidden.val($input.val());
-                $input.val('');
-                $input.attr('data-target', '#' + $input.attr('id'))
-                $input.removeAttr('name');
-                $input.datetimepicker(options);
-                var date = moment($hidden.val(), options.format);
-                $input.datetimepicker('date', date.subtract(date.zone(), 'minutes'));
-                $hidden.insertBefore($input);
-                $input.on('change.datetimepicker', function (e) {
-                    if (e.date) {
-                        $hidden.val(e.date.add(e.date.zone(), 'minutes').format(options.format));
-                    } else {
-                        $hidden.val('');
-                    }
-                });
-            }
-
-            $('.datetimepicker-input').each(function () {
-                initDatePicker($(this), {
-                    format: 'DD/MM/YYYY HH:mm',
-                });
-            });
-            $('.date-picker').each(function () {
-                initDatePicker($(this), {
-                    format: 'DD/MM/YYYY',
-                });
-            });
-        });
-    </script>
 {% endblock %}

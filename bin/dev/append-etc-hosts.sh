@@ -13,13 +13,16 @@ if [ -z "${PHRASEA_DOMAIN}" ]; then
   exit 1
 fi
 
+>&2 echo "PHRASEA_DOMAIN=${PHRASEA_DOMAIN}"
+>&2 echo "IP=${IP}"
+
 if ! grep "<${PHRASEA_DOMAIN}>" "/etc/hosts" > /dev/null ; then
   if [ "$EUID" -ne 0 ]
     then echo "Please run as root"
     exit 1
   fi
-  echo "Adding domains to /etc/hosts"
+  >&2 echo "Adding domains to /etc/hosts"
   envsubst < ./infra/dev/hosts.txt | tee -a /etc/hosts > /dev/null
 else
-  echo "/etc/hosts already contains domains"
+  >&2 echo "/etc/hosts already contains domains"
 fi

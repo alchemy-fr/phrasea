@@ -8,24 +8,13 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\AssetUrlGenerator;
 use Doctrine\DBAL\LockMode;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 
 class ZippyManager
 {
-    /**
-     * @var EntityManager
-     */
-    private EntityManagerInterface $em;
-    private Client $client;
-    private AssetUrlGenerator $assetUrlGenerator;
-
-    public function __construct(Client $client, EntityManagerInterface $em, AssetUrlGenerator $assetUrlGenerator)
+    public function __construct(private readonly Client $client, private readonly EntityManagerInterface $em, private readonly AssetUrlGenerator $assetUrlGenerator)
     {
-        $this->client = $client;
-        $this->em = $em;
-        $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
     public function getDownloadUrl(Publication $publication): string
@@ -37,12 +26,10 @@ class ZippyManager
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 
-                $files = array_map(function (Asset $asset): array {
-                    return [
-                        'path' => $asset->getOriginalName(),
-                        'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
-                    ];
-                }, $publication->getAssets()->getValues());
+                $files = array_map(fn (Asset $asset): array => [
+                    'path' => $asset->getOriginalName(),
+                    'uri' => $this->assetUrlGenerator->generateAssetUrl($asset),
+                ], $publication->getAssets()->getValues());
 
                 if ($publication->isIncludeDownloadTermsInZippy()
                     && null !== $termsUrl = $publication->getDownloadTerms()->getUrl()) {
@@ -59,7 +46,7 @@ class ZippyManager
                     ],
                 ]);
 
-                $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+                $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
                 $publication->setZippyId($json['id']);
                 $publication->setZippyHash($hash);
@@ -94,7 +81,7 @@ class ZippyManager
     private function fetchDownloadUrlFromId(string $id): string
     {
         $response = $this->client->request('GET', '/archives/'.$id);
-        $json = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
         return $json['downloadUrl'];
     }

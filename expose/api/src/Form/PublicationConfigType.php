@@ -41,10 +41,10 @@ class PublicationConfigType extends AbstractType
             ->add('terms', TermsConfigType::class)
             ->add('includeDownloadTermsInZippy', TrueFalseNullChoiceType::class)
             ->add('mapOptions', MapOptionsType::class)
-            ;
+        ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefault('data_class', PublicationConfig::class)

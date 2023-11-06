@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AssetUploadTest extends AbstractUploaderTestCase
@@ -14,16 +14,16 @@ class AssetUploadTest extends AbstractUploaderTestCase
         $this->markTestIncomplete();
 
         return;
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
-        $this->assertRegExp('#^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
         $this->assertArrayHasKey('originalName', $json);
         $this->assertSame('32x32.jpg', $json['originalName']);
         $this->assertArrayHasKey('size', $json);
@@ -48,13 +48,13 @@ class AssetUploadTest extends AbstractUploaderTestCase
 
     public function testUploadAssetWithoutFileGenerates400(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testUploadEmptyFileGenerates400(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/assets', [], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/assets', [], [
             'file' => new UploadedFile(__DIR__.'/fixtures/empty.jpg', 'foo.jpg', 'image/jpeg'),
         ]);
         $this->assertEquals(400, $response->getStatusCode());

@@ -2,14 +2,13 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\AttributeTypePass;
+use App\DependencyInjection\Compiler\FixApiPlatformPass;
 use App\DependencyInjection\Compiler\RemoveUnwantedAutoWiredServicesPass;
 use App\DependencyInjection\Compiler\SearchIndexPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 class Kernel extends BaseKernel
 {
@@ -28,23 +27,11 @@ class Kernel extends BaseKernel
         }
     }
 
-    protected function build(ContainerBuilder $container)
+    protected function build(ContainerBuilder $container): void
     {
         parent::build($container);
         $container->addCompilerPass(new SearchIndexPass());
-        $container->addCompilerPass(new AttributeTypePass());
         $container->addCompilerPass(new RemoveUnwantedAutoWiredServicesPass());
-    }
-
-    protected function configureRoutes(RoutingConfigurator $routes): void
-    {
-        $routes->import('../config/{routes}/'.$this->environment.'/*.yaml');
-        $routes->import('../config/{routes}/*.yaml');
-
-        if (is_file(\dirname(__DIR__).'/config/routes.yaml')) {
-            $routes->import('../config/{routes}.yaml');
-        } elseif (is_file($path = \dirname(__DIR__).'/config/routes.php')) {
-            (require $path)($routes->withPath($path), $this);
-        }
+        $container->addCompilerPass(new FixApiPlatformPass());
     }
 }

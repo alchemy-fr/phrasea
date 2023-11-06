@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Embeddable()
- */
+#[ORM\Embeddable]
 class TermsConfig implements MergeableValueObjectInterface
 {
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['profile:read', Publication::GROUP_READ])]
     private ?string $text = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups(['profile:read', Publication::GROUP_READ])]
     private ?string $url = null;
 
     public function mergeWith(MergeableValueObjectInterface $object): MergeableValueObjectInterface
@@ -63,9 +58,7 @@ class TermsConfig implements MergeableValueObjectInterface
         $this->url = $url;
     }
 
-    /**
-     * @Groups({"profile:read", "publication:read"})
-     */
+    #[Groups(['profile:read', Publication::GROUP_READ])]
     public function isEnabled(): bool
     {
         return null !== $this->text

@@ -10,15 +10,8 @@ use Symfony\Component\Config\ConfigCache;
 
 class KernelCacheLoader implements FileLoaderInterface
 {
-    private FileLoaderInterface $fileLoader;
-    private string $cacheDir;
-    private bool $debug;
-
-    public function __construct(FileLoaderInterface $fileLoader, string $cacheDir, bool $debug)
+    public function __construct(private readonly FileLoaderInterface $fileLoader, private readonly string $cacheDir, private readonly bool $debug)
     {
-        $this->fileLoader = $fileLoader;
-        $this->cacheDir = $cacheDir;
-        $this->debug = $debug;
     }
 
     public function load(string $file): Workflow

@@ -2,10 +2,9 @@
 framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
-    #http_method_override: true
 
     session:
-        handler_id: snc_redis.session.handler
+        handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
         name: auth_sess
         cookie_secure: auto
         cookie_httponly: true
@@ -15,3 +14,20 @@ framework:
     #fragments: true
     php_errors:
         log: true
+    http_client:
+        default_options:
+            verify_peer: '%env(bool:VERIFY_SSL)%'
+        scoped_clients:
+            remove_bg.client:
+                base_uri: https://api.remove.bg
+                verify_peer: true
+            zippy.client:
+                base_uri: '%env(ZIPPY_URL)%'
+                headers:
+                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

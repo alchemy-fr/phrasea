@@ -4,26 +4,24 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Asset;
 use App\Security\Authentication\AssetToken;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class AssetVoter extends Voter
 {
-    const ACK = 'ACK';
-    const DOWNLOAD = 'DOWNLOAD';
-    const READ_METADATA = 'READ_META';
+    final public const ACK = 'ACK';
+    final public const DOWNLOAD = 'DOWNLOAD';
+    final public const READ_METADATA = 'READ_META';
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Asset;
     }
@@ -32,13 +30,13 @@ class AssetVoter extends Voter
      * @param AssetToken $token
      * @param Asset      $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (null === $subject->getToken()) {
             return false;
         }
 
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
+        if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;
         }
 

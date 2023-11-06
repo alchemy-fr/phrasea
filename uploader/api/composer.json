@@ -22,14 +22,7 @@
         },
         {
             "type": "path",
-            "url": "./__lib/oauth-server-bundle",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
-            "url": "./__lib/remote-auth-bundle",
+            "url": "./__lib/auth-bundle",
             "options": {
                 "symlink": true
             }
@@ -80,67 +73,66 @@
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
-        "alchemy/oauth-server-bundle": "@dev",
-        "alchemy/remote-auth-bundle": "@dev",
+        "alchemy/auth-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
-        "api-platform/core": "^2.6,<=2.6.8",
+        "api-platform/core": "^3.1",
         "arthem/rabbit-bundle": "dev-master",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "composer/package-versions-deprecated": "1.11.99.3",
-        "doctrine/annotations": "^1.0",
+        "doctrine/annotations": "^2.0",
         "doctrine/common": "^3",
-        "doctrine/doctrine-bundle": "^2",
-        "doctrine/doctrine-migrations-bundle": "^2",
+        "doctrine/doctrine-bundle": "^2.9",
+        "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
-        "eightpoints/guzzle-bundle": "^7.5",
         "fig/link-util": "^1.1",
-        "guzzlehttp/guzzle": "^6.3",
-        "nelmio/cors-bundle": "1.5.6",
+        "guzzlehttp/guzzle": "^7.2",
+        "nelmio/cors-bundle": "^2.1",
         "nyholm/psr7": "^1.1",
+        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid": "^4.2.3",
         "ramsey/uuid-doctrine": "^1.5",
-        "sensio/framework-extra-bundle": "^5.1",
-        "snc/redis-bundle": "^3.2",
+        "sensio/framework-extra-bundle": "^6.2",
         "stof/doctrine-extensions-bundle": "^1.7",
-        "symfony/asset": "^4.4",
-        "symfony/console": "^4.4",
-        "symfony/dotenv": "^4.4",
-        "symfony/expression-language": "^4.4",
+        "symfony/asset": "^6.3",
+        "symfony/console": "^6.3",
+        "symfony/dotenv": "^6.3",
+        "symfony/expression-language": "^6.3",
         "symfony/flex": "^1.1",
-        "symfony/form": "^4.4",
-        "symfony/framework-bundle": "^4.4",
-        "symfony/process": "^4.4",
-        "symfony/property-access": "^4.4",
-        "symfony/property-info": "^4.4",
+        "symfony/form": "^6.3",
+        "symfony/framework-bundle": "^6.3",
+        "symfony/mime": "^6.3",
+        "symfony/process": "^6.3",
+        "symfony/property-access": "^6.3",
+        "symfony/property-info": "^6.3",
         "symfony/psr-http-message-bridge": "^2.1.4",
-        "symfony/security-bundle": "^4.4",
-        "symfony/serializer": "^4.4",
-        "symfony/translation": "^4.4",
-        "symfony/twig-bundle": "^4.4",
-        "symfony/validator": "^4.4",
-        "symfony/web-link": "^4.4",
-        "symfony/yaml": "^4.4",
+        "symfony/security-bundle": "^6.3",
+        "symfony/serializer": "^6.3",
+        "symfony/translation": "^6.3",
+        "symfony/twig-bundle": "^6.3",
+        "symfony/validator": "^6.3",
+        "symfony/web-link": "^6.3",
+        "symfony/yaml": "^6.3",
         "twig/extensions": "^1.5"
     },
     "require-dev": {
         "ext-json": "*",
         "alchemy/api-test": "@dev",
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "hautelook/alice-bundle": "^2.5",
+        "colinodell/psr-testlogger": "*",
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
-        "symfony/browser-kit": "^4.4",
-        "symfony/css-selector": "^4.4",
-        "symfony/debug-bundle": "^4.4",
+        "rector/rector": "^0.17.1",
+        "symfony/browser-kit": "^6.3",
+        "symfony/css-selector": "^6.3",
+        "symfony/debug-bundle": "^6.3",
         "symfony/maker-bundle": "^1.0",
         "symfony/monolog-bundle": "^3.0",
-        "symfony/phpunit-bridge": "^5.3",
-        "symfony/stopwatch": "^4.4",
-        "symfony/var-dumper": "^4.4",
-        "symfony/web-profiler-bundle": "^4.4",
-        "symfony/web-server-bundle": "^4.4"
+        "symfony/phpunit-bridge": "^6.3",
+        "symfony/stopwatch": "^6.3",
+        "symfony/var-dumper": "^6.3",
+        "symfony/web-profiler-bundle": "^6.3"
     },
     "config": {
         "preferred-install": {
@@ -148,7 +140,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {
@@ -180,6 +173,8 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "rector": "vendor/bin/rector",
+        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
     },
@@ -189,7 +184,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "^4.4"
+            "require": "^6.3"
         }
     }
 }

@@ -1,17 +1,8 @@
 import React, {useEffect} from "react";
-import config from "./config";
 import {useNavigate} from "react-router-dom";
 import {getPath} from "./routes";
 import {toast} from "react-toastify";
-import {OAuthClient} from "react-ps";
-
-const {clientId, clientSecret} = config.getClientCredential();
-
-export const oauthClient = new OAuthClient({
-    clientId,
-    clientSecret,
-    baseUrl: config.getAuthBaseUrl(),
-});
+import {oauthClient} from "./api/api-client";
 
 export default function OAuthRedirect() {
     const navigate = useNavigate();
@@ -21,7 +12,7 @@ export default function OAuthRedirect() {
         const state = params.get('state');
 
         oauthClient
-            .getAccessTokenFromAuthCode(
+            .getTokenFromAuthCode(
                 params.get('code') as string,
                 window.location.href.split('?')[0]
             )

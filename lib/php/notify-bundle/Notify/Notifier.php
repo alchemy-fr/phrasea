@@ -12,14 +12,8 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var Client
-     */
-    private $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function sendEmail(string $email, string $template, string $locale, array $parameters = []): void

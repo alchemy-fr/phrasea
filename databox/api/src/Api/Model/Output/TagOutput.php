@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use App\Entity\Core\Asset;
+use App\Entity\Core\Tag;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class TagOutput extends AbstractUuidOutput
 {
-    /**
-     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
     private string $name;
 
-    /**
-     * @Groups({"asset:index", "asset:read", "tag:index", "tag:read"})
-     */
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
     private ?string $color = null;
 
     public function getName(): string

@@ -1,8 +1,8 @@
 import apiClient from "./api-client";
-import {RequestConfig} from "./http-client";
 import {Asset, AssetFileVersion, Attribute} from "../types";
 import {ApiCollectionResponse, getHydraCollection} from "./hydra";
 import {AxiosRequestConfig} from "axios";
+import {RequestConfig} from "@alchemy/auth";
 
 export interface GetAssetOptions {
     url?: string;
@@ -120,7 +120,7 @@ export async function deleteAssetAttribute(id: string): Promise<void> {
 }
 
 export async function triggerAssetWorkflow(id: string): Promise<void> {
-    await apiClient.post(`/assets/${id}/trigger-workflow`, {});
+    await apiClient.put(`/assets/${id}/trigger-workflow`, {});
 }
 
 export async function deleteAsset(id: string): Promise<void> {

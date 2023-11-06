@@ -9,31 +9,17 @@ use App\Entity\Asset;
 use App\Security\Voter\AssetVoter;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class AssetAckAction extends AbstractController
 {
-    private EventProducer $eventProducer;
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        EventProducer $eventProducer,
-        EntityManagerInterface $em
-    ) {
-        $this->eventProducer = $eventProducer;
-        $this->em = $em;
+    public function __construct(private readonly EventProducer $eventProducer)
+    {
     }
 
-    public function __invoke(string $id)
+    public function __invoke(Asset $asset)
     {
-        $asset = $this->em->find(Asset::class, $id);
-        if (null === $asset) {
-            throw new NotFoundHttpException('Asset not found');
-        }
-
         $this->denyAccessUnlessGranted(AssetVoter::ACK, $asset);
 
         $this->eventProducer->publish(new EventMessage(AssetAcknowledgeHandler::EVENT, [

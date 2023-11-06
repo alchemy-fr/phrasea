@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
+use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
@@ -13,7 +14,6 @@ use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use Alchemy\StorageBundle\Util\FileUtil;
 use App\Util\LocaleUtils;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 

@@ -4,39 +4,51 @@ declare(strict_types=1);
 
 namespace App\Security\Factory;
 
-use App\Security\Authentication\AssetTokenProvider;
-use App\Security\Firewall\AssetTokenListener;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
+use App\Security\Authenticator\AssetTokenAuthenticator;
+use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
-class AssetTokenFactory implements SecurityFactoryInterface
+class AssetTokenFactory implements AuthenticatorFactoryInterface
 {
-    public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
+    public function createAuthenticator(ContainerBuilder $container, $firewallName, $config, $userProviderId): string
     {
-        $providerId = 'security.authentication.provider.asset.'.$id;
+        $authenticatorId = 'security.authenticator.asset.'.$firewallName;
+        $firewallEventDispatcherId = 'security.event_dispatcher.'.$firewallName;
+
         $container
-            ->setDefinition($providerId, new ChildDefinition(AssetTokenProvider::class))
+            ->setDefinition($authenticatorId, new ChildDefinition(AssetTokenAuthenticator::class))
         ;
 
-        $listenerId = 'security.authentication.listener.asset.'.$id;
-        $container->setDefinition($listenerId, new ChildDefinition(AssetTokenListener::class));
+        // authenticator manager listener
+        $container
+            ->setDefinition('security.firewall.authenticator.'.$firewallName, new ChildDefinition('security.firewall.authenticator'))
+            ->replaceArgument(0, new Reference($authenticatorId))
+        ;
 
-        return [$providerId, $listenerId, $defaultEntryPoint];
+        // user checker listener
+        $container
+            ->setDefinition('security.listener.user_checker.'.$firewallName, new ChildDefinition('security.listener.user_checker'))
+            ->replaceArgument(0, new Reference('security.user_checker.'.$firewallName))
+            ->addTag('kernel.event_subscriber', ['dispatcher' => $firewallEventDispatcherId])
+        ;
+
+        return $authenticatorId;
     }
 
-    public function getPosition()
-    {
-        return 'pre_auth';
-    }
-
-    public function getKey()
+    public function getKey(): string
     {
         return 'asset';
     }
 
     public function addConfiguration(NodeDefinition $node)
     {
+    }
+
+    public function getPriority(): int
+    {
+        return 0;
     }
 }

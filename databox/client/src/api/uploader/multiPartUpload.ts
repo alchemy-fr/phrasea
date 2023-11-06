@@ -13,7 +13,6 @@ export type UploadedFile = {
 export async function uploadMultipartFile(
     targetSlug: string,
     userId: string,
-    accessToken: string,
     upload: UploadedFile,
     onProgress?: OnProgress
 ): Promise<string> {
@@ -43,7 +42,7 @@ export async function uploadMultipartFile(
                 type: file.type,
                 size: file.size,
             }, {
-                headers: makeAuthorizationHeaders(accessToken),
+                headers: await makeAuthorizationHeaders(),
             });
 
             uploadId = res.id;
@@ -61,7 +60,7 @@ export async function uploadMultipartFile(
             const {data: getUploadUrlResp} = await uploaderClient.post(`/uploads/${uploadId}/part`, {
                 part: index,
             }, {
-                headers: makeAuthorizationHeaders(accessToken),
+                headers: await makeAuthorizationHeaders(),
             });
 
             const blob = (index < numChunks) ? file.slice(start, end) : file.slice(start);
@@ -94,7 +93,7 @@ export async function uploadMultipartFile(
             },
             data: upload.data,
         }, {
-            headers: makeAuthorizationHeaders(accessToken),
+            headers: await makeAuthorizationHeaders(),
         });
 
         uploadStateStorage.removeUpload(userId, fileUID);

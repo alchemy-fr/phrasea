@@ -12,8 +12,7 @@ class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
      * Asset IDs.
      *
      * @var string[]
-     *
-     * @Assert\NotNull()
      */
+    #[Assert\NotNull]
     public ?array $assets = [];
 }

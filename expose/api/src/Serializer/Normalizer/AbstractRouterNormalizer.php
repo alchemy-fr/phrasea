@@ -10,6 +10,7 @@ use App\Entity\SubDefinition;
 use App\Security\AssetUrlGenerator;
 use App\Security\Authentication\JWTManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
 {
@@ -17,25 +18,19 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
     protected UrlGeneratorInterface $urlGenerator;
     protected JWTManager $JWTManager;
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setAssetUrlGenerator(AssetUrlGenerator $assetUrlGenerator): void
     {
         $this->assetUrlGenerator = $assetUrlGenerator;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setUrlGenerator(UrlGeneratorInterface $urlGenerator): void
     {
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setJWTManager(JWTManager $JWTManager): void
     {
         $this->JWTManager = $JWTManager;
@@ -71,7 +66,7 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
         return $this->assetUrlGenerator->generateSubDefinitionUrl($subDefinition, $download);
     }
 
-    protected function getDownloadViaEmailUrl(Asset $asset, ?string $subDefId = null): string
+    protected function getDownloadViaEmailUrl(Asset $asset, string $subDefId = null): string
     {
         if (null !== $subDefId) {
             $uri = $this->urlGenerator->generate('download_subdef_request_create', [

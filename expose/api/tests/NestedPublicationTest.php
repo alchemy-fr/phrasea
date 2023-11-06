@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class NestedPublicationTest extends AbstractExposeTestCase
 {
     public function testCreateNestedPublicationOK(): void
     {
         $id = $this->createPublication([
-            'ownerId' => AuthServiceClientTestMock::ADMIN_UID,
+            'ownerId' => KeycloakClientTestMock::ADMIN_UID,
         ])->getId();
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/publications',
             [
@@ -25,7 +25,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
             ],
         ]
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -34,12 +34,12 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('title', $json);
         $this->assertEquals('Sub Foo', $json['title']);
         $this->assertMatchesUuid($json['id']);
-        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
+        $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $json['ownerId']);
 
         $this->assertArrayHasKey('parent', $json);
         $this->assertEquals($id, $json['parent']['id']);
         $this->assertArrayHasKey('title', $json['parent']);
-        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
+        $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $json['parent']['ownerId']);
     }
 
     public function testNestedPublicationIsCorrectlyNormalizedWithDifferentAcceptHeaders(): void
@@ -55,14 +55,14 @@ class NestedPublicationTest extends AbstractExposeTestCase
                      'application/ld+json',
                  ] as $accept) {
             $response = $this->request(
-                AuthServiceClientTestMock::ADMIN_TOKEN,
+                KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
                 'GET',
                 '/publications/'.$childId,
                 [],
                 [],
                 ['HTTP_ACCEPT' => $accept]
             );
-            $json = json_decode($response->getContent(), true);
+            $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
             $this->assertEquals(200, $response->getStatusCode());
 
@@ -92,11 +92,11 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$parentId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($parentId, $json['id']);
@@ -112,11 +112,11 @@ class NestedPublicationTest extends AbstractExposeTestCase
 
         // Test child
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'GET',
             '/publications/'.$childId
         );
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($childId, $json['id']);
@@ -136,7 +136,11 @@ class NestedPublicationTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(null, 'GET', '/publications/'.$parentId);
-        $json = json_decode($response->getContent(), true);
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
+        $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertArrayHasKey('id', $json);
         $this->assertEquals($parentId, $json['id']);
@@ -160,7 +164,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->createTree($tree, [], $ids);
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/publications/'.$ids['p1']
         );
@@ -186,8 +190,8 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $ids = [];
         $this->createTree($tree, [], $ids);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications');
-        $json = json_decode($response->getContent(), true);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications');
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -197,7 +201,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->assertEquals('p2', $json[1]['title']);
     }
 
-    private function createTree(array $tree, array $options, array &$ids, ?string $parentName = null): void
+    private function createTree(array $tree, array $options, array &$ids, string $parentName = null): void
     {
         foreach ($tree as $pubName => $children) {
             $options['title'] = $pubName;

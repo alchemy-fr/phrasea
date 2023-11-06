@@ -7,7 +7,6 @@ namespace App\Attribute\Type;
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Throwable;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
 {
@@ -19,7 +18,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 
         try {
             return (string) $value;
-        } catch (Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }

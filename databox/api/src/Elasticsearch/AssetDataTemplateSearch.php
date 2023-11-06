@@ -13,13 +13,12 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Security;
 
-class AssetDataTemplateSearch
+final readonly class AssetDataTemplateSearch
 {
-    public function __construct(private readonly PaginatedFinderInterface $finder, private readonly Security $security, private readonly EntityIriConverter $iriConverter)
+    public function __construct(private PaginatedFinderInterface $finder, private Security $security, private EntityIriConverter $iriConverter)
     {
     }
 
@@ -82,7 +81,7 @@ class AssetDataTemplateSearch
         }
 
         $query = new Query();
-        $query->setTrackTotalHits(true);
+        $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
         $query->setSort([
             'collectionDepth' => 'asc',
@@ -103,7 +102,7 @@ class AssetDataTemplateSearch
 
     protected function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): ?Query\BoolQuery
     {
-        $workspaceId = $filters['workspace'] ?? ($collection ? $collection->getWorkspaceId() : null) ?? null;
+        $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
 
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');
@@ -115,14 +114,19 @@ class AssetDataTemplateSearch
             throw new BadRequestHttpException('Collection is not in the same workspace');
         }
 
-        if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
-            throw new AccessDeniedHttpException('Cannot read workspace');
+        $aclBoolQuery = new Query\BoolQuery();
+
+        if (null !== $collection) {
+            if (!$this->security->isGranted(AbstractVoter::EDIT, $collection)) {
+                $aclBoolQuery->addMust(new Query\Term(['collectionId' => 'NONE']));
+            }
+        } elseif (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
+            $aclBoolQuery->addMust(new Query\Term(['workspaceId' => 'NONE']));
         }
 
         $rootQuery = new Query\BoolQuery();
         $rootQuery->addMust(new Query\Term(['workspaceId' => $workspace->getId()]));
 
-        $aclBoolQuery = new Query\BoolQuery();
         $rootQuery->addMust($aclBoolQuery);
         $shoulds = [];
 

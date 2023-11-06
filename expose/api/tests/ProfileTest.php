@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace App\Tests;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 
 class ProfileTest extends AbstractExposeTestCase
 {
     public function testCreateProfileOK(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles', [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/publication-profiles', [
             'name' => 'profile_1',
             'config' => [
                 'layout' => 'download',
                 'enabled' => false,
             ],
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -26,10 +26,10 @@ class ProfileTest extends AbstractExposeTestCase
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
         $this->assertEquals('profile_1', $json['name']);
-        $this->assertEquals(AuthServiceClientTestMock::ADMIN_UID, $json['ownerId']);
+        $this->assertEquals(KeycloakClientTestMock::ADMIN_UID, $json['ownerId']);
         $this->assertArrayHasKey('config', $json);
         $this->assertEquals('download', $json['config']['layout']);
-        $this->assertMatchesRegularExpression('#^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$#', $json['id']);
+        $this->assertMatchesUuid($json['id']);
     }
 
     public function testListProfilesWithAcl(): void
@@ -41,15 +41,19 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'PUT', '/permissions/ace', [
+        $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/permissions/ace', [
             'userType' => 'user',
-            'userId' => AuthServiceClientTestMock::USER_UID,
+            'userId' => KeycloakClientTestMock::USER_UID,
             'objectType' => 'profile',
             'mask' => PermissionInterface::VIEW,
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
-        $json = json_decode($response->getContent(), true);
+        $response = $this->request(
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            'GET',
+            '/publication-profiles'
+        );
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertCount(2, $json);
@@ -66,8 +70,12 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles');
-        $json = json_decode($response->getContent(), true);
+        $response = $this->request(
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            'GET',
+            '/publication-profiles'
+        );
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertCount(2, $json);
@@ -84,8 +92,8 @@ class ProfileTest extends AbstractExposeTestCase
             'name' => 'profile_2',
         ]);
 
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles');
-        $json = json_decode($response->getContent(), true);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publication-profiles');
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
         $this->assertCount(0, $json);
@@ -93,27 +101,29 @@ class ProfileTest extends AbstractExposeTestCase
 
     public function testCreateProfileWithoutNameWillGenerate400(): void
     {
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'POST', '/publication-profiles');
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/publication-profiles');
         $this->assertEquals(400, $response->getStatusCode());
     }
 
     public function testGetProfileFromAdmin(): void
     {
-        $id = $this->createProfile();
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $id = $this->createProfile([
+            'ownerId' => 'user42',
+        ]);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publication-profiles/'.$id);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
-        $this->assertEquals(null, $json['ownerId']);
+        $this->assertEquals('user42', $json['ownerId']);
     }
 
     public function testGetProfileAsUser(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'GET', '/publication-profiles/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publication-profiles/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 
@@ -121,16 +131,19 @@ class ProfileTest extends AbstractExposeTestCase
     {
         $id = $this->createProfile(['enabled' => true]);
         $response = $this->request(null, 'GET', '/publication-profiles/'.$id);
+        if (401 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/problem+json; charset=utf-8', $response->headers->get('Content-Type'));
     }
 
     public function testDeleteProfileAsAdmin(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'DELETE', '/publication-profiles/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'DELETE', '/publication-profiles/'.$id);
         $this->assertEquals(204, $response->getStatusCode());
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publication-profiles/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publication-profiles/'.$id);
         $this->assertEquals(404, $response->getStatusCode());
     }
 
@@ -144,7 +157,7 @@ class ProfileTest extends AbstractExposeTestCase
     public function testDeleteProfileAsUser(): void
     {
         $id = $this->createProfile();
-        $response = $this->request(AuthServiceClientTestMock::USER_TOKEN, 'DELETE', '/publication-profiles/'.$id);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'DELETE', '/publication-profiles/'.$id);
         $this->assertEquals(403, $response->getStatusCode());
     }
 }

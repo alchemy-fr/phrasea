@@ -4,68 +4,53 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Entity;
 
-use DateTimeImmutable;
-use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class Webhook
 {
-    public const ALL_EVENTS = '_all';
+    final public const ALL_EVENTS = '_all';
 
     /**
      * @var Uuid
-     *
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string", length=1024, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 1024, nullable: false)]
     private ?string $url = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $secret = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $verifySSL = true;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false)
-     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $active = true;
 
     /**
      * Null if all events are active.
-     *
-     * @ORM\Column(type="json", nullable=true)
      */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $events = null;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $options = [];
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    private DateTimeInterface $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private readonly \DateTimeImmutable $createdAt;
 
     public function __construct()
     {
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId()
@@ -73,7 +58,7 @@ class Webhook
         return $this->id->__toString();
     }
 
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }

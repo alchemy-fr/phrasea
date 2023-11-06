@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Tests;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Guard\Token\PostAuthenticationGuardToken;
 
 abstract class AbstractAdminTest extends WebTestCase
 {
@@ -18,7 +17,6 @@ abstract class AbstractAdminTest extends WebTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
         $this->client = static::createClient();
     }
 
@@ -28,13 +26,13 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->followRedirects();
         $response = $this->client->getResponse();
         if (302 !== $response->getStatusCode()) {
-            dump($response->getContent());
+//            dump($response->getContent());
         }
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/admin/login?r=http%3A%2F%2Flocalhost%2Fadmin', $response->getTargetUrl());
 
-        $this->client->followRedirects();
-        $this->logIn();
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(getenv('KEYCLOAK_URL').'/realms/phrasea/protocol/openid-connect/auth?client_id=test&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%2Fadmin%2Foauth%2Fcheck&state=cj1odHRwJTNBJTJGJTJGbG9jYWxob3N0JTJGYWRtaW4%3D', $response->getTargetUrl());
+
+        $this->logIn($this->client);
         $crawler = $this->client->request('GET', '/admin');
         $response = $this->client->getResponse();
         if (200 !== $response->getStatusCode()) {
@@ -44,7 +42,7 @@ abstract class AbstractAdminTest extends WebTestCase
 
         $crawler
             ->filter('nav#main-menu ul.submenu a')
-            ->each(function ($node, $i) {
+            ->each(function (Crawler $node): void {
                 if ('#' !== $href = $node->attr('href')) {
                     $this->assertMatchesRegularExpression('#^http://localhost/admin\?.+$#', $href);
                     $this->explore($href);
@@ -52,7 +50,7 @@ abstract class AbstractAdminTest extends WebTestCase
             });
     }
 
-    private function explore(string $path)
+    private function explore(string $path): void
     {
         $crawler = $this->loadPage($path);
 
@@ -85,25 +83,16 @@ abstract class AbstractAdminTest extends WebTestCase
         return $crawler;
     }
 
-    private function logIn()
+    private function logIn(KernelBrowser $client): void
     {
-        $session = self::$container->get('session');
-
         $user = $this->getAuthAdminUser();
-
-        $firewallName = 'admin';
-        $token = new PostAuthenticationGuardToken($user, $firewallName, $user->getRoles());
-        $session->set('_security_'.$firewallName, serialize($token));
-        $session->save();
-
-        $cookie = new Cookie($session->getName(), $session->getId());
-        $this->client->getCookieJar()->set($cookie);
+        $client->loginUser($user, 'admin');
     }
 
     protected function getAuthAdminUser(): UserInterface
     {
-        return new RemoteUser('123', 'admin', [
-            'ROLE_SUPER_ADMIN',
+        return new JwtUser(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), KeycloakClientTestMock::ADMIN_UID, 'admin', [
+            JwtUser::ROLE_ADMIN,
         ]);
     }
 }

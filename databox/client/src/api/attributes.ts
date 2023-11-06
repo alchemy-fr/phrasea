@@ -7,8 +7,10 @@ export const attributeDefinitionNS = '/attribute-definitions';
 
 export async function putAttributeDefinition(
     id: string | undefined,
-    data: AttributeDefinition
+    data: Partial<AttributeDefinition>
 ): Promise<AttributeDefinition> {
+    delete data.workspace;
+
     return ((await apiClient.put(`${attributeDefinitionNS}/${id}`, data)).data);
 }
 
@@ -20,8 +22,10 @@ export async function postAttributeDefinition(
 
 export async function putAttributeClass(
     id: string | undefined,
-    data: AttributeClass
+    data: Partial<AttributeClass>
 ): Promise<AttributeClass> {
+    delete data.workspace;
+
     return ((await apiClient.put(`${attributeClassNS}/${id}`, data)).data);
 }
 

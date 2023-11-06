@@ -8,19 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class AssetRelatedUser implements UserInterface
 {
-    /**
-     * @var string
-     */
-    private $token;
-    /**
-     * @var string
-     */
-    private $assetId;
-
-    public function __construct(string $assetId, string $token)
+    public function __construct(private readonly string $assetId, private readonly string $token)
     {
-        $this->token = $token;
-        $this->assetId = $assetId;
     }
 
     public function getId(): string
@@ -28,7 +17,7 @@ class AssetRelatedUser implements UserInterface
         return $this->token;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return [];
     }
@@ -48,7 +37,12 @@ class AssetRelatedUser implements UserInterface
         return $this->assetId;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->assetId;
     }
 }

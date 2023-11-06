@@ -3,24 +3,23 @@ import config from '../lib/config';
 import {PropTypes} from 'prop-types';
 import {layouts} from "./layouts";
 import ThemeEditorProxy from "./themes/ThemeEditorProxy";
-import {securityMethods} from "./security/methods";
 import Layout from "./Layout";
 import PublicationNavigation from "./PublicationNavigation";
 import {isTermsAccepted, setAcceptedTerms} from "../lib/credential";
 import Urls from "./layouts/shared-components/Urls";
 import Copyright from "./layouts/shared-components/Copyright";
 import TermsModal from "./layouts/shared-components/TermsModal";
-import {oauthClient} from "../lib/oauth";
 import ErrorPage from "./ErrorPage";
 import {loadPublication} from "./api";
 import PublicationSecurityProxy from "./security/PublicationSecurityProxy";
+import {oauthClient} from "../lib/api-client";
 
 
 class Publication extends PureComponent {
     static propTypes = {
         id: PropTypes.string.isRequired,
         assetId: PropTypes.string,
-        authenticated: PropTypes.object,
+        username: PropTypes.string,
     };
 
     state = {
@@ -85,7 +84,7 @@ class Publication extends PureComponent {
 
             this.timeout && clearTimeout(this.timeout);
 
-            const ttl = config.get('requestSignatureTtl');
+            const ttl = config.requestSignatureTtl;
 
             if (!ttl) {
                 throw new Error(`Missing requestSignatureTtl`);
@@ -132,7 +131,7 @@ class Publication extends PureComponent {
         }
 
         return <Layout
-            authenticated={this.props.authenticated}
+            username={this.props.username}
         >
             {err}
         </Layout>
@@ -140,7 +139,7 @@ class Publication extends PureComponent {
 
     renderLayout = (data) => {
         return <Layout
-            authenticated={this.props.authenticated}
+            username={this.props.username}
             menu={<>
                 {data && <PublicationNavigation
                     publication={data}
@@ -195,29 +194,6 @@ class Publication extends PureComponent {
             text={text}
             url={url}
         />
-    }
-
-    renderSecurityAccess() {
-        const {data} = this.state;
-        const {securityContainerId} = data;
-
-        if (data.authorizationError === 'not_allowed') {
-            return <div>
-                Sorry! You are not allowed to access this publication.
-            </div>
-        }
-
-        if (securityMethods[data.securityMethod]) {
-            return React.createElement(securityMethods[data.securityMethod], {
-                error: data.authorizationError,
-                onAuthorization: this.onAuthorizationChange,
-                securityContainerId,
-            });
-        }
-
-        return <div>
-            Sorry! You cannot access this publication.
-        </div>
     }
 }
 

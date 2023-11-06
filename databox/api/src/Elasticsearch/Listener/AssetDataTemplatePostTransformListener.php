@@ -10,9 +10,9 @@ use App\Entity\Template\AssetDataTemplate;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AssetDataTemplatePostTransformListener implements EventSubscriberInterface
+final readonly class AssetDataTemplatePostTransformListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly PermissionManager $permissionManager)
+    public function __construct(private PermissionManager $permissionManager)
     {
     }
 

@@ -1,2 +1,3 @@
 alchemy_core:
-  healthcheck: ~
+    app_name: notify
+    healthcheck: ~

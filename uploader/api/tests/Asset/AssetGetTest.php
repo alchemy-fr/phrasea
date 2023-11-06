@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Asset;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssetGetTest extends AbstractAssetTest
@@ -14,7 +14,7 @@ class AssetGetTest extends AbstractAssetTest
         $this->commitAsset();
         $response = $this->requestGet('secret_token');
 
-        $contents = json_decode($response->getContent(), true);
+        $contents = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
@@ -43,14 +43,14 @@ class AssetGetTest extends AbstractAssetTest
     public function testAssetGetWithValidBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet(AuthServiceClientTestMock::USER_TOKEN, 'Bearer');
+        $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
     public function testAssetGetWithAdminBearerToken(): void
     {
         $this->commitAsset();
-        $response = $this->requestGet(AuthServiceClientTestMock::ADMIN_TOKEN, 'Bearer');
+        $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'Bearer');
         $this->assertEquals(200, $response->getStatusCode());
     }
 
@@ -63,7 +63,7 @@ class AssetGetTest extends AbstractAssetTest
 
     public function testUnCommittedAssetGet(): void
     {
-        $response = $this->requestGet(AuthServiceClientTestMock::ADMIN_TOKEN, 'Bearer');
+        $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 

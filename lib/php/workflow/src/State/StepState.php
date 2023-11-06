@@ -8,15 +8,12 @@ use Alchemy\Workflow\Date\MicroDateTime;
 
 class StepState
 {
-    private readonly string $id;
-
     private readonly Outputs $outputs;
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
 
-    public function __construct(string $id)
+    public function __construct(private readonly string $id)
     {
-        $this->id = $id;
         $this->outputs = new Outputs();
     }
 

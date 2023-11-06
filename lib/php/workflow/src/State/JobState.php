@@ -8,14 +8,14 @@ use Alchemy\Workflow\Date\MicroDateTime;
 
 class JobState
 {
-    public const STATUS_TRIGGERED = 0;
-    public const STATUS_SUCCESS = 1;
-    public const STATUS_FAILURE = 2;
-    public const STATUS_SKIPPED = 3;
-    public const STATUS_RUNNING = 4;
-    public const STATUS_ERROR = 5;
+    final public const STATUS_TRIGGERED = 0;
+    final public const STATUS_SUCCESS = 1;
+    final public const STATUS_FAILURE = 2;
+    final public const STATUS_SKIPPED = 3;
+    final public const STATUS_RUNNING = 4;
+    final public const STATUS_ERROR = 5;
 
-    public const STATUS_LABELS = [
+    final public const STATUS_LABELS = [
         self::STATUS_TRIGGERED => 'triggered',
         self::STATUS_SUCCESS => 'success',
         self::STATUS_FAILURE => 'failure',
@@ -23,11 +23,6 @@ class JobState
         self::STATUS_RUNNING => 'running',
         self::STATUS_ERROR => 'error',
     ];
-
-    private string $workflowId;
-    private string $jobId;
-
-    private int $status;
     private array $errors = [];
     private Outputs $outputs;
     private ?Inputs $inputs = null;
@@ -40,11 +35,8 @@ class JobState
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
 
-    public function __construct(string $workflowId, string $jobId, int $status)
+    public function __construct(private string $workflowId, private string $jobId, private int $status)
     {
-        $this->workflowId = $workflowId;
-        $this->jobId = $jobId;
-        $this->status = $status;
         $this->triggeredAt = new MicroDateTime();
         $this->outputs = new Outputs();
     }

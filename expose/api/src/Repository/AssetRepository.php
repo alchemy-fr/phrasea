@@ -21,7 +21,7 @@ class AssetRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 
     public function findAssetPublicationOwnedBy(Asset $asset, string $ownerId): ?Publication
@@ -39,6 +39,6 @@ class AssetRepository extends EntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }

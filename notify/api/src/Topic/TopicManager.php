@@ -11,14 +11,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TopicManager
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function addSubscriber(Contact $contact, string $topic): void

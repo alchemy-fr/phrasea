@@ -20,7 +20,7 @@ class TagFilterRuleConstraintValidator extends ConstraintValidator
     /**
      * @param TagFilterRule $value
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         if (TagFilterRule::TYPE_COLLECTION === $value->getObjectType()) {
             $collection = $this->em->getRepository(Collection::class)->find($value->getObjectId());

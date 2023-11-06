@@ -5,7 +5,18 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\CollectionInput;
+use App\Api\Model\Output\CollectionOutput;
+use App\Api\Processor\MoveCollectionProcessor;
+use App\Api\Provider\CollectionProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\ESIndexableInterface;
@@ -20,22 +31,69 @@ use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\CollectionRepository;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-/**
- * @Gedmo\SoftDeleteable(fieldName="deletedAt", hardDelete=false)
- *
- * @ORM\Entity(repositoryClass="App\Repository\Core\CollectionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniq_coll_ws_key",columns={"workspace_id", "key"})})
- *
- * @ApiResource()
- */
+#[ApiResource(
+    shortName: 'collection',
+    operations: [
+        new Get(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::LIST.'", object)'
+        ),
+        new Delete(security: 'is_granted("DELETE", object)'),
+        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
+        new Put(
+            uriTemplate: '/collections/{id}/move/{dest}',
+            uriVariables: [
+                'dest' => new Link(fromClass: Collection::class, identifiers: ['id'], expandedValue: '{dest}'),
+                'id' => new Link(fromClass: Collection::class, identifiers: ['id']),
+            ],
+            openapiContext: [
+                'parameters' => [
+                    [
+                        'name' => 'dest',
+                        'in' => 'path',
+                        'required' => true,
+                        'description' => 'The destination collection ID',
+                    ],
+                ],
+            ],
+            security: 'is_granted("EDIT", object)',
+            deserialize: false,
+            name: 'put_move',
+            processor: MoveCollectionProcessor::class
+        ),
+        new GetCollection(),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+    ],
+    normalizationContext: [
+        'enable_max_depth' => true,
+        'groups' => [
+            self::GROUP_LIST,
+            self::GROUP_CHILDREN,
+            self::GROUP_2LEVEL_CHILDREN,
+        ],
+    ],
+    input: CollectionInput::class,
+    output: CollectionOutput::class,
+    provider: CollectionProvider::class,
+)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Entity(repositoryClass: CollectionRepository::class)]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
 class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
@@ -45,32 +103,28 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    final public const GROUP_READ = 'coll:read';
+    final public const GROUP_LIST = 'coll:index';
+    final public const GROUP_CHILDREN = 'coll:ic';
+    final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="string", length=36)
-     */
+    #[ORM\Column(type: Types::STRING, length: 36)]
     private ?string $ownerId = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Collection", inversedBy="children")
-     * @ORM\JoinColumn(nullable=true)
-     *
-     * @MaxDepth(1)
-     */
+    #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[MaxDepth(1)]
     private ?self $parent = null;
 
     /**
      * @var self[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Collection", mappedBy="parent")
-     * @ORM\JoinColumn(nullable=true)
-     *
-     * @MaxDepth(1)
      */
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Collection::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    #[MaxDepth(1)]
     private ?DoctrineCollection $children = null;
 
     /**
@@ -78,29 +132,21 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
      */
     private ?bool $hasChildren = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\CollectionAsset", mappedBy="collection", cascade={"persist"})
-     */
+    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: CollectionAsset::class, cascade: ['persist'])]
     private ?DoctrineCollection $assets = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Core\Asset", mappedBy="referenceCollection")
-     */
+    #[ORM\OneToMany(mappedBy: 'referenceCollection', targetEntity: Asset::class)]
     private ?DoctrineCollection $referenceAssets = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="collections")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
-     */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
-     *
-     * @ORM\Column(type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(type: Types::STRING, length: 4096, nullable: true)]
     private ?string $key = null;
 
     public function __construct()

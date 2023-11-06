@@ -14,14 +14,14 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class SameWorkspaceConstraintValidator extends ConstraintValidator
 {
-    public function __construct(private readonly PropertyAccessorInterface $propertyAccessor)
+    public function __construct(private PropertyAccessorInterface $propertyAccessor)
     {
     }
 
     /**
      * @param SameWorkspaceConstraint $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $workspaceId = null;
         foreach ($constraint->properties as $propertyPath) {
@@ -29,7 +29,7 @@ class SameWorkspaceConstraintValidator extends ConstraintValidator
 
             foreach ($workspaces as $workspace) {
                 /* @var Workspace $workspace */
-                $wId = $workspace ? $workspace->getId() : null;
+                $wId = $workspace?->getId();
 
                 if (null === $wId) {
                     return;

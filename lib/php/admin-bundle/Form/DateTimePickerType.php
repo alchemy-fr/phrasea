@@ -10,20 +10,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DateTimePickerType extends AbstractType
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-                'widget' => 'single_text',
-                'format' => "dd/MM/yyyy' 'HH:mm",
-                'attr' => [
-                    'class' => 'datetimepicker-input',
-                    'data-toggle' => 'datetimepicker',
-                ],
-            ]
-        );
+            'widget' => 'single_text',
+        ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return DateTimeType::class;
     }

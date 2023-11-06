@@ -9,22 +9,14 @@ use ApiPlatform\Core\Annotation\ApiProperty;
 /**
  * Configuration of a publication or a profile.
  */
-class Url implements \JsonSerializable
+class Url implements \JsonSerializable, \Stringable
 {
-    /**
-     * @ApiProperty()
-     */
-    private ?string $text;
-
-    /**
-     * @ApiProperty(writable=true)
-     */
-    private ?string $url;
-
-    public function __construct(?string $text = null, ?string $url = null)
-    {
-        $this->text = $text;
-        $this->url = $url;
+    public function __construct(
+        #[ApiProperty]
+        private ?string $text = null,
+        #[ApiProperty(writable: true)]
+        private ?string $url = null
+    ) {
     }
 
     public function getUrl(): ?string
@@ -52,7 +44,7 @@ class Url implements \JsonSerializable
         return json_encode([
             'text' => $this->text,
             'url' => $this->url,
-        ]);
+        ], JSON_THROW_ON_ERROR);
     }
 
     public function jsonSerialize(): array
@@ -65,15 +57,15 @@ class Url implements \JsonSerializable
 
     public function unserialize($serialized)
     {
-        $data = json_decode($serialized, true);
+        $data = json_decode((string) $serialized, true, 512, JSON_THROW_ON_ERROR);
 
         $this->text = $data['text'] ?? null;
         $this->url = $data['url'] ?? null;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->serialize();
+        return (string) $this->serialize();
     }
 
     public static function mapUrls(array $urls): array

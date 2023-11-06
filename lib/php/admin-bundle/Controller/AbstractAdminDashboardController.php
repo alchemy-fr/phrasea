@@ -14,14 +14,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractAdminDashboardController extends AbstractDashboardController
 {
     private AdminConfigRegistry $adminConfigRegistry;
 
-    /**
-     * @Route("/admin")
-     */
+    #[Route(path: '/admin', name: 'easyadmin')]
     public function index(): Response
     {
         return $this->render('@AlchemyAdmin/layout.html.twig');
@@ -39,13 +38,14 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
 
     public function configureUserMenu(UserInterface $user): UserMenu
     {
-        return (parent::configureUserMenu($user))
+        return parent::configureUserMenu($user)
             ->displayUserAvatar(false);
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
+            ->setFaviconPath('favicon.ico')
             ->setTitle('<div>'.($this->adminConfigRegistry->getSiteLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>');
     }
 
@@ -59,9 +59,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
         return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission('ROLE_TECH');
     }
 
-    /**
-     * @required
-     */
+    #[Required]
     public function setAdminConfigRegistry(AdminConfigRegistry $adminConfigRegistry): void
     {
         $this->adminConfigRegistry = $adminConfigRegistry;

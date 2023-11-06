@@ -13,8 +13,19 @@ env:
   REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  VERIFY_SSL: "false"
+  COMPOSE_PROFILES: databox,expose,notify,uploader,databox-worker,expose-worker,notify-worker,uploader-worker,db,report,mailhog
 
 jobs:
+  build_keycloak:
+    name: 'Build Keycloak'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: keycloak
+      context: ./infra/docker/keycloak
+      target: keycloak
+    secrets: inherit
+
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml
@@ -22,6 +33,16 @@ jobs:
       image: php-fpm-base
       context: ./infra/docker/php-fpm-base
     secrets: inherit
+
+  build_configurator:
+    name: 'Build Configurator'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: configurator
+      context: ./configurator
+    secrets: inherit
+    needs:
+      - build_php-fpm-base
 
   build_nginx-fpm-base:
     name: 'Build nginx-fpm-base'
@@ -47,22 +68,6 @@ jobs:
       context: ./infra/docker/nginx-cache-purge
     secrets: inherit
 
-  build_auth_api:
-    name: 'Build Auth API'
-    strategy:
-      matrix:
-        images: [api-php, api-nginx, worker]
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: auth-${{ matrix.images }}
-      context: ./auth/api
-      target: ${{ matrix.images }}
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
-
   build_dashboard:
     name: 'Build Dashboard'
     uses: ./.github/workflows/build.yaml
@@ -73,14 +78,10 @@ jobs:
 
   build_databox_api:
     name: 'Build Databox API'
-    strategy:
-      matrix:
-        images: [api-php, api-nginx, worker]
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
-      image: databox-${{ matrix.images }}
+      prefix: databox
       context: ./databox/api
-      target: ${{ matrix.images }}
       withLibs: true
     secrets: inherit
     needs:
@@ -104,18 +105,15 @@ jobs:
     with:
       image: databox-indexer
       context: ./databox/indexer
+      withLibs: true
     secrets: inherit
 
   build_expose_api:
     name: 'Build Expose API'
-    strategy:
-      matrix:
-        images: [api-php, api-nginx, worker]
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
-      image: expose-${{ matrix.images }}
+      prefix: expose
       context: ./expose/api
-      target: ${{ matrix.images }}
       withLibs: true
     secrets: inherit
     needs:
@@ -133,27 +131,28 @@ jobs:
     needs:
       - build_nodejs-base
 
-  build_matomo:
-    name: 'Build Matomo'
-    strategy:
-      matrix:
-        images: [php, nginx]
+  build_matomo_php:
+    name: 'Build Matomo PHP'
     uses: ./.github/workflows/build.yaml
     with:
-      image: matomo-${{ matrix.images }}
-      context: ./infra/docker/matomo-${{ matrix.images }}
+      image: matomo-php
+      context: ./infra/docker/matomo-php
+    secrets: inherit
+
+  build_matomo_nginx:
+    name: 'Build Matomo NGINX'
+    uses: ./.github/workflows/build.yaml
+    with:
+      image: matomo-nginx
+      context: ./infra/docker/matomo-nginx
     secrets: inherit
 
   build_notify_api:
     name: 'Build Notify API'
-    strategy:
-      matrix:
-        images: [api-php, api-nginx, worker]
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
-      image: notify-${{ matrix.images }}
+      prefix: notify
       context: ./notify/api
-      target: ${{ matrix.images }}
       withLibs: true
     secrets: inherit
     needs:
@@ -170,14 +169,10 @@ jobs:
 
   build_uploader_api:
     name: 'Build Uploader API'
-    strategy:
-      matrix:
-        images: [api-php, api-nginx, worker]
-    uses: ./.github/workflows/build.yaml
+    uses: ./.github/workflows/build_api.yaml
     with:
-      image: uploader-${{ matrix.images }}
+      prefix: uploader
       context: ./uploader/api
-      target: ${{ matrix.images }}
       withLibs: true
     secrets: inherit
     needs:
@@ -199,20 +194,29 @@ jobs:
     name: 'Setup stack'
     runs-on: ubuntu-latest
     needs:
-      - build_auth_api
+      - build_configurator
       - build_dashboard
       - build_databox_api
       - build_databox_client
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
-      - build_matomo
+      - build_keycloak
+      - build_matomo_nginx
+      - build_matomo_php
       - build_notify_api
       - build_report_api
       - build_uploader_api
       - build_uploader_client
 
     steps:
+      - name: Install mkcert
+        run: |
+          sudo apt-get install wget libnss3-tools
+          wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+          sudo mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
+          sudo chmod +x /usr/bin/mkcert
+          mkcert -install
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Log in to the Container registry
@@ -223,10 +227,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull images
         run: |
-          docker compose pull
+            docker compose pull
       - name: Setup
         run: |
           docker compose down --volumes
+          bin/dev/make-cert.sh
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
           bin/setup.sh
       - name: Test
@@ -250,14 +255,14 @@ jobs:
         run: |
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
-          
+
           set -ex
           LATEST_TAG=$(curl \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ github.token }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ github.repository }}/releases/latest | jq --raw-output '.tag_name')
-          
+
           if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
             docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:latest | sed "s,${{ env.REGISTRY_NAMESPACE }},alchemyfr/ps-,2" | bash
             REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
@@ -286,3 +291,4 @@ jobs:
           ECR_REGISTRY="${{ steps.login-ecr-public.outputs.registry }}/${REGISTRY_ALIAS}"
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
+          COMPOSE_PROFILES="configurator" REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push

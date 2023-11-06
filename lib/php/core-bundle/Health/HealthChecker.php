@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Health;
 
-use Throwable;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class HealthChecker
 {
     /**
      * @var HealthCheckerInterface[]
      */
-    private array $checkers = [];
+    private iterable $checkers;
 
-    public function addChecker(HealthCheckerInterface $checker)
+    public function __construct(
+        #[TaggedIterator(HealthCheckerInterface::TAG)]
+        iterable $checkers,
+    )
     {
-        $this->checkers[] = $checker;
+        $this->checkers = $checkers;
     }
 
     public function getChecks(): array
@@ -27,7 +30,7 @@ class HealthChecker
                 $check = [
                     'ok' => $ok,
                 ];
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $check = [
                     'ok' => false,
                     'error' => $e->getMessage(),

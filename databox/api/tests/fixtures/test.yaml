@@ -1,11 +1,13 @@
 parameters:
   user_id: '123'
+  admin_user_id: '4242'
 
 App\Entity\Core\Workspace:
   w_test:
     name: Test Workspace
     slug: test-workspace
-    ownerId: super_user
+    ownerId: <{admin_user_id}>
+    public: true
 
 Alchemy\AclBundle\Entity\AccessControlEntry:
   acl_user_ws:

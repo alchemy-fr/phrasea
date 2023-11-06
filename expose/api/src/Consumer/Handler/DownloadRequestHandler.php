@@ -14,17 +14,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class DownloadRequestHandler extends AbstractEntityManagerHandler
 {
-    const EVENT = 'download_request';
+    final public const EVENT = 'download_request';
 
-    private NotifierInterface $notifier;
-    private UrlGeneratorInterface $urlGenerator;
-    private JWTManager $JWTManager;
-
-    public function __construct(NotifierInterface $notifier, UrlGeneratorInterface $urlGenerator, JWTManager $JWTManager)
+    public function __construct(private readonly NotifierInterface $notifier, private readonly UrlGeneratorInterface $urlGenerator, private readonly JWTManager $JWTManager)
     {
-        $this->notifier = $notifier;
-        $this->urlGenerator = $urlGenerator;
-        $this->JWTManager = $JWTManager;
     }
 
     public function handle(EventMessage $message): void
@@ -34,7 +27,7 @@ class DownloadRequestHandler extends AbstractEntityManagerHandler
         $em = $this->getEntityManager();
         $downloadRequest = $em->find(DownloadRequest::class, $id);
         if (!$downloadRequest instanceof DownloadRequest) {
-            throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, __CLASS__);
+            throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, self::class);
         }
 
         $parameters = [

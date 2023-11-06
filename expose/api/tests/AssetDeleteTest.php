@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\SubDefinition;
 
 class AssetDeleteTest extends AbstractExposeTestCase
@@ -19,7 +19,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -39,7 +39,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $asset = $this->assertAssetExist($assetId, true);
         $path = $asset->getPath();
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'DELETE',
             '/assets/'.$assetId
         );
@@ -64,14 +64,15 @@ class AssetDeleteTest extends AbstractExposeTestCase
         $this->assertSubDefinitionExist($subDef1Id);
         $this->assertSubDefinitionExist($subDef2Id);
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/'.$assetId
         );
         if (500 === $response->getStatusCode()) {
-            var_dump($response->getContent());
+            dump($response->getContent());
         }
         $this->assertEquals(204, $response->getStatusCode());
+        $this->clearEmBeforeApiCall();
         $this->assertNotAssetExist($assetId);
         $this->assertNotSubDefinitionExist($subDef1Id);
         $this->assertNotSubDefinitionExist($subDef2Id);
@@ -80,7 +81,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
     public function testDeleteNonExistingAssetWillReturn404(): void
     {
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/invalid-asset'
         );
@@ -104,7 +105,7 @@ class AssetDeleteTest extends AbstractExposeTestCase
         ]);
 
         $response = $this->request(
-            AuthServiceClientTestMock::ADMIN_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'DELETE',
             '/assets/delete-by-asset-id/foo'
         );

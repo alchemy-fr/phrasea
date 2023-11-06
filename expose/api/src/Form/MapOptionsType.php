@@ -21,10 +21,10 @@ class MapOptionsType extends AbstractType
             ->add('mapLayout', MapLayoutChoiceType::class, [
                 'required' => false,
             ])
-            ;
+        ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefault('data_class', MapOptions::class)

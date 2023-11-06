@@ -20,10 +20,7 @@ class SplitAttributesCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -35,10 +32,7 @@ class SplitAttributesCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $attrDefId = $input->getArgument('attribute-definition-id');
         $attributeDefinition = $this->em->find(AttributeDefinition::class, $attrDefId);
@@ -48,7 +42,7 @@ class SplitAttributesCommand extends Command
             throw new \InvalidArgumentException('AttributeDefinition '.$attrDefId.' not found');
         }
 
-        $this->em->getConfiguration()->setSQLLogger(null);
+        $this->em->getConfiguration()->setSQLLogger();
         $this->attributeSplitter->splitAttributes($attributeDefinition, $delimiter);
 
         $output->writeln('Done.');

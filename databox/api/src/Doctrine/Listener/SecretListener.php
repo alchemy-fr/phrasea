@@ -6,11 +6,14 @@ namespace App\Doctrine\Listener;
 
 use App\Entity\Integration\WorkspaceSecret;
 use App\Security\Secrets\SecretsManager;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener(Events::prePersist)]
+#[AsDoctrineListener(Events::preUpdate)]
 final readonly class SecretListener implements EventSubscriber
 {
     public function __construct(
@@ -39,7 +42,7 @@ final readonly class SecretListener implements EventSubscriber
         }
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::prePersist,

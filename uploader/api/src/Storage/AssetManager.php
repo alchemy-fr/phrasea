@@ -11,15 +11,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetManager
 {
-    private EntityManagerInterface $em;
-    private int $assetDaysRetention;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        int $assetDaysRetention
-    ) {
-        $this->em = $em;
-        $this->assetDaysRetention = $assetDaysRetention;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly int $assetDaysRetention)
+    {
     }
 
     public function createAsset(
@@ -29,7 +22,7 @@ class AssetManager
         string $originalName,
         int $size,
         string $userId,
-        ?array $data = null
+        array $data = null
     ): Asset {
         $asset = new Asset();
         $asset->setTarget($target);
@@ -63,7 +56,7 @@ class AssetManager
         return $asset;
     }
 
-    public function cleanAssets(?int $assetDaysRetention = null): void
+    public function cleanAssets(int $assetDaysRetention = null): void
     {
         $assets = $this->em->getRepository(Asset::class)->findExpiredAssets($assetDaysRetention ?? $this->assetDaysRetention);
 

@@ -1,7 +1,0 @@
-alchemy_admin:
-    resource: '@AlchemyAdminBundle/Resources/config/routes.yaml'
-    prefix: /admin
-
-alchemy_admin_login:
-    name_prefix: alchemy_admin_
-    resource: 'App\Admin\AuthCheckController'

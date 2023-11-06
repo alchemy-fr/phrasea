@@ -1,3 +1,4 @@
 alchemy_core:
-  app_base_url: '%env(EXPOSE_API_BASE_URL)%'
-  healthcheck: ~
+    app_name: expose
+    app_url: '%env(EXPOSE_API_URL)%'
+    healthcheck: ~

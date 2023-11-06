@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\TagOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -14,47 +19,50 @@ use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity()
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="ws_name_uniq",columns={"workspace_id", "name"})})
- *
- * @ApiResource(
- *  shortName="tag",
- *  normalizationContext={"groups"={"_", "tag:index"}},
- *  output=TagOutput::class,
- *  input=false
- * )
- *
- * @ApiFilter(filterClass=SearchFilter::class, strategy="exact", properties={"workspace"})
- */
+#[ApiResource(
+    shortName: 'tag',
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => [
+        '_',
+        Tag::GROUP_LIST,
+    ]],
+    output: TagOutput::class
+)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
+#[ORM\Entity]
+#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use LocaleTrait;
     use WorkspaceTrait;
+    final public const GROUP_READ = 'tag:read';
+    final public const GROUP_LIST = 'tag:index';
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", length=6, nullable=true)
-     */
+    #[ORM\Column(type: Types::STRING, length: 6, nullable: true)]
     private ?string $color = null;
 
     /**
      * Override trait for annotation.
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Core\Workspace", inversedBy="tags")
-     * @ORM\JoinColumn(nullable=false)
-     *
-     * @Groups({"_"})
      */
+    #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'tags')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     public function getName(): string

@@ -8,11 +8,10 @@ use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Tests\AbstractUploaderTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractAssetTest extends AbstractUploaderTestCase
 {
-    const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
+    final public const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
     protected $assetId;
 
     protected function commitAsset(string $token = 'secret_token')
@@ -26,8 +25,7 @@ abstract class AbstractAssetTest extends AbstractUploaderTestCase
         $commit->setFormData(['foo' => 'bar']);
         $commit->setTotalSize(42);
 
-        /** @var EntityManagerInterface $em */
-        $em = self::$container->get(EntityManagerInterface::class);
+        $em = self::getEntityManager();
         $em->persist($commit);
         $em->flush();
         $em
@@ -40,8 +38,7 @@ abstract class AbstractAssetTest extends AbstractUploaderTestCase
 
     private function createAsset(): Asset
     {
-        /** @var AssetManager $assetManager */
-        $assetManager = self::$container->get(AssetManager::class);
+        $assetManager = self::getService(AssetManager::class);
         $path = 'test/foo.jpg';
 
         return $assetManager->createAsset(

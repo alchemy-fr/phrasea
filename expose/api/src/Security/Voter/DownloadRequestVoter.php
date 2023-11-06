@@ -4,31 +4,29 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\RemoteAuthBundle\Model\RemoteUser;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Asset;
 use App\Entity\DownloadRequest;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Security\ScopeInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use Symfony\Component\Security\Core\Security;
 
 class DownloadRequestVoter extends Voter
 {
-    const LIST = 'download_request:list';
-    const READ = 'READ';
-    const EDIT = 'EDIT';
-    const DELETE = 'DELETE';
+    use ScopeVoterTrait;
 
-    private Security $security;
-    private EntityManagerInterface $em;
+    final public const LIST = 'download_request:list';
+    final public const READ = 'READ';
+    final public const EDIT = 'EDIT';
+    final public const DELETE = 'DELETE';
 
-    public function __construct(Security $security, EntityManagerInterface $em)
+    public function __construct(private readonly Security $security)
     {
-        $this->security = $security;
-        $this->em = $em;
     }
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $subject instanceof DownloadRequest
             || self::LIST === $attribute;
@@ -37,23 +35,12 @@ class DownloadRequestVoter extends Voter
     /**
      * @param Asset|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
-        $user = $token->getUser();
-        $isAuthenticated = $user instanceof RemoteUser;
-        $isAdmin = $isAuthenticated
-            && ($this->security->isGranted('ROLE_PUBLISH')
-                || $this->security->isGranted('ROLE_ADMIN')
-            );
-
-        switch ($attribute) {
-            case self::LIST:
-            case self::READ:
-            case self::EDIT:
-            case self::DELETE:
-                return $isAdmin;
-        }
-
-        return false;
+        return match ($attribute) {
+            self::LIST, self::READ, self::EDIT, self::DELETE => $this->hasScope(ScopeInterface::SCOPE_PUBLISH, $token)
+                    || $this->security->isGranted(JwtUser::ROLE_ADMIN),
+            default => false,
+        };
     }
 }

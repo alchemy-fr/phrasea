@@ -9,38 +9,28 @@ use Alchemy\StorageBundle\Storage\PathGenerator;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Security\Voter\AssetVoter;
 use App\Storage\AssetManager;
-use Mimey\MimeTypes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Mime\MimeTypes;
 
 final class CreateAssetAction extends AbstractController
 {
-    private FileStorageManager $storageManager;
-    private AssetManager $assetManager;
-    private UploadManager $uploadManager;
-    private PathGenerator $pathGenerator;
-
     public function __construct(
-        FileStorageManager $storageManager,
-        AssetManager $assetManager,
-        UploadManager $uploadManager,
-        PathGenerator $pathGenerator
+        private readonly FileStorageManager $storageManager,
+        private readonly AssetManager $assetManager,
+        private readonly UploadManager $uploadManager,
+        private readonly PathGenerator $pathGenerator,
     ) {
-        $this->storageManager = $storageManager;
-        $this->assetManager = $assetManager;
-        $this->uploadManager = $uploadManager;
-        $this->pathGenerator = $pathGenerator;
     }
 
     public function __invoke(Request $request): Asset
     {
         $publication = $this->getPublication($request);
 
-        if (null !== $request->request->get('multipart')) {
+        if ($request->request->has('multipart')) {
             return $this->handleMultipartUpload($publication, $request);
         }
 
@@ -71,24 +61,22 @@ final class CreateAssetAction extends AbstractController
                 $uploadedFile->getSize(),
                 $request->request->all()
             );
-        } elseif (null !== $upload = $request->request->get('upload')) {
-            if (!is_array($upload)) {
-                throw new BadRequestHttpException('"upload" must be an array');
-            }
+        } elseif ($request->request->has('upload')) {
+            $upload = $request->request->all('upload');
 
             $originalFilename = $upload['name'] ?? null;
             $contentType = $upload['type'] ?? null;
             if (null === $contentType && !empty($originalFilename)) {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
-                $contentType = (new MimeTypes())->getMimeType($extension);
+                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
+                $contentType = (new MimeTypes())->getMimeTypes($extension)[0];
             }
 
             $contentType ??= 'application/octet-stream';
 
             if (null === $originalFilename) {
-                $extension = (new MimeTypes())->getExtension($contentType);
+                $extension = (new MimeTypes())->getExtensions($contentType)[0];
             } else {
-                $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+                $extension = pathinfo((string) $originalFilename, PATHINFO_EXTENSION);
             }
             $path = $this->pathGenerator->generatePath($extension);
 

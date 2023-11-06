@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,11 +13,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class GetAssetWithSlugAction extends AbstractController
 {
-    private EntityManagerInterface $em;
-
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
     }
 
     public function __invoke(string $publicationSlug, string $assetSlug): Asset
@@ -27,7 +25,7 @@ final class GetAssetWithSlugAction extends AbstractController
 
         if (
             !$publication instanceof Publication
-            || !$publication->getConfig()->isEnabled() && !$this->isGranted('ROLE_ADMIN')
+            || !$publication->getConfig()->isEnabled() && !$this->isGranted(JwtUser::ROLE_ADMIN)
         ) {
             throw new NotFoundHttpException();
         }

@@ -14,7 +14,6 @@ docker compose up -d
 docker compose run --rm dockerize
 
 APPS="
-auth-api-php
 expose-api-php
 notify-api-php
 databox-api-php

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Form\Resolver\WidgetResolverInterface;
-use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LiFormWidgetResolver
@@ -13,11 +13,13 @@ class LiFormWidgetResolver
     /**
      * @var WidgetResolverInterface[]
      */
-    private $resolvers = [];
+    private iterable $resolvers;
 
-    public function addResolver(WidgetResolverInterface $resolver)
-    {
-        $this->resolvers[] = $resolver;
+    public function __construct(
+        #[TaggedIterator(WidgetResolverInterface::TAG)]
+        iterable $resolvers
+    ) {
+        $this->resolvers = $resolvers;
     }
 
     public function getFormType(array $config): string
@@ -26,7 +28,7 @@ class LiFormWidgetResolver
             return $resolver->getFormType($config);
         }
 
-        throw new InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config)));
+        throw new \InvalidArgumentException(sprintf('Unsupported field config %s', json_encode($config, JSON_THROW_ON_ERROR)));
     }
 
     public function getFieldOptions(array $fieldConfig): array
@@ -65,9 +67,9 @@ class LiFormWidgetResolver
 
     private function normalizeConfig(array $config): array
     {
-        $config['type'] = $config['type'] ?? 'string';
-        $config['widget'] = $config['widget'] ?? 'text';
-        $config['format'] = $config['format'] ?? null;
+        $config['type'] ??= 'string';
+        $config['widget'] ??= 'text';
+        $config['format'] ??= null;
 
         return $config;
     }

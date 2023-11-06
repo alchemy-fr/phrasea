@@ -11,21 +11,10 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class NotifyUserHandler extends AbstractLogHandler
 {
-    const EVENT = 'notify_user';
+    final public const EVENT = 'notify_user';
 
-    /**
-     * @var EventProducer
-     */
-    private $eventProducer;
-    /**
-     * @var ContactManager
-     */
-    private $contactManager;
-
-    public function __construct(EventProducer $eventProducer, ContactManager $contactManager)
+    public function __construct(private readonly EventProducer $eventProducer, private readonly ContactManager $contactManager)
     {
-        $this->eventProducer = $eventProducer;
-        $this->contactManager = $contactManager;
     }
 
     public function handle(EventMessage $message): void

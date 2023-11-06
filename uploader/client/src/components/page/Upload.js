@@ -20,7 +20,7 @@ const FILL_FORM = 1;
 const UPLOAD = 2;
 const UPLOAD_DONE = 3;
 
-const {maxFileSize, maxCommitSize, maxFileCount} = config.all();
+const {maxFileSize, maxCommitSize, maxFileCount} = config;
 
 const quitMsg = `Are you sure you want to cancel the current upload?`;
 function onBeforeUnload(e) {
@@ -239,7 +239,7 @@ class Upload extends Component {
                 const errors = [];
                 const canSubmit = this.canSubmit(errors);
 
-                const allowedTypes = config.get('allowedTypes');
+                const allowedTypes = config.allowedTypes;
                 const accept = Object.entries(allowedTypes)
                     .reduce((a, [mimeType, ext]) => [...a, mimeType, ...ext], [])
                     // Silently discard invalid entries as pickerOptionsFromAccept warns about these

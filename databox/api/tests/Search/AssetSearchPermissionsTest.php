@@ -6,7 +6,7 @@ namespace App\Tests\Search;
 
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\TagFilterRule;
 
 class AssetSearchPermissionsTest extends AbstractSearchTest
@@ -66,19 +66,19 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
     {
         $asset = $this->createAsset([
             'title' => 'Foo',
-            'ownerId' => AuthServiceClientTestMock::USER_UID,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
 
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -93,7 +93,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -105,7 +105,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
     public function testSearchAssetsFromOwnedCollectionAsOwner(): void
     {
         $collection = $this->createCollection([
-            'ownerId' => AuthServiceClientTestMock::USER_UID,
+            'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
         $asset = $this->createAsset([
             'title' => 'Foo',
@@ -115,13 +115,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -139,7 +139,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
@@ -160,20 +160,20 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $this->grantUserOnObject(
-            AuthServiceClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             $asset,
             PermissionInterface::VIEW
         );
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -191,7 +191,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         self::getPermissionManager()->updateOrCreateAce(
             AccessControlEntryInterface::TYPE_USER_VALUE,
-            AuthServiceClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             'asset',
             null,
             PermissionInterface::VIEW
@@ -199,13 +199,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -222,7 +222,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $this->grantUserOnObject(
-            AuthServiceClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             $collection,
             PermissionInterface::VIEW
         );
@@ -230,13 +230,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -254,7 +254,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         self::getPermissionManager()->updateOrCreateAce(
             AccessControlEntryInterface::TYPE_USER_VALUE,
-            AuthServiceClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             'collection',
             null,
             PermissionInterface::VIEW
@@ -262,13 +262,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );
 
         $data = $this->getDataFromResponse($response, 200);
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['title']);
     }
@@ -311,7 +311,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         self::getTagFilterManager()->updateRule(
             TagFilterRule::TYPE_USER,
-            AuthServiceClientTestMock::USER_UID,
+            KeycloakClientTestMock::USER_UID,
             TagFilterRule::TYPE_COLLECTION,
             $collection->getId(),
             $include,
@@ -320,7 +320,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         self::releaseIndex();
 
         $response = $this->request(
-            AuthServiceClientTestMock::USER_TOKEN,
+            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             'GET',
             '/assets'
         );

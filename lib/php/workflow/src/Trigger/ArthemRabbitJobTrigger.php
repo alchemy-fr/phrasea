@@ -9,11 +9,8 @@ use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 
 class ArthemRabbitJobTrigger implements JobTriggerInterface
 {
-    private EventProducer $producer;
-
-    public function __construct(EventProducer $producer)
+    public function __construct(private readonly EventProducer $producer)
     {
-        $this->producer = $producer;
     }
 
     public function triggerJob(string $workflowId, string $jobId): bool

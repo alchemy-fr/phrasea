@@ -6,6 +6,7 @@ namespace App\Controller\Workflow;
 
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 final readonly class RerunJobAction
 {
@@ -15,7 +16,7 @@ final readonly class RerunJobAction
     ) {
     }
 
-    public function __invoke(WorkflowState $data, string $jobId)
+    public function __invoke(WorkflowState $data, string $jobId): JsonResponse
     {
         $this->workflowOrchestrator->rerunJobs($data->getId(), $jobId);
 

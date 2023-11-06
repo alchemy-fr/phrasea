@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
-use Alchemy\RemoteAuthBundle\Tests\Client\AuthServiceClientTestMock;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Security\PasswordSecurityMethodInterface;
 
 class PublicationPasswordTest extends AbstractExposeTestCase
@@ -16,7 +16,7 @@ class PublicationPasswordTest extends AbstractExposeTestCase
         ])->getId();
 
         $response = $this->request(null, 'GET', '/publications/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);
         $this->assertFalse($json['authorized']);
@@ -26,22 +26,25 @@ class PublicationPasswordTest extends AbstractExposeTestCase
 
         $passwords = base64_encode(json_encode([
             $id => 'xxx',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$id, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        if (200 !== $response->getStatusCode()) {
+            dump($response->getContent());
+        }
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
 
         // Test invalid password
         $passwords = base64_encode(json_encode([
             $id => 'aaa',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$id, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse($json['authorized']);
         $this->assertEquals(PasswordSecurityMethodInterface::ERROR_INVALID_PASSWORD, $json['authorizationError']);
@@ -53,8 +56,8 @@ class PublicationPasswordTest extends AbstractExposeTestCase
             'password' => 'xxx',
         ])->getId();
 
-        $response = $this->request(AuthServiceClientTestMock::ADMIN_TOKEN, 'GET', '/publications/'.$id);
-        $json = json_decode($response->getContent(), true);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertArrayHasKey('authorized', $json);
         $this->assertTrue($json['authorized']);
@@ -74,30 +77,30 @@ class PublicationPasswordTest extends AbstractExposeTestCase
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertFalse($json['authorized']);
         $this->assertEquals($rootId, $json['securityContainerId']);
 
         $response = $this->request(null, 'GET', '/publications/'.$childId);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertFalse($json['authorized']);
         $this->assertEquals($rootId, $json['securityContainerId']);
 
         $passwords = base64_encode(json_encode([
             $rootId => 'root_secret',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$childId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
     }
@@ -112,30 +115,30 @@ class PublicationPasswordTest extends AbstractExposeTestCase
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertTrue($json['authorized']);
         $this->assertEquals($rootId, $json['securityContainerId']);
 
         $response = $this->request(null, 'GET', '/publications/'.$childId);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertFalse($json['authorized']);
         $this->assertEquals($childId, $json['securityContainerId']);
 
         $passwords = base64_encode(json_encode([
             $childId => 'child_secret',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$childId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
     }
@@ -152,11 +155,11 @@ class PublicationPasswordTest extends AbstractExposeTestCase
 
         $passwords = base64_encode(json_encode([
             $rootId => 'root_secret',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$rootId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
         $this->assertEquals($rootId, $json['securityContainerId']);
@@ -164,25 +167,25 @@ class PublicationPasswordTest extends AbstractExposeTestCase
         $response = $this->request(null, 'GET', '/publications/'.$childId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse($json['authorized']);
         $this->assertEquals($childId, $json['securityContainerId']);
 
         $passwords = base64_encode(json_encode([
             $childId => 'child_secret',
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $response = $this->request(null, 'GET', '/publications/'.$childId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json['authorized']);
 
         $response = $this->request(null, 'GET', '/publications/'.$rootId, [], [], [
             'HTTP_X-Passwords' => $passwords,
         ]);
-        $json = json_decode($response->getContent(), true);
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse($json['authorized']);
     }

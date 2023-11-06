@@ -36,7 +36,7 @@ class FileCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('File')
             ->setEntityLabelInPlural('File')
             ->setSearchFields(['id', 'type', 'size', 'checksum', 'path', 'storage', 'originalName', 'extension', 'alternateUrls', 'metadata'])
-            ->setPaginatorPageSize(200);
+            ->setPaginatorPageSize(20);
     }
 
     public function configureFilters(Filters $filters): Filters

@@ -1,11 +1,18 @@
 oneup_flysystem:
-    adapters:
-        asset:
-            awss3v3:
-                client: alchemy_storage.s3_client
-                bucket: '%env(S3_BUCKET_NAME)%'
-                prefix: ~
+  adapters:
+    asset:
+      awss3v3:
+        client: alchemy_storage.s3_client
+        bucket: '%env(S3_BUCKET_NAME)%'
+        prefix: ~
 
-    filesystems:
-        asset:
-            adapter: asset
+  filesystems:
+    asset:
+      adapter: asset
+
+when@test:
+    oneup_flysystem:
+        adapters:
+            asset:
+                local:
+                    location: "%kernel.cache_dir%/storage"

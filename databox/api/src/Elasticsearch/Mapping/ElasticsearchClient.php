@@ -7,10 +7,12 @@ namespace App\Elasticsearch\Mapping;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Exception\AliasIsIndexException;
 
-class ElasticsearchClient
+readonly class ElasticsearchClient
 {
-    public function __construct(private readonly Client $client)
-    {
+    public function __construct(
+        private Client $client,
+        private bool $useAlias,
+    ) {
     }
 
     public function updateMapping(string $indexName, array $mapping): void
@@ -29,6 +31,10 @@ class ElasticsearchClient
      */
     public function getAliasedIndex(string $aliasName): ?string
     {
+        if (!$this->useAlias) {
+            return $aliasName;
+        }
+
         $aliasesInfo = $this->client->request('_aliases', 'GET')->getData();
         $aliasedIndexes = [];
 

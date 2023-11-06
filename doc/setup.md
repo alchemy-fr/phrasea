@@ -1,6 +1,6 @@
 # Setup (with docker-compose)
 
-## Using a env.local (custom .env)
+## Using a .env.local (custom .env)
 
 It may be easier to deal with a local file to manage our env variables.
 
@@ -85,7 +85,6 @@ bin/install-fixtures.sh
 ```
 
 * Read group of services documentation to customize environment variables:
-    * [auth](../auth/README.md)
     * [databox](../databox/README.md)
     * [expose](../expose/README.md)
     * [notify](../notify/README.md)

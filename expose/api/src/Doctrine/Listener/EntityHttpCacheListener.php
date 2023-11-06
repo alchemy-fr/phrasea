@@ -9,25 +9,26 @@ use App\Entity\EnvVar;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use App\Http\Cache\ProxyCachePurger;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
+#[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::postPersist)]
+#[AsDoctrineListener(Events::preRemove)]
 class EntityHttpCacheListener implements EventSubscriber
 {
-    private ProxyCachePurger $proxyCachePurger;
-
-    public function __construct(ProxyCachePurger $proxyCachePurger)
+    public function __construct(private readonly ProxyCachePurger $proxyCachePurger)
     {
-        $this->proxyCachePurger = $proxyCachePurger;
     }
 
-    private function handle(PostUpdateEventArgs|PostPersistEventArgs|PreRemoveEventArgs|LifecycleEventArgs $args): void
+    private function handle(LifecycleEventArgs $args): void
     {
-        $entity = $args->getEntity();
+        $entity = $args->getObject();
 
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
@@ -54,11 +55,11 @@ class EntityHttpCacheListener implements EventSubscriber
 
     private function invalidatePublicationCache(Publication $publication): void
     {
-        $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+        $this->proxyCachePurger->purgeRoute(Publication::GET_PUBLICATION_ROUTE_NAME, [
             'id' => $publication->getId(),
         ]);
         if ($publication->getSlug()) {
-            $this->proxyCachePurger->purgeRoute('api_publications_get_item', [
+            $this->proxyCachePurger->purgeRoute(Publication::GET_PUBLICATION_ROUTE_NAME, [
                 'id' => $publication->getSlug(),
             ]);
         }
@@ -66,27 +67,27 @@ class EntityHttpCacheListener implements EventSubscriber
 
     private function invalidateAssetCache(Asset $asset): void
     {
-        $this->proxyCachePurger->purgeRoute('api_assets_get_item', [
+        $this->proxyCachePurger->purgeRoute(Asset::GET_ASSET_ROUTE_NAME, [
             'id' => $asset->getId(),
         ]);
     }
 
-    public function postUpdate(PostUpdateEventArgs|LifecycleEventArgs $args): void
+    public function postUpdate(PostUpdateEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function postPersist(PostPersistEventArgs|LifecycleEventArgs $args): void
+    public function postPersist(PostPersistEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function preRemove(PreRemoveEventArgs|LifecycleEventArgs $args): void
+    public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->handle($args);
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::postUpdate,

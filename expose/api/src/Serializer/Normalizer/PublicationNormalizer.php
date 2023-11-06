@@ -8,12 +8,12 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
 
 class PublicationNormalizer extends AbstractRouterNormalizer
 {
-    private bool $zippyEnabled;
+    private readonly bool $zippyEnabled;
 
     public function __construct(private readonly Security $security, ?string $zippyBaseUrl)
     {
@@ -46,9 +46,7 @@ class PublicationNormalizer extends AbstractRouterNormalizer
             $context['download_via_email'] = true;
         }
 
-        $object->setChildren(new ArrayCollection($object->getChildren()->filter(function (Publication $child): bool {
-            return $this->security->isGranted(PublicationVoter::READ, $child);
-        })->getValues()));
+        $object->setChildren(new ArrayCollection($object->getChildren()->filter(fn (Publication $child): bool => $this->security->isGranted(PublicationVoter::READ, $child))->getValues()));
 
         if ($object->getPackage() instanceof Asset) {
             $object->setPackageUrl($this->generateAssetUrl($object->getPackage()));
