@@ -14,7 +14,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,notify,uploader,databox-worker,expose-worker,notify-worker,uploader-worker,db,report,mailhog
+  COMPOSE_PROFILES: databox,expose,notify,uploader,databox-worker,expose-worker,notify-worker,uploader-worker,db,report,mailhog,dashboard
 
 jobs:
   build_keycloak:
