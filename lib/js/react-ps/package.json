@@ -20,7 +20,7 @@
     "svgr": "svgr -d src/icons -- src/**/*.svg"
   },
   "peerDependencies": {
-    "axios": "^1.1.3",
+    "axios": "^1.6.0",
     "i18next": "^21.0.0",
     "i18next-browser-languagedetector": "^6.1.8",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
@@ -40,7 +40,7 @@
     "@types/js-cookie": "^3.0.3",
     "@types/node": "^10.11.0",
     "@types/react": "^18.0.21",
-    "axios": "^1.1.3",
+    "axios": "^1.6.0",
     "colors": "^1.3.2",
     "commitizen": "^3.0.0",
     "coveralls": "^3.0.2",
