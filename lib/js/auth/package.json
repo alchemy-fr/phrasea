@@ -20,7 +20,7 @@
     "build-commonjs": "tsc --module commonjs"
   },
   "peerDependencies": {
-    "axios": "^1.1.3"
+    "axios": "^1.6.0"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
@@ -32,7 +32,7 @@
     "@types/js-cookie": "^3.0.3",
     "@types/node": "^10.11.0",
     "@types/react": "^18.0.21",
-    "axios": "^1.1.3",
+    "axios": "^1.6.0",
     "rimraf": "^2.6.2",
     "ts-node": "^7.0.1",
     "typescript": "^4.8.4"
