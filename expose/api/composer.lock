@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "9d66ea42f8f0037487285518183118e65a0db77d"
+                "reference": "09268dc3e6d7212852a1e9e3ae51ed7762e0fa82"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -122,7 +122,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/auth-bundle",
-                "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
+                "reference": "ac3d8c5cd5eab69734a41246ce5c81fd72d6f25d"
             },
             "require": {
                 "lcobucci/jwt": "^5.0",
@@ -179,7 +179,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "d2c7ed6d0c9ff2dc0d3dfda8b5bbb5a9d690b84a"
+                "reference": "bfdfae690c10139d9de34730b56ee6604acde0bf"
             },
             "require": {
                 "php": "^8.2",
@@ -234,7 +234,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/notify-bundle",
-                "reference": "6fc0d70086133302ff8e2d9920341017d3a20793"
+                "reference": "9acc17fdc361ef420d83691522494449d36e8e38"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -289,7 +289,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-bundle",
-                "reference": "617baf57b64b04e47b33d82753a1cc75752f0c40"
+                "reference": "d4c8da7db6ace3e49fc38406cb671571df5ac8a0"
             },
             "require": {
                 "alchemy/report-sdk": "@dev",
@@ -342,7 +342,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/report-sdk",
-                "reference": "db724b10230a7b420313df411a505022244a47c1"
+                "reference": "2d08ae2ec2a82d6259a10ed3de77d21d4082bf48"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -395,7 +395,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "f7039c2962ee655c41c56ba1c6e30adb3bc79862"
+                "reference": "6db69fead55226d167e872a7b391c3d43d7e96d9"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -10114,16 +10114,16 @@
         },
         {
             "name": "symfony/twig-bridge",
-            "version": "v6.3.2",
+            "version": "v6.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bridge.git",
-                "reference": "6f8435db76a2d79917489a19a82679276c1b4e32"
+                "reference": "c51407623959a626784ff302419026f56dc4e1ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/6f8435db76a2d79917489a19a82679276c1b4e32",
-                "reference": "6f8435db76a2d79917489a19a82679276c1b4e32",
+                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/c51407623959a626784ff302419026f56dc4e1ba",
+                "reference": "c51407623959a626784ff302419026f56dc4e1ba",
                 "shasum": ""
             },
             "require": {
@@ -10202,7 +10202,7 @@
             "description": "Provides integration for Twig with various Symfony components",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/twig-bridge/tree/v6.3.2"
+                "source": "https://github.com/symfony/twig-bridge/tree/v6.3.8"
             },
             "funding": [
                 {
@@ -10218,7 +10218,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-20T16:42:33+00:00"
+            "time": "2023-11-09T21:20:12+00:00"
         },
         {
             "name": "symfony/twig-bundle",
@@ -10981,7 +10981,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "fafa362999ba9635ca8c444409ec6211b1a3988a"
+                "reference": "526fcc69badb4532b600b546d61270402bdd2ed5"
             },
             "require": {
                 "php": "^8.2",
@@ -14205,5 +14205,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
