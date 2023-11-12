@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "9d66ea42f8f0037487285518183118e65a0db77d"
+                "reference": "09268dc3e6d7212852a1e9e3ae51ed7762e0fa82"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -70,7 +70,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/auth-bundle",
-                "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
+                "reference": "ac3d8c5cd5eab69734a41246ce5c81fd72d6f25d"
             },
             "require": {
                 "lcobucci/jwt": "^5.0",
@@ -127,7 +127,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "d2c7ed6d0c9ff2dc0d3dfda8b5bbb5a9d690b84a"
+                "reference": "bfdfae690c10139d9de34730b56ee6604acde0bf"
             },
             "require": {
                 "php": "^8.2",
@@ -8945,16 +8945,16 @@
         },
         {
             "name": "symfony/twig-bridge",
-            "version": "v6.3.2",
+            "version": "v6.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/twig-bridge.git",
-                "reference": "6f8435db76a2d79917489a19a82679276c1b4e32"
+                "reference": "c51407623959a626784ff302419026f56dc4e1ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/6f8435db76a2d79917489a19a82679276c1b4e32",
-                "reference": "6f8435db76a2d79917489a19a82679276c1b4e32",
+                "url": "https://api.github.com/repos/symfony/twig-bridge/zipball/c51407623959a626784ff302419026f56dc4e1ba",
+                "reference": "c51407623959a626784ff302419026f56dc4e1ba",
                 "shasum": ""
             },
             "require": {
@@ -9033,7 +9033,7 @@
             "description": "Provides integration for Twig with various Symfony components",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/twig-bridge/tree/v6.3.2"
+                "source": "https://github.com/symfony/twig-bridge/tree/v6.3.8"
             },
             "funding": [
                 {
@@ -9049,7 +9049,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-07-20T16:42:33+00:00"
+            "time": "2023-11-09T21:20:12+00:00"
         },
         {
             "name": "symfony/twig-bundle",
@@ -12232,5 +12232,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
