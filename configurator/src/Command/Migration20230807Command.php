@@ -12,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'migration:20230807')]
+#[AsCommand(name: 'migration:v20230807')]
 final class Migration20230807Command extends Command
 {
     public function __construct(
