@@ -43,6 +43,7 @@ export default function FilePlayer({
                     maxHeight: maxDimensions.height,
                     display: 'block',
                 }}
+                crossOrigin="anonymous"
                 src={file.url}
                 alt={title}
                 onLoad={onLoad}
