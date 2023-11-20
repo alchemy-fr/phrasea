@@ -193,7 +193,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'from' => $from,
                 'fromDisplayName' => 'Phrasea',
                 'host' => $mailer['host'],
-                'port' => $mailer['port'],
+                'port' => $mailer['port'] ?? '587',
                 'replyTo' => '',
                 'ssl' => false,
                 'starttls' => false,
