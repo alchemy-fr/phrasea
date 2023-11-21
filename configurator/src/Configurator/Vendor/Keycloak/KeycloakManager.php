@@ -6,6 +6,7 @@ namespace App\Configurator\Vendor\Keycloak;
 
 use App\Util\HttpClientUtil;
 use App\Util\UriTemplate;
+use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -56,12 +57,13 @@ final class KeycloakManager
 
     public function createRealm(): void
     {
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()->request('POST', '', [
-            'json' => [
-                'realm' => $this->keycloakRealm,
-                'enabled' => true,
-            ],
-        ])->getContent(), 409);
+        $data = [
+            'realm' => $this->keycloakRealm,
+            'enabled' => true,
+        ];
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()->request('POST', '', [
+            'json' => $data,
+        ])->getContent(), 409, $data);
     }
 
     protected function getClients(string $realm = null): array
@@ -114,11 +116,11 @@ final class KeycloakManager
                 ]);
         }
 
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $scope['id'],
-            ])), 409);
+            ])), 409, []);
     }
 
 
@@ -148,12 +150,12 @@ final class KeycloakManager
     {
         $scopeData = $this->getScopeByName($scope);
 
-        HttpClientUtil::catchHttpCode(fn () => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
                 'realm' => $this->keycloakRealm,
                 'clientId' => $clientId,
                 'scopeId' => $scopeData['id'],
-            ])), 409);
+            ])), 409, []);
     }
 
     public function addServiceAccountRole(
@@ -270,12 +272,12 @@ final class KeycloakManager
 
     public function createUser(array $data): array
     {
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users', [
                 'realm' => $this->keycloakRealm,
             ]), [
                 'json' => $data,
-            ]), 409);
+            ]), 409, $data);
 
         $user = $this->getUsers([
             'query' => [
@@ -348,16 +350,18 @@ final class KeycloakManager
 
     public function createRole(string $name, string $description): void
     {
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        $data = [
+            'name' => $name,
+            'clientRole' => false,
+            'description' => $description,
+        ];
+
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/roles', [
                 'realm' => $this->keycloakRealm,
             ]), [
-                'json' => [
-                    'name' => $name,
-                    'clientRole' => false,
-                    'description' => $description,
-                ],
-            ]), 409);
+                'json' => $data,
+            ]), 409, $data);
     }
 
     public function getRealmRoles(): array
@@ -412,13 +416,13 @@ final class KeycloakManager
         }, $roleNames);
         $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
 
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
             ]), [
                 'json' => $roles,
-            ]), 409);
+            ]), 409, $roles);
     }
 
     public function addClientRolesToUser(string $userId, array $roleNames): void
@@ -442,24 +446,24 @@ final class KeycloakManager
         }, $roleNames);
         $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
 
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/clients/{realmClientId}', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
                 'realmClientId' => $realmClient['id'],
             ]), [
                 'json' => $roles,
-            ]), 409);
+            ]), 409, $roles);
     }
 
     public function addUserToGroup(string $userId, string $groupId): void
     {
-        HttpClientUtil::catchHttpCode(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/users/{userId}/groups/{groupId}', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
                 'groupId' => $groupId,
-            ])), 409);
+            ])), 409, []);
     }
 
     public function putRealm(array $data): ResponseInterface
@@ -470,5 +474,75 @@ final class KeycloakManager
             ]), [
                 'json' => $data,
             ]);
+    }
+
+    public function createIdentityProvider(array $data): array
+    {
+        $idpAlias = $data['alias'];
+        $existingIdp = $this->getIdentityProviderByAlias($idpAlias);
+
+        if ($existingIdp) {
+            $this->getAuthenticatedClient()
+                ->request('PUT', UriTemplate::resolve('{realm}/identity-provider/instances/{alias}', [
+                    'realm' => $this->keycloakRealm,
+                    'alias' => $existingIdp['alias'],
+                ]), [
+                    'json' => $data,
+                ]);
+        } else {
+            HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+                ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances', [
+                    'realm' => $this->keycloakRealm,
+                ]), [
+                    'json' => $data,
+                ]), null, $data);
+        }
+
+        $idp = $this->getIdentityProviderByAlias($idpAlias);
+        if ($idp['alias'] !== $idpAlias) {
+            throw new \InvalidArgumentException(sprintf('Invalid IdP "%s" "%s"', $idp['alias'], $idpAlias));
+        }
+
+        return $idp;
+    }
+
+    public function getIdentityProviderByAlias(string $alias): ?array
+    {
+        try {
+            return $this->getAuthenticatedClient()
+                ->request('GET', UriTemplate::resolve('{realm}/identity-provider/instances/{alias}', [
+                    'realm' => $this->keycloakRealm,
+                    'alias' => $alias,
+                ]))->toArray();
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() !== 404) {
+                throw $e;
+            }
+        }
+
+        return null;
+    }
+
+    public function createIdpMapper(string $idpAlias, array $data): void
+    {
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances/{alias}/mappers', [
+                'realm' => $this->keycloakRealm,
+                'alias' => $idpAlias,
+            ]), [
+                'json' => $data,
+            ]), 400, $data);
+    }
+
+    public function linkAccountToIdentityProvider(string $userId, string $idpAlias, array $data): void
+    {
+        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/federated-identity/{alias}', [
+                'realm' => $this->keycloakRealm,
+                'userId' => $userId,
+                'alias' => $idpAlias,
+            ]), [
+                'json' => $data,
+            ]), 409, $data);
     }
 }

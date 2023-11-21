@@ -1013,6 +1013,8 @@ services:
       - DEFAULT_ADMIN_PASSWORD
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+    volumes:
+      - ./configs:/configs
 
 volumes:
   db_vol:

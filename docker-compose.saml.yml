@@ -7,9 +7,9 @@ services:
       - internal
     environment:
       - SIMPLESAMLPHP_URL=${SAML_URL}
-      - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea/broker/idp-test/endpoint
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea/broker/idp-test/endpoint
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.saml-idp.rule=Host(`saml-idp.${PHRASEA_DOMAIN}`)"
@@ -22,9 +22,9 @@ services:
       - internal
     environment:
       - SIMPLESAMLPHP_URL=${SAML2_URL}
-      - SIMPLESAMLPHP_SP_ENTITY_ID=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/metadata/idp-test2
-      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/acs
-      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://api-auth.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/saml/logout
+      - SIMPLESAMLPHP_SP_ENTITY_ID=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea
+      - SIMPLESAMLPHP_SP_ASSERTION_CONSUMER_SERVICE=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea/broker/idp-test/endpoint
+      - SIMPLESAMLPHP_SP_SINGLE_LOGOUT_SERVICE=https://keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}/realms/phrasea/broker/idp-test/endpoint
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.saml-idp2.rule=Host(`saml-idp2.${PHRASEA_DOMAIN}`)"

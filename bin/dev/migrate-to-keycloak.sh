@@ -2,10 +2,8 @@
 
 set -e
 
-NS=${NS:-"ps"}
-RELEASE_NAME=${4:-"ps"}
-
-kubectl config use-context minikube
+NS=${NS:-"ps-test"}
+RELEASE_NAME=${1:-"ps"}
 
 source ./tmp/.helm.env
 
@@ -24,25 +22,11 @@ if [ -z "${NEW_CHART_VALUES}" ]; then
   exit 1
 fi
 
-MIGRATION_NAME=20230807
-
-
-# <TODO remove>
-(cd ${NEW_CHART_DIR} \
-  && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml \
-  && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
-    -f ${NEW_CHART_VALUES} \
-    -f /tmp/.current-values.yaml \
-    --set "configurator.executeMigration=${MIGRATION_NAME}" \
-    --set "stack.runMigrations=false" \
-)
-
-exit
-# </TODO remove>
-
-
+MIGRATION_NAME="v20230807"
 
 read -p "Reset? (y/N)" RESET_RELEASE
+
+kubectl config use-context ${K8S_CONTEXT:-"minikube"}
 
 if [[ $RESET_RELEASE == "y" ]]; then
   echo "Resetting release..."
@@ -73,13 +57,16 @@ echo "Migrating..."
 (cd ${NEW_CHART_DIR} \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml \
   && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
+    -f /tmp/.current-values.yaml \
     -f ${NEW_CHART_VALUES} \
+  && echo "Executing migrations..." \
   && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
-      -f ${NEW_CHART_VALUES} \
-      -f /tmp/.current-values.yaml \
-      --set "configurator.executeMigration=${MIGRATION_NAME}" \
+    -f /tmp/.current-values.yaml \
+    -f ${NEW_CHART_VALUES} \
+    --set "configurator.executeMigration=${MIGRATION_NAME}" \
+  && echo "Removing migrations..." \
   && helm -n ${NS} upgrade ${RELEASE_NAME} ./ \
-      -f ${NEW_CHART_VALUES} \
-      -f /tmp/.current-values.yaml \
-      --set "configurator.executeMigration="
+    -f /tmp/.current-values.yaml \
+    -f ${NEW_CHART_VALUES} \
+    --set "configurator.executeMigration="
 )

@@ -19,8 +19,8 @@ final class Migration20230807Command extends Command
         private readonly KeycloakManager $keycloakManager,
         private readonly array $symfonyApplications,
         private readonly DoctrineConnectionManager $connections,
-    )
-    {
+        private readonly string $keycloakRealm,
+    ) {
         parent::__construct();
     }
 
@@ -28,6 +28,8 @@ final class Migration20230807Command extends Command
     {
         $apps = $this->symfonyApplications;
         $apps[] = 'auth';
+
+        $this->migrateIdP();
 
         foreach ($apps as $app) {
             $output->writeln(sprintf('Migrating <info>%s</info>', $app));
@@ -58,12 +60,12 @@ FROM oauth_client');
                     continue;
                 }
                 if ('auth' === $app && in_array($row['id'], [
-                    'databox-app',
-                    'expose-app',
-                    'uploader-app',
-                    'databox-admin',
-                    'expose-admin',
-                    'uploader-admin',
+                        'databox-app',
+                        'expose-app',
+                        'uploader-app',
+                        'databox-admin',
+                        'expose-admin',
+                        'uploader-admin',
                     ], true)) {
                     continue;
                 }
@@ -134,7 +136,7 @@ FROM "user"');
             $user = $this->keycloakManager->createUser([
                 'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
                 'username' => $row['username'],
-                'email' => $row['username'],
+                'email' => str_contains($row['username'], '@') ? $row['username'] : null,
                 'emailVerified' => $row['email_verified'],
                 'enabled' => $row['enabled'],
                 'attributes' => [
@@ -142,7 +144,7 @@ FROM "user"');
                 ],
                 'requiredActions' => [
                     'UPDATE_PASSWORD',
-                ]
+                ],
             ]);
             $userMap[$row['id']] = $user['id'];
 
@@ -157,6 +159,35 @@ FROM "user_group" WHERE user_id = :uid', [
             }
 
             $this->keycloakManager->addRolesToUser($user['id'], $realmRoles);
+        }
+
+        $samlIdentities = $connection->fetchAllAssociative('SELECT
+user_id,
+provider,
+attributes
+FROM "saml_identity"');
+        foreach ($samlIdentities as $row) {
+            $attributes = json_decode($row['attributes'], true, 512, JSON_THROW_ON_ERROR);
+            $username = $this->extractUsernameFromAttributes($attributes);
+
+            $this->keycloakManager->linkAccountToIdentityProvider($userMap[$row['user_id']], $row['provider'], [
+                'userId' => $username,
+                'userName' => $username,
+            ]);
+        }
+
+        $oauthUsers = $connection->fetchAllAssociative('SELECT
+user_id,
+identifier,
+provider
+FROM "external_access_token"');
+        foreach ($oauthUsers as $row) {
+            $username = $row['identifier'];
+
+            $this->keycloakManager->linkAccountToIdentityProvider($userMap[$row['user_id']], $row['provider'], [
+                'userId' => $username,
+                'userName' => $username,
+            ]);
         }
 
         $this->replaceInDb([
@@ -213,8 +244,8 @@ FROM "user_group" WHERE user_id = :uid', [
             'databox' => [
                 'access_control_entry' => [
                     'user_id',
-                ]
-            ]
+                ],
+            ],
         ], $groupMap);
 
 
@@ -236,5 +267,116 @@ FROM "user_group" WHERE user_id = :uid', [
                 }
             }
         }
+    }
+
+    private function migrateIdP(): void
+    {
+        $configSrc = '/configs/config.json';
+        if (!file_exists($configSrc)) {
+            return;
+        }
+
+        $config = json_decode(file_get_contents($configSrc), true, 512, JSON_THROW_ON_ERROR);
+
+        foreach ($config['auth']['identity_providers'] ?? [] as $idp) {
+            $alias = $idp['name'];
+            $options = $idp['options'];
+
+            $normalizeOAuthUrl = function (string $key, string $default) use ($options, $alias): string {
+                if (isset($options[$key])) {
+                    return str_replace('{base_url}', $options['base_url'] ?? '', $options[$key]);
+                }
+
+                if (!isset($options['base_url'])) {
+                    throw new \InvalidArgumentException(sprintf('Missing "base_url" for IdP "%s"', $alias));
+                }
+
+                return $options['base_url'].$default;
+            };
+
+            $idpType = $idp['type'];
+            if ('oauth' === $idpType) {
+                $idpType = 'oidc';
+            }
+
+            $config = match ($idpType) {
+                'saml' => [
+                    'allowCreate' => 'true',
+                    'guiOrder' => '',
+                    'entityId' => getenv('KEYCLOAK_URL').'/realms/'.$this->keycloakRealm,
+                    'idpEntityId' => $options['entity_id'],
+                    'singleSignOnServiceUrl' => $options['sso_url'],
+                    'singleLogoutServiceUrl' => '',
+                    'attributeConsumingServiceName' => '',
+                    'backchannelSupported' => 'false',
+                    'nameIDPolicyFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+                    'principalType' => 'Subject NameID',
+                    'postBindingResponse' => 'false',
+                    'postBindingAuthnRequest' => 'false',
+                    'postBindingLogout' => 'false',
+                    'wantAuthnRequestsSigned' => 'false',
+                    'wantAssertionsSigned' => 'false',
+                    'wantAssertionsEncrypted' => 'false',
+                    'forceAuthn' => 'false',
+                    'validateSignature' => 'false',
+                    'signSpMetadata' => 'false',
+                    'loginHint' => 'false',
+                    'allowedClockSkew' => 0,
+                    'attributeConsumingServiceIndex' => 0,
+                ],
+                'oidc' => [
+                    'allowCreate' => true,
+                    'authorizationUrl' => $normalizeOAuthUrl('authorization_url', '/auth'),
+                    'tokenUrl' => $normalizeOAuthUrl('token_url', '/token'),
+                    'userInfoUrl' => $normalizeOAuthUrl('userinfo', '/userinfo'),
+                    'clientAssertionSigningAlg' => '',
+                    'clientAuthMethod' => 'client_secret_post',
+                    'validateSignature' => 'false',
+                    'clientId' => $options['client_id'],
+                    'clientSecret' => $options['client_secret'],
+                ],
+            };
+
+            $data = [
+                'alias' => $alias,
+                'config' => $config,
+                'displayName' => $idp['title'],
+                'providerId' => $idpType,
+//                'enabled' => true,
+//                'trustEmail' => true,
+            ];
+
+            $this->keycloakManager->createIdentityProvider($data);
+
+            if (isset($idp['group_jq_normalizer'])) {
+                $this->keycloakManager->createIdpMapper($alias, [
+                    'name' => 'groups',
+                    'identityProviderAlias' => $alias,
+                    'identityProviderMapper' => 'jq-groups-idp-mapper',
+                    'config' => [
+                        'syncMode' => 'FORCE',
+                        'jq_filter' => $idp['group_jq_normalizer'],
+                    ],
+                ]);
+            }
+        }
+    }
+
+    private function extractUsernameFromAttributes(array $attributes): string
+    {
+        foreach ([
+                     'username',
+                     'email',
+                 ] as $key) {
+            if (!empty($attributes[$key])) {
+                if (is_string($attributes[$key])) {
+                    return $attributes[$key];
+                } elseif (is_array($attributes[$key])) {
+                    return $attributes[$key][0];
+                }
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('Cannot extract username in attributes: %s', print_r($attributes, true)));
     }
 }
