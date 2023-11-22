@@ -41,7 +41,7 @@ jobs:
       - name: Build and Push API PHP
         uses: docker/build-push-action@v4
         with:
-          context: ${{ inputs.withLibs && "./" || inputs.context }}
+          context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-php
           push: true
@@ -57,7 +57,7 @@ jobs:
       - name: Build and Push API NGINX
         uses: docker/build-push-action@v4
         with:
-          context: ${{ inputs.withLibs && "./" || inputs.context }}
+          context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-nginx
           push: true
@@ -72,7 +72,7 @@ jobs:
       - name: Build and Push Worker
         uses: docker/build-push-action@v4
         with:
-          context: ${{ inputs.withLibs && "./" || inputs.context }}
+          context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: worker
           push: true

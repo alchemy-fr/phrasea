@@ -45,7 +45,7 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v4
         with:
-          context: ${{ inputs.withLibs && "./" || inputs.context }}
+          context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: ${{ inputs.target }}
           push: true
