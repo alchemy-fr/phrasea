@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@alchemy/auth@link:./__lib/auth":
+"@alchemy/auth@link:../../lib/js/auth":
   version "0.0.0"
   uid ""
 

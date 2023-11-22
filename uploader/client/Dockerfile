@@ -2,7 +2,8 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
-COPY . .
+COPY ./lib/js /lib/js
+COPY ./uploader/client .
 
 RUN yarn install \
     && mv public/index.tpl.html public/index.html \
@@ -12,8 +13,8 @@ RUN yarn install \
 
 FROM nginx:1.17.6-alpine as client-nginx
 
-COPY --from=client-build /usr/src/app/build /var/app
-COPY docker/nginx/conf.d /etc/nginx/conf.d
+COPY --from=client-build /srv/app/build /var/app
+COPY ./uploader/client/docker/nginx/conf.d /etc/nginx/conf.d
 
 RUN apk add --no-cache libstdc++ \
     && apk add --virtual .build \
@@ -26,7 +27,7 @@ RUN apk add --no-cache libstdc++ \
 
 EXPOSE 80
 
-COPY config-compiler.js /var/app/
+COPY ./uploader/client/config-compiler.js /var/app/
 
 WORKDIR /var/app
 

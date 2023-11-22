@@ -6,7 +6,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./uploader/client:/usr/src/app
+      - ./uploader/client:/srv/app
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -15,7 +15,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./expose/client:/usr/src/app
+      - ./expose/client:/srv/app
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -24,7 +24,8 @@ services:
     build:
       target: client-build
     volumes:
-      - ./databox/client:/usr/src/app
+      - ./databox/client:/srv/app
+      - ./lib/js:/lib/js
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -93,6 +94,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
 
   databox-api-nginx:
     volumes:
@@ -192,7 +194,7 @@ services:
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
       - ${HOME}/.composer:/home/app/.composer
-      - dev_vol:/home/app
+      - dev:/home/app
       - ./configs:/configs
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -243,5 +245,5 @@ services:
       - '--hostname-strict-https=false'
 
 volumes:
-  dev_vol:
+  dev:
     driver: local

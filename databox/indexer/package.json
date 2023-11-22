@@ -22,7 +22,7 @@
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",
-    "postinstall": "cd ./__lib/auth && yarn install && yarn build-commonjs && rm -rf node_modules",
+    "postinstall": "cd ../../lib/js/auth && yarn install && yarn build-commonjs && rm -rf node_modules",
     "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/"
   },
   "dependencies": {
@@ -32,7 +32,7 @@
     "chokidar": "^3.5.3",
     "commander": "^9.0.0",
     "express": "^4.17.1",
-    "@alchemy/auth": "link:./__lib/auth",
+    "@alchemy/auth": "link:../../lib/js/auth",
     "minio": "^7.0.26",
     "winston": "^3.5.1"
   }

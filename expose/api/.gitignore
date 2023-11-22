@@ -14,8 +14,6 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-/__lib
-
 ###> friendsofphp/php-cs-fixer ###
 /.php_cs
 /.php-cs-fixer.php

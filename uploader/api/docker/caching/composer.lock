@@ -10212,7 +10212,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/api-test",
+                "url": "../../lib/php/api-test",
                 "reference": "9af3b868e523a1c7dd135048a1febcaebb17970f"
             },
             "require": {

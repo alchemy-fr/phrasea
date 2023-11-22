@@ -8,56 +8,56 @@
         },
         {
             "type": "path",
-            "url": "./__lib/admin-bundle",
+            "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/storage-bundle",
+            "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/auth-bundle",
+            "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/notify-bundle",
+            "url": "../../lib/php/notify-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/api-test",
+            "url": "../../lib/php/api-test",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/report-bundle",
+            "url": "../../lib/php/report-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/report-sdk",
+            "url": "../../lib/php/report-sdk",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/core-bundle",
+            "url": "../../lib/php/core-bundle",
             "options": {
                 "symlink": true
             }

@@ -29,12 +29,13 @@ RUN apk add --no-cache \
     && apk del build-essentials
 
 # Warm up composer cache for faster builds
-COPY docker/caching/composer.* ./
+COPY ./databox/api/docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
     && rm -rf vendor composer.*
 # End warm up
 
-COPY . .
+COPY --chown=app:app lib/php /lib/php
+COPY --chown=app:app ./databox/api .
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
@@ -56,8 +57,6 @@ ENV FPM_HOSTNAME=databox-api-php
 
 FROM api-php as worker
 
-ENV PHP_MEMORY_LIMIT=1G
-
 RUN apk add --no-cache \
         supervisor \
         perl \
@@ -65,6 +64,6 @@ RUN apk add --no-cache \
     && chown -R app: /var/log/supervisor \
     && docker-php-ext-install pcntl
 
-COPY docker/supervisor/* /etc/supervisor.d/
+COPY ./databox/api/docker/supervisor/* /etc/supervisor.d/
 
 CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]

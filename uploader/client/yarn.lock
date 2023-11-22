@@ -12,11 +12,11 @@
     deepmerge "^2.0.1"
     prop-types "^15.5.10"
 
-"@alchemy/auth@link:./__lib/auth":
+"@alchemy/auth@link:../../lib/js/auth":
   version "0.0.0"
   uid ""
 
-"@alchemy/react-ps@link:./__lib/react-ps":
+"@alchemy/react-ps@link:../../lib/js/react-ps":
   version "0.0.0"
   uid ""
 

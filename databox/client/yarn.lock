@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@alchemy/auth@link:./__lib/auth":
+"@alchemy/auth@link:../../lib/js/auth":
   version "0.0.0"
   uid ""
 
-"@alchemy/react-ps@link:./__lib/react-ps":
+"@alchemy/react-ps@link:../../lib/js/react-ps":
   version "0.0.0"
   uid ""
 
-"@alchemy/visual-workflow@link:./__lib/visual-workflow":
+"@alchemy/visual-workflow@link:../../lib/js/visual-workflow":
   version "0.0.0"
   uid ""
 

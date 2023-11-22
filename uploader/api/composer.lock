@@ -63,7 +63,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/admin-bundle",
+                "url": "../../lib/php/admin-bundle",
                 "reference": "9d66ea42f8f0037487285518183118e65a0db77d"
             },
             "require": {
@@ -121,7 +121,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/auth-bundle",
+                "url": "../../lib/php/auth-bundle",
                 "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
             },
             "require": {
@@ -178,7 +178,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/core-bundle",
+                "url": "../../lib/php/core-bundle",
                 "reference": "d2c7ed6d0c9ff2dc0d3dfda8b5bbb5a9d690b84a"
             },
             "require": {
@@ -233,7 +233,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/notify-bundle",
+                "url": "../../lib/php/notify-bundle",
                 "reference": "6fc0d70086133302ff8e2d9920341017d3a20793"
             },
             "require": {
@@ -288,7 +288,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/report-bundle",
+                "url": "../../lib/php/report-bundle",
                 "reference": "617baf57b64b04e47b33d82753a1cc75752f0c40"
             },
             "require": {
@@ -341,7 +341,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/report-sdk",
+                "url": "../../lib/php/report-sdk",
                 "reference": "db724b10230a7b420313df411a505022244a47c1"
             },
             "require": {
@@ -394,7 +394,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/storage-bundle",
+                "url": "../../lib/php/storage-bundle",
                 "reference": "f7039c2962ee655c41c56ba1c6e30adb3bc79862"
             },
             "require": {
@@ -11455,7 +11455,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/api-test",
+                "url": "../../lib/php/api-test",
                 "reference": "fafa362999ba9635ca8c444409ec6211b1a3988a"
             },
             "require": {
