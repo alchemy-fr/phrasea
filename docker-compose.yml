@@ -742,7 +742,8 @@ services:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
-      context: ./databox/indexer
+      context: ./
+      dockerfile: ./databox/indexer/Dockerfile
     profiles:
       - indexer
     networks:

@@ -22,17 +22,17 @@
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",
     "test": "jest",
-    "postinstall": "cd ../../lib/js/auth && yarn install && yarn build-commonjs && rm -rf node_modules",
+    "postinstall": "cd ../../lib/js/auth && yarn install && yarn build-commonjs",
     "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/"
   },
   "dependencies": {
+    "@alchemy/auth": "link:../../lib/js/auth",
     "amqplib": "^0.8.0",
-    "axios": "^0.24.0",
+    "axios": "1.2.1",
     "axios-retry": "^3.2.4",
     "chokidar": "^3.5.3",
     "commander": "^9.0.0",
     "express": "^4.17.1",
-    "@alchemy/auth": "link:../../lib/js/auth",
     "minio": "^7.0.26",
     "winston": "^3.5.1"
   }

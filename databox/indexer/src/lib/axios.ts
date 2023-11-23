@@ -58,7 +58,7 @@ export function createHttpClient({
         (error: AxiosError) => {
             logger.error(error.message);
             if (error.response) {
-                let filtered = error.response.data;
+                let filtered: any = error.response.data;
 
                 if (typeof filtered === 'object' && filtered.trace) {
                     filtered = {
