@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api;
 
 use ApiPlatform\Api\IriConverterInterface;
-use ApiPlatform\State\Util\OperationRequestInitiatorTrait;
+use ApiPlatform\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\Util\RequestAttributesExtractor;
 use App\Api\InputTransformer\InputTransformerInterface;
 use Doctrine\ORM\EntityManagerInterface;

@@ -6,7 +6,7 @@ namespace App\Api;
 
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Symfony\Security\ResourceAccessCheckerInterface;
-use ApiPlatform\State\Util\OperationRequestInitiatorTrait;
+use ApiPlatform\Util\OperationRequestInitiatorTrait;
 use ApiPlatform\Util\RequestAttributesExtractor;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
