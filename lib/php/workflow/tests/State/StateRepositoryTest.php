@@ -181,7 +181,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
     {
         return [
             [new MemoryStateRepository()],
-            [new FileSystemStateRepository(__DIR__.'/../var/state')],
+            [new FileSystemStateRepository(sys_get_temp_dir().'/workflow-state')],
         ];
     }
 }
