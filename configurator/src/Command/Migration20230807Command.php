@@ -142,9 +142,6 @@ FROM "user"');
                 'attributes' => [
                     'ps-auth-legacy-id' => $row['id'],
                 ],
-                'requiredActions' => [
-                    'UPDATE_PASSWORD',
-                ],
             ]);
             $userMap[$row['id']] = $user['id'];
 
