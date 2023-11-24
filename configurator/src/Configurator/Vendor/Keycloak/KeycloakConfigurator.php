@@ -188,6 +188,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->keycloakManager->putRealm([
             'displayName' => 'Phrasea Auth',
             'displayNameHtml' => '<div class="kc-logo-text"><span>Phrasea Auth</span></div>',
+            'resetPasswordAllowed' => true,
+            'rememberMe' => true,
             'smtpServer' => [
                 'auth' => '',
                 'from' => $from,
