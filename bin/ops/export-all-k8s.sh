@@ -71,7 +71,7 @@ done
 kubectl -n $NS delete pod ${POD} --force 2> /dev/null
 
 echo "Packaging export..."
-PACKAGE_NAME="phrasea-${DATE}.tar.gz"
+PACKAGE_NAME="phrasea-${NS}-${DATE}.tar.gz"
 PACKAGE="$(realpath "${BASE_DIR}/${PACKAGE_NAME}")"
 tar -C ${DIR} -czf ${PACKAGE} ${EXPORTED}
 rm -r ${DIR}

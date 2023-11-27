@@ -1,0 +1,5 @@
+packages:
+  - 'databox/client'
+  - 'expose/client'
+  - 'uploader/client'
+  - 'lib/js/*'

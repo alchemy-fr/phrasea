@@ -1,8 +1,10 @@
 {
-  "name": "upload-client",
+  "name": "uploader-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@alchemy/auth": "workspace:*",
+    "@alchemy/react-ps": "workspace:*",
     "@alchemy-fr/liform-react": "^0.9.3",
     "axios": "^1.1.3",
     "connected-react-router": "^5.0",
@@ -14,8 +16,6 @@
     "react-dom": "^16.8.6",
     "react-i18next": "^11.15.1",
     "react-loader-spinner": "^3.1.14",
-    "@alchemy/auth": "link:../../lib/js/auth",
-    "@alchemy/react-ps": "link:../../lib/js/react-ps",
     "react-redux": "^5.1",
     "react-router-dom": "^5.0.0",
     "react-scripts": "^4.0.3",
@@ -23,9 +23,6 @@
     "redux-form": "^7.4.2"
   },
   "scripts": {
-    "postinstall": "yarn install-auth; yarn install-react-ps",
-    "install-auth": "cd ../../lib/js/auth && yarn install && yarn build && rm -rf node_modules",
-    "install-react-ps": "cd ../../lib/js/react-ps && yarn install && yarn build && rm -rf node_modules",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

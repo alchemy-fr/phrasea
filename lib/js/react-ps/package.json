@@ -1,24 +1,14 @@
 {
   "name": "@alchemy/react-ps",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Phrasea React components",
   "keywords": [],
-  "main": "dist/index.js",
-  "module": "dist/index.es5.js",
-  "typings": "dist/types/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "author": "Arthur de Moulins <arthurdemoulins@gmail.com>",
   "license": "MIT",
-  "engines": {
-    "node": ">=6.0.0"
-  },
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "yarn svgr && tsc",
+    "prebuild": "rm -f **/*.js **/*.js.map && pnpm run svgr",
     "svgr": "svgr -d src/icons -- src/**/*.svg"
   },
+  "main": "./src/index.ts",
   "peerDependencies": {
     "axios": "^1.1.3",
     "i18next": "^21.0.0",

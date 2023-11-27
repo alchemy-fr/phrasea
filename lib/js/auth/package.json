@@ -1,23 +1,13 @@
 {
   "name": "@alchemy/auth",
   "version": "0.0.1",
+  "public": true,
   "description": "Auth library",
   "keywords": [],
-  "main": "dist/index.js",
-  "module": "dist/index.es5.js",
-  "typings": "dist/types/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "author": "Arthur de Moulins <arthurdemoulins@gmail.com>",
+  "main": "./src/index.ts",
   "license": "MIT",
-  "engines": {
-    "node": ">=6.0.0"
-  },
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "tsc",
-    "build-commonjs": "tsc --module commonjs"
+    "prebuild": "rimraf dist && rm **/*.js **/*.js.map"
   },
   "peerDependencies": {
     "axios": "^1.1.3"
@@ -28,13 +18,13 @@
   },
   "devDependencies": {
     "@types/i18next": "^13.0.0",
-    "@types/jest": "^23.3.2",
-    "@types/js-cookie": "^3.0.3",
-    "@types/node": "^10.11.0",
-    "@types/react": "^18.0.21",
-    "axios": "^1.1.3",
-    "rimraf": "^2.6.2",
+    "@types/jest": "^23.3.14",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^10.17.60",
+    "@types/react": "^18.2.38",
+    "axios": "^1.6.2",
+    "rimraf": "^2.7.1",
     "ts-node": "^7.0.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.5"
   }
 }
