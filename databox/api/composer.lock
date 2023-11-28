@@ -64,7 +64,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/admin-bundle",
-                "reference": "9d66ea42f8f0037487285518183118e65a0db77d"
+                "reference": "09268dc3e6d7212852a1e9e3ae51ed7762e0fa82"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -122,7 +122,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/auth-bundle",
-                "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
+                "reference": "ac3d8c5cd5eab69734a41246ce5c81fd72d6f25d"
             },
             "require": {
                 "lcobucci/jwt": "^5.0",
@@ -179,7 +179,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/core-bundle",
-                "reference": "d2c7ed6d0c9ff2dc0d3dfda8b5bbb5a9d690b84a"
+                "reference": "bfdfae690c10139d9de34730b56ee6604acde0bf"
             },
             "require": {
                 "php": "^8.2",
@@ -234,7 +234,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/metadata-manipulator-bundle",
-                "reference": "2dd7c12f8fb49e5524f27ec95c72f37363a4a9d6"
+                "reference": "e405edd1cfeb831c6d1299c5e30160a4e3359947"
             },
             "require": {
                 "alchemy/phpexiftool": "^4.0.1",
@@ -357,7 +357,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/storage-bundle",
-                "reference": "f7039c2962ee655c41c56ba1c6e30adb3bc79862"
+                "reference": "6db69fead55226d167e872a7b391c3d43d7e96d9"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -412,7 +412,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/test-bundle",
-                "reference": "ee87cf81d768a57176aced78895128620af31a7e"
+                "reference": "8ad929c25019ffd492991bbce52d9b2466ecf6fd"
             },
             "require": {
                 "php": "^8.2",
@@ -464,7 +464,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/webhook-bundle",
-                "reference": "108d5824c911558f6db657f68b7aff25c5279ee2"
+                "reference": "1d885fce8810893d373f5bbdfc11030e365feba5"
             },
             "require": {
                 "arthem/rabbit-bundle": "@dev",
@@ -521,7 +521,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow",
-                "reference": "7e73c16cdab81067437acbc148afc4e89e15ade9"
+                "reference": "e860f690023a9696210039b600bf2ef558df8e4a"
             },
             "require": {
                 "ext-json": "*",
@@ -591,7 +591,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/workflow-bundle",
-                "reference": "31473246425163981ceea68bbb5cbd2c78781b22"
+                "reference": "4ca6bcf131c274722f26b87f52e2a2ac77873232"
             },
             "require": {
                 "alchemy/workflow": "@dev",
@@ -6295,16 +6295,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.23",
+            "version": "3.0.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50"
+                "reference": "56c79f16a6ae17e42089c06a2144467acc35348a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/866cc78fbd82462ffd880e3f65692afe928bed50",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/56c79f16a6ae17e42089c06a2144467acc35348a",
+                "reference": "56c79f16a6ae17e42089c06a2144467acc35348a",
                 "shasum": ""
             },
             "require": {
@@ -6385,7 +6385,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.23"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.34"
             },
             "funding": [
                 {
@@ -6401,7 +6401,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-18T17:22:01+00:00"
+            "time": "2023-11-27T11:13:31+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -13740,7 +13740,7 @@
             "dist": {
                 "type": "path",
                 "url": "./__lib/api-test",
-                "reference": "fafa362999ba9635ca8c444409ec6211b1a3988a"
+                "reference": "526fcc69badb4532b600b546d61270402bdd2ed5"
             },
             "require": {
                 "php": "^8.2",
@@ -16092,5 +16092,5 @@
         "ext-sodium": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
