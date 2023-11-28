@@ -1,16 +1,14 @@
-import React from 'react';
 import {useEffectOnce} from "@alchemy/react-ps";
 import {OAuthClient} from "@alchemy/auth";
 import qs from "querystring";
 import {useHistory, useLocation} from "react-router-dom";
-import * as H from "history";
 
 type Props = {
     oauthClient: OAuthClient,
     successUri: string,
     errorUri: string,
-    successHandler: (history: H.History) => void,
-    errorHandler: (e: any, history: H.History) => void,
+    successHandler: () => void,
+    errorHandler: (e: any) => void,
 };
 
 export default function OAuthRedirect({
@@ -30,13 +28,13 @@ export default function OAuthRedirect({
             )
             .then(() => {
                 if (successHandler) {
-                    return successHandler(history);
+                    return successHandler();
                 }
 
                 history.push(successUri || '/');
             }, (e) => {
                 if (errorHandler) {
-                    return errorHandler(e, history);
+                    return errorHandler(e);
                 }
 
                 console.error(e);

@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from 'react';
-import SvgMenu from '../../icons/Menu.js';
+import {useCallback, useState} from 'react';
+import SvgMenu from '../../icons/Menu';
 
 type Props = {
     dashboardBaseUrl: string;
@@ -11,7 +11,7 @@ export default function DashboardMenu({
     const [open, setOpen] = useState(false);
     const [openedOnce, setOpenedOnce] = useState(false);
 
-    const toggleMenu = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const toggleMenu = useCallback(() => {
         if (!openedOnce) {
             setOpenedOnce(true);
         }

@@ -1,4 +1,3 @@
-import React from 'react';
 import config from "../../lib/config";
 import {setAuthRedirect} from "../../lib/oauth";
 import {oauthClient} from "../../lib/api-client";

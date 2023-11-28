@@ -1,1 +1,1 @@
-declare module 'react-image-magnifiers/dist';
+declare module 'react-image-magnifiers/dist'

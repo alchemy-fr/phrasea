@@ -1,4 +1,4 @@
-import {PropTypes} from 'prop-types';
+import { PropTypes } from 'prop-types'
 
 export const dataShape = PropTypes.shape({
     title: PropTypes.string.isRequired,
@@ -7,14 +7,4 @@ export const dataShape = PropTypes.shape({
     parent: PropTypes.object,
     downloadViaEmail: PropTypes.bool,
     downloadEnabled: PropTypes.bool,
-});
-
-export const assetShape = PropTypes.shape({
-    downloadUrl: PropTypes.string.isRequired,
-    posterUrl: PropTypes.string,
-    thumbUrl: PropTypes.string,
-    previewUrl: PropTypes.string.isRequired,
-    originalName: PropTypes.string,
-    mimeType: PropTypes.string.isRequired,
-    subDefinitions: PropTypes.array.isRequired,
-});
+})

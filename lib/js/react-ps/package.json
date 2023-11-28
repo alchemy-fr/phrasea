@@ -5,7 +5,7 @@
   "keywords": [],
   "license": "MIT",
   "scripts": {
-    "prebuild": "rm -f **/*.js **/*.js.map && pnpm run svgr",
+    "prebuild": "pnpm run svgr",
     "svgr": "svgr -d src/icons -- src/**/*.svg"
   },
   "main": "./src/index.ts",

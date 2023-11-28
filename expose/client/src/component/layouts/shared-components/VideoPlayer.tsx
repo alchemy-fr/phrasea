@@ -15,7 +15,6 @@ type Props = {
 
 export default React.forwardRef(function VideoPlayer({
     title,
-    description,
     url,
     posterUrl,
     webVTTLink,

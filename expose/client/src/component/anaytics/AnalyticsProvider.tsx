@@ -1,4 +1,4 @@
-import React, {PropsWithChildren} from 'react';
+import {PropsWithChildren} from 'react';
 import {matomo} from "../../lib/matomo";
 import {MatomoProvider} from "@jonkoops/matomo-tracker-react";
 

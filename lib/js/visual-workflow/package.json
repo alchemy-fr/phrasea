@@ -2,7 +2,6 @@
   "name": "@alchemy/visual-workflow",
   "version": "1.0.0",
   "scripts": {
-    "prebuild": "rm -f *.js *.js.map **/*.js **/*.js.map",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },

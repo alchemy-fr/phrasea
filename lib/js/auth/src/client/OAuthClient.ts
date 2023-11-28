@@ -1,8 +1,9 @@
-import axios, {AxiosError, AxiosInstance, AxiosRequestConfig} from "axios";
-import CookieStorage from "../storage/cookieStorage";
-import jwtDecode from "jwt-decode";
+import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig} from "axios";
+import {jwtDecode} from "jwt-decode";
+import CookieStorage from "@alchemy/storage/src/CookieStorage";
+import {IStorage} from "@alchemy/storage";
 
-type TokenResponse = {
+export type TokenResponse = {
     access_token: string;
     refresh_token: string;
     token_type: string;
@@ -45,13 +46,6 @@ export const refreshTokenEventType = 'refreshToken';
 export const logoutEventType = 'logout';
 export const sessionExpiredEventType = 'sessionExpired';
 
-export interface IStorage {
-    getItem(key: string): string | null;
-
-    removeItem(key: string): void;
-
-    setItem(key: string, value: string): void;
-}
 
 type Options = {
     storage?: IStorage;
@@ -321,7 +315,7 @@ export default class OAuthClient {
 
 export type RequestConfigWithAuth = {
     anonymous?: boolean;
-} & AxiosRequestConfig;
+} & InternalAxiosRequestConfig;
 
 type OnTokenError = (error: AxiosError) => void;
 
@@ -378,8 +372,8 @@ function createAxiosInterceptor(
             }
         }
 
-        config.headers ??= {};
-        config.headers['Authorization'] = `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`;
+        config.headers ??= new AxiosHeaders({});
+        config.headers.set('Authorization', `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`);
 
         return config;
     };

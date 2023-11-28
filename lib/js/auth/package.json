@@ -4,17 +4,16 @@
   "public": true,
   "description": "Auth library",
   "keywords": [],
-  "main": "./src/index.ts",
+  "main": "index.ts",
   "license": "MIT",
-  "scripts": {
-    "prebuild": "rimraf dist && rm **/*.js **/*.js.map"
-  },
   "peerDependencies": {
-    "axios": "^1.1.3"
+    "axios": "^1.6.2",
+    "react": "^18.2.0"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
-    "jwt-decode": "^3.1.2"
+    "jwt-decode": "^4.0.0",
+    "@alchemy/storage": "workspace:*"
   },
   "devDependencies": {
     "@types/i18next": "^13.0.0",

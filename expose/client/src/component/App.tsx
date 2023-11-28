@@ -4,7 +4,7 @@ import {UserInfoResponse, AuthEventHandler} from "@alchemy/auth";
 import {DashboardMenu} from "@alchemy/react-ps";
 import {oauthClient} from "../lib/api-client";
 import config from "../lib/config";
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch, useHistory} from "react-router-dom";
 import AnalyticsRouterProvider from "./anaytics/AnalyticsRouterProvider";
 import OAuthRedirect from "./OAuthRedirect";
 import PublicationIndex from "./index/PublicationIndex";
@@ -29,10 +29,10 @@ export default function App({}: Props) {
         pushInstruction('setUserId', user?.sub || null);
     }, [user]);
 
-    const onLogin = React.useCallback<AuthEventHandler>(async (event) => {
+    const onLogin = React.useCallback<AuthEventHandler>(async () => {
         await authenticate();
     }, [authenticate]);
-    const onLogout = React.useCallback<AuthEventHandler>(async (event) => {
+    const onLogout = React.useCallback<AuthEventHandler>(async () => {
         setUser(undefined);
     }, []);
 
@@ -83,10 +83,12 @@ export default function App({}: Props) {
 }
 
 const OAuthR = (props: {}) => {
+    const history = useHistory();
+
     return <OAuthRedirect
         {...props as any}
         oauthClient={oauthClient}
-        successHandler={(history) => {
+        successHandler={() => {
             const redirectUri = getAuthRedirect() || '/';
             unsetAuthRedirect();
             if (window.opener) {
