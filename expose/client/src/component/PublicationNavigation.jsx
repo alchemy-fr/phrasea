@@ -66,14 +66,14 @@ class PublicationNavigation extends PureComponent {
 }
 
 class NavTree extends PureComponent {
-    static propTypes = {
-        publications: PropTypes.array.isRequired,
-        current: PropTypes.object.isRequired,
-        depth: PropTypes.number.isRequired,
-        openChildren: PropTypes.bool,
-        onSelect: PropTypes.func.isRequired,
-        loading: PropTypes.string,
-    }
+    // static propTypes = {
+    //     publications: PropTypes.array.isRequired,
+    //     current: PropTypes.object.isRequired,
+    //     depth: PropTypes.number.isRequired,
+    //     openChildren: PropTypes.bool,
+    //     onSelect: PropTypes.func.isRequired,
+    //     loading: PropTypes.string,
+    // }
 
     state = {
         publicationChildren: {},

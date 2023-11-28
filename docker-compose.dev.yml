@@ -26,6 +26,7 @@ services:
       target: client-build
     volumes:
       - ./expose/client:/srv/workspace/expose/client:rw
+      - ./lib/js:/lib/js
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -47,6 +48,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
 
   expose-api-nginx:
     volumes:
@@ -57,6 +59,7 @@ services:
   expose-worker:
     volumes:
       - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-php:
@@ -67,10 +70,12 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
 
   uploader-worker:
     volumes:
       - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-nginx:
@@ -85,6 +90,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
+      - ./lib/php:/lib/php
 
   notify-api-nginx:
     volumes:
@@ -93,6 +99,7 @@ services:
   notify-worker:
     volumes:
       - ./notify/api:/srv/app
+      - ./lib/php:/lib/php
       - ./notify/api/docker/supervisor:/etc/supervisor.d
 
   databox-api-php:
@@ -113,6 +120,7 @@ services:
   databox-worker:
     volumes:
       - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
       - ./databox/api/docker/supervisor:/etc/supervisor.d
 
   elasticsearch:
