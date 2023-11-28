@@ -12,15 +12,19 @@ services:
       - ./node_modules:/srv/workspace/node_modules
 
   uploader-client:
+    extends:
+      service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
-      - ./uploader/client:/srv/app
+      - ./uploader/client:/srv/workspace/uploader/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
   expose-client:
+    extends:
+      service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       target: client-build
@@ -31,11 +35,13 @@ services:
       - WDS_SOCKET_PORT=443
 
   databox-client:
+    extends:
+      service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
-      - ./databox/client:/srv/app
+      - ./databox/client:/srv/workspace/databox/client:rw
       - ./lib/js:/lib/js
     environment:
       - WDS_SOCKET_PORT=443
