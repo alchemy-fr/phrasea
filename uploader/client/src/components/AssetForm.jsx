@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import '../scss/Upload.scss';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import AssetLiForm from "./AssetLiForm";
 import {SubmissionError} from 'redux-form';
 import {Translation} from "react-i18next";
@@ -8,13 +8,13 @@ import {getFormSchema} from "../requests";
 import apiClient from "../lib/api";
 
 export default class AssetForm extends Component {
-    static propTypes = {
-        onComplete: PropTypes.func,
-        onCancel: PropTypes.func,
-        baseSchema: PropTypes.object,
-        submitPath: PropTypes.string.isRequired,
-        targetId: PropTypes.string.isRequired,
-    };
+    // static propTypes = {
+    //     onComplete: PropTypes.func,
+    //     onCancel: PropTypes.func,
+    //     baseSchema: PropTypes.object,
+    //     submitPath: PropTypes.string.isRequired,
+    //     targetId: PropTypes.string.isRequired,
+    // };
 
     state = {
         schema: undefined,

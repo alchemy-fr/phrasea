@@ -1,16 +1,16 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 import iconImg from '../images/asset-icon.svg';
 import deleteImg from '../images/delete-button.svg';
 import filesize from 'filesize';
 
 export default class AssetUpload extends Component {
-    static propTypes = {
-        file: PropTypes.object.isRequired,
-        onUploadComplete: PropTypes.func,
-        onUploadProgress: PropTypes.func,
-        onRemove: PropTypes.func,
-    };
+    // static propTypes = {
+    //     file: PropTypes.object.isRequired,
+    //     onUploadComplete: PropTypes.func,
+    //     onUploadProgress: PropTypes.func,
+    //     onRemove: PropTypes.func,
+    // };
 
     state = {
         src: null,

@@ -2,7 +2,7 @@ import React, {PureComponent} from "react";
 import config from "./config";
 import {KeycloakClient} from "@alchemy/auth";
 import qs from 'querystring';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
 export const keycloakClient = new KeycloakClient({
@@ -14,12 +14,12 @@ export const keycloakClient = new KeycloakClient({
 export const oauthClient = keycloakClient.client;
 
 export class OAuthRedirect extends PureComponent {
-    static propTypes = {
-        history: PropTypes.object.isRequired,
-        location: PropTypes.object.isRequired,
-        successUri: PropTypes.string,
-        errorHandler: PropTypes.func,
-    };
+    // static propTypes = {
+    //     history: PropTypes.object.isRequired,
+    //     location: PropTypes.object.isRequired,
+    //     successUri: PropTypes.string,
+    //     errorHandler: PropTypes.func,
+    // };
 
     handleSuccess = () => {
         const {

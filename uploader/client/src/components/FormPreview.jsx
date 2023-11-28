@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import AssetLiForm from "./AssetLiForm";
 
 export default class FormPreview extends Component {
-    static propTypes = {
-        schema: PropTypes.string.isRequired,
-    };
+    // static propTypes = {
+    //     schema: PropTypes.string.isRequired,
+    // };
 
     state = {
         error: null,

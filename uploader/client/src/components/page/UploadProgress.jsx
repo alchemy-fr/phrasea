@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 import AssetUpload from "../AssetUpload";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 
 export default class UploadProgress extends Component {
     fileRefs = {};
 
-    static propTypes = {
-        files: PropTypes.array.isRequired,
-        onNext: PropTypes.func.isRequired,
-        onCancel: PropTypes.func,
-        uploadBatch: PropTypes.object.isRequired,
-    };
+    // static propTypes = {
+    //     files: PropTypes.array.isRequired,
+    //     onNext: PropTypes.func.isRequired,
+    //     onCancel: PropTypes.func,
+    //     uploadBatch: PropTypes.object.isRequired,
+    // };
 
     state = {
         progress: 0,
