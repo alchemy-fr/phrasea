@@ -1,4 +1,3 @@
-import {ReactComponent as acIcon} from 'flag-icons/flags/4x3/ac.svg';
 import {ReactComponent as adIcon} from 'flag-icons/flags/4x3/ad.svg';
 import {ReactComponent as aeIcon} from 'flag-icons/flags/4x3/ae.svg';
 import {ReactComponent as afIcon} from 'flag-icons/flags/4x3/af.svg';
@@ -64,7 +63,6 @@ import {ReactComponent as dkIcon} from 'flag-icons/flags/4x3/dk.svg';
 import {ReactComponent as dmIcon} from 'flag-icons/flags/4x3/dm.svg';
 import {ReactComponent as doIcon} from 'flag-icons/flags/4x3/do.svg';
 import {ReactComponent as dzIcon} from 'flag-icons/flags/4x3/dz.svg';
-import {ReactComponent as eaIcon} from 'flag-icons/flags/4x3/ea.svg';
 import {ReactComponent as ecIcon} from 'flag-icons/flags/4x3/ec.svg';
 import {ReactComponent as eeIcon} from 'flag-icons/flags/4x3/ee.svg';
 import {ReactComponent as egIcon} from 'flag-icons/flags/4x3/eg.svg';
@@ -224,7 +222,6 @@ import {ReactComponent as svIcon} from 'flag-icons/flags/4x3/sv.svg';
 import {ReactComponent as sxIcon} from 'flag-icons/flags/4x3/sx.svg';
 import {ReactComponent as syIcon} from 'flag-icons/flags/4x3/sy.svg';
 import {ReactComponent as szIcon} from 'flag-icons/flags/4x3/sz.svg';
-import {ReactComponent as taIcon} from 'flag-icons/flags/4x3/ta.svg';
 import {ReactComponent as tcIcon} from 'flag-icons/flags/4x3/tc.svg';
 import {ReactComponent as tdIcon} from 'flag-icons/flags/4x3/td.svg';
 import {ReactComponent as tfIcon} from 'flag-icons/flags/4x3/tf.svg';
@@ -266,7 +263,6 @@ import {ReactComponent as zmIcon} from 'flag-icons/flags/4x3/zm.svg';
 import {ReactComponent as zwIcon} from 'flag-icons/flags/4x3/zw.svg';
 
 export const flagIcons = {
-    'ac': acIcon,
     'ad': adIcon,
     'ae': aeIcon,
     'af': afIcon,
@@ -332,7 +328,6 @@ export const flagIcons = {
     'dm': dmIcon,
     'do': doIcon,
     'dz': dzIcon,
-    'ea': eaIcon,
     'ec': ecIcon,
     'ee': eeIcon,
     'eg': egIcon,
@@ -492,7 +487,6 @@ export const flagIcons = {
     'sx': sxIcon,
     'sy': syIcon,
     'sz': szIcon,
-    'ta': taIcon,
     'tc': tcIcon,
     'td': tdIcon,
     'tf': tfIcon,

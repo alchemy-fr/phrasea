@@ -8,7 +8,6 @@ import {
     WorkflowHeader,
     WorkflowPlayground,
 } from '@alchemy/visual-workflow';
-import '@alchemy/visual-workflow/style.css';
 import RouteDialog from '../Dialog/RouteDialog';
 import AppDialog from '../Layout/AppDialog';
 
