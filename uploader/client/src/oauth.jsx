@@ -1,7 +1,6 @@
 import React, {PureComponent} from "react";
 import config from "./config";
 import {KeycloakClient} from "@alchemy/auth";
-import qs from 'querystring';
 // import PropTypes from "prop-types";
 import FullPageLoader from "./components/FullPageLoader";
 
@@ -60,7 +59,8 @@ export class OAuthRedirect extends PureComponent {
     }
 
     getCode() {
-        return qs.parse(this.props.location.search.substring(1)).code;
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('code');
     }
 
     render() {

@@ -6,6 +6,9 @@ export default class AuthError extends Component {
         return (
             <Container title="Authentication error">
                 An error has occured while authenticating.
+                <div>
+                    <a href={'/'}>Retry</a>
+                </div>
             </Container>
         );
     }

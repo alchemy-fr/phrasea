@@ -13,6 +13,8 @@
   "dependencies": {
     "@alchemy/auth": "workspace:*",
     "@alchemy/react-ps": "workspace:*",
+    "@alchemy/navigation": "workspace:*",
+    "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@mikecousins/react-pdf": "^5.5.1",
     "axios": "^1.1.3",
@@ -22,7 +24,6 @@
     "i18next-browser-languagedetector": "^6.1.2",
     "mapbox-gl": "^1.10.1",
     "moment": "^2.29.4",
-    "querystring": "^0.2.1",
     "react": "^18.2.0",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^18.2.0",
@@ -33,15 +34,13 @@
     "react-images": "^1.1.7",
     "react-loader-spinner": "^3.1.4",
     "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2",
+    "react-router-dom": "^6.20.0",
     "react-scripts": "3.2.0",
     "sass": "^1.44.0",
     "sass-loader": "^8.0.0",
-    "typescript": "^5.1.6",
     "universal-cookie": "^4.0.2",
     "video.js": "^7.8.3",
-    "videojs-font": "^4.1.0",
-    "vite-plugin-svgr": "^4.2.0"
+    "videojs-font": "^4.1.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
@@ -60,6 +59,7 @@
     "eslint-plugin-react-refresh": "^0.4.4",
     "i18next-scanner": "^3.0.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vite-plugin-svgr": "^4.2.0"
   }
 }

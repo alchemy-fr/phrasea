@@ -1,0 +1,21 @@
+{
+  "name": "@alchemy/navigation",
+  "version": "1.0.0",
+  "public": true,
+  "main": "index.ts",
+  "files": [
+    "src/proxy/AnalyticsRouteProxy.tsx"
+  ],
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "@jonkoops/matomo-tracker-react": "^0.7.0"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "@types/react": "^18.2.37",
+    "@jonkoops/matomo-tracker-react": "^0.7.0"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@alchemy/phrasea-ui",
+  "version": "1.0.0",
+  "public": true,
+  "main": "index.ts",
+  "peerDependencies": {
+    "react": "^18.2.0"
+  }
+}

@@ -207,6 +207,12 @@ importers:
       '@alchemy/auth':
         specifier: workspace:*
         version: link:../../lib/js/auth
+      '@alchemy/navigation':
+        specifier: workspace:*
+        version: link:../../lib/js/navigation
+      '@alchemy/phrasea-ui':
+        specifier: workspace:*
+        version: link:../../lib/js/phrasea-ui
       '@alchemy/react-ps':
         specifier: workspace:*
         version: link:../../lib/js/react-ps
@@ -237,9 +243,6 @@ importers:
       moment:
         specifier: ^2.29.4
         version: 2.29.4
-      querystring:
-        specifier: ^0.2.1
-        version: 0.2.1
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -271,8 +274,8 @@ importers:
         specifier: ^5.1.2
         version: 5.3.4(react@18.2.0)
       react-router-dom:
-        specifier: ^5.1.2
-        version: 5.3.4(react@18.2.0)
+        specifier: ^6.20.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
       react-scripts:
         specifier: 3.2.0
         version: 3.2.0(eslint@8.54.0)(react@18.2.0)(typescript@5.3.2)
@@ -282,9 +285,6 @@ importers:
       sass-loader:
         specifier: ^8.0.0
         version: 8.0.2(sass@1.69.5)(webpack@5.89.0)
-      typescript:
-        specifier: ^5.1.6
-        version: 5.3.2
       universal-cookie:
         specifier: ^4.0.2
         version: 4.0.4
@@ -294,9 +294,6 @@ importers:
       videojs-font:
         specifier: ^4.1.0
         version: 4.1.0
-      vite-plugin-svgr:
-        specifier: ^4.2.0
-        version: 4.2.0(rollup@1.32.1)(typescript@5.3.2)(vite@5.0.2)
     devDependencies:
       '@types/jest':
         specifier: ^26.0.0
@@ -343,12 +340,21 @@ importers:
       i18next-scanner:
         specifier: ^3.0.0
         version: 3.3.0
+      typescript:
+        specifier: ^5.2.2
+        version: 5.3.2
       vite:
         specifier: ^5.0.0
         version: 5.0.2(@types/node@18.18.13)(sass@1.69.5)
+      vite-plugin-svgr:
+        specifier: ^4.2.0
+        version: 4.2.0(rollup@1.32.1)(typescript@5.3.2)(vite@5.0.2)
 
   lib/js/auth:
     dependencies:
+      '@alchemy/react-hooks':
+        specifier: workspace:*
+        version: link:../react-hooks
       '@alchemy/storage':
         specifier: workspace:*
         version: link:../storage
@@ -380,6 +386,9 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.6.2
+      react-router-dom:
+        specifier: ^6.20.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
       rimraf:
         specifier: ^2.7.1
         version: 2.7.1
@@ -389,6 +398,43 @@ importers:
       typescript:
         specifier: ^4.9.5
         version: 4.9.5
+
+  lib/js/navigation:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-router-dom:
+        specifier: ^6.20.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
+    devDependencies:
+      '@jonkoops/matomo-tracker-react':
+        specifier: ^0.7.0
+        version: 0.7.0(react@18.2.0)
+      '@types/react':
+        specifier: ^18.2.37
+        version: 18.2.39
+
+  lib/js/phrasea-ui:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+
+  lib/js/react-hooks:
+    devDependencies:
+      '@types/node':
+        specifier: ^10.11.0
+        version: 10.17.60
+      '@types/react':
+        specifier: ^18.2.39
+        version: 18.2.39
+      axios:
+        specifier: ^1.1.3
+        version: 1.6.2
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
 
   lib/js/react-ps:
     dependencies:
@@ -500,7 +546,7 @@ importers:
         version: 0.4.2(rollup@0.67.4)
       rollup-plugin-typescript2:
         specifier: ^0.18.0
-        version: 0.18.1(rollup@0.67.4)(typescript@4.9.5)
+        version: 0.18.1(rollup@0.67.4)(typescript@5.3.2)
       semantic-release:
         specifier: ^15.9.16
         version: 15.14.0(@octokit/core@5.0.2)
@@ -518,19 +564,19 @@ importers:
         version: 7.0.1
       tslint:
         specifier: ^5.11.0
-        version: 5.20.1(typescript@4.9.5)
+        version: 5.20.1(typescript@5.3.2)
       tslint-config-prettier:
         specifier: ^1.15.0
         version: 1.18.0
       tslint-config-standard:
         specifier: ^8.0.1
-        version: 8.0.1(tslint@5.20.1)(typescript@4.9.5)
+        version: 8.0.1(tslint@5.20.1)(typescript@5.3.2)
       typedoc:
         specifier: ^0.12.0
         version: 0.12.0
       typescript:
-        specifier: ^4.8.4
-        version: 4.9.5
+        specifier: ^5.3.2
+        version: 5.3.2
 
   lib/js/storage:
     dependencies:
@@ -689,6 +735,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.15
         version: 18.2.17
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.5.0
+        version: 3.5.0(vite@5.0.2)
       eslint:
         specifier: ^8.53.0
         version: 8.54.0
@@ -5923,12 +5972,10 @@ packages:
     dependencies:
       '@jonkoops/matomo-tracker': 0.7.0
       react: 18.2.0
-    dev: false
 
   /@jonkoops/matomo-tracker@0.7.0:
     resolution: {integrity: sha512-ppCXiDaVytTQOP6hNZIBwjUph5IrGgDoQw4IF5sBoA3PBpMAc5tWtPExbVWTR5pJWpTcp11dv2M83n9pm7LpeQ==}
     deprecated: This package is no longer maintained.
-    dev: false
 
   /@joshwooding/vite-plugin-react-docgen-typescript@0.3.0(typescript@5.3.2)(vite@5.0.2):
     resolution: {integrity: sha512-2D6y7fNvFmsLmRt6UCOFJPvFoPMJGT0Uh1Wg0RaigUp7kdQPs6yYn8Dmx6GZkOH/NW0yMTwRz/p0SRMMRo50vA==}
@@ -6068,7 +6115,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.10
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       react: 18.2.0
     dev: true
 
@@ -7347,7 +7394,6 @@ packages:
   /@remix-run/router@1.13.0:
     resolution: {integrity: sha512-5dMOnVnefRsl4uRnAdoWjtVTdh8e6aZqgM4puy9nmEADH72ck+uXwzpJLEKE9Q6F8ZljNewLgmTfkxUrBdv4WA==}
     engines: {node: '>=14.0.0'}
-    dev: false
 
   /@restart/context@2.1.4(react@18.2.0):
     resolution: {integrity: sha512-INJYZQJP7g+IoDUh/475NlGiTeMfwTXUEr3tmRneckHIxNolGOW9CTq83S8cxq0CgJwwcMzMJFchxvlwe7Rk8Q==}
@@ -8685,7 +8731,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-plugin-remove-jsx-attribute@4.2.0:
     resolution: {integrity: sha512-3XHLtJ+HbRCH4n28S7y/yZoEQnRpl0tvTZQsHqvaeNXPra+6vE5tbRliH3ox1yZYPCxrlqaJT/Mg+75GpDKlvQ==}
@@ -8749,7 +8794,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-plugin-svg-dynamic-title@4.3.3:
     resolution: {integrity: sha512-w3Be6xUNdwgParsvxkkeZb545VhXEwjGMwExMVBIdPQJeyMQHqm9Msnb2a1teHBqUYL66qtwfhNkbj1iarCG7w==}
@@ -8777,7 +8821,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-plugin-svg-em-dimensions@4.2.0:
     resolution: {integrity: sha512-C0Uy+BHolCHGOZ8Dnr1zXy/KgpBOkEUYY9kI/HseHVPeMbluaX3CijJr7D4C5uR8zrc1T64nnq/k63ydQuGt4w==}
@@ -8805,7 +8848,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-plugin-transform-react-native-svg@4.2.0:
     resolution: {integrity: sha512-7YvynOpZDpCOUoIVlaaOUU87J4Z6RdD6spYN4eUb5tfPoKGSF9OG2NuhgYnq4jSkAxcpMaXWPf1cePkzmqTPNw==}
@@ -8833,7 +8875,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-plugin-transform-svg-component@4.2.0:
     resolution: {integrity: sha512-hYfYuZhQPCBVotABsXKSCfel2slf/yvJY8heTVX1PCTaq/IgASq1IyxPPKJ0chWREEKewIU/JMSsIGBtK1KKxw==}
@@ -8861,7 +8902,6 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.23.3
-    dev: false
 
   /@svgr/babel-preset@4.3.3:
     resolution: {integrity: sha512-6PG80tdz4eAlYUN3g5GZiUjg2FMcp+Wn6rtnz5WJG9ITGEF1pmFdzq02597Hn0OmnQuCVaBYQE1OVFAnwOl+0A==}
@@ -8923,7 +8963,6 @@ packages:
       '@svgr/babel-plugin-svg-em-dimensions': 8.0.0(@babel/core@7.23.3)
       '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.23.3)
       '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.23.3)
-    dev: false
 
   /@svgr/cli@6.5.1:
     resolution: {integrity: sha512-HdxcV0NeySUU25/wQ1smXspDc7S8Z+TLt3K7pSrEO2FiLVglCRBX5gw+yROGXrcHH5p2Ui4A0xo/pdshfVbBuA==}
@@ -8990,7 +9029,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
-    dev: false
 
   /@svgr/hast-util-to-babel-ast@4.3.2:
     resolution: {integrity: sha512-JioXclZGhFIDL3ddn4Kiq8qEqYM2PyDKV0aYno8+IXTLuYt6TOgHUbUAAFvqtb0Xn37NwP0BTHglejFoYr8RZg==}
@@ -9020,7 +9058,6 @@ packages:
     dependencies:
       '@babel/types': 7.23.4
       entities: 4.5.0
-    dev: false
 
   /@svgr/plugin-jsx@4.3.3:
     resolution: {integrity: sha512-cLOCSpNWQnDB1/v+SUENHH7a0XY09bfuMKdq9+gYvtuwzC2rU4I0wKGFEp1i24holdQdwodCtDQdFtJiTCWc+w==}
@@ -9074,7 +9111,6 @@ packages:
       svg-parser: 2.0.4
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@svgr/plugin-prettier@6.5.1(@svgr/core@6.5.1):
     resolution: {integrity: sha512-nJTtamrxQjsHcP9vb5PVBiaVW9kEtAt0hzGK8e4+zbaIUHq6RPeR8+SvYaAbIIn1TExFszFuZSz1U08UX7kz7w==}
@@ -9741,7 +9777,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.5:
     resolution: {integrity: sha512-SbcrWzkKBw2cdwRTwQAswfpB9g9LJWfjtUeW/jvNwbhC8cpmmNYVePa+ncbUe0rGTQ7G3Ff6mYUN2VMfLVr+Sg==}
     dependencies:
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       hoist-non-react-statics: 3.3.2
     dev: false
 
@@ -9971,11 +10007,18 @@ packages:
   /@types/react-transition-group@4.4.9:
     resolution: {integrity: sha512-ZVNmWumUIh5NhH8aMD9CR2hdW0fNuYInlocZHaZ+dgk/1K49j1w/HoAuK1ki+pgscQrOFRTlXeoURtuzEkV3dg==}
     dependencies:
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
     dev: false
 
   /@types/react@18.2.38:
     resolution: {integrity: sha512-cBBXHzuPtQK6wNthuVMV6IjHAFkdl/FOPFIlkd81/Cd1+IqkHu/A+w4g43kaQQoYHik/ruaQBDL72HyCy1vuMw==}
+    dependencies:
+      '@types/prop-types': 15.7.11
+      '@types/scheduler': 0.16.8
+      csstype: 3.1.2
+
+  /@types/react@18.2.39:
+    resolution: {integrity: sha512-Oiw+ppED6IremMInLV4HXGbfbG6GyziY3kqAwJYOR0PNbkYDmLWQA3a95EhdSmamsvbkJN96ZNN+YD+fGjzSBA==}
     dependencies:
       '@types/prop-types': 15.7.11
       '@types/scheduler': 0.16.8
@@ -14272,7 +14315,6 @@ packages:
       parse-json: 5.2.0
       path-type: 4.0.0
       typescript: 5.3.2
-    dev: false
 
   /country-locale-map@1.8.15:
     resolution: {integrity: sha512-eIaFeCXIj3FMLheoxB+PhaDT0J7OG8qFYTMn/eytLTOnMgk/Bs1rC3XhHpgQz+eP+bSsCkdso58nIgQlRNd/6A==}
@@ -15555,7 +15597,6 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.6.2
-    dev: false
 
   /dot-prop@3.0.0:
     resolution: {integrity: sha512-k4ELWeEU3uCcwub7+dWydqQBRjAjkV9L33HjVRG5Xo2QybI6ja/v+4W73SRi8ubCqJz0l9XsTP1NbewfyqaSlw==}
@@ -23070,7 +23111,6 @@ packages:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
       tslib: 2.6.2
-    dev: false
 
   /lowercase-keys@1.0.1:
     resolution: {integrity: sha512-G2Lj61tXDnVFFOi8VZds+SoQjtQC3dgokKdDG2mTm1tx4m50NUHBOZSBwQQHyy0V12A0JTG4icfZQH+xPyh8VA==}
@@ -23924,7 +23964,6 @@ packages:
     dependencies:
       lower-case: 2.0.2
       tslib: 2.6.2
-    dev: false
 
   /node-dir@0.1.17:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
@@ -27428,7 +27467,7 @@ packages:
       prop-types: ^15.5
       react: ^15.6 || ^16
     dependencies:
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       fscreen: 1.2.0
       prop-types: 15.8.1
       react: 18.2.0
@@ -27828,7 +27867,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-router: 6.20.0(react@18.2.0)
-    dev: false
 
   /react-router@4.3.1(react@18.2.0):
     resolution: {integrity: sha512-yrvL8AogDh2X42Dt9iknk4wF4V8bWREPirFfS9gLU1huk6qK41sg7Z/1S81jjTrGHxa3B8R3J6xIkDAA6CVarg==}
@@ -27870,7 +27908,6 @@ packages:
     dependencies:
       '@remix-run/router': 1.13.0
       react: 18.2.0
-    dev: false
 
   /react-scripts@3.2.0(eslint@8.54.0)(react@18.2.0)(typescript@5.3.2):
     resolution: {integrity: sha512-6LzuKbE2B4eFQG6i1FnTScn9HDcWBfXXnOwW9xKFPJ/E3rK8i1ufbOZ0ocKyRPxJAKdN7iqg3i7lt0+oxkSVOA==}
@@ -29125,7 +29162,7 @@ packages:
       terser: 5.24.0
     dev: false
 
-  /rollup-plugin-typescript2@0.18.1(rollup@0.67.4)(typescript@4.9.5):
+  /rollup-plugin-typescript2@0.18.1(rollup@0.67.4)(typescript@5.3.2):
     resolution: {integrity: sha512-aR2m5NCCAUV/KpcKgCWX6Giy8rTko9z92b5t0NX9eZyjOftCvcdDFa1C9Ze/9yp590hnRymr5hG0O9SAXi1oUg==}
     peerDependencies:
       rollup: '>=0.50.0'
@@ -29136,7 +29173,7 @@ packages:
       rollup: 0.67.4
       rollup-pluginutils: 2.3.3
       tslib: 1.9.3
-      typescript: 4.9.5
+      typescript: 5.3.2
     dev: true
 
   /rollup-pluginutils@2.3.3:
@@ -29915,7 +29952,6 @@ packages:
     dependencies:
       dot-case: 3.0.4
       tslib: 2.6.2
-    dev: false
 
   /snapdragon-node@2.1.1:
     resolution: {integrity: sha512-O27l4xaMYt/RSQ5TR3vpWCAB5Kb/czIcqUFOM/C4fYcLnbZUc1PkjTAMjof2pBWaSTwOUd6qUHcFGVGj7aIwnw==}
@@ -31422,17 +31458,17 @@ packages:
     hasBin: true
     dev: true
 
-  /tslint-config-standard@8.0.1(tslint@5.20.1)(typescript@4.9.5):
+  /tslint-config-standard@8.0.1(tslint@5.20.1)(typescript@5.3.2):
     resolution: {integrity: sha512-OWG+NblgjQlVuUS/Dmq3ax2v5QDZwRx4L0kEuDi7qFY9UI6RJhhNfoCV1qI4el8Fw1c5a5BTrjQJP0/jhGXY/Q==}
     deprecated: 'TSLint is deprecated, please move to ESLint: https://github.com/blakeembrey/tslint-config-standard/issues/61'
     dependencies:
-      tslint-eslint-rules: 5.4.0(tslint@5.20.1)(typescript@4.9.5)
+      tslint-eslint-rules: 5.4.0(tslint@5.20.1)(typescript@5.3.2)
     transitivePeerDependencies:
       - tslint
       - typescript
     dev: true
 
-  /tslint-eslint-rules@5.4.0(tslint@5.20.1)(typescript@4.9.5):
+  /tslint-eslint-rules@5.4.0(tslint@5.20.1)(typescript@5.3.2):
     resolution: {integrity: sha512-WlSXE+J2vY/VPgIcqQuijMQiel+UtmXS+4nvK4ZzlDiqBfXse8FAvkNnTcYhnQyOTW5KFM+uRRGXxYhFpuBc6w==}
     peerDependencies:
       tslint: ^5.0.0
@@ -31440,12 +31476,12 @@ packages:
     dependencies:
       doctrine: 0.7.2
       tslib: 1.9.0
-      tslint: 5.20.1(typescript@4.9.5)
-      tsutils: 3.21.0(typescript@4.9.5)
-      typescript: 4.9.5
+      tslint: 5.20.1(typescript@5.3.2)
+      tsutils: 3.21.0(typescript@5.3.2)
+      typescript: 5.3.2
     dev: true
 
-  /tslint@5.20.1(typescript@4.9.5):
+  /tslint@5.20.1(typescript@5.3.2):
     resolution: {integrity: sha512-EcMxhzCFt8k+/UP5r8waCf/lzmeSyVlqxqMEDQE7rWYiQky8KpIBz1JAoYXfROHrPZ1XXd43q8yQnULOLiBRQg==}
     engines: {node: '>=4.8.0'}
     hasBin: true
@@ -31464,17 +31500,17 @@ packages:
       resolve: 1.22.8
       semver: 5.7.2
       tslib: 1.14.1
-      tsutils: 2.29.0(typescript@4.9.5)
-      typescript: 4.9.5
+      tsutils: 2.29.0(typescript@5.3.2)
+      typescript: 5.3.2
     dev: true
 
-  /tsutils@2.29.0(typescript@4.9.5):
+  /tsutils@2.29.0(typescript@5.3.2):
     resolution: {integrity: sha512-g5JVHCIJwzfISaXpXE1qvNalca5Jwob6FjI4AoPlqMusJ6ftFE7IkkFoMhVLRgK+4Kx3gkzb8UZK5t5yTTvEmA==}
     peerDependencies:
       typescript: '>=2.1.0 || >=2.1.0-dev || >=2.2.0-dev || >=2.3.0-dev || >=2.4.0-dev || >=2.5.0-dev || >=2.6.0-dev || >=2.7.0-dev || >=2.8.0-dev || >=2.9.0-dev || >= 3.0.0-dev || >= 3.1.0-dev'
     dependencies:
       tslib: 1.14.1
-      typescript: 4.9.5
+      typescript: 5.3.2
     dev: true
 
   /tsutils@3.21.0(typescript@4.9.5):
@@ -31485,6 +31521,7 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 4.9.5
+    dev: false
 
   /tsutils@3.21.0(typescript@5.3.2):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
@@ -31494,7 +31531,6 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 5.3.2
-    dev: false
 
   /tty-browserify@0.0.0:
     resolution: {integrity: sha512-JVa5ijo+j/sOoHGjw0sxw734b1LhBkQ3bvUGNdxnVXDCX81Yx7TFgnZygxrIIWn23hbfTaMYLwRmAxFyDuFmIw==}
@@ -31790,7 +31826,7 @@ packages:
       react: '>=15.0.0'
     dependencies:
       '@babel/runtime': 7.23.4
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       invariant: 2.2.4
       react: 18.2.0
       react-lifecycles-compat: 3.0.4
@@ -32378,7 +32414,6 @@ packages:
       - rollup
       - supports-color
       - typescript
-    dev: false
 
   /vite@5.0.2(@types/node@18.18.13)(sass@1.69.5):
     resolution: {integrity: sha512-6CCq1CAJCNM1ya2ZZA7+jS2KgnhbzvxakmlIjN24cF/PXhRMzpM/z8QgsVJA/Dm5fWUWnVEsmtBoMhmerPxT0g==}

@@ -4,15 +4,12 @@ import {UserInfoResponse, AuthEventHandler} from "@alchemy/auth";
 import {DashboardMenu} from "@alchemy/react-ps";
 import {oauthClient} from "../lib/api-client";
 import config from "../lib/config";
-import {BrowserRouter as Router, Route, Switch, useHistory} from "react-router-dom";
 import AnalyticsRouterProvider from "./anaytics/AnalyticsRouterProvider";
-import OAuthRedirect from "./OAuthRedirect";
-import PublicationIndex from "./index/PublicationIndex";
-import EmbeddedAsset from "./EmbeddedAsset";
-import PublicationRoute from "./routes/PublicationRoute";
-import AssetRoute from "./routes/AssetRoute";
-import ErrorPage from "./ErrorPage";
 import {useMatomo} from "@jonkoops/matomo-tracker-react";
+import AuthorizationCodePage from "@alchemy/auth/src/components/AuthorizationCodePage.tsx";
+import RouterProvider from "@alchemy/navigation/src/RouterProvider.tsx";
+import {routes} from "../routes.ts";
+import AnalyticsRouteProxy from "@alchemy/navigation/src/proxy/AnalyticsRouteProxy.tsx";
 
 
 type Props = {};
@@ -51,7 +48,7 @@ export default function App({}: Props) {
 
     const css = config.globalCSS;
 
-    return <Router>
+    return <>
         <AnalyticsRouterProvider>
             {css && <style>
                 {css}
@@ -59,33 +56,16 @@ export default function App({}: Props) {
             {config.displayServicesMenu && <DashboardMenu
                 dashboardBaseUrl={config.dashboardBaseUrl}
             />}
-            <Switch>
-                <Route path="/auth" component={OAuthR}/>
-                {!config.disableIndexPage && <Route path="/" exact component={PublicationIndex} />}
-                <Route path="/embed/:asset" exact render={({match: {params}}) => <EmbeddedAsset
-                    id={params.asset}
-                />}/>
-                <Route path="/:publication" exact render={props => <PublicationRoute
-                    {...props}
-                    username={user?.preferred_username}
-                />}/>
-                <Route path="/:publication/:asset" exact render={props => <AssetRoute
-                    {...props}
-                    username={user?.preferred_username}
-                />}/>
-                <Route path="/" exact render={() => <ErrorPage
-                    title={'Not found'}
-                    code={404}
-                />}/>
-            </Switch>
+            <RouterProvider
+                routes={routes}
+                RouteProxyComponent={AnalyticsRouteProxy}
+            />
         </AnalyticsRouterProvider>
-    </Router>
+    </>
 }
 
 const OAuthR = (props: {}) => {
-    const history = useHistory();
-
-    return <OAuthRedirect
+    return <AuthorizationCodePage
         {...props as any}
         oauthClient={oauthClient}
         successHandler={() => {
