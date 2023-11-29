@@ -2,18 +2,24 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
-COPY ./lib/js /lib/js
-COPY ./databox/client .
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json tsconfig.base.json ./
+COPY --chown=node:node ./lib/js ./lib/js
+COPY --chown=node:node ./databox/client ./databox/client
 
-RUN yarn install \
-    && mv public/index.tpl.html public/index.html \
-    && yarn run build
+USER node
+
+WORKDIR /srv/workspace/databox/client
+
+RUN pnpm install \
+    && mv public/index.tpl.html public/index.html
+
+RUN pnpm build
 
 ############
 
 FROM nginx:1.17.6-alpine as client-nginx
 
-COPY --from=client-build /srv/app/build /var/app
+COPY --from=client-build /srv/workspace/databox/client/build /var/app
 COPY ./databox/client/docker/nginx/conf.d /etc/nginx/conf.d
 
 RUN apk add --no-cache libstdc++ \
