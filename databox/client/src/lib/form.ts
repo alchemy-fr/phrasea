@@ -3,8 +3,7 @@ import {
     UseFormGetValues,
     UseFormSetError,
 } from 'react-hook-form/dist/types/form';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
-import {Path} from 'react-hook-form';
+import {Path, FieldValues} from 'react-hook-form';
 
 type Violation = {
     code: number | null;
