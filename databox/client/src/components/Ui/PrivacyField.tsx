@@ -1,18 +1,25 @@
-import React, {useState} from "react";
+import {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
-import {Checkbox, FormControl, FormControlLabel, InputLabel, ListItemText, Select} from "@mui/material";
-import {SelectChangeEvent} from "@mui/material/Select/SelectInput";
-import {useController} from "react-hook-form";
-import {Control} from "react-hook-form/dist/types/form";
-import {FieldPath} from "react-hook-form/dist/types";
-import {FieldValues} from "react-hook-form/dist/types/fields";
-import {useTranslation} from "react-i18next";
+import {
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    InputLabel,
+    ListItemText,
+    Select,
+} from '@mui/material';
+import {SelectChangeEvent} from '@mui/material/Select/SelectInput';
+import {useController} from 'react-hook-form';
+import {Control} from 'react-hook-form/dist/types/form';
+import {FieldPath} from 'react-hook-form/dist/types';
+import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {useTranslation} from 'react-i18next';
 
-const choices: { [key: string]: {label: string; helper?: string} } = {
+const choices: {[key: string]: {label: string; helper?: string}} = {
     secret: {label: 'Secret'},
     private: {label: 'Private', helper: 'Users can request access'},
     public: {label: 'Public'},
-}
+};
 
 function getValue(value: string, workspace: boolean, auth: boolean): number {
     switch (value) {
@@ -22,7 +29,7 @@ function getValue(value: string, workspace: boolean, auth: boolean): number {
         case 'private':
             return workspace ? 1 : 3;
         case 'public':
-            return workspace ? 2 : (auth ? 4 : 5);
+            return workspace ? 2 : auth ? 4 : 5;
     }
 }
 
@@ -44,9 +51,8 @@ function getFields(value: number): [string, boolean, boolean] {
     }
 }
 
-
 type Props<TFieldValues extends FieldValues> = {
-    control: Control<TFieldValues>,
+    control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
 };
 
@@ -80,49 +86,57 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
         const v = e.target.value;
         setPrivacy(v);
         onChange(getValue(v, workspaceOnly, auth));
-    }
-    const handleWSOnlyChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    };
+    const handleWSOnlyChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ): void => {
         setWorkspaceOnly(e.target.checked);
         onChange(getValue(privacy, e.target.checked, auth));
-    }
+    };
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setAuth(e.target.checked);
         onChange(getValue(privacy, workspaceOnly, e.target.checked));
-    }
+    };
 
     const label = t('form.privacy.label', 'Privacy');
-    return <FormControl>
-        <InputLabel>{label}</InputLabel>
-        <Select<string>
-            label={label}
-            value={privacy}
-            onChange={handlePChange}
-        >
-            {Object.keys(choices).map((k) => <MenuItem
-                key={k}
-                value={k}
+    return (
+        <FormControl>
+            <InputLabel>{label}</InputLabel>
+            <Select<string>
+                label={label}
+                value={privacy}
+                onChange={handlePChange}
             >
-                <ListItemText
-                    primary={choices[k].label}
-                    secondary={choices[k].helper}
+                {Object.keys(choices).map(k => (
+                    <MenuItem key={k} value={k}>
+                        <ListItemText
+                            primary={choices[k].label}
+                            secondary={choices[k].helper}
+                        />
+                    </MenuItem>
+                ))}
+            </Select>
+            {['private', 'public'].includes(privacy) && (
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={workspaceOnly}
+                            onChange={handleWSOnlyChange}
+                        />
+                    }
+                    label={`Only visible to workspace`}
+                    labelPlacement="end"
                 />
-            </MenuItem>)}
-        </Select>
-        {['private', 'public'].includes(privacy) && <FormControlLabel
-            control={<Checkbox
-                checked={workspaceOnly}
-                onChange={handleWSOnlyChange}
-            />}
-            label={`Only visible to workspace`}
-            labelPlacement="end"
-        />}
-        {privacy === 'public' && !workspaceOnly && <FormControlLabel
-            control={<Checkbox
-                checked={auth}
-                onChange={handleAuthChange}
-            />}
-            label={`User must be authenticated`}
-            labelPlacement="end"
-        />}
-    </FormControl>
+            )}
+            {privacy === 'public' && !workspaceOnly && (
+                <FormControlLabel
+                    control={
+                        <Checkbox checked={auth} onChange={handleAuthChange} />
+                    }
+                    label={`User must be authenticated`}
+                    labelPlacement="end"
+                />
+            )}
+        </FormControl>
+    );
 }

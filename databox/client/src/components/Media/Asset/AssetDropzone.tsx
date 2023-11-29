@@ -1,31 +1,36 @@
-import React, {PropsWithChildren, useCallback, useContext, useEffect} from "react";
-import {useDropzone} from "react-dropzone";
-import {UserContext} from "../../Security/UserContext";
-import UploadModal from "../../Upload/UploadModal";
-import {Backdrop, Typography} from "@mui/material";
-import {retrieveImageFromClipboardAsBlob} from "../../../lib/ImagePaste";
-import {useModals} from "../../../hooks/useModalStack";
-import {useAccept} from "../../Upload/UploadDropzone";
+import {PropsWithChildren, useCallback, useContext, useEffect} from 'react';
+import {useDropzone} from 'react-dropzone';
+import {UserContext} from '../../Security/UserContext';
+import UploadModal from '../../Upload/UploadModal';
+import {Backdrop, Typography} from '@mui/material';
+import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
+import {useModals} from '../../../hooks/useModalStack';
+import {useAccept} from '../../Upload/UploadDropzone';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useContext(UserContext);
     const {openModal} = useModals();
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const authenticated = Boolean(userContext.user);
-        if (!authenticated) {
-            window.alert('You must be authenticated in order to upload new files');
-            return;
-        }
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            const authenticated = Boolean(userContext.user);
+            if (!authenticated) {
+                window.alert(
+                    'You must be authenticated in order to upload new files'
+                );
+                return;
+            }
 
-        openModal(UploadModal, {
-            files: acceptedFiles,
-            userId: userContext.user!.id,
-        });
-    }, [userContext]);
+            openModal(UploadModal, {
+                files: acceptedFiles,
+                userId: userContext.user!.id,
+            });
+        },
+        [userContext]
+    );
 
     const onPaste = (e: any) => {
-        retrieveImageFromClipboardAsBlob(e, (imageBlob) => {
+        retrieveImageFromClipboardAsBlob(e, imageBlob => {
             openModal(UploadModal, {
                 files: [imageBlob],
                 userId: userContext.user!.id,
@@ -38,7 +43,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
 
         return () => {
             window.removeEventListener('paste', onPaste);
-        }
+        };
     }, []);
 
     const accept = useAccept();
@@ -50,17 +55,23 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         accept,
     });
 
-    return <div {...getRootProps()}>
-        <input {...getInputProps()} />
-        {isDragActive && <Backdrop
-            sx={(theme) => ({
-                zIndex: theme.zIndex.drawer + 1,
-                color: theme.palette.common.white,
-            })}
-            open={true}
-        >
-            <Typography typography={'h2'}>Drop the files here ...</Typography>
-        </Backdrop>}
-        {children}
-    </div>
+    return (
+        <div {...getRootProps()}>
+            <input {...getInputProps()} />
+            {isDragActive && (
+                <Backdrop
+                    sx={theme => ({
+                        zIndex: theme.zIndex.drawer + 1,
+                        color: theme.palette.common.white,
+                    })}
+                    open={true}
+                >
+                    <Typography typography={'h2'}>
+                        Drop the files here ...
+                    </Typography>
+                </Backdrop>
+            )}
+            {children}
+        </div>
+    );
 }

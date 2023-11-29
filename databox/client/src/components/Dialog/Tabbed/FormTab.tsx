@@ -1,14 +1,14 @@
-import {Button, Container, LinearProgress} from "@mui/material";
-import React, {PropsWithChildren, ReactNode} from "react";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import {LoadingButton} from "@mui/lab";
-import SaveIcon from "@mui/icons-material/Save";
-import RemoteErrors from "../../Form/RemoteErrors";
+import {Button, Container, LinearProgress} from '@mui/material';
+import {PropsWithChildren, ReactNode} from 'react';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import {LoadingButton} from '@mui/lab';
+import SaveIcon from '@mui/icons-material/Save';
+import RemoteErrors from '../../Form/RemoteErrors';
 import {useTranslation} from 'react-i18next';
-import {useNavigationPrompt} from "../../../hooks/useNavigationPrompt";
+import {useNavigationPrompt} from '../../../hooks/useNavigationPrompt';
 
-type Props<T extends object> = PropsWithChildren<{
+type Props = PropsWithChildren<{
     loading: boolean;
     formId?: string;
     onSave?: () => void;
@@ -20,10 +20,13 @@ type Props<T extends object> = PropsWithChildren<{
 }>;
 
 export function useDirtyFormPrompt(isDirty: boolean) {
-    useNavigationPrompt('Are you sure you want to dismiss unsaved changes?', isDirty);
+    useNavigationPrompt(
+        'Are you sure you want to dismiss unsaved changes?',
+        isDirty
+    );
 }
 
-export default function FormTab<T extends object>({
+export default function FormTab({
     formId,
     onSave,
     errors,
@@ -33,45 +36,47 @@ export default function FormTab<T extends object>({
     children,
     onClose,
     minHeight,
-}: Props<T>) {
+}: Props) {
     const {t} = useTranslation();
     const progressHeight = 3;
 
-    return <>
-        <DialogContent dividers>
-            <Container sx={{
-                pt: 2,
-                minHeight,
-            }}>
-                {children}
-                <RemoteErrors errors={errors}/>
-            </Container>
-        </DialogContent>
-        {loading && <LinearProgress
-            style={{
-                height: progressHeight,
-                marginBottom: -progressHeight
-            }}
-        />}
-        <DialogActions>
-            <Button
-                onClick={onClose}
-                color={'warning'}
-                disabled={loading}
-            >
-                {t('dialog.cancel', 'Cancel')}
-            </Button>
-            <LoadingButton
-                startIcon={submitIcon || <SaveIcon/>}
-                type={formId ? 'submit' : 'button'}
-                form={formId}
-                loading={loading}
-                onClick={onSave}
-                color={'primary'}
-                disabled={loading}
-            >
-                {submitLabel || t('dialog.save', 'Save')}
-            </LoadingButton>
-        </DialogActions>
-    </>
+    return (
+        <>
+            <DialogContent dividers>
+                <Container
+                    sx={{
+                        pt: 2,
+                        minHeight,
+                    }}
+                >
+                    {children}
+                    <RemoteErrors errors={errors} />
+                </Container>
+            </DialogContent>
+            {loading && (
+                <LinearProgress
+                    style={{
+                        height: progressHeight,
+                        marginBottom: -progressHeight,
+                    }}
+                />
+            )}
+            <DialogActions>
+                <Button onClick={onClose} color={'warning'} disabled={loading}>
+                    {t('dialog.cancel', 'Cancel')}
+                </Button>
+                <LoadingButton
+                    startIcon={submitIcon || <SaveIcon />}
+                    type={formId ? 'submit' : 'button'}
+                    form={formId}
+                    loading={loading}
+                    onClick={onSave}
+                    color={'primary'}
+                    disabled={loading}
+                >
+                    {submitLabel || t('dialog.save', 'Save')}
+                </LoadingButton>
+            </DialogActions>
+        </>
+    );
 }

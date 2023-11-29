@@ -1,9 +1,12 @@
-import React from 'react';
-import {Box, Chip} from "@mui/material";
-import {FilterEntry, Filters, FilterType} from "./Filter";
-import {extractLabelValueFromKey, FacetType, ResolvedBucketValue} from "../Asset/Facets";
-import {AttributeType} from "../../../api/attributes";
-import {DateFormats} from "../Asset/Attribute/types/DateType";
+import {Box, Chip} from '@mui/material';
+import {FilterEntry, Filters, FilterType} from './Filter';
+import {
+    extractLabelValueFromKey,
+    FacetType,
+    ResolvedBucketValue,
+} from '../Asset/Facets';
+import {AttributeType} from '../../../api/attributes';
+import {DateFormats} from '../Asset/Attribute/types/DateType';
 
 type FilterProps = {
     onInvert: () => void;
@@ -13,7 +16,11 @@ type FilterProps = {
 function truncate(value: string, maxLength: number): string {
     if (value.length > maxLength) {
         const pad = maxLength / 2;
-        return value.substring(0, pad - 1) + '…' + value.substring(value.length - pad);
+        return (
+            value.substring(0, pad - 1) +
+            '…' +
+            value.substring(value.length - pad)
+        );
     }
 
     return value;
@@ -32,9 +39,15 @@ function formatFilterTitle(
     switch (widget) {
         default:
         case FacetType.Text:
-            return `${title} = "${value.map(v => extractLabelValueFromKey(v, type).label).join('" or "')}"`;
+            return `${title} = "${value
+                .map(v => extractLabelValueFromKey(v, type).label)
+                .join('" or "')}"`;
         case FacetType.DateRange:
-            return `${title} between ${extractLabelValueFromKey(value[0], type, DateFormats.Long).label} and ${extractLabelValueFromKey(value[1], type, DateFormats.Long).label}`;
+            return `${title} between ${
+                extractLabelValueFromKey(value[0], type, DateFormats.Long).label
+            } and ${
+                extractLabelValueFromKey(value[1], type, DateFormats.Long).label
+            }`;
     }
 }
 
@@ -54,32 +67,34 @@ function formatFilterLabel(
 
     switch (widget) {
         default:
-            return value.map(s => truncate(extractLabelValueFromKey(s, type).label, 15)).join(', ');
+            return value
+                .map(s => truncate(extractLabelValueFromKey(s, type).label, 15))
+                .join(', ');
         case FacetType.DateRange:
-            return `${extractLabelValueFromKey(value[0], type, DateFormats.Short).label} - ${extractLabelValueFromKey(value[1], type, DateFormats.Short).label}`;
+            return `${
+                extractLabelValueFromKey(value[0], type, DateFormats.Short)
+                    .label
+            } - ${
+                extractLabelValueFromKey(value[1], type, DateFormats.Short)
+                    .label
+            }`;
     }
 }
 
-function Filter({
-    t,
-    x,
-    i,
-    v,
-    w,
-    onInvert,
-    onDelete,
-}: FilterProps) {
-    return <Chip
-        sx={{
-            mb: 1,
-            mr: 1,
-        }}
-        title={`${i ? 'Not ' : ''}${formatFilterTitle(w, x, t, v)}`}
-        label={`${i ? 'Not ' : ''}${formatFilterLabel(w, x, t, v)}`}
-        onDelete={onDelete}
-        onClick={onInvert}
-        color={i ? 'error' : 'primary'}
-    />
+function Filter({t, x, i, v, w, onInvert, onDelete}: FilterProps) {
+    return (
+        <Chip
+            sx={{
+                mb: 1,
+                mr: 1,
+            }}
+            title={`${i ? 'Not ' : ''}${formatFilterTitle(w, x, t, v)}`}
+            label={`${i ? 'Not ' : ''}${formatFilterLabel(w, x, t, v)}`}
+            onDelete={onDelete}
+            onClick={onInvert}
+            color={i ? 'error' : 'primary'}
+        />
+    );
 }
 
 type Props = {
@@ -88,22 +103,24 @@ type Props = {
     onDelete: (key: number) => void;
 };
 
-export default function SearchFilters({
-    filters,
-    onDelete,
-    onInvert,
-}: Props) {
-    return <Box sx={{
-        mr: -1,
-    }}>
-        {filters.map((f, i) => {
-            return <React.Fragment key={i}>
-                <Filter
-                    {...f}
-                    onDelete={() => onDelete(i)}
-                    onInvert={() => onInvert(i)}
-                />
-            </React.Fragment>
-        })}
-    </Box>
+export default function SearchFilters({filters, onDelete, onInvert}: Props) {
+    return (
+        <Box
+            sx={{
+                mr: -1,
+            }}
+        >
+            {filters.map((f, i) => {
+                return (
+                    <React.Fragment key={i}>
+                        <Filter
+                            {...f}
+                            onDelete={() => onDelete(i)}
+                            onInvert={() => onInvert(i)}
+                        />
+                    </React.Fragment>
+                );
+            })}
+        </Box>
+    );
 }

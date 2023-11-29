@@ -1,5 +1,5 @@
-import config from "../config";
-import {createHttpClient} from "@alchemy/auth";
+import config from '../config';
+import {createHttpClient} from '@alchemy/auth';
 
 const uploaderClient = createHttpClient(config.uploaderApiBaseUrl);
 

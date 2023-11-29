@@ -1,12 +1,15 @@
-import apiClient from "./api-client";
-import {Ace} from "../types";
+import apiClient from './api-client';
+import {Ace} from '../types';
 
-export async function getAces(objectType: string, objectId: string): Promise<Ace[]> {
+export async function getAces(
+    objectType: string,
+    objectId: string
+): Promise<Ace[]> {
     const res = await apiClient.get(`/permissions/aces`, {
         params: {
             objectType,
             objectId,
-        }
+        },
     });
 
     return res.data;
@@ -40,6 +43,6 @@ export async function deleteAce(
             userId,
             objectType,
             objectId,
-        }
+        },
     });
 }

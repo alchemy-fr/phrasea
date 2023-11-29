@@ -1,15 +1,22 @@
-import React from 'react';
-import {RenditionClass, Workspace} from "../../../types";
-import {InputLabel, ListItemText, TextField} from "@mui/material";
-import FormRow from "../../Form/FormRow";
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps} from "./DefinitionManager";
+import {RenditionClass, Workspace} from '../../../types';
+import {InputLabel, ListItemText, TextField} from '@mui/material';
+import FormRow from '../../Form/FormRow';
+import DefinitionManager, {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {useForm} from "react-hook-form";
-import FormFieldErrors from "../../Form/FormFieldErrors";
-import {deleteRenditionClass, getRenditionClasses, postRenditionClass, putRenditionClass} from "../../../api/rendition";
-import CheckboxWidget from "../../Form/CheckboxWidget";
-import RenditionClassPermissions from "./RenditionClassPermissions";
-import {useDirtyFormPrompt} from "../Tabbed/FormTab";
+import {useForm} from 'react-hook-form';
+import FormFieldErrors from '../../Form/FormFieldErrors';
+import {
+    deleteRenditionClass,
+    getRenditionClasses,
+    postRenditionClass,
+    putRenditionClass,
+} from '../../../api/rendition';
+import CheckboxWidget from '../../Form/CheckboxWidget';
+import RenditionClassPermissions from './RenditionClassPermissions';
+import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 
 function Item({
     data,
@@ -25,7 +32,7 @@ function Item({
         setError,
         watch,
         control,
-        formState: {errors, isDirty}
+        formState: {errors, isDirty},
     } = useForm<any>({
         defaultValues: data,
     });
@@ -33,48 +40,44 @@ function Item({
 
     const isPublic = watch('public');
 
-    return <>
-        <form
-            id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}>
-            <FormRow>
-                <TextField
-                    label={t('form.rendition_class.name.label', 'Name')}
-                    {...register('name')}
-                    disabled={submitting}
-                />
-                <FormFieldErrors
-                    field={'name'}
-                    errors={errors}
-                />
-            </FormRow>
-            <FormRow>
-                <CheckboxWidget
-                    label={t('form.rendition_class.public.label', 'Public')}
-                    control={control}
-                    name={'public'}
-                    disabled={submitting}
-                />
-                <FormFieldErrors
-                    field={'public'}
-                    errors={errors}
-                />
-            </FormRow>
-        </form>
-        {data.id && !isPublic && <FormRow>
-            <InputLabel>{t('form.permissions.label', 'Permissions')}</InputLabel>
-            <RenditionClassPermissions
-                classId={data.id}
-                workspaceId={(data.workspace as Workspace).id}
-            />
-        </FormRow>}
-    </>
+    return (
+        <>
+            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+                <FormRow>
+                    <TextField
+                        label={t('form.rendition_class.name.label', 'Name')}
+                        {...register('name')}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'name'} errors={errors} />
+                </FormRow>
+                <FormRow>
+                    <CheckboxWidget
+                        label={t('form.rendition_class.public.label', 'Public')}
+                        control={control}
+                        name={'public'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'public'} errors={errors} />
+                </FormRow>
+            </form>
+            {data.id && !isPublic && (
+                <FormRow>
+                    <InputLabel>
+                        {t('form.permissions.label', 'Permissions')}
+                    </InputLabel>
+                    <RenditionClassPermissions
+                        classId={data.id}
+                        workspaceId={(data.workspace as Workspace).id}
+                    />
+                </FormRow>
+            )}
+        </>
+    );
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionClass>) {
-    return <ListItemText
-        primary={data.name}
-    />
+    return <ListItemText primary={data.name} />;
 }
 
 type Props = {
@@ -87,7 +90,7 @@ function createNewItem(): Partial<RenditionClass> {
     return {
         name: '',
         public: true,
-    }
+    };
 }
 
 export default function RenditionClassManager({
@@ -106,21 +109,23 @@ export default function RenditionClassManager({
         } else {
             return await postRenditionClass({
                 ...data,
-                workspace: `/workspaces/${workspace.id}`
-            })
+                workspace: `/workspaces/${workspace.id}`,
+            });
         }
-    }
+    };
 
-    return <DefinitionManager
-        itemComponent={Item}
-        listComponent={ListItem}
-        load={() => getRenditionClasses(workspace.id).then(r => r.result)}
-        workspaceId={workspace.id}
-        minHeight={minHeight}
-        onClose={onClose}
-        createNewItem={createNewItem}
-        newLabel={t('rendition_class.new.label', 'New class')}
-        handleSave={handleSave}
-        handleDelete={deleteRenditionClass}
-    />
+    return (
+        <DefinitionManager
+            itemComponent={Item}
+            listComponent={ListItem}
+            load={() => getRenditionClasses(workspace.id).then(r => r.result)}
+            workspaceId={workspace.id}
+            minHeight={minHeight}
+            onClose={onClose}
+            createNewItem={createNewItem}
+            newLabel={t('rendition_class.new.label', 'New class')}
+            handleSave={handleSave}
+            handleDelete={deleteRenditionClass}
+        />
+    );
 }

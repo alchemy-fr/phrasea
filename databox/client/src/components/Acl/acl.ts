@@ -11,7 +11,7 @@ export enum AclPermission {
     ALL = 'ALL',
 }
 
-export const aclPermissions: { [key: string]: number } = {
+export const aclPermissions: {[key: string]: number} = {
     [AclPermission.VIEW]: 1,
     // [AclPermission.SHARE]: 256,
     [AclPermission.CREATE]: 2,
@@ -21,4 +21,4 @@ export const aclPermissions: { [key: string]: number } = {
     [AclPermission.OPERATOR]: 32,
     // [AclPermission.MASTER]: 64,
     [AclPermission.OWNER]: 128,
-}
+};

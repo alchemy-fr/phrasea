@@ -1,5 +1,11 @@
-import React from 'react';
-import {FormControlLabel, FormGroup, Grid, Input, InputAdornment, Switch} from "@mui/material";
+import {
+    FormControlLabel,
+    FormGroup,
+    Grid,
+    Input,
+    InputAdornment,
+    Switch,
+} from '@mui/material';
 
 type Props = {
     value: boolean;
@@ -16,39 +22,41 @@ export default function ToggleWithLimit({
     setLimit,
     limit,
     label,
-    unit
+    unit,
 }: Props) {
+    return (
+        <Grid container spacing={2} alignItems="center">
+            <Grid item>
+                <FormGroup>
+                    <FormControlLabel
+                        control={<Switch checked={value} onChange={toggle} />}
+                        label={label}
+                    />
+                </FormGroup>
+            </Grid>
 
-    return <Grid container spacing={2} alignItems="center">
-        <Grid item>
-            <FormGroup>
-                <FormControlLabel
-                    control={<Switch
-                        checked={value}
-                        onChange={toggle}
-                    />}
-                    label={label}
-                />
-            </FormGroup>
+            {value && (
+                <Grid item>
+                    <Input
+                        onChange={e => setLimit(parseInt(e.target.value))}
+                        value={limit}
+                        type={'number'}
+                        inputProps={{
+                            min: 1,
+                        }}
+                        sx={theme => ({
+                            input: {
+                                width: theme.spacing(5),
+                            },
+                        })}
+                        endAdornment={
+                            <InputAdornment position={'end'}>
+                                {unit}
+                            </InputAdornment>
+                        }
+                    />
+                </Grid>
+            )}
         </Grid>
-
-        {value && <Grid item>
-            <Input
-                onChange={(e) => setLimit(parseInt(e.target.value))}
-                value={limit}
-                type={'number'}
-                inputProps={{
-                    min: 1
-                }}
-                sx={theme => ({
-                    input: {
-                        width: theme.spacing(5)
-                    }
-                })}
-                endAdornment={<InputAdornment position={'end'}>
-                    {unit}
-                </InputAdornment>}
-            />
-        </Grid>}
-    </Grid>
+    );
 }

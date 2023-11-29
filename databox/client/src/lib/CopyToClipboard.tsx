@@ -1,7 +1,6 @@
-import copy from "clipboard-copy";
-import * as React from "react";
-import {Tooltip, TooltipProps} from "@mui/material";
-
+import copy from 'clipboard-copy';
+import * as React from 'react';
+import {Tooltip, TooltipProps} from '@mui/material';
 
 interface ChildProps {
     copy: (content: any) => void;
@@ -27,12 +26,16 @@ class CopyToClipboard extends React.Component<Props, OwnState> {
         return (
             <Tooltip
                 open={this.state.showTooltip}
-                title={"Copied to clipboard!"}
+                title={'Copied to clipboard!'}
                 leaveDelay={1000}
                 onClose={this.handleOnTooltipClose}
-                {...this.props.TooltipProps || {}}
+                {...(this.props.TooltipProps || {})}
             >
-                {this.props.children({copy: this.onCopy}) as React.ReactElement<any>}
+                {
+                    this.props.children({
+                        copy: this.onCopy,
+                    }) as React.ReactElement<any>
+                }
             </Tooltip>
         );
     }

@@ -5,4 +5,4 @@ export const zIndex = {
     assetPreview: 101,
     leftPanel: 150,
     mainBar: 180,
-}
+};

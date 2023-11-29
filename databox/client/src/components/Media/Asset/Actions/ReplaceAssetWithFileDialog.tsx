@@ -1,39 +1,31 @@
-import React from 'react';
-import {useTranslation} from "react-i18next";
-import {useForm} from "react-hook-form";
-import {Typography} from "@mui/material";
-import FormDialog from "../../../Dialog/FormDialog";
-import useFormSubmit from "../../../../hooks/useFormSubmit";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import RemoteErrors from "../../../Form/RemoteErrors";
-import {Asset, File} from "../../../../types";
-import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
-import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
-import {toast} from "react-toastify";
-import {putAsset} from "../../../../api/asset";
+import {useForm} from 'react-hook-form';
+import {Typography} from '@mui/material';
+import FormDialog from '../../../Dialog/FormDialog';
+import useFormSubmit from '../../../../hooks/useFormSubmit';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import RemoteErrors from '../../../Form/RemoteErrors';
+import {Asset, File} from '../../../../types';
+import {StackedModalProps, useModals} from '../../../../hooks/useModalStack';
+import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {toast} from 'react-toastify';
+import {putAsset} from '../../../../api/asset';
 
 type FormData = {};
-
 
 type Props = {
     asset: Asset;
     file: File;
 } & StackedModalProps;
 
-export default function ReplaceAssetWithFileDialog({
-    asset,
-    file,
-    open,
-}: Props) {
-    const {t} = useTranslation();
+export default function ReplaceAssetWithFileDialog({asset, file, open}: Props) {
     const {closeModal} = useModals();
 
     const {
         handleSubmit,
         setError,
-        formState: {errors, isDirty}
+        formState: {isDirty},
     } = useForm<FormData>({
-        defaultValues: {}
+        defaultValues: {},
     });
 
     const {
@@ -42,10 +34,10 @@ export default function ReplaceAssetWithFileDialog({
         submitting,
         submitted,
     } = useFormSubmit({
-        onSubmit: async (data: FormData) => {
+        onSubmit: async () => {
             return await putAsset(asset.id, {
                 sourceFileId: file.id,
-            })
+            });
         },
         onSuccess: () => {
             toast.success(`Asset has been replaced`);
@@ -56,22 +48,23 @@ export default function ReplaceAssetWithFileDialog({
 
     const formId = 'save-file-as-new-asset';
 
-    return <FormDialog
-        title={`Replace asset with file`}
-        open={open}
-        loading={submitting}
-        formId={formId}
-        submitIcon={<FileCopyIcon/>}
-        submitLabel={'Replace'}
-    >
-        <Typography sx={{mb: 3}}>
-            {`Please confirm replacing asset.`}
-        </Typography>
-        <form
-            id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}
+    return (
+        <FormDialog
+            title={`Replace asset with file`}
+            open={open}
+            loading={submitting}
+            formId={formId}
+            submitIcon={<FileCopyIcon />}
+            submitLabel={'Replace'}
         >
-        </form>
-        <RemoteErrors errors={remoteErrors}/>
-    </FormDialog>
+            <Typography sx={{mb: 3}}>
+                {`Please confirm replacing asset.`}
+            </Typography>
+            <form
+                id={formId}
+                onSubmit={handleSubmit(onSubmit(setError))}
+            ></form>
+            <RemoteErrors errors={remoteErrors} />
+        </FormDialog>
+    );
 }

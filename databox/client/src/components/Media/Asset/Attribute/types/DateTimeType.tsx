@@ -1,18 +1,15 @@
-import React from 'react';
-import {AttributeFormatterProps, AvailableFormat} from "./types";
-import moment from "moment/moment";
-import TextType from "./TextType";
-import {TextFieldProps} from "@mui/material";
-import DateType, {DateFormats} from "./DateType";
+import {AttributeFormatterProps} from './types';
+import moment from 'moment/moment';
+import {TextFieldProps} from '@mui/material';
+import DateType, {DateFormats} from './DateType';
 
 export default class DateTimeType extends DateType {
-
     public getFieldProps(): TextFieldProps {
         return {
             type: 'datetime-local',
             InputLabelProps: {
                 shrink: true,
-            }
+            },
         };
     }
 

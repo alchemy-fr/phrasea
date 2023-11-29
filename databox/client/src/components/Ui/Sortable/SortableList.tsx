@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useState} from 'react';
+import {FunctionComponent, useState} from 'react';
 import {
     closestCenter,
     DndContext,
@@ -8,10 +8,14 @@ import {
     MouseSensor,
     TouchSensor,
     useSensor,
-    useSensors
-} from "@dnd-kit/core";
-import {arrayMove, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
-import SortableNode from "./SortableNode";
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import SortableNode from './SortableNode';
 
 export type SortableItem = {
     id: string;
@@ -22,7 +26,9 @@ export type SortableItemProps<D extends SortableItem> = {
     data: D;
 };
 
-export type OrderChangeHandler<D extends SortableItem> = (orderedData: D[]) => void;
+export type OrderChangeHandler<D extends SortableItem> = (
+    orderedData: D[]
+) => void;
 
 type Props<D extends SortableItem, ItemProps extends {}> = {
     onOrderChange: OrderChangeHandler<D>;
@@ -34,23 +40,22 @@ type Props<D extends SortableItem, ItemProps extends {}> = {
     }>;
 };
 
-export default function SortableList<D extends SortableItem, ItemProps extends {}>({
-    list,
-    onOrderChange,
-    itemComponent,
-    itemProps,
-}: Props<D, ItemProps>) {
+export default function SortableList<
+    D extends SortableItem,
+    ItemProps extends {}
+>({list, onOrderChange, itemComponent, itemProps}: Props<D, ItemProps>) {
     const [activeId, setActiveId] = useState<string | null>(null);
-    const activeIndex = null !== activeId ? list.findIndex(f => f.id === activeId) : null;
+    const activeIndex =
+        null !== activeId ? list.findIndex(f => f.id === activeId) : null;
     const activeItem = null !== activeIndex ? list[activeIndex] : null;
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
             activationConstraint: {
-                distance: 20
-            }
+                distance: 20,
+            },
         }),
-        useSensor(TouchSensor),
+        useSensor(TouchSensor)
     );
 
     function handleDragEnd(event: DragEndEvent) {
@@ -69,37 +74,42 @@ export default function SortableList<D extends SortableItem, ItemProps extends {
         setActiveId(active.id as string);
     }
 
-    return <>
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-            onDragStart={handleDragStart}
-        >
-            <SortableContext
-                items={list}
-                strategy={verticalListSortingStrategy}
+    return (
+        <>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                onDragStart={handleDragStart}
             >
-                {list.map(i => <SortableNode
-                    id={i.id}
-                    key={i.id}
+                <SortableContext
+                    items={list}
+                    strategy={verticalListSortingStrategy}
                 >
-                    {React.createElement(itemComponent, {
-                        itemProps,
-                        data: i,
-                    })}
-                </SortableNode>)}
-            </SortableContext>
-            <DragOverlay>
-                {activeItem && <div style={{
-                    backgroundColor: '#FFF',
-                }}>
-                    {React.createElement(itemComponent, {
-                        itemProps,
-                        data: activeItem!,
-                    })}
-                </div>}
-            </DragOverlay>
-        </DndContext>
-    </>
+                    {list.map(i => (
+                        <SortableNode id={i.id} key={i.id}>
+                            {React.createElement(itemComponent, {
+                                itemProps,
+                                data: i,
+                            })}
+                        </SortableNode>
+                    ))}
+                </SortableContext>
+                <DragOverlay>
+                    {activeItem && (
+                        <div
+                            style={{
+                                backgroundColor: '#FFF',
+                            }}
+                        >
+                            {React.createElement(itemComponent, {
+                                itemProps,
+                                data: activeItem!,
+                            })}
+                        </div>
+                    )}
+                </DragOverlay>
+            </DndContext>
+        </>
+    );
 }

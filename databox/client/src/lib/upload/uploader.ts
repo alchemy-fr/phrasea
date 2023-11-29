@@ -1,14 +1,17 @@
 import {
     CollectionId,
     NewCollectionPath,
-    treeViewPathSeparator
-} from "../../components/Media/Collection/CollectionsTreeView";
-import {postCollection} from "../../api/collection";
-import {UploadFiles} from "../../api/uploader/file";
-import {Asset} from "../../types";
-import {AttributeBatchAction, NewAssetPostType, postMultipleAssets} from "../../api/asset";
+    treeViewPathSeparator,
+} from '../../components/Media/Collection/CollectionsTreeView';
+import {postCollection} from '../../api/collection';
+import {UploadFiles} from '../../api/uploader/file';
+import {Asset} from '../../types';
+import {
+    AttributeBatchAction,
+    NewAssetPostType,
+    postMultipleAssets,
+} from '../../api/asset';
 import {v4 as uuidv4} from 'uuid';
-import {AttributeIndex} from "../../components/Media/Asset/Attribute/AttributesEditor";
 
 type InputFile = {
     title?: string;
@@ -23,20 +26,26 @@ type InputFile = {
 
 type UploadInput = {
     files: InputFile[];
-}
+};
 
-export async function submitFiles(userId: string, data: UploadInput): Promise<Asset[]> {
+export async function submitFiles(
+    userId: string,
+    data: UploadInput
+): Promise<Asset[]> {
     const assets = await createAssets(data);
 
-    UploadFiles(userId, data.files.map(f => {
-        return {
-            file: f.file,
-            data: {
-                targetAsset: f.assetId,
-                uploadToken: f.uploadToken,
-            }
-        };
-    }));
+    UploadFiles(
+        userId,
+        data.files.map(f => {
+            return {
+                file: f.file,
+                data: {
+                    targetAsset: f.assetId,
+                    uploadToken: f.uploadToken,
+                },
+            };
+        })
+    );
 
     return assets;
 }
@@ -49,25 +58,27 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
         indexedFiles[uploadToken] = f;
     });
 
-    return await postMultipleAssets(files.map((f, i): NewAssetPostType => {
-        const data: NewAssetPostType = {
-            title: f.title,
-            pendingUploadToken: f.uploadToken,
-            privacy: f.privacy,
-            tags: f.tags,
-            sequence: i,
-            attributes: f.attributes,
-        };
+    return await postMultipleAssets(
+        files.map((f, i): NewAssetPostType => {
+            const data: NewAssetPostType = {
+                title: f.title,
+                pendingUploadToken: f.uploadToken,
+                privacy: f.privacy,
+                tags: f.tags,
+                sequence: i,
+                attributes: f.attributes,
+            };
 
-        const dest = f.destination as string;
-        if (dest.startsWith('/workspaces/')) {
-            data.workspace = dest;
-        } else {
-            data.collection = dest;
-        }
+            const dest = f.destination as string;
+            if (dest.startsWith('/workspaces/')) {
+                data.workspace = dest;
+            } else {
+                data.collection = dest;
+            }
 
-        return data;
-    })).then((assets) => {
+            return data;
+        })
+    ).then(assets => {
         return assets.map(a => {
             indexedFiles[a.pendingUploadToken!].assetId = a.id;
 
@@ -76,20 +87,21 @@ async function createAssets({files}: UploadInput): Promise<Asset[]> {
     });
 }
 
-export async function createCollection(newCollectionPath: NewCollectionPath): Promise<string> {
-    const {
-        rootId,
-        path,
-    } = newCollectionPath;
+export async function createCollection(
+    newCollectionPath: NewCollectionPath
+): Promise<string> {
+    const {rootId, path} = newCollectionPath;
 
     const [workspaceId, parentIri] = rootId.split(treeViewPathSeparator);
     let parent = parentIri;
-    for (let p of path) {
-        parent = (await postCollection({
-            title: p,
-            parent,
-            workspace: `/workspaces/${workspaceId}`,
-        }))['@id'];
+    for (const p of path) {
+        parent = (
+            await postCollection({
+                title: p,
+                parent,
+                workspace: `/workspaces/${workspaceId}`,
+            })
+        )['@id'];
     }
 
     return parent;

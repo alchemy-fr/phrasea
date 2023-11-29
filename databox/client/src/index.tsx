@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
 import './scss/index.scss';
-import Root from "./components/Root";
+import Root from './components/Root';
 import './config';
 import './i18n';
 import './lib/leaflet';
 
 ReactDOM.render(
     <React.StrictMode>
-        <Root/>
+        <Root />
     </React.StrictMode>,
     document.getElementById('root')
 );

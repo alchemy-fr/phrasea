@@ -6,7 +6,7 @@ function isSameObject<T extends {} = {}>(a: T, b: T): boolean {
         return false;
     }
 
-    for (let i of ka) {
+    for (const i of ka) {
         if (!isSame(b[i as keyof typeof b], a[i as keyof typeof a])) {
             return false;
         }
@@ -34,8 +34,7 @@ function isSameArray(a: any[], b: any[]): boolean {
         return false;
     }
 
-    if (b.length !== a.length)
-        return false;
+    if (b.length !== a.length) return false;
 
     for (let i = 0, l = b.length; i < l; i++) {
         if (b[i] instanceof Array && a[i] instanceof Array) {

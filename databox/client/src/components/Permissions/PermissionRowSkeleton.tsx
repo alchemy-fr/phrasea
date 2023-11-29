@@ -1,34 +1,34 @@
-import {Button, Skeleton} from "@mui/material";
-import React from "react";
+import {Button, Skeleton} from '@mui/material';
 
-export default function PermissionRowSkeleton({permissions}: {
-    permissions: string[]
+export default function PermissionRowSkeleton({
+    permissions,
+}: {
+    permissions: string[];
 }) {
-    return <tr>
-        <td className={'ug'}>
-            <Skeleton/>
-        </td>
-        {permissions.map((k) => {
-            return <td
-                key={k}
-                className={'p'}
-            >
-                <Skeleton
-                    variant="rectangular"
-                    width={21}
-                    height={21}
-                    sx={{
-                        display: 'inline-block',
-                    }}
-                />
+    return (
+        <tr>
+            <td className={'ug'}>
+                <Skeleton />
             </td>
-        })}
-        <td className={'a'}>
-            <Button
-                color={'error'}
-            >
-                <Skeleton width={55}/>
-            </Button>
-        </td>
-    </tr>
+            {permissions.map(k => {
+                return (
+                    <td key={k} className={'p'}>
+                        <Skeleton
+                            variant="rectangular"
+                            width={21}
+                            height={21}
+                            sx={{
+                                display: 'inline-block',
+                            }}
+                        />
+                    </td>
+                );
+            })}
+            <td className={'a'}>
+                <Button color={'error'}>
+                    <Skeleton width={55} />
+                </Button>
+            </td>
+        </tr>
+    );
 }

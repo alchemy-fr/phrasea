@@ -1,7 +1,7 @@
-import apiClient from "./api-client";
-import {Collection, CollectionOptionalWorkspace, Workspace} from "../types";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
-import {clearAssociationIds} from "./clearAssociation";
+import apiClient from './api-client';
+import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {clearAssociationIds} from './clearAssociation';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -14,9 +14,11 @@ type CollectionOptions = {
     parent?: string;
     workspaces?: string[];
     groupByWorkspace?: boolean;
-}
+};
 
-export async function getCollections(options: CollectionOptions): Promise<ApiCollectionResponse<Collection>> {
+export async function getCollections(
+    options: CollectionOptions
+): Promise<ApiCollectionResponse<Collection>> {
     const res = await apiClient.get('/collections', {
         params: {
             ...options,
@@ -33,6 +35,7 @@ export function clearWorkspaceCache(): void {
 }
 
 export async function getWorkspaces(): Promise<Workspace[]> {
+    // eslint-disable-next-line no-prototype-builtins
     if (cache.hasOwnProperty('ws')) {
         return cache.ws;
     }
@@ -42,14 +45,14 @@ export async function getWorkspaces(): Promise<Workspace[]> {
         limit: collectionChildrenLimit + 1,
     });
 
-    const workspaces: { [key: string]: Workspace } = {};
+    const workspaces: {[key: string]: Workspace} = {};
 
     collections.result.forEach((c: Collection) => {
         if (!workspaces[c.workspace.id]) {
             workspaces[c.workspace.id] = {
                 ...c.workspace,
                 collections: [],
-            }
+            };
         }
         const list = workspaces[c.workspace.id].collections;
 
@@ -60,7 +63,9 @@ export async function getWorkspaces(): Promise<Workspace[]> {
         list.push(c);
     });
 
-    return cache.ws = (Object.keys(workspaces) as Array<string>).map(i => workspaces[i]);
+    return (cache.ws = (Object.keys(workspaces) as Array<string>).map(
+        i => workspaces[i]
+    ));
 }
 
 export async function getCollection(id: string): Promise<Collection> {
@@ -69,32 +74,51 @@ export async function getCollection(id: string): Promise<Collection> {
     return res.data;
 }
 
-export async function putCollection(id: string, data: Partial<Collection>): Promise<Collection> {
-    const res = await apiClient.put(`/collections/${id}`, clearAssociationIds(data));
+export async function putCollection(
+    id: string,
+    data: Partial<Collection>
+): Promise<Collection> {
+    const res = await apiClient.put(
+        `/collections/${id}`,
+        clearAssociationIds(data)
+    );
 
     return res.data;
 }
 
-export async function moveCollection(id: string, parentId: string | undefined): Promise<void> {
-    await apiClient.put(`/collections/${id}/move/${parentId ? parentId : 'root'}`);
+export async function moveCollection(
+    id: string,
+    parentId: string | undefined
+): Promise<void> {
+    await apiClient.put(
+        `/collections/${id}/move/${parentId ? parentId : 'root'}`
+    );
 }
 
 type CollectionPostType = {
-    parent?: string,
+    parent?: string;
     title: string;
     children?: CollectionOptionalWorkspace[];
     workspace?: string | undefined;
     privacy?: number;
-}
+};
 
-export async function postCollection(data: CollectionPostType): Promise<Collection> {
+export async function postCollection(
+    data: CollectionPostType
+): Promise<Collection> {
     const res = await apiClient.post(`/collections`, data);
 
     return res.data;
 }
 
-export async function putWorkspace(id: string, data: Partial<Workspace>): Promise<Workspace> {
-    const res = await apiClient.put(`/workspaces/${id}`, clearAssociationIds(data));
+export async function putWorkspace(
+    id: string,
+    data: Partial<Workspace>
+): Promise<Workspace> {
+    const res = await apiClient.put(
+        `/workspaces/${id}`,
+        clearAssociationIds(data)
+    );
 
     return res.data;
 }
@@ -103,7 +127,10 @@ export async function deleteCollection(id: string): Promise<void> {
     await apiClient.delete(`/collections/${id}`);
 }
 
-export async function addAssetToCollection(collectionIri: string, assetIri: string): Promise<Boolean> {
+export async function addAssetToCollection(
+    collectionIri: string,
+    assetIri: string
+): Promise<boolean> {
     const res = await apiClient.post(`/collection-assets`, {
         collection: collectionIri,
         asset: assetIri,
@@ -131,7 +158,10 @@ export async function copyAssets(
     });
 }
 
-export async function moveAssets(assetIds: string[], destIri: string): Promise<void> {
+export async function moveAssets(
+    assetIds: string[],
+    destIri: string
+): Promise<void> {
     await apiClient.post(`/assets/move`, {
         destination: destIri,
         ids: assetIds,

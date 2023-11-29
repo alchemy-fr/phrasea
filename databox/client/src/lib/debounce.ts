@@ -6,7 +6,7 @@ export function debounce<T extends unknown[], U>(
 
     return (...args: T): Promise<U> => {
         clearTimeout(timer);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             timer = setTimeout(() => resolve(callback(...args)), wait);
         });
     };

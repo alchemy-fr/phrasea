@@ -1,12 +1,20 @@
-import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {Box, Button, Checkbox, FormControlLabel, ListItem, ListItemText, Typography} from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
+import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {
+    Box,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    ListItem,
+    ListItemText,
+    Typography,
+} from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
 import {useTranslation} from 'react-i18next';
-import {SearchContext} from "../SearchContext";
-import {getResolvedSortBy} from "../SearchProvider";
-import {ResultContext} from "../ResultContext";
-import {SortBy} from "../Filter";
-import SortByRow, {OnChangeHandler} from "./SortByRow";
+import {SearchContext} from '../SearchContext';
+import {getResolvedSortBy} from '../SearchProvider';
+import {ResultContext} from '../ResultContext';
+import {SortBy} from '../Filter';
+import SortByRow, {OnChangeHandler} from './SortByRow';
 import {
     closestCenter,
     DndContext,
@@ -15,9 +23,13 @@ import {
     TouchSensor,
     useSensor,
     useSensors,
-} from "@dnd-kit/core";
-import {arrayMove, SortableContext, verticalListSortingStrategy} from "@dnd-kit/sortable";
-import {BuiltInFilter} from "../search";
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {BuiltInFilter} from '../search';
 
 type Props = {
     onClose: () => void;
@@ -28,13 +40,13 @@ export type TogglableSortBy = {
     id: string;
 } & SortBy;
 
-export default function EditSortBy({
-    onClose,
-}: Props) {
+export default function EditSortBy({onClose}: Props) {
     const {sortBy, setSortBy} = useContext(SearchContext);
     const {facets} = useContext(ResultContext);
     const {t} = useTranslation();
-    const [grouped, setGrouped] = React.useState(sortBy.length === 0 ? true : sortBy.some(s => s.g));
+    const [grouped, setGrouped] = React.useState(
+        sortBy.length === 0 ? true : sortBy.some(s => s.g)
+    );
 
     const list = useMemo<TogglableSortBy[]>(() => {
         const l: TogglableSortBy[] = [];
@@ -75,21 +87,24 @@ export default function EditSortBy({
     const [orders, setOrders] = useState<TogglableSortBy[]>(list);
 
     const enabledOrders = orders.filter(s => s.enabled);
-    const groupDisabled = enabledOrders.length > 0 && enabledOrders[0].a === BuiltInFilter.Score;
+    const groupDisabled =
+        enabledOrders.length > 0 && enabledOrders[0].a === BuiltInFilter.Score;
 
     useEffect(() => {
         setOrders(list);
     }, [list]);
 
     const apply = useCallback(() => {
-        const newSortBy = orders.filter(s => s.enabled).map(s => ({
-            t: s.t,
-            w: s.w,
-            a: s.a,
-            g: false,
-        }));
+        const newSortBy = orders
+            .filter(s => s.enabled)
+            .map(s => ({
+                t: s.t,
+                w: s.w,
+                a: s.a,
+                g: false,
+            }));
 
-        if (!groupDisabled && grouped && newSortBy.length > 0){
+        if (!groupDisabled && grouped && newSortBy.length > 0) {
             newSortBy[0].g = true;
         }
 
@@ -102,20 +117,27 @@ export default function EditSortBy({
         onClose();
     }, [orders]);
 
-    const onChange = useCallback<OnChangeHandler>((sortBy, enabled, way, grouped) => {
-        setOrders((prev) => {
-            return prev.map(s => s.a === sortBy.a ? ({
-                ...s,
-                enabled: enabled ?? s.enabled,
-                w: way ?? s.w,
-                g: grouped ?? s.g,
-            }) : s);
-        });
-    }, []);
+    const onChange = useCallback<OnChangeHandler>(
+        (sortBy, enabled, way, grouped) => {
+            setOrders(prev => {
+                return prev.map(s =>
+                    s.a === sortBy.a
+                        ? {
+                              ...s,
+                              enabled: enabled ?? s.enabled,
+                              w: way ?? s.w,
+                              g: grouped ?? s.g,
+                          }
+                        : s
+                );
+            });
+        },
+        []
+    );
 
     const sensors = useSensors(
         useSensor(PointerSensor),
-        useSensor(TouchSensor),
+        useSensor(TouchSensor)
     );
 
     function handleDragEnd(event: DragEndEvent) {
@@ -134,90 +156,95 @@ export default function EditSortBy({
         }
     }
 
-    return <div>
-        <Box
-            sx={{
-                px: 4,
-                py: 1,
-                width: {
-                    md: 500
-                }
-            }}
-        >
-            <Typography
-                sx={{
-                    mb: 2,
-                }}
-            >
-                {t('search.sort_by.title', 'Sort by')}
-            </Typography>
-
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <table>
-                    <tbody>
-                    <SortableContext
-                        items={orders}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        {orders.map((s) => <SortByRow
-                            sortBy={s}
-                            enabled={s.enabled}
-                            key={s.a}
-                            onChange={onChange}
-                        />)}
-                    </SortableContext>
-                    </tbody>
-                </table>
-            </DndContext>
-        </Box>
-        <Box sx={{
-            textAlign: 'right',
-            p: 1,
-            pb: 0,
-        }}>
+    return (
+        <div>
             <Box
                 sx={{
-                    display: 'inline-block',
-                    mr: 2,
+                    px: 4,
+                    py: 1,
+                    width: {
+                        md: 500,
+                    },
                 }}
             >
-                <FormControlLabel
-                    control={<Checkbox
-                        checked={grouped}
-                        onChange={(e, value) => setGrouped(value)}
-                        disabled={groupDisabled}
-                    />}
-                    label={<ListItem disableGutters={true}>
-                        <ListItemText
-                            primary={`Group by sections`}
-                            secondary={`Add group separators between results`}
-                        >
+                <Typography
+                    sx={{
+                        mb: 2,
+                    }}
+                >
+                    {t('search.sort_by.title', 'Sort by')}
+                </Typography>
 
-                        </ListItemText>
-                    </ListItem>}
-                    labelPlacement="end"
-                />
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <table>
+                        <tbody>
+                            <SortableContext
+                                items={orders}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {orders.map(s => (
+                                    <SortByRow
+                                        sortBy={s}
+                                        enabled={s.enabled}
+                                        key={s.a}
+                                        onChange={onChange}
+                                    />
+                                ))}
+                            </SortableContext>
+                        </tbody>
+                    </table>
+                </DndContext>
             </Box>
-            <Button
-                onClick={reset}
-                color={'warning'}
-            >
-                {t('dialog.reset', 'Reset')}
-            </Button>
-            <Button
+            <Box
                 sx={{
-                    ml: 2,
+                    textAlign: 'right',
+                    p: 1,
+                    pb: 0,
                 }}
-                startIcon={<SaveIcon/>}
-                onClick={apply}
-                color={'primary'}
             >
-                {t('dialog.apply', 'Apply')}
-            </Button>
-        </Box>
-    </div>
+                <Box
+                    sx={{
+                        display: 'inline-block',
+                        mr: 2,
+                    }}
+                >
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={grouped}
+                                onChange={(e, value) => setGrouped(value)}
+                                disabled={groupDisabled}
+                            />
+                        }
+                        label={
+                            <ListItem disableGutters={true}>
+                                <ListItemText
+                                    primary={`Group by sections`}
+                                    secondary={`Add group separators between results`}
+                                ></ListItemText>
+                            </ListItem>
+                        }
+                        labelPlacement="end"
+                    />
+                </Box>
+                <Button onClick={reset} color={'warning'}>
+                    {t('dialog.reset', 'Reset')}
+                </Button>
+                <Button
+                    sx={{
+                        ml: 2,
+                    }}
+                    startIcon={<SaveIcon />}
+                    onClick={apply}
+                    color={'primary'}
+                >
+                    {t('dialog.apply', 'Apply')}
+                </Button>
+            </Box>
+        </div>
+    );
 }

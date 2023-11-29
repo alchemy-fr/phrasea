@@ -1,13 +1,15 @@
-import apiClient from "./api-client";
-import {TagFilterRule} from "../types";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
+import apiClient from './api-client';
+import {TagFilterRule} from '../types';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
 type TagFilterRuleOptions = {
-    collectionId?: string,
-    workspaceId?: string,
-}
+    collectionId?: string;
+    workspaceId?: string;
+};
 
-export async function getTagFilterRules(options: TagFilterRuleOptions): Promise<ApiCollectionResponse<TagFilterRule>> {
+export async function getTagFilterRules(
+    options: TagFilterRuleOptions
+): Promise<ApiCollectionResponse<TagFilterRule>> {
     const res = await apiClient.get('/tag-filter-rules', {
         params: {
             ...options,
@@ -18,13 +20,13 @@ export async function getTagFilterRules(options: TagFilterRuleOptions): Promise<
 }
 
 export async function saveTagFilterRule(data: {
-    id?: string,
-    userId?: string,
-    groupId?: string,
-    collectionId?: string,
-    workspaceId?: string,
-    include?: string[],
-    exclude?: string[],
+    id?: string;
+    userId?: string;
+    groupId?: string;
+    collectionId?: string;
+    workspaceId?: string;
+    include?: string[];
+    exclude?: string[];
 }): Promise<TagFilterRule> {
     let res;
 

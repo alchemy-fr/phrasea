@@ -1,8 +1,6 @@
-import React from "react";
-
 export type PlayingContext = {
     stop: VoidFunction;
-}
+};
 
 export type TDisplayContext = {
     collectionsLimit: number;
@@ -28,6 +26,6 @@ export type TDisplayContext = {
     toggleDisplayTags: VoidFunction;
     toggleDisplayTitle: VoidFunction;
     togglePlayVideos: VoidFunction;
-}
+};
 
 export const DisplayContext = React.createContext<TDisplayContext | null>(null);

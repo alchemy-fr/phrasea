@@ -1,9 +1,7 @@
-import React from 'react';
-import {TextFieldProps} from "@mui/material";
-import TextType from "./TextType";
+import {TextFieldProps} from '@mui/material';
+import TextType from './TextType';
 
 export default class TextareaType extends TextType {
-
     public getFieldProps(): TextFieldProps {
         return {
             type: 'text',

@@ -1,9 +1,9 @@
-import React, {useState} from "react";
-import Facets from "./Asset/Facets";
-import CollectionsPanel from "./CollectionsPanel";
-import {Tab, Tabs} from "@mui/material";
-import {styled} from "@mui/material/styles";
-import {TabPanelProps} from "@mui/lab";
+import {useState} from 'react';
+import Facets from './Asset/Facets';
+import CollectionsPanel from './CollectionsPanel';
+import {Tab, Tabs} from '@mui/material';
+import {styled} from '@mui/material/styles';
+import {TabPanelProps} from '@mui/lab';
 
 enum TabEnum {
     facets = 'facets',
@@ -12,13 +12,13 @@ enum TabEnum {
 
 function a11yProps(name: TabEnum) {
     return {
-        value: name,
-        index: `tab-${name}`,
+        'value': name,
+        'index': `tab-${name}`,
         'aria-controls': `tabpanel-${name}`,
     };
 }
 
-function TabPanel(props: { index: string } & TabPanelProps) {
+function TabPanel(props: {index: string} & TabPanelProps) {
     const {children, value, index} = props;
 
     return (
@@ -32,7 +32,6 @@ function TabPanel(props: { index: string } & TabPanelProps) {
         </div>
     );
 }
-
 
 const AntTabs = styled(Tabs)({
     root: {
@@ -58,7 +57,7 @@ const AntTab = styled(Tab)({
         },
     },
     selected: {},
-})
+});
 
 export default function LeftPanel() {
     const [t, setTab] = useState<TabEnum>(TabEnum.tree);
@@ -67,20 +66,18 @@ export default function LeftPanel() {
         setTab(newValue);
     };
 
-    return <>
-        <AntTabs
-            value={t}
-            onChange={handleChange}
-            aria-label="Views"
-        >
-            <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
-            <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
-        </AntTabs>
-        <TabPanel value={t} index={TabEnum.tree}>
-            <CollectionsPanel/>
-        </TabPanel>
-        <TabPanel value={t} index={TabEnum.facets}>
-            <Facets/>
-        </TabPanel>
-    </>
+    return (
+        <>
+            <AntTabs value={t} onChange={handleChange} aria-label="Views">
+                <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
+                <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
+            </AntTabs>
+            <TabPanel value={t} index={TabEnum.tree}>
+                <CollectionsPanel />
+            </TabPanel>
+            <TabPanel value={t} index={TabEnum.facets}>
+                <Facets />
+            </TabPanel>
+        </>
+    );
 }

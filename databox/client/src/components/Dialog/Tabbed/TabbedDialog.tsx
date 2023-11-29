@@ -1,11 +1,11 @@
-import React, {FunctionComponent, ReactNode} from "react";
-import {Tab, Tabs} from "@mui/material";
-import {AppDialogTitle, BootstrapDialog} from "../../Layout/AppDialog";
-import {Breakpoint} from "@mui/system";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {getPath, RouteParams} from "../../../routes";
-import RouteDialog from "../RouteDialog";
-import {useNavigateToModal} from "../../Routing/ModalLink";
+import {FunctionComponent, ReactNode} from 'react';
+import {Tab, Tabs} from '@mui/material';
+import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
+import {Breakpoint} from '@mui/system';
+import {useParams} from 'react-router-dom';
+import {getPath, RouteParams} from '../../../routes';
+import RouteDialog from '../RouteDialog';
+import {useNavigateToModal} from '../../Routing/ModalLink';
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
     title: ReactNode;
@@ -13,7 +13,7 @@ type TabItem<P extends {} = {}, P2 extends {} = any> = {
     component: FunctionComponent<P2 & P & DialogTabProps>;
     props?: P2 & P;
     enabled?: boolean;
-}
+};
 
 type Props<P extends {}> = {
     routeName: string;
@@ -27,7 +27,7 @@ type Props<P extends {}> = {
 export type DialogTabProps = {
     onClose: () => void;
     minHeight?: number | undefined;
-}
+};
 
 export default function TabbedDialog<P extends {}>({
     routeName,
@@ -45,44 +45,50 @@ export default function TabbedDialog<P extends {}>({
     const currentTab = tabs[tabIndex];
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        navigateToModal(getPath(routeName, {
-            ...routeParams,
-            tab: tabs[newValue].id,
-        }));
+        navigateToModal(
+            getPath(routeName, {
+                ...routeParams,
+                tab: tabs[newValue].id,
+            })
+        );
     };
 
-    return <RouteDialog>
-        {({open, onClose}) => <BootstrapDialog
-            onClose={onClose}
-            open={open}
-            fullWidth={true}
-            maxWidth={maxWidth}
-        >
-            <AppDialogTitle onClose={onClose}>
-                {title}
-            </AppDialogTitle>
-            <Tabs
-                variant="scrollable"
-                scrollButtons="auto"
-                value={tabIndex}
-                onChange={handleChange}
-                aria-label="Dialog menu"
-            >
-                {tabs.map((t) => {
-                    return <Tab
-                        label={t.title}
-                        id={t.id}
-                        key={t.id}
-                        aria-controls={`tabpanel-${t.id}`}
-                    />
-                })}
-            </Tabs>
-            {React.createElement(currentTab.component, {
-                ...rest,
-                ...currentTab.props,
-                onClose,
-                minHeight,
-            })}
-        </BootstrapDialog>}
-    </RouteDialog>
+    return (
+        <RouteDialog>
+            {({open, onClose}) => (
+                <BootstrapDialog
+                    onClose={onClose}
+                    open={open}
+                    fullWidth={true}
+                    maxWidth={maxWidth}
+                >
+                    <AppDialogTitle onClose={onClose}>{title}</AppDialogTitle>
+                    <Tabs
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        value={tabIndex}
+                        onChange={handleChange}
+                        aria-label="Dialog menu"
+                    >
+                        {tabs.map(t => {
+                            return (
+                                <Tab
+                                    label={t.title}
+                                    id={t.id}
+                                    key={t.id}
+                                    aria-controls={`tabpanel-${t.id}`}
+                                />
+                            );
+                        })}
+                    </Tabs>
+                    {React.createElement(currentTab.component, {
+                        ...rest,
+                        ...currentTab.props,
+                        onClose,
+                        minHeight,
+                    })}
+                </BootstrapDialog>
+            )}
+        </RouteDialog>
+    );
 }

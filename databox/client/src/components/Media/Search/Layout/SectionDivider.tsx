@@ -1,7 +1,7 @@
-import React, {CSSProperties, PropsWithChildren} from 'react';
-import {Divider, Theme, useTheme} from "@mui/material";
-import {zIndex} from "../../../../themes/zIndex";
-import {SxProps} from "@mui/system";
+import {CSSProperties, PropsWithChildren} from 'react';
+import {Divider, Theme, useTheme} from '@mui/material';
+import {zIndex} from '../../../../themes/zIndex';
+import {SxProps} from '@mui/system';
 
 function applyStyle(
     theme: Theme,
@@ -12,7 +12,7 @@ function applyStyle(
         return {
             ...defaultStyle,
             ...style(theme),
-        }
+        };
     }
 
     return defaultStyle;
@@ -36,28 +36,35 @@ export default function SectionDivider({
 }: Props) {
     const theme = useTheme();
 
-    return <div
-        style={applyStyle(theme, {
-            zIndex: zIndex.sectionDivider,
-            position: 'sticky',
-            top,
-            backgroundColor: theme.palette.common.white,
-        }, rootStyle)}
-        className={sectionDividerClassname}
-    >
-        <Divider
-            textAlign={'left'}
-            sx={dividerSx}
+    return (
+        <div
+            style={applyStyle(
+                theme,
+                {
+                    zIndex: zIndex.sectionDivider,
+                    position: 'sticky',
+                    top,
+                    backgroundColor: theme.palette.common.white,
+                },
+                rootStyle
+            )}
+            className={sectionDividerClassname}
         >
-            <div
-                style={applyStyle(theme, {
-                    fontSize: 13,
-                    paddingTop: theme.spacing(1),
-                    paddingBottom: theme.spacing(1),
-                }, textStyle)}
-            >
-                {children}
-            </div>
-        </Divider>
-    </div>
+            <Divider textAlign={'left'} sx={dividerSx}>
+                <div
+                    style={applyStyle(
+                        theme,
+                        {
+                            fontSize: 13,
+                            paddingTop: theme.spacing(1),
+                            paddingBottom: theme.spacing(1),
+                        },
+                        textStyle
+                    )}
+                >
+                    {children}
+                </div>
+            </Divider>
+        </div>
+    );
 }

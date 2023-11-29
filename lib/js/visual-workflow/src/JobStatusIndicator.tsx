@@ -1,4 +1,3 @@
-import React from 'react';
 import {JobStatus} from "./types";
 import './style/status-indicator.scss';
 

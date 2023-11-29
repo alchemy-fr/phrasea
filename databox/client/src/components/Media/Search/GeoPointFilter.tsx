@@ -1,8 +1,8 @@
-import React, {useContext, useEffect} from 'react';
-import {IconButton} from "@mui/material";
-import {useBrowserPosition} from "../../../hooks/useBrowserLocation";
-import {SearchContext} from "./SearchContext";
-import {ResultContext} from "./ResultContext";
+import {useContext, useEffect} from 'react';
+import {IconButton} from '@mui/material';
+import {useBrowserPosition} from '../../../hooks/useBrowserLocation';
+import {SearchContext} from './SearchContext';
+import {ResultContext} from './ResultContext';
 import LocationOffIcon from '@mui/icons-material/LocationOff';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
@@ -27,13 +27,15 @@ export default function GeoPointFilter({}: Props) {
         setEnabled(p => !p);
     }, []);
 
-    return <>
-        <IconButton
-            sx={{mr: 1}}
-            onClick={toggleEnabled}
-            disabled={resultContext.loading}
-        >
-            {enabled ? <LocationOnIcon/> : <LocationOffIcon/>}
-        </IconButton>
-    </>
+    return (
+        <>
+            <IconButton
+                sx={{mr: 1}}
+                onClick={toggleEnabled}
+                disabled={resultContext.loading}
+            >
+                {enabled ? <LocationOnIcon /> : <LocationOffIcon />}
+            </IconButton>
+        </>
+    );
 }

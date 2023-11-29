@@ -1,16 +1,22 @@
-import {AxiosError} from "axios";
-import {UseFormGetValues, UseFormSetError} from "react-hook-form/dist/types/form";
-import {FieldValues} from "react-hook-form/dist/types/fields";
-import {Path} from "react-hook-form";
+import {AxiosError} from 'axios';
+import {
+    UseFormGetValues,
+    UseFormSetError,
+} from 'react-hook-form/dist/types/form';
+import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {Path} from 'react-hook-form';
 
 type Violation = {
     code: number | null;
     propertyPath: string;
     message: string;
-}
+};
 
 export type NormalizePath = (path: string) => string;
-export type ApiErrorMapping<TFieldValues extends FieldValues> = Record<string, Path<TFieldValues>>;
+export type ApiErrorMapping<TFieldValues extends FieldValues> = Record<
+    string,
+    Path<TFieldValues>
+>;
 
 export function normalizeApiPlatformPath(path: string): string {
     return path.replace(/\[([^\]]+)]/g, '.$1');
@@ -34,7 +40,9 @@ export function mapApiErrors<TFieldValues extends FieldValues>(
     const violations: Violation[] = (res!.data as any)['violations'] || [];
 
     violations.forEach(v => {
-        const p1 = (normalizePath ? normalizePath(v.propertyPath) : v.propertyPath);
+        const p1 = normalizePath
+            ? normalizePath(v.propertyPath)
+            : v.propertyPath;
         const p2 = (mapping[p1] || p1) as Path<TFieldValues>;
 
         if (getValues && objectHasPropertyPath(getValues(), p2)) {
@@ -47,11 +55,15 @@ export function mapApiErrors<TFieldValues extends FieldValues>(
     });
 }
 
-function objectHasPropertyPath(object: Record<string, any>, path: string): boolean {
+function objectHasPropertyPath(
+    object: Record<string, any>,
+    path: string
+): boolean {
     const parts = path.split('.');
 
     let pointer: Record<string, any> = object;
     for (let i = 0; i < parts.length; i++) {
+        // eslint-disable-next-line no-prototype-builtins
         if (pointer.hasOwnProperty(parts[i])) {
             if (i === parts.length - 1) {
                 return true;

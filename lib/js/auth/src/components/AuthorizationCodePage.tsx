@@ -18,14 +18,17 @@ export default function AuthorizationCodePage({
 }: Props) {
     const navigate = useNavigate();
     const [error, setError] = React.useState<string | undefined>();
+    const urlParams = new URLSearchParams(window.location.search);
 
     useEffectOnce(() => {
-        const code = getQueryParam('code');
+        const code = urlParams.get('code');
         if (!code) {
             setError(`Missing authorization code.`);
 
             return;
         }
+
+        const state = urlParams.get('state');
 
         oauthClient.getTokenFromAuthCode(
             code,
@@ -36,6 +39,27 @@ export default function AuthorizationCodePage({
                     successHandler();
 
                     return;
+                }
+
+                if (state) {
+                    try {
+                        const dState = JSON.parse(atob(state)) as {
+                            r?: string;
+                        };
+                        // eslint-disable-next-line no-prototype-builtins
+                        if (
+                            typeof dState === 'object' &&
+                            // eslint-disable-next-line
+                            dState.hasOwnProperty('r') &&
+                            typeof dState.r === 'string'
+                        ) {
+                            navigate(dState.r);
+
+                            return;
+                        }
+                    } catch (e: any) {
+                        // Ignore
+                    }
                 }
 
                 navigate(successUri ?? '/', {replace: true});
@@ -61,10 +85,4 @@ export default function AuthorizationCodePage({
     }
 
     return <></>
-}
-
-function getQueryParam(name: string): string | undefined {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    return urlParams.get(name) || undefined;
 }

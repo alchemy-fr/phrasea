@@ -3,7 +3,7 @@ export type BoundingBox = {
     Height: number;
     Top: number;
     Left: number;
-}
+};
 
 export enum DetectType {
     Labels = 'labels',
@@ -31,7 +31,7 @@ export type FacesData = {
 export type TValueConfidence<T> = {
     Value: T;
     Confidence: number;
-}
+};
 
 export type FaceDetail = {
     Confidence: number;
@@ -42,7 +42,7 @@ export type FaceDetail = {
     };
     Smile: TValueConfidence<boolean>;
     Eyeglasses: TValueConfidence<boolean>;
-    Gender: TValueConfidence<"Male" | "Female">;
+    Gender: TValueConfidence<'Male' | 'Female'>;
     Beard: TValueConfidence<boolean>;
     Mustache: TValueConfidence<boolean>;
     EyesOpen: TValueConfidence<boolean>;
@@ -56,13 +56,13 @@ export type FaceDetail = {
 export type Polygon = {
     X: number;
     Y: number;
-}
+};
 
 export type TextDetection = {
     Id: string;
     ParentId: string;
     DetectedText: string;
-    Type: "LINE" | "WORD";
+    Type: 'LINE' | 'WORD';
     Confidence: number;
     Geometry: {
         BoundingBox: BoundingBox;

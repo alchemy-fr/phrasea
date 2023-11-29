@@ -1,4 +1,4 @@
-import {Accept} from "react-dropzone";
+import {Accept} from 'react-dropzone';
 
 declare global {
     interface Window {

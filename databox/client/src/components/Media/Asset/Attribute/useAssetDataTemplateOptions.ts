@@ -1,17 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {
-    AttributeIndex,
-    AttrValue,
-    DefinitionIndex,
-    NO_LOCALE,
-    OnChangeHandler
-} from "./AttributesEditor";
-import {Attribute, AttributeDefinition} from "../../../../types";
-import {getWorkspaceAttributeDefinitions} from "../../../../api/attributes";
-import {getAssetAttributes} from "../../../../api/asset";
-import {getBatchActions} from "./BatchActions";
-import {useForm} from "react-hook-form";
-import {AssetDataTemplate} from "../../../../api/templates";
+import {useForm} from 'react-hook-form';
 
 type Model = {
     id?: string | undefined;
@@ -23,7 +10,7 @@ type Model = {
     rememberTags: boolean;
     rememberAttributes: boolean;
     public: boolean;
-}
+};
 
 export function useAssetDataTemplateOptions() {
     const [saveAsTemplate, setSaveAsTemplate] = React.useState(false);
@@ -46,6 +33,6 @@ export function useAssetDataTemplateOptions() {
             saveAsTemplate,
             setSaveAsTemplate,
             usedForm,
-        }
+        };
     }, [usedForm, saveAsTemplate]);
 }

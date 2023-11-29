@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {AttrValue, createNewValue} from "./AttributesEditor";
-import {getAttributeType} from "./types";
+import {useCallback, useEffect, useState} from 'react';
+import {AttrValue, createNewValue} from './AttributesEditor';
+import {getAttributeType} from './types';
 
 type Props = {
     id: string;
@@ -14,7 +14,7 @@ type Props = {
     autoFocus?: boolean;
     isRtl: boolean;
     onChange: (value: AttrValue<string | number>) => void;
-}
+};
 
 export default function AttributeWidget({
     id,
@@ -29,13 +29,20 @@ export default function AttributeWidget({
     indeterminate,
     readOnly,
 }: Props) {
-    const denormalizeInputValue = (initialValue: AttrValue<string | number> | undefined) => initialValue ? {
-        ...initialValue,
-        value: widget.denormalize(initialValue.value),
-    } : initialValue
+    const denormalizeInputValue = (
+        initialValue: AttrValue<string | number> | undefined
+    ) =>
+        initialValue
+            ? {
+                  ...initialValue,
+                  value: widget.denormalize(initialValue.value),
+              }
+            : initialValue;
 
     const widget = getAttributeType(type);
-    const [value, setValue] = useState<AttrValue<string | number> | undefined>(denormalizeInputValue(initialValue));
+    const [value, setValue] = useState<AttrValue<string | number> | undefined>(
+        denormalizeInputValue(initialValue)
+    );
     const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
@@ -43,32 +50,39 @@ export default function AttributeWidget({
         // eslint-disable-next-line
     }, [initialValue?.id]);
 
-    const changeHandler = useCallback((newValue: any) => {
-        const nv: AttrValue<string | number> = {...(value || createNewValue(type))};
-        nv.value = newValue;
-        setValue(nv);
+    const changeHandler = useCallback(
+        (newValue: any) => {
+            const nv: AttrValue<string | number> = {
+                ...(value || createNewValue(type)),
+            };
+            nv.value = newValue;
+            setValue(nv);
 
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
 
-        timeoutRef.current = setTimeout(() => onChange(nv), 10);
+            timeoutRef.current = setTimeout(() => onChange(nv), 10);
 
-        // eslint-disable-next-line
-    }, [onChange, setValue, value]);
+            // eslint-disable-next-line
+        },
+        [onChange, setValue, value]
+    );
 
-    return <>
-        {widget.renderWidget({
-            value: value ? value.value : undefined,
-            isRtl,
-            onChange: changeHandler,
-            readOnly,
-            id,
-            name,
-            required,
-            indeterminate,
-            autoFocus,
-            disabled,
-        })}
-    </>
+    return (
+        <>
+            {widget.renderWidget({
+                value: value ? value.value : undefined,
+                isRtl,
+                onChange: changeHandler,
+                readOnly,
+                id,
+                name,
+                required,
+                indeterminate,
+                autoFocus,
+                disabled,
+            })}
+        </>
+    );
 }

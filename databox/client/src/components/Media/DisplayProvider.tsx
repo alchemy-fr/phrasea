@@ -1,6 +1,6 @@
-import React, {PropsWithChildren, useEffect, useState} from "react";
-import {DisplayContext, PlayingContext} from "./DisplayContext";
-import {toast} from "react-toastify";
+import {PropsWithChildren, useEffect, useState} from 'react';
+import {DisplayContext, PlayingContext} from './DisplayContext';
+import {toast} from 'react-toastify';
 
 import {useTranslation} from 'react-i18next';
 
@@ -22,17 +22,22 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (document.activeElement && document.activeElement?.getAttribute('type') === 'text') {
+            if (
+                document.activeElement &&
+                document.activeElement?.getAttribute('type') === 'text'
+            ) {
                 return;
             }
             if (e.key === 'p') {
-                toast.info(previewLocked
+                toast.info(
+                    previewLocked
                         ? t('layout.previews_unlocked', 'Previews unlocked')
-                        : t('layout.previews_locked', 'Previews locked')
-                    , {
+                        : t('layout.previews_locked', 'Previews locked'),
+                    {
                         toastId: 'preview_lock',
                         updateId: 'preview_lock',
-                    });
+                    }
+                );
 
                 setPreviewLocked(!previewLocked);
             }
@@ -42,43 +47,46 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
 
         return () => {
             window.removeEventListener('keypress', handler);
-        }
+        };
     }, [previewLocked]);
 
-    return <DisplayContext.Provider value={{
-        collectionsLimit,
-        displayAttributes,
-        displayCollections,
-        displayPreview,
-        displayTags,
-        displayTitle,
-        playVideos,
-        playing: playingContext,
-        previewLocked,
-        setCollectionsLimit,
-        setPlaying: (context) => {
-            setPlayingContext(p => {
-                if (p && p !== context) {
-                    p.stop();
-                }
+    return (
+        <DisplayContext.Provider
+            value={{
+                collectionsLimit,
+                displayAttributes,
+                displayCollections,
+                displayPreview,
+                displayTags,
+                displayTitle,
+                playVideos,
+                playing: playingContext,
+                previewLocked,
+                setCollectionsLimit,
+                setPlaying: context => {
+                    setPlayingContext(p => {
+                        if (p && p !== context) {
+                            p.stop();
+                        }
 
-                return context;
-            })
-        },
-        setTagsLimit,
-        setThumbSize,
-        setTitleRows,
-        tagsLimit,
-        thumbSize,
-        titleRows,
-        toggleDisplayAttributes: () => setDisplayAttributes(p => !p),
-        toggleDisplayCollections: () => setDisplayCollections(p => !p),
-        toggleDisplayPreview: () => setDisplayPreview(p => !p),
-        toggleDisplayTags: () => setDisplayTags(p => !p),
-        toggleDisplayTitle: () => setDisplayTitle(p => !p),
-        togglePlayVideos: () => setPlayVideos(p => !p),
-
-    }}>
-        {children}
-    </DisplayContext.Provider>
+                        return context;
+                    });
+                },
+                setTagsLimit,
+                setThumbSize,
+                setTitleRows,
+                tagsLimit,
+                thumbSize,
+                titleRows,
+                toggleDisplayAttributes: () => setDisplayAttributes(p => !p),
+                toggleDisplayCollections: () => setDisplayCollections(p => !p),
+                toggleDisplayPreview: () => setDisplayPreview(p => !p),
+                toggleDisplayTags: () => setDisplayTags(p => !p),
+                toggleDisplayTitle: () => setDisplayTitle(p => !p),
+                togglePlayVideos: () => setPlayVideos(p => !p),
+            }}
+        >
+            {children}
+        </DisplayContext.Provider>
+    );
 }

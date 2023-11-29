@@ -1,12 +1,11 @@
-import {ApiHydraObjectResponse} from "./api/hydra";
-import {AttributeType} from "./api/attributes";
-import {VisualWorkflow} from "@alchemy/visual-workflow";
+import {ApiHydraObjectResponse} from './api/hydra';
+import {AttributeType} from './api/attributes';
 
 type AlternateUrl = {
     type: string;
     url: string;
     label?: string;
-}
+};
 
 export interface File {
     id: string;
@@ -21,17 +20,18 @@ type GroupValue = {
     key: string | null;
     values: any[];
     type: AttributeType;
-}
+};
 
 export type User = {
     id: string;
     username: string;
-}
+};
 
-export interface Asset extends IPermissions<{
-    canEditAttributes: boolean;
-    canShare: boolean;
-}> {
+export interface Asset
+    extends IPermissions<{
+        canEditAttributes: boolean;
+        canShare: boolean;
+    }> {
     id: string;
     title?: string | undefined;
     resolvedTitle?: string;
@@ -62,7 +62,7 @@ type AttrValue = any;
 export interface Attribute extends IPermissions {
     id: string;
     definition: AttributeDefinition;
-    origin: "human" | "machine";
+    origin: 'human' | 'machine';
     multiple: boolean;
     originVendor?: string;
     locale?: string | undefined;
@@ -149,12 +149,13 @@ export interface RenditionRule extends ApiHydraObjectResponse {
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
-    canEdit: boolean,
-    canDelete: boolean,
-    canEditPermissions: boolean,
+    canEdit: boolean;
+    canDelete: boolean;
+    canEditPermissions: boolean;
 } & E;
 
-export interface IPermissions<E extends Record<string, boolean> = {}> extends ApiHydraObjectResponse {
+export interface IPermissions<E extends Record<string, boolean> = {}>
+    extends ApiHydraObjectResponse {
     capabilities: TPermission<E>;
 }
 
@@ -185,8 +186,10 @@ export interface Group {
     name: string;
 }
 
-
-export type CollectionOptionalWorkspace = { workspace?: Workspace } & Omit<Collection, "workspace">;
+export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
+    Collection,
+    'workspace'
+>;
 
 export interface Collection extends IPermissions {
     id: string;
@@ -214,7 +217,7 @@ export type IntegrationData = {
     keyId: string | null;
     name: string;
     value: any;
-}
+};
 
 export interface WorkspaceIntegration {
     id: string;

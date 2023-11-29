@@ -1,11 +1,18 @@
-import React from "react";
-import {FacetType, ResolvedBucketValue} from "../Asset/Facets";
-import {Filters, FilterType, SortBy} from "./Filter";
+import {FacetType, ResolvedBucketValue} from '../Asset/Facets';
+import {Filters, FilterType, SortBy} from './Filter';
 
 export type TSearchContext = {
     workspaceId?: string;
-    selectCollection: (absolutePath: string | undefined, title: string | undefined, forceReload?: boolean) => void;
-    selectWorkspace: (id: string | undefined, title: string | undefined, forceReload?: boolean) => void;
+    selectCollection: (
+        absolutePath: string | undefined,
+        title: string | undefined,
+        forceReload?: boolean
+    ) => void;
+    selectWorkspace: (
+        id: string | undefined,
+        title: string | undefined,
+        forceReload?: boolean
+    ) => void;
     collections: string[];
     workspaces: string[];
     query: string;
@@ -32,7 +39,7 @@ export type TSearchContext = {
     setSortBy: (newSortBy: SortBy[]) => void;
     searchChecksum?: string;
     reloadInc: number;
-}
+};
 
 export const SearchContext = React.createContext<TSearchContext>({
     query: '',
@@ -40,23 +47,14 @@ export const SearchContext = React.createContext<TSearchContext>({
     sortBy: [],
     collections: [],
     workspaces: [],
-    selectCollection: () => {
-    },
-    selectWorkspace: () => {
-    },
-    setQuery: () => {
-    },
-    setAttrFilter: () => {
-    },
-    toggleAttrFilter: () => {
-    },
-    removeAttrFilter: () => {
-    },
-    invertAttrFilter: () => {
-    },
-    setSortBy: () => {
-    },
-    setGeoLocation: () => {
-    },
+    selectCollection: () => {},
+    selectWorkspace: () => {},
+    setQuery: () => {},
+    setAttrFilter: () => {},
+    toggleAttrFilter: () => {},
+    removeAttrFilter: () => {},
+    invertAttrFilter: () => {},
+    setSortBy: () => {},
+    setGeoLocation: () => {},
     reloadInc: 0,
 });

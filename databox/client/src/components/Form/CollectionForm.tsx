@@ -1,13 +1,13 @@
-import {TextField} from "@mui/material";
-import {useForm} from "react-hook-form";
-import React, {FC} from "react";
-import {useTranslation} from "react-i18next";
-import {Collection} from "../../types";
-import FormFieldErrors from "./FormFieldErrors";
-import PrivacyField from "../Ui/PrivacyField";
-import FormRow from "./FormRow";
-import {FormProps} from "./types";
-import {useDirtyFormPrompt} from "../Dialog/Tabbed/FormTab";
+import {TextField} from '@mui/material';
+import {useForm} from 'react-hook-form';
+import {FC} from 'react';
+import {useTranslation} from 'react-i18next';
+import {Collection} from '../../types';
+import FormFieldErrors from './FormFieldErrors';
+import PrivacyField from '../Ui/PrivacyField';
+import FormRow from './FormRow';
+import {FormProps} from './types';
+import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
@@ -23,7 +23,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
         handleSubmit,
         setError,
         control,
-        formState: {errors, isDirty}
+        formState: {errors, isDirty},
     } = useForm<any>({
         defaultValues: data ?? {
             title: '',
@@ -32,30 +32,23 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
     });
     useDirtyFormPrompt(!submitted && isDirty);
 
-    return <form
-        id={formId}
-        onSubmit={handleSubmit(onSubmit(setError))}
-    >
-        <FormRow>
-            <TextField
-                autoFocus
-                required={true}
-                label={t('form.collection.title.label', 'Title')}
-                disabled={submitting}
-                {...register('title', {
-                    required: true,
-                })}
-            />
-            <FormFieldErrors
-                field={'title'}
-                errors={errors}
-            />
-        </FormRow>
-        <FormRow>
-            <PrivacyField
-                control={control}
-                name={'privacy'}
-            />
-        </FormRow>
-    </form>
-}
+    return (
+        <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <FormRow>
+                <TextField
+                    autoFocus
+                    required={true}
+                    label={t('form.collection.title.label', 'Title')}
+                    disabled={submitting}
+                    {...register('title', {
+                        required: true,
+                    })}
+                />
+                <FormFieldErrors field={'title'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <PrivacyField control={control} name={'privacy'} />
+            </FormRow>
+        </form>
+    );
+};

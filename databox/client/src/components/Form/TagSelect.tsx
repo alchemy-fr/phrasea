@@ -1,8 +1,7 @@
-import React from "react";
-import {Tag} from "../../types";
-import {getTags, tagNS} from "../../api/tag";
-import {FieldValues} from "react-hook-form/dist/types/fields";
-import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
+import {Tag} from '../../types';
+import {getTags, tagNS} from '../../api/tag';
+import {FieldValues} from 'react-hook-form/dist/types/fields';
+import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 
 type Props<TFieldValues> = {
     workspaceId: string;
@@ -13,23 +12,29 @@ export default function TagSelect<TFieldValues extends FieldValues>({
     ...rest
 }: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
-        const data = (await getTags({
-            workspace: workspaceId,
-        })).result;
+        const data = (
+            await getTags({
+                workspace: workspaceId,
+            })
+        ).result;
 
-        return data.map((t: Tag) => ({
-            value: `${tagNS}/${t.id}`,
-            label: t.name,
-        })).filter(i =>
-            i.label.toLowerCase().includes((inputValue || '').toLowerCase())
-        );
+        return data
+            .map((t: Tag) => ({
+                value: `${tagNS}/${t.id}`,
+                label: t.name,
+            }))
+            .filter(i =>
+                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+            );
     };
 
-    return <RSelectWidget<TFieldValues, false>
-        cacheId={'tags'}
-        {...rest}
-        loadOptions={load}
-        isMulti={true as any}
-        key={workspaceId}
-    />
+    return (
+        <RSelectWidget<TFieldValues, false>
+            cacheId={'tags'}
+            {...rest}
+            loadOptions={load}
+            isMulti={true as any}
+            key={workspaceId}
+        />
+    );
 }

@@ -1,7 +1,14 @@
-import React, {PropsWithChildren, useCallback, useContext, useEffect, useRef, useState} from "react";
-import {AssetSelectionContext} from "./AssetSelectionContext";
-import {ResultContext} from "./Search/ResultContext";
-import {StateSetterArg} from "../../types/react";
+import {
+    PropsWithChildren,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import {AssetSelectionContext} from './AssetSelectionContext';
+import {ResultContext} from './Search/ResultContext';
+import {StateSetterArg} from '../../types/react';
 
 type Props = PropsWithChildren<{
     onSelectionChange?: (selectedAssets: string[]) => void;
@@ -9,25 +16,28 @@ type Props = PropsWithChildren<{
 
 export default function AssetSelectionProvider({
     children,
-    onSelectionChange
+    onSelectionChange,
 }: Props) {
     const resultContext = useContext(ResultContext);
     const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
     const didMount = useRef(false);
 
-    const setSelectedAssetsProxy = useCallback((selection: StateSetterArg<string[]>) => {
-        if (typeof selection === 'function') {
-            setSelectedAssets(p => {
-                const next = selection(p);
-                onSelectionChange && onSelectionChange(p);
+    const setSelectedAssetsProxy = useCallback(
+        (selection: StateSetterArg<string[]>) => {
+            if (typeof selection === 'function') {
+                setSelectedAssets(p => {
+                    const next = selection(p);
+                    onSelectionChange && onSelectionChange(p);
 
-                return next;
-            });
-        } else {
-            setSelectedAssets(selection);
-            onSelectionChange && onSelectionChange(selection);
-        }
-    }, []);
+                    return next;
+                });
+            } else {
+                setSelectedAssets(selection);
+                onSelectionChange && onSelectionChange(selection);
+            }
+        },
+        []
+    );
 
     useEffect(() => {
         if (didMount.current) {
@@ -37,10 +47,14 @@ export default function AssetSelectionProvider({
         }
     }, [resultContext.pages[0]]);
 
-    return <AssetSelectionContext.Provider value={{
-        selectedAssets,
-        selectAssets: setSelectedAssetsProxy,
-    }}>
-        {children}
-    </AssetSelectionContext.Provider>
+    return (
+        <AssetSelectionContext.Provider
+            value={{
+                selectedAssets,
+                selectAssets: setSelectedAssetsProxy,
+            }}
+        >
+            {children}
+        </AssetSelectionContext.Provider>
+    );
 }

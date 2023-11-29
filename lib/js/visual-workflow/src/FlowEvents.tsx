@@ -1,4 +1,4 @@
-import React, {Dispatch, PropsWithChildren, SetStateAction} from 'react';
+import {Dispatch, PropsWithChildren, SetStateAction} from 'react';
 import {Edge, useOnSelectionChange} from "reactflow";
 
 type Props = PropsWithChildren<{

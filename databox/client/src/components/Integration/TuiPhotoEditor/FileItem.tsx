@@ -1,4 +1,4 @@
-import React, {MouseEvent as ReactMouseEvent} from 'react';
+import {MouseEvent as ReactMouseEvent} from 'react';
 import {
     Divider,
     IconButton,
@@ -7,12 +7,12 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     Menu,
-    MenuItem
-} from "@mui/material";
-import FileOpenIcon from "@mui/icons-material/FileOpen";
-import SaveAsButton from "../../Media/Asset/Actions/SaveAsButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {Asset, File, IntegrationData} from "../../../types";
+    MenuItem,
+} from '@mui/material';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {Asset, File, IntegrationData} from '../../../types';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 type Props = {
@@ -38,7 +38,7 @@ export default function FileItem({
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
-    const handleClose =  React.useCallback(() => {
+    const handleClose = React.useCallback(() => {
         setAnchorEl(null);
     }, []);
 
@@ -46,63 +46,52 @@ export default function FileItem({
         onOpen(data.value, data.keyId);
     }, [data]);
 
+    const deleteHandler = React.useCallback(
+        async (e: ReactMouseEvent<HTMLElement, MouseEvent>) => {
+            handleClose();
+            e.stopPropagation();
+            setDeleting(true);
+            await onDelete(data.id);
+            setDeleting(false);
+        },
+        [handleClose, onDelete, data.id]
+    );
 
-    const deleteHandler = React.useCallback(async (e: ReactMouseEvent<HTMLElement, MouseEvent>) => {
-        handleClose();
-        e.stopPropagation();
-        setDeleting(true);
-        await onDelete(data.id);
-        setDeleting(false);
-    }, [handleClose, onDelete, data.id]);
-
-
-    return <ListItemButton
-        disabled={deleting || disabled}
-        selected={selected}
-        key={data.id}
-        onClick={onClick}
-    >
-        <ListItemIcon>
-            <FileOpenIcon/>
-        </ListItemIcon>
-        <ListItemText>
-            {data.keyId}
-        </ListItemText>
-
-        <ListItemSecondaryAction
+    return (
+        <ListItemButton
+            disabled={deleting || disabled}
+            selected={selected}
+            key={data.id}
+            onClick={onClick}
         >
-            <IconButton
-                onClick={handleClick}
-                disabled={deleting}
-            >
-                <MoreHorizIcon/>
-            </IconButton>
-        </ListItemSecondaryAction>
+            <ListItemIcon>
+                <FileOpenIcon />
+            </ListItemIcon>
+            <ListItemText>{data.keyId}</ListItemText>
 
-        <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-        >
-            <MenuItem
-                onClick={deleteHandler}
-            >
-                <ListItemIcon>
-                    <DeleteIcon/>
-                </ListItemIcon>
-                <ListItemText>
-                    Delete
-                </ListItemText>
-            </MenuItem>
+            <ListItemSecondaryAction>
+                <IconButton onClick={handleClick} disabled={deleting}>
+                    <MoreHorizIcon />
+                </IconButton>
+            </ListItemSecondaryAction>
 
-            <Divider />
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={deleteHandler}>
+                    <ListItemIcon>
+                        <DeleteIcon />
+                    </ListItemIcon>
+                    <ListItemText>Delete</ListItemText>
+                </MenuItem>
 
-            <SaveAsButton
-                Component={MenuItem}
-                asset={asset}
-                file={data.value}
-                suggestedTitle={asset.resolvedTitle + ' - ' + data.keyId}
-            />
-        </Menu>
-    </ListItemButton>
+                <Divider />
+
+                <SaveAsButton
+                    Component={MenuItem}
+                    asset={asset}
+                    file={data.value}
+                    suggestedTitle={asset.resolvedTitle + ' - ' + data.keyId}
+                />
+            </Menu>
+        </ListItemButton>
+    );
 }

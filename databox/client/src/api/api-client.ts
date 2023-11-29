@@ -1,5 +1,9 @@
-import {configureClientAuthentication, createHttpClient, KeycloakClient} from '@alchemy/auth';
-import config from "../config";
+import {
+    configureClientAuthentication,
+    createHttpClient,
+    KeycloakClient,
+} from '@alchemy/auth';
+import config from '../config';
 
 export const keycloakClient = new KeycloakClient({
     clientId: config.clientId,
