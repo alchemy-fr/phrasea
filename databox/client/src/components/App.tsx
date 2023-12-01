@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import AssetSelectionProvider from './Media/AssetSelectionProvider';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
@@ -19,6 +19,13 @@ import {appPathPrefix} from '../routes';
 import uploaderClient from '../api/uploader-client';
 import {zIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
+
+declare module 'axios' {
+    export interface AxiosRequestConfig {
+        anonymous?: boolean;
+        errorHandled?: boolean;
+    }
+}
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
@@ -109,24 +116,39 @@ export default function App() {
             switch (status) {
                 case 401:
                     toast.error(
-                        t('error.session_expired', 'Your session has expired')
+                        t(
+                            'error.session_expired',
+                            'Your session has expired'
+                        ) as string
                     );
                     userContext.logout && userContext.logout(false);
                     break;
                 case 403:
-                    toast.error(t('error.http_unauthorized', 'Unauthorized'));
+                    toast.error(
+                        t('error.http_unauthorized', 'Unauthorized') as string
+                    );
                     break;
                 case 400:
-                    toast.error(error.response?.data['hydra:description']);
+                    toast.error(
+                        error.response?.data['hydra:description'] as
+                            | string
+                            | undefined
+                    );
                     break;
                 case 404:
-                    toast.error(error.response?.data['hydra:description']);
+                    toast.error(
+                        error.response?.data['hydra:description'] as
+                            | string
+                            | undefined
+                    );
                     break;
                 case 422:
                     // Handled by form
                     break;
                 default:
-                    toast.error(t('error.http_error', 'Server error'));
+                    toast.error(
+                        t('error.http_error', 'Server error') as string
+                    );
                     break;
             }
         };

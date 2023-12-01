@@ -5,7 +5,7 @@ import CollectionDialog from './components/Dialog/Collection/CollectionDialog';
 import AssetDialog from './components/Dialog/Asset/AssetDialog';
 import AssetView from './components/Media/Asset/AssetView';
 import WorkflowView from './components/Workflow/WorkflowView';
-import AuthorizationCodePage from '@alchemy/auth/src/components/AuthorizationCodePage.tsx';
+import AppAuthorizationCodePage from './components/AppAuthorizationCodePage.tsx';
 
 export type RouteDefinition = {
     name: string;
@@ -62,7 +62,7 @@ export const routes: RouteDefinition[] = [
     {
         name: 'oauth',
         path: '/auth',
-        component: AuthorizationCodePage,
+        component: AppAuthorizationCodePage,
         public: true,
     },
 ];

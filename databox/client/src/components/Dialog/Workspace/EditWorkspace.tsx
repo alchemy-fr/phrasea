@@ -21,7 +21,7 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
         },
         onSuccess: () => {
             toast.success(
-                t('form.workspace_edit.success', 'Workspace edited!')
+                t('form.workspace_edit.success', 'Workspace edited!') as string
             );
             onClose();
         },

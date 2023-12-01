@@ -2,7 +2,6 @@ import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {AxiosRequestConfig} from 'axios';
-import {RequestConfig} from '@alchemy/auth';
 
 export interface GetAssetOptions {
     url?: string;
@@ -48,7 +47,7 @@ export async function getAssets(
         debug: {
             query: res.data['debug:es'].query,
             esQueryTime: res.data['debug:es'].time,
-            totalResponseTime: (res.config as RequestConfig).meta!
+            totalResponseTime: res.config.meta!
                 .responseTime!,
         },
     };

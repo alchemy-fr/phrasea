@@ -1,4 +1,4 @@
-import {
+import React, {
     FunctionComponent,
     useCallback,
     useEffect,
@@ -179,7 +179,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
             return newData;
         },
         onSuccess: () => {
-            toast.success(t('definition_manager.saved', 'Definition saved!'));
+            toast.success(
+                t('definition_manager.saved', 'Definition saved!') as string
+            );
         },
     });
 

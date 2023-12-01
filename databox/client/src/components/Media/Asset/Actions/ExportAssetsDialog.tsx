@@ -13,6 +13,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FullPageLoader from '../../../Ui/FullPageLoader';
 import {StackedModalProps, useModals} from '../../../../hooks/useModalStack';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import RemoteErrors from "../../../Form/RemoteErrors.tsx";
 
 type Props = {
     assets: Asset[];
@@ -155,7 +156,7 @@ export default function ExportAssetsDialog({assets, open}: Props) {
                                         />
                                         <FormFieldErrors
                                             field={'renditions[]'}
-                                            errors={remoteErrors || errors}
+                                            errors={errors}
                                         />
                                     </div>
                                 );
@@ -163,6 +164,9 @@ export default function ExportAssetsDialog({assets, open}: Props) {
                         </FormRow>
                     );
                 })}
+                <RemoteErrors
+                    errors={remoteErrors}
+                />
             </form>
         </FormDialog>
     );

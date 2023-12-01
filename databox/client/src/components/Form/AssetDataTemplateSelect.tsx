@@ -1,4 +1,4 @@
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {AssetDataTemplate, getAssetDataTemplates} from '../../api/templates';
 import {OptionProps, components} from 'react-select';
@@ -18,7 +18,7 @@ const Option = (props: OptionProps<SelectOption>) => {
     );
 };
 
-type Props<TFieldValues> = {
+type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
     collectionId: string | undefined;
 } & RSelectProps<TFieldValues, true>;

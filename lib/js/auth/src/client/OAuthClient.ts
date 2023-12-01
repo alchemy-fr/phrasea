@@ -313,10 +313,6 @@ export default class OAuthClient {
     }
 }
 
-export type RequestConfigWithAuth = {
-    anonymous?: boolean;
-} & InternalAxiosRequestConfig;
-
 type OnTokenError = (error: AxiosError) => void;
 
 export function configureClientAuthentication(
@@ -340,7 +336,7 @@ function createAxiosInterceptor(
     method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials",
     onTokenError?: OnTokenError
 ) {
-    return async (config: RequestConfigWithAuth) => {
+    return async (config: InternalAxiosRequestConfig) => {
         if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {
             return config;
         }
@@ -373,7 +369,7 @@ function createAxiosInterceptor(
         }
 
         config.headers ??= new AxiosHeaders({});
-        config.headers.set('Authorization', `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`);
+        config.headers['Authorization'] ??= `${oauthClient.getTokenType()!} ${oauthClient.getAccessToken()!}`;
 
         return config;
     };

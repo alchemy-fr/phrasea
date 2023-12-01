@@ -10,6 +10,7 @@ import MultiAttributeRow from './MultiAttributeRow';
 import FormRow from '../../../Form/FormRow';
 import {FormLabel} from '@mui/material';
 import TranslatableAttributeTabs from './TranslatableAttributeTabs';
+import React from 'react';
 
 function extractNoLocaleOrDefinedLocaleValue<T>(
     attributes: LocalizedAttributeIndex<T>

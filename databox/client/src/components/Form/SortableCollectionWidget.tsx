@@ -26,7 +26,7 @@ import {
     CollectionItemProps,
     CollectionWidgetProps,
 } from './CollectionWidget';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 
 export type SortableItem = {
     id: string;

@@ -1,10 +1,10 @@
 import {useCallback} from 'react';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {getRenditionClasses, renditionClassNS} from '../../api/rendition';
 import {RenditionClass} from '../../types';
 
-type Props<TFieldValues> = {
+type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
 } & RSelectProps<TFieldValues, false>;
 

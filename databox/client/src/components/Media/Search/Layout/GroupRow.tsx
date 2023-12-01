@@ -1,4 +1,4 @@
-import {PropsWithChildren, ReactNode} from 'react';
+import React, {PropsWithChildren, ReactNode} from 'react';
 import {Asset} from '../../../../types';
 import SectionDivider from './SectionDivider';
 import {AttributeFormatContext} from '../../Asset/Attribute/Format/AttributeFormatContext';

@@ -1,10 +1,10 @@
 import {Asset, Attribute} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import {ReactElement, ReactNode, useContext} from 'react';
+import React, {ReactElement, ReactNode, useContext} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
 import {Box} from '@mui/material';
-import * as nl2br from 'react-nl2br';
+import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 

@@ -1,9 +1,9 @@
 import {Tag} from '../../types';
 import {getTags, tagNS} from '../../api/tag';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 
-type Props<TFieldValues> = {
+type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
 } & RSelectProps<TFieldValues, false>;
 

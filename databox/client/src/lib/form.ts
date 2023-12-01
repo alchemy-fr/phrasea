@@ -1,8 +1,5 @@
 import {AxiosError} from 'axios';
-import {
-    UseFormGetValues,
-    UseFormSetError,
-} from 'react-hook-form/dist/types/form';
+import {UseFormGetValues, UseFormSetError} from 'react-hook-form';
 import {Path, FieldValues} from 'react-hook-form';
 
 type Violation = {

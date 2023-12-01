@@ -1,4 +1,4 @@
-import {useContext, useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {IconButton} from '@mui/material';
 import {useBrowserPosition} from '../../../hooks/useBrowserLocation';
 import {SearchContext} from './SearchContext';

@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 import {AttributeClass} from '../../types';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {attributeClassNS, getAttributeClasses} from '../../api/attributes';
 

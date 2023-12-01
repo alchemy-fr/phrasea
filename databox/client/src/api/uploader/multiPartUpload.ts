@@ -2,7 +2,6 @@ import {
     getUniqueFileId,
     uploadStateStorage,
 } from '../../lib/upload/uploadStateStorage';
-import {makeAuthorizationHeaders} from './file';
 import uploaderClient from '../uploader-client';
 import {AxiosProgressEvent} from 'axios';
 
@@ -40,17 +39,11 @@ export async function uploadMultipartFile(
                 });
             }
         } else {
-            const {data: res} = await uploaderClient.post(
-                `/uploads`,
-                {
-                    filename: file.name,
-                    type: file.type,
-                    size: file.size,
-                },
-                {
-                    headers: await makeAuthorizationHeaders(),
-                }
-            );
+            const {data: res} = await uploaderClient.post(`/uploads`, {
+                filename: file.name,
+                type: file.type,
+                size: file.size,
+            });
 
             uploadId = res.id;
             const path = res.path;
@@ -68,9 +61,6 @@ export async function uploadMultipartFile(
                 `/uploads/${uploadId}/part`,
                 {
                     part: index,
-                },
-                {
-                    headers: await makeAuthorizationHeaders(),
                 }
             );
 
@@ -89,6 +79,7 @@ export async function uploadMultipartFile(
 
                         onProgress && onProgress(multiPartEvent);
                     },
+                    anonymous: true,
                 }
             );
 
@@ -101,20 +92,14 @@ export async function uploadMultipartFile(
             uploadStateStorage.updateUpload(userId, fileUID, eTag);
         }
 
-        const res = await uploaderClient.post(
-            `/assets`,
-            {
-                targetSlug,
-                multipart: {
-                    uploadId,
-                    parts: uploadParts,
-                },
-                data: upload.data,
+        const res = await uploaderClient.post(`/assets`, {
+            targetSlug,
+            multipart: {
+                uploadId,
+                parts: uploadParts,
             },
-            {
-                headers: await makeAuthorizationHeaders(),
-            }
-        );
+            data: upload.data,
+        });
 
         uploadStateStorage.removeUpload(userId, fileUID);
 

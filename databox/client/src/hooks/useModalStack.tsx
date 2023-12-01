@@ -1,4 +1,4 @@
-import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 
 type ClosableFunc = () => boolean;
 

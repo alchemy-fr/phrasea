@@ -1,12 +1,11 @@
-import {Control, UseFormRegister} from 'react-hook-form/dist/types/form';
 import {Box, Button, InputLabel} from '@mui/material';
-import {useFieldArray} from 'react-hook-form';
+import {Control, useFieldArray, UseFormRegister} from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import SortIcon from '@mui/icons-material/Sort';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 
 type BaseProps<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;

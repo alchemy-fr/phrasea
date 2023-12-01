@@ -137,7 +137,7 @@ export default function CollectionMenuItem({
                     t(
                         'delete.collection.confirmed',
                         'Collection has been removed!'
-                    )
+                    ) as string
                 );
             },
         });

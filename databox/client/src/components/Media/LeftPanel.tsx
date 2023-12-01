@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import Facets from './Asset/Facets';
 import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
@@ -62,7 +62,7 @@ const AntTab = styled(Tab)({
 export default function LeftPanel() {
     const [t, setTab] = useState<TabEnum>(TabEnum.tree);
 
-    const handleChange = (event: React.ChangeEvent<{}>, newValue: TabEnum) => {
+    const handleChange = (_event: React.ChangeEvent<{}>, newValue: TabEnum) => {
         setTab(newValue);
     };
 

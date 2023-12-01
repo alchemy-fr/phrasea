@@ -7,6 +7,7 @@ import {Box, TextField, TextFieldProps} from '@mui/material';
 import {replaceHighlight} from '../Attributes';
 import BaseType from './BaseType';
 import CopyAttribute, {copyToClipBoardClass} from '../CopyAttribute';
+import React from 'react';
 
 export default class TextType
     extends BaseType

@@ -13,16 +13,20 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "allowJs": true,
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
 
-    "types": ["vite-plugin-svgr/client", "node"]
+    "types": [
+      "vite-plugin-svgr/client",
+      "node",
+      "jest"
+    ]
   },
   "include": ["src"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

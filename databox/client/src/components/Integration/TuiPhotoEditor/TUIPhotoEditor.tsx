@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
@@ -105,13 +105,13 @@ export default function TUIPhotoEditor({
     };
 
     const deleteFile = async (id: string) => {
-        setDeleting(true);
+        setDeleting(id);
         try {
             await runIntegrationFileAction('delete', integration.id, file.id, {
                 id,
             });
         } finally {
-            setDeleting(false);
+            setDeleting(undefined);
         }
         await refreshIntegrations();
     };

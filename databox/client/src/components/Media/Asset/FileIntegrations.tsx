@@ -1,4 +1,4 @@
-import {FC, useCallback, useEffect, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from '../../../types';
 import {
     Accordion,

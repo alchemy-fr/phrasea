@@ -48,7 +48,7 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
                             assetSelection.selectedAssets.length ===
                             pages[0].length
                         }
-                        onChange={(e, checked) => {
+                        onChange={(_e, checked) => {
                             assetSelection.selectAssets(
                                 checked ? pages[0].map(a => a.id) : []
                             );

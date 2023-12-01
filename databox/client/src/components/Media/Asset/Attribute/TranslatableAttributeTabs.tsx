@@ -10,6 +10,7 @@ import {
 import AttributeWidget from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
+import React from 'react';
 
 function TabPanel({
     children,
@@ -87,7 +88,7 @@ export default function TranslatableAttributeTabs({
             >
                 <Tabs
                     value={currentLocale}
-                    onChange={(e, value) => onLocaleChange(value)}
+                    onChange={(_e, value) => onLocaleChange(value)}
                     aria-label="Locales"
                     sx={{
                         '.MuiTab-root': {

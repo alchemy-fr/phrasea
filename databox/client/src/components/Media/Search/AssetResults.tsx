@@ -1,4 +1,4 @@
-import {
+import React, {
     CSSProperties,
     MouseEvent,
     MouseEventHandler,

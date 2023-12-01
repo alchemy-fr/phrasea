@@ -23,7 +23,10 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
         },
         onSuccess: () => {
             toast.success(
-                t('form.collection_edit.success', 'Collection edited!')
+                t(
+                    'form.collection_edit.success',
+                    'Collection edited!'
+                ) as string
             );
             onClose();
         },

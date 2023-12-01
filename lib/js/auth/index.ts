@@ -3,7 +3,6 @@ import OAuthClient, {
     logoutEventType,
     sessionExpiredEventType,
     refreshTokenEventType,
-    RequestConfigWithAuth,
     configureClientAuthentication,
     configureClientCredentialsGrantType,
     RefreshTokenEvent,
@@ -16,7 +15,6 @@ import OAuthClient, {
 
 import {
     createHttpClient,
-    RequestConfig,
 } from "./src/client/httpClient";
 
 import AuthenticationContext, {TAuthContext} from "./src/context/AuthenticationContext";
@@ -43,8 +41,6 @@ export type {
     LogoutEvent,
     LoginEvent,
     TAuthContext,
-    RequestConfig,
     RefreshTokenEvent,
     UserInfoResponse,
-    RequestConfigWithAuth,
 }

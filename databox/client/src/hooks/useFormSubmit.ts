@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {AxiosError} from 'axios';
-import {UseFormSetError} from 'react-hook-form/dist/types/form';
+import {UseFormSetError} from 'react-hook-form';
 import {ApiErrorMapping, mapApiErrors, NormalizePath} from '../lib/form';
 
 type OnSubmit<T extends object, R> = (data: T) => Promise<R>;

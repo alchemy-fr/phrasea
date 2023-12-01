@@ -1,4 +1,4 @@
-import {UseFormSetError} from 'react-hook-form/dist/types/form';
+import {UseFormSetError} from 'react-hook-form';
 
 export type FormProps<T extends object, D extends object = T> = {
     formId: string;

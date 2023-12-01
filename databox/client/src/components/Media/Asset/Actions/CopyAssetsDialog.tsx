@@ -201,7 +201,7 @@ export default function CopyAssetsDialog({assets, onComplete, open}: Props) {
                 </div>
                 <FormRow>
                     <CollectionTreeWidget
-                        onChange={(nodeId, workspaceId) => {
+                        onChange={(_nodeId, workspaceId) => {
                             setWorkspaceDest(workspaceId);
                         }}
                         control={control}

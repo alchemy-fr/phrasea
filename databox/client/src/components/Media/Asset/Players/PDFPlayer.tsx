@@ -1,8 +1,7 @@
 import {useCallback, useState} from 'react';
 import {PlayerProps} from './index';
-import {Document, Page} from 'react-pdf/dist/esm/entry.webpack';
+import {Document, Page} from 'react-pdf';
 import {getMaxVideoDimensions} from './VideoPlayer';
-import {PDFPageProxy} from 'react-pdf';
 
 type Props = {} & PlayerProps;
 
@@ -16,7 +15,7 @@ export default function PDFPlayer({
     const pdfDimensions = getMaxVideoDimensions(maxDimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
-            pdf.getPage(1).then((page: PDFPageProxy) => {
+            pdf.getPage(1).then((page: any) => {
                 setRatio(page.view[3] / page.view[2]);
             });
 

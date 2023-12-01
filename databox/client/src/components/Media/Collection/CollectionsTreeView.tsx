@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
@@ -245,7 +245,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     );
 
     const handleSelect = (
-        event: React.ChangeEvent<{}>,
+        _event: React.ChangeEvent<{}>,
         nodeIds: IsMulti extends true ? string[] : string
     ) => {
         if (disabled) {
@@ -279,7 +279,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                     return undefined;
                 }
 
-                if (index >= prev!.nodes?.length ?? 0) {
+                if (index >= (prev!.nodes?.length ?? 0)) {
                     return {
                         ...prev!,
                         nodes: prev!.nodes.concat({
@@ -320,7 +320,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
         });
     }, [workspaceId]);
 
-    const handleToggle = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
+    const handleToggle = (_event: React.ChangeEvent<{}>, nodeIds: string[]) => {
         setExpanded(nodeIds);
     };
 

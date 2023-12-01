@@ -6,6 +6,7 @@ import {
 import TextType from './TextType';
 import ColorPicker, {ColorBox} from '../../../../Form/ColorPicker';
 import {replaceHighlight} from '../Attributes';
+import React from 'react';
 
 enum Formats {
     Box = 'box',

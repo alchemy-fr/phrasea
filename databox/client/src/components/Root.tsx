@@ -1,4 +1,4 @@
-import {Suspense} from 'react';
+import React, {Suspense} from 'react';
 import {AuthUser} from '../types';
 import {UserContext} from './Security/UserContext';
 import Routes from './Routing/Routes';

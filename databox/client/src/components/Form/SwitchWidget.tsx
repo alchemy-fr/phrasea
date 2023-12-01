@@ -1,9 +1,8 @@
 import {ReactNode} from 'react';
-import {Controller} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
-import {Control} from 'react-hook-form/dist/types/form';
-import {FieldPath} from 'react-hook-form/dist/types';
-import {RegisterOptions} from 'react-hook-form/dist/types/validator';
+import {Controller, FieldValues} from 'react-hook-form';
+import {Control} from 'react-hook-form';
+import {FieldPath} from 'react-hook-form';
+import {RegisterOptions} from 'react-hook-form';
 import {FormControlLabel, Switch} from '@mui/material';
 import {SwitchProps} from '@mui/material/Switch/Switch';
 

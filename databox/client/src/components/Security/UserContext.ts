@@ -1,4 +1,5 @@
 import {AuthUser} from '../../types';
+import React from 'react';
 
 export type TUserContext = {
     user?: AuthUser | undefined;

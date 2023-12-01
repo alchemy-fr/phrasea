@@ -1,4 +1,4 @@
-import {PropsWithChildren, useCallback, useState} from 'react';
+import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {
     extractLabelValueFromKey,

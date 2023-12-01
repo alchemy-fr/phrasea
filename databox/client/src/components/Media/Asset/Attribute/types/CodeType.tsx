@@ -2,6 +2,7 @@ import {AttributeFormatterProps, AttributeWidgetProps} from './types';
 import TextareaType from './TextareaType';
 import CodeEditor from '../../Widgets/CodeEditor';
 import {FormLabel} from '@mui/material';
+import React from 'react';
 
 export default class CodeType extends TextareaType {
     renderWidget({

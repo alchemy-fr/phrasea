@@ -1,4 +1,4 @@
-import {PropsWithChildren} from 'react';
+import React, {PropsWithChildren} from 'react';
 import {HexColorPicker} from 'react-colorful';
 import {Stack, TextField, TextFieldProps} from '@mui/material';
 

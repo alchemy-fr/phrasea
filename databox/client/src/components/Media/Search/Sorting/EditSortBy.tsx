@@ -1,4 +1,10 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import {
     Box,
     Button,
@@ -216,7 +222,7 @@ export default function EditSortBy({onClose}: Props) {
                         control={
                             <Checkbox
                                 checked={grouped}
-                                onChange={(e, value) => setGrouped(value)}
+                                onChange={(_e, value) => setGrouped(value)}
                                 disabled={groupDisabled}
                             />
                         }

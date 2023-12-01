@@ -2,6 +2,7 @@ import {Box} from '@mui/material';
 import {AttributeDefinition} from '../../../../types';
 import AttributeType from './AttributeType';
 import {toArray} from '../../../../lib/utils';
+import React from 'react';
 
 export type AttrValue<T = string> = {
     id: T;

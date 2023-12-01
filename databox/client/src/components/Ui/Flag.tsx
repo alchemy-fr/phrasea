@@ -1,4 +1,4 @@
-import {FunctionComponent} from 'react';
+import React, {FunctionComponent} from 'react';
 import {flagIcons} from './flagIcons';
 import {Icon, IconProps} from '@mui/material';
 

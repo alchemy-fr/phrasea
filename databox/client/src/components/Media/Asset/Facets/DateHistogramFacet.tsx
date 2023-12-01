@@ -1,4 +1,4 @@
-import {
+import React, {
     ReactNode,
     useCallback,
     useContext,
@@ -71,14 +71,14 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     }, [min, max, attrFilter]);
 
     const handleChange = useCallback(
-        (event: Event, newValue: number | number[]) => {
+        (_event: Event, newValue: number | number[]) => {
             setValue(newValue as [number, number]);
         },
         [setValue]
     );
 
     const handleChangeCommitted = useCallback(
-        (event: React.SyntheticEvent | Event, newValue: number | number[]) => {
+        (_event: React.SyntheticEvent | Event, newValue: number | number[]) => {
             if (step) {
                 (newValue as [number, number])[1] += step;
             }
@@ -117,7 +117,7 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                         height: b.doc_count * ratio + (b.doc_count > 1 ? 5 : 0),
                         width: 10,
                         backgroundColor:
-                            value[0] <= b.key && value[1] >= b.key
+                            value[0] <= (b.key as number) && value[1] >= (b.key as number)
                                 ? colorActive
                                 : greyInactive,
                     }}

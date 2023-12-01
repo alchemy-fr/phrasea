@@ -6,6 +6,7 @@ import {
 import TextType from './TextType';
 import {Marker, Popup} from 'react-leaflet';
 import OpenStreetMap from '../../../../Map/OpenStreetMap';
+import React from 'react';
 
 enum Formats {
     Map = 'map',

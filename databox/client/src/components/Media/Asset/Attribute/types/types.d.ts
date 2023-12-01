@@ -1,4 +1,5 @@
 import {AttributeFormat} from '../Format/AttributeFormatContext';
+import React from 'react';
 
 export type AttributeWidgetProps = {
     id: string;

@@ -1,4 +1,6 @@
-module.exports = {
-    locales: ['en_US', 'fr_FR'],
-    defaultLocale: 'en_US',
-};
+export const locales = [
+    'en_US',
+    'fr_FR'
+];
+
+export const defaultLocale = 'en_US';

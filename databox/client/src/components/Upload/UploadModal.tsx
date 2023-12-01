@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {Box, Grid} from '@mui/material';
 import FileCard from './FileCard';
 import {toast} from 'react-toastify';
@@ -134,7 +134,9 @@ export default function UploadModal({
             });
         },
         onSuccess: () => {
-            toast.success(t('form.upload.success', 'Files uploaded!'));
+            toast.success(
+                t('form.upload.success', 'Files uploaded!') as string
+            );
             closeModal(true);
         },
     });

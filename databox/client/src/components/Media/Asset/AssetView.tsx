@@ -1,4 +1,4 @@
-import {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import AppDialog from '../../Layout/AppDialog';
 import FilePlayer from './FilePlayer';

@@ -7,6 +7,7 @@ import {
 } from '../Asset/Facets';
 import {AttributeType} from '../../../api/attributes';
 import {DateFormats} from '../Asset/Attribute/types/DateType';
+import React from 'react';
 
 type FilterProps = {
     onInvert: () => void;

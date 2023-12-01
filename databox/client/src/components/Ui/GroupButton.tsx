@@ -1,4 +1,4 @@
-import {PropsWithChildren, ReactNode} from 'react';
+import React, {PropsWithChildren, ReactNode} from 'react';
 import {
     Button,
     ButtonGroup,
@@ -39,7 +39,7 @@ export default function GroupButton({
     const anchorRef = React.useRef<HTMLDivElement>(null);
 
     const handleMenuItemClick = (
-        event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+        _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
         index: number
     ) => {
         setOpen(false);

@@ -29,9 +29,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 : dest.replace(/^\/collections\//, '');
             await moveCollection(collection.id, d);
             clearWorkspaceCache();
-            toast.success(
-                t('form.collection_move.success', 'Collection moved!')
-            );
+            toast.success(t('form.collection_move.success', 'Collection moved!') as string);
             onMoved && onMoved();
         } catch (e) {
             setLoading(false);

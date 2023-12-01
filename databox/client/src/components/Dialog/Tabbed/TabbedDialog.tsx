@@ -1,4 +1,4 @@
-import {FunctionComponent, ReactNode} from 'react';
+import React, {FunctionComponent, ReactNode} from 'react';
 import {Tab, Tabs} from '@mui/material';
 import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
 import {Breakpoint} from '@mui/system';
@@ -44,7 +44,7 @@ export default function TabbedDialog<P extends {}>({
     const tabIndex = tabs.findIndex(t => t.id === tab);
     const currentTab = tabs[tabIndex];
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         navigateToModal(
             getPath(routeName, {
                 ...routeParams,

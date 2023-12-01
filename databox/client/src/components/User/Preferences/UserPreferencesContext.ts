@@ -1,5 +1,6 @@
 import {LayoutEnum} from '../../Media/Search/Pager';
 import {ThemeName} from '../../../lib/theme';
+import React from 'react';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;

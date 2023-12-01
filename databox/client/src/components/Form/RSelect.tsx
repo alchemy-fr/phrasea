@@ -1,12 +1,12 @@
 import {Controller} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
-import {Control} from 'react-hook-form/dist/types/form';
-import {FieldPath} from 'react-hook-form/dist/types';
+import {FieldValues} from 'react-hook-form';
+import {Control} from 'react-hook-form';
+import {FieldPath} from 'react-hook-form';
 import AsyncSelect from 'react-select/async';
-import {useEffect, useState} from 'react';
-import {AsyncProps} from 'react-select/dist/declarations/src/useAsync';
+import React, {useEffect, useState} from 'react';
 import {useTheme} from '@mui/material';
 import {components, OptionProps} from 'react-select';
+import { AsyncProps } from "react-select/async";
 
 interface GroupBase<Option> {
     readonly options: readonly Option[];
@@ -157,7 +157,7 @@ export default function RSelectWidget<
         cacheOptions,
         components: rest.components ?? componentsProp,
         isOptionDisabled: disabledValues
-            ? o => {
+            ? (o: Option) => {
                   return disabledValues!.includes(o.value);
               }
             : undefined,

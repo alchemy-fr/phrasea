@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {AttributeClass, Workspace} from '../../../types';
 import {
     deleteAttributeClass,

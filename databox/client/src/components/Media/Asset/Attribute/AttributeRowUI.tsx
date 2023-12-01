@@ -5,6 +5,7 @@ import {IconButton} from '@mui/material';
 import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
+import React from 'react';
 
 type Props = {
     type: string;

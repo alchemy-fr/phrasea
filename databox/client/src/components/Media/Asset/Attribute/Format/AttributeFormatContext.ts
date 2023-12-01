@@ -1,4 +1,5 @@
 import {AttributeFormat} from '../types/types';
+import React from 'react';
 
 export type TAttributeFormatContext = {
     formats: Formats;

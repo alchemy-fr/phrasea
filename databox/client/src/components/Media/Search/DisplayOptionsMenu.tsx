@@ -1,4 +1,4 @@
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import {
     Box,
     FormControlLabel,
@@ -53,7 +53,7 @@ export default function DisplayOptionsMenu({}: Props) {
         setAnchorEl(null);
     };
 
-    const onChange = debounce((e, v) => setThumbSize(v as number), 10);
+    const onChange = debounce((_e, v) => setThumbSize(v as number), 10);
 
     const max = 400;
     const min = 60;

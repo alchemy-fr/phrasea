@@ -1,4 +1,5 @@
-import axios, {AxiosError, AxiosInstance, InternalAxiosRequestConfig} from "axios";
+import axios, {AxiosError, AxiosInstance} from "axios";
+import '../axios';
 
 type HttpClient = {
     errorListeners: ErrorListener[];
@@ -7,24 +8,14 @@ type HttpClient = {
     setApiLocale: (locale: string) => void;
 } & AxiosInstance;
 
-type RequestMeta = {
-    requestStartedAt?: number;
-    responseTime?: number;
-};
-
 type ErrorListener = (error: AxiosError) => void;
-
-export type RequestConfig = {
-    meta?: RequestMeta;
-    anonymous?: boolean;
-} & InternalAxiosRequestConfig<RequestMeta>;
 
 export function createHttpClient(baseURL: string): HttpClient {
     const client = axios.create({
         baseURL,
     }) as HttpClient;
 
-    client.interceptors.request.use((config: RequestConfig) => {
+    client.interceptors.request.use((config) => {
         // to avoid overwriting if another interceptor
         // already defined the same object (meta)
         config.meta = config.meta || {};
@@ -36,7 +27,7 @@ export function createHttpClient(baseURL: string): HttpClient {
     client.errorListeners = [];
 
     client.interceptors.response.use((r) => {
-        const meta = (r.config as RequestConfig).meta!;
+        const meta = r.config.meta!;
 
         const responseTime = new Date().getTime() - meta.requestStartedAt!;
         meta.responseTime = responseTime;

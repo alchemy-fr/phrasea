@@ -1,14 +1,14 @@
 import {ReactNode} from 'react';
 import {Controller} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
-import {Control} from 'react-hook-form/dist/types/form';
-import {FieldPath} from 'react-hook-form/dist/types';
+import {FieldValues} from 'react-hook-form';
+import {Control} from 'react-hook-form';
+import {FieldPath} from 'react-hook-form';
 import {
     CollectionsTreeView,
     CollectionTreeViewProps,
 } from '../Media/Collection/CollectionsTreeView';
 import {FormControl, FormLabel} from '@mui/material';
-import {RegisterOptions} from 'react-hook-form/dist/types/validator';
+import {RegisterOptions} from 'react-hook-form';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     label?: ReactNode;

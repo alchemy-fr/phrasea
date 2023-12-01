@@ -20,7 +20,9 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
             return await putAsset(asset.id, data);
         },
         onSuccess: () => {
-            toast.success(t('form.asset_edit.success', 'Asset edited!'));
+            toast.success(
+                t('form.asset_edit.success', 'Asset edited!') as string
+            );
             onClose();
         },
     });

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {AttrValue, createNewValue} from './AttributesEditor';
 import {getAttributeType} from './types';
 

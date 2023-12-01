@@ -1,5 +1,6 @@
 import {FacetType, ResolvedBucketValue} from '../Asset/Facets';
 import {Filters, FilterType, SortBy} from './Filter';
+import React from 'react';
 
 export type TSearchContext = {
     workspaceId?: string;

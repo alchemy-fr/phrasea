@@ -1,7 +1,7 @@
 import {Group} from '../../types';
 import {getGroups} from '../../api/user';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<Group[]> | undefined;
@@ -21,7 +21,7 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
                 value: t.id,
                 label: t.name,
             }))
-            .filter(i =>
+            .filter((i: SelectOption) =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())
             );
     };

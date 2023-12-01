@@ -1,6 +1,6 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import TreeItem from '@mui/lab/TreeItem';
-import {IconButton, Stack, TextField} from '@mui/material';
+import {IconButton, Stack, TextField, Theme} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
@@ -34,7 +34,7 @@ export default function EditableCollectionTree({
     const id = node.id;
     const remainingPath = nodes.slice(1);
     const [value, setValue] = useState<string | undefined>(node.value);
-    const ref = useRef<HTMLDivElement>();
+    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setValue(node.value);
@@ -116,75 +116,73 @@ export default function EditableCollectionTree({
         [setValue, node.value]
     );
 
-    return (
-        <TreeItem
-            sx={t => ({
-                '.MuiTreeItem-content': {
-                    backgroundColor: alpha(
-                        t.palette.info.main,
-                        remainingPath.length > 0 ? 0.4 : 0.2
-                    ),
-                },
-            })}
-            ref={ref}
-            nodeId={nodeId}
-            label={
-                !editing ? (
-                    <Stack direction={'row'} alignItems={'center'}>
-                        {node.value}
-                        <IconButton sx={{ml: 1}} onClick={onEditHandler}>
-                            <EditIcon />
-                        </IconButton>
-                        <IconButton sx={{ml: 1}} onClick={createSubCollection}>
-                            <CreateNewFolderIcon />
-                        </IconButton>
-                        <IconButton
-                            sx={{ml: 1}}
-                            color={'error'}
-                            onClick={removeNode}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    </Stack>
-                ) : (
-                    <Stack
-                        onClick={e => e.stopPropagation()}
-                        direction={'row'}
-                        alignItems={'center'}
+    return <TreeItem
+        sx={(t: Theme) => ({
+            '.MuiTreeItem-content': {
+                backgroundColor: alpha(
+                    t.palette.info.main,
+                    remainingPath.length > 0 ? 0.4 : 0.2
+                ),
+            },
+        })}
+        ref={ref}
+        nodeId={nodeId}
+        label={
+            !editing ? (
+                <Stack direction={'row'} alignItems={'center'}>
+                    {node.value}
+                    <IconButton sx={{ml: 1}} onClick={onEditHandler}>
+                        <EditIcon/>
+                    </IconButton>
+                    <IconButton sx={{ml: 1}} onClick={createSubCollection}>
+                        <CreateNewFolderIcon/>
+                    </IconButton>
+                    <IconButton
+                        sx={{ml: 1}}
+                        color={'error'}
+                        onClick={removeNode}
                     >
-                        <TextField
-                            variant={'standard'}
-                            autoFocus={true}
-                            value={value}
-                            onChange={onChange}
-                            onKeyDown={onKeyDown}
-                        />
-                        <IconButton
-                            color={'error'}
-                            sx={{ml: 1}}
-                            onClick={dismiss}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                        <IconButton
-                            color={'success'}
-                            sx={{ml: 1}}
-                            onClick={doneClickHandler}
-                        >
-                            <DoneIcon />
-                        </IconButton>
-                    </Stack>
-                )
-            }
-        >
-            {remainingPath.length > 0 && (
-                <EditableCollectionTree
-                    offset={offset + 1}
-                    nodes={remainingPath}
-                    onEdit={onEdit}
-                    setExpanded={setExpanded}
-                />
-            )}
-        </TreeItem>
-    );
+                        <DeleteIcon/>
+                    </IconButton>
+                </Stack>
+            ) : (
+                <Stack
+                    onClick={e => e.stopPropagation()}
+                    direction={'row'}
+                    alignItems={'center'}
+                >
+                    <TextField
+                        variant={'standard'}
+                        autoFocus={true}
+                        value={value}
+                        onChange={onChange}
+                        onKeyDown={onKeyDown}
+                    />
+                    <IconButton
+                        color={'error'}
+                        sx={{ml: 1}}
+                        onClick={dismiss}
+                    >
+                        <CloseIcon/>
+                    </IconButton>
+                    <IconButton
+                        color={'success'}
+                        sx={{ml: 1}}
+                        onClick={doneClickHandler}
+                    >
+                        <DoneIcon/>
+                    </IconButton>
+                </Stack>
+            )
+        }
+    >
+        {remainingPath.length > 0 && (
+            <EditableCollectionTree
+                offset={offset + 1}
+                nodes={remainingPath}
+                onEdit={onEdit}
+                setExpanded={setExpanded}
+            />
+        )}
+    </TreeItem>
 }

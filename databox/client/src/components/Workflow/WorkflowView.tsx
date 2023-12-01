@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getWorkflow, rerunJob} from '../../api/workflow';
 import {Box, CircularProgress} from '@mui/material';

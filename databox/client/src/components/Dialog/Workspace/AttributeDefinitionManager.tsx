@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {AttributeClass, AttributeDefinition, Workspace} from '../../../types';
 import {
     deleteAttributeDefinition,
@@ -216,7 +216,7 @@ export default function AttributeDefinitionManager({
 
     const onSort: OnSort = async ids => {
         await apiClient.put(`/attribute-definitions/sort`, ids);
-        toast.success(t('common.item_sorted', 'Order saved!'));
+        toast.success(t('common.item_sorted', 'Order saved!') as string);
     };
 
     return (

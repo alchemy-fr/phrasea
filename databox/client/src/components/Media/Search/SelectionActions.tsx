@@ -399,7 +399,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                 <StyledToggleButtonGroup
                     value={layout}
                     exclusive
-                    onChange={(e, newValue) => onLayoutChange(newValue)}
+                    onChange={(_e, newValue) => onLayoutChange(newValue)}
                 >
                     <TooltipToggleButton
                         tooltipProps={{

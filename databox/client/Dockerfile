@@ -11,7 +11,7 @@ USER node
 WORKDIR /srv/workspace/databox/client
 
 RUN pnpm install \
-    && mv public/index.tpl.html public/index.html
+    && mv index.tpl.html index.html
 
 RUN pnpm build
 

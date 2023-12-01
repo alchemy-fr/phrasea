@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {fieldTypesIcons} from '../../lib/icons';
 import {getAttributeFieldTypes} from '../../api/attributes';

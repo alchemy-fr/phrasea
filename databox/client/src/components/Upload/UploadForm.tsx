@@ -1,5 +1,5 @@
 import {useForm} from 'react-hook-form';
-import {FC} from 'react';
+import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import FormRow from '../Form/FormRow';
 import FormFieldErrors from '../Form/FormFieldErrors';
@@ -20,7 +20,7 @@ import SaveAsTemplateForm from './SaveAsTemplateForm';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
 import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
-import {OnChangeValue} from 'react-select/dist/declarations/src/types';
+import {OnChangeValue} from 'react-select';
 import {SelectOption} from '../Form/RSelect';
 import {Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';

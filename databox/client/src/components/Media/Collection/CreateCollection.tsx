@@ -8,6 +8,7 @@ import {useTranslation} from 'react-i18next';
 import {CollectionChip, WorkspaceChip} from '../../Ui/Chips';
 import {StackedModalProps, useModals} from '../../../hooks/useModalStack';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
+import React from 'react';
 
 type Props = {
     parent?: string;
@@ -40,7 +41,7 @@ export default function CreateCollection({
         onSuccess: coll => {
             clearWorkspaceCache();
             toast.success(
-                t('form.collection_create.success', 'Collection created!')
+                t('form.collection_create.success', 'Collection created!') as string
             );
             closeModal();
             onCreate(coll);

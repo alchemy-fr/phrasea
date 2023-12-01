@@ -6,6 +6,7 @@ import FormTab from '../../../Dialog/Tabbed/FormTab';
 import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
 import FormRow from '../../../Form/FormRow';
+import React from 'react';
 
 type Props = {
     workspaceId: string;

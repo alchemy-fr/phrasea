@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import {
     Checkbox,
@@ -10,9 +10,9 @@ import {
 } from '@mui/material';
 import {SelectChangeEvent} from '@mui/material/Select/SelectInput';
 import {useController} from 'react-hook-form';
-import {Control} from 'react-hook-form/dist/types/form';
-import {FieldPath} from 'react-hook-form/dist/types';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {Control} from 'react-hook-form';
+import {FieldPath} from 'react-hook-form';
+import {FieldValues} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 
 const choices: {[key: string]: {label: string; helper?: string}} = {

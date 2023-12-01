@@ -1,4 +1,4 @@
-import {MouseEvent as ReactMouseEvent} from 'react';
+import React, {MouseEvent as ReactMouseEvent} from 'react';
 import {
     Divider,
     IconButton,

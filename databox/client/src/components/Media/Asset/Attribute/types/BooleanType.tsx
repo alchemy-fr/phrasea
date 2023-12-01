@@ -6,6 +6,7 @@ import {
 } from './types';
 import {Checkbox, Chip, FormControlLabel, TextFieldProps} from '@mui/material';
 import BaseType from './BaseType';
+import React from 'react';
 
 enum Formats {
     Thumbs = 'thumbs',
@@ -52,7 +53,7 @@ export default class BooleanType
                     <Checkbox
                         checked={value ?? false}
                         indeterminate={value === undefined}
-                        onChange={(e, checked) => onChange(checked)}
+                        onChange={(_e, checked) => onChange(checked)}
                     />
                 }
                 label={name}

@@ -11,6 +11,7 @@ import FormRow from '../Form/FormRow';
 import SwitchWidget from '../Form/SwitchWidget';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import FormFieldErrors from '../Form/FormFieldErrors';
+import React from 'react';
 
 type Props = {
     usedAssetDataTemplateOptions: ReturnType<
@@ -42,7 +43,7 @@ export default function SaveAsTemplateForm({
             <FormRow>
                 <Accordion
                     expanded={saveAsTemplate}
-                    onChange={(e, expanded) => setSaveAsTemplate(expanded)}
+                    onChange={(_e, expanded) => setSaveAsTemplate(expanded)}
                 >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>

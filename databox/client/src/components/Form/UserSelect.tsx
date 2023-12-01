@@ -1,7 +1,7 @@
 import {User} from '../../types';
 import {getUsers} from '../../api/user';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<User[]> | undefined;

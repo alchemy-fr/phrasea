@@ -45,7 +45,7 @@ export default function SortByRow({sortBy, onChange}: Props) {
             <td>
                 <Switch
                     checked={sortBy.enabled}
-                    onChange={(e, value) => onChange(sortBy, value)}
+                    onChange={(_e, value) => onChange(sortBy, value)}
                 />
             </td>
             <td
@@ -59,7 +59,7 @@ export default function SortByRow({sortBy, onChange}: Props) {
             </td>
             <td>
                 <ToggleWay
-                    onChange={(e, value) =>
+                    onChange={(_e, value) =>
                         onChange(sortBy, true, value ? 1 : 0)
                     }
                     checked={isDesc}

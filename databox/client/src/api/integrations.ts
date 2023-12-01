@@ -1,7 +1,7 @@
 import {WorkspaceIntegration} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
-import { AxiosRequestConfig} from 'axios';
+import {AxiosRequestConfig} from 'axios';
 
 export const integrationNS = '/integrations';
 

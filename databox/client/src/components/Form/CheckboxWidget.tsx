@@ -1,10 +1,10 @@
 import {ReactNode} from 'react';
 import {Controller} from 'react-hook-form';
 import {Checkbox, FormControlLabel} from '@mui/material';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
-import {Control} from 'react-hook-form/dist/types/form';
-import {FieldPath} from 'react-hook-form/dist/types';
-import {RegisterOptions} from 'react-hook-form/dist/types/validator';
+import {FieldValues} from 'react-hook-form';
+import {Control} from 'react-hook-form';
+import {FieldPath} from 'react-hook-form';
+import {RegisterOptions} from 'react-hook-form';
 
 type Props<
     TFieldValues extends FieldValues,
