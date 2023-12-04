@@ -1,12 +1,12 @@
 import FormDialog from '../../Dialog/FormDialog';
 import {CollectionForm} from '../../Form/CollectionForm';
 import {Collection} from '../../../types';
-import useFormSubmit from '../../../hooks/useFormSubmit';
+import {useFormSubmit} from '@alchemy/api';
 import {clearWorkspaceCache, postCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {CollectionChip, WorkspaceChip} from '../../Ui/Chips';
-import {StackedModalProps, useModals} from '../../../hooks/useModalStack';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
 import React from 'react';
 
@@ -41,7 +41,10 @@ export default function CreateCollection({
         onSuccess: coll => {
             clearWorkspaceCache();
             toast.success(
-                t('form.collection_create.success', 'Collection created!') as string
+                t(
+                    'form.collection_create.success',
+                    'Collection created!'
+                ) as string
             );
             closeModal();
             onCreate(coll);

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import AssetSelectionProvider from './Media/AssetSelectionProvider';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
@@ -15,10 +15,11 @@ import {useTranslation} from 'react-i18next';
 import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
 import {Outlet, useLocation} from 'react-router-dom';
-import {appPathPrefix} from '../routes';
 import uploaderClient from '../api/uploader-client';
 import {zIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
+import {routes} from '../routes.ts';
+import {MatomoRouteProxy, RouterProvider} from '@alchemy/navigation';
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
@@ -39,6 +40,13 @@ const AppProxy = React.memo(() => {
     useEffect(() => {
         setLeftPanelOpen(!isSmallView);
     }, [isSmallView]);
+
+    return (
+        <RouterProvider
+            routes={routes}
+            RouteProxyComponent={MatomoRouteProxy}
+        />
+    );
 
     return (
         <SearchProvider>
@@ -94,13 +102,6 @@ export default function App() {
     const userContext = useContext(UserContext);
     const {t} = useTranslation();
     const location = useLocation();
-    const [render, setRender] = useState(location.pathname === appPathPrefix);
-
-    useEffect(() => {
-        if (!render && location.pathname === appPathPrefix) {
-            setRender(true);
-        }
-    }, [location.pathname]);
 
     useEffect(() => {
         const onError = (error: AxiosError<any>) => {
@@ -165,7 +166,7 @@ export default function App() {
         <>
             <ToastContainer />
             <Outlet />
-            {render && <AppProxy />}
+            <AppProxy />
         </>
     );
 }

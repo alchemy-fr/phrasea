@@ -10,7 +10,7 @@ import MenuList from '@mui/material/MenuList';
 import SaveFileAsNewAssetDialog, {
     BaseSaveAsProps,
 } from './SaveFileAsNewAssetDialog';
-import {useModals} from '../../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import ReplaceAssetWithFileDialog from './ReplaceAssetWithFileDialog';
 import SaveFileAsRenditionDialog from './SaveFileAsRenditionDialog';
 import {stopPropagation} from '../../../../lib/stdFuncs';

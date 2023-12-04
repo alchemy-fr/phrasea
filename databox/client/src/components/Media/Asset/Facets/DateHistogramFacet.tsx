@@ -117,7 +117,8 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                         height: b.doc_count * ratio + (b.doc_count > 1 ? 5 : 0),
                         width: 10,
                         backgroundColor:
-                            value[0] <= (b.key as number) && value[1] >= (b.key as number)
+                            value[0] <= (b.key as number) &&
+                            value[1] >= (b.key as number)
                                 ? colorActive
                                 : greyInactive,
                     }}

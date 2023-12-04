@@ -4,7 +4,7 @@ import {UserContext} from '../../Security/UserContext';
 import UploadModal from '../../Upload/UploadModal';
 import {Backdrop, Typography} from '@mui/material';
 import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
-import {useModals} from '../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {

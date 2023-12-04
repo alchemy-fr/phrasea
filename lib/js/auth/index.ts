@@ -13,10 +13,6 @@ import OAuthClient, {
     LogoutEvent,
 } from "./src/client/OAuthClient";
 
-import {
-    createHttpClient,
-} from "./src/client/httpClient";
-
 import AuthenticationContext, {TAuthContext} from "./src/context/AuthenticationContext";
 import AuthenticationProvider from "./src/components/AuthenticationProvider";
 import KeycloakClient from "./src/client/KeycloakClient";
@@ -29,7 +25,6 @@ export {
     logoutEventType,
     sessionExpiredEventType,
     refreshTokenEventType,
-    createHttpClient,
     AuthenticationContext,
     AuthenticationProvider,
     KeycloakClient,
@@ -44,3 +39,5 @@ export type {
     RefreshTokenEvent,
     UserInfoResponse,
 }
+
+export * from './src/types';

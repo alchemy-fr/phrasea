@@ -1,7 +1,6 @@
-import {Box, IconButton} from '@mui/material';
+import {Box, IconButton, SxProps} from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CopyToClipboard from '../../../../lib/CopyToClipboard';
-import {SxProps} from '@mui/system';
 
 type Props = {
     value: string | undefined;

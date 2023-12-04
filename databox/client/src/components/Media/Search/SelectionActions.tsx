@@ -36,9 +36,9 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MoveAssetsDialog from '../Asset/Actions/MoveAssetsDialog';
 import CopyAssetsDialog from '../Asset/Actions/CopyAssetsDialog';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import {getPath} from '../../../routes';
-import {useModals} from '../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
+import {modalRoutes} from '../../../routes.ts';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -208,12 +208,10 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
 
     const onEdit = () => {
         if (selectionContext.selectedAssets.length === 1) {
-            navigateToModal(
-                getPath('app_asset_manage', {
-                    tab: 'edit',
-                    id: selectionContext.selectedAssets[0],
-                })
-            );
+            navigateToModal(modalRoutes.assets.routes.manage, {
+                tab: 'edit',
+                id: selectionContext.selectedAssets[0],
+            });
         } else {
             alert('Multi edit is comin soon...');
         }
@@ -222,12 +220,10 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
     const onEditAttributes = () => {
         const assets = getSelectedAssets(selectionContext, resultContext);
         if (assets.length === 1) {
-            navigateToModal(
-                getPath('app_asset_manage', {
-                    tab: 'attributes',
-                    id: selectionContext.selectedAssets[0],
-                })
-            );
+            navigateToModal(modalRoutes.assets.routes.manage, {
+                tab: 'attributes',
+                id: selectionContext.selectedAssets[0],
+            });
         } else {
             alert('Multi edit attributes is comin soon...');
         }

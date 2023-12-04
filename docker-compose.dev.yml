@@ -7,8 +7,6 @@ services:
       - ./package.json:/srv/workspace/package.json:ro
       - ./pnpm-workspace.yaml:/srv/workspace/pnpm-workspace.yaml:ro
       - ./turbo.json:/srv/workspace/turbo.json:ro
-      - ./tsconfig.json:/srv/workspace/tsconfig.json:ro
-      - ./tsconfig.base.json:/srv/workspace/tsconfig.base.json:ro
       - ./node_modules:/srv/workspace/node_modules:ro
 
   uploader-client:

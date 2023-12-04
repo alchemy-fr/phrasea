@@ -2,7 +2,9 @@ import {RouteDefinition, RouteParameters, Routes, RouteProxyProps, RouteProxyCom
 import {getFullPath, getLocationPrefix} from "./utils";
 import {Outlet, RouteObject} from "react-router-dom";
 import React from "react";
-import DefaultErrorBoundary, {ErrorFallbackComponent} from "./DefaultErrorBoundary";
+import DefaultErrorBoundary, {
+    ErrorFallbackProps, TErrorBoundaryComponent
+} from "./DefaultErrorBoundary";
 
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
@@ -110,7 +112,7 @@ export function createRouterProviderRoutes(
     routes: Routes,
     RouteProxyComponent: RouteProxyComponent,
     ErrorComponent: ErrorComponent,
-    ErrorBoundaryComponent: ErrorFallbackComponent = DefaultErrorBoundary
+    ErrorBoundaryComponent: TErrorBoundaryComponent = DefaultErrorBoundary
 ): RouteObject[] {
     const output: RouteObject[] = [];
 
@@ -144,7 +146,7 @@ export function createRouterProviderRoutes(
 
     return [
         {
-            Component: () => <ErrorBoundaryComponent fallback={(props) => <ErrorComponent {...props}/>}>
+            Component: () => <ErrorBoundaryComponent fallback={(props: ErrorFallbackProps) => <ErrorComponent {...props}/>}>
                 <Outlet />
             </ErrorBoundaryComponent>,
             children: output,

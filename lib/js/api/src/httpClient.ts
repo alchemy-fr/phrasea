@@ -1,14 +1,14 @@
 import axios, {AxiosError, AxiosInstance} from "axios";
-import '../axios';
 
-type HttpClient = {
+export type ErrorListener = (error: AxiosError) => void;
+
+export type HttpClient = {
     errorListeners: ErrorListener[];
     addErrorListener: (listener: ErrorListener) => void;
     removeErrorListener: (listener: ErrorListener) => void;
     setApiLocale: (locale: string) => void;
 } & AxiosInstance;
 
-type ErrorListener = (error: AxiosError) => void;
 
 export function createHttpClient(baseURL: string): HttpClient {
     const client = axios.create({

@@ -1,11 +1,10 @@
 import React, {FunctionComponent, ReactNode} from 'react';
-import {Tab, Tabs} from '@mui/material';
+import {Breakpoint, Tab, Tabs} from '@mui/material';
 import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
-import {Breakpoint} from '@mui/system';
 import {useParams} from 'react-router-dom';
-import {getPath, RouteParams} from '../../../routes';
 import RouteDialog from '../RouteDialog';
 import {useNavigateToModal} from '../../Routing/ModalLink';
+import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
     title: ReactNode;
@@ -16,8 +15,8 @@ type TabItem<P extends {} = {}, P2 extends {} = any> = {
 };
 
 type Props<P extends {}> = {
-    routeName: string;
-    routeParams?: RouteParams;
+    route: RouteDefinition;
+    routeParams?: RouteParameters;
     tabs: TabItem<P>[];
     maxWidth?: Breakpoint | false;
     title?: ReactNode;
@@ -30,7 +29,7 @@ export type DialogTabProps = {
 };
 
 export default function TabbedDialog<P extends {}>({
-    routeName,
+    route,
     routeParams,
     tabs: configTabs,
     maxWidth,
@@ -45,12 +44,10 @@ export default function TabbedDialog<P extends {}>({
     const currentTab = tabs[tabIndex];
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-        navigateToModal(
-            getPath(routeName, {
-                ...routeParams,
-                tab: tabs[newValue].id,
-            })
-        );
+        navigateToModal(route, {
+            ...routeParams,
+            tab: tabs[newValue].id,
+        });
     };
 
     return (

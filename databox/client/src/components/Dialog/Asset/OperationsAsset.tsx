@@ -10,6 +10,7 @@ import ModalLink from '../../Routing/ModalLink';
 import moment from 'moment';
 import {jobStatuses, Workflow} from '@alchemy/visual-workflow';
 import React from 'react';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     data: Asset;
@@ -109,7 +110,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                         </div>
                         <Button
                             component={ModalLink}
-                            routeName={'workflow_view'}
+                            route={modalRoutes.workflow}
                             params={{
                                 id: w.id,
                             }}

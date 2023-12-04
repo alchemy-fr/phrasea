@@ -27,10 +27,11 @@ import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import ModalLink from '../Routing/ModalLink';
 import ConfirmDialog from '../Ui/ConfirmDialog';
-import {useModals} from '../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import UploadModal from '../Upload/UploadModal';
 import {UserContext} from '../Security/UserContext';
+import {modalRoutes} from '../../routes.ts';
 
 type Props = {
     level: number;
@@ -280,7 +281,9 @@ export default function CollectionMenuItem({
                             {capabilities.canEdit && (
                                 <IconButton
                                     component={ModalLink}
-                                    routeName={'collection_manage'}
+                                    route={
+                                        modalRoutes.collections.routes.manage
+                                    }
                                     params={{
                                         id,
                                         tab: 'edit',

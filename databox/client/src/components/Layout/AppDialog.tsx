@@ -7,9 +7,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import {LinearProgress, Slide} from '@mui/material';
-import {Breakpoint, SxProps} from '@mui/system';
-import {StackedModalProps} from '../../hooks/useModalStack';
+import {Breakpoint, LinearProgress, Slide, SxProps} from '@mui/material';
+import {StackedModalProps} from '@alchemy/navigation';
 import {TransitionProps} from '@mui/material/transitions';
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({

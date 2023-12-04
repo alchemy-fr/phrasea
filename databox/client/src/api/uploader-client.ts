@@ -1,5 +1,6 @@
 import config from '../config';
-import {configureClientAuthentication, createHttpClient} from '@alchemy/auth';
+import {configureClientAuthentication} from '@alchemy/auth';
+import {createHttpClient} from '@alchemy/api';
 import {oauthClient} from './api-client.ts';
 
 const uploaderClient = createHttpClient(config.uploaderApiBaseUrl);

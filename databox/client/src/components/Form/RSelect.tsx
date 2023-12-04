@@ -6,7 +6,7 @@ import AsyncSelect from 'react-select/async';
 import React, {useEffect, useState} from 'react';
 import {useTheme} from '@mui/material';
 import {components, OptionProps} from 'react-select';
-import { AsyncProps } from "react-select/async";
+import {AsyncProps} from 'react-select/async';
 
 interface GroupBase<Option> {
     readonly options: readonly Option[];

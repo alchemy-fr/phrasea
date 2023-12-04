@@ -2,6 +2,7 @@ import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConf
 import {jwtDecode} from "jwt-decode";
 import CookieStorage from "@alchemy/storage/src/CookieStorage";
 import {IStorage} from "@alchemy/storage";
+import {createHttpClient, HttpClient} from "@alchemy/api";
 
 export type TokenResponse = {
     access_token: string;
@@ -53,6 +54,7 @@ type Options = {
     clientSecret?: string;
     baseUrl: string;
     tokenStorageKey?: string;
+    httpClient?: HttpClient;
 };
 
 export type {Options as OAuthClientOptions};
@@ -67,6 +69,7 @@ export default class OAuthClient {
     private tokensCache: TokenResponse | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
+    private readonly httpClient: HttpClient;
 
     constructor({
         clientId,
@@ -74,6 +77,7 @@ export default class OAuthClient {
         baseUrl,
         storage = new CookieStorage(),
         tokenStorageKey,
+        httpClient,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -84,6 +88,7 @@ export default class OAuthClient {
         }
         this.storage = storage;
         this.tokenStorageKey = tokenStorageKey ?? 'token';
+        this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
     }
 
     public getAccessToken(): string | undefined {
@@ -305,7 +310,7 @@ export default class OAuthClient {
             }
         });
 
-        const res = (await axios.post(`${this.baseUrl}/token`, params)).data as TokenResponse;
+        const res = (await this.httpClient.post(`/token`, params)).data as TokenResponse;
 
         this.persistTokens(res);
 

@@ -14,6 +14,7 @@ import TagManager from './TagManager';
 import RenditionClassManager from './RenditionClassManager';
 import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {};
 
@@ -33,7 +34,7 @@ export default function WorkspaceDialog({}: Props) {
 
     return (
         <TabbedDialog
-            routeName={'app_workspace_manage'}
+            route={modalRoutes.workspace.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
             minHeight={400}

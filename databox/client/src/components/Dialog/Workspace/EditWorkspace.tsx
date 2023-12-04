@@ -2,7 +2,7 @@ import {Workspace} from '../../../types';
 import {putWorkspace} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
-import useFormSubmit from '../../../hooks/useFormSubmit';
+import {useFormSubmit} from '@alchemy/api';
 import {WorkspaceForm} from '../../Form/WorkspaceForm';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';

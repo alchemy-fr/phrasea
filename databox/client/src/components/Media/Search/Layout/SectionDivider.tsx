@@ -1,7 +1,6 @@
 import {CSSProperties, PropsWithChildren} from 'react';
-import {Divider, Theme, useTheme} from '@mui/material';
+import {Divider, Theme, useTheme, SxProps} from '@mui/material';
 import {zIndex} from '../../../../themes/zIndex';
-import {SxProps} from '@mui/system';
 
 function applyStyle(
     theme: Theme,

@@ -2,7 +2,7 @@ import {Collection} from '../../../types';
 import {putCollection} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
-import useFormSubmit from '../../../hooks/useFormSubmit';
+import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {CollectionForm} from '../../Form/CollectionForm';

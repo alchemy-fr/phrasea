@@ -47,8 +47,7 @@ export async function getAssets(
         debug: {
             query: res.data['debug:es'].query,
             esQueryTime: res.data['debug:es'].time,
-            totalResponseTime: res.config.meta!
-                .responseTime!,
+            totalResponseTime: res.config.meta!.responseTime!,
         },
     };
 }

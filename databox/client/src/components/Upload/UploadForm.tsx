@@ -9,7 +9,6 @@ import PrivacyField from '../Ui/PrivacyField';
 import {Privacy} from '../../api/privacy';
 import {FormGroup, InputLabel} from '@mui/material';
 import TagSelect from '../Form/TagSelect';
-import {useNavigationPrompt} from '../../hooks/useNavigationPrompt';
 import UploadAttributes from './UploadAttributes';
 import {
     buildAttributeIndex,
@@ -25,6 +24,7 @@ import {SelectOption} from '../Form/RSelect';
 import {Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
+import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
 
 export type UploadData = {
     destination: Collection;
@@ -84,10 +84,7 @@ export const UploadForm: FC<
     } = useForm<UploadData>({
         defaultValues: defaultValues,
     });
-    useNavigationPrompt(
-        'Are you sure you want to dismiss upload?',
-        !submitting && !submitted && isDirty
-    );
+    useInRouterDirtyFormPrompt(t, !submitting && !submitted && isDirty);
 
     const resetForms = React.useCallback(() => {
         reset({

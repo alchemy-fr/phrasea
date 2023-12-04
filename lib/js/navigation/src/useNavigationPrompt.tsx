@@ -5,7 +5,7 @@ import {
     useBeforeUnload
 } from 'react-router-dom';
 import {useModals} from "./useModalStack";
-import {TFunction} from "react-i18next";
+import {TFunction} from "i18next";
 import {BlockerFunction} from "@remix-run/router";
 
 function useInRouterNavigationPrompt(message: string, when: boolean, modalIndex?: number) {
@@ -59,9 +59,9 @@ function useBeforeUnloadWhen(when: boolean, message: string): void {
 }
 
 export function useInRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useInRouterNavigationPrompt(t('admin:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
+    useInRouterNavigationPrompt(t('navigation:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
 }
 
 export function useOutsideRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useOutsideRouterNavigationPrompt(t('admin:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
+    useOutsideRouterNavigationPrompt(t('navigation:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
 }

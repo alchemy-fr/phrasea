@@ -2,7 +2,7 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
-COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.json tsconfig.base.json ./
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./lib/js ./lib/js
 COPY --chown=node:node ./expose/client ./expose/client
 

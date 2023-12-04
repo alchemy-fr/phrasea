@@ -28,13 +28,13 @@ import {
 } from './Layout/Layout';
 import PreviewPopover from '../Asset/PreviewPopover';
 import {DisplayContext} from '../DisplayContext';
-import {getPath} from '../../../routes';
 import {zIndex} from '../../../themes/zIndex';
 import AddIcon from '@mui/icons-material/Add';
 import UploadModal from '../../Upload/UploadModal';
-import {useModals} from '../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import {UserContext} from '../../Security/UserContext';
 import {useNavigateToModal} from '../../Routing/ModalLink';
+import {modalRoutes} from '../../../routes.ts';
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -162,12 +162,10 @@ export default function AssetResults() {
 
     const onOpen = useCallback<OnOpen>(
         (assetId: string, renditionId: string): void => {
-            navigateToModal(
-                getPath('app_asset_view', {
-                    assetId,
-                    renditionId,
-                })
-            );
+            navigateToModal(modalRoutes.assets.routes.view, {
+                assetId,
+                renditionId,
+            });
             // eslint-disable-next-line
         },
         [navigateToModal]

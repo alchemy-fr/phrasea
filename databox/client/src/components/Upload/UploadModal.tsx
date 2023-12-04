@@ -4,11 +4,9 @@ import FileCard from './FileCard';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
-import useFormSubmit from '../../hooks/useFormSubmit';
+import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {UploadData, UploadForm} from './UploadForm';
-import {StackedModalProps, useModals} from '../../hooks/useModalStack';
-import {useNavigationPrompt} from '../../hooks/useNavigationPrompt';
 import {createCollection, submitFiles} from '../../lib/upload/uploader';
 import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
@@ -23,6 +21,11 @@ import {
     putAssetDataTemplate,
 } from '../../api/templates';
 import {getBatchActions} from '../Media/Asset/Attribute/BatchActions';
+import {
+    StackedModalProps,
+    useInRouterDirtyFormPrompt,
+    useModals,
+} from '@alchemy/navigation';
 
 type FileWrapper = {
     id: string;
@@ -46,6 +49,7 @@ export default function UploadModal({
     workspaceTitle,
     collectionId: initCollectionId,
     titlePath,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
     const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(
@@ -55,16 +59,13 @@ export default function UploadModal({
         initCollectionId
     );
     const [files, setFiles] = useState<FileWrapper[]>(
-        initFiles.map(f => ({
+        initFiles.map((f: File) => ({
             file: f,
             id: uuidv4().toString(),
         }))
     );
     const {closeModal} = useModals();
-    useNavigationPrompt(
-        'Are you sure you want to dismiss upload?',
-        files.length > 0
-    );
+    useInRouterDirtyFormPrompt(t, files.length > 0);
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,
@@ -72,7 +73,7 @@ export default function UploadModal({
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
-    const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
+    const {submitting, submitted, handleSubmit, remoteErrors} = useFormSubmit({
         onSubmit: async (data: UploadData) => {
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -163,7 +164,7 @@ export default function UploadModal({
             <>
                 {t('form.asset_create.title_with_parent', 'Create asset under')}{' '}
                 <WorkspaceChip label={workspaceTitle} />
-                {titlePath.map((t, i) => (
+                {titlePath.map((t: string, i: number) => (
                     <React.Fragment key={i}>
                         {' / '}
                         <CollectionChip label={t} />
@@ -183,8 +184,9 @@ export default function UploadModal({
             title={title ?? t('form.upload.title', 'Upload')}
             formId={formId}
             open={open}
+            modalIndex={modalIndex}
             loading={submitting}
-            errors={errors}
+            errors={remoteErrors}
             submitIcon={<UploadIcon />}
             submitLabel={t('form.upload.submit.title', 'Upload')}
             submittable={files.length > 0}

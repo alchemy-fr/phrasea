@@ -16,12 +16,13 @@ import {PopoverPosition} from '@mui/material/Popover/Popover';
 import DeleteAssetsConfirm from './Actions/DeleteAssetsConfirm';
 import {ResultContext} from '../Search/ResultContext';
 import ExportAssetsDialog from './Actions/ExportAssetsDialog';
-import {getPath} from '../../../routes';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import {useModals} from '../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import SaveAsButton from './Actions/SaveAsButton';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
+import {getPath} from '@alchemy/navigation';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     anchorPosition: PopoverPosition;
@@ -67,32 +68,26 @@ export default function AssetContextMenu({
     };
 
     const onOpen = (renditionId: string) => {
-        navigateToModal(
-            getPath('app_asset_view', {
-                assetId: asset.id,
-                renditionId,
-            })
-        );
+        navigateToModal(modalRoutes.assets.routes.view, {
+            id: asset.id,
+            renditionId,
+        });
         onClose();
     };
 
     const onEdit = () => {
-        navigateToModal(
-            getPath('app_asset_manage', {
-                tab: 'edit',
-                id: asset.id,
-            })
-        );
+        navigateToModal(modalRoutes.assets.routes.manage, {
+            tab: 'edit',
+            id: asset.id,
+        });
         onClose();
     };
 
     const onEditAttr = () => {
-        navigateToModal(
-            getPath('app_asset_manage', {
-                tab: 'attributes',
-                id: asset.id,
-            })
-        );
+        navigateToModal(modalRoutes.assets.routes.manage, {
+            tab: 'attributes',
+            id: asset.id,
+        });
         onClose();
     };
 

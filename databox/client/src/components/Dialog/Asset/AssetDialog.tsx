@@ -12,6 +12,7 @@ import Renditions from './Renditions';
 import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {};
 
@@ -31,7 +32,7 @@ export default function AssetDialog({}: Props) {
 
     return (
         <TabbedDialog
-            routeName={'app_asset_manage'}
+            route={modalRoutes.assets.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
             minHeight={400}

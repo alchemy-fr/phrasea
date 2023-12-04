@@ -1,13 +1,24 @@
 import React, {useRef} from 'react';
 import {useLocation, useNavigate} from "react-router-dom";
-import {Drawer} from "@mui/material";
-import DrawerRouterProvider from "./DrawerRouterProvider";
-import DrawerContext, {TDrawerContext} from "../../contexts/DrawerContext";
+import {getOverlayContext, TOverlayRouterContext} from "./OverlayRouterContext";
+import OverlayRouterProvider from "./OverlayRouterProvider";
 
-type Props = {};
 
-export default function DrawerOutlet({
-    queryParam = '_d'
+type OverlayComponentProps = {
+    open: boolean;
+    onClose: () => void;
+};
+
+export type OverlayComponent = (props: OverlayComponentProps) => React.ReactNode
+
+type Props = {
+    queryParam: string;
+    WrapperComponent: OverlayComponent;
+};
+
+export default function OverlayOutlet({
+    queryParam,
+    WrapperComponent,
 }: Props) {
     const location = useLocation();
     const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -19,7 +30,7 @@ export default function DrawerOutlet({
     const [open, setOpen] = React.useState(false);
     const [finalUrl, setFinalUrl] = React.useState<string | undefined>();
 
-    const drawerUrl = React.useMemo<string | undefined>(() => {
+    const overlayUrl = React.useMemo<string | undefined>(() => {
         const searchParams = new URLSearchParams(search);
         return searchParams.get(queryParam) || undefined;
     }, [search]);
@@ -29,15 +40,15 @@ export default function DrawerOutlet({
             clearTimeout(timer.current);
         }
 
-        if (drawerUrl) {
-            setFinalUrl(drawerUrl);
+        if (overlayUrl) {
+            setFinalUrl(overlayUrl);
         } else {
             timer.current = setTimeout(() => {
                 setFinalUrl(undefined);
             }, 200);
         }
-        setOpen(Boolean(drawerUrl));
-    }, [drawerUrl]);
+        setOpen(Boolean(overlayUrl));
+    }, [overlayUrl]);
 
     const onClose = React.useCallback(() => {
         const searchParams = new URLSearchParams(search);
@@ -49,35 +60,26 @@ export default function DrawerOutlet({
         });
     }, [navigate, location]);
 
-    const contextValue = React.useMemo<TDrawerContext>(() => {
+    const contextValue = React.useMemo<TOverlayRouterContext>(() => {
         return {
-            closeDrawer: () => {
+            close: () => {
                 setOpen(false);
                 onClose();
             },
         }
     }, [onClose, setOpen]);
 
-    return <DrawerContext.Provider value={contextValue}>
-        <Drawer
-            anchor={'right'}
+    const OverlayRouterContext = getOverlayContext(queryParam);
+
+    return <OverlayRouterContext.Provider value={contextValue}>
+        <WrapperComponent
             open={open}
             onClose={onClose}
-            PaperProps={{
-                sx: (theme) => ({
-                    width: "100%",
-                    [theme.breakpoints.up('md')]: {
-                        width: "80%"
-                    },
-                    [theme.breakpoints.up('lg')]: {
-                        width: "40%"
-                    },
-                })
-            }}
         >
-            {finalUrl ? <DrawerRouterProvider
+            {finalUrl ? <OverlayRouterProvider
                 path={finalUrl}
+                queryParam={queryParam}
             /> : ''}
-        </Drawer>
-    </DrawerContext.Provider>
+        </WrapperComponent>
+    </OverlayRouterContext.Provider>
 }

@@ -1,15 +1,16 @@
 import {useState} from 'react';
-import {AxiosError} from 'axios';
-import {UseFormProps} from 'react-hook-form/dist/types/form';
+import axios from 'axios';
+import {UseFormProps} from 'react-hook-form';
 import {
     ApiErrorMapping,
     mapApiErrors,
     normalizeApiPlatformPath,
     NormalizePath,
-} from '../lib/form';
+} from './form';
 import {useForm} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form/dist/types/fields';
+import {FieldValues} from 'react-hook-form';
 import {toast} from 'react-toastify';
+import {hydraDescriptionKey} from "./utils";
 
 type OnBeforeSubmit<T extends FieldValues> = (
     data: T,
@@ -57,11 +58,10 @@ export default function useFormSubmit<T extends FieldValues, R = any>({
             onSuccess && onSuccess(res);
         } catch (e: any) {
             console.log('error', e);
-            if (e.isAxiosError) {
-                const err = e as AxiosError;
-                if (422 === err.response?.status) {
+            if (axios.isAxiosError<any>(e)) {
+                if (422 === e.response?.status) {
                     mapApiErrors(
-                        err,
+                        e,
                         setError,
                         setRemoteErrors,
                         getValues,
@@ -69,12 +69,12 @@ export default function useFormSubmit<T extends FieldValues, R = any>({
                         apiErrors?.normalizePath || normalizeApiPlatformPath,
                     );
                 } else if (
-                    err.response &&
-                    [400, 500].includes(err.response.status)
+                    e.response &&
+                    [400, 500].includes(e.response.status)
                 ) {
                     setRemoteErrors(p =>
                         p.concat(
-                            err.response!.data['hydra:description'] as string,
+                            e.response!.data[hydraDescriptionKey] as string,
                         ),
                     );
                 }

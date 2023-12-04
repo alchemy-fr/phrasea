@@ -25,8 +25,9 @@ import BusinessIcon from '@mui/icons-material/Business';
 import CreateCollection from './Collection/CreateCollection';
 import ModalLink from '../Routing/ModalLink';
 import {useTranslation} from 'react-i18next';
-import {useModals} from '../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
+import {modalRoutes} from '../../routes.ts';
 
 export type WorkspaceMenuItemProps = {} & Workspace;
 
@@ -176,7 +177,7 @@ export default function WorkspaceMenuItem({
                                 <IconButton
                                     color={'inherit'}
                                     component={ModalLink}
-                                    routeName={'workspace_manage'}
+                                    route={modalRoutes.workspaces.routes.manage}
                                     params={{
                                         id,
                                         tab: 'edit',

@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from '../Form/RemoteErrors';
 import {LoadingButton} from '@mui/lab';
-import {StackedModalProps, useModals} from '../../hooks/useModalStack';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<
     {

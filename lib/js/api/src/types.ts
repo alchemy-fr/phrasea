@@ -5,7 +5,7 @@ export type RequestMeta = {
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
-        anonymous?: boolean;
         meta?: RequestMeta;
+        errorHandled?: boolean;
     }
 }

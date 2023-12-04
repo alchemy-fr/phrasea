@@ -1,6 +1,5 @@
 import {PropsWithChildren} from 'react';
-import {Box} from '@mui/material';
-import {SxProps} from '@mui/system';
+import {Box, SxProps} from '@mui/material';
 import {Theme} from '@mui/material/styles';
 
 type Props = PropsWithChildren<

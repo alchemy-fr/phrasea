@@ -2,7 +2,7 @@ import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import AppDialog from '../../Layout/AppDialog';
 import FilePlayer from './FilePlayer';
-import useWindowSize from '../../../hooks/useWindowSize';
+import useWindowSize from '@alchemy/react-hooks/src/useWindowSize';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
@@ -12,8 +12,9 @@ import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';
 import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
-import {getPath} from '../../../routes';
+import {getPath} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
+import {modalRoutes} from '../../../routes.ts';
 
 export type IntegrationOverlayCommonProps = {
     maxDimensions: Dimensions;
@@ -79,12 +80,10 @@ export default function AssetView({}: Props) {
     const rendition = renditions.find(r => r.id === renditionId);
 
     const handleRenditionChange = (renditionId: string) => {
-        navigateToModal(
-            getPath('app_asset_view', {
-                assetId,
-                renditionId,
-            })
-        );
+        navigateToModal(modalRoutes.assets.routes.view, {
+            assetId,
+            renditionId,
+        });
     };
 
     return (

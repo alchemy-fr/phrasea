@@ -1,14 +1,12 @@
-import {FunctionComponent, useContext} from 'react';
-import {Route} from 'react-router-dom';
-import {RouteDefinition} from '../../routes';
+import {useContext} from 'react';
 import {UserContext} from '../Security/UserContext';
 import {useKeycloakUrls} from '../../lib/keycloak';
+import type {RouteProxyProps} from '@alchemy/navigation';
 
-type WrapperProps = {
-    component: FunctionComponent<any>;
-} & RouteDefinition;
-
-function RouteProxy({component: Component, public: isPublic}: WrapperProps) {
+export function RouteProxy({
+    component: Component,
+    public: isPublic,
+}: RouteProxyProps) {
     const {user} = useContext(UserContext);
     const {getLoginUrl} = useKeycloakUrls();
 
@@ -19,43 +17,4 @@ function RouteProxy({component: Component, public: isPublic}: WrapperProps) {
     }
 
     return <Component />;
-}
-
-export default function createRoute(
-    {component, routes, path, ...route}: RouteDefinition,
-    key: string,
-    pathPrefix: string = ''
-) {
-    const p = pathPrefix + path;
-
-    if (routes && routes.length > 0) {
-        return (
-            <Route
-                key={key}
-                path={p}
-                element={
-                    <RouteProxy component={component!} path={p} {...route} />
-                }
-            >
-                {routes.map(r =>
-                    createRoute(
-                        {
-                            ...r,
-                            path: r.path.substring(1),
-                            component: r.component || component,
-                        },
-                        r.name
-                    )
-                )}
-            </Route>
-        );
-    }
-
-    return (
-        <Route
-            key={key}
-            path={p}
-            element={<RouteProxy component={component!} path={p} {...route} />}
-        />
-    );
 }

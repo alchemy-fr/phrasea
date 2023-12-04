@@ -4,9 +4,8 @@ import Thumb from './Thumb';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../Search/Layout/classes';
 import FilePlayer from './FilePlayer';
-import {SxProps} from '@mui/system';
 import {createDimensions} from './Players';
-import {CircularProgress} from '@mui/material';
+import {CircularProgress, SxProps} from '@mui/material';
 
 type Props = {
     selected?: boolean;

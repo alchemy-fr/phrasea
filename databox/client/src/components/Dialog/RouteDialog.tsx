@@ -1,7 +1,7 @@
 import {ReactElement} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {getPath} from '../../routes';
 import {StateWithBackground} from '../Routing/ModalLink';
+import {getPath} from '@alchemy/navigation';
 
 type Props = {
     children(options: {

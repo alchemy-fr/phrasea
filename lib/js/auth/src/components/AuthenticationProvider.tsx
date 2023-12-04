@@ -39,6 +39,13 @@ export default function AuthenticationProvider({
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(inStorage);
 
     const updateTokens = React.useCallback<SetTokens>((tokens) => {
+        if (!tokens.expiresAt) {
+            tokens.expiresAt = Date.now() + tokens.expiresIn;
+        }
+        if (tokens.refreshExpiresIn && !tokens.refreshExpiresAt) {
+            tokens.refreshExpiresAt = Date.now() + tokens.refreshExpiresIn;
+        }
+
         setTokens(tokens);
         onNewTokens && onNewTokens(tokens);
     }, [setTokens]);
@@ -70,6 +77,7 @@ export default function AuthenticationProvider({
             setRedirectPath(redirectPathAfterLogin);
             return;
         }
+
         setTimeout(() => {
             setRedirectPath(undefined);
         }, 500);

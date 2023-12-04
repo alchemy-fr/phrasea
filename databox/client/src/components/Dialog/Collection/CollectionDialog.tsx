@@ -10,6 +10,7 @@ import {getCollection} from '../../../api/collection';
 import TagRulesTab from './TagRulesTab';
 import Operations from './Operations';
 import InfoCollection from './InfoCollection';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {};
 
@@ -29,7 +30,7 @@ export default function CollectionDialog({}: Props) {
 
     return (
         <TabbedDialog
-            routeName={'app_collection_manage'}
+            route={modalRoutes.collections.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
             minHeight={400}

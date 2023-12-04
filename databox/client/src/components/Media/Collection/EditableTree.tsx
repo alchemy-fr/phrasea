@@ -116,73 +116,75 @@ export default function EditableCollectionTree({
         [setValue, node.value]
     );
 
-    return <TreeItem
-        sx={(t: Theme) => ({
-            '.MuiTreeItem-content': {
-                backgroundColor: alpha(
-                    t.palette.info.main,
-                    remainingPath.length > 0 ? 0.4 : 0.2
-                ),
-            },
-        })}
-        ref={ref}
-        nodeId={nodeId}
-        label={
-            !editing ? (
-                <Stack direction={'row'} alignItems={'center'}>
-                    {node.value}
-                    <IconButton sx={{ml: 1}} onClick={onEditHandler}>
-                        <EditIcon/>
-                    </IconButton>
-                    <IconButton sx={{ml: 1}} onClick={createSubCollection}>
-                        <CreateNewFolderIcon/>
-                    </IconButton>
-                    <IconButton
-                        sx={{ml: 1}}
-                        color={'error'}
-                        onClick={removeNode}
+    return (
+        <TreeItem
+            sx={(t: Theme) => ({
+                '.MuiTreeItem-content': {
+                    backgroundColor: alpha(
+                        t.palette.info.main,
+                        remainingPath.length > 0 ? 0.4 : 0.2
+                    ),
+                },
+            })}
+            ref={ref}
+            nodeId={nodeId}
+            label={
+                !editing ? (
+                    <Stack direction={'row'} alignItems={'center'}>
+                        {node.value}
+                        <IconButton sx={{ml: 1}} onClick={onEditHandler}>
+                            <EditIcon />
+                        </IconButton>
+                        <IconButton sx={{ml: 1}} onClick={createSubCollection}>
+                            <CreateNewFolderIcon />
+                        </IconButton>
+                        <IconButton
+                            sx={{ml: 1}}
+                            color={'error'}
+                            onClick={removeNode}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    </Stack>
+                ) : (
+                    <Stack
+                        onClick={e => e.stopPropagation()}
+                        direction={'row'}
+                        alignItems={'center'}
                     >
-                        <DeleteIcon/>
-                    </IconButton>
-                </Stack>
-            ) : (
-                <Stack
-                    onClick={e => e.stopPropagation()}
-                    direction={'row'}
-                    alignItems={'center'}
-                >
-                    <TextField
-                        variant={'standard'}
-                        autoFocus={true}
-                        value={value}
-                        onChange={onChange}
-                        onKeyDown={onKeyDown}
-                    />
-                    <IconButton
-                        color={'error'}
-                        sx={{ml: 1}}
-                        onClick={dismiss}
-                    >
-                        <CloseIcon/>
-                    </IconButton>
-                    <IconButton
-                        color={'success'}
-                        sx={{ml: 1}}
-                        onClick={doneClickHandler}
-                    >
-                        <DoneIcon/>
-                    </IconButton>
-                </Stack>
-            )
-        }
-    >
-        {remainingPath.length > 0 && (
-            <EditableCollectionTree
-                offset={offset + 1}
-                nodes={remainingPath}
-                onEdit={onEdit}
-                setExpanded={setExpanded}
-            />
-        )}
-    </TreeItem>
+                        <TextField
+                            variant={'standard'}
+                            autoFocus={true}
+                            value={value}
+                            onChange={onChange}
+                            onKeyDown={onKeyDown}
+                        />
+                        <IconButton
+                            color={'error'}
+                            sx={{ml: 1}}
+                            onClick={dismiss}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                        <IconButton
+                            color={'success'}
+                            sx={{ml: 1}}
+                            onClick={doneClickHandler}
+                        >
+                            <DoneIcon />
+                        </IconButton>
+                    </Stack>
+                )
+            }
+        >
+            {remainingPath.length > 0 && (
+                <EditableCollectionTree
+                    offset={offset + 1}
+                    nodes={remainingPath}
+                    onEdit={onEdit}
+                    setExpanded={setExpanded}
+                />
+            )}
+        </TreeItem>
+    );
 }

@@ -6,7 +6,7 @@ import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from '../../Form/RemoteErrors';
 import {useTranslation} from 'react-i18next';
-import {useNavigationPrompt} from '../../../hooks/useNavigationPrompt';
+import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
     loading: boolean;
@@ -20,10 +20,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export function useDirtyFormPrompt(isDirty: boolean) {
-    useNavigationPrompt(
-        'Are you sure you want to dismiss unsaved changes?',
-        isDirty
-    );
+    const {t} = useTranslation();
+
+    useInRouterDirtyFormPrompt(t, isDirty);
 }
 
 export default function FormTab({

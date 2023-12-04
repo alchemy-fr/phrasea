@@ -6,7 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import {LoadingButton} from '@mui/lab';
 import {AxiosError} from 'axios';
 import RemoteErrors from '../Form/RemoteErrors';
-import {StackedModalProps, useModals} from '../../hooks/useModalStack';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<
     {
@@ -28,6 +28,7 @@ export default function ConfirmDialog({
     open,
     textToType,
     children,
+    modalIndex,
 }: Props) {
     const {closeModal} = useModals();
     const [loading, setLoading] = useState(false);
@@ -66,6 +67,7 @@ export default function ConfirmDialog({
 
     return (
         <AppDialog
+            modalIndex={modalIndex}
             maxWidth={'sm'}
             onClose={onClose}
             loading={loading}

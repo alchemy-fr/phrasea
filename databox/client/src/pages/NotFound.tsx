@@ -1,7 +1,8 @@
 import {useTranslation} from 'react-i18next';
 import {Box, Button, Typography} from '@mui/material';
-import {getPath} from '../routes';
+import {getPath} from '@alchemy/navigation';
 import {Link} from 'react-router-dom';
+import {routes} from '../routes.ts';
 
 type Props = {};
 
@@ -37,7 +38,7 @@ export default function NotFound({}: Props) {
                     mt: 2,
                 }}
                 component={Link}
-                to={getPath('app')}
+                to={getPath(routes.app)}
             >
                 {t('not_found.back_home', 'Back home')}
             </Button>

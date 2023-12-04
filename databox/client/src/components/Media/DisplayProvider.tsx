@@ -31,8 +31,14 @@ export default function DisplayProvider({children}: PropsWithChildren<{}>) {
             if (e.key === 'p') {
                 toast.info(
                     previewLocked
-                        ? t('layout.previews_unlocked', 'Previews unlocked') as string
-                        : t('layout.previews_locked', 'Previews locked') as string,
+                        ? (t(
+                              'layout.previews_unlocked',
+                              'Previews unlocked'
+                          ) as string)
+                        : (t(
+                              'layout.previews_locked',
+                              'Previews locked'
+                          ) as string),
                     {
                         toastId: 'preview_lock',
                         updateId: 'preview_lock',

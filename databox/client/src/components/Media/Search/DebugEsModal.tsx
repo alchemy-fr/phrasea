@@ -2,7 +2,7 @@ import {ESDebug} from '../../../api/asset';
 import {Box, Button, Chip} from '@mui/material';
 import AppDialog from '../../Layout/AppDialog';
 import {useTranslation} from 'react-i18next';
-import {StackedModalProps, useModals} from '../../../hooks/useModalStack';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = {
     debug: ESDebug;
@@ -29,12 +29,13 @@ function Metric({n}: {n: number}) {
     );
 }
 
-export default function DebugEsModal({debug, open}: Props) {
+export default function DebugEsModal({debug, open, modalIndex}: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
 
     return (
         <AppDialog
+            modalIndex={modalIndex}
             open={open}
             title={
                 <>

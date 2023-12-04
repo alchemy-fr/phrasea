@@ -9,7 +9,7 @@ import {useMatomo} from "@jonkoops/matomo-tracker-react";
 import AuthorizationCodePage from "@alchemy/auth/src/components/AuthorizationCodePage.tsx";
 import RouterProvider from "@alchemy/navigation/src/RouterProvider.tsx";
 import {routes} from "../routes.ts";
-import AnalyticsRouteProxy from "@alchemy/navigation/src/proxy/AnalyticsRouteProxy.tsx";
+import MatomoRouteProxy from "lib/js/navigation/src/proxy/MatomoRouteProxy.tsx";
 
 
 type Props = {};
@@ -58,7 +58,7 @@ export default function App({}: Props) {
             />}
             <RouterProvider
                 routes={routes}
-                RouteProxyComponent={AnalyticsRouteProxy}
+                RouteProxyComponent={MatomoRouteProxy}
             />
         </AnalyticsRouterProvider>
     </>

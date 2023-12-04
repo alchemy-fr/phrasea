@@ -7,7 +7,7 @@ import {Alert, Button, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {deleteCollection} from '../../../api/collection';
 import ConfirmDialog from '../../Ui/ConfirmDialog';
-import {useModals} from '../../../hooks/useModalStack';
+import {useModals} from '@alchemy/navigation';
 
 type Props = {
     data: Collection;
