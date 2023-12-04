@@ -33,7 +33,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
     useDirtyFormPrompt(!submitted && isDirty);
 
     return (
-        <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+        <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
                 <TextField
                     autoFocus

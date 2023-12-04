@@ -34,29 +34,28 @@ export default function SaveFileAsNewAssetDialog({
     open,
     suggestedTitle,
     integrationId,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
     const {
+    } = useForm<FormData>({
+    });
+
+    const {
         handleSubmit,
-        setError,
         control,
         register,
-        formState: {errors, isDirty},
-    } = useForm<FormData>({
+        formState: {errors},
+        remoteErrors,
+        submitting,
+        forbidNavigation
+    } = useFormSubmit({
         defaultValues: {
             title: suggestedTitle || asset.resolvedTitle,
             destination: undefined,
         },
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             const workspace = data.destination.includes('/workspaces/')
                 ? data.destination
@@ -81,12 +80,13 @@ export default function SaveFileAsNewAssetDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-new-asset';
 
     return (
         <FormDialog
+            modalIndex={modalIndex}
             title={`Save file as new asset`}
             open={open}
             loading={submitting}
@@ -95,7 +95,7 @@ export default function SaveFileAsNewAssetDialog({
             submitLabel={'Save'}
         >
             <Typography sx={{mb: 3}}>{``}</Typography>
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <TextField
                         autoFocus

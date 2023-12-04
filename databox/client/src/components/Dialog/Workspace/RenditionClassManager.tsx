@@ -42,7 +42,7 @@ function Item({
 
     return (
         <>
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <TextField
                         label={t('form.rendition_class.name.label', 'Name')}

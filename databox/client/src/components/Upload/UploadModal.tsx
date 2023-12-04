@@ -26,6 +26,7 @@ import {
     useInRouterDirtyFormPrompt,
     useModals,
 } from '@alchemy/navigation';
+import {Privacy} from "../../api/privacy.ts";
 
 type FileWrapper = {
     id: string;
@@ -73,7 +74,14 @@ export default function UploadModal({
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
-    const {submitting, submitted, handleSubmit, remoteErrors} = useFormSubmit({
+    const defaultValues = {
+        destination: '',
+        privacy: Privacy.Secret,
+        tags: [],
+    };
+
+    const usedFormSubmit = useFormSubmit({
+        defaultValues,
         onSubmit: async (data: UploadData) => {
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -141,6 +149,22 @@ export default function UploadModal({
             closeModal(true);
         },
     });
+
+    const {
+        reset,
+        getValues,
+        remoteErrors,
+        submitting
+    } = usedFormSubmit;
+
+    const resetForms = React.useCallback(() => {
+        reset({
+            ...defaultValues,
+            destination: getValues().destination,
+        });
+        usedAttributeEditor.reset();
+    }, [usedAttributeEditor]);
+
 
     const onDrop = (acceptedFiles: File[]) => {
         setFiles(p =>
@@ -218,14 +242,13 @@ export default function UploadModal({
                 </Box>
             )}
             <UploadForm
+                resetForms={resetForms}
+                usedFormSubmit={usedFormSubmit}
                 formId={formId}
                 workspaceId={workspaceId}
                 collectionId={collectionId}
-                onSubmit={handleSubmit}
                 onChangeWorkspace={setWorkspaceId}
                 onChangeCollection={setCollectionId}
-                submitting={submitting}
-                submitted={submitted}
                 noDestination={Boolean(workspaceTitle)}
                 usedAttributeEditor={usedAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}

@@ -1,9 +1,7 @@
-import {useForm} from 'react-hook-form';
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import FormRow from '../Form/FormRow';
 import FormFieldErrors from '../Form/FormFieldErrors';
-import {FormProps} from '../Form/types';
 import CollectionTreeWidget from '../Form/CollectionTreeWidget';
 import PrivacyField from '../Ui/PrivacyField';
 import {Privacy} from '../../api/privacy';
@@ -25,6 +23,7 @@ import {Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useFormSubmit} from '@alchemy/api';
 
 export type UploadData = {
     destination: Collection;
@@ -43,12 +42,13 @@ export const UploadForm: FC<
         >;
         onChangeWorkspace: (wsId: string | undefined) => void;
         onChangeCollection: (colId: string | undefined) => void;
-    } & FormProps<UploadData>
+        usedFormSubmit: ReturnType<typeof useFormSubmit<UploadData>>;
+        resetForms: () => void;
+        formId: string;
+    }
 > = function ({
     formId,
-    onSubmit,
-    submitting,
-    submitted,
+    usedFormSubmit,
     workspaceId,
     collectionId,
     noDestination,
@@ -56,6 +56,7 @@ export const UploadForm: FC<
     usedAssetDataTemplateOptions,
     onChangeWorkspace,
     onChangeCollection,
+    resetForms,
 }) {
     const {t} = useTranslation();
     const [selectedTemplates, setSelectedTemplates] = React.useState<string[]>(
@@ -67,32 +68,16 @@ export const UploadForm: FC<
     const [loading, setLoading] = React.useState(false);
     const [templateId, setTemplateId] = React.useState<string | undefined>();
 
-    const defaultValues = {
-        destination: '',
-        privacy: Privacy.Secret,
-        tags: [],
-    };
-
     const {
         handleSubmit,
         control,
-        setError,
         setValue,
-        reset,
-        getValues,
         formState: {errors, isDirty},
-    } = useForm<UploadData>({
-        defaultValues: defaultValues,
-    });
-    useInRouterDirtyFormPrompt(t, !submitting && !submitted && isDirty);
+        forbidNavigation,
+        submitting,
+    } = usedFormSubmit;
 
-    const resetForms = React.useCallback(() => {
-        reset({
-            ...defaultValues,
-            destination: getValues().destination,
-        });
-        usedAttributeEditor.reset();
-    }, [usedAttributeEditor]);
+    useInRouterDirtyFormPrompt(t, forbidNavigation);
 
     const onTemplateSelect = React.useCallback(
         (values: OnChangeValue<SelectOption, true>) => {
@@ -189,7 +174,7 @@ export const UploadForm: FC<
     return (
         <>
             {loading && <FullPageLoader />}
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget

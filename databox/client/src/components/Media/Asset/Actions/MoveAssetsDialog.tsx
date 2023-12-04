@@ -1,5 +1,4 @@
 import {useTranslation} from 'react-i18next';
-import {useForm} from 'react-hook-form';
 import {Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
@@ -27,6 +26,7 @@ export default function MoveAssetsDialog({
     workspaceId,
     onComplete,
     open,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -34,17 +34,12 @@ export default function MoveAssetsDialog({
     const count = assetIds.length;
 
     const {
-        handleSubmit,
-        setError,
         control,
-        formState: {errors, isDirty},
-    } = useForm<FormData>();
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
+        formState: {errors},
+        handleSubmit,
+        remoteErrors,
         submitting,
-        submitted,
+        forbidNavigation
     } = useFormSubmit({
         onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
         onSuccess: () => {
@@ -53,12 +48,13 @@ export default function MoveAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'move-assets';
 
     return (
         <FormDialog
+            modalIndex={modalIndex}
             open={open}
             title={t('move_assets.dialog.title', 'Move {{count}} assets', {
                 count,
@@ -74,7 +70,7 @@ export default function MoveAssetsDialog({
                     'Where do you want to move the selected assets?'
                 )}
             </Typography>
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 <CollectionTreeWidget
                     workspaceId={workspaceId}
                     control={control}

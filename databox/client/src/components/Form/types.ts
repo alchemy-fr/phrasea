@@ -1,4 +1,3 @@
-import {UseFormSetError} from 'react-hook-form';
 import {UseFormHandleSubmit} from 'react-hook-form/dist/types/form';
 
 export type FormProps<T extends object, D extends object = T> = {

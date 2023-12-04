@@ -1,4 +1,3 @@
-import {useForm} from 'react-hook-form';
 import {Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
@@ -10,30 +9,21 @@ import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import {putAsset} from '../../../../api/asset';
 
-type FormData = {};
-
 type Props = {
     asset: Asset;
     file: File;
 } & StackedModalProps;
 
-export default function ReplaceAssetWithFileDialog({asset, file, open}: Props) {
+export default function ReplaceAssetWithFileDialog({asset, file, open, modalIndex}: Props) {
     const {closeModal} = useModals();
 
     const {
         handleSubmit,
-        setError,
-        formState: {isDirty},
-    } = useForm<FormData>({
-        defaultValues: {},
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
+        remoteErrors,
         submitting,
-        submitted,
+        forbidNavigation
     } = useFormSubmit({
+        defaultValues: {},
         onSubmit: async () => {
             return await putAsset(asset.id, {
                 sourceFileId: file.id,
@@ -44,12 +34,13 @@ export default function ReplaceAssetWithFileDialog({asset, file, open}: Props) {
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-new-asset';
 
     return (
         <FormDialog
+            modalIndex={modalIndex}
             title={`Replace asset with file`}
             open={open}
             loading={submitting}
@@ -62,7 +53,7 @@ export default function ReplaceAssetWithFileDialog({asset, file, open}: Props) {
             </Typography>
             <form
                 id={formId}
-                onSubmit={handleSubmit(onSubmit(setError))}
+                onSubmit={handleSubmit}
             ></form>
             <RemoteErrors errors={remoteErrors} />
         </FormDialog>

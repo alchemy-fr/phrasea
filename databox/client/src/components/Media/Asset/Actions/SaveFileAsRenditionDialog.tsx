@@ -1,4 +1,3 @@
-import {useForm} from 'react-hook-form';
 import {FormGroup, FormLabel} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -22,26 +21,20 @@ type Props = {
     file: File;
 } & StackedModalProps;
 
-export default function SaveFileAsRenditionDialog({asset, file, open}: Props) {
+export default function SaveFileAsRenditionDialog({asset, file, open, modalIndex}: Props) {
     const {closeModal} = useModals();
 
     const {
-        handleSubmit,
-        setError,
         control,
-        formState: {errors, isDirty},
-    } = useForm<FormData>({
+        formState: {errors},
+        handleSubmit,
+        remoteErrors,
+        submitting,
+        forbidNavigation
+    } = useFormSubmit({
         defaultValues: {
             definition: undefined,
         },
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             return await postRendition({
                 definitionId: data.definition,
@@ -54,7 +47,7 @@ export default function SaveFileAsRenditionDialog({asset, file, open}: Props) {
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-rendition';
 
@@ -62,12 +55,13 @@ export default function SaveFileAsRenditionDialog({asset, file, open}: Props) {
         <FormDialog
             title={`Save file as asset rendition`}
             open={open}
+            modalIndex={modalIndex}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
             submitLabel={'Save'}
         >
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <FormGroup>
                         <FormLabel>Rendition to add or replace</FormLabel>

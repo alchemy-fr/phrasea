@@ -63,7 +63,7 @@ function Item({
     }, [data]);
 
     return (
-        <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+        <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
                 <TextField
                     label={t('form.attribute_definition.name.label', 'Name')}

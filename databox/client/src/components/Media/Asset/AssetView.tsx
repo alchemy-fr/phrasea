@@ -2,7 +2,8 @@ import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import AppDialog from '../../Layout/AppDialog';
 import FilePlayer from './FilePlayer';
-import useWindowSize from '@alchemy/react-hooks/src/useWindowSize';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
+import {StackedModalProps} from '@alchemy/navigation';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
@@ -12,7 +13,6 @@ import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';
 import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
-import {getPath} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
 
@@ -37,9 +37,11 @@ const menuWidth = 300;
 const headerHeight = 60;
 const scrollBarDelta = 8;
 
-type Props = {};
+type Props = {} & StackedModalProps;
 
-export default function AssetView({}: Props) {
+export default function AssetView({
+    modalIndex,
+}: Props) {
     const {assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
 
@@ -68,8 +70,8 @@ export default function AssetView({}: Props) {
 
     const maxDimensions = useMemo<Dimensions>(() => {
         return {
-            width: winSize.width - menuWidth - scrollBarDelta,
-            height: winSize.height - headerHeight - 2,
+            width: winSize.innerWidth - menuWidth - scrollBarDelta,
+            height: winSize.innerHeight - headerHeight - 2,
         };
     }, [winSize]);
 
@@ -90,6 +92,7 @@ export default function AssetView({}: Props) {
         <RouteDialog>
             {({open, onClose}) => (
                 <AppDialog
+                    modalIndex={modalIndex}
                     open={open}
                     disablePadding={true}
                     sx={{

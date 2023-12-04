@@ -45,7 +45,7 @@ function Item({
     useDirtyFormPrompt(isDirty);
 
     return (
-        <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+        <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
                 <TextField
                     label={t('form.rendition_definition.name.label', 'Name')}

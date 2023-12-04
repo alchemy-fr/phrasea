@@ -69,29 +69,25 @@ export default function CopyAssetsDialog({assets, onComplete, open}: Props) {
 
     const count = assets.length;
 
+    const byRef = watch('byReference');
+
     const {
         handleSubmit,
         setError,
         control,
         watch,
         formState: {errors, isDirty},
-    } = useForm<FormData>({
+        errors: remoteErrors,
+        submitting,
+        submitted,
+        forbidNavigation
+    } = useFormSubmit({
         defaultValues: {
             destination: '',
             byReference: true,
             withAttributes: true,
             withTags: true,
         },
-    });
-
-    const byRef = watch('byReference');
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
         onSubmit: (data: FormData) => {
             const finalSelection: string[] = [
                 ...assets
@@ -122,7 +118,7 @@ export default function CopyAssetsDialog({assets, onComplete, open}: Props) {
             onComplete();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const nonLinkablePerm: Asset[] = useMemo(
         () => (byRef ? assets.filter(a => !a.capabilities.canShare) : []),
@@ -160,7 +156,7 @@ export default function CopyAssetsDialog({assets, onComplete, open}: Props) {
                     'Where do you want to copy the selected assets?'
                 )}
             </Typography>
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <SwitchWidget
                         control={control}

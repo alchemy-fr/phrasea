@@ -2,10 +2,15 @@ import {Asset} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import FormTab from '../Tabbed/FormTab';
+import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
-import {AssetForm} from '../../Form/AssetForm';
+import {Privacy} from "../../../api/privacy.ts";
+import FormRow from "../../Form/FormRow.tsx";
+import {FormGroup, InputLabel, TextField} from "@mui/material";
+import FormFieldErrors from "../../Form/FormFieldErrors.tsx";
+import TagSelect from "../../Form/TagSelect.tsx";
+import PrivacyField from "../../Ui/PrivacyField.tsx";
 
 type Props = {
     id: string;
@@ -15,7 +20,28 @@ type Props = {
 export default function EditAsset({data: asset, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
+    const formId = 'edit-asset';
+
+    const {
+        register,
+        control,
+        formState: {errors},
+        submitting,
+        handleSubmit,
+        remoteErrors,
+        forbidNavigation
+    } = useFormSubmit({
+        defaultValues: data
+            ? {
+                title: data.title,
+                privacy: data.privacy,
+                tags: data?.tags?.map(t => t['@id']) ?? [],
+            }
+            : {
+                title: '',
+                privacy: Privacy.Secret,
+                tags: [],
+            },
         onSubmit: async (data: AssetApiInput) => {
             return await putAsset(asset.id, data);
         },
@@ -27,24 +53,44 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
         },
     });
 
-    const formId = 'edit-asset';
+    useDirtyFormPrompt(forbidNavigation);
 
-    return (
-        <FormTab
+    return <FormTab
             onClose={onClose}
             formId={formId}
             loading={submitting}
-            errors={errors}
+            errors={remoteErrors}
             minHeight={minHeight}
         >
-            <AssetForm
-                data={asset}
-                formId={formId}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                submitted={submitted}
-                workspaceId={asset.workspace.id}
-            />
+            <form id={formId} onSubmit={handleSubmit}>
+                <FormRow>
+                    <TextField
+                        autoFocus
+                        required={true}
+                        label={t('form.asset.title.label', 'Title')}
+                        disabled={submitting}
+                        {...register('title', {
+                            required: true,
+                        })}
+                    />
+                    <FormFieldErrors field={'title'} errors={errors} />
+                </FormRow>
+                <FormRow>
+                    <FormGroup>
+                        <InputLabel>
+                            {t('form.asset.tags.label', 'Tags')}
+                        </InputLabel>
+                        <TagSelect
+                            workspaceId={workspaceId}
+                            control={control}
+                            name={'tags'}
+                        />
+                        <FormFieldErrors field={'tags'} errors={errors} />
+                    </FormGroup>
+                </FormRow>
+                <FormRow>
+                    <PrivacyField control={control} name={'privacy'} />
+                </FormRow>
+            </form>
         </FormTab>
-    );
 }

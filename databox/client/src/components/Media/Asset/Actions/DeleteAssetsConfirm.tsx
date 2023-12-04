@@ -8,7 +8,7 @@ type Props = {
     onDelete?: () => void;
 } & StackedModalProps;
 
-export default function DeleteAssetsConfirm({assetIds, onDelete, open}: Props) {
+export default function DeleteAssetsConfirm({assetIds, onDelete, open, modalIndex}: Props) {
     const {t} = useTranslation();
     const count = assetIds.length;
 
@@ -19,6 +19,7 @@ export default function DeleteAssetsConfirm({assetIds, onDelete, open}: Props) {
 
     return (
         <ConfirmDialog
+            modalIndex={modalIndex}
             title={t('asset.delete.confirm.title', 'Confirm delete')}
             onConfirm={onDeleteAssets}
             open={open}

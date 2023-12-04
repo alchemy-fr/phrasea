@@ -21,7 +21,6 @@ import {useModals} from '@alchemy/navigation';
 import SaveAsButton from './Actions/SaveAsButton';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
-import {getPath} from '@alchemy/navigation';
 import {modalRoutes} from '../../../routes.ts';
 
 type Props = {

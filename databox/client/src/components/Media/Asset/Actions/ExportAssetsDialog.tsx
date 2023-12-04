@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {exportAssets} from '../../../../api/export';
 import {Asset, RenditionDefinition, Workspace} from '../../../../types';
-import {useForm} from 'react-hook-form';
 import FormRow from '../../../Form/FormRow';
 import {Checkbox, FormControlLabel, Typography} from '@mui/material';
 import FormFieldErrors from '../../../Form/FormFieldErrors';
@@ -30,7 +29,7 @@ type IndexedDefinition = {
     };
 };
 
-export default function ExportAssetsDialog({assets, open}: Props) {
+export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
@@ -67,20 +66,14 @@ export default function ExportAssetsDialog({assets, open}: Props) {
     const {
         register,
         handleSubmit,
-        setError,
-        formState: {errors, isDirty},
-    } = useForm<any>({
+        remoteErrors,
+        submitting,
+        formState: {errors},
+        forbidNavigation,
+    } = useFormSubmit<any>({
         defaultValues: {
             renditions: [],
         },
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
         onSubmit: async (data: FormData) => {
             setLoading(true);
             const downloadUrl = await exportAssets({
@@ -104,7 +97,7 @@ export default function ExportAssetsDialog({assets, open}: Props) {
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'export';
 
@@ -114,6 +107,7 @@ export default function ExportAssetsDialog({assets, open}: Props) {
 
     return (
         <FormDialog
+            modalIndex={modalIndex}
             open={open}
             title={t('export.dialog.title', 'Export {{count}} assets', {
                 count,
@@ -129,7 +123,7 @@ export default function ExportAssetsDialog({assets, open}: Props) {
                     'Select the renditions you want to export:'
                 )}
             </Typography>
-            <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+            <form id={formId} onSubmit={handleSubmit}>
                 {Object.keys(definitions).map(wId => {
                     const workspace = definitions![wId];
 

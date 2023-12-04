@@ -60,7 +60,7 @@ function Item({
     }, [isPublic]);
 
     return (
-        <form id={formId} onSubmit={handleSubmit(onSubmit(setError))}>
+        <form id={formId} onSubmit={handleSubmit}>
             <FormRow>
                 <TextField
                     label={t('form.attribute_class.name.label', 'Name')}

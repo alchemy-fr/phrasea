@@ -24,11 +24,12 @@ export default function CreateCollection({
     workspaceId,
     workspaceTitle,
     onCreate,
+    modalIndex,
     open,
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
-    const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
+    const {submitting, submitted, handleSubmit, remoteErrors} = useFormSubmit({
         onSubmit: async (data: Collection) => {
             return await postCollection({
                 ...data,
@@ -76,10 +77,11 @@ export default function CreateCollection({
 
     return (
         <FormDialog
+            modalIndex={modalIndex}
             title={title}
             formId={formId}
             loading={submitting}
-            errors={errors}
+            errors={remoteErrors}
             open={open}
         >
             <CollectionForm
