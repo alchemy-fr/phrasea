@@ -34,7 +34,7 @@ export default function WorkspaceDialog({}: Props) {
 
     return (
         <TabbedDialog
-            route={modalRoutes.workspace.routes.manage}
+            route={modalRoutes.workspaces.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
             minHeight={400}

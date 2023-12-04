@@ -1,9 +1,8 @@
-import {UseFormHandleSubmit} from 'react-hook-form/dist/types/form';
+import {FieldValues} from "react-hook-form";
+import {UseFormSubmit} from '@alchemy/api';
 
-export type FormProps<T extends object, D extends object = T> = {
+export type FormProps<T extends FieldValues, D extends object = T> = {
     formId: string;
+    usedFormSubmit: UseFormSubmit<T>;
     data?: D | undefined;
-    onSubmit: UseFormHandleSubmit<T>;
-    submitting: boolean;
-    submitted: boolean;
 };

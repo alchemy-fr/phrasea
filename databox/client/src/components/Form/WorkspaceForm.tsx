@@ -1,5 +1,4 @@
 import {Hidden, TextField} from '@mui/material';
-import {useForm} from 'react-hook-form';
 import {FC} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
 import {Workspace} from '../../types';
@@ -9,8 +8,6 @@ import {FormProps} from './types';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconFormLabel from './IconFormLabel';
 import SortableCollectionWidget, {
-    extendSortableList,
-    flattenSortableList,
     SortableValue,
 } from './SortableCollectionWidget';
 import Flag from '../Ui/Flag';
@@ -26,45 +23,21 @@ export type WorkspaceFormData = {
     localeFallbacks: SortableValue[] | undefined;
 } & Omit<Workspace, 'enabledLocales' | 'localeFallbacks'>;
 
-function normalizeFormData(data: Workspace): WorkspaceFormData {
-    return {
-        ...data,
-        enabledLocales: extendSortableList(data.enabledLocales),
-        localeFallbacks: extendSortableList(data.localeFallbacks),
-    };
-}
-
-function denormalizeFormData(
-    handler: (data: Workspace) => Promise<void>
-): (data: WorkspaceFormData) => Promise<void> {
-    return async (data: WorkspaceFormData) =>
-        await handler({
-            ...data,
-            enabledLocales: flattenSortableList(data.enabledLocales),
-            localeFallbacks: flattenSortableList(data.localeFallbacks),
-        });
-}
-
-export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
+export const WorkspaceForm: FC<FormProps<WorkspaceFormData>> = function ({
     formId,
-    data,
-    onSubmit,
-    submitting,
-    submitted,
-}) {
-    const {t} = useTranslation();
-
-    const {
+    usedFormSubmit: {
         register,
         control,
         handleSubmit,
         watch,
-        setError,
-        formState: {errors, isDirty},
-    } = useForm<any>({
-        defaultValues: data ? normalizeFormData(data) : data,
-    });
-    useDirtyFormPrompt(!submitted && isDirty);
+        submitting,
+        forbidNavigation,
+        formState: {errors},
+    },
+}) {
+    const {t} = useTranslation();
+
+    useDirtyFormPrompt(forbidNavigation);
 
     const locales = watch('enabledLocales');
 
@@ -72,7 +45,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
         <>
             <form
                 id={formId}
-                onSubmit={handleSubmit(denormalizeFormData(onSubmit(setError)))}
+                onSubmit={handleSubmit}
             >
                 <FormRow>
                     <TextField
@@ -129,7 +102,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                                         mr: 1,
                                                     }}
                                                     locale={
-                                                        locales[index].value
+                                                        locales![index].value
                                                     }
                                                 />
                                             ),

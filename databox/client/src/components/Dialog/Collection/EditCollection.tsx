@@ -1,5 +1,5 @@
 import {Collection} from '../../../types';
-import {putCollection} from '../../../api/collection';
+import {clearWorkspaceCache, postCollection, putCollection} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
@@ -17,7 +17,11 @@ type Props = {
 export default function EditCollection({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
+    const usedFormSubmit = useFormSubmit({
+        defaultValues: {
+            title: '',
+            privacy: 0,
+        },
         onSubmit: async (data: Collection) => {
             return await putCollection(data.id, data);
         },
@@ -32,6 +36,11 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
         },
     });
 
+    const {
+        submitting,
+        remoteErrors,
+    } = usedFormSubmit;
+
     const formId = 'edit-collection';
 
     return (
@@ -39,15 +48,13 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
             onClose={onClose}
             formId={formId}
             loading={submitting}
-            errors={errors}
+            errors={remoteErrors}
             minHeight={minHeight}
         >
             <CollectionForm
+                usedFormSubmit={usedFormSubmit}
                 data={data}
                 formId={formId}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                submitted={submitted}
             />
         </FormTab>
     );

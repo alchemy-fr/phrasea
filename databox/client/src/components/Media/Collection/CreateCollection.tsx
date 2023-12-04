@@ -29,7 +29,12 @@ export default function CreateCollection({
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
-    const {submitting, submitted, handleSubmit, remoteErrors} = useFormSubmit({
+
+    const usedFormSubmit = useFormSubmit({
+        defaultValues: {
+            title: '',
+            privacy: 0,
+        },
         onSubmit: async (data: Collection) => {
             return await postCollection({
                 ...data,
@@ -52,6 +57,7 @@ export default function CreateCollection({
         },
     });
 
+    const {submitting, remoteErrors} = usedFormSubmit;
     const formId = 'create-collection';
 
     const title = titlePath ? (
@@ -86,9 +92,7 @@ export default function CreateCollection({
         >
             <CollectionForm
                 formId={formId}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                submitted={submitted}
+                usedFormSubmit={usedFormSubmit}
             />
         </FormDialog>
     );

@@ -21,7 +21,7 @@ import {ApiHydraObjectResponse} from '../../../api/hydra';
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import useFormSubmit, {UseFormHandleSubmit} from '../../../hooks/useFormSubmit';
+import {useFormSubmit} from '@alchemy/api';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import RemoteErrors from '../../Form/RemoteErrors';
@@ -30,17 +30,18 @@ import SortableList, {
     SortableItem,
     SortableItemProps,
 } from '../../Ui/Sortable/SortableList';
+import {UseFormSubmit} from '@alchemy/api';
+import {FieldValues} from "react-hook-form";
 
-type DefinitionBase = ApiHydraObjectResponse & {id: string};
+type DefinitionBase = ApiHydraObjectResponse & { id: string };
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
 };
 
-export type DefinitionItemFormProps<D extends DefinitionBase> = {
+export type DefinitionItemFormProps<D extends DefinitionBase & FieldValues> = {
     formId: string;
-    handleSubmit: UseFormHandleSubmit<D>;
-    submitting: boolean;
+    usedFormSubmit: UseFormSubmit<D>;
     workspaceId: string;
 } & DefinitionItemProps<D>;
 
@@ -65,19 +66,17 @@ const SortableListItem = React.memo(
     } & SortableItemProps<D>) => {
         const {selectedItem, onClick, listComponent} = itemProps;
 
-        return (
-            <ListItem disablePadding key={data.id}>
-                <ListItemButton
-                    selected={data.id === selectedItem?.id}
-                    onClick={onClick(data)}
-                >
-                    {React.createElement(listComponent, {
-                        data,
-                        key: data.id,
-                    })}
-                </ListItemButton>
-            </ListItem>
-        );
+        return <ListItem disablePadding key={data.id}>
+            <ListItemButton
+                selected={data.id === selectedItem?.id}
+                onClick={onClick(data)}
+            >
+                {React.createElement(listComponent, {
+                    data,
+                    key: data.id,
+                })}
+            </ListItemButton>
+        </ListItem>
     }
 );
 
@@ -151,7 +150,8 @@ export default function DefinitionManager<D extends DefinitionBase>({
         });
     }, []);
 
-    const {submitting, handleSubmit, errors} = useFormSubmit({
+    const usedFormSubmit = useFormSubmit({
+
         onSubmit: async (data: D) => {
             const newData = await handleSave(data);
 
@@ -184,6 +184,12 @@ export default function DefinitionManager<D extends DefinitionBase>({
             );
         },
     });
+
+    const {
+        submitting,
+        handleSubmit,
+        remoteErrors
+    } = usedFormSubmit;
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
@@ -231,159 +237,148 @@ export default function DefinitionManager<D extends DefinitionBase>({
         };
     }, [onSort, handleItemClick, item, listComponent]);
 
-    return (
-        <>
-            <DialogContent
-                dividers
-                sx={{
+    return <>
+        <DialogContent
+            dividers
+            sx={{
+                display: 'flex',
+                flex: '1 1 auto',
+                minHeight,
+            }}
+            style={{
+                padding: 0,
+            }}
+        >
+            <Box
+                sx={theme => ({
                     display: 'flex',
-                    flex: '1 1 auto',
-                    minHeight,
-                }}
-                style={{
-                    padding: 0,
+                    overflowY: 'auto',
+                    borderRight: `1px solid ${theme.palette.divider}`,
+                })}
+            >
+                <List
+                    sx={{
+                        p: 0,
+                        width: 250,
+                        bgcolor: 'background.paper',
+                    }}
+                    component="div"
+                    role="list"
+                >
+                    <ListItem disablePadding>
+                        <ListItemButton
+                            selected={item === 'new'}
+                            onClick={createAttribute}
+                            disabled={!list}
+                        >
+                            <ListItemIcon>
+                                <AddBoxIcon/>
+                            </ListItemIcon>
+                            <ListItemText primary={newLabel}/>
+                        </ListItemButton>
+                    </ListItem>
+                    <Divider/>
+
+                    {onSort && list && (
+                        <SortableList<D & SortableItem, any>
+                            list={
+                                list as (D &
+                                    SortableItem &
+                                    DefinitionBase)[]
+                            }
+                            onOrderChange={onOrderChange}
+                            itemComponent={SortableListItem}
+                            itemProps={itemProps!}
+                        />
+                    )}
+
+                    {!onSort &&
+                        list &&
+                        list.map(i => {
+                            return <ListItem disablePadding key={i.id}>
+                                <ListItemButton
+                                    selected={i === item}
+                                    onClick={handleItemClick(i)}
+                                >
+                                    {React.createElement(
+                                        listComponent,
+                                        {
+                                            data: i,
+                                            key: i.id,
+                                        }
+                                    )}
+                                </ListItemButton>
+                            </ListItem>
+                        })}
+
+                    {!list &&
+                        [0, 1, 2].map(i => <ListItem key={i}>
+                            <ListItemIcon>
+                                <Skeleton
+                                    variant="circular"
+                                    width={40}
+                                    height={40}
+                                />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary={<Skeleton variant="text"/>}
+                                secondary={
+                                    <Skeleton
+                                        variant="text"
+                                        width={'40%'}
+                                    />
+                                }
+                            />
+                        </ListItem>)}
+                </List>
+            </Box>
+            <Box
+                sx={{
+                    p: 3,
+                    overflowY: 'auto',
+                    flexGrow: 1,
                 }}
             >
-                <Box
-                    sx={theme => ({
-                        display: 'flex',
-                        overflowY: 'auto',
-                        borderRight: `1px solid ${theme.palette.divider}`,
+                {item &&
+                    React.createElement(itemComponent, {
+                        data:
+                            item === 'new' ? (createNewItem() as D) : item!,
+                        key: item === 'new' ? 'new' : item!.id,
+                        formId,
+                        usedFormSubmit,
+                        workspaceId,
                     })}
-                >
-                    <List
-                        sx={{
-                            p: 0,
-                            width: 250,
-                            bgcolor: 'background.paper',
-                        }}
-                        component="div"
-                        role="list"
-                    >
-                        <ListItem disablePadding>
-                            <ListItemButton
-                                selected={item === 'new'}
-                                onClick={createAttribute}
-                                disabled={!list}
-                            >
-                                <ListItemIcon>
-                                    <AddBoxIcon />
-                                </ListItemIcon>
-                                <ListItemText primary={newLabel} />
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider />
-
-                        {onSort && list && (
-                            <SortableList<D & SortableItem, any>
-                                list={
-                                    list as (D &
-                                        SortableItem &
-                                        DefinitionBase)[]
-                                }
-                                onOrderChange={onOrderChange}
-                                itemComponent={SortableListItem}
-                                itemProps={itemProps!}
-                            />
-                        )}
-
-                        {!onSort &&
-                            list &&
-                            list.map(i => {
-                                return (
-                                    <ListItem disablePadding key={i.id}>
-                                        <ListItemButton
-                                            selected={i === item}
-                                            onClick={handleItemClick(i)}
-                                        >
-                                            {React.createElement(
-                                                listComponent,
-                                                {
-                                                    data: i,
-                                                    key: i.id,
-                                                }
-                                            )}
-                                        </ListItemButton>
-                                    </ListItem>
-                                );
-                            })}
-
-                        {!list &&
-                            [0, 1, 2].map(i => (
-                                <ListItem key={i}>
-                                    <ListItemIcon>
-                                        <Skeleton
-                                            variant="circular"
-                                            width={40}
-                                            height={40}
-                                        />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={<Skeleton variant="text" />}
-                                        secondary={
-                                            <Skeleton
-                                                variant="text"
-                                                width={'40%'}
-                                            />
-                                        }
-                                    />
-                                </ListItem>
-                            ))}
-                    </List>
-                </Box>
-                <Box
-                    sx={{
-                        p: 3,
-                        overflowY: 'auto',
-                        flexGrow: 1,
-                    }}
-                >
-                    {item &&
-                        React.createElement(itemComponent, {
-                            data:
-                                item === 'new' ? (createNewItem() as D) : item!,
-                            key: item === 'new' ? 'new' : item!.id,
-                            formId,
-                            handleSubmit,
-                            submitting,
-                            workspaceId,
-                        })}
-                    <RemoteErrors errors={errors} />
-                    {item && item !== 'new' && handleDelete && (
-                        <>
-                            <hr />
-                            <Button color={'error'} onClick={onDelete}>
-                                {t('common.delete', 'Delete')}
-                            </Button>
-                        </>
-                    )}
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                {item && (
-                    <>
-                        <Button
-                            onClick={onClose}
-                            disabled={loading || submitting}
-                        >
-                            {t('dialog.cancel', 'Cancel')}
-                        </Button>
-                        <LoadingButton
-                            disabled={loading || submitting}
-                            loading={submitting}
-                            type={formId ? 'submit' : 'button'}
-                            form={formId}
-                        >
-                            {t('dialog.save', 'Save')}
-                        </LoadingButton>
-                    </>
-                )}
-                {!item && (
-                    <Button onClick={onClose}>
-                        {t('dialog.close', 'Close')}
+                <RemoteErrors errors={remoteErrors}/>
+                {item && item !== 'new' && handleDelete && <>
+                    <hr/>
+                    <Button color={'error'} onClick={onDelete}>
+                        {t('common.delete', 'Delete')}
                     </Button>
-                )}
-            </DialogActions>
-        </>
-    );
+                </>}
+            </Box>
+        </DialogContent>
+        <DialogActions>
+            {item && <>
+                <Button
+                    onClick={onClose}
+                    disabled={loading || submitting}
+                >
+                    {t('dialog.cancel', 'Cancel')}
+                </Button>
+                <LoadingButton
+                    disabled={loading || submitting}
+                    loading={submitting}
+                    type={formId ? 'submit' : 'button'}
+                    form={formId}
+                >
+                    {t('dialog.save', 'Save')}
+                </LoadingButton>
+            </>}
+            {!item && (
+                <Button onClick={onClose}>
+                    {t('dialog.close', 'Close')}
+                </Button>
+            )}
+        </DialogActions>
+    </>
 }

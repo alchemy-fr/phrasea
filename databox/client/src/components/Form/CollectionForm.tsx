@@ -1,5 +1,4 @@
 import {TextField} from '@mui/material';
-import {useForm} from 'react-hook-form';
 import {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Collection} from '../../types';
@@ -11,26 +10,18 @@ import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
-    data,
-    onSubmit,
-    submitting,
-    submitted,
+    usedFormSubmit: {
+        handleSubmit,
+        submitting,
+        register,
+        control,
+        forbidNavigation,
+        formState: {errors},
+    }
 }) {
     const {t} = useTranslation();
 
-    const {
-        register,
-        handleSubmit,
-        setError,
-        control,
-        formState: {errors, isDirty},
-    } = useForm<any>({
-        defaultValues: data ?? {
-            title: '',
-            privacy: 0,
-        },
-    });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     return (
         <form id={formId} onSubmit={handleSubmit}>

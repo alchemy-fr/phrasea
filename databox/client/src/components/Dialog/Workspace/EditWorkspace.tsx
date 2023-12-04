@@ -3,9 +3,10 @@ import {putWorkspace} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import {WorkspaceForm} from '../../Form/WorkspaceForm';
+import {WorkspaceForm, WorkspaceFormData} from '../../Form/WorkspaceForm';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {extendSortableList, flattenSortableList} from "../../Form/SortableCollectionWidget.tsx";
 
 type Props = {
     id: string;
@@ -16,8 +17,9 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
     const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
-        onSubmit: async (data: Workspace) => {
-            return await putWorkspace(data.id, data);
+        defaultValues: normalizeFormData(data),
+        onSubmit: async (data: WorkspaceFormData) => {
+            return await putWorkspace(data.id, denormalizeFormData(data));
         },
         onSuccess: () => {
             toast.success(
@@ -38,6 +40,7 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
         >
             <WorkspaceForm
+                usedFormSubmit={usedFormSubmit}
                 data={data}
                 formId={formId}
                 onSubmit={handleSubmit}
@@ -46,4 +49,22 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
             />
         </FormTab>
     );
+}
+
+
+function denormalizeFormData(data: WorkspaceFormData): Workspace {
+    return {
+        ...data,
+        enabledLocales: flattenSortableList(data.enabledLocales),
+        localeFallbacks: flattenSortableList(data.localeFallbacks),
+    };
+}
+
+
+function normalizeFormData(data: Workspace): WorkspaceFormData {
+    return {
+        ...data,
+        enabledLocales: extendSortableList(data.enabledLocales),
+        localeFallbacks: extendSortableList(data.localeFallbacks),
+    };
 }

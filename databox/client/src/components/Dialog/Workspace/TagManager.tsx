@@ -6,30 +6,26 @@ import DefinitionManager, {
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {Controller, useForm} from 'react-hook-form';
+import {Controller} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import {deleteTag, getTags, postTag, putTag} from '../../../api/tag';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import ColorPicker from '../../Form/ColorPicker';
 
 function Item({
-    data,
-    handleSubmit: onSubmit,
-    formId,
-    submitting,
-}: DefinitionItemFormProps<Tag>) {
-    const {t} = useTranslation();
-
-    const {
+    usedFormSubmit: {
         register,
         control,
         handleSubmit,
-        setError,
-        formState: {errors, isDirty},
-    } = useForm<any>({
-        defaultValues: data,
-    });
-    useDirtyFormPrompt(isDirty);
+        submitting,
+        forbidNavigation,
+        formState: {errors},
+    },
+    formId,
+}: DefinitionItemFormProps<Tag>) {
+    const {t} = useTranslation();
+
+    useDirtyFormPrompt(forbidNavigation);
 
     return (
         <form id={formId} onSubmit={handleSubmit}>
