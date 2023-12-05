@@ -7,7 +7,7 @@ export default class Container extends Component {
     // };
 
     static defaultProps = {
-        title: 'Uploader.'
+        title: 'Uploader.',
     };
 
     render() {
@@ -18,9 +18,7 @@ export default class Container extends Component {
                 <header>
                     <h1>{title}</h1>
                 </header>
-                <div>
-                    {children}
-                </div>
+                <div>{children}</div>
             </div>
         );
     }

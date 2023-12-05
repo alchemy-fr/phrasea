@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import {Button, Form} from "react-bootstrap";
-import FormPreview from "../FormPreview";
-import Container from "../Container";
-import {getFormSchema, getTargets} from "../../requests";
-import FullPageLoader from "../FullPageLoader";
-import apiClient from "../../lib/api";
+import {Button, Form} from 'react-bootstrap';
+import FormPreview from '../FormPreview';
+import Container from '../Container';
+import {getFormSchema, getTargets} from '../../requests';
+import FullPageLoader from '../FullPageLoader';
+import apiClient from '../../lib/api';
 
 export default class FormEditor extends Component {
     state = {
@@ -54,7 +54,7 @@ export default class FormEditor extends Component {
         });
     };
 
-    handleSubmit = async (event) => {
+    handleSubmit = async event => {
         event.preventDefault();
 
         const {schema, value, selected} = this.state;
@@ -62,7 +62,7 @@ export default class FormEditor extends Component {
 
         const requestConfig = {
             data,
-        }
+        };
 
         if (schema) {
             requestConfig.method = 'PUT';
@@ -75,13 +75,16 @@ export default class FormEditor extends Component {
 
         await apiClient.request(requestConfig);
 
-        this.setState({
-            saved: true,
-        }, () => {
-            setTimeout(() => {
-                this.setState({saved: false});
-            }, 3000);
-        });
+        this.setState(
+            {
+                saved: true,
+            },
+            () => {
+                setTimeout(() => {
+                    this.setState({saved: false});
+                }, 3000);
+            }
+        );
     };
 
     render() {
@@ -90,61 +93,83 @@ export default class FormEditor extends Component {
         const loading = undefined === schema;
 
         if (!targets) {
-            return <FullPageLoader/>
+            return <FullPageLoader />;
         }
 
-        return <Container title="Form editor">
-            <div className={'row'}>
-                <div className={'col-md-3 col-sm-12'}>
-                    <ul className="nav flex-column nav-pills">
-                        {targets.map(t => <li
-                            className="nav-item"
-                            onClick={(e) => this.select(t.id, e)}
-                            key={t.id}
-                        >
-                            <a className={`nav-link ${selected === t.id ? 'active' : ''}`} href="#">{t.name}</a>
-                        </li>)}
-                    </ul>
-                </div>
-                <div className={'col-md-9 col-sm-12'}>
-                    {selected && <div className="row">
-                        <div className="col">
-                            <Form onSubmit={this.handleSubmit}>
-                                <Form.Group controlId="schema">
-                                    <Form.Label>JSON Schema</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows="20"
-                                        value={loading ? 'Loading...' : value}
-                                        disabled={loading}
-                                        onChange={this.handleChange}
-                                    />
-                                </Form.Group>
-                                {error && <div className="alert alert-danger">
-                                    {error}
-                                </div>}
-                                <Button
-                                    block
-                                    type="submit"
+        return (
+            <Container title="Form editor">
+                <div className={'row'}>
+                    <div className={'col-md-3 col-sm-12'}>
+                        <ul className="nav flex-column nav-pills">
+                            {targets.map(t => (
+                                <li
+                                    className="nav-item"
+                                    onClick={e => this.select(t.id, e)}
+                                    key={t.id}
                                 >
-                                    Save
-                                </Button>
-                                {saved ? (<span>
-                        {' '}
-                                        <span className="badge badge-success">saved!</span>
-                        </span>
-                                ) : ''}
-                            </Form>
-                        </div>
-                        <div className="col">
-                            {loading ? 'Loading...' :
-                                <FormPreview
-                                    schema={value}
-                                />}
-                        </div>
-                    </div>}
+                                    <a
+                                        className={`nav-link ${
+                                            selected === t.id ? 'active' : ''
+                                        }`}
+                                        href="#"
+                                    >
+                                        {t.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className={'col-md-9 col-sm-12'}>
+                        {selected && (
+                            <div className="row">
+                                <div className="col">
+                                    <Form onSubmit={this.handleSubmit}>
+                                        <Form.Group controlId="schema">
+                                            <Form.Label>JSON Schema</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                rows="20"
+                                                value={
+                                                    loading
+                                                        ? 'Loading...'
+                                                        : value
+                                                }
+                                                disabled={loading}
+                                                onChange={this.handleChange}
+                                            />
+                                        </Form.Group>
+                                        {error && (
+                                            <div className="alert alert-danger">
+                                                {error}
+                                            </div>
+                                        )}
+                                        <Button block type="submit">
+                                            Save
+                                        </Button>
+                                        {saved ? (
+                                            <span>
+                                                {' '}
+                                                <span className="badge badge-success">
+                                                    saved!
+                                                </span>
+                                            </span>
+                                        ) : (
+                                            ''
+                                        )}
+                                    </Form>
+                                </div>
+                                <div className="col">
+                                    {loading ? (
+                                        'Loading...'
+                                    ) : (
+                                        <FormPreview schema={value} />
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </Container>
+            </Container>
+        );
     }
 }

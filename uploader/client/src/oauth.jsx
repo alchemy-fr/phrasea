@@ -1,8 +1,8 @@
-import React, {PureComponent} from "react";
-import config from "./config";
-import {KeycloakClient} from "@alchemy/auth";
+import React, {PureComponent} from 'react';
+import config from './config';
+import {KeycloakClient} from '@alchemy/auth';
 // import PropTypes from "prop-types";
-import FullPageLoader from "./components/FullPageLoader";
+import FullPageLoader from './components/FullPageLoader';
 
 export const keycloakClient = new KeycloakClient({
     clientId: config.clientId,
@@ -21,10 +21,7 @@ export class OAuthRedirect extends PureComponent {
     // };
 
     handleSuccess = () => {
-        const {
-            history,
-            successHandler,
-        } = this.props;
+        const {history, successHandler} = this.props;
 
         if (successHandler) {
             return successHandler(history);
@@ -33,11 +30,8 @@ export class OAuthRedirect extends PureComponent {
         history.push('/');
     };
 
-    handleError = (e) => {
-        const {
-            history,
-            errorHandler,
-        } = this.props;
+    handleError = e => {
+        const {history, errorHandler} = this.props;
 
         if (errorHandler) {
             return errorHandler(e, history);
@@ -54,8 +48,7 @@ export class OAuthRedirect extends PureComponent {
                 this.getCode(),
                 window.location.href.split('?')[0]
             )
-            .then(this.handleSuccess, this.handleError)
-        ;
+            .then(this.handleSuccess, this.handleError);
     }
 
     getCode() {
@@ -64,6 +57,6 @@ export class OAuthRedirect extends PureComponent {
     }
 
     render() {
-        return <FullPageLoader/>
+        return <FullPageLoader />;
     }
 }

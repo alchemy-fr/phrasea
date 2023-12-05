@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import svgr from 'vite-plugin-svgr'
+import {defineConfig} from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import svgr from 'vite-plugin-svgr';
 import checker from 'vite-plugin-checker';
 
 // https://vitejs.dev/config/
@@ -11,11 +11,11 @@ export default defineConfig({
             typescript: true,
         }),
         svgr({
-            include: "**/*.svg?react",
-        })
+            include: '**/*.svg?react',
+        }),
     ],
     server: {
         port: 3000,
-        host: '0.0.0.0'
-    }
-})
+        host: '0.0.0.0',
+    },
+});

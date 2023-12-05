@@ -1,5 +1,5 @@
 (function (config, env) {
-    const normalizeTypes = (value) => {
+    const normalizeTypes = value => {
         if (!value) {
             return {};
         }
@@ -12,7 +12,13 @@
         const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([\w,]*\))?/g)];
         const struct = {};
         for (const t of types) {
-            struct[t[1]] = t[2] ? t[2].substring(1, t[2].length - 1).split(',').map(e => e.trim()).filter(e => !!e) : [];
+            struct[t[1]] = t[2]
+                ? t[2]
+                      .substring(1, t[2].length - 1)
+                      .split(',')
+                      .map(e => e.trim())
+                      .filter(e => !!e)
+                : [];
         }
 
         return struct;

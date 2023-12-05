@@ -8,11 +8,5 @@ export default function AssetPage({}: Props) {
     const {id, assetId} = useParams();
     const {user} = useUser();
 
-    return (
-        <Publication
-            id={id}
-            assetId={assetId}
-            username={user?.username}
-        />
-    );
+    return <Publication id={id} assetId={assetId} username={user?.username} />;
 }

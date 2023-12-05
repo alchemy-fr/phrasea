@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
-import {Link} from 'react-router-dom';
+import {Link} from '@alchemy/navigation';
 import {loadPublication} from './api';
 
 class PublicationNavigation extends PureComponent {

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 // import PropTypes from "prop-types";
-import {Button} from "react-bootstrap";
+import {Button} from 'react-bootstrap';
 
 export default class UploadDone extends Component {
     // static propTypes = {
@@ -9,18 +9,14 @@ export default class UploadDone extends Component {
     // };
 
     render() {
-        return <>
-            <p>
-                You're done!
-            </p>
+        return (
+            <>
+                <p>You're done!</p>
 
-            <div>
-                <Button onClick={this.props.goHome}>
-                    Back to home
-                </Button>
-            </div>
-        </>;
+                <div>
+                    <Button onClick={this.props.goHome}>Back to home</Button>
+                </div>
+            </>
+        );
     }
 }
-
-

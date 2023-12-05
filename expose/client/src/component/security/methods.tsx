@@ -11,8 +11,8 @@ export const securityMethods: Record<
         error?: string;
     }>
 > = {
-    // @ts-ignore
+    // @ts-expect-error error
     password: PasswordMethod,
-    // @ts-ignore
+    // @ts-expect-error error
     authentication: AuthenticationMethod,
 };

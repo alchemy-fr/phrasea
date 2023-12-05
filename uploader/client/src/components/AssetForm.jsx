@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import '../scss/Upload.scss';
 // import PropTypes from "prop-types";
-import AssetLiForm from "./AssetLiForm";
+import AssetLiForm from './AssetLiForm';
 import {SubmissionError} from 'redux-form';
-import {Translation} from "react-i18next";
-import {getFormSchema} from "../requests";
-import apiClient from "../lib/api";
+import {Translation} from 'react-i18next';
+import {getFormSchema} from '../requests';
+import apiClient from '../lib/api';
 
 export default class AssetForm extends Component {
     // static propTypes = {
@@ -56,7 +56,7 @@ export default class AssetForm extends Component {
         this.setState({schema});
     }
 
-    onSubmit = async (reduxFormData) => {
+    onSubmit = async reduxFormData => {
         let formData = {...reduxFormData};
         const {baseSchema, submitPath, onComplete} = this.props;
 
@@ -89,8 +89,8 @@ export default class AssetForm extends Component {
             const {errors} = r.body;
             const errs = {};
 
-            Object.keys(errors).forEach((i) => {
-                errs[i] = errors[i].join("\n");
+            Object.keys(errors).forEach(i => {
+                errs[i] = errors[i].join('\n');
             });
 
             throw new SubmissionError(errs);
@@ -103,17 +103,17 @@ export default class AssetForm extends Component {
         const {schema} = this.state;
 
         if (undefined === schema) {
-            return <Translation>
-                {t => t('layout.loading_form')}
-            </Translation>;
+            return <Translation>{t => t('layout.loading_form')}</Translation>;
         }
 
-        return <div className="form-container">
-            <AssetLiForm
-                schema={schema}
-                onSubmit={this.onSubmit}
-                onCancel={this.props.onCancel || null}
-            />
-        </div>
+        return (
+            <div className="form-container">
+                <AssetLiForm
+                    schema={schema}
+                    onSubmit={this.onSubmit}
+                    onCancel={this.props.onCancel || null}
+                />
+            </div>
+        );
     }
 }

@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
-import {Link} from 'react-router-dom';
+import {Link} from '@alchemy/navigation';
 import config from '../lib/config';
 import {Logo} from './Logo';
 import {Trans} from 'react-i18next';

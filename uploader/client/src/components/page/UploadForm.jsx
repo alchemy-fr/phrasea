@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
 // import PropTypes from "prop-types";
-import AssetForm from "../AssetForm";
+import AssetForm from '../AssetForm';
 
 export default class UploadForm extends Component {
     // static propTypes = {
@@ -11,24 +11,24 @@ export default class UploadForm extends Component {
     //     targetId: PropTypes.string.isRequired,
     // };
 
-    onComplete = (data) => {
+    onComplete = data => {
         this.props.onNext(data);
     };
 
     render() {
         const {files, targetId} = this.props;
 
-        return <>
-            <p>
-                {files.length} selected files.
-            </p>
+        return (
+            <>
+                <p>{files.length} selected files.</p>
 
-            <AssetForm
-                targetId={targetId}
-                submitPath={'/form/validate'}
-                onComplete={this.onComplete}
-                onCancel={this.props.onCancel}
-            />
-        </>
+                <AssetForm
+                    targetId={targetId}
+                    submitPath={'/form/validate'}
+                    onComplete={this.onComplete}
+                    onCancel={this.props.onCancel}
+                />
+            </>
+        );
     }
 }

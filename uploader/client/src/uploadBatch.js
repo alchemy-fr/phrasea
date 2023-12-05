@@ -1,6 +1,6 @@
-import {oauthClient} from "./oauth";
-import {uploadMultipartFile} from "./multiPartUpload";
-import apiClient from "./lib/api";
+import {oauthClient} from './oauth';
+import {uploadMultipartFile} from './multiPartUpload';
+import apiClient from './lib/api';
 
 export default class UploadBatch {
     files = [];
@@ -40,7 +40,7 @@ export default class UploadBatch {
     }
 
     abort() {
-        this.files.forEach((file) => {
+        this.files.forEach(file => {
             if (file.abortController) {
                 file.abortController.abort();
             }
@@ -58,7 +58,7 @@ export default class UploadBatch {
     }
 
     retryUploads = () => {
-        this.resumeListeners.forEach((func) => {
+        this.resumeListeners.forEach(func => {
             func();
         });
 
@@ -67,16 +67,18 @@ export default class UploadBatch {
         for (let i = 0; i < uploads.length; i++) {
             uploads[i]();
         }
-    }
+    };
 
     addFiles(files) {
-        this.files = this.files.concat(files.map(file => {
-            return {
-                file,
-                abortController: null
-            };
-        }));
-        this.totalSize += files.reduce((total, file) => total + file.size, 0)
+        this.files = this.files.concat(
+            files.map(file => {
+                return {
+                    file,
+                    abortController: null,
+                };
+            })
+        );
+        this.totalSize += files.reduce((total, file) => total + file.size, 0);
     }
 
     registerProgressHandler(callback) {
@@ -87,7 +89,7 @@ export default class UploadBatch {
         this.fileCompleteListeners.push(callback);
 
         // Trigger for already uploaded files
-        this.files.forEach((file) => {
+        this.files.forEach(file => {
             if (file.event) {
                 callback(file.event);
             }
@@ -107,10 +109,13 @@ export default class UploadBatch {
         this.uploading = true;
         this.currentUpload = 0;
 
-        const batchSize = this.batchSize > this.files.length ? this.files.length : this.batchSize;
+        const batchSize =
+            this.batchSize > this.files.length
+                ? this.files.length
+                : this.batchSize;
         for (let i = 0; i < batchSize; i++) {
             this.uploadFile(this.currentUpload);
-            if ((i + 1) < batchSize) {
+            if (i + 1 < batchSize) {
                 ++this.currentUpload;
             }
         }
@@ -136,9 +141,14 @@ export default class UploadBatch {
         const username = oauthClient.getUsername();
 
         try {
-            const res = await uploadMultipartFile(this.targetId, username, file, (e) => {
-                this.onUploadProgress(e, index);
-            });
+            const res = await uploadMultipartFile(
+                this.targetId,
+                username,
+                file,
+                e => {
+                    this.onUploadProgress(e, index);
+                }
+            );
             this.onFileComplete(res, index);
         } catch (err) {
             if (navigator && !navigator.onLine) {
@@ -150,8 +160,11 @@ export default class UploadBatch {
                         } catch (e) {
                             reject(e);
                         }
-                    }
-                    this.onFileError(`Your connection seems offline. Upload will resume automatically when back online!`, index);
+                    };
+                    this.onFileError(
+                        `Your connection seems offline. Upload will resume automatically when back online!`,
+                        index
+                    );
                     this.failedUploads.push(retryCallback);
                 });
             } else if (retry < 10) {
@@ -165,7 +178,7 @@ export default class UploadBatch {
     onFileError(err, index) {
         this.files[index].error = err;
 
-        this.errorListeners.forEach((func) => {
+        this.errorListeners.forEach(func => {
             func(err);
         });
     }
@@ -174,7 +187,7 @@ export default class UploadBatch {
         this.files[index].id = res.data.id;
 
         let totalLoaded = 0;
-        Object.keys(this.progresses).forEach((i) => {
+        Object.keys(this.progresses).forEach(i => {
             totalLoaded += this.progresses[i];
         });
 
@@ -182,18 +195,18 @@ export default class UploadBatch {
         const e = {
             totalLoaded,
             totalSize: this.totalSize,
-            totalPercent: Math.round(totalLoaded / this.totalSize * 100),
+            totalPercent: Math.round((totalLoaded / this.totalSize) * 100),
             fileSize,
             fileLoaded: fileSize,
             filePercent: 100,
             index,
-            res
+            res,
         };
 
         // Register event for future handlers
         this.files[index].event = e;
 
-        this.fileCompleteListeners.forEach((func) => {
+        this.fileCompleteListeners.forEach(func => {
             func(e);
         });
 
@@ -229,7 +242,7 @@ export default class UploadBatch {
 
         this.completeEvent = e;
 
-        this.completeListeners.forEach((func) => {
+        this.completeListeners.forEach(func => {
             func(e);
         });
         this.completeListeners = [];
@@ -239,7 +252,7 @@ export default class UploadBatch {
         this.progresses[index] = event.loaded;
 
         let totalLoaded = 0;
-        Object.keys(this.progresses).forEach((i) => {
+        Object.keys(this.progresses).forEach(i => {
             totalLoaded += this.progresses[i];
         });
 
@@ -247,14 +260,14 @@ export default class UploadBatch {
         const e = {
             totalLoaded,
             totalSize: this.totalSize,
-            totalPercent: Math.round(totalLoaded / this.totalSize * 100),
+            totalPercent: Math.round((totalLoaded / this.totalSize) * 100),
             fileSize,
             fileLoaded: event.loaded,
-            filePercent: Math.round(event.loaded / fileSize * 100),
+            filePercent: Math.round((event.loaded / fileSize) * 100),
             index,
         };
 
-        this.progressListeners.forEach((func) => {
+        this.progressListeners.forEach(func => {
             func(e);
         });
     }

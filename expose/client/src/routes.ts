@@ -4,7 +4,7 @@ import PublicationIndex from './component/index/PublicationIndex.jsx';
 import {RouteDefinition, Routes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage.tsx';
 import AssetPage from './pages/AssetPage.tsx';
-import AppAuthorizationCodePage from "./pages/AppAuthorizationCodePage.tsx";
+import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage.tsx';
 
 const routes: Routes = {
     index: {

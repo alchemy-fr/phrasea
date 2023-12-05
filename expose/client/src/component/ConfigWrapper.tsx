@@ -10,7 +10,7 @@ export default function ConfigWrapper() {
     if (!loaded) {
         apiClient.get(`/config`).then(({data}) => {
             Object.keys(data).forEach(k => {
-                // @ts-ignore bypass readonly
+                // @ts-expect-error bypass readonly
                 config[k] = data[k];
             });
 

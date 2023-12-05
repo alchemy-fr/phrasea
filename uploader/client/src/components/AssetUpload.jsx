@@ -28,7 +28,7 @@ export default class AssetUpload extends Component {
     }
 
     componentDidMount() {
-        this.onload = (result) => {
+        this.onload = result => {
             this.setState({
                 src: result.target.result,
             });
@@ -48,7 +48,7 @@ export default class AssetUpload extends Component {
 
             reader.onabort = () => console.log('file reading was aborted');
             reader.onerror = () => console.log('file reading has failed');
-            reader.onload = (result) => {
+            reader.onload = result => {
                 if (this.onload) {
                     this.onload(result);
                 }
@@ -61,7 +61,7 @@ export default class AssetUpload extends Component {
         });
     }
 
-    removeAsset = (e) => {
+    removeAsset = e => {
         e.stopPropagation();
         if (window.confirm('Delete?')) {
             this.props.onRemove && this.props.onRemove();
@@ -79,17 +79,21 @@ export default class AssetUpload extends Component {
 
         return (
             <div className={classes.join(' ')} title={file.name}>
-                {onRemove ?
+                {onRemove ? (
                     <div
                         title={'Remove'}
                         onClick={this.removeAsset}
                         className={'remove-file-btn'}
                     >
-                        <img src={deleteImg} alt="Remove"/>
-                    </div> : ''}
-                    <div className="size">{filesize(file.size)}</div>
-                <div className="file-progress"
-                     style={{width: (100 - uploadProgress) + '%'}}
+                        <img src={deleteImg} alt="Remove" />
+                    </div>
+                ) : (
+                    ''
+                )}
+                <div className="size">{filesize(file.size)}</div>
+                <div
+                    className="file-progress"
+                    style={{width: 100 - uploadProgress + '%'}}
                 />
                 <img
                     className="img-fluid"

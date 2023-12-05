@@ -1,7 +1,7 @@
-import {getUniqueFileId, uploadStateStorage} from "./uploadStateStorage";
-import apiClient from "./lib/api";
+import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage';
+import apiClient from './lib/api';
 
-const fileChunkSize = 5242880 // 5242880 is the minimum allowed by AWS S3;
+const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
 
 export async function uploadMultipartFile(targetId, userId, file, onProgress) {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
@@ -24,13 +24,17 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
     } else {
         file.abortController = new AbortController();
 
-        const res = await apiClient.post(`/uploads`, {
-            filename: file.file.name,
-            type: file.file.type,
-            size: file.file.size,
-        }, {
-            signal: file.abortController.signal,
-        });
+        const res = await apiClient.post(
+            `/uploads`,
+            {
+                filename: file.file.name,
+                type: file.file.type,
+                size: file.file.size,
+            },
+            {
+                signal: file.abortController.signal,
+            }
+        );
         uploadId = res.data.id;
         uploadStateStorage.initUpload(userId, fileUID, uploadId);
     }
@@ -40,33 +44,40 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
 
     for (let index = resumeChunkIndex; index < numChunks + 1; index++) {
         const start = (index - 1) * fileChunkSize;
-        const end = (index) * fileChunkSize;
+        const end = index * fileChunkSize;
 
         file.abortController = new AbortController();
 
-        const getUploadUrlResp = await apiClient.post(`/uploads/${uploadId}/part`, {
-            part: index,
-        }, {
-            signal: file.abortController.signal,
-        });
+        const getUploadUrlResp = await apiClient.post(
+            `/uploads/${uploadId}/part`,
+            {
+                part: index,
+            },
+            {
+                signal: file.abortController.signal,
+            }
+        );
 
         const {url} = getUploadUrlResp.data;
 
-        const blob = (index < numChunks) ? file.file.slice(start, end) : file.file.slice(start);
+        const blob =
+            index < numChunks
+                ? file.file.slice(start, end)
+                : file.file.slice(start);
 
         file.abortController = new AbortController();
 
         const uploadResp = await apiClient.put(url, blob, {
             signal: file.abortController.signal,
             anonymous: true,
-            onUploadProgress: (e) => {
+            onUploadProgress: e => {
                 const multiPartEvent = {
                     ...e,
                     loaded: e.loaded + start,
                 };
 
                 onProgress(multiPartEvent);
-            }
+            },
         });
 
         const eTag = uploadResp.headers.etag;
@@ -80,15 +91,19 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
 
     file.abortController = new AbortController();
 
-    const finalRes = await apiClient.post(`/assets`, {
-        targetId,
-        multipart: {
-            uploadId,
-            parts: uploadParts,
+    const finalRes = await apiClient.post(
+        `/assets`,
+        {
+            targetId,
+            multipart: {
+                uploadId,
+                parts: uploadParts,
+            },
+        },
+        {
+            signal: file.abortController.signal,
         }
-    }, {
-        signal: file.abortController.signal,
-    });
+    );
 
     uploadStateStorage.removeUpload(userId, fileUID);
 

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 // import PropTypes from "prop-types";
-import AssetLiForm from "./AssetLiForm";
+import AssetLiForm from './AssetLiForm';
 
 export default class FormPreview extends Component {
     // static propTypes = {
@@ -28,18 +28,27 @@ export default class FormPreview extends Component {
         if (null === error) {
             try {
                 const schemaConfig = JSON.parse(this.props.schema);
-                schema = <AssetLiForm
-                    onSubmit={(data) => alert('Form submitted with values: '+JSON.stringify(data, true, 2))}
-                    schema={schemaConfig}
-                />;
+                schema = (
+                    <AssetLiForm
+                        onSubmit={data =>
+                            alert(
+                                'Form submitted with values: ' +
+                                    JSON.stringify(data, true, 2)
+                            )
+                        }
+                        schema={schemaConfig}
+                    />
+                );
             } catch (e) {
                 error = e;
                 schema = false;
             }
         }
 
-        return null === error ? schema : <div className="text-danger">
-            {error.toString()}
-        </div>;
+        return null === error ? (
+            schema
+        ) : (
+            <div className="text-danger">{error.toString()}</div>
+        );
     }
 }

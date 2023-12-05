@@ -1,6 +1,6 @@
 import config from '../config';
-import {oauthClient} from "../oauth";
-import {configureClientAuthentication, createHttpClient} from "@alchemy/auth";
+import {oauthClient} from '../oauth';
+import {configureClientAuthentication, createHttpClient} from '@alchemy/auth';
 
 const apiClient = createHttpClient(config.baseUrl);
 

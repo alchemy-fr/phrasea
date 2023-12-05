@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import i18n from '../locales/i18n';
-import config from "../config";
+import config from '../config';
 
 export default class Languages extends Component {
-    changeLanguage = (lng) => {
+    changeLanguage = lng => {
         i18n.changeLanguage(lng);
     };
 
@@ -16,16 +16,17 @@ export default class Languages extends Component {
 
         return (
             <div className="languages">
-                {locales.map(l => <React.Fragment
-                        key={l}
-                    >
+                {locales.map(l => (
+                    <React.Fragment key={l}>
                         {' '}
                         <button
                             className={'btn btn-secondary'}
                             onClick={() => this.changeLanguage(l)}
-                        >{l.toUpperCase()}</button>
+                        >
+                            {l.toUpperCase()}
+                        </button>
                     </React.Fragment>
-                )}
+                ))}
             </div>
         );
     }

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {Redirect} from "react-router-dom";
+import {Redirect} from 'react-router-dom';
 import config from '../../config';
-import {oauthClient} from "../../oauth";
+import {oauthClient} from '../../oauth';
 
 export default class Login extends Component {
     state = {
@@ -13,7 +13,7 @@ export default class Login extends Component {
         const {from} = this.props.location.state || {from: {pathname: '/'}};
 
         if (oauthClient.isAuthenticated() || redirectToReferrer === true) {
-            return <Redirect to={from}/>
+            return <Redirect to={from} />;
         }
 
         document.location.href = oauthClient.createAuthorizeUrl({

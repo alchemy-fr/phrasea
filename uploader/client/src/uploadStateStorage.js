@@ -46,7 +46,7 @@ class UploadStateStorage {
         }
 
         const item = uploadStorage.getItem(key);
-        return this.cache = item ? JSON.parse(item) : {};
+        return (this.cache = item ? JSON.parse(item) : {});
     }
 
     setData(data) {
@@ -57,13 +57,17 @@ class UploadStateStorage {
         }
 
         this.writeTimeout = setTimeout(() => {
-            uploadStorage.setItem(key, JSON.stringify(data))
+            uploadStorage.setItem(key, JSON.stringify(data));
         }, 100);
     }
 }
 
 export function getUniqueFileId(file, fileChunkSize) {
-    const relativePath = file.webkitRelativePath || file.relativePath || file.fileName || file.name;
+    const relativePath =
+        file.webkitRelativePath ||
+        file.relativePath ||
+        file.fileName ||
+        file.name;
 
     return `${file.size}-${fileChunkSize}-${relativePath}`;
 }

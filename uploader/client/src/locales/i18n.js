@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import { initReactI18next } from "react-i18next";
+import {initReactI18next} from 'react-i18next';
 import * as languages from './';
 const i18n = i18next.createInstance();
 
@@ -13,8 +13,7 @@ Object.keys(languages).forEach(l => {
     };
 });
 
-i18n
-    .use(LanguageDetector)
+i18n.use(LanguageDetector)
     .use(initReactI18next)
     .init({
         debug: false,
@@ -24,7 +23,7 @@ i18n
         defaultNs: ns,
         detection: {
             order: ['querystring', 'navigator'],
-            lookupQuerystring: 'lng'
+            lookupQuerystring: 'lng',
         },
         react: {
             bindI18n: 'languageChanged',
@@ -33,7 +32,7 @@ i18n
             transSupportBasicHtmlNodes: true,
             transKeepBasicHtmlNodesFor: ['br', 'strong', 'i'],
             useSuspense: false,
-        }
+        },
     });
 
 export default i18n;

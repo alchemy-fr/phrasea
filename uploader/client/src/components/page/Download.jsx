@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import '../../scss/Upload.scss';
-import Container from "../Container";
-import {Link} from "react-router-dom";
-import AssetForm from "../AssetForm";
+import Container from '../Container';
+import {Link} from 'react-router-dom';
+import AssetForm from '../AssetForm';
 
 export default class Download extends Component {
     state = {
@@ -10,16 +10,14 @@ export default class Download extends Component {
     };
 
     baseSchema = {
-        "required": [
-            "url",
-        ],
-        "properties": {
-            "url": {
-                'title': 'Asset URL',
-                'type': 'string',
-                'widget': 'url'
-            }
-        }
+        required: ['url'],
+        properties: {
+            url: {
+                title: 'Asset URL',
+                type: 'string',
+                widget: 'url',
+            },
+        },
     };
 
     getTargetId() {
@@ -45,7 +43,9 @@ export default class Download extends Component {
                     <Link to="/">Back</Link>
                 </div>
 
-                {done ? <h3>Your file will be downloaded!</h3> :
+                {done ? (
+                    <h3>Your file will be downloaded!</h3>
+                ) : (
                     <AssetForm
                         targetId={this.getTargetId()}
                         submitPath={'/downloads'}
@@ -53,7 +53,7 @@ export default class Download extends Component {
                         onComplete={this.onComplete}
                         onCancel={this.onCancel}
                     />
-                }
+                )}
             </Container>
         );
     }

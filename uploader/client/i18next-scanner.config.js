@@ -14,7 +14,7 @@ module.exports = {
         debug: true,
         func: {
             list: ['i18next.t', 'i18n.t', 't'],
-            extensions: ['.js', '.jsx']
+            extensions: ['.js', '.jsx'],
         },
         trans: {
             component: 'Trans',
@@ -28,12 +28,10 @@ module.exports = {
                 ecmaVersion: 10, // defaults to 10
                 sourceType: 'module', // defaults to 'module'
                 // Check out https://github.com/acornjs/acorn/tree/master/acorn#interface for additional options
-            }
+            },
         },
         lngs: ['en'],
-        ns: [
-            'translation',
-        ],
+        ns: ['translation'],
         defaultLng: 'en',
         defaultNs: 'translation',
         defaultValue: '__STRING_NOT_TRANSLATED__',
@@ -41,33 +39,44 @@ module.exports = {
             loadPath: 'src/locales/{lng}/{ns}.json',
             savePath: 'src/locales/{lng}/{ns}.json',
             jsonIndent: 2,
-            lineEnding: '\n'
+            lineEnding: '\n',
         },
         nsSeparator: ':', // namespace separator
         keySeparator: '.', // key separator
         interpolation: {
             prefix: '{',
-            suffix: '}'
-        }
+            suffix: '}',
+        },
     },
     transform: function customTransform(file, enc, done) {
-        "use strict";
+        'use strict';
         const parser = this.parser;
         const content = fs.readFileSync(file.path, enc);
         let count = 0;
 
-        parser.parseFuncFromString(content, {list: ['i18next._', 'i18next.__']}, (key, options) => {
-            parser.set(key, Object.assign({}, options, {
-                nsSeparator: false,
-                keySeparator: false
-            }));
-            ++count;
-        });
+        parser.parseFuncFromString(
+            content,
+            {list: ['i18next._', 'i18next.__']},
+            (key, options) => {
+                parser.set(
+                    key,
+                    Object.assign({}, options, {
+                        nsSeparator: false,
+                        keySeparator: false,
+                    })
+                );
+                ++count;
+            }
+        );
 
         if (count > 0) {
-            console.log(`i18next-scanner: count=${chalk.cyan(count)}, file=${chalk.yellow(JSON.stringify(file.relative))}`);
+            console.log(
+                `i18next-scanner: count=${chalk.cyan(
+                    count
+                )}, file=${chalk.yellow(JSON.stringify(file.relative))}`
+            );
         }
 
         done();
-    }
+    },
 };

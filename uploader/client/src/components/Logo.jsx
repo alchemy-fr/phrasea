@@ -6,13 +6,16 @@ export default class Logo extends Component {
         const logo = config.client?.logo;
 
         if (!logo) {
-            return <></>
+            return <></>;
         }
 
         return (
-            <div className="logo" style={{
-                margin: logo.margin
-            }}>
+            <div
+                className="logo"
+                style={{
+                    margin: logo.margin,
+                }}
+            >
                 <img src={logo.src} alt="Uploader" />
             </div>
         );

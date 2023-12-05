@@ -1,16 +1,16 @@
 {
-    "form": {
-        "email": {
-            "label": "Email"
-        },
-        "password": {
-            "label": "Contraseña"
-        },
-        "submit_button": "Login"
+  "form": {
+    "email": {
+      "label": "Email"
     },
-    "login": {
-        "forgot_password": "¿Se te olvidó tu contraseña?",
-        "not_registered_yet": "Todavía no estas registrado?",
-        "sign_up_link": "Regístrate"
-    }
+    "password": {
+      "label": "Contraseña"
+    },
+    "submit_button": "Login"
+  },
+  "login": {
+    "forgot_password": "¿Se te olvidó tu contraseña?",
+    "not_registered_yet": "Todavía no estas registrado?",
+    "sign_up_link": "Regístrate"
+  }
 }

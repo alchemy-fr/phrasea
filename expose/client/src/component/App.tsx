@@ -11,14 +11,16 @@ type Props = {};
 export default function App({}: Props) {
     const css = config.globalCSS;
 
-    return <AuthenticationProvider oauthClient={oauthClient}>
-        {css && <style>{css}</style>}
-        {config.displayServicesMenu && (
-            <DashboardMenu dashboardBaseUrl={config.dashboardBaseUrl}/>
-        )}
-        <RouterProvider
-            routes={routes}
-            RouteProxyComponent={MatomoRouteProxy}
-        />
-    </AuthenticationProvider>
+    return (
+        <AuthenticationProvider oauthClient={oauthClient}>
+            {css && <style>{css}</style>}
+            {config.displayServicesMenu && (
+                <DashboardMenu dashboardBaseUrl={config.dashboardBaseUrl} />
+            )}
+            <RouterProvider
+                routes={routes}
+                RouteProxyComponent={MatomoRouteProxy}
+            />
+        </AuthenticationProvider>
+    );
 }
