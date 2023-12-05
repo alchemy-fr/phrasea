@@ -5,16 +5,16 @@ import FullPageLoader from './FullPageLoader'
 import apiClient from '../lib/api-client'
 
 export default function ConfigWrapper() {
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setLoaded] = useState(false);
 
     if (!loaded) {
-        apiClient.get(`/config`).then((res) => {
-            Object.keys(res).forEach((k) => {
+        apiClient.get(`/config`).then(({data}) => {
+            Object.keys(data).forEach((k) => {
                 // @ts-ignore bypass readonly
-                config[k] = res[k]
+                config[k] = data[k]
             })
 
-            setLoaded(true)
+            setLoaded(true);
         })
 
         return <FullPageLoader />
