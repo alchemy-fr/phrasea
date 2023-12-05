@@ -32,9 +32,9 @@ import {zIndex} from '../../../themes/zIndex';
 import AddIcon from '@mui/icons-material/Add';
 import UploadModal from '../../Upload/UploadModal';
 import {useModals} from '@alchemy/navigation';
-import {UserContext} from '../../Security/UserContext';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
+import {useUser} from "../../../hooks/useUser.ts";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -102,7 +102,7 @@ export function getAssetListFromEvent(
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
-    const userContext = useContext(UserContext);
+    const userContext = useUser();
     const navigateToModal = useNavigateToModal();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;

@@ -1,20 +1,27 @@
-import {useContext} from 'react';
-import {UserContext} from '../Security/UserContext';
 import {useKeycloakUrls} from '../../lib/keycloak';
+import {MatomoRouteProxy} from '@alchemy/navigation';
 import type {RouteProxyProps} from '@alchemy/navigation';
+import {useUser} from "../../hooks/useUser.ts";
 
-export function RouteProxy({
+export default function RouteProxy({
     component: Component,
     public: isPublic,
+    ...rest
 }: RouteProxyProps) {
-    const {user} = useContext(UserContext);
+    const {user} = useUser();
     const {getLoginUrl} = useKeycloakUrls();
 
     if (!isPublic && !user) {
         document.location.href = getLoginUrl();
 
-        return <></>;
+        return <></>
     }
 
-    return <Component />;
+    return <MatomoRouteProxy
+        component={Component}
+        {...rest}
+    />
 }
+
+
+

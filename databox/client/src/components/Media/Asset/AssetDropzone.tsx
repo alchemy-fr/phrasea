@@ -1,14 +1,14 @@
-import {PropsWithChildren, useCallback, useContext, useEffect} from 'react';
+import {PropsWithChildren, useCallback, useEffect} from 'react';
 import {useDropzone} from 'react-dropzone';
-import {UserContext} from '../../Security/UserContext';
 import UploadModal from '../../Upload/UploadModal';
 import {Backdrop, Typography} from '@mui/material';
 import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
+import {useUser} from "../../../hooks/useUser.ts";
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
-    const userContext = useContext(UserContext);
+    const userContext = useUser();
     const {openModal} = useModals();
 
     const onDrop = useCallback(

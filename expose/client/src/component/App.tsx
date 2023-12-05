@@ -58,7 +58,7 @@ export default function App({}: Props) {
             />}
             <RouterProvider
                 routes={routes}
-                RouteProxyComponent={MatomoRouteProxy}
+                RouteProxyComponent={RouteProxy}
             />
         </AnalyticsRouterProvider>
     </>

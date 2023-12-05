@@ -30,8 +30,8 @@ import ConfirmDialog from '../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import UploadModal from '../Upload/UploadModal';
-import {UserContext} from '../Security/UserContext';
 import {modalRoutes} from '../../routes.ts';
+import {useUser} from "../../hooks/useUser.ts";
 
 type Props = {
     level: number;
@@ -56,7 +56,7 @@ export default function CollectionMenuItem({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
-    const userContext = useContext(UserContext);
+    const userContext = useUser();
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);
     const [nextCollections, setNextCollections] = useState<{

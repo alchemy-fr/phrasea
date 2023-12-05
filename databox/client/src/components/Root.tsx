@@ -1,10 +1,11 @@
 import React from 'react';
-import {MatomoRouteProxy, ModalStack} from '@alchemy/navigation';
+import {ModalStack} from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
-import {keycloakClient} from '../api/api-client';
+import {keycloakClient, oauthClient} from '../api/api-client';
 import {AuthenticationProvider} from '@alchemy/auth';
 import {RouterProvider} from '@alchemy/navigation';
 import {routes} from '../routes.ts';
+import RouteProxy from "./Routing/RouteProxy.tsx";
 
 type Props = {};
 
@@ -14,12 +15,15 @@ export default function Root({}: Props) {
     }, []);
 
     return (
-        <AuthenticationProvider onLogout={onLogout}>
+        <AuthenticationProvider
+            oauthClient={oauthClient}
+            onLogout={onLogout}
+        >
             <ModalStack>
                 <UserPreferencesProvider>
                     <RouterProvider
                         routes={routes}
-                        RouteProxyComponent={MatomoRouteProxy}
+                        RouteProxyComponent={RouteProxy}
                     />
                 </UserPreferencesProvider>
             </ModalStack>

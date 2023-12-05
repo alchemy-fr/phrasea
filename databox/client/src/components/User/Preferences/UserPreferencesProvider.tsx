@@ -5,14 +5,10 @@ import {
     UserPreferences,
     UserPreferencesContext,
 } from './UserPreferencesContext';
-import {UserContext} from '../../Security/UserContext';
 import {getUserPreferences, putUserPreferences} from '../../../api/user';
 import {createCachedTheme} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles, ThemeProvider} from '@mui/material';
-
-type Props = PropsWithChildren<{}>;
-
-const scrollbarWidth = 8;
+import {useAuth} from "@alchemy/auth";
 
 const sessionStorageKey = 'userPrefs';
 
@@ -26,11 +22,13 @@ function getFromStorage(): UserPreferences {
     return {};
 }
 
+type Props = PropsWithChildren<{}>;
+
 export default function UserPreferencesProvider({children}: Props) {
     const [preferences, setPreferences] = React.useState<UserPreferences>(
         getFromStorage()
     );
-    const {user} = React.useContext(UserContext);
+    const {tokens} = useAuth();
 
     const updatePreference = React.useCallback<UpdatePreferenceHandler>(
         (name, value) => {
@@ -43,7 +41,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     newPrefs[name] = value;
                 }
 
-                if (user) {
+                if (tokens) {
                     putUserPreferences(name, newPrefs[name]);
                 }
 
@@ -55,18 +53,18 @@ export default function UserPreferencesProvider({children}: Props) {
                 return newPrefs;
             });
         },
-        [user]
+        [tokens]
     );
 
     React.useEffect(() => {
-        if (user) {
+        if (tokens) {
             getUserPreferences().then(r =>
                 setPreferences({
                     ...r,
                 })
             );
         }
-    }, [user]);
+    }, [tokens]);
 
     const value = React.useMemo<TUserPreferencesContext>(() => {
         return {
@@ -74,6 +72,8 @@ export default function UserPreferencesProvider({children}: Props) {
             updatePreference,
         };
     }, [preferences, updatePreference]);
+
+    const scrollbarWidth = 8;
 
     return (
         <UserPreferencesContext.Provider value={value}>

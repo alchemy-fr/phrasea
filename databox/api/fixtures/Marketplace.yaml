@@ -2,12 +2,12 @@ App\Entity\Core\Workspace:
   w_marketplace:
     name: Marketplace
     slug: marketplace
-    ownerId: <keycloakUser("admin", ["admin"])>
+    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
 
 App\Entity\Core\Collection:
   collection_m (template):
     workspace: '@w_marketplace'
-    ownerId: <keycloakUser("admin", ["admin"])>
+    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     privacy: 5
 
   c_m_{tv, furniture} (extends collection_m):

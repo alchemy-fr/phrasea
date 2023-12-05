@@ -2,6 +2,7 @@ import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConf
 import {jwtDecode} from "jwt-decode";
 import {IStorage} from "@alchemy/storage";
 import {createHttpClient, HttpClient} from "@alchemy/api";
+import {CookieStorage} from "@alchemy/storage";
 import {AuthTokens} from "../types";
 
 export type TokenResponse = {
@@ -48,7 +49,7 @@ export const sessionExpiredEventType = 'sessionExpired';
 
 
 type Options = {
-    storage?: IStorage | undefined;
+    storage?: IStorage;
     clientId: string;
     clientSecret?: string;
     baseUrl: string;
@@ -64,7 +65,7 @@ export default class OAuthClient {
     public readonly clientSecret: string | undefined;
     public readonly baseUrl: string;
     private listeners: Record<string, AuthEventHandler[]> = {};
-    private readonly storage: IStorage | undefined;
+    private readonly storage: IStorage;
     private tokensCache: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
@@ -74,7 +75,7 @@ export default class OAuthClient {
         clientId,
         clientSecret,
         baseUrl,
-        storage,
+        storage = new CookieStorage(),
         tokenStorageKey,
         httpClient,
     }: Options) {
@@ -128,7 +129,7 @@ export default class OAuthClient {
         this.clearSessionTimeout();
 
         this.triggerEvent(logoutEventType);
-        this.storage?.removeItem(this.tokenStorageKey);
+        this.storage.removeItem(this.tokenStorageKey);
         this.tokensCache = undefined;
     }
 
@@ -285,7 +286,7 @@ export default class OAuthClient {
     private persistTokens(tokens: AuthTokens): void {
         this.tokensCache = tokens;
 
-        this.storage?.setItem(this.tokenStorageKey, JSON.stringify(tokens));
+        this.storage.setItem(this.tokenStorageKey, JSON.stringify(tokens));
     }
 
     private fetchTokens(): AuthTokens | undefined {
@@ -293,7 +294,7 @@ export default class OAuthClient {
             return this.tokensCache;
         }
 
-        const t = this.storage?.getItem(this.tokenStorageKey);
+        const t = this.storage.getItem(this.tokenStorageKey);
         if (t) {
             return this.tokensCache = JSON.parse(t) as AuthTokens;
         }

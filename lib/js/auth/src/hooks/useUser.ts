@@ -3,7 +3,7 @@ import {useAuth} from "./useAuth";
 import {jwtDecode} from "jwt-decode";
 import {TAuthContext} from "../context/AuthenticationContext";
 
-type UseUserReturn<U extends object> = {
+export type UseUserReturn<U extends object> = {
     user: U | undefined
 } & TAuthContext;
 

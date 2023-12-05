@@ -49,7 +49,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         setAnchorElUser(null);
     };
 
-    const username = userContext.user?.preferred_username;
+    const username = userContext.user?.username;
 
     return (
         <div
