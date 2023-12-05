@@ -36,8 +36,8 @@ class PublicationIndex extends PureComponent {
     load() {
         apiClient
             .get(`/publications?${orders[this.state.sortBy].query}`)
-            .then((res) => {
-                this.setState({data: res.data['hydra:member']});
+            .then(({data}) => {
+                this.setState({data: data['hydra:member']});
             });
     }
 

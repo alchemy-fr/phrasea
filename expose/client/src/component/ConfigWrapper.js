@@ -10,10 +10,10 @@ export default function ConfigWrapper() {
     if (!loaded) {
         apiClient
             .get(`/config`)
-            .then((res) => {
-                Object.keys(res).forEach(k => {
+            .then(({data}) => {
+                Object.keys(data).forEach(k => {
                     // @ts-ignore bypass readonly
-                    config[k] = res[k];
+                    config[k] = data[k];
                 });
 
                 setLoaded(true);
