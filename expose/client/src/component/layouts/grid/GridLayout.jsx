@@ -1,30 +1,30 @@
-import React from 'react'
+import React from 'react';
 // import { PropTypes } from 'prop-types'
-import Description from '../shared-components/Description'
-import Gallery from 'react-grid-gallery'
-import Carousel, { Modal, ModalGateway } from 'react-images'
-import squareImg from '../../../images/square.svg'
-import DownloadButton from '../shared-components/DownloadButton'
+import Description from '../shared-components/Description';
+import Gallery from 'react-grid-gallery';
+import Carousel, {Modal, ModalGateway} from 'react-images';
+import squareImg from '../../../images/square.svg';
+import DownloadButton from '../shared-components/DownloadButton';
 import {
     onDownload,
     renderDownloadTermsModal,
     renderDownloadViaEmail,
-} from '../shared-components/DownloadViaEmailProxy'
-import AssetProxy from '../shared-components/AssetProxy'
-import PublicationHeader from '../shared-components/PublicationHeader'
-import { Trans } from 'react-i18next'
-import FullPageLoader from '../../FullPageLoader'
-import { logAssetView } from '../../../lib/log'
-import { getThumbPlaceholder } from '../shared-components/placeholders'
+} from '../shared-components/DownloadViaEmailProxy';
+import AssetProxy from '../shared-components/AssetProxy';
+import PublicationHeader from '../shared-components/PublicationHeader';
+import {Trans} from 'react-i18next';
+import FullPageLoader from '../../FullPageLoader';
+import {logAssetView} from '../../../lib/log';
+import {getThumbPlaceholder} from '../shared-components/placeholders';
 
-const CustomView = ({ data, carouselProps, currentView }) => {
-    const isCurrent = currentView === data
+const CustomView = ({data, carouselProps, currentView}) => {
+    const isCurrent = currentView === data;
 
     React.useEffect(() => {
         if (isCurrent) {
-            logAssetView(data.id)
+            logAssetView(data.id);
         }
-    }, [isCurrent])
+    }, [isCurrent]);
 
     return (
         <div className={'lb-asset-wrapper'}>
@@ -49,8 +49,8 @@ const CustomView = ({ data, carouselProps, currentView }) => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
 class GridLayout extends React.Component {
     // static propTypes = {
@@ -64,37 +64,37 @@ class GridLayout extends React.Component {
         thumbsLoaded: false,
         currentAsset: null,
         showVideo: {},
-    }
+    };
 
     static getDerivedStateFromProps(props, state = {}) {
         if (props.assetId && !state.currentAssetAutoSet) {
             return {
                 ...state,
                 currentAsset: props.data.assets.findIndex(
-                    (a) => a.id === props.assetId
+                    a => a.id === props.assetId
                 ),
                 currentAssetAutoSet: true,
-            }
+            };
         }
 
-        return state
+        return state;
     }
 
     componentDidMount() {
-        this.loadThumbs()
+        this.loadThumbs();
     }
 
-    openAsset = (offset) => {
-        this.setState({ currentAsset: offset })
-    }
+    openAsset = offset => {
+        this.setState({currentAsset: offset});
+    };
 
     closeModal = () => {
-        this.setState({ currentAsset: null })
-    }
+        this.setState({currentAsset: null});
+    };
 
     render() {
-        const { data } = this.props
-        const { assets, downloadEnabled } = data
+        const {data} = this.props;
+        const {assets, downloadEnabled} = data;
 
         return (
             <div className={`layout-grid`}>
@@ -107,26 +107,26 @@ class GridLayout extends React.Component {
                     <Trans i18nKey={'gallery.empty'}>Gallery is empty</Trans>
                 )}
             </div>
-        )
+        );
     }
 
     onDownload = (url, e) => {
-        onDownload.call(this, url, e)
-        this.closeModal()
-    }
+        onDownload.call(this, url, e);
+        this.closeModal();
+    };
 
     renderGallery() {
         if (!this.state.thumbsLoaded) {
-            return <FullPageLoader />
+            return <FullPageLoader />;
         }
 
-        const { downloadEnabled } = this.props.data
-        const { currentAsset } = this.state
+        const {downloadEnabled} = this.props.data;
+        const {currentAsset} = this.state;
 
-        const images = this.props.data.assets.map((a) => ({
+        const images = this.props.data.assets.map(a => ({
             ...a,
             downloadEnabled,
-        }))
+        }));
 
         return (
             <>
@@ -134,7 +134,7 @@ class GridLayout extends React.Component {
                     enableLightbox={false}
                     enableImageSelection={false}
                     onClickThumbnail={this.openAsset}
-                    images={this.props.data.assets.map((a) => ({
+                    images={this.props.data.assets.map(a => ({
                         src: a.previewUrl,
                         thumbnail:
                             a.thumbUrl || getThumbPlaceholder(a.mimeType),
@@ -162,18 +162,18 @@ class GridLayout extends React.Component {
                                 }}
                                 views={images}
                                 styles={{
-                                    container: (base) => ({
+                                    container: base => ({
                                         ...base,
                                         height: '100vh',
                                         width: '100vw',
                                         position: 'relative',
                                     }),
-                                    view: (base) => ({
+                                    view: base => ({
                                         ...base,
-                                        alignItems: 'center',
-                                        display: 'flex',
-                                        height: 'calc(100vh - 54px)',
-                                        justifyContent: 'center',
+                                        'alignItems': 'center',
+                                        'display': 'flex',
+                                        'height': 'calc(100vh - 54px)',
+                                        'justifyContent': 'center',
                                         '& > img': {
                                             maxHeight: 'calc(100vh - 94px)',
                                         },
@@ -184,33 +184,33 @@ class GridLayout extends React.Component {
                     ) : null}
                 </ModalGateway>
             </>
-        )
+        );
     }
 
     async loadThumbs() {
         await Promise.all(
-            this.props.data.assets.map((a) => {
+            this.props.data.assets.map(a => {
                 return new Promise((resolve, reject) => {
-                    const img = new Image()
+                    const img = new Image();
                     img.onload = () => {
-                        a.thumbWidth = img.width
-                        a.thumbHeight = img.height
-                        resolve()
-                    }
-                    img.onerror = (e) => {
-                        console.error(e)
-                        a.thumbUrl = squareImg
-                        a.thumbWidth = 100
-                        a.thumbHeight = 100
-                        resolve()
-                    }
-                    img.src = a.thumbUrl || getThumbPlaceholder(a.mimeType)
-                })
+                        a.thumbWidth = img.width;
+                        a.thumbHeight = img.height;
+                        resolve();
+                    };
+                    img.onerror = e => {
+                        console.error(e);
+                        a.thumbUrl = squareImg;
+                        a.thumbWidth = 100;
+                        a.thumbHeight = 100;
+                        resolve();
+                    };
+                    img.src = a.thumbUrl || getThumbPlaceholder(a.mimeType);
+                });
             })
-        )
+        );
 
-        this.setState({ thumbsLoaded: true })
+        this.setState({thumbsLoaded: true});
     }
 }
 
-export default GridLayout
+export default GridLayout;

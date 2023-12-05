@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react'
-import Loader from 'react-loader-spinner'
+import React, {PureComponent} from 'react';
+import Loader from 'react-loader-spinner';
 
 export default class FullPageLoader extends PureComponent {
     render() {
@@ -12,6 +12,6 @@ export default class FullPageLoader extends PureComponent {
                     width={100}
                 />
             </div>
-        )
+        );
     }
 }

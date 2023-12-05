@@ -1,9 +1,9 @@
-import { createInstance } from '@jonkoops/matomo-tracker-react'
-import config from './config'
+import {createInstance} from '@jonkoops/matomo-tracker-react';
+import config from './config';
 
-const analytics = config.analytics
+const analytics = config.analytics;
 
-const matomoConfig = analytics?.matomo
+const matomoConfig = analytics?.matomo;
 
 export const matomo = matomoConfig
     ? createInstance({
@@ -14,4 +14,4 @@ export const matomo = matomoConfig
               setSecureCookie: true,
           },
       })
-    : undefined
+    : undefined;

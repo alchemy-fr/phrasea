@@ -1,17 +1,17 @@
-import React from 'react'
+import React from 'react';
 // import { PropTypes } from 'prop-types'
-import mapboxgl from 'mapbox-gl'
-import config from '../../../lib/config'
-import Description from '../shared-components/Description'
-import { getBrowserLanguage } from './browserLang'
-import PublicationHeader from '../shared-components/PublicationHeader'
-import AssetProxy from '../shared-components/AssetProxy'
-import { Trans } from 'react-i18next'
-import { logAssetView } from '../../../lib/log'
-import { getThumbPlaceholder } from '../shared-components/placeholders'
+import mapboxgl from 'mapbox-gl';
+import config from '../../../lib/config';
+import Description from '../shared-components/Description';
+import {getBrowserLanguage} from './browserLang';
+import PublicationHeader from '../shared-components/PublicationHeader';
+import AssetProxy from '../shared-components/AssetProxy';
+import {Trans} from 'react-i18next';
+import {logAssetView} from '../../../lib/log';
+import {getThumbPlaceholder} from '../shared-components/placeholders';
 
-export function initMapbox(mapContainer, { lng, lat, zoom }) {
-    mapboxgl.accessToken = config.mapBoxToken
+export function initMapbox(mapContainer, {lng, lat, zoom}) {
+    mapboxgl.accessToken = config.mapBoxToken;
 
     let map = new mapboxgl.Map({
         container: mapContainer,
@@ -19,23 +19,23 @@ export function initMapbox(mapContainer, { lng, lat, zoom }) {
         center: [lng, lat],
         zoom,
         attributionControl: false,
-    })
+    });
 
-    map.addControl(new mapboxgl.NavigationControl())
+    map.addControl(new mapboxgl.NavigationControl());
     map.addControl(
         new mapboxgl.AttributionControl({
             compact: true,
         })
-    )
+    );
 
     map.on('load', () => {
         map.setLayoutProperty('country-label', 'text-field', [
             'get',
             'name_' + getBrowserLanguage(),
-        ])
-    })
+        ]);
+    });
 
-    return map
+    return map;
 }
 
 export const defaultMapProps = {
@@ -43,20 +43,20 @@ export const defaultMapProps = {
     lat: 48.8,
     zoom: 2,
     mapLayout: 'light-v10',
-}
+};
 
 function filterGeoAssets(assets) {
-    return assets.filter((a) => a.lat && a.lng)
+    return assets.filter(a => a.lat && a.lng);
 }
 
-const maxThumbSize = 100
+const maxThumbSize = 100;
 
 const mapLayouts = {
     'light-v10': 'Light',
     'dark-v10': 'Dark',
     'outdoors-v11': 'Outdoors',
     'satellite-v9': 'Satellite',
-}
+};
 
 class MapboxLayout extends React.Component {
     // static propTypes = {
@@ -66,93 +66,94 @@ class MapboxLayout extends React.Component {
     // }
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             ...defaultMapProps,
             ...(props.mapOptions || {}),
             assets: filterGeoAssets(props.data.assets),
             assetId: props.assetId,
-        }
+        };
 
-        this.mapContainer = React.createRef()
+        this.mapContainer = React.createRef();
     }
 
     componentDidMount() {
-        this.initMap()
-        window.addEventListener('resize', this.onResize)
+        this.initMap();
+        window.addEventListener('resize', this.onResize);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.assetId && prevState.assetId !== this.state.assetId) {
-            logAssetView(this.state.assetId)
+            logAssetView(this.state.assetId);
         }
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.onResize)
+        window.removeEventListener('resize', this.onResize);
     }
 
     onResize = () => {
-        this.map && this.map.resize()
-    }
+        this.map && this.map.resize();
+    };
 
     initMap() {
         if (!this.mapContainer.current) {
-            return
+            return;
         }
 
-        const { data } = this.props
-        const locationAsset = data.assets.filter((a) => a.lat)[0]
+        const {data} = this.props;
+        const locationAsset = data.assets.filter(a => a.lat)[0];
 
         this.map = initMapbox(this.mapContainer.current, {
             ...this.state,
             ...(locationAsset || {}),
-        })
+        });
 
         this.map.on('move', () => {
             this.setState({
                 lng: this.map.getCenter().lng.toFixed(4),
                 lat: this.map.getCenter().lat.toFixed(4),
                 zoom: this.map.getZoom().toFixed(2),
-            })
-        })
+            });
+        });
         this.map.on('load', () => {
-            this.configureAssets()
-            this.map.on('style.load', this.configureAssets)
-        })
+            this.configureAssets();
+            this.map.on('style.load', this.configureAssets);
+        });
     }
 
     configureAssets = () => {
-        const { data } = this.props
-        const { layoutOptions } = data
+        const {data} = this.props;
+        const {layoutOptions} = data;
 
         if (layoutOptions.displayMapPins) {
-            this.configureAssetPins()
+            this.configureAssetPins();
         } else {
-            this.configureAssetThumbs()
+            this.configureAssetThumbs();
         }
-    }
+    };
 
     async configureAssetThumbs() {
         const images = await Promise.all(
-            this.state.assets.map((a) => {
-                return new Promise((resolve) => {
+            this.state.assets.map(a => {
+                return new Promise(resolve => {
                     this.map.loadImage(
                         a.thumbUrl || getThumbPlaceholder(a.mimeType),
                         async (err, img) => {
                             if (err) {
-                                console.error('err', err)
+                                console.error('err', err);
 
-                                return
+                                return;
                             }
-                            let width, height
+                            let width, height;
                             if (img.width > img.height) {
-                                height = (img.height * maxThumbSize) / img.width
-                                width = maxThumbSize
+                                height =
+                                    (img.height * maxThumbSize) / img.width;
+                                width = maxThumbSize;
                             } else {
-                                width = (img.width * maxThumbSize) / img.height
-                                height = maxThumbSize
+                                width = (img.width * maxThumbSize) / img.height;
+                                height = maxThumbSize;
                             }
 
                             resolve({
@@ -161,18 +162,18 @@ class MapboxLayout extends React.Component {
                                     resizeWidth: width,
                                     resizeHeight: height,
                                 }),
-                            })
+                            });
                         }
-                    )
-                })
+                    );
+                });
             })
-        )
+        );
 
         this.map.addSource('assets', {
             type: 'geojson',
             data: {
                 type: 'FeatureCollection',
-                features: this.state.assets.map((a) => {
+                features: this.state.assets.map(a => {
                     return {
                         type: 'Feature',
                         geometry: {
@@ -182,18 +183,18 @@ class MapboxLayout extends React.Component {
                         properties: {
                             assetId: a.id,
                         },
-                    }
+                    };
                 }),
             },
-        })
+        });
 
-        this.map.on('click', 'assets', (e) => {
-            this.setState({ assetId: e.features[0].properties.assetId })
-        })
+        this.map.on('click', 'assets', e => {
+            this.setState({assetId: e.features[0].properties.assetId});
+        });
 
-        images.forEach(({ id, img }) => {
-            this.map.addImage(id, img)
-        })
+        images.forEach(({id, img}) => {
+            this.map.addImage(id, img);
+        });
 
         this.map.addLayer({
             id: 'assets',
@@ -203,7 +204,7 @@ class MapboxLayout extends React.Component {
                 'icon-image': '{assetId}',
                 'icon-allow-overlap': true,
             },
-        })
+        });
     }
 
     configureAssetPins() {
@@ -211,44 +212,44 @@ class MapboxLayout extends React.Component {
             closeButton: false,
             closeOnClick: false,
             offset: 25,
-        })
+        });
 
-        this.state.assets.forEach((a) => {
-            const { asset } = a
+        this.state.assets.forEach(a => {
+            const {asset} = a;
 
             const marker = new mapboxgl.Marker()
                 .setLngLat([asset.lng, asset.lat])
-                .addTo(this.map)
+                .addTo(this.map);
 
             marker.getElement().addEventListener('mouseenter', () => {
                 popup
                     .setLngLat([asset.lng, asset.lat])
                     .setHTML(`<img class="thumb" src="${asset.thumbUrl}"/>`)
-                    .addTo(this.map)
-            })
+                    .addTo(this.map);
+            });
 
             marker.getElement().addEventListener('mouseleave', () => {
-                popup.remove()
-            })
+                popup.remove();
+            });
 
             marker.getElement().addEventListener('click', () => {
-                this.setState({ assetId: asset.id })
-            })
-        })
+                this.setState({assetId: asset.id});
+            });
+        });
     }
 
-    changeMapLayout = (e) => {
-        const mapLayout = e.target.value
-        this.setState({ mapLayout })
-        this.map.setStyle('mapbox://styles/mapbox/' + mapLayout)
-    }
+    changeMapLayout = e => {
+        const mapLayout = e.target.value;
+        this.setState({mapLayout});
+        this.map.setStyle('mapbox://styles/mapbox/' + mapLayout);
+    };
 
     render() {
-        const { data } = this.props
-        const { assets } = this.state
+        const {data} = this.props;
+        const {assets} = this.state;
 
         if (assets.length === 0) {
-            return <Trans i18nKey={'map.empty'}>Map is empty</Trans>
+            return <Trans i18nKey={'map.empty'}>Map is empty</Trans>;
         }
 
         return (
@@ -262,7 +263,7 @@ class MapboxLayout extends React.Component {
                         </div>
                         <div className="map-layout">
                             <select onChange={this.changeMapLayout}>
-                                {Object.keys(mapLayouts).map((k) => (
+                                {Object.keys(mapLayouts).map(k => (
                                     <option key={k} value={k}>
                                         {mapLayouts[k]}
                                     </option>
@@ -275,27 +276,25 @@ class MapboxLayout extends React.Component {
                 </div>
                 <div>{this.renderAsset()}</div>
             </div>
-        )
+        );
     }
 
     renderAsset() {
-        const { assetId } = this.state
+        const {assetId} = this.state;
 
         if (!assetId) {
-            return ''
+            return '';
         }
 
-        const asset = this.state.assets.find(
-            (a) => a.asset.id === assetId
-        ).asset
+        const asset = this.state.assets.find(a => a.asset.id === assetId).asset;
 
         return (
             <div className={'image-full'}>
                 <AssetProxy asset={asset} />
                 <Description descriptionHtml={asset.description} />
             </div>
-        )
+        );
     }
 }
 
-export default MapboxLayout
+export default MapboxLayout;

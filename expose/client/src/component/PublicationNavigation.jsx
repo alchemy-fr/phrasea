@@ -1,7 +1,7 @@
-import React, { PureComponent } from 'react'
+import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
-import { Link } from 'react-router-dom'
-import { loadPublication } from './api'
+import {Link} from 'react-router-dom';
+import {loadPublication} from './api';
 
 class PublicationNavigation extends PureComponent {
     // static propTypes = {
@@ -10,32 +10,32 @@ class PublicationNavigation extends PureComponent {
 
     state = {
         loading: '',
-    }
+    };
 
     static getDerivedStateFromProps(props, state) {
         if (!state.propsPub || props.publication.id !== state.propsPub.id) {
             return {
                 loading: '',
                 propsPub: props.publication,
-            }
+            };
         }
 
-        return null
+        return null;
     }
 
-    onSelect = (id) => {
-        this.setState({ loading: id })
-    }
+    onSelect = id => {
+        this.setState({loading: id});
+    };
 
     render() {
-        const { publication } = this.props
+        const {publication} = this.props;
 
         if (!publication.title) {
-            return null
+            return null;
         }
 
-        const { loading } = this.state
-        const { parent } = publication
+        const {loading} = this.state;
+        const {parent} = publication;
 
         return (
             <div className={`pub-nav ${loading ? ' nav-loading' : ''}`}>
@@ -61,7 +61,7 @@ class PublicationNavigation extends PureComponent {
                     publications={parent ? parent.children : [publication]}
                 />
             </div>
-        )
+        );
     }
 }
 
@@ -78,72 +78,66 @@ class NavTree extends PureComponent {
     state = {
         publicationChildren: {},
         openPublications: {},
-    }
+    };
 
     toggle(id) {
-        this.loadChildren(id)
+        this.loadChildren(id);
 
-        this.setState((prevState) => {
-            const openPublications = { ...prevState.openPublications }
+        this.setState(prevState => {
+            const openPublications = {...prevState.openPublications};
 
             if (undefined === openPublications[id]) {
                 openPublications[id] = !(
                     this.props.openChildren && id === this.props.current.id
-                )
+                );
             } else {
-                openPublications[id] = !openPublications[id]
+                openPublications[id] = !openPublications[id];
             }
 
             return {
                 openPublications,
-            }
-        })
+            };
+        });
     }
 
     async loadChildren(id) {
-        const res = await loadPublication(id)
+        const res = await loadPublication(id);
 
-        this.setState((prevState) => {
-            const publicationChildren = { ...prevState.publicationChildren }
+        this.setState(prevState => {
+            const publicationChildren = {...prevState.publicationChildren};
 
-            publicationChildren[res.id] = res.children
+            publicationChildren[res.id] = res.children;
 
-            return { publicationChildren }
-        })
+            return {publicationChildren};
+        });
     }
 
     render() {
-        const {
-            current,
-            publications,
-            depth,
-            openChildren,
-            onSelect,
-            loading,
-        } = this.props
-        const { openPublications, publicationChildren } = this.state
+        const {current, publications, depth, openChildren, onSelect, loading} =
+            this.props;
+        const {openPublications, publicationChildren} = this.state;
 
-        const baseNavClass = `nav-item nav-depth-${depth}`
+        const baseNavClass = `nav-item nav-depth-${depth}`;
 
         return (
             <ul className="pub-nav-ul list-unstyled components">
-                {publications.map((c) => {
-                    const p = typeof c === 'string' ? current : c
-                    const children = p.children || publicationChildren[p.id]
+                {publications.map(c => {
+                    const p = typeof c === 'string' ? current : c;
+                    const children = p.children || publicationChildren[p.id];
 
                     const isCurrent = loading
                         ? loading === p.id
-                        : p.id === current.id
+                        : p.id === current.id;
 
                     const navClass = `${baseNavClass}${
                         isCurrent ? ' nav-current' : ''
-                    }${p.childrenCount > 0 ? ' nav-has-children' : ''}`
+                    }${p.childrenCount > 0 ? ' nav-has-children' : ''}`;
 
                     const displayChildren =
                         false !== openPublications[p.id] &&
                         p.childrenCount &&
                         (openPublications[p.id] ||
-                            (openChildren && p.id === current.id))
+                            (openChildren && p.id === current.id));
 
                     return (
                         <li key={p.id}>
@@ -184,11 +178,11 @@ class NavTree extends PureComponent {
                                 </div>
                             )}
                         </li>
-                    )
+                    );
                 })}
             </ul>
-        )
+        );
     }
 }
 
-export default PublicationNavigation
+export default PublicationNavigation;

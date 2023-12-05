@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 export default function ErrorPage(props) {
     return (
@@ -6,5 +6,5 @@ export default function ErrorPage(props) {
             <h1>{props.title}</h1>
             <h3>{props.code.toString()}</h3>
         </div>
-    )
+    );
 }

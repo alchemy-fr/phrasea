@@ -2,12 +2,10 @@ type Props = {
     text: string;
 };
 
-export default function Copyright({
-    text,
-}: Props) {
+export default function Copyright({text}: Props) {
     if (!text) {
-        return ''
+        return '';
     }
 
-    return <div className="copy-text">{text}</div>
+    return <div className="copy-text">{text}</div>;
 }

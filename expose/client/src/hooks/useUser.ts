@@ -1,5 +1,4 @@
-import {UserInfoResponse, useUser as baseUseUser, UseUserReturn} from '@alchemy/auth';
-import {AuthUser} from "../types.ts";
+import {UserInfoResponse, useUser as baseUseUser, UseUserReturn, AuthUser} from '@alchemy/auth';
 import React from "react";
 
 export function useUser(): UseUserReturn<AuthUser> {

@@ -1,13 +1,13 @@
-;(function (config, env) {
-    config = config || {}
+(function (config, env) {
+    config = config || {};
 
-    const analytics = {}
+    const analytics = {};
 
     if (env.MATOMO_URL) {
         analytics.matomo = {
             baseUrl: env.MATOMO_URL,
             siteId: env.MATOMO_SITE_ID,
-        }
+        };
     }
 
     return {
@@ -22,5 +22,5 @@
             : 86400,
         disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),
         analytics,
-    }
-})
+    };
+});

@@ -1,19 +1,19 @@
-import React, { PureComponent } from 'react'
+import React, {PureComponent} from 'react';
 import {
     renderDownloadTermsModal,
     renderDownloadViaEmail,
     termsKeyPrefix,
-} from './DownloadViaEmailProxy'
-import { isTermsAccepted } from '../../../lib/credential'
-import { Trans } from 'react-i18next'
+} from './DownloadViaEmailProxy';
+import {isTermsAccepted} from '../../../lib/credential';
+import {Trans} from 'react-i18next';
 
 export default class ZippyDownloadButton extends PureComponent {
     state = {
         disabled: false,
-    }
+    };
 
     onDownload = () => {
-        const { data } = this.props
+        const {data} = this.props;
         if (
             !data.downloadTerms.enabled ||
             isTermsAccepted(termsKeyPrefix + data.id)
@@ -22,36 +22,36 @@ export default class ZippyDownloadButton extends PureComponent {
                 this.setState({
                     displayDownloadViaEmail: true,
                     pendingDownloadUrl: this.props.data.archiveDownloadUrl,
-                })
+                });
 
-                return
+                return;
             }
 
-            this.disableButtonForDownload()
-            window.open(this.props.data.archiveDownloadUrl, '_blank')
+            this.disableButtonForDownload();
+            window.open(this.props.data.archiveDownloadUrl, '_blank');
         }
 
         this.setState({
             displayDownloadTerms: true,
             pendingDownloadUrl: this.props.data.archiveDownloadUrl,
-        })
-    }
+        });
+    };
 
     disableButtonForDownload() {
         this.setState(
-            (prevState) => {
+            prevState => {
                 if (prevState.disabled) {
-                    return
+                    return;
                 }
 
-                return { disabled: true }
+                return {disabled: true};
             },
             () => {
                 setTimeout(() => {
-                    this.setState({ disabled: false })
-                }, 5000)
+                    this.setState({disabled: false});
+                }, 5000);
             }
-        )
+        );
     }
 
     render() {
@@ -70,6 +70,6 @@ export default class ZippyDownloadButton extends PureComponent {
                     <Trans i18nKey={'download_archive'}>Download archive</Trans>
                 </button>
             </>
-        )
+        );
     }
 }

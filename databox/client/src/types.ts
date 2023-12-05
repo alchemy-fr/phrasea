@@ -176,11 +176,6 @@ export interface Tag extends ApiHydraObjectResponse {
     workspace: Workspace | string;
 }
 
-export type AuthUser = {
-    roles: string[];
-    groups: string[];
-} & User;
-
 export interface Group {
     id: string;
     name: string;

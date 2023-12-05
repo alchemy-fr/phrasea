@@ -20,7 +20,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from './ChangeTheme';
 import {zIndex} from '../../themes/zIndex';
 import {useKeycloakUrls} from '../../lib/keycloak';
-import {useUser} from "../../hooks/useUser.ts";
+import {useKeycloakUser as useUser} from '@alchemy/auth';
 
 export const menuHeight = 42;
 

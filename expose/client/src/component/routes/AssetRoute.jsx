@@ -1,5 +1,5 @@
-import React, { PureComponent } from 'react'
-import Publication from '../Publication'
+import React, {PureComponent} from 'react';
+import Publication from '../Publication';
 
 class AssetRoute extends PureComponent {
     render() {
@@ -9,8 +9,8 @@ class AssetRoute extends PureComponent {
                 assetId={this.props.match.params.asset}
                 username={this.props.username}
             />
-        )
+        );
     }
 }
 
-export default AssetRoute
+export default AssetRoute;

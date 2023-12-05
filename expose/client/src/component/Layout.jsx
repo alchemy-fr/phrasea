@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react'
+import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
-import { Link } from 'react-router-dom'
-import config from '../lib/config'
-import { Logo } from './Logo'
-import { Trans } from 'react-i18next'
-import { keycloakClient } from '../lib/api-client'
+import {Link} from 'react-router-dom';
+import config from '../lib/config';
+import {Logo} from './Logo';
+import {Trans} from 'react-i18next';
+import {keycloakClient} from '../lib/api-client';
 
 class Layout extends PureComponent {
     // static propTypes = {
@@ -13,16 +13,16 @@ class Layout extends PureComponent {
     // }
 
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             displayMenu: config.sidebarDefaultOpen,
-        }
+        };
     }
 
     render() {
-        const { menu, children } = this.props
-        const { displayMenu } = this.state
+        const {menu, children} = this.props;
+        const {displayMenu} = this.state;
 
         return (
             <div className={'wrapper d-flex align-items-stretch'}>
@@ -31,7 +31,7 @@ class Layout extends PureComponent {
                         <button
                             type="button"
                             onClick={() =>
-                                this.setState((p) => ({
+                                this.setState(p => ({
                                     displayMenu: !p.displayMenu,
                                 }))
                             }
@@ -68,18 +68,18 @@ class Layout extends PureComponent {
                     {children}
                 </div>
             </div>
-        )
+        );
     }
 
     logout = () => {
-        keycloakClient.logout()
-    }
+        keycloakClient.logout();
+    };
 
     renderAuthenticated() {
-        const { username } = this.props
+        const {username} = this.props;
 
         if (!username) {
-            return ''
+            return '';
         }
 
         return (
@@ -93,8 +93,8 @@ class Layout extends PureComponent {
                     Logout
                 </button>
             </div>
-        )
+        );
     }
 }
 
-export default Layout
+export default Layout;

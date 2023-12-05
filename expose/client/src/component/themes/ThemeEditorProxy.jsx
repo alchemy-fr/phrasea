@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import config from '../../lib/config'
+import React, {Component} from 'react';
+import config from '../../lib/config';
 
 class ThemeEditorProxy extends Component {
     state = {
         hidden: !config.devMode,
-    }
+    };
 
     static getDerivedStateFromProps(props, state) {
-        const d = props.data || {}
+        const d = props.data || {};
 
         if (state.propsData === d) {
-            return null
+            return null;
         }
 
         return {
@@ -18,20 +18,20 @@ class ThemeEditorProxy extends Component {
             theme: d.theme,
             layout: d.layout,
             lastPubId: d.id,
-        }
+        };
     }
 
     hide = () => {
-        this.setState({ hidden: true })
-    }
+        this.setState({hidden: true});
+    };
 
     render() {
-        const { theme, layout } = this.state
-        const { data, render } = this.props
+        const {theme, layout} = this.state;
+        const {data, render} = this.props;
 
-        const body = window.document.body
-        body.className = body.className.replace(/\btheme-.+\b/g, '')
-        body.classList.add(`theme-${theme}`)
+        const body = window.document.body;
+        body.className = body.className.replace(/\btheme-.+\b/g, '');
+        body.classList.add(`theme-${theme}`);
 
         const subData = data
             ? {
@@ -39,7 +39,7 @@ class ThemeEditorProxy extends Component {
                   layout,
                   theme,
               }
-            : data
+            : data;
 
         if (data && !this.state.hidden) {
             subData.editor = (
@@ -57,8 +57,8 @@ class ThemeEditorProxy extends Component {
                             <label>Theme:</label>
                             <select
                                 className={'form-control'}
-                                onChange={(e) =>
-                                    this.setState({ theme: e.target.value })
+                                onChange={e =>
+                                    this.setState({theme: e.target.value})
                                 }
                                 value={theme || ''}
                             >
@@ -71,8 +71,8 @@ class ThemeEditorProxy extends Component {
                             <label>Layout:</label>
                             <select
                                 className={'form-control'}
-                                onChange={(e) =>
-                                    this.setState({ layout: e.target.value })
+                                onChange={e =>
+                                    this.setState({layout: e.target.value})
                                 }
                                 value={layout}
                             >
@@ -84,11 +84,11 @@ class ThemeEditorProxy extends Component {
                         </div>
                     </form>
                 </div>
-            )
+            );
         }
 
-        return <>{render(subData)}</>
+        return <>{render(subData)}</>;
     }
 }
 
-export default ThemeEditorProxy
+export default ThemeEditorProxy;

@@ -1,21 +1,21 @@
-import React from 'react'
-import ImageGallery from 'react-image-gallery'
+import React from 'react';
+import ImageGallery from 'react-image-gallery';
 // import { PropTypes } from 'prop-types'
-import Description from '../shared-components/Description'
-import { defaultMapProps, initMapbox } from '../mapbox/MapboxLayout'
-import mapboxgl from 'mapbox-gl'
-import DownloadButton from '../shared-components/DownloadButton'
+import Description from '../shared-components/Description';
+import {defaultMapProps, initMapbox} from '../mapbox/MapboxLayout';
+import mapboxgl from 'mapbox-gl';
+import DownloadButton from '../shared-components/DownloadButton';
 import {
     downloadContainerDefaultState,
     onDownload,
     renderDownloadTermsModal,
     renderDownloadViaEmail,
-} from '../shared-components/DownloadViaEmailProxy'
-import AssetProxy from '../shared-components/AssetProxy'
-import PublicationHeader from '../shared-components/PublicationHeader'
-import { Trans } from 'react-i18next'
-import { logAssetView } from '../../../lib/log'
-import { getThumbPlaceholder } from '../shared-components/placeholders'
+} from '../shared-components/DownloadViaEmailProxy';
+import AssetProxy from '../shared-components/AssetProxy';
+import PublicationHeader from '../shared-components/PublicationHeader';
+import {Trans} from 'react-i18next';
+import {logAssetView} from '../../../lib/log';
+import {getThumbPlaceholder} from '../shared-components/placeholders';
 
 class GalleryLayout extends React.Component {
     // static propTypes = {
@@ -30,50 +30,50 @@ class GalleryLayout extends React.Component {
         showPlayButton: true,
         currentIndex: null,
         ...downloadContainerDefaultState,
-    }
+    };
 
-    map
+    map;
 
     constructor(props) {
-        super(props)
+        super(props);
 
-        this.mapContainer = React.createRef()
-        this.sliderRef = React.createRef()
+        this.mapContainer = React.createRef();
+        this.sliderRef = React.createRef();
     }
 
     componentDidMount() {
         if (this.props.options.displayMap) {
-            this.initMap()
+            this.initMap();
         }
-        this.logView()
+        this.logView();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevState.currentIndex !== this.state.currentIndex) {
-            this.logView()
+            this.logView();
         }
     }
 
     logView() {
         if (null !== this.state.currentIndex) {
-            logAssetView(this.props.data.assets[this.state.currentIndex].id)
+            logAssetView(this.props.data.assets[this.state.currentIndex].id);
         }
     }
 
     static getDerivedStateFromProps(props, state = {}) {
-        let currentIndex = state.currentIndex
-        const displayControls = shouldDisplayControl(props, currentIndex || 0)
+        let currentIndex = state.currentIndex;
+        const displayControls = shouldDisplayControl(props, currentIndex || 0);
 
         const {
             assetId,
-            data: { assets },
-        } = props
+            data: {assets},
+        } = props;
         if (null === currentIndex && assetId) {
-            currentIndex = assets.findIndex((a) => a.id === assetId)
+            currentIndex = assets.findIndex(a => a.id === assetId);
             if (currentIndex < 0) {
-                currentIndex = assets.findIndex((a) => a.slug === assetId)
+                currentIndex = assets.findIndex(a => a.slug === assetId);
                 if (currentIndex < 0) {
-                    currentIndex = 0
+                    currentIndex = 0;
                 }
             }
         }
@@ -82,18 +82,18 @@ class GalleryLayout extends React.Component {
             showFullscreenButton: displayControls,
             showPlayButton: displayControls,
             currentIndex,
-        }
+        };
     }
 
     initMap() {
         if (!this.mapContainer.current) {
-            return
+            return;
         }
 
-        const { data, options, mapOptions } = this.props
+        const {data, options, mapOptions} = this.props;
 
-        let locationAsset = data.assets.filter((a) => a.lat)[0]
-        locationAsset = locationAsset || mapOptions
+        let locationAsset = data.assets.filter(a => a.lat)[0];
+        locationAsset = locationAsset || mapOptions;
 
         switch (options.mapProvider) {
             default:
@@ -110,55 +110,55 @@ class GalleryLayout extends React.Component {
                         locationAsset && locationAsset.zoom
                             ? locationAsset.zoom
                             : 5,
-                })
+                });
                 data.assets.forEach((a, pos) => {
                     if (!(a.lat && a.lng)) {
-                        return
+                        return;
                     }
                     const marker = new mapboxgl.Marker()
                         .setLngLat([a.lng, a.lat])
-                        .addTo(this.map)
+                        .addTo(this.map);
                     marker.getElement().addEventListener('click', () => {
-                        this.goto(pos)
-                    })
-                })
-                break
+                        this.goto(pos);
+                    });
+                });
+                break;
         }
     }
 
     goto(index) {
         if (!this.sliderRef.current) {
-            return
+            return;
         }
-        this.sliderRef.current.slideToIndex(index)
+        this.sliderRef.current.slideToIndex(index);
     }
 
-    onSlide = (offset) => {
-        const displayControls = shouldDisplayControl(this.props, offset)
+    onSlide = offset => {
+        const displayControls = shouldDisplayControl(this.props, offset);
 
         this.setState({
             currentIndex: offset,
             showFullscreenButton: displayControls,
             showPlayButton: displayControls,
-        })
+        });
 
         if (this.map) {
-            const asset = this.props.data.assets[offset].asset
+            const asset = this.props.data.assets[offset].asset;
             if (asset.lat && asset.lng) {
                 this.map.flyTo({
                     center: [asset.lng, asset.lat],
                     essential: true,
-                })
+                });
             }
         }
-    }
+    };
 
     render() {
-        const { data, options } = this.props
-        const { currentIndex } = this.state
-        const { assets, downloadEnabled } = data
+        const {data, options} = this.props;
+        const {currentIndex} = this.state;
+        const {assets, downloadEnabled} = data;
 
-        const { showFullscreenButton, showPlayButton } = this.state
+        const {showFullscreenButton, showPlayButton} = this.state;
 
         return (
             <div className={`layout-gallery`}>
@@ -172,7 +172,7 @@ class GalleryLayout extends React.Component {
                         onSlide={this.onSlide}
                         showFullscreenButton={showFullscreenButton}
                         showPlayButton={showPlayButton}
-                        items={assets.map((a) => ({
+                        items={assets.map(a => ({
                             original: a.previewUrl,
                             thumbnail:
                                 a.thumbUrl || getThumbPlaceholder(a.mimeType),
@@ -187,7 +187,7 @@ class GalleryLayout extends React.Component {
                 )}
                 {options.displayMap ? this.renderMap() : ''}
             </div>
-        )
+        );
     }
 
     renderMap() {
@@ -195,13 +195,13 @@ class GalleryLayout extends React.Component {
             <div className={'gallery-map'}>
                 <div className={'map-container'} ref={this.mapContainer} />
             </div>
-        )
+        );
     }
 
-    renderItem = ({ asset, downloadEnabled }) => {
+    renderItem = ({asset, downloadEnabled}) => {
         const isCurrent =
             (this.state.currentIndex || 0) ===
-            this.props.data.assets.findIndex((a) => a.id === asset.id)
+            this.props.data.assets.findIndex(a => a.id === asset.id);
 
         return (
             <div className="image-gallery-image layout-asset-container">
@@ -224,17 +224,17 @@ class GalleryLayout extends React.Component {
                     ''
                 )}
             </div>
-        )
-    }
+        );
+    };
 }
 
-export default GalleryLayout
+export default GalleryLayout;
 
 function shouldDisplayControl(props, offset) {
-    const asset = props.data.assets[offset]
+    const asset = props.data.assets[offset];
     if (asset) {
-        return !asset.mimeType.startsWith('video/')
+        return !asset.mimeType.startsWith('video/');
     }
 
-    return false
+    return false;
 }

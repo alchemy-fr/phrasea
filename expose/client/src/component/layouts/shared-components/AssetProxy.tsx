@@ -1,15 +1,19 @@
 import React from 'react';
-import {useMatomo} from "@jonkoops/matomo-tracker-react";
-import PDFViewer from "./PDFViewer";
-import VideoPlayer from "./VideoPlayer";
-import {Magnifier, MOUSE_ACTIVATION, TOUCH_ACTIVATION} from "react-image-magnifiers/dist";
-import {Asset} from "../../../types";
+import {useMatomo} from '@jonkoops/matomo-tracker-react';
+import PDFViewer from './PDFViewer';
+import VideoPlayer from './VideoPlayer';
+import {
+    Magnifier,
+    MOUSE_ACTIVATION,
+    TOUCH_ACTIVATION,
+} from 'react-image-magnifiers/dist';
+import {Asset} from '../../../types';
 
 type Props = {
-    asset: Asset,
-    magnifier?: boolean,
-    isCurrent: boolean,
-    fluid: boolean,
+    asset: Asset;
+    magnifier?: boolean;
+    isCurrent: boolean;
+    fluid: boolean;
 };
 
 export default function AssetProxy({
@@ -44,7 +48,10 @@ export default function AssetProxy({
                 }
 
                 pushInstruction('MediaAnalytics::setPingInterval', 10);
-                pushInstruction('MediaAnalytics::scanForMedia', containerRef.current);
+                pushInstruction(
+                    'MediaAnalytics::scanForMedia',
+                    containerRef.current
+                );
             }
         }
     }, [containerRef, isCurrent, mediaType]);
@@ -53,48 +60,48 @@ export default function AssetProxy({
 
     switch (mediaType) {
         case MediaType.Document:
-            content = <PDFViewer file={asset.previewUrl}/>
+            content = <PDFViewer file={asset.previewUrl} />;
             break;
         case MediaType.Video:
         case MediaType.Audio:
-            content = <VideoPlayer
-                ref={videoRef}
-                url={asset.previewUrl}
-                posterUrl={asset.posterUrl}
-                title={asset.title}
-                webVTTLink={asset.webVTTLink}
-                fluid={fluid}
-                mimeType={type}
-                assetId={asset.assetId}
-            />
+            content = (
+                <VideoPlayer
+                    ref={videoRef}
+                    url={asset.previewUrl}
+                    posterUrl={asset.posterUrl}
+                    title={asset.title}
+                    webVTTLink={asset.webVTTLink}
+                    fluid={fluid}
+                    mimeType={type}
+                    assetId={asset.assetId}
+                />
+            );
             break;
         case MediaType.Image:
             if (magnifier) {
-                content = <Magnifier
-                    imageSrc={asset.previewUrl}
-                    imageAlt={asset.title}
-                    mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
-                    touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
-                />
+                content = (
+                    <Magnifier
+                        imageSrc={asset.previewUrl}
+                        imageAlt={asset.title}
+                        mouseActivation={MOUSE_ACTIVATION.CLICK} // Optional
+                        touchActivation={TOUCH_ACTIVATION.DOUBLE_TAP} // Optional
+                    />
+                );
             } else {
-                content = <img
-                    src={asset.previewUrl}
-                    alt={asset.title}
-                />
+                content = <img src={asset.previewUrl} alt={asset.title} />;
             }
             break;
         case MediaType.Unknown:
         default:
-            content = <div>Unsupported media type</div>
+            content = <div>Unsupported media type</div>;
             break;
     }
 
-    return <div
-        ref={containerRef}
-        className="asset-px"
-    >
-        {content}
-    </div>
+    return (
+        <div ref={containerRef} className="asset-px">
+            {content}
+        </div>
+    );
 }
 
 enum MediaType {

@@ -2,6 +2,8 @@ import React from "react";
 import {useAuth} from "./useAuth";
 import {jwtDecode} from "jwt-decode";
 import {TAuthContext} from "../context/AuthenticationContext";
+import {AuthUser} from "../types";
+import {UserInfoResponse} from "../client/OAuthClient";
 
 export type UseUserReturn<U extends object> = {
     user: U | undefined
@@ -24,4 +26,22 @@ export function useUser<U extends object>(): UseUserReturn<U> {
         ...usedAuth,
         user,
     };
+}
+
+export function useKeycloakUser(): UseUserReturn<AuthUser> {
+    const userContext = useUser<UserInfoResponse>();
+
+    return React.useMemo<UseUserReturn<AuthUser>>(() => {
+        const {user, ...rest} = userContext;
+
+        return {
+            ...rest,
+            user: user ? {
+                id: user.sub,
+                groups: user.groups,
+                username: user.preferred_username,
+                roles: user.roles,
+            } as AuthUser : undefined,
+        }
+    }, [userContext]);
 }

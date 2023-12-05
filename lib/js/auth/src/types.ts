@@ -12,6 +12,13 @@ export type AuthTokens = {
     tokenType: string;
 }
 
+export type AuthUser = {
+    id: string;
+    username: string;
+    roles: string[];
+    groups: string[];
+};
+
 declare module 'axios' {
     export interface AxiosRequestConfig {
         anonymous?: boolean;

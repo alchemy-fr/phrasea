@@ -1,5 +1,5 @@
-var fs = require('fs')
-var chalk = require('chalk')
+var fs = require('fs');
+var chalk = require('chalk');
 
 module.exports = {
     input: [
@@ -22,7 +22,7 @@ module.exports = {
             defaultsKey: 'defaults',
             extensions: ['.js', '.jsx'],
             fallbackKey: function (ns, value) {
-                return value
+                return value;
             },
             acorn: {
                 ecmaVersion: 10, // defaults to 10
@@ -49,14 +49,14 @@ module.exports = {
         },
     },
     transform: function customTransform(file, enc, done) {
-        'use strict'
-        const parser = this.parser
-        const content = fs.readFileSync(file.path, enc)
-        let count = 0
+        'use strict';
+        const parser = this.parser;
+        const content = fs.readFileSync(file.path, enc);
+        let count = 0;
 
         parser.parseFuncFromString(
             content,
-            { list: ['i18next._', 'i18next.__', 't'] },
+            {list: ['i18next._', 'i18next.__', 't']},
             (key, options) => {
                 parser.set(
                     key,
@@ -64,19 +64,19 @@ module.exports = {
                         nsSeparator: false,
                         keySeparator: false,
                     })
-                )
-                ++count
+                );
+                ++count;
             }
-        )
+        );
 
         if (count > 0) {
             console.log(
                 `i18next-scanner: count=${chalk.cyan(
                     count
                 )}, file=${chalk.yellow(JSON.stringify(file.relative))}`
-            )
+            );
         }
 
-        done()
+        done();
     },
-}
+};

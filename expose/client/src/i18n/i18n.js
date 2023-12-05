@@ -1,16 +1,16 @@
-import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
-import * as languages from './'
+import i18n from 'i18next';
+import {initReactI18next} from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import * as languages from './';
 
-const ns = 'translation'
+const ns = 'translation';
 
-const resources = {}
-Object.keys(languages).forEach((l) => {
+const resources = {};
+Object.keys(languages).forEach(l => {
     resources[l] = {
         [ns]: languages[l],
-    }
-})
+    };
+});
 
 i18n
     // detect user language
@@ -27,6 +27,6 @@ i18n
             escapeValue: false, // not needed for react as it escapes by default
         },
         resources,
-    })
+    });
 
-export default i18n
+export default i18n;

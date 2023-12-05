@@ -59,7 +59,7 @@
     "build": "tsc && vite build",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
-    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx)\"",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
     "preview": "vite preview",
     "i18n:scan": "mkdir -p ./i18n-scan-tmp && rm -rf ./i18n-scan-tmp && npx tsc --jsx preserve --target ES6 --module es2022 --noEmit false --outDir ./i18n-scan-tmp && npx i18next-scanner"
   },

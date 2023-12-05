@@ -19,7 +19,7 @@ RUN pnpm build
 
 FROM nginx:1.17.6-alpine as client-nginx
 
-COPY --from=client-build /srv/workspace/uploader/client/build /var/app
+COPY --from=client-build /srv/workspace/uploader/client/dist /var/app
 COPY ./uploader/client/docker/nginx/conf.d /etc/nginx/conf.d
 
 RUN apk add --no-cache libstdc++ \

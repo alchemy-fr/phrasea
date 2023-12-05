@@ -1,18 +1,18 @@
-import React, { PureComponent } from 'react'
-import config from '../lib/config'
+import React, {PureComponent} from 'react';
+import config from '../lib/config';
 // import { PropTypes } from 'prop-types'
-import { layouts } from './layouts'
-import ThemeEditorProxy from './themes/ThemeEditorProxy'
-import Layout from './Layout'
-import PublicationNavigation from './PublicationNavigation'
-import { isTermsAccepted, setAcceptedTerms } from '../lib/credential'
-import Urls from './layouts/shared-components/Urls'
-import Copyright from './layouts/shared-components/Copyright'
-import TermsModal from './layouts/shared-components/TermsModal'
-import ErrorPage from './ErrorPage'
-import { loadPublication } from './api'
-import PublicationSecurityProxy from './security/PublicationSecurityProxy'
-import { oauthClient } from '../lib/api-client'
+import {layouts} from './layouts';
+import ThemeEditorProxy from './themes/ThemeEditorProxy';
+import Layout from './Layout';
+import PublicationNavigation from './PublicationNavigation';
+import {isTermsAccepted, setAcceptedTerms} from '../lib/credential';
+import Urls from './layouts/shared-components/Urls';
+import Copyright from './layouts/shared-components/Copyright';
+import TermsModal from './layouts/shared-components/TermsModal';
+import ErrorPage from './ErrorPage';
+import {loadPublication} from './api';
+import PublicationSecurityProxy from './security/PublicationSecurityProxy';
+import {oauthClient} from '../lib/api-client';
 
 class Publication extends PureComponent {
     // static propTypes = {
@@ -24,37 +24,37 @@ class Publication extends PureComponent {
     state = {
         data: null,
         error: null,
-    }
+    };
 
     static getDerivedStateFromProps(props, state) {
         if (props.id !== state.propsId) {
             return {
                 propsId: props.id,
-            }
+            };
         }
 
-        return null
+        return null;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.id !== this.props.id) {
-            this.load()
+            this.load();
         }
     }
 
     onAuthorizationChange = () => {
-        this.load()
-    }
+        this.load();
+    };
 
     componentDidMount() {
-        this.load()
+        this.load();
 
-        oauthClient.registerListener('logout', this.onLogout)
+        oauthClient.registerListener('logout', this.onLogout);
     }
 
     componentWillUnmount() {
-        this.timeout && clearTimeout(this.timeout)
-        oauthClient.unregisterListener('logout', this.onLogout)
+        this.timeout && clearTimeout(this.timeout);
+        oauthClient.unregisterListener('logout', this.onLogout);
     }
 
     onLogout = () => {
@@ -64,56 +64,56 @@ class Publication extends PureComponent {
                 error: null,
             },
             this.load
-        )
-    }
+        );
+    };
 
     async load() {
-        const { id } = this.props
+        const {id} = this.props;
 
         try {
-            const currentData = this.state.data
+            const currentData = this.state.data;
             if (
                 currentData &&
                 (currentData.slug
                     ? id !== currentData.slug
                     : id !== currentData.id)
             ) {
-                this.setState({ data: null, error: null })
+                this.setState({data: null, error: null});
             }
 
-            const res = await loadPublication(id)
+            const res = await loadPublication(id);
 
             if (res.slug && res.slug !== id) {
                 document.location.href = document.location.href.replace(
                     id,
                     res.slug
-                )
+                );
             }
 
-            this.setState({ data: res, error: null })
+            this.setState({data: res, error: null});
 
-            this.timeout && clearTimeout(this.timeout)
+            this.timeout && clearTimeout(this.timeout);
 
-            const ttl = config.requestSignatureTtl
+            const ttl = config.requestSignatureTtl;
 
             if (!ttl) {
-                throw new Error(`Missing requestSignatureTtl`)
+                throw new Error(`Missing requestSignatureTtl`);
             }
             this.timeout = setTimeout(() => {
-                this.load()
-            }, ttl * 1000 - 2000)
+                this.load();
+            }, ttl * 1000 - 2000);
         } catch (err) {
             if (err.response && 200 !== err.response.statusCode) {
-                this.setState({ error: err.response.statusCode })
+                this.setState({error: err.response.statusCode});
             }
         }
     }
 
     render() {
-        const { data, error } = this.state
+        const {data, error} = this.state;
 
         if (error) {
-            return this.renderError()
+            return this.renderError();
         }
 
         return (
@@ -129,22 +129,22 @@ class Publication extends PureComponent {
                 )}
                 <ThemeEditorProxy data={data} render={this.renderLayout} />
             </>
-        )
+        );
     }
 
     renderError() {
-        const { error } = this.state
-        let err
+        const {error} = this.state;
+        let err;
         if ([401, 403].includes(error)) {
-            err = <ErrorPage title={'Forbidden'} code={error} />
+            err = <ErrorPage title={'Forbidden'} code={error} />;
         } else if (404 === error) {
-            err = <ErrorPage title={'Not found'} code={error} />
+            err = <ErrorPage title={'Not found'} code={error} />;
         }
 
-        return <Layout username={this.props.username}>{err}</Layout>
+        return <Layout username={this.props.username}>{err}</Layout>;
     }
 
-    renderLayout = (data) => {
+    renderLayout = data => {
         return (
             <Layout
                 username={this.props.username}
@@ -171,23 +171,23 @@ class Publication extends PureComponent {
                     {data && data.authorized ? this.renderContent(data) : ''}
                 </PublicationSecurityProxy>
             </Layout>
-        )
-    }
+        );
+    };
 
     acceptTerms = () => {
-        setAcceptedTerms('p_' + this.state.data.id)
-        this.forceUpdate()
-    }
+        setAcceptedTerms('p_' + this.state.data.id);
+        this.forceUpdate();
+    };
 
     renderContent(data) {
         if (data && data.terms.enabled && !isTermsAccepted('p_' + data.id)) {
-            return this.renderTerms()
+            return this.renderTerms();
         }
 
         if (!layouts[data.layout]) {
-            throw new Error(`Unsupported layout ${data.layout}`)
+            throw new Error(`Unsupported layout ${data.layout}`);
         }
-        const Layout = layouts[data.layout]
+        const Layout = layouts[data.layout];
 
         return (
             <Layout
@@ -196,12 +196,12 @@ class Publication extends PureComponent {
                 options={data.layoutOptions}
                 mapOptions={data.mapOptions}
             />
-        )
+        );
     }
 
     renderTerms() {
-        const { data } = this.state
-        const { text, url } = data.terms
+        const {data} = this.state;
+        const {text, url} = data.terms;
 
         return (
             <TermsModal
@@ -210,8 +210,8 @@ class Publication extends PureComponent {
                 text={text}
                 url={url}
             />
-        )
+        );
     }
 }
 
-export default Publication
+export default Publication;
