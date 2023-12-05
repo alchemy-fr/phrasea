@@ -39,9 +39,7 @@ export default function SaveFileAsNewAssetDialog({
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
-    const {
-    } = useForm<FormData>({
-    });
+    const {} = useForm<FormData>({});
 
     const {
         handleSubmit,
@@ -50,7 +48,7 @@ export default function SaveFileAsNewAssetDialog({
         formState: {errors},
         remoteErrors,
         submitting,
-        forbidNavigation
+        forbidNavigation,
     } = useFormSubmit({
         defaultValues: {
             title: suggestedTitle || asset.resolvedTitle,

@@ -11,13 +11,7 @@ import {useForm} from 'react-hook-form';
 import {FieldValues} from 'react-hook-form';
 import {toast} from 'react-toastify';
 import {hydraDescriptionKey} from "./utils";
-
-type OnBeforeSubmit<T extends FieldValues> = (
-    data: T,
-    next: () => Promise<void>,
-    abort: () => void,
-) => void;
-type OnSubmit<T extends FieldValues, R> = (data: T) => Promise<R>;
+import {OnBeforeSubmit, OnSubmit, RemoteErrors, SetOnSubmit, UseFormSubmitReturn} from "./types";
 
 type Props<T extends FieldValues, R> = {
     toastSuccess?: string;
@@ -28,21 +22,21 @@ type Props<T extends FieldValues, R> = {
         mapping?: ApiErrorMapping<T>;
         normalizePath?: NormalizePath;
     };
-} & UseFormProps;
+} & UseFormProps<T>;
 
-export default function useFormSubmit<T extends FieldValues, R = any>({
+export default function useFormSubmit<T extends FieldValues, R = T>({
     onBeforeSubmit,
     onSubmit,
     onSuccess,
     apiErrors,
     toastSuccess,
     ...useFormProps
-}: Props<T, R>) {
+}: Props<T, R>): UseFormSubmitReturn<T, R> {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [remoteErrors, setRemoteErrors] = useState<string[]>([]);
+    const [remoteErrors, setRemoteErrors] = useState<RemoteErrors>([]);
 
-    const useFormResponse = useForm<T>(useFormProps as UseFormProps<T>);
+    const useFormResponse = useForm<T>(useFormProps);
 
     const {handleSubmit, setError, getValues} = useFormResponse;
 
@@ -102,7 +96,7 @@ export default function useFormSubmit<T extends FieldValues, R = any>({
         await doSubmit(data);
     };
 
-    const setOnSubmit = (fn: OnSubmit<T, R>) => {
+    const setOnSubmit: SetOnSubmit<T, R> = (fn) => {
         onSubmit = fn;
     };
 

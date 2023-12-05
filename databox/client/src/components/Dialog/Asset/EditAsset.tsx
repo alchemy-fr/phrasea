@@ -5,19 +5,19 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
-import {Privacy} from "../../../api/privacy.ts";
-import FormRow from "../../Form/FormRow.tsx";
-import {FormGroup, InputLabel, TextField} from "@mui/material";
-import FormFieldErrors from "../../Form/FormFieldErrors.tsx";
-import TagSelect from "../../Form/TagSelect.tsx";
-import PrivacyField from "../../Ui/PrivacyField.tsx";
+import {Privacy} from '../../../api/privacy.ts';
+import FormRow from '../../Form/FormRow.tsx';
+import {FormGroup, InputLabel, TextField} from '@mui/material';
+import FormFieldErrors from '../../Form/FormFieldErrors.tsx';
+import TagSelect from '../../Form/TagSelect.tsx';
+import PrivacyField from '../../Ui/PrivacyField.tsx';
 
 type Props = {
     id: string;
     data: Asset;
 } & DialogTabProps;
 
-export default function EditAsset({data: asset, onClose, minHeight}: Props) {
+export default function EditAsset({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
     const formId = 'edit-asset';
@@ -29,21 +29,21 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
         submitting,
         handleSubmit,
         remoteErrors,
-        forbidNavigation
+        forbidNavigation,
     } = useFormSubmit({
         defaultValues: data
             ? {
-                title: data.title,
-                privacy: data.privacy,
-                tags: data?.tags?.map(t => t['@id']) ?? [],
-            }
+                  title: data.title,
+                  privacy: data.privacy,
+                  tags: data?.tags?.map(t => t['@id']) ?? [],
+              }
             : {
-                title: '',
-                privacy: Privacy.Secret,
-                tags: [],
-            },
-        onSubmit: async (data: AssetApiInput) => {
-            return await putAsset(asset.id, data);
+                  title: '',
+                  privacy: Privacy.Secret,
+                  tags: [],
+              },
+        onSubmit: async (d: AssetApiInput) => {
+            return await putAsset(data.id, d);
         },
         onSuccess: () => {
             toast.success(
@@ -55,7 +55,8 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
 
     useDirtyFormPrompt(forbidNavigation);
 
-    return <FormTab
+    return (
+        <FormTab
             onClose={onClose}
             formId={formId}
             loading={submitting}
@@ -81,7 +82,7 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
                             {t('form.asset.tags.label', 'Tags')}
                         </InputLabel>
                         <TagSelect
-                            workspaceId={workspaceId}
+                            workspaceId={data.workspace.id}
                             control={control}
                             name={'tags'}
                         />
@@ -93,4 +94,5 @@ export default function EditAsset({data: asset, onClose, minHeight}: Props) {
                 </FormRow>
             </form>
         </FormTab>
+    );
 }

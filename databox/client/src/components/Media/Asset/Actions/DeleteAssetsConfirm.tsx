@@ -8,7 +8,12 @@ type Props = {
     onDelete?: () => void;
 } & StackedModalProps;
 
-export default function DeleteAssetsConfirm({assetIds, onDelete, open, modalIndex}: Props) {
+export default function DeleteAssetsConfirm({
+    assetIds,
+    onDelete,
+    open,
+    modalIndex,
+}: Props) {
     const {t} = useTranslation();
     const count = assetIds.length;
 

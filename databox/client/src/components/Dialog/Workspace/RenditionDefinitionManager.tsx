@@ -1,4 +1,4 @@
-import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
+import {RenditionDefinition, Workspace} from '../../../types';
 import {FormGroup, FormLabel, ListItemText, TextField} from '@mui/material';
 import FormRow from '../../Form/FormRow';
 import DefinitionManager, {
@@ -7,7 +7,6 @@ import DefinitionManager, {
     OnSort,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {useForm} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import {
     deleteRenditionDefinition,
@@ -45,7 +44,7 @@ function Item({
                     {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'name'} errors={errors}/>
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -58,7 +57,7 @@ function Item({
                         control={control}
                         workspaceId={workspaceId}
                     />
-                    <FormFieldErrors field={'class'} errors={errors}/>
+                    <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -72,7 +71,7 @@ function Item({
                         name={'pickSourceFile'}
                         control={control}
                     />
-                    <FormFieldErrors field={'pickSourceFile'} errors={errors}/>
+                    <FormFieldErrors field={'pickSourceFile'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -86,7 +85,7 @@ function Item({
                         name={'useAsOriginal'}
                         control={control}
                     />
-                    <FormFieldErrors field={'useAsOriginal'} errors={errors}/>
+                    <FormFieldErrors field={'useAsOriginal'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -100,7 +99,7 @@ function Item({
                         name={'useAsPreview'}
                         control={control}
                     />
-                    <FormFieldErrors field={'useAsPreview'} errors={errors}/>
+                    <FormFieldErrors field={'useAsPreview'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -114,7 +113,7 @@ function Item({
                         name={'useAsThumbnail'}
                         control={control}
                     />
-                    <FormFieldErrors field={'useAsThumbnail'} errors={errors}/>
+                    <FormFieldErrors field={'useAsThumbnail'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -139,7 +138,7 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionDefinition>) {
-    return <ListItemText primary={data.name}/>;
+    return <ListItemText primary={data.name} />;
 }
 
 type Props = {

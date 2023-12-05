@@ -21,7 +21,12 @@ type Props = {
     file: File;
 } & StackedModalProps;
 
-export default function SaveFileAsRenditionDialog({asset, file, open, modalIndex}: Props) {
+export default function SaveFileAsRenditionDialog({
+    asset,
+    file,
+    open,
+    modalIndex,
+}: Props) {
     const {closeModal} = useModals();
 
     const {
@@ -30,7 +35,7 @@ export default function SaveFileAsRenditionDialog({asset, file, open, modalIndex
         handleSubmit,
         remoteErrors,
         submitting,
-        forbidNavigation
+        forbidNavigation,
     } = useFormSubmit({
         defaultValues: {
             definition: undefined,

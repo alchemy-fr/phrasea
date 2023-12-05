@@ -19,11 +19,11 @@ import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
 import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
 import {OnChangeValue} from 'react-select';
 import {SelectOption} from '../Form/RSelect';
-import {Attribute, Tag} from '../../types';
+import {Asset, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {useFormSubmit} from '@alchemy/api';
+import {UseFormSubmitReturn} from '@alchemy/api';
 
 export type UploadData = {
     destination: Collection;
@@ -31,22 +31,20 @@ export type UploadData = {
     tags: string[];
 };
 
-export const UploadForm: FC<
-    {
-        workspaceId?: string | undefined;
-        collectionId?: string | undefined;
-        noDestination?: boolean | undefined;
-        usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
-        usedAssetDataTemplateOptions: ReturnType<
-            typeof useAssetDataTemplateOptions
-        >;
-        onChangeWorkspace: (wsId: string | undefined) => void;
-        onChangeCollection: (colId: string | undefined) => void;
-        usedFormSubmit: ReturnType<typeof useFormSubmit<UploadData>>;
-        resetForms: () => void;
-        formId: string;
-    }
-> = function ({
+export const UploadForm: FC<{
+    workspaceId?: string | undefined;
+    collectionId?: string | undefined;
+    noDestination?: boolean | undefined;
+    usedAttributeEditor: ReturnType<typeof useAttributeEditor>;
+    usedAssetDataTemplateOptions: ReturnType<
+        typeof useAssetDataTemplateOptions
+    >;
+    onChangeWorkspace: (wsId: string | undefined) => void;
+    onChangeCollection: (colId: string | undefined) => void;
+    usedFormSubmit: UseFormSubmitReturn<UploadData, Asset[]>;
+    resetForms: () => void;
+    formId: string;
+}> = function ({
     formId,
     usedFormSubmit,
     workspaceId,

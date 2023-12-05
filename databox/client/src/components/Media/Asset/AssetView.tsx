@@ -39,9 +39,7 @@ const scrollBarDelta = 8;
 
 type Props = {} & StackedModalProps;
 
-export default function AssetView({
-    modalIndex,
-}: Props) {
+export default function AssetView({modalIndex}: Props) {
     const {assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
 

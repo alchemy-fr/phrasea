@@ -3,7 +3,7 @@ import {Breakpoint, Tab, Tabs} from '@mui/material';
 import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
 import {useParams} from 'react-router-dom';
 import RouteDialog from '../RouteDialog';
-import {useNavigateToModal} from '../../Routing/ModalLink';
+import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
@@ -14,6 +14,11 @@ type TabItem<P extends {} = {}, P2 extends {} = any> = {
     enabled?: boolean;
 };
 
+export type DialogTabProps = {
+    onClose: () => void;
+    minHeight?: number | undefined;
+};
+
 type Props<P extends {}> = {
     route: RouteDefinition;
     routeParams?: RouteParameters;
@@ -22,11 +27,6 @@ type Props<P extends {}> = {
     title?: ReactNode;
     minHeight?: number | undefined;
 } & P;
-
-export type DialogTabProps = {
-    onClose: () => void;
-    minHeight?: number | undefined;
-};
 
 export default function TabbedDialog<P extends {}>({
     route,
@@ -39,6 +39,7 @@ export default function TabbedDialog<P extends {}>({
 }: Props<P>) {
     const {tab} = useParams();
     const navigateToModal = useNavigateToModal();
+    const closeModal = useCloseModal();
     const tabs = configTabs.filter(t => t.enabled);
     const tabIndex = tabs.findIndex(t => t.id === tab);
     const currentTab = tabs[tabIndex];
@@ -52,14 +53,16 @@ export default function TabbedDialog<P extends {}>({
 
     return (
         <RouteDialog>
-            {({open, onClose}) => (
+            {({open}) => (
                 <BootstrapDialog
-                    onClose={onClose}
+                    onClose={closeModal}
                     open={open}
                     fullWidth={true}
                     maxWidth={maxWidth}
                 >
-                    <AppDialogTitle onClose={onClose}>{title}</AppDialogTitle>
+                    <AppDialogTitle onClose={closeModal}>
+                        {title}
+                    </AppDialogTitle>
                     <Tabs
                         variant="scrollable"
                         scrollButtons="auto"
@@ -81,7 +84,7 @@ export default function TabbedDialog<P extends {}>({
                     {React.createElement(currentTab.component, {
                         ...rest,
                         ...currentTab.props,
-                        onClose,
+                        onClose: closeModal,
                         minHeight,
                     })}
                 </BootstrapDialog>

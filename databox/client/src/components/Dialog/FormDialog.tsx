@@ -31,12 +31,14 @@ export default function FormDialog({
     submittable = true,
     open,
     children,
+    modalIndex,
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
 
     return (
         <AppDialog
+            modalIndex={modalIndex}
             open={open}
             loading={loading}
             onClose={closeModal}

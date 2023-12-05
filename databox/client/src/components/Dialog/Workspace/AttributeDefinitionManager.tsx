@@ -20,7 +20,6 @@ import DefinitionManager, {
     OnSort,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {useForm} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AttributeClassSelect from '../../Form/AttributeClassSelect';
@@ -28,42 +27,28 @@ import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 
 function Item({
     data,
-    handleSubmit: onSubmit,
-    formId,
-    submitting,
+    usedFormSubmit,
     workspaceId,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
-    function createData(data: AttributeDefinition) {
-        return {
-            ...data,
-            class: data?.class && (data?.class as AttributeClass)['@id'],
-        };
-    }
-
     const {
         register,
-        handleSubmit,
-        setError,
+        submitting,
         control,
         reset,
-        formState: {errors, isDirty},
-    } = useForm<any>({
-        defaultValues: createData(data),
-    });
-    useDirtyFormPrompt(isDirty);
+        formState: {errors},
+    } = usedFormSubmit;
 
     useEffect(() => {
         reset(createData(data));
     }, [data]);
 
     return (
-        <form id={formId} onSubmit={handleSubmit}>
+        <>
             <FormRow>
                 <TextField
                     label={t('form.attribute_definition.name.label', 'Name')}
@@ -161,7 +146,7 @@ function Item({
                 />
                 <FormFieldErrors field={'allowInvalid'} errors={errors} />
             </FormRow>
-        </form>
+        </>
     );
 }
 
@@ -234,4 +219,11 @@ export default function AttributeDefinitionManager({
             onSort={onSort}
         />
     );
+}
+
+function createData(data: AttributeDefinition) {
+    return {
+        ...data,
+        class: data?.class && (data?.class as AttributeClass)['@id'],
+    };
 }

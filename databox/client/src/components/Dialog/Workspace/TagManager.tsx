@@ -43,7 +43,7 @@ function Item({
                     render={({field: {onChange, value}}) => {
                         return (
                             <ColorPicker
-                                color={value}
+                                color={value || undefined}
                                 onChange={onChange}
                                 disabled={submitting}
                                 label={t('form.tag.color.label', 'Color')}

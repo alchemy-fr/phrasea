@@ -39,7 +39,7 @@ export default function MoveAssetsDialog({
         handleSubmit,
         remoteErrors,
         submitting,
-        forbidNavigation
+        forbidNavigation,
     } = useFormSubmit({
         onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
         onSuccess: () => {

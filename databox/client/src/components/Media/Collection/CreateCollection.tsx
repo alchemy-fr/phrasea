@@ -90,10 +90,7 @@ export default function CreateCollection({
             errors={remoteErrors}
             open={open}
         >
-            <CollectionForm
-                formId={formId}
-                usedFormSubmit={usedFormSubmit}
-            />
+            <CollectionForm formId={formId} usedFormSubmit={usedFormSubmit} />
         </FormDialog>
     );
 }

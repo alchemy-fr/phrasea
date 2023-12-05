@@ -26,7 +26,8 @@ import {
     useInRouterDirtyFormPrompt,
     useModals,
 } from '@alchemy/navigation';
-import {Privacy} from "../../api/privacy.ts";
+import {Privacy} from '../../api/privacy.ts';
+import {Asset} from '../../types.ts';
 
 type FileWrapper = {
     id: string;
@@ -74,13 +75,13 @@ export default function UploadModal({
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
-    const defaultValues = {
+    const defaultValues: UploadData = {
         destination: '',
         privacy: Privacy.Secret,
         tags: [],
     };
 
-    const usedFormSubmit = useFormSubmit({
+    const usedFormSubmit = useFormSubmit<UploadData, Asset[]>({
         defaultValues,
         onSubmit: async (data: UploadData) => {
             if (typeof data.destination === 'object') {
@@ -150,12 +151,7 @@ export default function UploadModal({
         },
     });
 
-    const {
-        reset,
-        getValues,
-        remoteErrors,
-        submitting
-    } = usedFormSubmit;
+    const {reset, getValues, remoteErrors, submitting} = usedFormSubmit;
 
     const resetForms = React.useCallback(() => {
         reset({
@@ -164,7 +160,6 @@ export default function UploadModal({
         });
         usedAttributeEditor.reset();
     }, [usedAttributeEditor]);
-
 
     const onDrop = (acceptedFiles: File[]) => {
         setFiles(p =>

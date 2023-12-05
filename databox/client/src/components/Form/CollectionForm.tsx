@@ -17,7 +17,7 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
         control,
         forbidNavigation,
         formState: {errors},
-    }
+    },
 }) {
     const {t} = useTranslation();
 

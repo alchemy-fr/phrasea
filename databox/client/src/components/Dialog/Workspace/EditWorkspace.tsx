@@ -6,7 +6,10 @@ import {useFormSubmit} from '@alchemy/api';
 import {WorkspaceForm, WorkspaceFormData} from '../../Form/WorkspaceForm';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import {extendSortableList, flattenSortableList} from "../../Form/SortableCollectionWidget.tsx";
+import {
+    extendSortableList,
+    flattenSortableList,
+} from '../../Form/SortableCollectionWidget.tsx';
 
 type Props = {
     id: string;
@@ -16,7 +19,7 @@ type Props = {
 export default function EditWorkspace({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const {submitting, submitted, handleSubmit, errors} = useFormSubmit({
+    const usedFormSubmit = useFormSubmit<WorkspaceFormData, Workspace>({
         defaultValues: normalizeFormData(data),
         onSubmit: async (data: WorkspaceFormData) => {
             return await putWorkspace(data.id, denormalizeFormData(data));
@@ -29,6 +32,8 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
         },
     });
 
+    const {submitting, remoteErrors} = usedFormSubmit;
+
     const formId = 'edit-ws';
 
     return (
@@ -36,21 +41,13 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
             onClose={onClose}
             formId={formId}
             loading={submitting}
-            errors={errors}
+            errors={remoteErrors}
             minHeight={minHeight}
         >
-            <WorkspaceForm
-                usedFormSubmit={usedFormSubmit}
-                data={data}
-                formId={formId}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                submitted={submitted}
-            />
+            <WorkspaceForm usedFormSubmit={usedFormSubmit} formId={formId} />
         </FormTab>
     );
 }
-
 
 function denormalizeFormData(data: WorkspaceFormData): Workspace {
     return {
@@ -59,7 +56,6 @@ function denormalizeFormData(data: WorkspaceFormData): Workspace {
         localeFallbacks: flattenSortableList(data.localeFallbacks),
     };
 }
-
 
 function normalizeFormData(data: Workspace): WorkspaceFormData {
     return {

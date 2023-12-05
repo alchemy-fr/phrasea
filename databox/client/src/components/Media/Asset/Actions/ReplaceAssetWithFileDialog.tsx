@@ -14,26 +14,27 @@ type Props = {
     file: File;
 } & StackedModalProps;
 
-export default function ReplaceAssetWithFileDialog({asset, file, open, modalIndex}: Props) {
+export default function ReplaceAssetWithFileDialog({
+    asset,
+    file,
+    open,
+    modalIndex,
+}: Props) {
     const {closeModal} = useModals();
 
-    const {
-        handleSubmit,
-        remoteErrors,
-        submitting,
-        forbidNavigation
-    } = useFormSubmit({
-        defaultValues: {},
-        onSubmit: async () => {
-            return await putAsset(asset.id, {
-                sourceFileId: file.id,
-            });
-        },
-        onSuccess: () => {
-            toast.success(`Asset has been replaced`);
-            closeModal();
-        },
-    });
+    const {handleSubmit, remoteErrors, submitting, forbidNavigation} =
+        useFormSubmit({
+            defaultValues: {},
+            onSubmit: async () => {
+                return await putAsset(asset.id, {
+                    sourceFileId: file.id,
+                });
+            },
+            onSuccess: () => {
+                toast.success(`Asset has been replaced`);
+                closeModal();
+            },
+        });
     useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-new-asset';
@@ -51,10 +52,7 @@ export default function ReplaceAssetWithFileDialog({asset, file, open, modalInde
             <Typography sx={{mb: 3}}>
                 {`Please confirm replacing asset.`}
             </Typography>
-            <form
-                id={formId}
-                onSubmit={handleSubmit}
-            ></form>
+            <form id={formId} onSubmit={handleSubmit}></form>
             <RemoteErrors errors={remoteErrors} />
         </FormDialog>
     );

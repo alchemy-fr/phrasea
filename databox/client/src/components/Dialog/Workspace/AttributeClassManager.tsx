@@ -13,39 +13,30 @@ import DefinitionManager, {
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {useForm} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 
 function Item({
     data,
-    handleSubmit: onSubmit,
-    formId,
-    submitting,
-}: DefinitionItemFormProps<AttributeClass>) {
-    const {t} = useTranslation();
-
-    const {
+    usedFormSubmit: {
+        submitting,
         register,
         handleSubmit,
-        setError,
         control,
         watch,
         setValue,
         reset,
-        formState: {errors, isDirty},
-    } = useForm<any>({
-        defaultValues: data,
-    });
+        formState: {errors},
+    },
+    formId,
+}: DefinitionItemFormProps<AttributeClass>) {
+    const {t} = useTranslation();
 
     React.useEffect(() => {
         reset(data);
     }, [data]);
-
-    useDirtyFormPrompt(isDirty);
 
     const isPublic = watch('public');
     const isEditable = watch('editable');

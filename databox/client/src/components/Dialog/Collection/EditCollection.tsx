@@ -1,5 +1,5 @@
 import {Collection} from '../../../types';
-import {clearWorkspaceCache, postCollection, putCollection} from '../../../api/collection';
+import {putCollection} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
@@ -36,10 +36,7 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
         },
     });
 
-    const {
-        submitting,
-        remoteErrors,
-    } = usedFormSubmit;
+    const {submitting, remoteErrors} = usedFormSubmit;
 
     const formId = 'edit-collection';
 

@@ -20,23 +20,25 @@ import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 
 function Item({
     data,
-    handleSubmit: onSubmit,
+    usedFormSubmit,
     formId,
-    submitting,
 }: DefinitionItemFormProps<RenditionClass>) {
     const {t} = useTranslation();
 
     const {
         register,
         handleSubmit,
-        setError,
+        submitting,
         watch,
         control,
-        formState: {errors, isDirty},
-    } = useForm<any>({
+        formState: {errors},
+        forbidNavigation,
+    } = usedFormSubmit;
+
+    const {} = useForm<any>({
         defaultValues: data,
     });
-    useDirtyFormPrompt(isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const isPublic = watch('public');
 

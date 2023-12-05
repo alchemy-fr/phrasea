@@ -1,9 +1,11 @@
 import {LinkProps} from 'react-router-dom';
 import React, {MouseEventHandler} from 'react';
 import {
+    CloseOverlayFunction,
     NavigateToOverlayFunction,
     RouteDefinition,
     RouteParameters,
+    useCloseOverlay,
     useNavigateToOverlay,
 } from '@alchemy/navigation';
 
@@ -28,4 +30,8 @@ export default React.forwardRef<HTMLAnchorElement, Props>(
 
 export function useNavigateToModal(): NavigateToOverlayFunction {
     return useNavigateToOverlay('_m');
+}
+
+export function useCloseModal(): CloseOverlayFunction {
+    return useCloseOverlay('_m');
 }
