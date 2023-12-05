@@ -2,6 +2,7 @@ import useEffectOnce from "@alchemy/react-hooks/src/useEffectOnce";
 import OAuthClient from "../client/OAuthClient";
 import {useNavigate} from "react-router-dom";
 import React from "react";
+import {useAuth} from "../hooks/useAuth";
 
 type Props = {
     oauthClient: OAuthClient,
@@ -19,6 +20,7 @@ export default function AuthorizationCodePage({
     const navigate = useNavigate();
     const [error, setError] = React.useState<string | undefined>();
     const urlParams = new URLSearchParams(window.location.search);
+    const {setTokens} = useAuth();
 
     useEffectOnce(() => {
         const code = urlParams.get('code');
@@ -34,7 +36,8 @@ export default function AuthorizationCodePage({
             code,
             window.location.href.split('?')[0]
         )
-            .then(() => {
+            .then((tokens) => {
+                setTokens(tokens);
                 if (successHandler) {
                     successHandler();
 

@@ -1,8 +1,8 @@
 import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig} from "axios";
 import {jwtDecode} from "jwt-decode";
-import CookieStorage from "@alchemy/storage/src/CookieStorage";
 import {IStorage} from "@alchemy/storage";
 import {createHttpClient, HttpClient} from "@alchemy/api";
+import {AuthTokens} from "../types";
 
 export type TokenResponse = {
     access_token: string;
@@ -10,8 +10,7 @@ export type TokenResponse = {
     token_type: string;
     expires_in: number;
     refresh_expires_in: number;
-    expires_at?: number;
-    refresh_expires_at?: number;
+    device_token?: string;
 };
 
 interface ValidationError {
@@ -31,11 +30,11 @@ export type AuthEvent = {
 };
 
 export type LoginEvent = {
-    response: TokenResponse;
+    tokens: AuthTokens;
 } & AuthEvent;
 
 export type RefreshTokenEvent = {
-    response: TokenResponse;
+    tokens: AuthTokens;
 } & AuthEvent;
 
 export type LogoutEvent = AuthEvent;
@@ -49,7 +48,7 @@ export const sessionExpiredEventType = 'sessionExpired';
 
 
 type Options = {
-    storage?: IStorage;
+    storage?: IStorage | undefined;
     clientId: string;
     clientSecret?: string;
     baseUrl: string;
@@ -65,8 +64,8 @@ export default class OAuthClient {
     public readonly clientSecret: string | undefined;
     public readonly baseUrl: string;
     private listeners: Record<string, AuthEventHandler[]> = {};
-    private readonly storage: IStorage;
-    private tokensCache: TokenResponse | undefined;
+    private readonly storage: IStorage | undefined;
+    private tokensCache: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
     private readonly httpClient: HttpClient;
@@ -75,32 +74,28 @@ export default class OAuthClient {
         clientId,
         clientSecret,
         baseUrl,
-        storage = new CookieStorage(),
+        storage,
         tokenStorageKey,
         httpClient,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
-
-        if (!storage) {
-            throw new Error(`Unable to store session`);
-        }
         this.storage = storage;
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
     }
 
     public getAccessToken(): string | undefined {
-        return this.fetchTokens()?.access_token;
+        return this.fetchTokens()?.accessToken;
     }
 
     public getTokenType(): string | undefined {
-        return this.fetchTokens()?.token_type;
+        return this.fetchTokens()?.tokenType;
     }
 
     public getRefreshToken(): string | undefined {
-        return this.fetchTokens()?.refresh_token;
+        return this.fetchTokens()?.refreshToken;
     }
 
     public getUsername(): string | undefined {
@@ -108,19 +103,13 @@ export default class OAuthClient {
     }
 
     public isAuthenticated(): boolean {
-        const tokens = this.fetchTokens();
-
-        if (tokens) {
-            return tokens.refresh_expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
-        }
-
-        return false;
+        return isValidSession(this.fetchTokens());
     }
 
     public isAccessTokenValid(): boolean {
         const tokens = this.fetchTokens();
         if (tokens) {
-            return tokens.expires_at! > (Math.ceil(new Date().getTime() / 1000) + 1);
+            return tokens.expiresAt > (Math.ceil(new Date().getTime() / 1000) + 1);
         }
 
         return false;
@@ -139,7 +128,7 @@ export default class OAuthClient {
         this.clearSessionTimeout();
 
         this.triggerEvent(logoutEventType);
-        this.storage.removeItem(this.tokenStorageKey);
+        this.storage?.removeItem(this.tokenStorageKey);
         this.tokensCache = undefined;
     }
 
@@ -161,38 +150,38 @@ export default class OAuthClient {
         }
     }
 
-    public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponse> {
-        const res = await this.getToken({
+    public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<AuthTokens> {
+        const tokens = await this.getToken({
             code,
             grant_type: 'authorization_code',
             redirect_uri: redirectUri,
         });
 
-        this.persistTokens(res);
+        this.persistTokens(tokens);
 
-        this.handleSessionTimeout(res);
+        this.handleSessionTimeout(tokens);
 
         await this.triggerEvent<LoginEvent>(loginEventType, {
-            response: res,
+            tokens,
         });
 
-        return res;
+        return tokens;
     }
 
-    async getTokenFromRefreshToken(): Promise<TokenResponse> {
+    async getTokenFromRefreshToken(): Promise<AuthTokens> {
         try {
-            const res = await this.getToken({
+            const tokens = await this.getToken({
                 refresh_token: this.getRefreshToken()!,
                 grant_type: 'refresh_token',
             });
 
-            this.handleSessionTimeout(res);
+            this.handleSessionTimeout(tokens);
 
             await this.triggerEvent<RefreshTokenEvent>(refreshTokenEventType, {
-                response: res,
+                tokens,
             });
 
-            return res;
+            return tokens;
         } catch (e: any) {
             console.debug('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
@@ -205,21 +194,21 @@ export default class OAuthClient {
         }
     }
 
-    public async getTokenFromClientCredentials(): Promise<TokenResponse> {
-        const res = await this.getToken({
+    public async getTokenFromClientCredentials(): Promise<AuthTokens> {
+        const tokens = await this.getToken({
             grant_type: 'client_credentials',
             client_id: this.clientId,
             client_secret: this.clientSecret,
         });
 
         await this.triggerEvent<RefreshTokenEvent>(refreshTokenEventType, {
-            response: res,
+            tokens,
         });
 
-        return res;
+        return tokens;
     }
 
-    public async wrapPromiseWithValidToken<T = any>(callback: (tokens: TokenResponse) => Promise<T>): Promise<T> {
+    public async wrapPromiseWithValidToken<T = any>(callback: (tokens: AuthTokens) => Promise<T>): Promise<T> {
         if (!this.isAccessTokenValid()) {
             await this.getTokenFromRefreshToken();
         }
@@ -242,7 +231,7 @@ export default class OAuthClient {
         return `${this.baseUrl}/auth?${queryString}`;
     }
 
-    public getTokenResponse(): TokenResponse | undefined {
+    public getTokens(): AuthTokens | undefined {
         return this.fetchTokens();
     }
 
@@ -256,12 +245,14 @@ export default class OAuthClient {
         await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
     }
 
-    private handleSessionTimeout(res: TokenResponse): void {
+    private handleSessionTimeout(tokens: AuthTokens): void {
         this.clearSessionTimeout();
 
-        this.sessionTimeout = setTimeout(() => {
-            this.sessionExpired();
-        }, res.refresh_expires_in * 1000);
+        if (tokens.refreshExpiresIn) {
+            this.sessionTimeout = setTimeout(() => {
+                this.sessionExpired();
+            }, tokens.refreshExpiresIn * 1000);
+        }
     }
 
     private sessionExpired(): void {
@@ -276,27 +267,39 @@ export default class OAuthClient {
         }
     }
 
-    private persistTokens(token: TokenResponse): void {
+    private createAuthTokensFromResponse(res: TokenResponse): AuthTokens {
         const now = Math.ceil(new Date().getTime() / 1000);
-        token.expires_at = now + token.expires_in;
-        token.refresh_expires_at = now + token.refresh_expires_in;
-        this.tokensCache = token;
 
-        this.storage.setItem(this.tokenStorageKey, JSON.stringify(token));
+        return {
+            tokenType: res.token_type,
+            accessToken: res.access_token,
+            expiresIn: res.expires_in,
+            expiresAt: now + res.expires_in,
+            refreshToken: res.refresh_token,
+            refreshExpiresIn: res.refresh_expires_in,
+            refreshExpiresAt: now + res.refresh_expires_in,
+            deviceToken: res.device_token,
+        };
     }
 
-    private fetchTokens(): TokenResponse | undefined {
+    private persistTokens(tokens: AuthTokens): void {
+        this.tokensCache = tokens;
+
+        this.storage?.setItem(this.tokenStorageKey, JSON.stringify(tokens));
+    }
+
+    private fetchTokens(): AuthTokens | undefined {
         if (this.tokensCache) {
             return this.tokensCache;
         }
 
-        const t = this.storage.getItem(this.tokenStorageKey);
+        const t = this.storage?.getItem(this.tokenStorageKey);
         if (t) {
-            return this.tokensCache = JSON.parse(t) as TokenResponse;
+            return this.tokensCache = JSON.parse(t) as AuthTokens;
         }
     }
 
-    private async getToken(data: Record<string, string | undefined>): Promise<TokenResponse> {
+    private async getToken(data: Record<string, string | undefined>): Promise<AuthTokens> {
         const params = new URLSearchParams();
         const formData: Record<string, string | undefined> = {
             ...data,
@@ -312,9 +315,10 @@ export default class OAuthClient {
 
         const res = (await this.httpClient.post(`/token`, params)).data as TokenResponse;
 
-        this.persistTokens(res);
+        const tokens = this.createAuthTokensFromResponse(res);
+        this.persistTokens(tokens);
 
-        return res;
+        return tokens;
     }
 }
 
@@ -392,4 +396,16 @@ export function normalizeRedirectUri(uri: string): string {
     }
 
     return uri;
+}
+
+export function isValidSession(tokens: AuthTokens | undefined): boolean {
+    if (tokens) {
+        if (tokens.refreshToken) {
+            return tokens.refreshExpiresAt! > (Math.ceil(new Date().getTime() / 1000) + 1);
+        }
+
+        return tokens.expiresAt > (Math.ceil(new Date().getTime() / 1000) + 1);
+    }
+
+    return false;
 }

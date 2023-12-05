@@ -12,6 +12,10 @@ export default class DefaultErrorBoundary extends React.Component<PropsWithChild
 }>, {
     error?: any;
 }> {
+    state: {
+        error?: any;
+    } = {};
+
     static getDerivedStateFromError(error: any) {
         // Update state so the next render will show the fallback UI.
         return {error};

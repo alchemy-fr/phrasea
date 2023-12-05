@@ -14,10 +14,8 @@ import DisplayProvider from './Media/DisplayProvider';
 import uploaderClient from '../api/uploader-client';
 import {zIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
-import {routes} from '../routes.ts';
 import {useRequestErrorHandler} from '@alchemy/api';
 import {useAuth} from '@alchemy/auth';
-import {MatomoRouteProxy, RouterProvider} from '@alchemy/navigation';
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
@@ -101,10 +99,6 @@ export default function App() {
     return (
         <>
             <ToastContainer />
-            <RouterProvider
-                routes={routes}
-                RouteProxyComponent={MatomoRouteProxy}
-            />
             <AppProxy />
         </>
     );

@@ -17,6 +17,7 @@ import AuthenticationContext, {TAuthContext} from "./src/context/AuthenticationC
 import AuthenticationProvider from "./src/components/AuthenticationProvider";
 import KeycloakClient from "./src/client/KeycloakClient";
 import {useAuth} from "./src/hooks/useAuth";
+import {useUser} from "./src/hooks/useUser";
 export {
     OAuthClient,
     configureClientAuthentication,
@@ -29,8 +30,8 @@ export {
     AuthenticationProvider,
     KeycloakClient,
     useAuth,
+    useUser,
 };
-
 export type {
     AuthEvent,
     AuthEventHandler,

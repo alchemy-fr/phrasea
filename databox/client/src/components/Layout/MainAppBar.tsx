@@ -11,7 +11,6 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import {UserContext} from '../Security/UserContext';
 import {useTranslation} from 'react-i18next';
 import {Divider, ListItemIcon, ListItemText} from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -21,6 +20,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from './ChangeTheme';
 import {zIndex} from '../../themes/zIndex';
 import {useKeycloakUrls} from '../../lib/keycloak';
+import {useUser} from "../../hooks/useUser.ts";
 
 export const menuHeight = 42;
 
@@ -32,7 +32,7 @@ type Props = {
 export default function MainAppBar({onToggleLeftPanel}: Props) {
     const {t} = useTranslation();
     const [changeTheme, setChangeTheme] = useState(false);
-    const userContext = useContext(UserContext);
+    const userContext = useUser();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
         null
     );
@@ -49,7 +49,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         setAnchorElUser(null);
     };
 
-    const username = userContext.user?.username;
+    const username = userContext.user?.preferred_username;
 
     return (
         <div

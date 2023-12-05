@@ -24,7 +24,6 @@ export default function AuthenticationProvider({
         fallback: true,
     });
     const sessionStorage = getSessionStorage();
-
     const inStorage = React.useMemo<AuthTokens | undefined>(() => {
         const tokens  = storage.getItem(storageKey);
         if (tokens) {
@@ -39,14 +38,8 @@ export default function AuthenticationProvider({
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(inStorage);
 
     const updateTokens = React.useCallback<SetTokens>((tokens) => {
-        if (!tokens.expiresAt) {
-            tokens.expiresAt = Date.now() + tokens.expiresIn;
-        }
-        if (tokens.refreshExpiresIn && !tokens.refreshExpiresAt) {
-            tokens.refreshExpiresAt = Date.now() + tokens.refreshExpiresIn;
-        }
-
         setTokens(tokens);
+        storage.setItem(storageKey, JSON.stringify(tokens));
         onNewTokens && onNewTokens(tokens);
     }, [setTokens]);
 
