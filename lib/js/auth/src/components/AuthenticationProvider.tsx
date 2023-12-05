@@ -1,6 +1,6 @@
 import React, {PropsWithChildren, useCallback} from 'react';
 import {AuthTokens} from "../types";
-import {CookieStorage, getSessionStorage, IStorage} from "@alchemy/storage";
+import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
 import OAuthClient from "../client/OAuthClient";
 
@@ -8,8 +8,6 @@ type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
     onClear?: () => void;
     onLogout?: () => void;
-    storage?: IStorage;
-    storageKey?: string;
     oauthClient: OAuthClient,
 }>;
 
@@ -19,20 +17,14 @@ export default function AuthenticationProvider({
     onNewTokens,
     onClear,
     onLogout,
-    storage: customStorage,
-    storageKey = 'auth',
 }: Props) {
     const redirectPathSessionStorageKey = 'redirpath';
-    const storage = customStorage ?? new CookieStorage({
-        fallback: true,
-    });
     const sessionStorage = getSessionStorage();
     const redirectPath = React.useRef<string | undefined>(sessionStorage.getItem(redirectPathSessionStorageKey) || undefined);
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
 
     const updateTokens = React.useCallback<SetTokens>((tokens) => {
         setTokens(tokens);
-        storage.setItem(storageKey, JSON.stringify(tokens));
         onNewTokens && onNewTokens(tokens);
     }, [setTokens]);
 

@@ -91,7 +91,6 @@ final class KeycloakManager
         $data = array_merge([
             'name' => $name,
             'protocol' => 'openid-connect',
-            'type' => 'default',
             'attributes' => [
                 'include.in.token.scope' => 'true',
                 'display.on.consent.screen' => 'false',

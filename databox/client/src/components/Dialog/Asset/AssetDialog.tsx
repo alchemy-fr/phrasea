@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import EditAsset from './EditAsset';
-import {useParams} from 'react-router-dom';
+import {useParams} from '@alchemy/navigation';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import {Asset} from '../../../types';
 import Acl from './Acl';

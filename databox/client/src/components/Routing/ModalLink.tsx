@@ -1,5 +1,4 @@
-import {LinkProps} from 'react-router-dom';
-import React, {MouseEventHandler} from 'react';
+import React, {HTMLProps, MouseEventHandler} from 'react';
 import {
     CloseOverlayFunction,
     NavigateToOverlayFunction,
@@ -12,7 +11,7 @@ import {
 type Props = {
     route: RouteDefinition;
     params?: RouteParameters;
-} & Omit<LinkProps, 'to'>;
+} & HTMLProps<HTMLAnchorElement>;
 
 export default React.forwardRef<HTMLAnchorElement, Props>(
     ({route, params, onClick, ...rest}, ref) => {

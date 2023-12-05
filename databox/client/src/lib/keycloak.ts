@@ -1,5 +1,5 @@
 import config from '../config';
-import {useLocation} from 'react-router-dom';
+import {useLocation} from '@alchemy/navigation';
 import {keycloakClient} from '../api/api-client';
 
 export function useKeycloakUrls() {

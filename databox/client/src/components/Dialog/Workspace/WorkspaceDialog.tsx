@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import EditWorkspace from './EditWorkspace';
-import {useParams} from 'react-router-dom';
+import {useParams} from '@alchemy/navigation';
 import {getWorkspace} from '../../../api/workspace';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import {Workspace} from '../../../types';

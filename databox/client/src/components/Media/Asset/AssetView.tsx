@@ -7,7 +7,7 @@ import {StackedModalProps} from '@alchemy/navigation';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
-import {useParams} from 'react-router-dom';
+import {useParams} from '@alchemy/navigation';
 import {getAsset} from '../../../api/asset';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';

@@ -1,7 +1,7 @@
 import React, {FunctionComponent, ReactNode} from 'react';
 import {Breakpoint, Tab, Tabs} from '@mui/material';
 import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
-import {useParams} from 'react-router-dom';
+import {useParams} from '@alchemy/navigation';
 import RouteDialog from '../RouteDialog';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
