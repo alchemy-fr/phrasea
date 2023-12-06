@@ -17,7 +17,9 @@
     "lint:fix": "eslint --fix src"
   },
   "dependencies": {
+    "@alchemy/api": "workspace:*",
     "@alchemy/auth": "workspace:*",
+    "@alchemy/storage": "workspace:*",
     "amqplib": "^0.10.3",
     "axios": "^1.6.2",
     "axios-retry": "^4.0.0",
@@ -28,11 +30,13 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
     "@api-platform/create-client": "^0.10.0",
     "@types/amqplib": "^0.10.4",
     "@types/express": "^4.17.13",
     "@types/minio": "^7.1.1",
-    "@types/node": "^20.10.3",
+    "@types/node": "^18.8.5",
     "nodemon": "^3.0.2",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.1",

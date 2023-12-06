@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosInstance} from "axios";
-import https from "https";
+import * as https from "https";
 import axiosRetry from "axios-retry";
 import {createLogger} from "./logger";
 

@@ -1,6 +1,6 @@
 module.exports = {
     root: true,
-    env: {browser: true, es2020: true},
+    env: {es2020: true},
     extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
@@ -32,16 +32,8 @@ module.exports = {
                 extendDefaults: true,
             },
         ],
-        'react/react-in-jsx-scope': 'off',
         'no-empty-pattern': 'off',
         'no-undef': 'off',
-        'react/prop-types': 'off',
-        'react/display-name': 'off',
-        'react/no-unescaped-entities': 'off',
         'no-irregular-whitespace': 'off',
-        'react-refresh/only-export-components': [
-            'warn',
-            {allowConstantExport: true},
-        ],
     },
 };

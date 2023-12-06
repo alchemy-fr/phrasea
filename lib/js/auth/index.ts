@@ -1,24 +1,21 @@
 import OAuthClient, {
-    loginEventType,
-    logoutEventType,
-    sessionExpiredEventType,
-    refreshTokenEventType,
+    AuthEvent,
+    AuthEventHandler,
     configureClientAuthentication,
     configureClientCredentialsGrantType,
-    RefreshTokenEvent,
-    UserInfoResponse,
-    AuthEventHandler,
     LoginEvent,
-    AuthEvent,
+    loginEventType,
     LogoutEvent,
+    logoutEventType,
+    RefreshTokenEvent,
+    refreshTokenEventType,
+    sessionExpiredEventType,
+    UserInfoResponse,
 } from "./src/client/OAuthClient";
 
-import AuthenticationContext, {TAuthContext} from "./src/context/AuthenticationContext";
-import AuthenticationProvider from "./src/components/AuthenticationProvider";
+import {TAuthContext} from "./src/context/AuthenticationContext";
 import KeycloakClient from "./src/client/KeycloakClient";
-import {useAuth} from "./src/hooks/useAuth";
-import {useKeycloakUser, useUser, UseUserReturn} from "./src/hooks/useUser";
-import {useKeycloakUrls} from "./src/hooks/useKeycloakUrls";
+
 export {
     OAuthClient,
     configureClientAuthentication,
@@ -27,13 +24,7 @@ export {
     logoutEventType,
     sessionExpiredEventType,
     refreshTokenEventType,
-    AuthenticationContext,
-    AuthenticationProvider,
     KeycloakClient,
-    useAuth,
-    useUser,
-    useKeycloakUser,
-    useKeycloakUrls,
 };
 export type {
     AuthEvent,
@@ -43,7 +34,4 @@ export type {
     TAuthContext,
     RefreshTokenEvent,
     UserInfoResponse,
-    UseUserReturn,
 }
-
-export * from './src/types';

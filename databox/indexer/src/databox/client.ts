@@ -4,7 +4,8 @@ import {lockPromise} from "../lib/promise";
 import {getConfig, getStrict} from "../configLoader";
 import {Logger} from "winston";
 import {createHttpClient} from "../lib/axios";
-import {configureClientCredentialsGrantType, MemoryStorage, OAuthClient} from "@alchemy/auth";
+import {configureClientCredentialsGrantType, OAuthClient} from "@alchemy/auth";
+import {MemoryStorage} from "@alchemy/storage";
 
 function createApiClient(baseURL: string, clientId: string, clientSecret: string, verifySSL: boolean) {
     const oauthClient = new OAuthClient({

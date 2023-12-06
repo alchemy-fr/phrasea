@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "esModuleInterop": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
     "target": "es6",
     "moduleResolution": "node",
     "sourceMap": true,
     "sourceRoot": "src/",
     "outDir": "dist",
   },
-  "lib": ["es2015"],
-  "exclude": [
-    "__lib"
+  "files": [
+    "src/index.ts"
   ]
 }
