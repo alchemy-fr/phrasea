@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import i18n from '../locales/i18n';
-import config from '../config';
+import config from '../lib/config';
 
 export default class Languages extends Component {
     changeLanguage = lng => {

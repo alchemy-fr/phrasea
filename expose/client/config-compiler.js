@@ -10,6 +10,18 @@
         };
     }
 
+    function castBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+        }
+
+        return false;
+    }
+
     return {
         locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
@@ -17,10 +29,11 @@
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
+        displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL
             ? parseInt(env.S3_REQUEST_SIGNATURE_TTL)
             : 86400,
-        disableIndexPage: ['true', '1', 'on'].includes(env.DISABLE_INDEX_PAGE),
+        disableIndexPage: castBoolean(env.DISABLE_INDEX_PAGE),
         analytics,
     };
 });

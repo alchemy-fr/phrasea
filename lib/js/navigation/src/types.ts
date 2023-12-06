@@ -4,7 +4,7 @@ import {ActionFunction, LoaderFunction} from "react-router-dom";
 export type RouteDefinition = {
     path: string;
     rootUrl?: string;
-    component?: FunctionComponent<any>;
+    component?: FunctionComponent<any> | React.Component<any>;
     layout?: FunctionComponent<PropsWithChildren<any>>;
     routes?: Routes;
     public?: boolean;

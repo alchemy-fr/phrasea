@@ -11,11 +11,9 @@ export default function Root({}: Props) {
         keycloakClient.logout(redirectUri);
     }, []);
 
-    return (
-        <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
-            <ModalStack>
-                <App />
-            </ModalStack>
-        </AuthenticationProvider>
-    );
+    return <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
+        <ModalStack>
+            <App/>
+        </ModalStack>
+    </AuthenticationProvider>
 }

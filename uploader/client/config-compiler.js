@@ -24,6 +24,18 @@
         return struct;
     };
 
+    function castBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+        }
+
+        return false;
+    }
+
     return {
         locales: config.available_locales,
         maxFileSize: config.uploader.max_upload_file_size,
@@ -35,8 +47,8 @@
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        devMode: env.DEV_MODE === 'true',
-        displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
+        devMode: castBoolean(env.DEV_MODE),
+        displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
     };

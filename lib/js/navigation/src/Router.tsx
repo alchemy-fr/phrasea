@@ -5,6 +5,8 @@ import React from "react";
 import DefaultErrorBoundary, {
     ErrorFallbackProps, TErrorBoundaryComponent
 } from "./DefaultErrorBoundary";
+import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
+import {DefaultErrorComponent} from "./DefaultErrorComponent";
 
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
@@ -108,13 +110,25 @@ export function createRouteComponent(route: RouteDefinition, RouteProxyComponent
     />
 }
 
+export type RouterProviderOptions = {
+    RouteProxyComponent?: RouteProxyComponent,
+    ErrorComponent?: ErrorComponent,
+    ErrorBoundaryComponent?: TErrorBoundaryComponent,
+    MenuComponent?: React.FC;
+}
+
 export function createRouterProviderRoutes(
     routes: Routes,
-    RouteProxyComponent: RouteProxyComponent,
-    ErrorComponent: ErrorComponent,
-    ErrorBoundaryComponent: TErrorBoundaryComponent = DefaultErrorBoundary
+    options: RouterProviderOptions,
 ): RouteObject[] {
     const output: RouteObject[] = [];
+
+    const {
+        RouteProxyComponent: RouteProxyComponent = DefaultRouteProxy,
+        ErrorComponent = DefaultErrorComponent,
+        ErrorBoundaryComponent = DefaultErrorBoundary,
+        MenuComponent
+    } = options;
 
     const toRouter = (r: RouteDefinition): RouteObject => {
         return {
@@ -137,16 +151,15 @@ export function createRouterProviderRoutes(
     output.push({
         id: 'not_found',
         path: '*',
-        Component: () => <>
-            <ErrorComponent
-                error={new Error('Not found')}
-            />
-        </>,
+        Component: () => <ErrorComponent
+            error={new Error('Not found')}
+        />,
     });
 
     return [
         {
             Component: () => <ErrorBoundaryComponent fallback={(props: ErrorFallbackProps) => <ErrorComponent {...props}/>}>
+                {MenuComponent && React.createElement(MenuComponent)}
                 <Outlet />
             </ErrorBoundaryComponent>,
             children: output,

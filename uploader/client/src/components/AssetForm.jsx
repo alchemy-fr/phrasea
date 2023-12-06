@@ -5,7 +5,7 @@ import AssetLiForm from './AssetLiForm';
 import {SubmissionError} from 'redux-form';
 import {Translation} from 'react-i18next';
 import {getFormSchema} from '../requests';
-import apiClient from '../lib/api';
+import apiClient from '../lib/apiClient';
 
 export default class AssetForm extends Component {
     // static propTypes = {

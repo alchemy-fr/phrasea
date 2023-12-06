@@ -1,8 +1,8 @@
 import {MatomoRouteProxy} from '@alchemy/navigation';
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/auth';
-import {keycloakClient} from "../../api/api-client.ts";
-import config from "../../config.ts";
+import config from "../lib/config.ts";
+import {keycloakClient} from "../lib/apiClient.ts";
 
 export default function RouteProxy({
     component: Component,

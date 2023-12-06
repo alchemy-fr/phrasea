@@ -7,13 +7,15 @@ import AssetUpload from '../AssetUpload';
 import {Button} from 'react-bootstrap';
 import UploadDone from './UploadDone';
 import Container from '../Container';
-import {Link, withRouter} from 'react-router-dom';
+import {getPath, Link} from '@alchemy/navigation';
 import filesize from 'filesize';
-import config from '../../config';
+import config from '../../lib/config';
 import {getTarget} from '../../requests';
 import UploadBatch from '../../uploadBatch';
 import {retrieveImageFromClipboardAsBlob} from '../ImagePaste';
 import FullPageLoader from '../FullPageLoader';
+import {withRouter} from "../withRouter";
+import {routes} from "../../routes";
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -23,6 +25,7 @@ const UPLOAD_DONE = 3;
 const {maxFileSize, maxCommitSize, maxFileCount} = config;
 
 const quitMsg = `Are you sure you want to cancel the current upload?`;
+
 function onBeforeUnload(e) {
     e = e || window.event;
 
@@ -54,7 +57,7 @@ class Upload extends Component {
     };
 
     getTargetId() {
-        return this.props.match.params.id;
+        return this.props.params.id;
     }
 
     componentDidMount() {
@@ -87,7 +90,7 @@ class Upload extends Component {
                     error: `Unauthorized`,
                 });
             } else if (404 === e.res.statusCode) {
-                this.props.history.push('/', {replace: true});
+                this.props.navigate(getPath(routes.index), {replace: true});
             } else {
                 throw e;
             }
@@ -211,7 +214,7 @@ class Upload extends Component {
             );
         }
         if (!target) {
-            return <FullPageLoader />;
+            return <FullPageLoader/>;
         }
 
         return (
@@ -254,7 +257,7 @@ class Upload extends Component {
                     />
                 );
             case UPLOAD_DONE:
-                return <UploadDone goHome={this.reset} />;
+                return <UploadDone goHome={this.reset}/>;
             case SELECT_FILES:
             default:
                 const errors = [];
@@ -330,10 +333,12 @@ class Upload extends Component {
                             Next
                         </Button>
 
-                        <hr />
+                        <hr/>
                         <p>
                             or just{' '}
-                            <Link to={`/download/${this.getTargetId()}`}>
+                            <Link to={getPath(routes.download, {
+                                id: this.getTargetId()
+                            })}>
                                 download
                             </Link>{' '}
                             URLs.

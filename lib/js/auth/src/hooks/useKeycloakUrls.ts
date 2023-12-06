@@ -1,14 +1,21 @@
-import config from '../config';
 import {useLocation} from '@alchemy/navigation';
-import {keycloakClient} from '../api/api-client';
+import KeycloakClient from "../client/KeycloakClient";
 
-export function useKeycloakUrls() {
+type Props = {
+    keycloakClient: KeycloakClient;
+    autoConnectIdP?: string | undefined;
+}
+
+export function useKeycloakUrls({
+    autoConnectIdP,
+    keycloakClient,
+}: Props) {
     const location = useLocation();
 
     return {
         getLoginUrl: () =>
             keycloakClient.client.createAuthorizeUrl({
-                connectTo: config.autoConnectIdP || undefined,
+                connectTo: autoConnectIdP || undefined,
                 state: btoa(JSON.stringify({r: location})),
             }),
         getAccountUrl: () => `${keycloakClient.getAccountUrl()}`,

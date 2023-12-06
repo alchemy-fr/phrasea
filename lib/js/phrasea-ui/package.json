@@ -5,5 +5,9 @@
   "main": "index.ts",
   "peerDependencies": {
     "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "react": "^18.2.0"
   }
 }

@@ -1,15 +1,15 @@
-import AuthorizationCodePage from '@alchemy/auth/src/components/AuthorizationCodePage.tsx';
 import config from './lib/config.ts';
 import PublicationIndex from './component/index/PublicationIndex.jsx';
-import {RouteDefinition, Routes} from '@alchemy/navigation';
+import {compileRoutes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage.tsx';
 import AssetPage from './pages/AssetPage.tsx';
 import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage.tsx';
+import {NotFoundPage} from '@alchemy/phrasea-ui';
 
-const routes: Routes = {
+const routes = {
     index: {
-        path: 'auth',
-        component: AuthorizationCodePage,
+        path: '/',
+        component: NotFoundPage,
     },
     publication: {
         path: ':id',
@@ -33,10 +33,9 @@ const routes: Routes = {
 };
 
 if (!config.disableIndexPage) {
-    routes['index'] = {
-        path: '/',
-        component: PublicationIndex,
-    } as RouteDefinition;
+    routes.index.component = PublicationIndex;
 }
 
-export {routes};
+const compiledRoutes = compileRoutes(routes) as typeof routes;
+export {compiledRoutes as routes};
+

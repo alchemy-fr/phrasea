@@ -1,4 +1,4 @@
-import apiClient from './lib/api';
+import apiClient from './lib/apiClient';
 
 export async function getFormSchema(targetId) {
     return (await apiClient.get(`/targets/${targetId}/form-schema`)).data;

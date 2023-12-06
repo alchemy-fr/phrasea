@@ -4,7 +4,7 @@ import FormPreview from '../FormPreview';
 import Container from '../Container';
 import {getFormSchema, getTargets} from '../../requests';
 import FullPageLoader from '../FullPageLoader';
-import apiClient from '../../lib/api';
+import apiClient from '../../lib/apiClient';
 
 export default class FormEditor extends Component {
     state = {

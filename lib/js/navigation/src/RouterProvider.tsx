@@ -1,33 +1,19 @@
-import React from 'react';
 import {createBrowserRouter, RouterProvider as RouterProviderBase} from "react-router-dom";
-import {createRouterProviderRoutes} from "./Router";
-import {Routes, RouteProxyProps, ErrorComponent} from "./types";
-import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
+import {createRouterProviderRoutes, RouterProviderOptions} from "./Router";
+import {Routes} from "./types";
 
 type Props = {
     routes: Routes;
-    RouteProxyComponent?: React.FC<RouteProxyProps>;
-    ErrorComponent?: ErrorComponent;
+    options: RouterProviderOptions;
 };
 
 export default function RouterProvider({
     routes,
-    RouteProxyComponent = DefaultRouteProxy,
-    ErrorComponent = DefaultErrorComponent
+    options = {}
 }: Props) {
-    const router = createBrowserRouter(createRouterProviderRoutes(routes, RouteProxyComponent, ErrorComponent));
+    const router = createBrowserRouter(createRouterProviderRoutes(routes, options));
 
     return <RouterProviderBase
         router={router}
     />
-}
-
-export function DefaultErrorComponent({
-    error,
-}: {
-    error: any
-}) {
-    return <div>
-        {error}
-    </div>
 }

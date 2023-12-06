@@ -2,23 +2,27 @@ import React, {useEffect, useState} from 'react';
 import '../../scss/Upload.scss';
 import {getTargets} from '../../requests';
 import Container from '../Container';
-import {Link, Redirect} from 'react-router-dom';
+import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import FullPageLoader from '../FullPageLoader';
 import {Translation} from 'react-i18next';
+import {routes} from "../../routes";
 
 export default function SelectTarget() {
     const [targets, setTargets] = useState();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getTargets().then(setTargets);
     }, []);
 
-    if (!targets) {
-        return <FullPageLoader />;
-    }
+    useEffect(() => {
+        if (targets?.length === 1) {
+            navigate(getPath(routes.upload, {id: targets[0].id}))
+        }
+    }, [targets]);
 
-    if (targets.length === 1) {
-        return <Redirect to={`/upload/${targets[0].id}`} />;
+    if (!targets || targets?.length) {
+        return <FullPageLoader/>;
     }
 
     return (
@@ -36,13 +40,11 @@ export default function SelectTarget() {
                         </Translation>
                     </div>
                 )}
-                {targets.map(t => {
-                    return (
-                        <Link
-                            key={t.id}
-                            to={`/upload/${t.id}`}
-                            className={'col-md-6 col-sm-12 target'}
-                        >
+                {targets.map(t => <Link
+                    key={t.id}
+                    to={`/upload/${t.id}`}
+                    className={'col-md-6 col-sm-12 target'}
+                >
                             <span className={'target-box'}>
                                 <span className={'target-title'}>{t.name}</span>
                                 {t.description && (
@@ -51,9 +53,7 @@ export default function SelectTarget() {
                                     </p>
                                 )}
                             </span>
-                        </Link>
-                    );
-                })}
+                </Link>)}
             </div>
         </Container>
     );

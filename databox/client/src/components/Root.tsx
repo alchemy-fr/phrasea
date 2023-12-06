@@ -23,7 +23,9 @@ export default function Root({}: Props) {
                 <UserPreferencesProvider>
                     <RouterProvider
                         routes={routes}
-                        RouteProxyComponent={RouteProxy}
+                        options={{
+                            RouteProxyComponent: RouteProxy,
+                        }}
                     />
                 </UserPreferencesProvider>
             </ModalStack>

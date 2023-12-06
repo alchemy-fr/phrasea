@@ -10,10 +10,12 @@ export type TAuthContext = {
     setRedirectPath?: ((url: string) => void) | undefined;
     clearRedirectPath: () => void;
     redirectPath?: MutableRefObject<string | undefined>; // Redirect after authentication
+    isAuthenticated: () => boolean;
 };
 
 export default createContext<TAuthContext>({
     logout: () => {},
     clearRedirectPath: () => {},
     setTokens: () => {},
+    isAuthenticated: () => false,
 });

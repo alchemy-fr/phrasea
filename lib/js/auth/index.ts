@@ -18,6 +18,7 @@ import AuthenticationProvider from "./src/components/AuthenticationProvider";
 import KeycloakClient from "./src/client/KeycloakClient";
 import {useAuth} from "./src/hooks/useAuth";
 import {useKeycloakUser, useUser, UseUserReturn} from "./src/hooks/useUser";
+import {useKeycloakUrls} from "./src/hooks/useKeycloakUrls";
 export {
     OAuthClient,
     configureClientAuthentication,
@@ -32,6 +33,7 @@ export {
     useAuth,
     useUser,
     useKeycloakUser,
+    useKeycloakUrls,
 };
 export type {
     AuthEvent,

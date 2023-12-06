@@ -1,6 +1,5 @@
-import {oauthClient} from './oauth';
 import {uploadMultipartFile} from './multiPartUpload';
-import apiClient from './lib/api';
+import apiClient, {oauthClient} from './lib/apiClient';
 
 export default class UploadBatch {
     files = [];

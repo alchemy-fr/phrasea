@@ -8,7 +8,7 @@ import ModalStack, {StackedModalProps, useModals} from "./src/useModalStack";
 import MatomoRouteProxy from "./src/proxy/MatomoRouteProxy";
 import {useInRouterDirtyFormPrompt, useOutsideRouterDirtyFormPrompt} from "./src/useNavigationPrompt";
 import {NavigateToOverlayFunction, CloseOverlayFunction, useNavigateToOverlay, useCloseOverlay} from "./src/useNavigateToOverlay";
-import {Link, useLocation, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 export * from "./src/types";
 export {
     getPath,
@@ -26,6 +26,7 @@ export {
     useLocation,
     useParams,
     Link,
+    useNavigate,
 }
 export type {
     StackedModalProps,

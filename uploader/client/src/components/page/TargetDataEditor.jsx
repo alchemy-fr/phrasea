@@ -3,7 +3,7 @@ import {Button, Form} from 'react-bootstrap';
 import Container from '../Container';
 import {getTargetParams, getTargets} from '../../requests';
 import FullPageLoader from '../FullPageLoader';
-import apiClient from '../../lib/api';
+import apiClient from '../../lib/apiClient';
 
 export default class TargetDataEditor extends Component {
     state = {

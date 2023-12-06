@@ -19,8 +19,9 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from './ChangeTheme';
 import {zIndex} from '../../themes/zIndex';
-import {useKeycloakUrls} from '../../lib/keycloak';
-import {useKeycloakUser as useUser} from '@alchemy/auth';
+import {useKeycloakUser as useUser, useKeycloakUrls} from '@alchemy/auth';
+import config from "../../config.ts";
+import {keycloakClient} from "../../api/api-client.ts";
 
 export const menuHeight = 42;
 
@@ -37,7 +38,10 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         null
     );
     const searchContext = useContext(SearchContext);
-    const {getAccountUrl, getLoginUrl} = useKeycloakUrls();
+    const {getAccountUrl, getLoginUrl} = useKeycloakUrls({
+        keycloakClient,
+        autoConnectIdP: config.autoConnectIdP,
+    });
     const onTitleClick = () =>
         searchContext.selectWorkspace(undefined, undefined, true);
 

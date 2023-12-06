@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import config from '../config';
+import config from '../lib/config';
 
 export default class Logo extends Component {
     render() {

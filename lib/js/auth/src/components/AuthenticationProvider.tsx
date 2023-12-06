@@ -2,7 +2,7 @@ import React, {PropsWithChildren, useCallback} from 'react';
 import {AuthTokens} from "../types";
 import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
-import OAuthClient from "../client/OAuthClient";
+import OAuthClient, {isValidSession} from "../client/OAuthClient";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
@@ -61,6 +61,10 @@ export default function AuthenticationProvider({
         }, 500);
     }, [clearSession, setRedirectPath]);
 
+    const isAuthenticated = (): boolean => {
+        return isValidSession(tokens);
+    };
+
     return <AuthenticationContext.Provider
         value={{
             tokens,
@@ -69,6 +73,7 @@ export default function AuthenticationProvider({
             setRedirectPath,
             redirectPath,
             clearRedirectPath,
+            isAuthenticated,
         }}
     >
         {children}
