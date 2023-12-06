@@ -4,13 +4,20 @@ import {AuthenticationProvider} from '@alchemy/auth';
 import UploaderUserProvider from "./context/UploaderUserProvider";
 import App from "./App";
 import {keycloakClient, oauthClient} from "./lib/apiClient";
+import FullPageLoader from "./components/FullPageLoader.jsx";
 
 type Props = {};
 
 export default function Root({}: Props) {
+    const [redirecting, setRedirecting] = React.useState(false);
     const onLogout = React.useCallback((redirectUri: string | false = '/') => {
+        setRedirecting(true);
         keycloakClient.logout(redirectUri);
     }, []);
+
+    if (redirecting) {
+        return <FullPageLoader/>;
+    }
 
     return (
         <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>

@@ -1,7 +1,7 @@
 import {RouteDefinition, RouteParameters, Routes, RouteProxyProps, RouteProxyComponent, ErrorComponent} from "./types";
 import {getFullPath, getLocationPrefix} from "./utils";
 import {Outlet, RouteObject} from "react-router-dom";
-import React from "react";
+import React, {PropsWithChildren} from "react";
 import DefaultErrorBoundary, {
     ErrorFallbackProps, TErrorBoundaryComponent
 } from "./DefaultErrorBoundary";
@@ -114,7 +114,7 @@ export type RouterProviderOptions = {
     RouteProxyComponent?: RouteProxyComponent,
     ErrorComponent?: ErrorComponent,
     ErrorBoundaryComponent?: TErrorBoundaryComponent,
-    MenuComponent?: React.FC;
+    WrapperComponent?: React.FC<PropsWithChildren<{}>>;
 }
 
 export function createRouterProviderRoutes(
@@ -127,7 +127,7 @@ export function createRouterProviderRoutes(
         RouteProxyComponent: RouteProxyComponent = DefaultRouteProxy,
         ErrorComponent = DefaultErrorComponent,
         ErrorBoundaryComponent = DefaultErrorBoundary,
-        MenuComponent
+        WrapperComponent
     } = options;
 
     const toRouter = (r: RouteDefinition): RouteObject => {
@@ -159,8 +159,9 @@ export function createRouterProviderRoutes(
     return [
         {
             Component: () => <ErrorBoundaryComponent fallback={(props: ErrorFallbackProps) => <ErrorComponent {...props}/>}>
-                {MenuComponent && React.createElement(MenuComponent)}
-                <Outlet />
+                {WrapperComponent ? React.createElement(WrapperComponent, {
+                    children: <Outlet />
+                }) : <Outlet />}
             </ErrorBoundaryComponent>,
             children: output,
         },

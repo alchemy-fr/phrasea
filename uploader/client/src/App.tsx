@@ -8,11 +8,10 @@ type Props = {};
 
 export default function App({}: Props) {
     return <RouterProvider
-            routes={routes}
-            options={{
-                RouteProxyComponent: RouteProxy,
-                MenuComponent: Menu
-            }}
-
+        routes={routes}
+        options={{
+            RouteProxyComponent: RouteProxy,
+            WrapperComponent: Menu
+        }}
     />
 }
