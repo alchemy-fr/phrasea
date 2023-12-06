@@ -78,10 +78,14 @@
         <ul class="services">
             <li>
                 <img src="/images/keycloak.png">
-                <a target="_blank" href="${KEYCLOAK_URL}">
+                <a target="_blank" href="${KEYCLOAK_URL}/admin/phrasea/console">
                     <h3>Keycloak</h3>
                 </a>
                 <p>Authentication service</p>
+
+                <ul class="sub-svc">
+                    <li><a target="_blank" href="${KEYCLOAK_URL}/admin/master/console">Master Realm console</a></li>
+                </ul>
             </li>
             <li>
                 <img src="/images/expose.png">
@@ -91,8 +95,8 @@
                 <p>Expose service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${EXPOSE_API_URL}">API</a></li>
                     <li><a target="_blank" href="${EXPOSE_API_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${EXPOSE_API_URL}">API Documentation</a></li>
                 </ul>
             </li>
             <li>
@@ -103,8 +107,8 @@
                 <p>Databox service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${DATABOX_API_URL}">API</a></li>
                     <li><a target="_blank" href="${DATABOX_API_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${DATABOX_API_URL}">API Documentation</a></li>
                 </ul>
             </li>
             <li>
@@ -115,8 +119,8 @@
                 <p>Uploader service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${UPLOADER_API_URL}">API</a></li>
                     <li><a target="_blank" href="${UPLOADER_API_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${UPLOADER_API_URL}">API Documentation</a></li>
                 </ul>
             </li>
             <li>
@@ -127,8 +131,8 @@
                 <p>Admin of notify service</p>
 
                 <ul class="sub-svc">
-                    <li><a target="_blank" href="${NOTIFY_API_URL}">API</a></li>
                     <li><a target="_blank" href="${NOTIFY_API_URL}/admin">Admin</a></li>
+                    <li><a target="_blank" href="${NOTIFY_API_URL}">API Documentation</a></li>
                 </ul>
             </li>
         </ul>
