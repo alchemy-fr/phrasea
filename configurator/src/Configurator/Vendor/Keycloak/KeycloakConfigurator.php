@@ -199,8 +199,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'replyTo' => '',
                 'ssl' => 'false',
                 'starttls' => 'false',
-                'user' => $mailer['user'],
-                'password' => $mailer['pass'],
+                'user' => $mailer['user'] ?? null,
+                'password' => $mailer['pass'] ?? null,
             ],
         ]);
     }
