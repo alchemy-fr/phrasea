@@ -1,6 +1,6 @@
 import Publication from '../component/Publication.jsx';
 import {useParams} from '@alchemy/navigation';
-import {useKeycloakUser as useUser} from '@alchemy/auth';
+import {useKeycloakUser as useUser} from '@alchemy/react-auth';
 
 type Props = {};
 

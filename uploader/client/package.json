@@ -15,6 +15,7 @@
     "@alchemy-fr/liform-react": "^0.9.3",
     "@alchemy/api": "workspace:*",
     "@alchemy/auth": "workspace:*",
+    "@alchemy/react-auth": "workspace:*",
     "@alchemy/navigation": "workspace:*",
     "@alchemy/phrasea-ui": "workspace:*",
     "@alchemy/react-ps": "workspace:*",

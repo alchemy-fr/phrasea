@@ -31,7 +31,7 @@ import {useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes.ts';
-import {useKeycloakUser as useUser} from '@alchemy/auth';
+import {useUser} from "../../lib/auth.ts";
 
 type Props = {
     level: number;

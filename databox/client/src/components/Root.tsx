@@ -2,7 +2,7 @@ import React from 'react';
 import {ModalStack} from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
 import {keycloakClient, oauthClient} from '../api/api-client';
-import {AuthenticationProvider} from '@alchemy/auth';
+import {AuthenticationProvider} from '@alchemy/react-auth';
 import {RouterProvider} from '@alchemy/navigation';
 import {routes} from '../routes.ts';
 import RouteProxy from "./Routing/RouteProxy.tsx";

@@ -13,7 +13,6 @@ import OAuthClient, {
     UserInfoResponse,
 } from "./src/client/OAuthClient";
 
-import {TAuthContext} from "./src/context/AuthenticationContext";
 import KeycloakClient from "./src/client/KeycloakClient";
 
 export {
@@ -31,7 +30,8 @@ export type {
     AuthEventHandler,
     LogoutEvent,
     LoginEvent,
-    TAuthContext,
     RefreshTokenEvent,
     UserInfoResponse,
 }
+
+export * from './src/types';

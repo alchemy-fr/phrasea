@@ -1,16 +1,18 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "NodeNext",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "target": "es6",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "sourceMap": true,
     "sourceRoot": "src/",
     "outDir": "dist",
   },
-  "files": [
-    "src/index.ts"
+  "include": [
+    "src/**/*.ts",
+    "node_modules/@alchemy/**/*.ts"
   ]
 }

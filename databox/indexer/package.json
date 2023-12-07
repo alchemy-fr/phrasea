@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node --enable-source-maps dist/index.js",
-    "console": "node --enable-source-maps dist/console.js",
+    "console": "node dist/console.js",
     "console:dev": "ts-node --files ./src/console.ts",
     "build": "rimraf ./dist && tsc",
     "start:dev": "nodemon",

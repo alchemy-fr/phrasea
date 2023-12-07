@@ -19,9 +19,10 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeTheme from './ChangeTheme';
 import {zIndex} from '../../themes/zIndex';
-import {useKeycloakUser as useUser, useKeycloakUrls} from '@alchemy/auth';
+import {useKeycloakUrls} from '@alchemy/react-auth';
 import config from "../../config.ts";
 import {keycloakClient} from "../../api/api-client.ts";
+import {useUser} from "../../lib/auth.ts";
 
 export const menuHeight = 42;
 

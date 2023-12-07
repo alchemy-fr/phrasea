@@ -34,7 +34,7 @@ import UploadModal from '../../Upload/UploadModal';
 import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
-import {useKeycloakUser as useUser} from '@alchemy/auth';
+import {useUser} from "../../../lib/auth.ts";
 
 const gridStyle: CSSProperties = {
     width: '100%',

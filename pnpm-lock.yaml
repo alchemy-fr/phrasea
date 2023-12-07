@@ -26,6 +26,9 @@ importers:
       '@alchemy/navigation':
         specifier: workspace:*
         version: link:../../lib/js/navigation
+      '@alchemy/react-auth':
+        specifier: workspace:*
+        version: link:../../lib/js/react-auth
       '@alchemy/react-hooks':
         specifier: workspace:*
         version: link:../../lib/js/react-hooks
@@ -328,6 +331,9 @@ importers:
       '@alchemy/phrasea-ui':
         specifier: workspace:*
         version: link:../../lib/js/phrasea-ui
+      '@alchemy/react-auth':
+        specifier: workspace:*
+        version: link:../../lib/js/react-auth
       '@alchemy/react-ps':
         specifier: workspace:*
         version: link:../../lib/js/react-ps
@@ -485,9 +491,6 @@ importers:
       '@alchemy/navigation':
         specifier: workspace:*
         version: link:../navigation
-      '@alchemy/react-hooks':
-        specifier: workspace:*
-        version: link:../react-hooks
       '@alchemy/storage':
         specifier: workspace:*
         version: link:../storage
@@ -501,12 +504,6 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
     devDependencies:
-      '@mui/material':
-        specifier: ^5.14.19
-        version: 5.14.19(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
-      '@types/i18next':
-        specifier: ^13.0.0
-        version: 13.0.0
       '@types/jest':
         specifier: ^23.3.14
         version: 23.3.14
@@ -516,21 +513,9 @@ importers:
       '@types/node':
         specifier: ^10.17.60
         version: 10.17.60
-      '@types/react':
-        specifier: ^18.2.38
-        version: 18.2.38
       axios:
         specifier: ^1.6.2
         version: 1.6.2
-      react-i18next:
-        specifier: ^13.5.0
-        version: 13.5.0(i18next@23.7.7)(react-dom@18.2.0)(react@18.2.0)
-      react-router-dom:
-        specifier: ^6.20.0
-        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
-      rimraf:
-        specifier: ^2.7.1
-        version: 2.7.1
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@10.17.60)(typescript@5.3.2)
@@ -571,6 +556,49 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
+
+  lib/js/react-auth:
+    dependencies:
+      '@alchemy/auth':
+        specifier: workspace:*
+        version: link:../auth
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+    devDependencies:
+      '@mui/material':
+        specifier: ^5.14.19
+        version: 5.14.19(@types/react@18.2.39)(react-dom@18.2.0)(react@18.2.0)
+      '@types/i18next':
+        specifier: ^13.0.0
+        version: 13.0.0
+      '@types/jest':
+        specifier: ^23.3.14
+        version: 23.3.14
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
+      '@types/node':
+        specifier: ^10.17.60
+        version: 10.17.60
+      '@types/react':
+        specifier: ^18.2.38
+        version: 18.2.39
+      axios:
+        specifier: ^1.6.2
+        version: 1.6.2
+      react-i18next:
+        specifier: ^13.5.0
+        version: 13.5.0(i18next@23.7.7)(react-dom@18.2.0)(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.20.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@10.17.60)(typescript@5.3.2)
+      typescript:
+        specifier: ^5.3.2
+        version: 5.3.2
 
   lib/js/react-hooks:
     devDependencies:
@@ -825,6 +853,9 @@ importers:
       '@alchemy/phrasea-ui':
         specifier: workspace:*
         version: link:../../lib/js/phrasea-ui
+      '@alchemy/react-auth':
+        specifier: workspace:*
+        version: link:../../lib/js/react-auth
       '@alchemy/react-ps':
         specifier: workspace:*
         version: link:../../lib/js/react-ps
@@ -6592,7 +6623,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@mui/base@5.0.0-beta.25(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0):
+  /@mui/base@5.0.0-beta.25(@types/react@18.2.39)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Iiv+IcappRRv6IBlknIVmLkXxfp51NEX1+l9f+dIbBuPU4PaRULegr1lCeHKsC45KU5ruxM5xMg4R/de03aJQg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6605,10 +6636,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.4
       '@floating-ui/react-dom': 2.0.4(react-dom@18.2.0)(react@18.2.0)
-      '@mui/types': 7.2.10(@types/react@18.2.38)
-      '@mui/utils': 5.14.19(@types/react@18.2.38)(react@18.2.0)
+      '@mui/types': 7.2.10(@types/react@18.2.39)
+      '@mui/utils': 5.14.19(@types/react@18.2.39)(react@18.2.0)
       '@popperjs/core': 2.11.8
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       clsx: 2.0.0
       prop-types: 15.8.1
       react: 18.2.0
@@ -6709,7 +6740,7 @@ packages:
       react-transition-group: 4.4.5(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
-  /@mui/material@5.14.19(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0):
+  /@mui/material@5.14.19(@types/react@18.2.39)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-jSPLXst/YPgDGolhiu4rbethKjLVrI1IkoK8YrFUv8ygxDuhQdsE6+ZqjSSRXk3ytTMf6ghPnQ88OFRk4XjpNw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6727,12 +6758,12 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.23.4
-      '@mui/base': 5.0.0-beta.25(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
+      '@mui/base': 5.0.0-beta.25(@types/react@18.2.39)(react-dom@18.2.0)(react@18.2.0)
       '@mui/core-downloads-tracker': 5.14.19
-      '@mui/system': 5.14.19(@types/react@18.2.38)(react@18.2.0)
-      '@mui/types': 7.2.10(@types/react@18.2.38)
-      '@mui/utils': 5.14.19(@types/react@18.2.38)(react@18.2.0)
-      '@types/react': 18.2.38
+      '@mui/system': 5.14.19(@types/react@18.2.39)(react@18.2.0)
+      '@mui/types': 7.2.10(@types/react@18.2.39)
+      '@mui/utils': 5.14.19(@types/react@18.2.39)(react@18.2.0)
+      '@types/react': 18.2.39
       '@types/react-transition-group': 4.4.9
       clsx: 2.0.0
       csstype: 3.1.2
@@ -6760,7 +6791,7 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@mui/private-theming@5.14.19(@types/react@18.2.38)(react@18.2.0):
+  /@mui/private-theming@5.14.19(@types/react@18.2.39)(react@18.2.0):
     resolution: {integrity: sha512-U9w39VpXLGVM8wZlUU/47YGTsBSk60ZQRRxQZtdqPfN1N7OVllQeN4cEKZKR8PjqqR3aYRcSciQ4dc6CttRoXQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6771,8 +6802,8 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.23.4
-      '@mui/utils': 5.14.19(@types/react@18.2.38)(react@18.2.0)
-      '@types/react': 18.2.38
+      '@mui/utils': 5.14.19(@types/react@18.2.39)(react@18.2.0)
+      '@types/react': 18.2.39
       prop-types: 15.8.1
       react: 18.2.0
     dev: true
@@ -6849,7 +6880,7 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@mui/system@5.14.19(@types/react@18.2.38)(react@18.2.0):
+  /@mui/system@5.14.19(@types/react@18.2.39)(react@18.2.0):
     resolution: {integrity: sha512-4e3Q+2nx+vgEsd0h5ftxlZGB7XtkkPos/zWqCqnxUs1l/T70s0lF2YNrWHHdSQ7LgtBu0eQ0qweZG2pR7KwkAw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6866,18 +6897,18 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.23.4
-      '@mui/private-theming': 5.14.19(@types/react@18.2.38)(react@18.2.0)
+      '@mui/private-theming': 5.14.19(@types/react@18.2.39)(react@18.2.0)
       '@mui/styled-engine': 5.14.19(react@18.2.0)
-      '@mui/types': 7.2.10(@types/react@18.2.38)
-      '@mui/utils': 5.14.19(@types/react@18.2.38)(react@18.2.0)
-      '@types/react': 18.2.38
+      '@mui/types': 7.2.10(@types/react@18.2.39)
+      '@mui/utils': 5.14.19(@types/react@18.2.39)(react@18.2.0)
+      '@types/react': 18.2.39
       clsx: 2.0.0
       csstype: 3.1.2
       prop-types: 15.8.1
       react: 18.2.0
     dev: true
 
-  /@mui/types@7.2.10(@types/react@18.2.38):
+  /@mui/types@7.2.10(@types/react@18.2.39):
     resolution: {integrity: sha512-wX1vbDC+lzF7FlhT6A3ffRZgEoKWPF8VqRoTu4lZwouFX2t90KyCMsgepMw5DxLak1BSp/KP86CmtZttikb/gQ==}
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
@@ -6885,7 +6916,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
     dev: true
 
   /@mui/types@7.2.9(@types/react@18.2.39):
@@ -6917,7 +6948,7 @@ packages:
       react-is: 18.2.0
     dev: false
 
-  /@mui/utils@5.14.19(@types/react@18.2.38)(react@18.2.0):
+  /@mui/utils@5.14.19(@types/react@18.2.39)(react@18.2.0):
     resolution: {integrity: sha512-qAHvTXzk7basbyqPvhgWqN6JbmI2wLB/mf97GkSlz5c76MiKYV6Ffjvw9BjKZQ1YRb8rDX9kgdjRezOcoB91oQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -6929,7 +6960,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.4
       '@types/prop-types': 15.7.11
-      '@types/react': 18.2.38
+      '@types/react': 18.2.39
       prop-types: 15.8.1
       react: 18.2.0
       react-is: 18.2.0
@@ -10405,7 +10436,7 @@ packages:
     resolution: {integrity: sha512-gp/SIShAuf4WOqi8ey0nuI7qfWaVpMNCcs/xLygrh/QTQIXmlDC1E0TtVejweNW+7SGDY7g0lyxyKZIJuCKIJw==}
     deprecated: This is a stub types definition. i18next provides its own type definitions, so you do not need this installed.
     dependencies:
-      i18next: 21.10.0
+      i18next: 23.7.7
     dev: true
 
   /@types/invariant@2.2.37:

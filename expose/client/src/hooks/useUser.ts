@@ -1,9 +1,11 @@
 import {
     UserInfoResponse,
-    useUser as baseUseUser,
-    UseUserReturn,
     AuthUser,
 } from '@alchemy/auth';
+import {
+    useUser as baseUseUser,
+    UseUserReturn,
+} from '@alchemy/react-auth';
 import React from 'react';
 
 export function useUser(): UseUserReturn<AuthUser> {

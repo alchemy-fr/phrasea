@@ -3,7 +3,7 @@ import {IStorage} from "./types";
 
 declare global {
     interface Window {
-        sessionStorageFallback?: MemoryStorage;
+        sessionStorageFallback?: IStorage;
     }
 }
 

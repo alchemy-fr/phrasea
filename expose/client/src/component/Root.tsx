@@ -1,7 +1,7 @@
 import React from 'react';
 import {ModalStack} from '@alchemy/navigation';
 import {keycloakClient, oauthClient} from '../lib/api-client';
-import {AuthenticationProvider} from '@alchemy/auth';
+import {AuthenticationProvider} from '@alchemy/react-auth';
 import App from './App.tsx';
 
 type Props = {};

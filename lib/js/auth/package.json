@@ -8,31 +8,21 @@
   "license": "MIT",
   "peerDependencies": {
     "axios": "^1.6.2",
-    "react": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "react-i18next": "^13.5.0",
-    "@mui/material": "^5.14.19"
+    "react": "^18.2.0"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "@alchemy/api": "workspace:*",
     "@alchemy/storage": "workspace:*",
-    "@alchemy/navigation": "workspace:*",
-    "@alchemy/react-hooks": "workspace:*"
+    "@alchemy/navigation": "workspace:*"
   },
   "devDependencies": {
-    "@types/i18next": "^13.0.0",
     "@types/jest": "^23.3.14",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^10.17.60",
-    "@types/react": "^18.2.38",
     "axios": "^1.6.2",
-    "rimraf": "^2.7.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.3.2",
-    "react-i18next": "^13.5.0",
-    "react-router-dom": "^6.20.0",
-    "@mui/material": "^5.14.19"
+    "typescript": "^5.3.2"
   }
 }

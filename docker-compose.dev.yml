@@ -241,13 +241,17 @@ services:
       - ./configurator:/usr/app
 
   databox-watcher:
+    extends:
+      service: a_client
     command: ["yarn", "start:dev"]
     volumes:
-      - ./databox/indexer:/usr/app
+      - ./databox/indexer:/srv/workspace/databox/indexer
 
   databox-indexer:
+    extends:
+      service: a_client
     volumes:
-      - ./databox/indexer:/usr/app
+      - ./databox/indexer:/srv/workspace/databox/indexer
 
   db:
     ports:

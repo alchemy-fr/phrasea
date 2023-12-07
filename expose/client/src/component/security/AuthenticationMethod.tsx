@@ -1,7 +1,7 @@
 import config from '../../lib/config';
 import {oauthClient} from '../../lib/api-client';
 import FormLayout from './FormLayout';
-import {useAuth} from '@alchemy/auth';
+import {useAuth} from '@alchemy/react-auth';
 import {getCurrentPath} from '@alchemy/navigation';
 import React from 'react';
 

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@alchemy/api": "workspace:*",
+    "@alchemy/react-auth": "workspace:*",
     "@alchemy/auth": "workspace:*",
     "@alchemy/react-ps": "workspace:*",
     "@alchemy/navigation": "workspace:*",

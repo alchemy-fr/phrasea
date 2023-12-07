@@ -15,7 +15,7 @@ import uploaderClient from '../api/uploader-client';
 import {zIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
 import {useRequestErrorHandler} from '@alchemy/api';
-import {useAuth} from '@alchemy/auth';
+import {useAuth} from '../lib/auth.ts';
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
