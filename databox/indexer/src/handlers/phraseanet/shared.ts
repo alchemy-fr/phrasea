@@ -1,7 +1,7 @@
 import {Asset} from "../../indexers";
 import {PhraseanetRecord, SubDef} from "./types";
 import {escapeSlashes} from "../../lib/pathUtils";
-import {AttributeClass, AttributeInput} from "../../databox/types";
+import {AttributeClass, AttributeInput, RenditionInput} from "../../databox/types";
 
 const renditionDefinitionMapping = {
     document: 'original',
@@ -67,7 +67,7 @@ export function createAsset(
                     type: s.mime_type,
                 }
             };
-        }).filter(s => Boolean(s)),
+        }).filter(s => Boolean(s)) as RenditionInput[],
     };
 }
 

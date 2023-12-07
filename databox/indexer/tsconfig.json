@@ -1,16 +1,29 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "esModuleInterop": true,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES6", "DOM"],
+    "module": "ES2015",
     "skipLibCheck": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true,
+    "noImplicitAny": false,
+
     "sourceMap": true,
     "sourceRoot": ".",
+    "rootDir": "src",
     "outDir": "dist",
   },
-  "files": [
-    "src/console.ts",
-    "src/index.ts"
-  ]
+  "include": ["src"]
 }

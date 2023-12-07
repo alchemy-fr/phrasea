@@ -21,7 +21,7 @@ export function getAlternateUrls(
         return alternateUrls.map((c): AlternateUrl => {
             return {
                 type: c.name,
-                url: c.pathPattern.replace(/\${(.+)}/g, (m, m1) => {
+                url: c.pathPattern.replace(/\${(.+)}/g, (_m, m1) => {
                     return dict[m1];
                 }),
             }

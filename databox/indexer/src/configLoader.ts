@@ -10,7 +10,7 @@ function loadConfig(): object {
 function replaceEnv(str: string): string | boolean | number | undefined {
     let transform;
     let hasEnv = false;
-    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (match, varName: string) => {
+    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (_match, varName: string) => {
         const s = varName;
         hasEnv = true;
 
@@ -120,6 +120,10 @@ export function castToBoolean(value: string | boolean | null | undefined): boole
 export function castToInt(value: string | number | null | undefined): number | undefined {
     if (typeof value === 'number') {
         return value;
+    }
+
+    if (!value) {
+        return;
     }
 
     const n = parseInt(value);

@@ -2,6 +2,7 @@
   "name": "@phrasea/databox-indexer",
   "version": "1.0.0",
   "description": "Consumes S3 events from AMQP and synchronize Databox",
+  "type": "module",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {

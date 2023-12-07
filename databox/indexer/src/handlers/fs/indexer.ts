@@ -5,7 +5,7 @@ import {getStrict} from "../../configLoader";
 
 export const fsIndexer: IndexIterator<FsConfig> = async function* (
     location,
-    logger,
+    _logger,
     databoxClient
 ) {
     const {

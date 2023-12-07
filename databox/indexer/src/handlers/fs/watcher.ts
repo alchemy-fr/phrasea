@@ -16,7 +16,7 @@ export async function fsWatcher(location: IndexLocation<FsConfig>, databoxClient
 
     const workspaceId = await databoxClient.getWorkspaceIdFromSlug(getStrict('workspaceSlug', location.options));
 
-    function storeEvent(eventType: string, path: string): Promise<void> {
+    async function storeEvent(eventType: string, path: string): Promise<void> {
         logger.debug(`${eventType}: ${path}`);
 
         const asset = createAsset(
@@ -30,9 +30,11 @@ export async function fsWatcher(location: IndexLocation<FsConfig>, databoxClient
 
         switch (eventType) {
             case 'add':
-                return handlePutObject(asset, location, databoxClient, logger);
+                handlePutObject(asset, location, databoxClient, logger);
+                break;
             case 'unlink':
-                return handleDeleteObject(asset, databoxClient, logger);
+                handleDeleteObject(asset, databoxClient, logger);
+                break;
         }
     }
 
@@ -41,9 +43,9 @@ export async function fsWatcher(location: IndexLocation<FsConfig>, databoxClient
         chokidar.watch(watchDir, {
             ignoreInitial: true,
         }).on('all', storeEvent);
-    } catch (err) {
-        if (err.name === 'AbortError')
-            return;
-        throw err;
+    } catch (err: any) {
+        if (err.name !== 'AbortError') {
+            throw err;
+        }
     }
 }

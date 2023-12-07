@@ -55,6 +55,7 @@ type Options = {
     baseUrl: string;
     tokenStorageKey?: string;
     httpClient?: HttpClient;
+    scope?: string | undefined;
 };
 
 export type {Options as OAuthClientOptions};
@@ -70,6 +71,7 @@ export default class OAuthClient {
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
     private readonly httpClient: HttpClient;
+    private readonly scope?: string;
 
     constructor({
         clientId,
@@ -78,6 +80,7 @@ export default class OAuthClient {
         storage = new CookieStorage(),
         tokenStorageKey,
         httpClient,
+        scope,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -85,6 +88,7 @@ export default class OAuthClient {
         this.storage = storage;
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
+        this.scope = scope;
     }
 
     public getAccessToken(): string | undefined {
@@ -306,6 +310,7 @@ export default class OAuthClient {
             ...data,
             client_id: this.clientId,
             client_secret: this.clientSecret,
+            scope: this.scope,
         };
 
         Object.keys(formData).map(k => {

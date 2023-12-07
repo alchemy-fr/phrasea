@@ -23,7 +23,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             key: k,
             title: k
         })));
-    } catch (e) {
+    } catch (e: any) {
         logger.error(`Failed to create collection branch "${branch.join('/')}": ${e.toString()}`);
         throw e;
     }
@@ -43,7 +43,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             attributes: asset.attributes,
             renditions: asset.renditions,
         });
-    } catch (e) {
+    } catch (e: any) {
         logger.error(`Failed to create asset "${path}": ${e.toString()}`);
         throw e;
     }
