@@ -1,5 +1,5 @@
 import {createContext, MutableRefObject} from 'react';
-import {AuthTokens} from "../types";
+import {AuthTokens} from "@alchemy/auth";
 
 export type SetTokens = (tokens: AuthTokens) => void;
 

@@ -1,5 +1,5 @@
 import useEffectOnce from "@alchemy/react-hooks/src/useEffectOnce";
-import OAuthClient from "../client/OAuthClient";
+import {OAuthClient} from "@alchemy/auth";
 import {useNavigate} from "react-router-dom";
 import React from "react";
 import {useAuth} from "../hooks/useAuth";

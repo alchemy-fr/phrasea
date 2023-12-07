@@ -2,8 +2,7 @@ import React from "react";
 import {useAuth} from "./useAuth";
 import {jwtDecode} from "jwt-decode";
 import {TAuthContext} from "../context/AuthenticationContext";
-import {AuthUser} from "../types";
-import {UserInfoResponse} from "../client/OAuthClient";
+import {UserInfoResponse, AuthUser} from "@alchemy/auth";
 
 export type UseUserReturn<U extends object> = {
     user: U | undefined

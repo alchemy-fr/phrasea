@@ -13,7 +13,11 @@
     "@mui/material": "^5.14.19"
   },
   "dependencies": {
-    "@alchemy/auth": "workspace:*"
+    "jwt-decode": "^4.0.0",
+    "@alchemy/auth": "workspace:*",
+    "@alchemy/storage": "workspace:*",
+    "@alchemy/navigation": "workspace:*",
+    "@alchemy/react-hooks": "workspace:*"
   },
   "devDependencies": {
     "@types/i18next": "^13.0.0",

@@ -1,5 +1,5 @@
 import {useLocation} from '@alchemy/navigation';
-import KeycloakClient from "../client/KeycloakClient";
+import {KeycloakClient} from "@alchemy/auth";
 
 type Props = {
     keycloakClient: KeycloakClient;

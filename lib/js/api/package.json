@@ -6,6 +6,9 @@
   "keywords": [],
   "main": "index.ts",
   "license": "MIT",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
   "peerDependencies": {
     "react": "^18.2.0",
     "axios": "^1.6.2",

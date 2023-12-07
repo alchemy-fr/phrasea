@@ -2,7 +2,7 @@ import OAuthClient, {
     AuthEvent,
     AuthEventHandler,
     configureClientAuthentication,
-    configureClientCredentialsGrantType,
+    configureClientCredentialsGrantType, isValidSession,
     LoginEvent,
     loginEventType,
     LogoutEvent,
@@ -24,6 +24,7 @@ export {
     sessionExpiredEventType,
     refreshTokenEventType,
     KeycloakClient,
+    isValidSession,
 };
 export type {
     AuthEvent,

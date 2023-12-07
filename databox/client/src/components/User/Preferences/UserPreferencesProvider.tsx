@@ -8,7 +8,7 @@ import {
 import {getUserPreferences, putUserPreferences} from '../../../api/user';
 import {createCachedTheme} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles, ThemeProvider} from '@mui/material';
-import {useAuth} from "@alchemy/auth/react";
+import {useAuth} from "@alchemy/react-auth";
 
 const sessionStorageKey = 'userPrefs';
 

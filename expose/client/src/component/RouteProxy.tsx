@@ -6,7 +6,7 @@ import config from "../lib/config.ts";
 
 export default function RouteProxy({
     component: Component,
-    public: isPublic,
+    public: isPublic = true,
     ...rest
 }: RouteProxyProps) {
     const {isAuthenticated} = useAuth();

@@ -1,8 +1,7 @@
 import React, {PropsWithChildren, useCallback} from 'react';
-import {AuthTokens} from "../types";
+import {OAuthClient, isValidSession, AuthTokens} from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
-import OAuthClient, {isValidSession} from "../client/OAuthClient";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
