@@ -1,10 +1,10 @@
 import {Config} from "./types/config";
 import {getEnv} from "./env";
-
-const fs = require('fs');
+import * as process from "process";
+import * as fs from "fs";
 
 function loadConfig(): object {
-    return JSON.parse(fs.readFileSync(__dirname + '/../config/config.json').toString());
+    return JSON.parse(fs.readFileSync(process.cwd()+ '/config/config.json').toString());
 }
 
 function replaceEnv(str: string): string | boolean | number | undefined {
