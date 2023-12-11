@@ -1,7 +1,7 @@
 import React from 'react';
 import {ModalStack} from '@alchemy/navigation';
 import {keycloakClient, oauthClient} from '../lib/api-client';
-import {AuthenticationProvider} from '@alchemy/react-auth';
+import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
 import App from './App.tsx';
 
 type Props = {};
@@ -12,6 +12,7 @@ export default function Root({}: Props) {
     }, []);
 
     return <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
+        <MatomoUser/>
         <ModalStack>
             <App/>
         </ModalStack>
