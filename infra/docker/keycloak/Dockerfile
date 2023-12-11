@@ -19,6 +19,9 @@ COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-depende
 
 RUN /opt/keycloak/bin/kc.sh build
 
+RUN mkdir /opt/keycloak/themes/phrasea
+COPY themes/phrasea /opt/keycloak/themes/phrasea
+
 
 FROM quay.io/keycloak/keycloak:22.0.1 as keycloak
 
