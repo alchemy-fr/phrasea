@@ -20,6 +20,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     {
         $this->configureRealm();
 
+        foreach ($this->symfonyApplications as $app) {
+            $this->keycloakManager->createRole($app.'-admin', sprintf('Admin access for %s', ucwords($app)));
+        }
+
         foreach ([
                      KeycloakInterface::ROLE_ADMIN => 'Can do anything',
                      KeycloakInterface::ROLE_TECH => 'Access to Dev/Ops Operations',
