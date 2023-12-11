@@ -1,0 +1,24 @@
+{
+  "globalDotEnv": [".env"],
+  "pipeline": {
+    "lint": {
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": [
+        "^dev"
+      ],
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        "build/**",
+        "public/__ENV.js"
+      ],
+      "outputMode": "new-only",
+      "dotEnv": [".env"]
+    }
+  }
+}

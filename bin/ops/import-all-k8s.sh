@@ -106,7 +106,12 @@ for d in ${DATABASES}; do
     continue
   fi
 
-  APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}")
+  dpod="$d"
+  if [ "$dpod" = "upload" ]; then
+    dpod="uploader"
+  fi
+
+  APP_POD=$(kubectl -n $NS get pod -l tier=${dpod}-api-php -o jsonpath="{.items[0].metadata.name}")
   DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/ash -c 'echo $DB_NAME')
   CONN_ARGS="-U ${DB_USER} --host ${DB_HOST} --port ${DB_PORT} ${DB_NAME}"
 

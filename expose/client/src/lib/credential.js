@@ -26,7 +26,7 @@ function getTerms() {
     return termsCookie || {};
 }
 
-export function setPassword(securityContainerId, password) {
+export function storePassword(securityContainerId, password) {
     const passwords = decodePassword();
 
     passwords[securityContainerId] = password;
@@ -40,5 +40,9 @@ export function setPassword(securityContainerId, password) {
 
 function decodePassword() {
     const cData = cookies.get(passwordCookieName);
-    return cData ? (typeof cData === 'string' ? JSON.parse(atob(cData)) : cData) : {};
+    return cData
+        ? typeof cData === 'string'
+            ? JSON.parse(atob(cData))
+            : cData
+        : {};
 }

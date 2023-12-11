@@ -1,7 +1,7 @@
-import React from "react";
-import AceEditor, {IAceEditorProps} from "react-ace";
-import "ace-builds/src-noconflict/theme-monokai";
-import "ace-builds/src-noconflict/ext-language_tools";
+import AceEditor, {IAceEditorProps} from 'react-ace';
+import 'ace-builds/src-noconflict/theme-monokai';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import React from 'react';
 
 type Props = {
     prettify?: (code: string) => string;
@@ -26,37 +26,42 @@ export default function CodeEditor({
         }
     }, []);
 
-    const changeHandler = React.useCallback((value: string) => {
-        onChange && onChange(value);
-        setValue(value);
-    }, [onChange]);
+    const changeHandler = React.useCallback(
+        (value: string) => {
+            onChange && onChange(value);
+            setValue(value);
+        },
+        [onChange]
+    );
 
-    return <div
-        onClick={e => e.stopPropagation()}
-        onMouseDown={e => e.stopPropagation()}
-    >
-        <AceEditor
-            theme="monokai"
-            fontSize={15}
-            mode={mode}
-            showPrintMargin={true}
-            showGutter={true}
-            highlightActiveLine={true}
-            onChange={changeHandler}
-            editorProps={{$blockScrolling: true}}
-            value={value}
-            style={{
-                width: '100%',
-                height: 200,
-            }}
-            setOptions={{
-                enableBasicAutocompletion: false,
-                enableLiveAutocompletion: true,
-                enableSnippets: true,
-                showLineNumbers: true,
-                tabSize: 2,
-            }}
-            {...rest}
-        />
-    </div>
+    return (
+        <div
+            onClick={e => e.stopPropagation()}
+            onMouseDown={e => e.stopPropagation()}
+        >
+            <AceEditor
+                theme="monokai"
+                fontSize={15}
+                mode={mode}
+                showPrintMargin={true}
+                showGutter={true}
+                highlightActiveLine={true}
+                onChange={changeHandler}
+                editorProps={{$blockScrolling: true}}
+                value={value}
+                style={{
+                    width: '100%',
+                    height: 200,
+                }}
+                setOptions={{
+                    enableBasicAutocompletion: false,
+                    enableLiveAutocompletion: true,
+                    enableSnippets: true,
+                    showLineNumbers: true,
+                    tabSize: 2,
+                }}
+                {...rest}
+            />
+        </div>
+    );
 }

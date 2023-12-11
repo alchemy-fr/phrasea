@@ -1,4 +1,4 @@
-import apiClient from "./api-client";
+import apiClient from './api-client';
 
 let assetLogTimeout: ReturnType<typeof setTimeout>;
 

@@ -1,15 +1,14 @@
 {
   "name": "@alchemy/visual-workflow",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "main": "./src/index.ts",
   "dependencies": {
-    "react-icons": "^4.8.0",
-    "reactflow": "^11.7.0"
+    "react-icons": "^4.12.0",
+    "reactflow": "^11.10.1"
   },
   "peerDependencies": {
     "moment": "^2",
@@ -17,38 +16,25 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^7.0.17",
-    "@storybook/addon-interactions": "^7.0.17",
-    "@storybook/addon-links": "^7.0.17",
-    "@storybook/blocks": "^7.0.17",
-    "@storybook/react": "^7.0.17",
-    "@storybook/react-vite": "^7.0.17",
-    "@storybook/testing-library": "^0.0.14-next.2",
-    "@types/node": "^18.15.11",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
+    "@storybook/addon-essentials": "^7.5.3",
+    "@storybook/addon-interactions": "^7.5.3",
+    "@storybook/addon-links": "^7.5.3",
+    "@storybook/blocks": "^7.5.3",
+    "@storybook/react": "^7.5.3",
+    "@storybook/react-vite": "^7.5.3",
+    "@storybook/testing-library": "0.0.14-next.2",
+    "@types/node": "^18.18.13",
+    "@types/react": "^18.2.38",
+    "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^3.1.0",
     "moment": "^2.29.4",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sass": "^1.60.0",
-    "storybook": "^7.0.17",
-    "typescript": "^4.9.3",
-    "vite": "^4.2.1",
-    "vite-plugin-dts": "^2.2.0"
-  },
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/visual-workflow.umd.cjs",
-  "module": "./dist/visual-workflow.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    "./style.css": "./dist/style.css",
-    ".": {
-      "import": "./dist/visual-workflow.js",
-      "require": "./dist/visual-workflow.umd.cjs"
-    }
+    "sass": "^1.69.5",
+    "storybook": "^7.5.3",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.2",
+    "vite-plugin-dts": "^3.6.3"
   }
 }

@@ -13,10 +13,9 @@ export function createS3ClientFromConfig(config: S3AmqpConfig) {
     } = url.parse(getStrict('s3.endpoint', config));
 
     return createS3Client({
-        type: 's3',
         useSSL: protocol === 'https:',
         insecure: true,
-        endPoint: hostname,
+        endPoint: hostname!,
         port: port ? parseInt(port) : undefined,
         accessKey: getStrict('s3.accessKey', config),
         secretKey: getStrict('s3.secretKey', config),

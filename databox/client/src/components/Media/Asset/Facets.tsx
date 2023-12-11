@@ -1,15 +1,21 @@
-import React, {useContext, useState} from "react";
-import {ResultContext} from "../Search/ResultContext";
-import {Collapse, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
-import {ExpandLess, ExpandMore} from "@mui/icons-material";
-import TextFacet from "./Facets/TextFacet";
-import DateHistogramFacet from "./Facets/DateHistogramFacet";
-import GeoDistanceFacet from "./Facets/GeoDistanceFacet";
-import {AttributeType} from "../../../api/attributes";
-import {getAttributeType} from "./Attribute/types";
-import {FilterType} from "../Search/Filter";
-import {AttributeFormat} from "./Attribute/types/types";
-import TagsFacet from "./Facets/TagsFacet";
+import React, {useContext, useState} from 'react';
+import {ResultContext} from '../Search/ResultContext';
+import {
+    Collapse,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+} from '@mui/material';
+import {ExpandLess, ExpandMore} from '@mui/icons-material';
+import TextFacet from './Facets/TextFacet';
+import DateHistogramFacet from './Facets/DateHistogramFacet';
+import GeoDistanceFacet from './Facets/GeoDistanceFacet';
+import {AttributeType} from '../../../api/attributes';
+import {getAttributeType} from './Attribute/types';
+import {FilterType} from '../Search/Filter';
+import {AttributeFormat} from './Attribute/types/types';
+import TagsFacet from './Facets/TagsFacet';
 
 export type BucketValue = string | number | boolean;
 
@@ -17,19 +23,21 @@ export type LabelledBucketValue = {
     label: string;
     value: BucketValue;
     item?: Record<string, any>;
-}
+};
 
 export type ResolvedBucketValue = BucketValue | LabelledBucketValue;
 
-export type NormalizedBucketKeyValue = BucketValue | {
-    l: string;
-    v: BucketValue;
-}
+export type NormalizedBucketKeyValue =
+    | BucketValue
+    | {
+          l: string;
+          v: BucketValue;
+      };
 
 export type Bucket = {
     key: BucketValue;
     doc_count: number;
-}
+};
 
 export enum FacetType {
     Text = 'text',
@@ -50,15 +58,16 @@ export type Facet = {
     sum_other_doc_count: number;
     missing_count?: number;
     interval?: string;
-}
+};
 
 export type TFacets = Record<string, Facet>;
 
 export function extractLabelValueFromKey(
     key: ResolvedBucketValue,
     type: FilterType | undefined,
-    format?: AttributeFormat,
+    format?: AttributeFormat
 ): LabelledBucketValue {
+    // eslint-disable-next-line no-prototype-builtins
     if (typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
     }
@@ -67,16 +76,13 @@ export function extractLabelValueFromKey(
         return {
             label: 'Missing',
             value: '__missing__',
-        }
+        };
     }
 
     type = type ?? AttributeType.Text;
     const t = getAttributeType(type);
 
-    if ([
-        AttributeType.DateTime,
-        AttributeType.Date,
-    ].includes(type)) {
+    if ([AttributeType.DateTime, AttributeType.Date].includes(type)) {
         return {
             label: t.formatValueAsString({
                 value: key,
@@ -106,49 +112,49 @@ export function extractLabelValueFromKey(
 export type FacetGroupProps = {
     facet: Facet;
     name: string;
-}
+};
 
 const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.Text]: TextFacet,
     [FacetType.Boolean]: TextFacet,
     [FacetType.DateRange]: DateHistogramFacet,
     [FacetType.GeoDistance]: GeoDistanceFacet,
-}
+};
 
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
     t: TagsFacet,
-}
+};
 
-function FacetGroup({
-    facet,
-    name,
-}: FacetGroupProps) {
+function FacetGroup({facet, name}: FacetGroupProps) {
     const [open, setOpen] = useState(true);
 
-    const widget = facetWidgetsByKey[name] ?? facetWidgets[facet.meta.widget ?? FacetType.Text] ?? facetWidgets[FacetType.Text];
+    const widget =
+        facetWidgetsByKey[name] ??
+        facetWidgets[facet.meta.widget ?? FacetType.Text] ??
+        facetWidgets[FacetType.Text];
 
-    return <>
-        <ListItem
-            sx={{
-                backgroundColor: 'primary.main',
-                color: 'primary.contrastText',
-            }}
-            disablePadding
-        >
-            <ListItemButton
-                onClick={() => setOpen(o => !o)}
+    return (
+        <>
+            <ListItem
+                sx={{
+                    backgroundColor: 'primary.main',
+                    color: 'primary.contrastText',
+                }}
+                disablePadding
             >
-                <ListItemText primary={facet.meta.title}/>
-                {open ? <ExpandLess/> : <ExpandMore/>}
-            </ListItemButton>
-        </ListItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
-            {React.createElement(widget, {
-                facet,
-                name,
-            })}
-        </Collapse>
-    </>
+                <ListItemButton onClick={() => setOpen(o => !o)}>
+                    <ListItemText primary={facet.meta.title} />
+                    {open ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+            </ListItem>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                {React.createElement(widget, {
+                    facet,
+                    name,
+                })}
+            </Collapse>
+        </>
+    );
 }
 
 export default function Facets() {
@@ -158,25 +164,27 @@ export default function Facets() {
         return null;
     }
 
-    return <List
-        disablePadding
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-        sx={(theme) => ({
-            root: {
-                width: '100%',
-                maxWidth: 360,
-                backgroundColor: theme.palette.background.paper,
-            },
-            nested: {
-                paddingLeft: theme.spacing(4),
-            }
-        })}
-    >
-        {Object.keys(facets).filter(k => facets[k].buckets.length > 0).map((k) => <FacetGroup
-            key={k}
-            name={k}
-            facet={facets[k]}
-        />)}
-    </List>
+    return (
+        <List
+            disablePadding
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+            sx={theme => ({
+                root: {
+                    width: '100%',
+                    maxWidth: 360,
+                    backgroundColor: theme.palette.background.paper,
+                },
+                nested: {
+                    paddingLeft: theme.spacing(4),
+                },
+            })}
+        >
+            {Object.keys(facets)
+                .filter(k => facets[k].buckets.length > 0)
+                .map(k => (
+                    <FacetGroup key={k} name={k} facet={facets[k]} />
+                ))}
+        </List>
+    );
 }

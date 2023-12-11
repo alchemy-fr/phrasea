@@ -2,3 +2,6 @@
 /env.local
 /.env.local
 /tmp
+.turbo
+.pnpm-store
+node_modules

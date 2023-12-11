@@ -1,6 +1,5 @@
-import React, {Dispatch, PropsWithChildren, SetStateAction} from 'react';
-import {useOnSelectionChange} from "reactflow";
-import {Edge} from "@reactflow/core/dist/esm/types";
+import {Dispatch, PropsWithChildren, SetStateAction} from 'react';
+import {Edge, useOnSelectionChange} from "reactflow";
 
 type Props = PropsWithChildren<{
     setEdges: Dispatch<SetStateAction<Edge[]>>;

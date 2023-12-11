@@ -12,7 +12,7 @@ export async function handlePutObject(asset: Asset, location: IndexLocation<any>
 
     try {
         await collectionBasedOnPathStrategy(asset, location, databoxClient, logger);
-    } catch (error) {
+    } catch (error: any) {
         if (error.response) {
             console.error(error.response.data);
         }
@@ -21,10 +21,10 @@ export async function handlePutObject(asset: Asset, location: IndexLocation<any>
     }
 }
 
-export async function handleDeleteObject(asset: Asset, databoxClient: DataboxClient, logger: Logger) {
+export async function handleDeleteObject(asset: Asset, databoxClient: DataboxClient, _logger: Logger) {
     try {
         await databoxClient.deleteAsset(asset.workspaceId, asset.path);
-    } catch (error) {
+    } catch (error: any) {
         if (error.response) {
             console.error(error.response.data);
         }

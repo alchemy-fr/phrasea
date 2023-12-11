@@ -1,6 +1,6 @@
-import apiClient from "./api-client";
-import {Group, User} from "../types";
-import {UserPreferences} from "../components/User/Preferences/UserPreferencesContext";
+import apiClient from './api-client';
+import {Group, User} from '../types';
+import {UserPreferences} from '../components/User/Preferences/UserPreferencesContext';
 
 export async function getUsers(): Promise<User[]> {
     const res = await apiClient.get(`/permissions/users`);
@@ -20,7 +20,10 @@ export async function getUserPreferences(): Promise<UserPreferences> {
     return res.data;
 }
 
-export async function putUserPreferences(name: string, value: any): Promise<UserPreferences> {
+export async function putUserPreferences(
+    name: string,
+    value: any
+): Promise<UserPreferences> {
     const res = await apiClient.put(`/preferences`, {
         name,
         value,

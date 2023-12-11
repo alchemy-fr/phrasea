@@ -1,19 +1,16 @@
 import * as Minio from 'minio';
+import type {ClientOptions} from "minio";
 
 export type S3Options = {
-    type: 's3';
-    endPoint: string;
-    port: number
-    useSSL: boolean;
     insecure?: boolean;
-    bucketName?: string;
-    accessKey: string;
-    secretKey: string;
-}
+} & ClientOptions
 
-export function createS3Client(options: S3Options): Minio.Client {
+export function createS3Client({
+    insecure,
+    ...options
+}: S3Options): Minio.Client {
     const client = new Minio.Client(options);
-    if (options.insecure) {
+    if (insecure) {
         client.setRequestOptions({rejectUnauthorized: false})
     }
 

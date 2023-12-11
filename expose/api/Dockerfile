@@ -3,12 +3,13 @@ ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 # Warm up composer cache for faster builds
-COPY docker/caching/composer.* ./
+COPY ./expose/api/docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
     && rm -rf vendor composer.*
 # End warm up
 
-COPY . .
+COPY --chown=app:app lib/php /lib/php
+COPY --chown=app:app ./expose/api .
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
@@ -25,8 +26,8 @@ CMD ["php-fpm"]
 FROM ${REGISTRY_NAMESPACE}nginx-cache-purge:${BASE_TAG} AS api-nginx
 
 COPY --from=api-php /srv/app/public /srv/app/public
-COPY docker/nginx/entrypoint.sh /entrypoint.sh
-COPY docker/nginx/tpl /etc/nginx/tpl
+COPY ./expose/api/docker/nginx/entrypoint.sh /entrypoint.sh
+COPY ./expose/api/docker/nginx/tpl /etc/nginx/tpl
 
 EXPOSE 80
 ENTRYPOINT ["/entrypoint.sh"]
@@ -41,6 +42,6 @@ RUN apk add --no-cache \
     && chown -R app: /var/log/supervisor \
     && docker-php-ext-install pcntl
 
-COPY docker/supervisor/* /etc/supervisor.d/
+COPY ./expose/api/docker/supervisor/* /etc/supervisor.d/
 
 CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]

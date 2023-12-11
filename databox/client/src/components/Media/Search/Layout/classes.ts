@@ -9,6 +9,6 @@ const assetClasses = {
     thumbActive: 'tha',
     thumbInactive: 'thia',
     thumbWrapper: 'tw',
-}
+};
 
 export default assetClasses;

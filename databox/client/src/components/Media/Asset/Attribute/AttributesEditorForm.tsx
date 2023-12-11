@@ -1,12 +1,12 @@
-import React from "react";
-import {FormLabel, Skeleton} from "@mui/material";
-import {attributeBatchUpdate} from "../../../../api/asset";
-import {Asset} from "../../../../types";
-import {toast} from "react-toastify";
-import FormTab from "../../../Dialog/Tabbed/FormTab";
-import AttributesEditor from "./AttributesEditor";
-import {useAttributeEditor} from "./useAttributeEditor";
-import FormRow from "../../../Form/FormRow";
+import {FormLabel, Skeleton} from '@mui/material';
+import {attributeBatchUpdate} from '../../../../api/asset';
+import {Asset} from '../../../../types';
+import {toast} from 'react-toastify';
+import FormTab from '../../../Dialog/Tabbed/FormTab';
+import AttributesEditor from './AttributesEditor';
+import {useAttributeEditor} from './useAttributeEditor';
+import FormRow from '../../../Form/FormRow';
+import React from 'react';
 
 type Props = {
     workspaceId: string;
@@ -14,7 +14,7 @@ type Props = {
     multiAssets?: Asset[];
     onClose: () => void;
     minHeight?: number | undefined;
-}
+};
 
 export default function AttributesEditorForm({
     workspaceId,
@@ -45,7 +45,7 @@ export default function AttributesEditorForm({
             }
             await reloadAssetAttributes(assetId as string);
 
-            toast.success("Attributes saved!", {});
+            toast.success('Attributes saved!', {});
 
             setSaving(false);
 
@@ -57,50 +57,60 @@ export default function AttributesEditorForm({
             setSaving(false);
             if (e.response && typeof e.response.data === 'object') {
                 const data = e.response.data;
-                setError(`${data['hydra:title']}: ${data['hydra:description']}`);
+                setError(
+                    `${data['hydra:title']}: ${data['hydra:description']}`
+                );
             } else {
                 setError(e.toString());
             }
         }
     }, [getActions]);
 
-    return <>
-        <FormTab
-            formId={'a'}
-            onSave={onSave}
-            onClose={onClose}
-            minHeight={minHeight}
-            loading={saving}
-        >
-            {attributes && definitionIndex ? <AttributesEditor
-                attributes={attributes}
-                definitions={definitionIndex}
-                disabled={saving}
-                onChangeHandler={onChangeHandler}
-            /> : <>
-                {[0, 1, 2].map(x => <React.Fragment key={x}>
-                    <FormRow>
-                        <FormLabel>
-                            <Skeleton
-                                width={'200'}
-                                variant={'text'}
-                                style={{
-                                    display: 'inline-block',
-                                    width: '200px',
-                                }}
-                            />
-                        </FormLabel>
-                        <Skeleton
-                            width={'100%'}
-                            height={56}
-                            variant={'rectangular'}
-                            sx={{
-                                mb: 2,
-                            }}
-                        />
-                    </FormRow>
-                </React.Fragment>)}
-            </>}
-        </FormTab>
-    </>
+    return (
+        <>
+            <FormTab
+                formId={'a'}
+                onSave={onSave}
+                onClose={onClose}
+                minHeight={minHeight}
+                loading={saving}
+            >
+                {attributes && definitionIndex ? (
+                    <AttributesEditor
+                        attributes={attributes}
+                        definitions={definitionIndex}
+                        disabled={saving}
+                        onChangeHandler={onChangeHandler}
+                    />
+                ) : (
+                    <>
+                        {[0, 1, 2].map(x => (
+                            <React.Fragment key={x}>
+                                <FormRow>
+                                    <FormLabel>
+                                        <Skeleton
+                                            width={'200'}
+                                            variant={'text'}
+                                            style={{
+                                                display: 'inline-block',
+                                                width: '200px',
+                                            }}
+                                        />
+                                    </FormLabel>
+                                    <Skeleton
+                                        width={'100%'}
+                                        height={56}
+                                        variant={'rectangular'}
+                                        sx={{
+                                            mb: 2,
+                                        }}
+                                    />
+                                </FormRow>
+                            </React.Fragment>
+                        ))}
+                    </>
+                )}
+            </FormTab>
+        </>
+    );
 }

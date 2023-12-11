@@ -1,13 +1,13 @@
 import React, {PropsWithChildren, ReactNode} from 'react';
-import {Asset} from "../../../../types";
-import SectionDivider from "./SectionDivider";
-import {AttributeFormatContext} from "../../Asset/Attribute/Format/AttributeFormatContext";
-import {IconButton, styled} from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import {AttributeType} from "../../../../api/attributes";
-import {AttributeFormat} from "../../Asset/Attribute/types/types";
-import {getAttributeType} from "../../Asset/Attribute/types";
-import {groupValueTypes} from "./GroupValue/types";
+import {Asset} from '../../../../types';
+import SectionDivider from './SectionDivider';
+import {AttributeFormatContext} from '../../Asset/Attribute/Format/AttributeFormatContext';
+import {IconButton} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import {AttributeType} from '../../../../api/attributes';
+import {AttributeFormat} from '../../Asset/Attribute/types/types';
+import {getAttributeType} from '../../Asset/Attribute/types';
+import {groupValueTypes} from './GroupValue/types';
 
 type Props = PropsWithChildren<{
     asset: Asset;
@@ -22,61 +22,73 @@ export default function GroupRow({
     const formatContext = React.useContext(AttributeFormatContext);
 
     if (!groupValue) {
-        return <>{children}</>
+        return <>{children}</>;
     }
 
-    const {
-        values,
-        type,
-        name,
-    } = groupValue;
+    const {values, type, name} = groupValue;
 
     const toggleFormatClass = 'toggle-format';
 
-    return <>
-        <SectionDivider
-            dividerSx={{
-                [`.${toggleFormatClass}`]: {
-                    display: 'none',
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    ml: 1,
-                },
-                ':hover': {
+    return (
+        <>
+            <SectionDivider
+                dividerSx={{
                     [`.${toggleFormatClass}`]: {
-                        display: 'flex',
+                        display: 'none',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        ml: 1,
                     },
-                },
-                'span + span': {
-                    ml: 1,
-                },
-                '.MuiChip-root': {
-                    my: -1,
-                }
-            }}
-            top={searchMenuHeight}
-        >
-            {formatContext.hasFormats(type) && <IconButton
-                className={toggleFormatClass}
-                onClick={() => formatContext.toggleFormat(type)}
-                sx={{
-                    mr: 1,
+                    ':hover': {
+                        [`.${toggleFormatClass}`]: {
+                            display: 'flex',
+                        },
+                    },
+                    'span + span': {
+                        ml: 1,
+                    },
+                    '.MuiChip-root': {
+                        my: -1,
+                    },
                 }}
+                top={searchMenuHeight}
             >
-                <VisibilityIcon
-                    fontSize={'small'}
-                />
-            </IconButton>}
-            {values.length > 0 ? values.map((v, i) => <span key={i}>
-                {groupValueTypes[name] ? groupValueTypes[name](v) : formatAttribute(type, v, formatContext.formats[type])}
-            </span>) : 'None'}
-        </SectionDivider>
-        {children}
-    </>
+                {formatContext.hasFormats(type) && (
+                    <IconButton
+                        className={toggleFormatClass}
+                        onClick={() => formatContext.toggleFormat(type)}
+                        sx={{
+                            mr: 1,
+                        }}
+                    >
+                        <VisibilityIcon fontSize={'small'} />
+                    </IconButton>
+                )}
+                {values.length > 0
+                    ? values.map((v, i) => (
+                          <span key={i}>
+                              {groupValueTypes[name]
+                                  ? groupValueTypes[name](v)
+                                  : formatAttribute(
+                                        type,
+                                        v,
+                                        formatContext.formats[type]
+                                    )}
+                          </span>
+                      ))
+                    : 'None'}
+            </SectionDivider>
+            {children}
+        </>
+    );
 }
 
-export function formatAttribute(type: AttributeType, value: any, format?: AttributeFormat): ReactNode | undefined {
+export function formatAttribute(
+    type: AttributeType,
+    value: any,
+    format?: AttributeFormat
+): ReactNode | undefined {
     if (!value) {
         return;
     }

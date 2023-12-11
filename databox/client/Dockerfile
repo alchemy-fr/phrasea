@@ -2,21 +2,31 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
 
-COPY . .
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY --chown=node:node ./lib/js ./lib/js
+COPY --chown=node:node ./databox/client ./databox/client
 
-RUN yarn install \
-    && mv public/index.tpl.html public/index.html \
-    && yarn run build
+USER node
+
+WORKDIR /srv/workspace/databox/client
+
+ENV NODE_ENV=development
+
+RUN pnpm install \
+    && mv index.tpl.html index.html
+
+RUN ls -la .
+
+RUN pnpm build
 
 ############
 
 FROM nginx:1.17.6-alpine as client-nginx
 
-COPY --from=client-build /usr/src/app/build /var/app
-COPY docker/nginx/conf.d /etc/nginx/conf.d
+COPY --from=client-build /srv/workspace/databox/client/dist /var/app
+COPY ./databox/client/docker/nginx/conf.d /etc/nginx/conf.d
 
 RUN apk add --no-cache libstdc++ \
-    && apk --no-cache add perl \
     && apk add --virtual .build \
         wget \
     && mkdir -p /var/docker \
@@ -27,7 +37,7 @@ RUN apk add --no-cache libstdc++ \
 
 EXPOSE 80
 
-COPY config-compiler.js /var/app/
+COPY ./databox/client/config-compiler.js /var/app/
 
 WORKDIR /var/app
 

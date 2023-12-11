@@ -64,18 +64,6 @@ dc run --rm dev bin/dev/yarn-install.sh
 dc up -d
 ```
 
-### Shared libraries
-
-Back applications share some librairies/bundles (stored in this repository).
-Because symlinking does not work outside a Docker container, we need to copy the bundles in the volume of the container.
-When modifying a local bundle, we need to keep it synced with:
-
-```bash
-bin/update-libs.sh
-```
-
-This will copy all librairies/bundles (`./lib/*`) in all Symfony application in a sub folder `__lib`.
-
 ### Composer caching in Docker
 
 In order to keep vendor docker layer and to prevent composer from downloading all packages every time an app file change

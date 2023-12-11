@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from "../../Media/Asset/FileIntegrations";
+import {useEffect, useState} from 'react';
+import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
 import {
     Button,
     List,
@@ -8,93 +8,138 @@ import {
     ListItemIcon,
     ListItemText,
     ListSubheader,
-    Tooltip
-} from "@mui/material";
-import {runIntegrationFileAction} from "../../../api/integrations";
-import {IntegrationOverlayCommonProps} from "../../Media/Asset/AssetView";
+    Tooltip,
+} from '@mui/material';
+import {runIntegrationFileAction} from '../../../api/integrations';
+import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
-import {WorkspaceIntegration} from "../../../types";
-import IntegrationPanelContent from "../Common/IntegrationPanelContent";
-import {DetectType, FaceDetail, FacesData, ImageLabel, LabelsData, TextDetection, TextsData} from "./types";
-import FaceDetailTooltip from "./FaceDetailTooltip";
-import ValueConfidence from "./ValueConfidence";
+import {WorkspaceIntegration} from '../../../types';
+import IntegrationPanelContent from '../Common/IntegrationPanelContent';
+import {
+    DetectType,
+    FaceDetail,
+    FacesData,
+    ImageLabel,
+    LabelsData,
+    TextDetection,
+    TextsData,
+} from './types';
+import FaceDetailTooltip from './FaceDetailTooltip';
+import ValueConfidence from './ValueConfidence';
 
 function ImageOverlay({
     labels,
     texts,
-    faces
+    faces,
 }: {
     labels: ImageLabel[] | undefined;
     texts: TextDetection[] | undefined;
     faces: FaceDetail[] | undefined;
 } & IntegrationOverlayCommonProps) {
-    return <div>
-        {labels && labels.map((il, j) => {
-            return <>
-                {il.Instances.map((i, k) => {
-                    const box = i.BoundingBox;
+    return (
+        <div>
+            {labels &&
+                labels.map((il, j) => {
+                    return (
+                        <>
+                            {il.Instances.map((i, k) => {
+                                const box = i.BoundingBox;
+
+                                const percent = (x: number) => `${x * 100}%`;
+
+                                return (
+                                    <Tooltip
+                                        title={
+                                            <>
+                                                {il.Name}{' '}
+                                                <small>
+                                                    (
+                                                    <ValueConfidence
+                                                        confidence={
+                                                            il.Confidence
+                                                        }
+                                                    />
+                                                    )
+                                                </small>
+                                            </>
+                                        }
+                                        arrow
+                                    >
+                                        <div
+                                            key={`${j}-${k}`}
+                                            style={{
+                                                position: 'absolute',
+                                                top: percent(box.Top),
+                                                left: percent(box.Left),
+                                                width: percent(box.Width),
+                                                height: percent(box.Height),
+                                                boxShadow: `0 0 3px blue, 0 0 3px inset blue`,
+                                            }}
+                                        ></div>
+                                    </Tooltip>
+                                );
+                            })}
+                        </>
+                    );
+                })}
+            {texts &&
+                texts.map((i, k) => {
+                    const box = i.Geometry.BoundingBox;
 
                     const percent = (x: number) => `${x * 100}%`;
 
-                    return <Tooltip title={<>
-                        {il.Name}{' '}
-                        <small>(<ValueConfidence confidence={il.Confidence}/>)</small>
-                    </>} arrow>
+                    return (
                         <div
-                            key={`${j}-${k}`}
+                            key={k}
                             style={{
                                 position: 'absolute',
                                 top: percent(box.Top),
                                 left: percent(box.Left),
                                 width: percent(box.Width),
                                 height: percent(box.Height),
-                                boxShadow: `0 0 3px blue, 0 0 3px inset blue`,
+                                boxShadow: `0 0 3px red, 0 0 3px inset red`,
                             }}
                         ></div>
-                    </Tooltip>
+                    );
                 })}
-            </>
-        })}
-        {texts && texts.map((i, k) => {
-            const box = i.Geometry.BoundingBox;
+            {faces &&
+                faces.map((i, k) => {
+                    const box = i.BoundingBox;
+                    const percent = (x: number) => `${x * 100}%`;
 
-            const percent = (x: number) => `${x * 100}%`;
-
-            return <div
-                key={k}
-                style={{
-                    position: 'absolute',
-                    top: percent(box.Top),
-                    left: percent(box.Left),
-                    width: percent(box.Width),
-                    height: percent(box.Height),
-                    boxShadow: `0 0 3px red, 0 0 3px inset red`,
-                }}
-            ></div>
-        })}
-        {faces && faces.map((i, k) => {
-            const box = i.BoundingBox;
-            const percent = (x: number) => `${x * 100}%`;
-
-            return <Tooltip title={<FaceDetailTooltip detail={i} title={`Face #${k + 1}`}/>} arrow>
-                <div
-                    key={k}
-                    style={{
-                        position: 'absolute',
-                        top: percent(box.Top),
-                        left: percent(box.Left),
-                        width: percent(box.Width),
-                        height: percent(box.Height),
-                        boxShadow: `0 0 3px yellow, 0 0 3px inset yellow`,
-                    }}
-                ></div>
-            </Tooltip>
-        })}
-    </div>
+                    return (
+                        <Tooltip
+                            title={
+                                <FaceDetailTooltip
+                                    detail={i}
+                                    title={`Face #${k + 1}`}
+                                />
+                            }
+                            arrow
+                        >
+                            <div
+                                key={k}
+                                style={{
+                                    position: 'absolute',
+                                    top: percent(box.Top),
+                                    left: percent(box.Left),
+                                    width: percent(box.Width),
+                                    height: percent(box.Height),
+                                    boxShadow: `0 0 3px yellow, 0 0 3px inset yellow`,
+                                }}
+                            ></div>
+                        </Tooltip>
+                    );
+                })}
+        </div>
+    );
 }
 
-function parseData<T>(integration: WorkspaceIntegration, key: string): T | undefined {
+function parseData<T>(
+    integration: WorkspaceIntegration,
+    key: string
+): T | undefined {
     const value = integration.data.find(d => d.name === key);
 
     if (!value) {
@@ -108,7 +153,7 @@ type Props = {} & AssetIntegrationActionsProps;
 
 type ApiCategory = {
     enabled: boolean;
-}
+};
 
 export default function AwsRekognitionAssetEditorActions({
     file,
@@ -124,9 +169,14 @@ export default function AwsRekognitionAssetEditorActions({
     const process = async (category: DetectType) => {
         setRunning(category);
         try {
-            const res = await runIntegrationFileAction('analyze', integration.id, file.id, {
-                category
-            });
+            const res = await runIntegrationFileAction(
+                'analyze',
+                integration.id,
+                file.id,
+                {
+                    category,
+                }
+            );
 
             switch (category) {
                 case DetectType.Labels:
@@ -139,7 +189,6 @@ export default function AwsRekognitionAssetEditorActions({
                     setFaces(res[DetectType.Faces]);
                     break;
             }
-
         } catch (e) {
             setRunning(undefined);
             throw e;
@@ -153,7 +202,8 @@ export default function AwsRekognitionAssetEditorActions({
     }, [integration.data]);
 
     useEffect(() => {
-        const instances = labels?.Labels.filter(l => l.Instances.length > 0) ?? [];
+        const instances =
+            labels?.Labels.filter(l => l.Instances.length > 0) ?? [];
 
         if (enableInc && (instances.length > 0 || texts || faces)) {
             setIntegrationOverlay(ImageOverlay, {
@@ -170,97 +220,128 @@ export default function AwsRekognitionAssetEditorActions({
         faces: ApiCategory;
     };
 
-    return <>
-        {config.labels.enabled && !labels && <IntegrationPanelContent>
-            <Button
-                onClick={() => process(DetectType.Labels)}
-                disabled={running === DetectType.Labels}
-                variant={'contained'}
-                startIcon={<ImageSearchIcon/>}
-            >
-                Detect image labels
-            </Button>
-        </IntegrationPanelContent>}
-        {config.texts.enabled && !texts && <IntegrationPanelContent>
-            <Button
-                onClick={() => process(DetectType.Texts)}
-                disabled={running === DetectType.Texts}
-                variant={'contained'}
-                startIcon={<ImageSearchIcon/>}
-            >
-                Detect texts
-            </Button>
-        </IntegrationPanelContent>}
-        {config.faces.enabled && !faces && <IntegrationPanelContent>
-            <Button
-                onClick={() => process(DetectType.Faces)}
-                disabled={running === DetectType.Faces}
-                variant={'contained'}
-                startIcon={<ImageSearchIcon/>}
-            >
-                Detect faces
-            </Button>
-        </IntegrationPanelContent>}
-        {labels && <div>
-            <List
-                component="div"
-                disablePadding
-            >
-                <ListSubheader>Labels</ListSubheader>
-                {labels.Labels.map(l => {
-                    return <ListItemButton
-                        key={l.Name}
+    return (
+        <>
+            {config.labels.enabled && !labels && (
+                <IntegrationPanelContent>
+                    <Button
+                        onClick={() => process(DetectType.Labels)}
+                        disabled={running === DetectType.Labels}
+                        variant={'contained'}
+                        startIcon={<ImageSearchIcon />}
                     >
-                        <ListItemText>
-                            {l.Name} <small>(<ValueConfidence confidence={l.Confidence}/>)</small>
-                        </ListItemText>
-                        {l.Instances.length > 0 && <ListItemIcon
-                        >
-                            <VisibilityIcon/>
-                        </ListItemIcon>}
-                    </ListItemButton>
-                })}
-            </List>
-        </div>}
-        {texts && <div>
-            <List
-                component="div"
-                disablePadding
-            >
-                <ListSubheader>Text</ListSubheader>
-                {texts.TextDetections.length === 0 && <ListItem>
-                    <ListItemText>No text detected</ListItemText>
-                </ListItem>}
-                {texts.TextDetections.map(l => {
-                    return <ListItemButton
-                        key={l.Id}
+                        Detect image labels
+                    </Button>
+                </IntegrationPanelContent>
+            )}
+            {config.texts.enabled && !texts && (
+                <IntegrationPanelContent>
+                    <Button
+                        onClick={() => process(DetectType.Texts)}
+                        disabled={running === DetectType.Texts}
+                        variant={'contained'}
+                        startIcon={<ImageSearchIcon />}
                     >
-                        <ListItemText>
-                            {l.DetectedText} <small>(<ValueConfidence confidence={l.Confidence}/>)</small>
-                        </ListItemText>
-                    </ListItemButton>
-                })}
-            </List>
-        </div>}
-        {faces && <div>
-            <List
-                component="div"
-                disablePadding
-            >
-                <ListSubheader>Faces</ListSubheader>
-                {faces.FaceDetails.length === 0 && <ListItem>
-                    <ListItemText>No face detected</ListItemText>
-                </ListItem>}
-                {faces.FaceDetails.map((l, i) => {
-                    return <ListItemButton
-                        key={i}
+                        Detect texts
+                    </Button>
+                </IntegrationPanelContent>
+            )}
+            {config.faces.enabled && !faces && (
+                <IntegrationPanelContent>
+                    <Button
+                        onClick={() => process(DetectType.Faces)}
+                        disabled={running === DetectType.Faces}
+                        variant={'contained'}
+                        startIcon={<ImageSearchIcon />}
                     >
-                        <ListItemText>
-                            Face #{i + 1} <small>(<ValueConfidence confidence={l.Confidence}/>)</small>
-                        </ListItemText>
-                    </ListItemButton>
-                })}
-            </List>
-        </div>}
-    </>
+                        Detect faces
+                    </Button>
+                </IntegrationPanelContent>
+            )}
+            {labels && (
+                <div>
+                    <List component="div" disablePadding>
+                        <ListSubheader>Labels</ListSubheader>
+                        {labels.Labels.map(l => {
+                            return (
+                                <ListItemButton key={l.Name}>
+                                    <ListItemText>
+                                        {l.Name}{' '}
+                                        <small>
+                                            (
+                                            <ValueConfidence
+                                                confidence={l.Confidence}
+                                            />
+                                            )
+                                        </small>
+                                    </ListItemText>
+                                    {l.Instances.length > 0 && (
+                                        <ListItemIcon>
+                                            <VisibilityIcon />
+                                        </ListItemIcon>
+                                    )}
+                                </ListItemButton>
+                            );
+                        })}
+                    </List>
+                </div>
+            )}
+            {texts && (
+                <div>
+                    <List component="div" disablePadding>
+                        <ListSubheader>Text</ListSubheader>
+                        {texts.TextDetections.length === 0 && (
+                            <ListItem>
+                                <ListItemText>No text detected</ListItemText>
+                            </ListItem>
+                        )}
+                        {texts.TextDetections.map(l => {
+                            return (
+                                <ListItemButton key={l.Id}>
+                                    <ListItemText>
+                                        {l.DetectedText}{' '}
+                                        <small>
+                                            (
+                                            <ValueConfidence
+                                                confidence={l.Confidence}
+                                            />
+                                            )
+                                        </small>
+                                    </ListItemText>
+                                </ListItemButton>
+                            );
+                        })}
+                    </List>
+                </div>
+            )}
+            {faces && (
+                <div>
+                    <List component="div" disablePadding>
+                        <ListSubheader>Faces</ListSubheader>
+                        {faces.FaceDetails.length === 0 && (
+                            <ListItem>
+                                <ListItemText>No face detected</ListItemText>
+                            </ListItem>
+                        )}
+                        {faces.FaceDetails.map((l, i) => {
+                            return (
+                                <ListItemButton key={i}>
+                                    <ListItemText>
+                                        Face #{i + 1}{' '}
+                                        <small>
+                                            (
+                                            <ValueConfidence
+                                                confidence={l.Confidence}
+                                            />
+                                            )
+                                        </small>
+                                    </ListItemText>
+                                </ListItemButton>
+                            );
+                        })}
+                    </List>
+                </div>
+            )}
+        </>
+    );
 }

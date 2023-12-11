@@ -1,15 +1,12 @@
-import {useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
-import {PropsWithChildren} from "react";
+import {useSortable} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
+import {PropsWithChildren} from 'react';
 
 type Props = PropsWithChildren<{
     id: string;
 }>;
 
-export default function SortableNode({
-    id,
-    children,
-}: Props) {
+export default function SortableNode({id, children}: Props) {
     const {
         attributes,
         listeners,
@@ -26,12 +23,9 @@ export default function SortableNode({
         opacity: isDragging ? 0.5 : 1,
     };
 
-    return <div
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-    >
-        {children}
-    </div>
+    return (
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            {children}
+        </div>
+    );
 }

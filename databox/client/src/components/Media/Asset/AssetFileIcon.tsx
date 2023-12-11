@@ -1,13 +1,13 @@
-import React from 'react';
-import {File} from "../../../types";
+import {File} from '../../../types';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
 import ArticleIcon from '@mui/icons-material/Article';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import {SvgIcon, SvgIconProps} from "@mui/material";
-import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../lib/file";
+import {SvgIcon, SvgIconProps} from '@mui/material';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
+import React from 'react';
 
 function getIconFromType(type: string | undefined): typeof SvgIcon {
     switch (getFileTypeFromMIMEType(type)) {
@@ -57,10 +57,7 @@ type Props = {
     file: File;
 } & SvgIconProps;
 
-export default function AssetFileIcon({
-    file,
-    ...iconProps
-}: Props) {
+export default function AssetFileIcon({file, ...iconProps}: Props) {
     return React.createElement(getIconFromType(file.type), {
         fontSize: 'large',
         ...iconProps,

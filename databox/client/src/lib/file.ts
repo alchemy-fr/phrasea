@@ -6,7 +6,9 @@ export enum FileTypeEnum {
     Image,
 }
 
-export function getFileTypeFromMIMEType(type: string | undefined): FileTypeEnum {
+export function getFileTypeFromMIMEType(
+    type: string | undefined
+): FileTypeEnum {
     if (!type) {
         return FileTypeEnum.Unknown;
     }

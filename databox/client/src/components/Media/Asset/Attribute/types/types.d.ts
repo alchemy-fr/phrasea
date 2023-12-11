@@ -1,5 +1,5 @@
-import React from "react";
-import {AttributeFormat} from "../Format/AttributeFormatContext";
+import {AttributeFormat} from '../Format/AttributeFormatContext';
+import React from 'react';
 
 export type AttributeWidgetProps = {
     id: string;
@@ -27,7 +27,7 @@ export type AttributeFormatterProps = {
 export type AvailableFormat = {
     name: AttributeFormat;
     title: string;
-}
+};
 
 export type AttributeTypeFormatter = {
     supportsMultiple(): boolean;
@@ -35,11 +35,12 @@ export type AttributeTypeFormatter = {
     formatValueAsString(props: AttributeFormatterProps): string | undefined;
 
     getAvailableFormats(): AvailableFormat[];
-}
+};
 export type AttributeTypeWidget = {
     renderWidget(props: AttributeWidgetProps): React.ReactNode;
     denormalize(value: any): any;
-}
+};
 
-export type AttributeTypeInstance = AttributeTypeFormatter & AttributeTypeWidget;
-export type AttributeTypeClass = { new(): AttributeTypeInstance };
+export type AttributeTypeInstance = AttributeTypeFormatter &
+    AttributeTypeWidget;
+export type AttributeTypeClass = {new (): AttributeTypeInstance};

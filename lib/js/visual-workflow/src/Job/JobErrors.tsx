@@ -1,4 +1,3 @@
-import React from 'react';
 import {JobError} from "../types";
 
 type Props = {

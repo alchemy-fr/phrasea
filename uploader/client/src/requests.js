@@ -1,4 +1,4 @@
-import apiClient from "./lib/api";
+import apiClient from './lib/apiClient';
 
 export async function getFormSchema(targetId) {
     return (await apiClient.get(`/targets/${targetId}/form-schema`)).data;
@@ -13,9 +13,11 @@ export async function getTarget(id) {
 }
 
 export async function getTargetParams(targetId) {
-    return (await apiClient.get(`/target-params`, {
-        params: {
-            target: targetId,
-        },
-    })).data['hydra:member'];
+    return (
+        await apiClient.get(`/target-params`, {
+            params: {
+                target: targetId,
+            },
+        })
+    ).data['hydra:member'];
 }

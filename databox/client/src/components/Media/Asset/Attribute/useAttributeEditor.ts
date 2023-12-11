@@ -1,15 +1,15 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     AttributeIndex,
     AttrValue,
     DefinitionIndex,
     NO_LOCALE,
-    OnChangeHandler
-} from "./AttributesEditor";
-import {Attribute, AttributeDefinition} from "../../../../types";
-import {getWorkspaceAttributeDefinitions} from "../../../../api/attributes";
-import {getAssetAttributes} from "../../../../api/asset";
-import {getBatchActions} from "./BatchActions";
+    OnChangeHandler,
+} from './AttributesEditor';
+import {Attribute, AttributeDefinition} from '../../../../types';
+import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
+import {getAssetAttributes} from '../../../../api/asset';
+import {getBatchActions} from './BatchActions';
 
 export function useAttributeEditor({
     workspaceId,
@@ -23,7 +23,9 @@ export function useAttributeEditor({
         definitionIndex: DefinitionIndex;
     }>();
 
-    const [attributes, setAttributes] = useState<AttributeIndex<string | number> | undefined>();
+    const [attributes, setAttributes] = useState<
+        AttributeIndex<string | number> | undefined
+    >();
 
     useEffect(() => {
         setAttributes(undefined);
@@ -38,17 +40,20 @@ export function useAttributeEditor({
                     promises.push(getAssetAttributes(assetId));
                 }
 
-                const [
-                    definitions,
-                    attributes,
-                ]: [AttributeDefinition[], Attribute[]] = await Promise.all(promises) as any;
+                const [definitions, attributes]: [
+                    AttributeDefinition[],
+                    Attribute[]
+                ] = (await Promise.all(promises)) as any;
 
                 const definitionIndex: DefinitionIndex = {};
-                for (let ad of definitions) {
+                for (const ad of definitions) {
                     definitionIndex[ad.id] = ad;
                 }
 
-                const attributeIndex = buildAttributeIndex(definitionIndex, attributes ?? []);
+                const attributeIndex = buildAttributeIndex(
+                    definitionIndex,
+                    attributes ?? []
+                );
 
                 setAttributes(attributeIndex);
                 setState({
@@ -59,35 +64,41 @@ export function useAttributeEditor({
         }
     }, [workspaceId, assetId]);
 
-    const onChangeHandler = useCallback<OnChangeHandler>((defId, locale, value) => {
-        setAttributes((prev): AttributeIndex<string | number> => {
-            const newValues = {...prev!};
+    const onChangeHandler = useCallback<OnChangeHandler>(
+        (defId, locale, value) => {
+            setAttributes((prev): AttributeIndex<string | number> => {
+                const newValues = {...prev!};
 
-            if (value === undefined) {
-                if (newValues[defId]) {
-                    delete newValues[defId][locale];
+                if (value === undefined) {
+                    if (newValues[defId]) {
+                        delete newValues[defId][locale];
+                    }
+                } else {
+                    newValues[defId] = {
+                        ...(newValues[defId] ?? {}),
+                        [locale]: value,
+                    };
                 }
-            } else {
-                newValues[defId] = {
-                    ...(newValues[defId] ?? {}),
-                    [locale]: value,
-                };
-            }
 
-            if (Object.keys(newValues[defId]).length === 0) {
-                delete newValues[defId];
-            }
+                if (Object.keys(newValues[defId]).length === 0) {
+                    delete newValues[defId];
+                }
 
-            return newValues;
-        });
-    }, []);
+                return newValues;
+            });
+        },
+        []
+    );
 
-    const setRemoteAttributes = React.useCallback((remoteAttributes: AttributeIndex) => {
-        setState(p => ({
-            ...(p!),
-            remoteAttributes,
-        }))
-    }, []);
+    const setRemoteAttributes = React.useCallback(
+        (remoteAttributes: AttributeIndex) => {
+            setState(p => ({
+                ...p!,
+                remoteAttributes,
+            }));
+        },
+        []
+    );
 
     const reset = React.useCallback(() => {
         setAttributes(state?.remoteAttributes);
@@ -96,14 +107,21 @@ export function useAttributeEditor({
     return React.useMemo(() => {
         const reloadAssetAttributes = async (assetId: string) => {
             const res = await getAssetAttributes(assetId);
-            const attributeIndex = buildAttributeIndex(state!.definitionIndex, res);
+            const attributeIndex = buildAttributeIndex(
+                state!.definitionIndex,
+                res
+            );
 
             setRemoteAttributes(attributeIndex);
             setAttributes(attributeIndex);
         };
 
         const getActions = () => {
-            return getBatchActions(attributes!, state!.definitionIndex, state!.remoteAttributes);
+            return getBatchActions(
+                attributes!,
+                state!.definitionIndex,
+                state!.remoteAttributes
+            );
         };
 
         return {
@@ -114,17 +132,20 @@ export function useAttributeEditor({
             onChangeHandler,
             getActions,
             reset,
-        }
+        };
     }, [state, workspaceId, attributes]);
 }
 
-export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes: Attribute[]): AttributeIndex {
+export function buildAttributeIndex(
+    definitionIndex: DefinitionIndex,
+    attributes: Attribute[]
+): AttributeIndex {
     const attributeIndex: AttributeIndex = {};
-    Object.keys(definitionIndex).forEach((k) => {
+    Object.keys(definitionIndex).forEach(k => {
         attributeIndex[definitionIndex[k].id] = {};
     });
 
-    for (let a of attributes) {
+    for (const a of attributes) {
         const def = definitionIndex[a.definition.id];
         if (!def) {
             continue;
@@ -146,7 +167,6 @@ export function buildAttributeIndex(definitionIndex: DefinitionIndex, attributes
             }
             (attributeIndex[a.definition.id][l]! as AttrValue[]).push(v);
         } else {
-
             attributeIndex[a.definition.id][l] = v;
         }
     }

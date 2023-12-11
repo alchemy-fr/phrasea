@@ -1,16 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './scss/index.scss';
 import ConfigWrapper from './component/ConfigWrapper';
-import * as serviceWorker from './serviceWorker';
 import './i18n/i18n';
-import AnalyticsProvider from "./component/anaytics/AnalyticsProvider";
+import AnalyticsProvider from './component/anaytics/AnalyticsProvider';
 
-ReactDOM.render(<AnalyticsProvider>
-    <ConfigWrapper />
-</AnalyticsProvider>, document.getElementById('root'));
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <AnalyticsProvider>
+        <ConfigWrapper />
+    </AnalyticsProvider>
+);

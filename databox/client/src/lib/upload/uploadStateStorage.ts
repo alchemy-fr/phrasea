@@ -4,14 +4,14 @@ const key = 'uploadState';
 type Chunk = string;
 
 type Upload = {
-    u: string,
-    p: string,
-    c: Chunk[],
+    u: string;
+    p: string;
+    c: Chunk[];
 };
 
 type FileIndex = {
     [key: string]: Upload;
-}
+};
 
 type UserIndex = {
     [key: string]: FileIndex;
@@ -31,7 +31,12 @@ class UploadStateStorage {
         return d[userId][fileUID];
     }
 
-    initUpload(userId: string, fileUID: string, uploadId: string, path: string): void {
+    initUpload(
+        userId: string,
+        fileUID: string,
+        uploadId: string,
+        path: string
+    ): void {
         const d = this.getData();
 
         d[userId] = d[userId] || {};
@@ -64,7 +69,7 @@ class UploadStateStorage {
         }
 
         const item = uploadStorage.getItem(key);
-        return this.cache = item ? JSON.parse(item) as Storage : {};
+        return (this.cache = item ? (JSON.parse(item) as Storage) : {});
     }
 
     setData(data: UserIndex): void {
@@ -75,19 +80,26 @@ class UploadStateStorage {
         }
 
         this.writeTimeout = setTimeout(() => {
-            uploadStorage.setItem(key, JSON.stringify(data))
+            uploadStorage.setItem(key, JSON.stringify(data));
         }, 100);
     }
 }
 
 type BrowserFile = {
-    webkitRelativePath?: string,
-    relativePath?: string,
-    fileName?: string,
+    webkitRelativePath?: string;
+    relativePath?: string;
+    fileName?: string;
 } & File;
 
-export function getUniqueFileId(file: BrowserFile, fileChunkSize: number): string {
-    const relativePath = file.webkitRelativePath || file.relativePath || file.fileName || file.name;
+export function getUniqueFileId(
+    file: BrowserFile,
+    fileChunkSize: number
+): string {
+    const relativePath =
+        file.webkitRelativePath ||
+        file.relativePath ||
+        file.fileName ||
+        file.name;
 
     return `${file.size}-${fileChunkSize}-${relativePath}`;
 }

@@ -15,7 +15,10 @@ export function listenToQueue(
 ): void {
     logger.info(`AMQP: Connecting...`);
 
-    const connect = () => {
+    const connect = (): Promise<{
+        channel: Channel,
+        connection: Connection
+    }> => {
         return amqplib
             .connect(dsn)
             .then(function (conn) {
@@ -53,17 +56,17 @@ export function listenToQueue(
             });
 
             logger.debug('AMQP: prefetching channel...');
-            await channel.prefetch(parseInt(getEnv('DATABOX_CONCURRENCY', '2')));
+            await channel.prefetch(parseInt(getEnv('DATABOX_CONCURRENCY', '2')!));
 
             return channel;
         })
         .then(function (ch) {
             return ch.assertQueue(queueName)
-                .then(function (ok) {
+                .then(function () {
                     logger.debug('AMQP: wait for events...');
                     return ch
                         .consume(queueName, function (msg) {
-                            if (msg !== null) {
+                            if (msg) {
                                 callback(msg.content.toString())
                                     .then(() => {
                                         ch.ack(msg)

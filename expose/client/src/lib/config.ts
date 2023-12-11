@@ -2,25 +2,28 @@ export type AnalyticsConfig = {
     matomo?: {
         baseUrl: string;
         siteId: string;
-    }
-}
+    };
+};
 
 declare global {
+    type Config = {
+        analytics?: AnalyticsConfig;
+        locales: Readonly<string[]>;
+        autoConnectIdP: Readonly<string | undefined>;
+        baseUrl: Readonly<string>;
+        keycloakUrl: Readonly<string>;
+        realmName: Readonly<string>;
+        clientId: Readonly<string>;
+        displayServicesMenu: Readonly<boolean>;
+        requestSignatureTtl: Readonly<string>;
+        disableIndexPage?: Readonly<boolean>;
+        dashboardBaseUrl: Readonly<string>;
+        globalCSS: Readonly<string | undefined>;
+        zippyEnabled: Readonly<boolean | undefined>;
+    };
+
     interface Window {
-        config: {
-            analytics?: AnalyticsConfig;
-            locales: string[];
-            autoConnectIdP: string | undefined | null;
-            baseUrl: string;
-            keycloakUrl: string;
-            realmName: string;
-            clientId: string;
-            displayServicesMenu: string;
-            requestSignatureTtl: string;
-            disableIndexPage: string;
-            dashboardBaseUrl: string;
-            globalCSS: string | undefined;
-        };
+        config: Config;
     }
 }
 

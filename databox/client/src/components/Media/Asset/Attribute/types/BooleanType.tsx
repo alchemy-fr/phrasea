@@ -1,7 +1,12 @@
+import {
+    AttributeFormatterProps,
+    AttributeTypeInstance,
+    AttributeWidgetProps,
+    AvailableFormat,
+} from './types';
+import {Checkbox, Chip, FormControlLabel, TextFieldProps} from '@mui/material';
+import BaseType from './BaseType';
 import React from 'react';
-import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps, AvailableFormat} from "./types";
-import {Checkbox, Chip, FormControlLabel, TextFieldProps} from "@mui/material";
-import BaseType from "./BaseType";
 
 enum Formats {
     Thumbs = 'thumbs',
@@ -10,7 +15,10 @@ enum Formats {
     TrueFalse = 'true_false',
 }
 
-export default class BooleanType extends BaseType implements AttributeTypeInstance {
+export default class BooleanType
+    extends BaseType
+    implements AttributeTypeInstance
+{
     formatValue({value, format}: AttributeFormatterProps): React.ReactNode {
         if (false !== value && true !== value) {
             return;
@@ -19,16 +27,18 @@ export default class BooleanType extends BaseType implements AttributeTypeInstan
         switch (format ?? this.getDefaultFormat()) {
             default:
             case Formats.Label:
-                return <Chip
-                    color={value ? 'success' : 'error'}
-                    label={value ? 'Yes' : 'No'}
-                />
+                return (
+                    <Chip
+                        color={value ? 'success' : 'error'}
+                        label={value ? 'Yes' : 'No'}
+                    />
+                );
             case Formats.Binary:
-                return <>{value ? '1' : '0'}</>
+                return <>{value ? '1' : '0'}</>;
             case Formats.Thumbs:
-                return <>{value ? '👍' : '👎'}</>
+                return <>{value ? '👍' : '👎'}</>;
             case Formats.TrueFalse:
-                return <>{value ? 'true' : 'false'}</>
+                return <>{value ? 'true' : 'false'}</>;
         }
     }
 
@@ -37,14 +47,18 @@ export default class BooleanType extends BaseType implements AttributeTypeInstan
         onChange,
         name,
     }: AttributeWidgetProps): React.ReactNode {
-        return <FormControlLabel
-            control={<Checkbox
-                checked={value ?? false}
-                indeterminate={value === undefined}
-                onChange={(e, checked) => onChange(checked)}
-            />}
-            label={name}
-        />
+        return (
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        checked={value ?? false}
+                        indeterminate={value === undefined}
+                        onChange={(_e, checked) => onChange(checked)}
+                    />
+                }
+                label={name}
+            />
+        );
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
@@ -83,7 +97,7 @@ export default class BooleanType extends BaseType implements AttributeTypeInstan
             type: 'date',
             InputLabelProps: {
                 shrink: true,
-            }
+            },
         };
     }
 }

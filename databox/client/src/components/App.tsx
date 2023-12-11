@@ -1,27 +1,26 @@
-import React, {useContext, useEffect, useState} from 'react';
-import AssetSelectionProvider from "./Media/AssetSelectionProvider";
-import MainAppBar, {menuHeight} from "./Layout/MainAppBar";
-import LeftPanel from "./Media/LeftPanel";
-import ResultProvider from "./Media/Search/ResultProvider";
-import AssetResults from "./Media/Search/AssetResults";
-import SearchProvider from "./Media/Search/SearchProvider";
-import AssetDropzone from "./Media/Asset/AssetDropzone";
-import {toast, ToastContainer} from "react-toastify";
+import React, {useEffect} from 'react';
+import AssetSelectionProvider from './Media/AssetSelectionProvider';
+import MainAppBar, {menuHeight} from './Layout/MainAppBar';
+import LeftPanel from './Media/LeftPanel';
+import ResultProvider from './Media/Search/ResultProvider';
+import AssetResults from './Media/Search/AssetResults';
+import SearchProvider from './Media/Search/SearchProvider';
+import AssetDropzone from './Media/Asset/AssetDropzone';
+import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {Box, Theme, useMediaQuery} from "@mui/material";
-import axios, {AxiosError} from "axios";
-import {UserContext} from "./Security/UserContext";
-import {useTranslation} from "react-i18next";
-import apiClient from "../api/api-client";
-import DisplayProvider from "./Media/DisplayProvider";
-import {Outlet, useLocation} from "react-router-dom";
-import {appPathPrefix} from "../routes";
-import uploaderClient from "../api/uploader-client";
-import {zIndex} from "../themes/zIndex";
-import AttributeFormatProvider from "./Media/Asset/Attribute/Format/AttributeFormatProvider";
+import {Box, Theme, useMediaQuery} from '@mui/material';
+import apiClient from '../api/api-client';
+import DisplayProvider from './Media/DisplayProvider';
+import uploaderClient from '../api/uploader-client';
+import {zIndex} from '../themes/zIndex';
+import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
+import {useRequestErrorHandler} from '@alchemy/api';
+import {useAuth} from '../lib/auth.ts';
 
 const AppProxy = React.memo(() => {
-    const isSmallView = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+    const isSmallView = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down('md')
+    );
     const [leftPanelOpen, setLeftPanelOpen] = React.useState(!isSmallView);
     const toggleLeftPanel = React.useCallback(() => {
         setLeftPanelOpen(p => !p);
@@ -31,101 +30,76 @@ const AppProxy = React.memo(() => {
         setLeftPanelOpen(!isSmallView);
     }, [isSmallView]);
 
-    return <SearchProvider>
-        <ResultProvider>
-            <AssetDropzone>
-                <MainAppBar
-                    leftPanelOpen={leftPanelOpen}
-                    onToggleLeftPanel={toggleLeftPanel}
-                />
-                <AttributeFormatProvider>
-                    <AssetSelectionProvider>
-                        <DisplayProvider>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                height: `calc(100vh - ${menuHeight}px)`,
-                            }}>
-                                {leftPanelOpen && <Box sx={(theme) => ({
-                                    width: 360,
-                                    flexGrow: 0,
-                                    flexShrink: 0,
-                                    height: `calc(100vh - ${menuHeight}px)`,
-                                    overflow: 'auto',
-                                    boxShadow: theme.shadows[5],
-                                    zIndex: zIndex.leftPanel,
-                                })}>
-                                    <LeftPanel/>
-                                </Box>}
-                                <div style={{
-                                    flexGrow: 1,
-                                }}>
-                                    <AssetResults/>
+    return (
+        <SearchProvider>
+            <ResultProvider>
+                <AssetDropzone>
+                    <MainAppBar
+                        leftPanelOpen={leftPanelOpen}
+                        onToggleLeftPanel={toggleLeftPanel}
+                    />
+                    <AttributeFormatProvider>
+                        <AssetSelectionProvider>
+                            <DisplayProvider>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        height: `calc(100vh - ${menuHeight}px)`,
+                                    }}
+                                >
+                                    {leftPanelOpen && (
+                                        <Box
+                                            sx={theme => ({
+                                                width: 360,
+                                                flexGrow: 0,
+                                                flexShrink: 0,
+                                                height: `calc(100vh - ${menuHeight}px)`,
+                                                overflow: 'auto',
+                                                boxShadow: theme.shadows[5],
+                                                zIndex: zIndex.leftPanel,
+                                            })}
+                                        >
+                                            <LeftPanel />
+                                        </Box>
+                                    )}
+                                    <div
+                                        style={{
+                                            flexGrow: 1,
+                                        }}
+                                    >
+                                        <AssetResults />
+                                    </div>
                                 </div>
-                            </div>
-                        </DisplayProvider>
-                    </AssetSelectionProvider>
-                </AttributeFormatProvider>
-            </AssetDropzone>
-        </ResultProvider>
-    </SearchProvider>
+                            </DisplayProvider>
+                        </AssetSelectionProvider>
+                    </AttributeFormatProvider>
+                </AssetDropzone>
+            </ResultProvider>
+        </SearchProvider>
+    );
 });
 
 export default function App() {
-    const userContext = useContext(UserContext);
-    const {t} = useTranslation();
-    const location = useLocation();
-    const [render, setRender] = useState(location.pathname === appPathPrefix);
+    const {logout} = useAuth();
+    const onError = useRequestErrorHandler({
+        logout,
+    });
 
-    useEffect(() => {
-        if (!render && location.pathname === appPathPrefix) {
-            setRender(true);
-        }
-    }, [location.pathname]);
-
-    useEffect(() => {
-        const onError = (error: AxiosError<any>) => {
-            if (error.config?.errorHandled || axios.isCancel(error) as boolean) {
-                return;
-            }
-
-            const status = error.response?.status;
-
-            switch (status) {
-                case 401:
-                    toast.error(t('error.session_expired', 'Your session has expired'));
-                    userContext.logout && userContext.logout(false);
-                    break;
-                case 403:
-                    toast.error(t('error.http_unauthorized', 'Unauthorized'));
-                    break;
-                case 400:
-                    toast.error(error.response?.data['hydra:description']);
-                    break;
-                case 404:
-                    toast.error(error.response?.data['hydra:description']);
-                    break;
-                case 422:
-                    // Handled by form
-                    break;
-                default:
-                    toast.error(t('error.http_error', 'Server error'));
-                    break;
-
-            }
-        }
+    React.useEffect(() => {
         apiClient.addErrorListener(onError);
         uploaderClient.addErrorListener(onError);
 
         return () => {
             apiClient.removeErrorListener(onError);
             uploaderClient.removeErrorListener(onError);
-        }
-    }, []);
+        };
+    }, [onError]);
 
-    return <>
-        <ToastContainer/>
-        <Outlet/>
-        {render && <AppProxy/>}
-    </>
+    return (
+        <>
+            <ToastContainer />
+            <AppProxy />
+        </>
+    );
 }

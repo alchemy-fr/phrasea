@@ -1,6 +1,14 @@
-import {AttributeBatchAction, AttributeBatchActionEnum} from "../../../../api/asset";
-import {isSame} from "../../../../utils/comparison";
-import {AttributeIndex, AttrValue, DefinitionIndex, NO_LOCALE} from "./AttributesEditor";
+import {
+    AttributeBatchAction,
+    AttributeBatchActionEnum,
+} from '../../../../api/asset';
+import {isSame} from '../../../../utils/comparison';
+import {
+    AttributeIndex,
+    AttrValue,
+    DefinitionIndex,
+    NO_LOCALE,
+} from './AttributesEditor';
 
 export function getBatchActions(
     attributes: AttributeIndex<string | number>,
@@ -22,8 +30,12 @@ export function getBatchActions(
             }
 
             if (currValue) {
-                const removeC = remoteAttrs ? remoteAttrs[defId] as { [locale: string]: AttrValue[]} : undefined;
-                const removeV = removeC ? removeC[locale] as AttrValue[] : undefined;
+                const removeC = remoteAttrs
+                    ? (remoteAttrs[defId] as {[locale: string]: AttrValue[]})
+                    : undefined;
+                const removeV = removeC
+                    ? (removeC[locale] as AttrValue[])
+                    : undefined;
                 if (currValue instanceof Array) {
                     if (!removeC) {
                         actions.push({
@@ -35,13 +47,18 @@ export function getBatchActions(
                     } else {
                         currValue.forEach((v: AttrValue<string | number>) => {
                             if (v.value !== undefined) {
-                                const found = removeV?.find(_v => _v.id === v.id);
+                                const found = removeV?.find(
+                                    _v => _v.id === v.id
+                                );
                                 if (!found) {
                                     actions.push({
                                         action: AttributeBatchActionEnum.Add,
                                         definitionId: defId,
                                         value: v.value,
-                                        locale: locale !== NO_LOCALE ? locale : undefined,
+                                        locale:
+                                            locale !== NO_LOCALE
+                                                ? locale
+                                                : undefined,
                                     });
                                 } else {
                                     if (!isSame(found.value, v.value)) {
@@ -50,7 +67,10 @@ export function getBatchActions(
                                             id: found.id,
                                             definitionId: defId,
                                             value: v.value,
-                                            locale: locale !== NO_LOCALE ? locale : undefined,
+                                            locale:
+                                                locale !== NO_LOCALE
+                                                    ? locale
+                                                    : undefined,
                                         });
                                     }
                                 }
@@ -82,7 +102,9 @@ export function getBatchActions(
 
                 if (remoteV) {
                     if (remoteV instanceof Array) {
-                        const attrV = attributes[defId][locale] as AttrValue<string | number>[];
+                        const attrV = attributes[defId][locale] as AttrValue<
+                            string | number
+                        >[];
 
                         remoteV.forEach(v => {
                             const found = attrV.find(_v => _v.id === v.id);
@@ -95,7 +117,12 @@ export function getBatchActions(
                             }
                         });
                     } else {
-                        if (!attributes[defId] || !attributes[defId][locale] || (attributes[defId][locale] as AttrValue).value === undefined) {
+                        if (
+                            !attributes[defId] ||
+                            !attributes[defId][locale] ||
+                            (attributes[defId][locale] as AttrValue).value ===
+                                undefined
+                        ) {
                             actions.push({
                                 action: AttributeBatchActionEnum.Delete,
                                 definitionId: defId,

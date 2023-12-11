@@ -1,6 +1,10 @@
-import React from 'react';
-import {Checkbox, ListItemButton, ListItemSecondaryAction, ListItemText} from "@mui/material";
-import {LabelledBucketValue} from "../Facets";
+import {
+    Checkbox,
+    ListItemButton,
+    ListItemSecondaryAction,
+    ListItemText,
+} from '@mui/material';
+import {LabelledBucketValue} from '../Facets';
 
 type Props = {
     onClick: () => void;
@@ -17,19 +21,19 @@ export default function TextFacetItem({
     labelValue,
     count,
 }: Props) {
-    const {item, label, value} = labelValue;
+    const {label, value} = labelValue;
 
-    return <ListItemButton
-        onClick={onClick}
-    >
-        <ListItemText secondary={`${label} (${count})`}/>
-        <ListItemSecondaryAction>
-            <Checkbox
-                edge="end"
-                onChange={onClick}
-                checked={selected}
-                inputProps={{'aria-labelledby': value.toString()}}
-            />
-        </ListItemSecondaryAction>
-    </ListItemButton>
+    return (
+        <ListItemButton onClick={onClick}>
+            <ListItemText secondary={`${label} (${count})`} />
+            <ListItemSecondaryAction>
+                <Checkbox
+                    edge="end"
+                    onChange={onClick}
+                    checked={selected}
+                    inputProps={{'aria-labelledby': value.toString()}}
+                />
+            </ListItemSecondaryAction>
+        </ListItemButton>
+    );
 }

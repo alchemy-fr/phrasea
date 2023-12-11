@@ -1,12 +1,19 @@
 import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
-import {Asset, File, WorkspaceIntegration} from "../../../types";
-import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography} from "@mui/material";
-import {getWorkspaceIntegrations} from "../../../api/integrations";
-import RemoveBGAssetEditorActions from "../../Integration/RemoveBG/RemoveBGAssetEditorActions";
-import {SetIntegrationOverlayFunction} from "./AssetView";
-import AwsRekognitionAssetEditorActions from "../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions";
+import {Asset, File, WorkspaceIntegration} from '../../../types';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    CircularProgress,
+    List,
+    Typography,
+} from '@mui/material';
+import {getWorkspaceIntegrations} from '../../../api/integrations';
+import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
+import {SetIntegrationOverlayFunction} from './AssetView';
+import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import TUIPhotoEditor from "../../Integration/TuiPhotoEditor/TUIPhotoEditor";
+import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
 
 export type AssetIntegrationActionsProps = {
     asset: Asset;
@@ -15,13 +22,13 @@ export type AssetIntegrationActionsProps = {
     setIntegrationOverlay: SetIntegrationOverlayFunction;
     enableInc: number;
     refreshIntegrations: () => Promise<void>;
-}
+};
 
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
     'remove.bg': RemoveBGAssetEditorActions,
     'aws.rekognition': AwsRekognitionAssetEditorActions,
     'tui.photo-editor': TUIPhotoEditor,
-}
+};
 
 function IntegrationProxy({
     expanded,
@@ -33,29 +40,31 @@ function IntegrationProxy({
 } & AssetIntegrationActionsProps) {
     const i = props.integration.integration;
 
+    // eslint-disable-next-line no-prototype-builtins
     if (integrations.hasOwnProperty(i)) {
-        return <Accordion
-            expanded={expanded}
-            onChange={onExpand}
-        >
-            <AccordionSummary
-                expandIcon={<ExpandMoreIcon/>}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-            >
-                <Typography component="div">{props.integration.title}</Typography>
-            </AccordionSummary>
-            <AccordionDetails
-                sx={{
-                    p: 0,
-                }}
-            >
-                {React.createElement(integrations[i], props)}
-            </AccordionDetails>
-        </Accordion>
+        return (
+            <Accordion expanded={expanded} onChange={onExpand}>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                >
+                    <Typography component="div">
+                        {props.integration.title}
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails
+                    sx={{
+                        p: 0,
+                    }}
+                >
+                    {React.createElement(integrations[i], props)}
+                </AccordionDetails>
+            </Accordion>
+        );
     }
 
-    return <></>
+    return <></>;
 }
 
 type Props = {
@@ -75,7 +84,9 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getWorkspaceIntegrations(asset.workspace.id, file.id).then(r => setIntegrations(r.result));
+        getWorkspaceIntegrations(asset.workspace.id, file.id).then(r =>
+            setIntegrations(r.result)
+        );
     }, [file.id]);
 
     useEffect(() => {
@@ -85,30 +96,40 @@ export default function FileIntegrations({
     }, [expanded, integrations]);
 
     const refreshIntegrations = useCallback(async () => {
-        const r = await getWorkspaceIntegrations(asset.workspace.id, file.id)
+        const r = await getWorkspaceIntegrations(asset.workspace.id, file.id);
         setIntegrations(r.result);
     }, [file.id, asset.workspace.id]);
 
-    return <>
-        {!integrations && <CircularProgress color="inherit"/>}
-        {integrations && <List
-            component="nav"
-            aria-labelledby="nested-list-subheader"
-        >
-            {integrations.filter(i => i.supported).map(i => <IntegrationProxy
-                refreshIntegrations={refreshIntegrations}
-                expanded={expanded === i.id}
-                onExpand={() => {
-                    enableIncs.current[i.id] = enableIncs.current[i.id] ? enableIncs.current[i.id] + 1 : 1;
-                    setExpanded(p => p === i.id ? undefined : i.id)
-                }}
-                key={i.id}
-                integration={i}
-                asset={asset}
-                file={file}
-                enableInc={enableIncs.current[i.id]}
-                setIntegrationOverlay={setIntegrationOverlay}
-            />)}
-        </List>}
-    </>
+    return (
+        <>
+            {!integrations && <CircularProgress color="inherit" />}
+            {integrations && (
+                <List component="nav" aria-labelledby="nested-list-subheader">
+                    {integrations
+                        .filter(i => i.supported)
+                        .map(i => (
+                            <IntegrationProxy
+                                refreshIntegrations={refreshIntegrations}
+                                expanded={expanded === i.id}
+                                onExpand={() => {
+                                    enableIncs.current[i.id] = enableIncs
+                                        .current[i.id]
+                                        ? enableIncs.current[i.id] + 1
+                                        : 1;
+                                    setExpanded(p =>
+                                        p === i.id ? undefined : i.id
+                                    );
+                                }}
+                                key={i.id}
+                                integration={i}
+                                asset={asset}
+                                file={file}
+                                enableInc={enableIncs.current[i.id]}
+                                setIntegrationOverlay={setIntegrationOverlay}
+                            />
+                        ))}
+                </List>
+            )}
+        </>
+    );
 }

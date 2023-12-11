@@ -1,5 +1,4 @@
-import React from 'react';
-import {AttributeFormat, AvailableFormat} from "./types";
+import {AttributeFormat, AvailableFormat} from './types';
 
 export default abstract class BaseType {
     getAvailableFormats(): AvailableFormat[] {

@@ -1,8 +1,8 @@
-import {createDataboxClientFromConfig} from "../databox/client";
-import {createLogger} from "../lib/logger";
-import {indexers} from "../indexers";
-import {getLocation} from "../locations";
-import {consume} from "../databox/entrypoint";
+import {createDataboxClientFromConfig} from "../databox/client.js";
+import {createLogger} from "../lib/logger.js";
+import {indexers} from "../indexers.js";
+import {getLocation} from "../locations.js";
+import {consume} from "../databox/entrypoint.js";
 
 export type IndexOptions = {
     createNewWorkspace?: boolean;

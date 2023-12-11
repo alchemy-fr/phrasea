@@ -1,8 +1,7 @@
-import apiClient from "./api-client";
-import {Asset, AssetFileVersion, Attribute} from "../types";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
-import {AxiosRequestConfig} from "axios";
-import {RequestConfig} from "@alchemy/auth";
+import apiClient from './api-client';
+import {Asset, AssetFileVersion, Attribute} from '../types';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {AxiosRequestConfig} from 'axios';
 
 export interface GetAssetOptions {
     url?: string;
@@ -12,37 +11,44 @@ export interface GetAssetOptions {
     filters?: any;
     order: Record<string, 'asc' | 'desc'>;
     group?: string[] | undefined;
-    context?: {
-        position?: string | undefined,
-    } | undefined;
+    context?:
+        | {
+              position?: string | undefined;
+          }
+        | undefined;
 }
 
 export type ESDebug = {
     query: object;
     esQueryTime: number;
     totalResponseTime: number;
-}
+};
 
 export async function getAssets(
     options: GetAssetOptions,
     requestConfig?: AxiosRequestConfig
-): Promise<ApiCollectionResponse<Asset, {
-    debug: ESDebug;
-}>> {
+): Promise<
+    ApiCollectionResponse<
+        Asset,
+        {
+            debug: ESDebug;
+        }
+    >
+> {
     const res = options.url
         ? await apiClient.get(options.url, requestConfig)
         : await apiClient.get('/assets', {
-            params: options,
-            ...requestConfig,
-        });
+              params: options,
+              ...requestConfig,
+          });
 
     return {
         ...getHydraCollection<Asset>(res.data),
         debug: {
             query: res.data['debug:es'].query,
             esQueryTime: res.data['debug:es'].time,
-            totalResponseTime: (res.config as RequestConfig).meta!.responseTime!,
-        }
+            totalResponseTime: res.config.meta!.responseTime!,
+        },
     };
 }
 
@@ -52,21 +58,25 @@ export async function getAsset(id: string): Promise<Asset> {
     return res.data;
 }
 
-export async function getAssetAttributes(assetId: string | string[]): Promise<Attribute[]> {
+export async function getAssetAttributes(
+    assetId: string | string[]
+): Promise<Attribute[]> {
     const res = await apiClient.get(`/attributes`, {
         params: {
             assetId,
-        }
+        },
     });
 
     return res.data['hydra:member'];
 }
 
-export async function getAssetFileVersions(assetId: string | string[]): Promise<ApiCollectionResponse<AssetFileVersion>> {
+export async function getAssetFileVersions(
+    assetId: string | string[]
+): Promise<ApiCollectionResponse<AssetFileVersion>> {
     const res = await apiClient.get(`/asset-file-versions`, {
         params: {
             assetId,
-        }
+        },
     });
 
     return getHydraCollection(res.data);
@@ -86,7 +96,7 @@ export type AttributeBatchAction = {
     definitionId?: string | undefined;
     locale?: string | undefined;
     position?: number | undefined;
-}
+};
 
 export async function attributeBatchUpdate(
     assetId: string | string[],
@@ -104,14 +114,18 @@ export async function attributeBatchUpdate(
     });
 
     if (typeof assetId === 'string') {
-        return (await apiClient.post(`/assets/${assetId}/attributes`, {
-            actions
-        })).data;
+        return (
+            await apiClient.post(`/assets/${assetId}/attributes`, {
+                actions,
+            })
+        ).data;
     } else {
-        return (await apiClient.post(`/attributes/batch-update`, {
-            assets: assetId,
-            actions
-        })).data;
+        return (
+            await apiClient.post(`/attributes/batch-update`, {
+                assets: assetId,
+                actions,
+            })
+        ).data;
     }
 }
 
@@ -131,7 +145,7 @@ export async function deleteAssets(ids: string[]): Promise<void> {
     await apiClient.delete(`/assets`, {
         data: {
             ids,
-        }
+        },
     });
 }
 
@@ -149,20 +163,22 @@ export type AssetApiInput = {
     title?: string;
     privacy?: number;
     tags?: string[];
-    collection?: string,
+    collection?: string;
     workspace?: string;
     sourceFileId?: string;
     pendingUploadToken?: string;
     sequence?: number;
-}
+};
 
 export type NewAssetPostType = {
-    relationship?: {
-        source: string;
-        type: string;
-        sourceFile?: string | undefined;
-        integration?: string | undefined;
-    } | undefined;
+    relationship?:
+        | {
+              source: string;
+              type: string;
+              sourceFile?: string | undefined;
+              integration?: string | undefined;
+          }
+        | undefined;
     attributes?: AttributeBatchAction[] | undefined;
 } & AssetApiInput;
 
@@ -172,7 +188,9 @@ export async function postAsset(data: NewAssetPostType): Promise<Asset> {
     return res.data;
 }
 
-export async function postMultipleAssets(assets: NewAssetPostType[]): Promise<Asset[]> {
+export async function postMultipleAssets(
+    assets: NewAssetPostType[]
+): Promise<Asset[]> {
     const res = await apiClient.post(`/assets/multiple`, {
         assets,
     });

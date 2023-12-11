@@ -44,7 +44,7 @@ export function runServer(logger: Logger): void {
 
         try {
             getOrCreateServer(getLocation(source))(path, res, rest);
-        } catch (e) {
+        } catch (e: any) {
             res.status(500);
             res.send({
                 error: 'Server Error',

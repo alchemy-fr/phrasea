@@ -1,14 +1,16 @@
-import {getUniqueFileId, uploadStateStorage} from "../../lib/upload/uploadStateStorage";
-import {makeAuthorizationHeaders} from "./file";
-import uploaderClient from "../uploader-client";
-import {AxiosProgressEvent} from "axios";
+import {
+    getUniqueFileId,
+    uploadStateStorage,
+} from '../../lib/upload/uploadStateStorage';
+import uploaderClient from '../uploader-client';
+import {AxiosProgressEvent} from 'axios';
 
 type OnProgress = (progressEvent: AxiosProgressEvent) => void;
 
 export type UploadedFile = {
     data?: Record<string, any>;
-    file: File,
-}
+    file: File;
+};
 
 export async function uploadMultipartFile(
     targetSlug: string,
@@ -41,8 +43,6 @@ export async function uploadMultipartFile(
                 filename: file.name,
                 type: file.type,
                 size: file.size,
-            }, {
-                headers: await makeAuthorizationHeaders(),
             });
 
             uploadId = res.id;
@@ -55,26 +55,33 @@ export async function uploadMultipartFile(
 
         for (let index = resumeChunkIndex; index < numChunks + 1; index++) {
             const start = (index - 1) * fileChunkSize;
-            const end = (index) * fileChunkSize;
+            const end = index * fileChunkSize;
 
-            const {data: getUploadUrlResp} = await uploaderClient.post(`/uploads/${uploadId}/part`, {
-                part: index,
-            }, {
-                headers: await makeAuthorizationHeaders(),
-            });
-
-            const blob = (index < numChunks) ? file.slice(start, end) : file.slice(start);
-
-            const uploadResp = await uploaderClient.put(getUploadUrlResp.url, blob, {
-                onUploadProgress: (e: AxiosProgressEvent) => {
-                    const multiPartEvent = {
-                        ...e,
-                        loaded: e.loaded + start,
-                    };
-
-                    onProgress && onProgress(multiPartEvent);
+            const {data: getUploadUrlResp} = await uploaderClient.post(
+                `/uploads/${uploadId}/part`,
+                {
+                    part: index,
                 }
-            });
+            );
+
+            const blob =
+                index < numChunks ? file.slice(start, end) : file.slice(start);
+
+            const uploadResp = await uploaderClient.put(
+                getUploadUrlResp.url,
+                blob,
+                {
+                    onUploadProgress: (e: AxiosProgressEvent) => {
+                        const multiPartEvent = {
+                            ...e,
+                            loaded: e.loaded + start,
+                        };
+
+                        onProgress && onProgress(multiPartEvent);
+                    },
+                    anonymous: true,
+                }
+            );
 
             const eTag = uploadResp.headers.etag as string;
             uploadParts.push({
@@ -92,8 +99,6 @@ export async function uploadMultipartFile(
                 parts: uploadParts,
             },
             data: upload.data,
-        }, {
-            headers: await makeAuthorizationHeaders(),
         });
 
         uploadStateStorage.removeUpload(userId, fileUID);

@@ -91,7 +91,7 @@ final class KeycloakManager
         $data = array_merge([
             'name' => $name,
             'protocol' => 'openid-connect',
-            'type' => 'default',
+            'type' => 'none',
             'attributes' => [
                 'include.in.token.scope' => 'true',
                 'display.on.consent.screen' => 'false',
@@ -116,13 +116,22 @@ final class KeycloakManager
                 ]);
         }
 
+        $isDefault = $data['type'] === 'default';
+
         HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
-            ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
+            ->request('DELETE', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $scope['id'],
-            ])), 409, []);
-    }
+            ])), 404, []);
 
+        if ($isDefault) {
+            HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+                ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
+                    'realm' => $this->keycloakRealm,
+                    'id' => $scope['id'],
+                ])), 409, []);
+        }
+    }
 
     protected function getScopes(): array
     {

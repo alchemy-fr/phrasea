@@ -1,12 +1,19 @@
 import React from 'react';
-import ReactFlow, {Background, Controls, Edge, MiniMap, useEdgesState, useNodesState,} from 'reactflow';
+import ReactFlow, {
+    Background,
+    Controls,
+    Edge,
+    MiniMap,
+    Node,
+    NodeTypes,
+    useEdgesState,
+    useNodesState,
+} from 'reactflow';
 import 'reactflow/dist/style.css';
 import './style/index.scss';
 import './style/VisualWorkflow.scss';
-import {Node} from "@reactflow/core/dist/esm/types/nodes";
 import {Job, NodeData, OnRerun, Workflow} from "./types";
 import JobNode from "./Job/JobNode";
-import {NodeTypes} from "@reactflow/core/dist/esm/types/general";
 import FlowEvents from "./FlowEvents";
 
 const nodeTypes: NodeTypes = {

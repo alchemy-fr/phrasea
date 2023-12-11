@@ -10,7 +10,11 @@ type Position = {
     timestamp: EpochTimeStamp;
 } & GeolocationCoordinates;
 
-export const useBrowserPosition = (enabled: boolean, watch = false, userSettings: PositionOptions = {}) => {
+export const useBrowserPosition = (
+    enabled: boolean,
+    watch = false,
+    userSettings: PositionOptions = {}
+) => {
     const settings: PositionOptions = {
         ...defaultSettings,
         ...userSettings,
@@ -32,7 +36,7 @@ export const useBrowserPosition = (enabled: boolean, watch = false, userSettings
         });
     };
 
-    const onError: PositionErrorCallback = (error) => {
+    const onError: PositionErrorCallback = error => {
         setError(error.message);
     };
 
@@ -46,8 +50,11 @@ export const useBrowserPosition = (enabled: boolean, watch = false, userSettings
         }
 
         if (watch) {
-            const watcher =
-                navigator.geolocation.watchPosition(onChange, onError, settings);
+            const watcher = navigator.geolocation.watchPosition(
+                onChange,
+                onError,
+                settings
+            );
             return () => navigator.geolocation.clearWatch(watcher);
         }
 

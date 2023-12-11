@@ -1,12 +1,11 @@
-import React from 'react';
-import {Collection} from "../../../types";
-import {putCollection} from "../../../api/collection";
-import {useTranslation} from "react-i18next";
-import {toast} from "react-toastify";
-import useFormSubmit from "../../../hooks/useFormSubmit";
-import FormTab from "../Tabbed/FormTab";
-import {DialogTabProps} from "../Tabbed/TabbedDialog";
-import {CollectionForm} from "../../Form/CollectionForm";
+import {Collection} from '../../../types';
+import {putCollection} from '../../../api/collection';
+import {useTranslation} from 'react-i18next';
+import {toast} from 'react-toastify';
+import {useFormSubmit} from '@alchemy/api';
+import FormTab from '../Tabbed/FormTab';
+import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import {CollectionForm} from '../../Form/CollectionForm';
 
 export type OnCollectionEdit = (coll: Collection) => void;
 
@@ -15,43 +14,45 @@ type Props = {
     data: Collection;
 } & DialogTabProps;
 
-export default function EditCollection({
-    data,
-    onClose,
-    minHeight,
-}: Props) {
+export default function EditCollection({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const {
-        submitting,
-        submitted,
-        handleSubmit,
-        errors,
-    } = useFormSubmit({
+    const usedFormSubmit = useFormSubmit({
+        defaultValues: {
+            title: '',
+            privacy: 0,
+        },
         onSubmit: async (data: Collection) => {
             return await putCollection(data.id, data);
         },
-        onSuccess: (item) => {
-            toast.success(t('form.collection_edit.success', 'Collection edited!'))
+        onSuccess: () => {
+            toast.success(
+                t(
+                    'form.collection_edit.success',
+                    'Collection edited!'
+                ) as string
+            );
             onClose();
-        }
+        },
     });
+
+    const {submitting, remoteErrors} = usedFormSubmit;
 
     const formId = 'edit-collection';
 
-    return <FormTab
-        onClose={onClose}
-        formId={formId}
-        loading={submitting}
-        errors={errors}
-        minHeight={minHeight}
-    >
-        <CollectionForm
-            data={data}
+    return (
+        <FormTab
+            onClose={onClose}
             formId={formId}
-            onSubmit={handleSubmit}
-            submitting={submitting}
-            submitted={submitted}
-        />
-    </FormTab>
+            loading={submitting}
+            errors={remoteErrors}
+            minHeight={minHeight}
+        >
+            <CollectionForm
+                usedFormSubmit={usedFormSubmit}
+                data={data}
+                formId={formId}
+            />
+        </FormTab>
+    );
 }

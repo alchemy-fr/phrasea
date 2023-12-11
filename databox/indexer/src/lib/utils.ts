@@ -5,7 +5,8 @@ export function forceArray<D = any, T = undefined | null>(object: object | Array
     }
 
     if (typeof object === 'object') {
-        return Object.keys(object).map(k => object[k]);
+        // @ts-expect-error object can be null
+        return Object.keys(object).map((k) => object[k]);
     }
 
     return object;

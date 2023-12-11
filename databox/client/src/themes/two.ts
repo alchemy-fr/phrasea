@@ -1,4 +1,4 @@
-import {ThemeOptions} from "@mui/material";
+import {ThemeOptions} from '@mui/material';
 
 const twoTheme: ThemeOptions = {
     palette: {
@@ -17,8 +17,8 @@ const twoTheme: ThemeOptions = {
         },
         common: {
             white: '#FEF9EF',
-        }
-    }
+        },
+    },
 };
 
 export default twoTheme;

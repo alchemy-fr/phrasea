@@ -1,0 +1,26 @@
+{
+  "name": "@alchemy/navigation",
+  "version": "1.0.0",
+  "public": true,
+  "main": "index.ts",
+  "files": [
+    "src/proxy/MatomoRouteProxy.tsx"
+  ],
+  "dependencies": {
+    "@remix-run/router": "^1.13.1"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-router-dom": "6.18.0",
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
+    "react-i18next": "^13.5.0"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "@types/react": "^18.2.37",
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
+    "react-i18next": "^13.5.0",
+    "i18next": "^23.7.7",
+    "react-router-dom": "6.18.0"
+  }
+}

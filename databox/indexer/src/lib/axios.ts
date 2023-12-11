@@ -1,5 +1,5 @@
 import axios, {AxiosError, AxiosInstance} from "axios";
-import https from "https";
+import * as https from "https";
 import axiosRetry from "axios-retry";
 import {createLogger} from "./logger";
 
@@ -36,14 +36,17 @@ export function createHttpClient({
         shouldResetTimeout: true,
         retryCondition: (error) => {
             const {config} = error;
-            logger.warn(`Request "${config.method.toUpperCase()} ${config.url}" failed, retrying...`);
+            if (!config) {
+                return false;
+            }
+            logger.warn(`Request "${config.method?.toUpperCase()} ${config.url}" failed, retrying...`);
 
             if (error.response) {
                 if ([500, 400, 422, 404, 403, 401].includes(error.response.status)) {
                     return false;
                 }
 
-                logger.debug(`Request "${config.method.toUpperCase()} ${config.url}" response ${error.response.status}: ${JSON.stringify(error.response.data)}`);
+                logger.debug(`Request "${config.method?.toUpperCase()} ${config.url}" response ${error.response.status}: ${JSON.stringify(error.response.data)}`);
             }
 
             return true;
@@ -58,7 +61,7 @@ export function createHttpClient({
         (error: AxiosError) => {
             logger.error(error.message);
             if (error.response) {
-                let filtered = error.response.data;
+                let filtered: any = error.response.data;
 
                 if (typeof filtered === 'object' && filtered.trace) {
                     filtered = {

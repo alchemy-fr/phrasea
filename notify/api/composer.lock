@@ -11,7 +11,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/admin-bundle",
+                "url": "../../lib/php/admin-bundle",
                 "reference": "9d66ea42f8f0037487285518183118e65a0db77d"
             },
             "require": {
@@ -69,7 +69,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/auth-bundle",
+                "url": "../../lib/php/auth-bundle",
                 "reference": "23bf0f5e8cd3845cba521bdda7336b286e886d31"
             },
             "require": {
@@ -126,7 +126,7 @@
             "version": "dev-PS-bump-sf6",
             "dist": {
                 "type": "path",
-                "url": "./__lib/core-bundle",
+                "url": "../../lib/php/core-bundle",
                 "reference": "d2c7ed6d0c9ff2dc0d3dfda8b5bbb5a9d690b84a"
             },
             "require": {

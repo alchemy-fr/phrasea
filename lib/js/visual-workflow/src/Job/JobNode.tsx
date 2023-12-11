@@ -1,6 +1,5 @@
 import React from "react";
-import {Handle, Position} from "reactflow";
-import {NodeProps} from "@reactflow/core/dist/esm/types/nodes";
+import {Handle, NodeProps, Position} from "reactflow";
 import {NodeData} from "../types";
 import JobStatusIndicator from "../JobStatusIndicator";
 import JobDetail from "./JobDetail";

@@ -9,7 +9,7 @@ export const fsAssetServerFactory: AssetServerFactory<FsConfig> = function (loca
         dirPrefix,
     } = getDirConfig(location.options);
 
-    return async (path, res, query) => {
+    return async (path, res) => {
         const storagePath = dirPrefix ? watchDir + path.substring(dirPrefix.length) : path;
         if (!fs.existsSync(storagePath)) {
             return notFound(res, `"${storagePath}" not found`, logger);

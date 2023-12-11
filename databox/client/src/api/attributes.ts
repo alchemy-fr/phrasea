@@ -1,6 +1,6 @@
-import {AttributeClass, AttributeDefinition, FieldType} from "../types";
-import apiClient from "./api-client";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
+import {AttributeClass, AttributeDefinition, FieldType} from '../types';
+import apiClient from './api-client';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
 export const attributeClassNS = '/attribute-classes';
 export const attributeDefinitionNS = '/attribute-definitions';
@@ -11,7 +11,7 @@ export async function putAttributeDefinition(
 ): Promise<AttributeDefinition> {
     delete data.workspace;
 
-    return ((await apiClient.put(`${attributeDefinitionNS}/${id}`, data)).data);
+    return (await apiClient.put(`${attributeDefinitionNS}/${id}`, data)).data;
 }
 
 export async function postAttributeDefinition(
@@ -26,7 +26,7 @@ export async function putAttributeClass(
 ): Promise<AttributeClass> {
     delete data.workspace;
 
-    return ((await apiClient.put(`${attributeClassNS}/${id}`, data)).data);
+    return (await apiClient.put(`${attributeClassNS}/${id}`, data)).data;
 }
 
 export async function postAttributeClass(
@@ -41,10 +41,10 @@ export async function getAttributeClasses(
     const res = await apiClient.get(attributeClassNS, {
         params: {
             workspaceId,
-        }
+        },
     });
 
-    return getHydraCollection<AttributeClass>(res.data)
+    return getHydraCollection<AttributeClass>(res.data);
 }
 
 export async function getAttributeFieldTypes(): Promise<FieldType[]> {
@@ -53,21 +53,25 @@ export async function getAttributeFieldTypes(): Promise<FieldType[]> {
     return res.data['hydra:member'];
 }
 
-export async function getWorkspaceAttributeClasses(workspaceId: string): Promise<AttributeClass[]> {
+export async function getWorkspaceAttributeClasses(
+    workspaceId: string
+): Promise<AttributeClass[]> {
     const res = await apiClient.get(attributeClassNS, {
         params: {
             workspaceId,
-        }
+        },
     });
 
     return res.data['hydra:member'];
 }
 
-export async function getWorkspaceAttributeDefinitions(workspaceId: string): Promise<AttributeDefinition[]> {
+export async function getWorkspaceAttributeDefinitions(
+    workspaceId: string
+): Promise<AttributeDefinition[]> {
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             workspaceId,
-        }
+        },
     });
 
     return res.data['hydra:member'];
@@ -97,4 +101,3 @@ export enum AttributeType {
     Textarea = 'textarea',
     WebVtt = 'web_vtt',
 }
-

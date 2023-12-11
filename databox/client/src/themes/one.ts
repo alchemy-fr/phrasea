@@ -1,4 +1,4 @@
-import {ThemeOptions} from "@mui/material";
+import {ThemeOptions} from '@mui/material';
 
 const defaultTheme: ThemeOptions = {
     palette: {
@@ -14,7 +14,7 @@ const defaultTheme: ThemeOptions = {
         error: {
             main: '#F08A4B',
         },
-    }
+    },
 };
 
 export default defaultTheme;

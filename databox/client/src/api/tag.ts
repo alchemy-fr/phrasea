@@ -1,15 +1,17 @@
-import apiClient from "./api-client";
-import {Tag} from "../types";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
+import apiClient from './api-client';
+import {Tag} from '../types';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
 
 export const tagNS = '/tags';
 
 type TagOptions = {
     query?: string;
     workspace: string;
-}
+};
 
-export async function getTags(options: TagOptions): Promise<ApiCollectionResponse<Tag>> {
+export async function getTags(
+    options: TagOptions
+): Promise<ApiCollectionResponse<Tag>> {
     const res = await apiClient.get(tagNS, {
         params: {
             ...options,

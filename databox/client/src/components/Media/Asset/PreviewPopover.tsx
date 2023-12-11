@@ -1,11 +1,11 @@
-import React, {useCallback, useState} from 'react';
-import {Asset} from "../../../types";
-import {Paper, Popper, Stack} from "@mui/material";
-import FilePlayer from "./FilePlayer";
-import {getRelativeViewHeight, getRelativeViewWidth} from "../../../lib/style";
-import {createDimensions} from "./Players";
-import {zIndex} from "../../../themes/zIndex";
-import Attributes from "./Attribute/Attributes";
+import {useCallback, useState} from 'react';
+import {Asset} from '../../../types';
+import {Paper, Popper, Stack} from '@mui/material';
+import FilePlayer from './FilePlayer';
+import {getRelativeViewHeight, getRelativeViewWidth} from '../../../lib/style';
+import {createDimensions} from './Players';
+import {zIndex} from '../../../themes/zIndex';
+import Attributes from './Attribute/Attributes';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -30,74 +30,80 @@ export default function PreviewPopover({
         setAnchor(anchorEl);
     }, [anchorEl]);
 
-    return <Popper
-        keepMounted={true}
-        open={Boolean(anchor && asset)}
-        placement="bottom"
-        anchorEl={anchor || null}
-        sx={{
-            pointerEvents: !previewLocked ? 'none' : undefined,
-            zIndex: zIndex.assetPreview,
-        }}
-        modifiers={[
-            {
-                name: 'flip',
-                enabled: true,
-                options: {
-                    altBoundary: true,
-                    rootBoundary: 'document',
-                    padding: 8,
-                },
-            },
-            {
-                name: 'preventOverflow',
-                enabled: true,
-                options: {
-                    altAxis: true,
-                    altBoundary: true,
-                    tether: true,
-                    rootBoundary: 'document',
-                    padding: 8,
-                },
-            },
-        ]}
-    >
-        {asset && <Paper
-            elevation={6}
+    return (
+        <Popper
+            keepMounted={true}
+            open={Boolean(anchor && asset)}
+            placement="bottom"
+            anchorEl={anchor || null}
             sx={{
-                padding: 1,
-                maxWidth: width,
+                pointerEvents: !previewLocked ? 'none' : undefined,
+                zIndex: zIndex.assetPreview,
             }}
+            modifiers={[
+                {
+                    name: 'flip',
+                    enabled: true,
+                    options: {
+                        altBoundary: true,
+                        rootBoundary: 'document',
+                        padding: 8,
+                    },
+                },
+                {
+                    name: 'preventOverflow',
+                    enabled: true,
+                    options: {
+                        altAxis: true,
+                        altBoundary: true,
+                        tether: true,
+                        rootBoundary: 'document',
+                        padding: 8,
+                    },
+                },
+            ]}
         >
-            <Stack
-                direction={'row'}
-                spacing={1}
-            >
-                <div>
-                    <FilePlayer
-                        key={asset.id}
-                        file={asset.preview!.file!}
-                        maxDimensions={createDimensions(width / 2, height)}
-                        title={asset.resolvedTitle}
-                        onLoad={onLoad}
-                        noInteraction={!previewLocked}
-                        controls={previewLocked}
-                        autoPlayable={true}
-                    />
-                </div>
-                {displayAttributes && <div
-                    style={{
-                        maxHeight: height,
-                        overflow: previewLocked ? 'auto' : 'hidden',
+            {asset && (
+                <Paper
+                    elevation={6}
+                    sx={{
+                        padding: 1,
+                        maxWidth: width,
                     }}
                 >
-                    <Attributes
-                        asset={asset}
-                        controls={previewLocked}
-                        pinnedOnly={true}
-                    />
-                </div>}
-            </Stack>
-        </Paper>}
-    </Popper>
+                    <Stack direction={'row'} spacing={1}>
+                        <div>
+                            <FilePlayer
+                                key={asset.id}
+                                file={asset.preview!.file!}
+                                maxDimensions={createDimensions(
+                                    width / 2,
+                                    height
+                                )}
+                                title={asset.resolvedTitle}
+                                onLoad={onLoad}
+                                noInteraction={!previewLocked}
+                                controls={previewLocked}
+                                autoPlayable={true}
+                            />
+                        </div>
+                        {displayAttributes && (
+                            <div
+                                style={{
+                                    maxHeight: height,
+                                    overflow: previewLocked ? 'auto' : 'hidden',
+                                }}
+                            >
+                                <Attributes
+                                    asset={asset}
+                                    controls={previewLocked}
+                                    pinnedOnly={true}
+                                />
+                            </div>
+                        )}
+                    </Stack>
+                </Paper>
+            )}
+        </Popper>
+    );
 }

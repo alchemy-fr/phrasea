@@ -1,10 +1,10 @@
-import {Accept} from "react-dropzone";
+import {Accept} from 'react-dropzone';
 
 declare global {
     interface Window {
         config: {
             locales: Readonly<string[]>;
-            autoConnectIdP: Readonly<string | undefined | null>;
+            autoConnectIdP: Readonly<string | undefined>;
             baseUrl: Readonly<string>;
             uploaderApiBaseUrl: Readonly<string>;
             uploaderTargetSlug: Readonly<string>;

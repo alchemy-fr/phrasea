@@ -17,7 +17,7 @@ export async function* streamify(stream: Readable, event: string, endEvent: stri
             break;
         }
 
-        yield r.value;
+        yield r.value!;
         stream.resume();
     }
 }

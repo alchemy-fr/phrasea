@@ -10,8 +10,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-/__lib
-
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
 /.php-cs-fixer.cache

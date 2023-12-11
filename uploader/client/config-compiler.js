@@ -1,5 +1,5 @@
 (function (config, env) {
-    const normalizeTypes = (value) => {
+    const normalizeTypes = value => {
         if (!value) {
             return {};
         }
@@ -12,11 +12,29 @@
         const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([\w,]*\))?/g)];
         const struct = {};
         for (const t of types) {
-            struct[t[1]] = t[2] ? t[2].substring(1, t[2].length - 1).split(',').map(e => e.trim()).filter(e => !!e) : [];
+            struct[t[1]] = t[2]
+                ? t[2]
+                      .substring(1, t[2].length - 1)
+                      .split(',')
+                      .map(e => e.trim())
+                      .filter(e => !!e)
+                : [];
         }
 
         return struct;
     };
+
+    function castBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+        }
+
+        return false;
+    }
 
     return {
         locales: config.available_locales,
@@ -29,8 +47,8 @@
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        devMode: env.DEV_MODE === 'true',
-        displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
+        devMode: castBoolean(env.DEV_MODE),
+        displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
     };

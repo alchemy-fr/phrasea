@@ -1,30 +1,44 @@
 version: '3.9'
 
 services:
+  a_client:
+    volumes:
+      - ./lib/js:/srv/workspace/lib/js:rw
+      - ./package.json:/srv/workspace/package.json:ro
+      - ./pnpm-workspace.yaml:/srv/workspace/pnpm-workspace.yaml:ro
+      - ./turbo.json:/srv/workspace/turbo.json:ro
+      - ./node_modules:/srv/workspace/node_modules:ro
+
   uploader-client:
-    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}uploader-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
-      - ./uploader/client:/usr/src/app
+      - ./uploader/client:/srv/workspace/uploader/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
   expose-client:
-    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}expose-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
-      - ./expose/client:/usr/src/app
+      - ./expose/client:/srv/workspace/expose/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
   databox-client:
+    extends:
+      service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
-      - ./databox/client:/usr/src/app
+      - ./databox/client:/srv/workspace/databox/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -36,6 +50,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}expose
     volumes:
       - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
 
   expose-api-nginx:
     volumes:
@@ -46,6 +61,7 @@ services:
   expose-worker:
     volumes:
       - ./expose/api:/srv/app
+      - ./lib/php:/lib/php
       - ./expose/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-php:
@@ -56,10 +72,12 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}uploader
     volumes:
       - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
 
   uploader-worker:
     volumes:
       - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
       - ./uploader/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-nginx:
@@ -74,6 +92,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
     volumes:
       - ./notify/api:/srv/app
+      - ./lib/php:/lib/php
 
   notify-api-nginx:
     volumes:
@@ -82,6 +101,7 @@ services:
   notify-worker:
     volumes:
       - ./notify/api:/srv/app
+      - ./lib/php:/lib/php
       - ./notify/api/docker/supervisor:/etc/supervisor.d
 
   databox-api-php:
@@ -93,6 +113,7 @@ services:
       - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}databox
     volumes:
       - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
 
   databox-api-nginx:
     volumes:
@@ -101,6 +122,7 @@ services:
   databox-worker:
     volumes:
       - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
       - ./databox/api/docker/supervisor:/etc/supervisor.d
 
   elasticsearch:
@@ -192,7 +214,7 @@ services:
       - ${SSH_AUTH_SOCK}:/ssh-auth-sock
       - ${HOME}/.ssh:/home/app/.ssh
       - ${HOME}/.composer:/home/app/.composer
-      - dev_vol:/home/app
+      - dev:/home/app
       - ./configs:/configs
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -219,13 +241,17 @@ services:
       - ./configurator:/usr/app
 
   databox-watcher:
+    extends:
+      service: a_client
     command: ["yarn", "start:dev"]
     volumes:
-      - ./databox/indexer:/usr/app
+      - ./databox/indexer:/srv/workspace/databox/indexer
 
   databox-indexer:
+    extends:
+      service: a_client
     volumes:
-      - ./databox/indexer:/usr/app
+      - ./databox/indexer:/srv/workspace/databox/indexer
 
   db:
     ports:
@@ -243,5 +269,5 @@ services:
       - '--hostname-strict-https=false'
 
 volumes:
-  dev_vol:
+  dev:
     driver: local

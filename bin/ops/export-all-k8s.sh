@@ -57,7 +57,13 @@ kubectl -n $NS wait --for=condition=Ready pod/${POD}
 
 for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
-  APP_POD=$(kubectl -n $NS get pod -l tier=${d}-api-php -o jsonpath="{.items[0].metadata.name}") || continue
+
+  dpod="$d"
+  if [ "$dpod" = "upload" ]; then
+    dpod="uploader"
+  fi
+
+  APP_POD=$(kubectl -n $NS get pod -l tier=${dpod}-api-php -o jsonpath="{.items[0].metadata.name}") || continue
   DB_NAME=$(kubectl -n $NS exec ${APP_POD} -- /bin/ash -c 'echo $DB_NAME')
   if [ -z "${DB_NAME}" ]; then
     DB_NAME="${d}"
@@ -71,7 +77,7 @@ done
 kubectl -n $NS delete pod ${POD} --force 2> /dev/null
 
 echo "Packaging export..."
-PACKAGE_NAME="phrasea-${DATE}.tar.gz"
+PACKAGE_NAME="phrasea-${NS}-${DATE}.tar.gz"
 PACKAGE="$(realpath "${BASE_DIR}/${PACKAGE_NAME}")"
 tar -C ${DIR} -czf ${PACKAGE} ${EXPORTED}
 rm -r ${DIR}

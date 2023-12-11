@@ -1,4 +1,4 @@
-import {ThemeOptions} from "@mui/material";
+import {ThemeOptions} from '@mui/material';
 
 const fourTheme: ThemeOptions = {
     palette: {
@@ -17,7 +17,7 @@ const fourTheme: ThemeOptions = {
         },
         common: {
             white: '#FFF',
-        }
+        },
     },
     shape: {
         borderRadius: 20,

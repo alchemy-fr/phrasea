@@ -1,4 +1,4 @@
-import {ThemeOptions} from "@mui/material";
+import {ThemeOptions} from '@mui/material';
 
 const threeTheme: ThemeOptions = {
     palette: {
@@ -17,8 +17,8 @@ const threeTheme: ThemeOptions = {
         },
         common: {
             white: '#FFF',
-        }
-    }
+        },
+    },
 };
 
 export default threeTheme;

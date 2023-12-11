@@ -1,9 +1,8 @@
-import {UseFormSetError} from "react-hook-form/dist/types/form";
+import {FieldValues} from 'react-hook-form';
+import {UseFormSubmitReturn} from '@alchemy/api';
 
-export type FormProps<T extends object, D extends object = T> = {
+export type FormProps<T extends FieldValues, D extends object = T> = {
     formId: string;
+    usedFormSubmit: UseFormSubmitReturn<T, D>;
     data?: D | undefined;
-    onSubmit: (setError: UseFormSetError<T>) => (data: T) => Promise<void>;
-    submitting: boolean;
-    submitted: boolean;
 };

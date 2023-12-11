@@ -1,5 +1,4 @@
 /dist
-/__lib
 # Coverage directory used by tools like istanbul
 coverage
 .eslintcache

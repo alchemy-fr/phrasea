@@ -1,4 +1,4 @@
-import React, {MouseEventHandler, PropsWithChildren} from 'react';
+import {MouseEventHandler, PropsWithChildren} from 'react';
 import {IconType} from "react-icons";
 
 const variants = {

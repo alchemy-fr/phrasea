@@ -1,8 +1,8 @@
+import {AttributeFormatterProps, AvailableFormat} from './types';
+import moment from 'moment/moment';
+import TextType from './TextType';
+import {TextFieldProps} from '@mui/material';
 import React from 'react';
-import {AttributeFormatterProps, AvailableFormat} from "./types";
-import moment from "moment/moment";
-import TextType from "./TextType";
-import {TextFieldProps} from "@mui/material";
 
 enum Formats {
     Short = 'short',
@@ -15,7 +15,7 @@ export {Formats as DateFormats};
 
 export default class DateType extends TextType {
     formatValue(props: AttributeFormatterProps): React.ReactNode {
-        return <>{this.format(props)}</>
+        return <>{this.format(props)}</>;
     }
 
     formatValueAsString(props: AttributeFormatterProps): string | undefined {
@@ -56,7 +56,7 @@ export default class DateType extends TextType {
             type: 'date',
             InputLabelProps: {
                 shrink: true,
-            }
+            },
         };
     }
 

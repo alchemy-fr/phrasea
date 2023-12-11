@@ -1,30 +1,41 @@
-import React, {useCallback} from "react";
-import {FieldValues} from "react-hook-form/dist/types/fields";
-import RSelectWidget, {RSelectProps, SelectOption} from "./RSelect";
-import {fieldTypesIcons} from "../../lib/icons";
-import {getAttributeFieldTypes} from "../../api/attributes";
+import {useCallback} from 'react';
+import {FieldValues} from 'react-hook-form';
+import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
+import {fieldTypesIcons} from '../../lib/icons';
+import {getAttributeFieldTypes} from '../../api/attributes';
 
-type Props<TFieldValues extends FieldValues> = {} & RSelectProps<TFieldValues, false>;
+type Props<TFieldValues extends FieldValues> = {} & RSelectProps<
+    TFieldValues,
+    false
+>;
 
 export default function FieldTypeSelect<TFieldValues extends FieldValues>({
     ...rest
 }: Props<TFieldValues>) {
+    const load = useCallback(
+        async (inputValue: string): Promise<SelectOption[]> => {
+            const data = await getAttributeFieldTypes();
 
-    const load = useCallback(async (inputValue: string): Promise<SelectOption[]> => {
-        const data = await getAttributeFieldTypes();
+            return data
+                .filter(i =>
+                    i.title
+                        .toLowerCase()
+                        .includes((inputValue || '').toLowerCase())
+                )
+                .map(d => ({
+                    label: d.title,
+                    value: d.name,
+                    image: fieldTypesIcons[d.name] ?? fieldTypesIcons.text,
+                }));
+        },
+        []
+    );
 
-        return data.filter(i =>
-            i.title.toLowerCase().includes((inputValue || '').toLowerCase())
-        ).map(d => ({
-            label: d.title,
-            value: d.name,
-            image: fieldTypesIcons[d.name] ?? fieldTypesIcons.text,
-        }));
-    }, []);
-
-    return <RSelectWidget<TFieldValues>
-        cacheId={'fieldType'}
-        {...rest}
-        loadOptions={load}
-    />
+    return (
+        <RSelectWidget<TFieldValues>
+            cacheId={'fieldType'}
+            {...rest}
+            loadOptions={load}
+        />
+    );
 }

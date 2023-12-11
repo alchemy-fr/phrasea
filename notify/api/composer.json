@@ -8,21 +8,21 @@
         },
         {
             "type": "path",
-            "url": "./__lib/admin-bundle",
+            "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/auth-bundle",
+            "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/core-bundle",
+            "url": "../../lib/php/core-bundle",
             "options": {
                 "symlink": true
             }

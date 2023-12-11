@@ -24,11 +24,11 @@
 </script>
 `
                     .replace('{host}', analytics.options.host)
-                    .replace('{siteId}', analytics.options.siteId)
-                ;
+                    .replace('{siteId}', analytics.options.siteId);
                 break;
             case 'google_analytics':
-                    scriptTpl = `<!-- Global site tag (gtag.js) - Google Analytics -->
+                scriptTpl =
+                    `<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={propertyId}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -37,15 +37,16 @@
 
   gtag('config', '{propertyId}');
 </script>
-`
-                        .replace(/{propertyId}/g, analytics.options.propertyId)
+`.replace(/{propertyId}/g, analytics.options.propertyId);
                 break;
             default:
-                console.error(`Unsupported analytics provider ${analytics.provider}`);
+                console.error(
+                    `Unsupported analytics provider ${analytics.provider}`
+                );
         }
     }
 
-    const normalizeTypes = (value) => {
+    const normalizeTypes = value => {
         if (!value) {
             return {};
         }
@@ -58,7 +59,13 @@
         const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([\w,]*\))?/g)];
         const struct = {};
         for (const t of types) {
-            struct[t[1]] = t[2] ? t[2].substring(1, t[2].length - 1).split(',').map(e => e.trim()).filter(e => !!e) : [];
+            struct[t[1]] = t[2]
+                ? t[2]
+                      .substring(1, t[2].length - 1)
+                      .split(',')
+                      .map(e => e.trim())
+                      .filter(e => !!e)
+                : [];
         }
 
         return struct;

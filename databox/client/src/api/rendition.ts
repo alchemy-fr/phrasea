@@ -1,16 +1,18 @@
-import {AssetRendition, RenditionClass, RenditionDefinition} from "../types";
-import {ApiCollectionResponse, getHydraCollection} from "./hydra";
-import apiClient from "./api-client";
+import {AssetRendition, RenditionClass, RenditionDefinition} from '../types';
+import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import apiClient from './api-client';
 
 type GetOptions = {
     workspaceIds?: string[];
-}
+};
 
 export const renditionClassNS = '/rendition-classes';
 export const renditionDefinitionNS = '/rendition-definitions';
 export const renditionNS = '/renditions';
 
-export async function getAssetRenditions(assetId: string): Promise<ApiCollectionResponse<AssetRendition>> {
+export async function getAssetRenditions(
+    assetId: string
+): Promise<ApiCollectionResponse<AssetRendition>> {
     const res = await apiClient.get(renditionNS, {
         params: {
             assetId,
@@ -25,7 +27,7 @@ type RenditionInput = {
     definitionId?: string | undefined;
     sourceFileId?: string | undefined;
     assetId: string;
-}
+};
 
 export async function postRendition(
     data: RenditionInput
@@ -33,8 +35,9 @@ export async function postRendition(
     return (await apiClient.post(renditionNS, data)).data;
 }
 
-
-export async function getRenditionDefinitions(options: GetOptions = {}): Promise<ApiCollectionResponse<RenditionDefinition>> {
+export async function getRenditionDefinitions(
+    options: GetOptions = {}
+): Promise<ApiCollectionResponse<RenditionDefinition>> {
     const res = await apiClient.get(renditionDefinitionNS, {
         params: options,
     });
@@ -46,7 +49,7 @@ export async function putRenditionClass(
     id: string | undefined,
     data: Partial<RenditionClass>
 ): Promise<RenditionClass> {
-    return ((await apiClient.put(`${renditionClassNS}/${id}`, data)).data);
+    return (await apiClient.put(`${renditionClassNS}/${id}`, data)).data;
 }
 
 export async function postRenditionClass(
@@ -68,21 +71,25 @@ export async function postRenditionDefinition(
     return (await apiClient.post(renditionDefinitionNS, data)).data;
 }
 
-export async function getRenditionClasses(workspaceId: string): Promise<ApiCollectionResponse<RenditionClass>> {
+export async function getRenditionClasses(
+    workspaceId: string
+): Promise<ApiCollectionResponse<RenditionClass>> {
     const res = await apiClient.get(renditionClassNS, {
         params: {
             workspaceId,
-        }
+        },
     });
 
     return getHydraCollection(res.data);
 }
 
-export async function getWorkspaceRenditionDefinitions(workspaceId: string): Promise<RenditionDefinition[]> {
+export async function getWorkspaceRenditionDefinitions(
+    workspaceId: string
+): Promise<RenditionDefinition[]> {
     const res = await apiClient.get(renditionDefinitionNS, {
         params: {
             workspaceId,
-        }
+        },
     });
 
     return res.data['hydra:member'];

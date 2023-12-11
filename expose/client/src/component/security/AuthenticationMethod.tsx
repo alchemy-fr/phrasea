@@ -1,36 +1,45 @@
+import config from '../../lib/config';
+import {oauthClient} from '../../lib/api-client';
+import FormLayout from './FormLayout';
+import {useAuth} from '@alchemy/react-auth';
+import {getCurrentPath} from '@alchemy/navigation';
 import React from 'react';
-import config from "../../lib/config";
-import {setAuthRedirect} from "../../lib/oauth";
-import {oauthClient} from "../../lib/api-client";
-import FormLayout from "./FormLayout";
 
 type Props = {};
 
-function createLoginUrl(): string {
-    const autoConnectIdP = config.autoConnectIdP;
-
-    setAuthRedirect(document.location.pathname);
-
-    return oauthClient.createAuthorizeUrl({
-        connectTo: autoConnectIdP || undefined,
-    });
-}
-
 export default function AuthenticationMethod({}: Props) {
-    return <div className={'container'}>
-        <FormLayout>
-            <div style={{
-                textAlign: 'center',
-            }}>
+    const {setRedirectPath} = useAuth();
 
-            <h3>
-                This publication requires authentication.
-            </h3>
-            <a
-                className={'btn btn-primary'}
-                href={createLoginUrl()}
-            >Login</a>
-            </div>
-        </FormLayout>
-    </div>
+    const loginUrl = React.useMemo<string>(() => {
+        const {autoConnectIdP} = config;
+
+        return oauthClient.createAuthorizeUrl({
+            connectTo: autoConnectIdP || undefined,
+        });
+    }, []);
+
+    const onConnect = React.useCallback(() => {
+        setRedirectPath && setRedirectPath(getCurrentPath());
+    }, []);
+
+    return (
+        <div className={'container'}>
+            <FormLayout>
+                <div
+                    style={{
+                        textAlign: 'center',
+                    }}
+                >
+                    <h3>This publication requires authentication.</h3>
+                    <a
+                        className={'btn btn-primary'}
+                        onClick={onConnect}
+                        href={loginUrl}
+                    >
+                        Login
+                    </a>
+                </div>
+            </FormLayout>
+        </div>
+    );
 }

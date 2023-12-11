@@ -7,10 +7,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import {LinearProgress, Slide} from "@mui/material";
-import {Breakpoint, SxProps} from "@mui/system";
-import {StackedModalProps} from "../../hooks/useModalStack";
-import {TransitionProps} from "@mui/material/transitions";
+import {Breakpoint, LinearProgress, Slide, SxProps} from '@mui/material';
+import {StackedModalProps} from '@alchemy/navigation';
+import {TransitionProps} from '@mui/material/transitions';
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({
     '& .MuiDialogActions-root': {
@@ -18,12 +17,11 @@ export const BootstrapDialog = styled(Dialog)(({theme}) => ({
     },
 }));
 
-
 const Transition = React.forwardRef(function Transition(
     props: PropsWithChildren<TransitionProps> & {
         children: React.ReactElement<any, any>;
     },
-    ref: React.Ref<unknown>,
+    ref: React.Ref<unknown>
 ) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -47,10 +45,10 @@ export const AppDialogTitle = (props: DialogTitleProps) => {
                         position: 'absolute',
                         right: 8,
                         top: 8,
-                        color: (theme) => theme.palette.grey[500],
+                        color: theme => theme.palette.grey[500],
                     }}
                 >
-                    <CloseIcon/>
+                    <CloseIcon />
                 </IconButton>
             ) : null}
         </DialogTitle>
@@ -58,20 +56,22 @@ export const AppDialogTitle = (props: DialogTitleProps) => {
 };
 
 type ActionArgs = {
-    onClose: () => void,
+    onClose: () => void;
     loading?: boolean;
 };
 
-type Props = PropsWithChildren<{
-    title?: ReactNode;
-    actions?: (args: ActionArgs) => React.ReactNode;
-    onClose: () => void;
-    loading?: boolean;
-    maxWidth?: Breakpoint | false;
-    fullScreen?: boolean;
-    disablePadding?: boolean | undefined;
-    sx?: SxProps;
-} & StackedModalProps>;
+type Props = PropsWithChildren<
+    {
+        title?: ReactNode;
+        actions?: (args: ActionArgs) => React.ReactNode;
+        onClose: () => void;
+        loading?: boolean;
+        maxWidth?: Breakpoint | false;
+        fullScreen?: boolean;
+        disablePadding?: boolean | undefined;
+        sx?: SxProps;
+    } & StackedModalProps
+>;
 
 export default function AppDialog({
     title,
@@ -91,39 +91,43 @@ export default function AppDialog({
         onClose();
     };
 
-    return <BootstrapDialog
-        TransitionComponent={Transition}
-        onClose={handleClose}
-        open={open ?? false}
-        fullWidth={true}
-        maxWidth={maxWidth}
-        fullScreen={fullScreen}
-        sx={sx}
-    >
-        {title && <AppDialogTitle
+    return (
+        <BootstrapDialog
+            TransitionComponent={Transition}
             onClose={handleClose}
+            open={open ?? false}
+            fullWidth={true}
+            maxWidth={maxWidth}
+            fullScreen={fullScreen}
+            sx={sx}
         >
-            {title}
-        </AppDialogTitle>}
-        <DialogContent
-            dividers
-            sx={{
-                p: disablePadding ? 0 : 2,
-            }}
-        >
-            {children}
-        </DialogContent>
-        {loading && <LinearProgress
-            style={{
-                height: progressHeight,
-                marginBottom: -progressHeight
-            }}
-        />}
-        {actions && <DialogActions>
-            {actions({
-                onClose: handleClose,
-                loading,
-            })}
-        </DialogActions>}
-    </BootstrapDialog>
+            {title && (
+                <AppDialogTitle onClose={handleClose}>{title}</AppDialogTitle>
+            )}
+            <DialogContent
+                dividers
+                sx={{
+                    p: disablePadding ? 0 : 2,
+                }}
+            >
+                {children}
+            </DialogContent>
+            {loading && (
+                <LinearProgress
+                    style={{
+                        height: progressHeight,
+                        marginBottom: -progressHeight,
+                    }}
+                />
+            )}
+            {actions && (
+                <DialogActions>
+                    {actions({
+                        onClose: handleClose,
+                        loading,
+                    })}
+                </DialogActions>
+            )}
+        </BootstrapDialog>
+    );
 }

@@ -1,0 +1,10 @@
+{
+  "name": "@alchemy/storage",
+  "version": "1.0.0",
+  "public": true,
+  "main": "index.ts",
+  "dependencies": {
+    "js-cookie": "^3.0.5",
+    "@types/js-cookie": "^3.0.5"
+  }
+}

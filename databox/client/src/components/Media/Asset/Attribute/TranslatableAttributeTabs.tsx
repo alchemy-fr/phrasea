@@ -1,14 +1,22 @@
+import {Alert, Box, Tab, Tabs} from '@mui/material';
+import Flag from '../../../Ui/Flag';
+import MultiAttributeRow from './MultiAttributeRow';
+import {isRtlLocale} from '../../../../lib/lang';
+import {
+    AttrValue,
+    LocalizedAttributeIndex,
+    NO_LOCALE,
+} from './AttributesEditor';
+import AttributeWidget from './AttributeWidget';
+import {AttributeDefinition} from '../../../../types';
+import {TabPanelProps} from '@mui/lab';
 import React from 'react';
-import {Alert, Box, Tab, Tabs} from "@mui/material";
-import Flag from "../../../Ui/Flag";
-import MultiAttributeRow from "./MultiAttributeRow";
-import {isRtlLocale} from "../../../../lib/lang";
-import {AttrValue, LocalizedAttributeIndex, NO_LOCALE} from "./AttributesEditor";
-import AttributeWidget from "./AttributeWidget";
-import {AttributeDefinition} from "../../../../types";
-import {TabPanelProps} from "@mui/lab";
 
-function TabPanel({children, value, currentValue}: {
+function TabPanel({
+    children,
+    value,
+    currentValue,
+}: {
     currentValue: string | undefined;
 } & TabPanelProps) {
     return (
@@ -30,7 +38,10 @@ type Props = {
     definition: AttributeDefinition;
     indeterminate?: boolean;
     disabled: boolean;
-    changeHandler: (locale: string, v: AttrValue<string | number> | AttrValue<string | number>[] | undefined) => void;
+    changeHandler: (
+        locale: string,
+        v: AttrValue<string | number> | AttrValue<string | number>[] | undefined
+    ) => void;
     readOnly?: boolean;
 };
 
@@ -46,6 +57,7 @@ export default function TranslatableAttributeTabs({
 }: Props) {
     const locales = React.useMemo<string[]>(() => {
         const l = [...definition.locales!];
+        // eslint-disable-next-line no-prototype-builtins
         const hasUndetermined = attributes.hasOwnProperty(NO_LOCALE);
 
         if (hasUndetermined) {
@@ -56,76 +68,97 @@ export default function TranslatableAttributeTabs({
     }, [definition.locales, attributes]);
 
     if (locales.length === 0) {
-        return <Alert
-            severity={'warning'}
-        >
-            No locale defined in this workspace
-        </Alert>
+        return (
+            <Alert severity={'warning'}>
+                No locale defined in this workspace
+            </Alert>
+        );
     }
 
-    const humanLocale = (l: string) => l === NO_LOCALE ? `Untranslated` : l;
+    const humanLocale = (l: string) => (l === NO_LOCALE ? `Untranslated` : l);
 
-    return <>
-        <Box sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            mb: 2,
-        }}>
-            <Tabs
-                value={currentLocale}
-                onChange={(e, value) => onLocaleChange(value)}
-                aria-label="Locales"
+    return (
+        <>
+            <Box
                 sx={{
-                    '.MuiTab-root': {
-                        textTransform: 'none',
-                    }
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    mb: 2,
                 }}
             >
-                {locales.map(l => <Tab
-                    key={l}
-                    label={<>
-                        <Flag
-                            locale={l}
-                            sx={{mb: 1}}
+                <Tabs
+                    value={currentLocale}
+                    onChange={(_e, value) => onLocaleChange(value)}
+                    aria-label="Locales"
+                    sx={{
+                        '.MuiTab-root': {
+                            textTransform: 'none',
+                        },
+                    }}
+                >
+                    {locales.map(l => (
+                        <Tab
+                            key={l}
+                            label={
+                                <>
+                                    <Flag locale={l} sx={{mb: 1}} />
+                                    {humanLocale(l)}
+                                </>
+                            }
+                            value={l}
                         />
-                        {humanLocale(l)}
-                    </>}
-                    value={l}
-                />)}
-            </Tabs>
-        </Box>
+                    ))}
+                </Tabs>
+            </Box>
 
-        {locales.map((locale) => {
-            const label = `${definition.name} ${humanLocale(locale)}`;
+            {locales.map(locale => {
+                const label = `${definition.name} ${humanLocale(locale)}`;
 
-            return <TabPanel
-                currentValue={currentLocale}
-                value={locale}
-                key={locale}
-            >
-                {definition.multiple ? <MultiAttributeRow
-                    indeterminate={indeterminate}
-                    readOnly={readOnly}
-                    disabled={disabled}
-                    name={label}
-                    type={definition.fieldType}
-                    isRtl={isRtlLocale(locale)}
-                    values={(attributes[locale] || []) as AttrValue<string | number>[]}
-                    onChange={(values) => changeHandler(locale, values)}
-                    id={definition.id}
-                /> : <AttributeWidget
-                    indeterminate={indeterminate}
-                    readOnly={readOnly}
-                    value={attributes[locale] as AttrValue<string | number> | undefined}
-                    disabled={disabled}
-                    type={definition.fieldType}
-                    isRtl={isRtlLocale(locale)}
-                    name={label}
-                    required={false}
-                    onChange={(v) => changeHandler(locale, v)}
-                    id={definition.id}
-                />}
-            </TabPanel>
-        })}
-    </>
+                return (
+                    <TabPanel
+                        currentValue={currentLocale}
+                        value={locale}
+                        key={locale}
+                    >
+                        {definition.multiple ? (
+                            <MultiAttributeRow
+                                indeterminate={indeterminate}
+                                readOnly={readOnly}
+                                disabled={disabled}
+                                name={label}
+                                type={definition.fieldType}
+                                isRtl={isRtlLocale(locale)}
+                                values={
+                                    (attributes[locale] || []) as AttrValue<
+                                        string | number
+                                    >[]
+                                }
+                                onChange={values =>
+                                    changeHandler(locale, values)
+                                }
+                                id={definition.id}
+                            />
+                        ) : (
+                            <AttributeWidget
+                                indeterminate={indeterminate}
+                                readOnly={readOnly}
+                                value={
+                                    attributes[locale] as
+                                        | AttrValue<string | number>
+                                        | undefined
+                                }
+                                disabled={disabled}
+                                type={definition.fieldType}
+                                isRtl={isRtlLocale(locale)}
+                                name={label}
+                                required={false}
+                                onChange={v => changeHandler(locale, v)}
+                                id={definition.id}
+                            />
+                        )}
+                    </TabPanel>
+                );
+            })}
+        </>
+    );
 }

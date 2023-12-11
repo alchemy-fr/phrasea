@@ -28,70 +28,70 @@
         },
         {
             "type": "path",
-            "url": "./__lib/core-bundle",
+            "url": "../../lib/php/core-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/test-bundle",
+            "url": "../../lib/php/test-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/webhook-bundle",
+            "url": "../../lib/php/webhook-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/storage-bundle",
+            "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/admin-bundle",
+            "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/api-test",
+            "url": "../../lib/php/api-test",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/auth-bundle",
+            "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/metadata-manipulator-bundle",
+            "url": "../../lib/php/metadata-manipulator-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/workflow-bundle",
+            "url": "../../lib/php/workflow-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/workflow",
+            "url": "../../lib/php/workflow",
             "options": {
                 "symlink": true
             }
@@ -113,7 +113,7 @@
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
-        "api-platform/core": "^3.1",
+        "api-platform/core": "3.1.18",
         "arthem/rabbit-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",

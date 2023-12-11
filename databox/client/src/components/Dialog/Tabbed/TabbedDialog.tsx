@@ -1,11 +1,10 @@
-import React, {FunctionComponent, ReactNode} from "react";
-import {Tab, Tabs} from "@mui/material";
-import {AppDialogTitle, BootstrapDialog} from "../../Layout/AppDialog";
-import {Breakpoint} from "@mui/system";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {getPath, RouteParams} from "../../../routes";
-import RouteDialog from "../RouteDialog";
-import {useNavigateToModal} from "../../Routing/ModalLink";
+import React, {FunctionComponent, ReactNode} from 'react';
+import {Breakpoint, Tab, Tabs} from '@mui/material';
+import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
+import {useParams} from '@alchemy/navigation';
+import RouteDialog from '../RouteDialog';
+import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
+import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
     title: ReactNode;
@@ -13,24 +12,24 @@ type TabItem<P extends {} = {}, P2 extends {} = any> = {
     component: FunctionComponent<P2 & P & DialogTabProps>;
     props?: P2 & P;
     enabled?: boolean;
-}
+};
+
+export type DialogTabProps = {
+    onClose: () => void;
+    minHeight?: number | undefined;
+};
 
 type Props<P extends {}> = {
-    routeName: string;
-    routeParams?: RouteParams;
+    route: RouteDefinition;
+    routeParams?: RouteParameters;
     tabs: TabItem<P>[];
     maxWidth?: Breakpoint | false;
     title?: ReactNode;
     minHeight?: number | undefined;
 } & P;
 
-export type DialogTabProps = {
-    onClose: () => void;
-    minHeight?: number | undefined;
-}
-
 export default function TabbedDialog<P extends {}>({
-    routeName,
+    route,
     routeParams,
     tabs: configTabs,
     maxWidth,
@@ -40,49 +39,56 @@ export default function TabbedDialog<P extends {}>({
 }: Props<P>) {
     const {tab} = useParams();
     const navigateToModal = useNavigateToModal();
+    const closeModal = useCloseModal();
     const tabs = configTabs.filter(t => t.enabled);
     const tabIndex = tabs.findIndex(t => t.id === tab);
     const currentTab = tabs[tabIndex];
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        navigateToModal(getPath(routeName, {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+        navigateToModal(route, {
             ...routeParams,
             tab: tabs[newValue].id,
-        }));
+        });
     };
 
-    return <RouteDialog>
-        {({open, onClose}) => <BootstrapDialog
-            onClose={onClose}
-            open={open}
-            fullWidth={true}
-            maxWidth={maxWidth}
-        >
-            <AppDialogTitle onClose={onClose}>
-                {title}
-            </AppDialogTitle>
-            <Tabs
-                variant="scrollable"
-                scrollButtons="auto"
-                value={tabIndex}
-                onChange={handleChange}
-                aria-label="Dialog menu"
-            >
-                {tabs.map((t) => {
-                    return <Tab
-                        label={t.title}
-                        id={t.id}
-                        key={t.id}
-                        aria-controls={`tabpanel-${t.id}`}
-                    />
-                })}
-            </Tabs>
-            {React.createElement(currentTab.component, {
-                ...rest,
-                ...currentTab.props,
-                onClose,
-                minHeight,
-            })}
-        </BootstrapDialog>}
-    </RouteDialog>
+    return (
+        <RouteDialog>
+            {({open}) => (
+                <BootstrapDialog
+                    onClose={closeModal}
+                    open={open}
+                    fullWidth={true}
+                    maxWidth={maxWidth}
+                >
+                    <AppDialogTitle onClose={closeModal}>
+                        {title}
+                    </AppDialogTitle>
+                    <Tabs
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        value={tabIndex}
+                        onChange={handleChange}
+                        aria-label="Dialog menu"
+                    >
+                        {tabs.map(t => {
+                            return (
+                                <Tab
+                                    label={t.title}
+                                    id={t.id}
+                                    key={t.id}
+                                    aria-controls={`tabpanel-${t.id}`}
+                                />
+                            );
+                        })}
+                    </Tabs>
+                    {React.createElement(currentTab.component, {
+                        ...rest,
+                        ...currentTab.props,
+                        onClose: closeModal,
+                        minHeight,
+                    })}
+                </BootstrapDialog>
+            )}
+        </RouteDialog>
+    );
 }

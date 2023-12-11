@@ -1,19 +1,18 @@
-import React from 'react';
-import {useTranslation} from "react-i18next";
-import {useForm} from "react-hook-form";
-import {TextField, Typography} from "@mui/material";
-import FormDialog from "../../../Dialog/FormDialog";
-import useFormSubmit from "../../../../hooks/useFormSubmit";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import RemoteErrors from "../../../Form/RemoteErrors";
-import {Asset, File} from "../../../../types";
-import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
-import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
-import {toast} from "react-toastify";
-import CollectionTreeWidget from "../../../Form/CollectionTreeWidget";
-import FormFieldErrors from "../../../Form/FormFieldErrors";
-import FormRow from "../../../Form/FormRow";
-import {postAsset} from "../../../../api/asset";
+import {useTranslation} from 'react-i18next';
+import {useForm} from 'react-hook-form';
+import {TextField, Typography} from '@mui/material';
+import FormDialog from '../../../Dialog/FormDialog';
+import {useFormSubmit} from '@alchemy/api';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import RemoteErrors from '../../../Form/RemoteErrors';
+import {Asset, File} from '../../../../types';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
+import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {toast} from 'react-toastify';
+import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
+import FormFieldErrors from '../../../Form/FormFieldErrors';
+import FormRow from '../../../Form/FormRow';
+import {postAsset} from '../../../../api/asset';
 
 type FormData = {
     title: string;
@@ -25,7 +24,7 @@ export type BaseSaveAsProps = {
     file: File;
     suggestedTitle?: string | undefined;
     integrationId?: string | undefined;
-}
+};
 
 type Props = {} & BaseSaveAsProps & StackedModalProps;
 
@@ -35,31 +34,30 @@ export default function SaveFileAsNewAssetDialog({
     open,
     suggestedTitle,
     integrationId,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
+    const {} = useForm<FormData>({});
+
     const {
         handleSubmit,
-        setError,
         control,
         register,
-        formState: {errors, isDirty}
-    } = useForm<FormData>({
+        formState: {errors},
+        remoteErrors,
+        submitting,
+        forbidNavigation,
+    } = useFormSubmit({
         defaultValues: {
             title: suggestedTitle || asset.resolvedTitle,
             destination: undefined,
-        }
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
+        },
         onSubmit: async (data: FormData) => {
-            const workspace = data.destination.includes('/workspaces/') ? data.destination : undefined;
+            const workspace = data.destination.includes('/workspaces/')
+                ? data.destination
+                : undefined;
             const collection = !workspace ? data.destination : undefined;
 
             return await postAsset({
@@ -72,7 +70,7 @@ export default function SaveFileAsNewAssetDialog({
                     type: 'parent',
                     sourceFile: file.id,
                     integration: integrationId,
-                }
+                },
             });
         },
         onSuccess: () => {
@@ -80,56 +78,51 @@ export default function SaveFileAsNewAssetDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-new-asset';
 
-    return <FormDialog
-        title={`Save file as new asset`}
-        open={open}
-        loading={submitting}
-        formId={formId}
-        submitIcon={<FileCopyIcon/>}
-        submitLabel={'Save'}
-    >
-        <Typography sx={{mb: 3}}>
-            {``}
-        </Typography>
-        <form
-            id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}
+    return (
+        <FormDialog
+            modalIndex={modalIndex}
+            title={`Save file as new asset`}
+            open={open}
+            loading={submitting}
+            formId={formId}
+            submitIcon={<FileCopyIcon />}
+            submitLabel={'Save'}
         >
-            <FormRow>
-                <TextField
-                    autoFocus
-                    label={t('form.upload.title.label', 'Title')}
-                    disabled={submitting}
-                    fullWidth={true}
-                    {...register('title')}
-                />
-                <FormFieldErrors
-                    field={'title'}
-                    errors={errors}
-                />
-            </FormRow>
-            <FormRow>
-                <CollectionTreeWidget
-                    control={control}
-                    rules={{
-                        required: true,
-                    }}
-                    name={'destination'}
-                    label={t('form.save_as.destination.label', 'Destination')}
-                    multiple={false}
-                    required={true}
-                    workspaceId={asset.workspace.id}
-                />
-                <FormFieldErrors
-                    field={'destination'}
-                    errors={errors}
-                />
-            </FormRow>
-        </form>
-        <RemoteErrors errors={remoteErrors}/>
-    </FormDialog>
+            <Typography sx={{mb: 3}}>{``}</Typography>
+            <form id={formId} onSubmit={handleSubmit}>
+                <FormRow>
+                    <TextField
+                        autoFocus
+                        label={t('form.upload.title.label', 'Title')}
+                        disabled={submitting}
+                        fullWidth={true}
+                        {...register('title')}
+                    />
+                    <FormFieldErrors field={'title'} errors={errors} />
+                </FormRow>
+                <FormRow>
+                    <CollectionTreeWidget
+                        control={control}
+                        rules={{
+                            required: true,
+                        }}
+                        name={'destination'}
+                        label={t(
+                            'form.save_as.destination.label',
+                            'Destination'
+                        )}
+                        multiple={false}
+                        required={true}
+                        workspaceId={asset.workspace.id}
+                    />
+                    <FormFieldErrors field={'destination'} errors={errors} />
+                </FormRow>
+            </form>
+            <RemoteErrors errors={remoteErrors} />
+        </FormDialog>
+    );
 }

@@ -1,53 +1,36 @@
-import React from 'react';
-import {Link, LinkProps, To, useLocation, useNavigate} from "react-router-dom";
-import {getPath} from "../../routes";
-import {NavigateOptions} from "react-router/lib/hooks";
-import {Key, Path} from "history";
+import React, {HTMLProps, MouseEventHandler} from 'react';
+import {
+    CloseOverlayFunction,
+    NavigateToOverlayFunction,
+    RouteDefinition,
+    RouteParameters,
+    useCloseOverlay,
+    useNavigateToOverlay,
+} from '@alchemy/navigation';
 
 type Props = {
-    routeName: string;
-    params?: Record<string, any>;
-} & Omit<LinkProps, "to">;
+    route: RouteDefinition;
+    params?: RouteParameters;
+} & HTMLProps<HTMLAnchorElement>;
 
-export type StateWithBackground = {
-    background?: Location;
-}
+export default React.forwardRef<HTMLAnchorElement, Props>(
+    ({route, params, onClick, ...rest}, ref) => {
+        const navigateToModal = useNavigateToModal();
 
-export default React.forwardRef<HTMLAnchorElement, Props>(({
-    routeName,
-    params,
-    ...rest
-}, ref) => {
-    const location = useLocation() as ModalLocation;
+        const clickHandler: MouseEventHandler<HTMLAnchorElement> = e => {
+            onClick && onClick(e);
 
-    return <Link
-        ref={ref}
-        {...rest}
-        to={getPath('app_' + routeName, params)}
-        state={createNewState(location, undefined)}
-    />
-});
+            navigateToModal(route, params);
+        };
 
-type ModalLocation = {
-    state?: StateWithBackground;
-    key: Key;
-} & Path
-
-export function useNavigateToModal(): (to: To, options?: NavigateOptions) => void {
-    const navigate = useNavigate();
-    const location = useLocation() as ModalLocation;
-
-    return (to: To, options?: NavigateOptions) => {
-        navigate(to, {
-            replace: options?.replace,
-            state: createNewState(location, options?.state),
-        });
+        return <a ref={ref} onClick={clickHandler} {...rest} />;
     }
+);
+
+export function useNavigateToModal(): NavigateToOverlayFunction {
+    return useNavigateToOverlay('_m');
 }
 
-function createNewState(location: ModalLocation, state: StateWithBackground | undefined): StateWithBackground {
-    return {
-        ...(state ?? {}),
-        background: location.state?.background ?? location
-    } as StateWithBackground;
+export function useCloseModal(): CloseOverlayFunction {
+    return useCloseOverlay('_m');
 }

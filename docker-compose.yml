@@ -22,12 +22,12 @@ services:
       - ./infra/certs:/etc/traefik/certs:ro
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.traefik-console.rule=Host(`traefik-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.traefik-console.loadbalancer.server.port=8080"
       - "traefik.http.middlewares.admin-secured.basicauth.realm=Secured"
       - "traefik.http.middlewares.admin-secured.basicauth.users=${ADMIN_BASIC_AUTH_USER}"
       - "traefik.http.routers.traefik-console.middlewares=admin-secured@docker"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
@@ -151,7 +151,8 @@ services:
       - uploader
     image: ${REGISTRY_NAMESPACE}uploader-api-php:${DOCKER_TAG}
     build:
-      context: ./uploader/api
+      context: ./
+      dockerfile: ./uploader/api/Dockerfile
     environment:
       - ASSET_CONSUMER_COMMIT_URI
       - ASSET_CONSUMER_ACCESS_TOKEN
@@ -167,7 +168,7 @@ services:
       - NEWRELIC_APP_NAME=uploader-api
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     volumes:
-      - uploader_vol:/var/data/upload
+      - uploader:/var/data/upload
     extra_hosts:
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
 
@@ -185,7 +186,8 @@ services:
       - uploader
     image: ${REGISTRY_NAMESPACE}uploader-api-nginx:${DOCKER_TAG}
     build:
-      context: ./uploader/api
+      context: ./
+      dockerfile: ./uploader/api/Dockerfile
       target: api-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
@@ -200,15 +202,16 @@ services:
       - uploader-api-php
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
 
   databox-client:
     extends:
       service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
     build:
-      context: ./databox/client
+      context: ./
+      dockerfile: ./databox/client/Dockerfile
     profiles:
       - databox
     environment:
@@ -226,7 +229,8 @@ services:
       service: a_client
     image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
     build:
-      context: ./expose/client
+      context: ./
+      dockerfile: ./expose/client/Dockerfile
     profiles:
       - expose
     environment:
@@ -243,7 +247,8 @@ services:
       service: a_client
     image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
     build:
-      context: ./uploader/client
+      context: ./
+      dockerfile: ./uploader/client/Dockerfile
     profiles:
       - uploader
     environment:
@@ -260,7 +265,8 @@ services:
       - expose
     image: ${REGISTRY_NAMESPACE}expose-api-php:${DOCKER_TAG}
     build:
-      context: ./expose/api
+      context: ./
+      dockerfile: ./expose/api/Dockerfile
     environment:
       - DEV_MODE
       - RABBITMQ_VHOST=${EXPOSE_RABBITMQ_VHOST}
@@ -308,13 +314,14 @@ services:
       - expose
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:${DOCKER_TAG}
     build:
-      context: ./expose/api
+      context: ./
+      dockerfile: ./expose/api/Dockerfile
       target: api-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
     volumes:
-      - expose_nginx_cache:/var/cache/nginx
+      - expose-nginx-cache:/var/cache/nginx
     networks:
       - internal
     depends_on:
@@ -324,8 +331,8 @@ services:
       - PS_SUBNET
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
 
   notify-api-php:
     extends:
@@ -334,7 +341,8 @@ services:
       - notify
     image: ${REGISTRY_NAMESPACE}notify-api-php:${DOCKER_TAG}
     build:
-      context: ./notify/api
+      context: ./
+      dockerfile: ./notify/api/Dockerfile
     environment:
       - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
@@ -358,7 +366,8 @@ services:
       - notify
     image: ${REGISTRY_NAMESPACE}notify-api-nginx:${DOCKER_TAG}
     build:
-      context: ./notify/api
+      context: ./
+      dockerfile: ./notify/api/Dockerfile
       target: api-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
@@ -369,8 +378,8 @@ services:
       - notify-api-php
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
 
   redis:
     profiles:
@@ -379,7 +388,7 @@ services:
     networks:
       - internal
     volumes:
-      - redis_vol:/data
+      - redis:/data
 
   db:
     profiles:
@@ -392,7 +401,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - db_vol:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
 
   rabbitmq:
     profiles:
@@ -405,12 +414,12 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - rabbitmq_vol:/var/lib/rabbitmq
+      - rabbitmq:/var/lib/rabbitmq
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.rabbitmq-console.rule=Host(`rabbitmq-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   dockerize:
     profiles:
@@ -441,20 +450,20 @@ services:
       - internal
     command: server /data --console-address ":9001"
     volumes:
-      - s3_vol:/data
+      - s3:/data
     environment:
       - MINIO_ROOT_USER=${S3_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
       - MINIO_BROWSER_REDIRECT_URL=${MINIO_CONSOLE_URL}
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.minio.rule=Host(`minio.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio.service=minio"
       - "traefik.http.services.minio.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`minio-console.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   minio-mc:
     profiles:
@@ -487,7 +496,7 @@ services:
       - MATOMO_DATABASE_PASSWORD
       - MATOMO_DATABASE_DBNAME
     volumes:
-      - matomo_vol:/var/www/html
+      - matomo:/var/www/html
 
   matomo-nginx:
     profiles:
@@ -499,11 +508,11 @@ services:
     depends_on:
       - matomo-php
     volumes:
-      - matomo_vol:/var/www/html:ro
+      - matomo:/var/www/html:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
 
   matomo-db:
     profiles:
@@ -522,7 +531,7 @@ services:
       - MYSQL_USER=$MATOMO_DATABASE_USERNAME
       - MYSQL_PASSWORD=$MATOMO_DATABASE_PASSWORD
     volumes:
-      - matomodb_vol:/var/lib/mysql
+      - matomodb:/var/lib/mysql
 
   report-api:
     profiles:
@@ -552,13 +561,13 @@ services:
     depends_on:
       - db
     volumes:
-      - pgadmin_vol:/var/lib/pgadmin
+      - pgadmin:/var/lib/pgadmin
       - ./infra/docker/pgadmin/server.json:/data/server.json
       - ./infra/docker/pgadmin/passfile:/data/passfile
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
 
   phpmyadmin:
     profiles:
@@ -570,9 +579,9 @@ services:
       - PMA_HOST=matomo-db
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   mailhog:
     profiles:
@@ -582,10 +591,10 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
       - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   dashboard:
     profiles:
@@ -646,8 +655,8 @@ services:
       - SAML2_URL
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
   databox-api-php:
     extends:
@@ -656,7 +665,8 @@ services:
       - databox
     image: ${REGISTRY_NAMESPACE}databox-api-php:${DOCKER_TAG}
     build:
-      context: ./databox/api
+      context: ./
+      dockerfile: ./databox/api/Dockerfile
     environment:
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
@@ -709,7 +719,8 @@ services:
       - databox
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:${DOCKER_TAG}
     build:
-      context: ./databox/api
+      context: ./
+      dockerfile: ./databox/api/Dockerfile
       target: api-nginx
       args:
         BASE_TAG: ${DOCKER_TAG}
@@ -724,14 +735,15 @@ services:
       - databox-api-php
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
   a_indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
-      context: ./databox/indexer
+      context: ./
+      dockerfile: ./databox/indexer/Dockerfile
     profiles:
       - indexer
     networks:
@@ -786,8 +798,8 @@ services:
       - rabbitmq
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
 
   elasticsearch:
     profiles:
@@ -796,7 +808,7 @@ services:
     networks:
       - internal
     volumes:
-      - elasticsearch_vol:/usr/share/elasticsearch/data
+      - elasticsearch:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -815,9 +827,9 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   k6:
     profiles:
@@ -860,9 +872,9 @@ services:
       - ./infra/docker/grafana:/etc/grafana/provisioning
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   webhook-endpoint:
     image: mendhak/http-https-echo:23
@@ -872,8 +884,8 @@ services:
       - internal
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
 
   zippy-api: &zippy
     image: alchemyfr/zippy-api:latest
@@ -891,15 +903,15 @@ services:
       - CLIENT_SECRET=${ZIPPY_CLIENT_SECRET}
       - ZIPPY_URL
     volumes:
-      - zippy_vol:/data
+      - zippy:/data
     depends_on:
       - rabbitmq
     extra_hosts:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.zippy.rule=Host(`zippy.${PHRASEA_DOMAIN}`)"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.zippy.rule=Host(`zippy.${PHRASEA_DOMAIN}`)"
 
   zippy-worker:
     <<: *zippy
@@ -934,9 +946,9 @@ services:
       - keycloak2.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.keycloak.rule=Host(`keycloak.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   keycloak2:
     image: quay.io/keycloak/keycloak:22.0.1
@@ -958,9 +970,9 @@ services:
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK2_DB_NAME}
     labels:
       - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.keycloak2.rule=Host(`keycloak2.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.keycloak2.loadbalancer.server.port=8080"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
   configurator:
     image: ${REGISTRY_NAMESPACE}configurator:${DOCKER_TAG}
@@ -1017,14 +1029,14 @@ services:
       - ./configs:/configs
 
 volumes:
-  db_vol:
-  redis_vol:
-  uploader_vol: # rw-many
-  s3_vol:
-  matomo_vol:
-  matomodb_vol:
-  pgadmin_vol:
-  rabbitmq_vol:
-  elasticsearch_vol:
-  expose_nginx_cache:
-  zippy_vol:
+  db:
+  redis:
+  uploader: # rw-many
+  s3:
+  matomo:
+  matomodb:
+  pgadmin:
+  rabbitmq:
+  elasticsearch:
+  expose-nginx-cache:
+  zippy:

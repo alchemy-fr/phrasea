@@ -1,11 +1,11 @@
-import {SvgIconComponent} from "@mui/icons-material";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import LooksOneIcon from "@mui/icons-material/LooksOne";
-import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import {SvgIconComponent} from '@mui/icons-material';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LooksOneIcon from '@mui/icons-material/LooksOne';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import DataObjectIcon from '@mui/icons-material/DataObject';
-import {AttributeType} from "../api/attributes";
+import {AttributeType} from '../api/attributes';
 import HtmlIcon from '@mui/icons-material/Html';
 import CodeIcon from '@mui/icons-material/Code';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
@@ -27,4 +27,4 @@ export const fieldTypesIcons: Record<string, SvgIconComponent> = {
     [AttributeType.Number]: LooksOneIcon,
     [AttributeType.Text]: TextFieldsIcon,
     [AttributeType.WebVtt]: SubjectIcon,
-}
+};

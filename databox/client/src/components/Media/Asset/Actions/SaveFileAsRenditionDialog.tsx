@@ -1,24 +1,20 @@
-import React from 'react';
-import {useTranslation} from "react-i18next";
-import {useForm} from "react-hook-form";
-import {FormGroup, FormLabel} from "@mui/material";
-import FormDialog from "../../../Dialog/FormDialog";
-import useFormSubmit from "../../../../hooks/useFormSubmit";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import RemoteErrors from "../../../Form/RemoteErrors";
-import {Asset, File} from "../../../../types";
-import {StackedModalProps, useModals} from "../../../../hooks/useModalStack";
-import {useDirtyFormPrompt} from "../../../Dialog/Tabbed/FormTab";
-import {toast} from "react-toastify";
-import FormFieldErrors from "../../../Form/FormFieldErrors";
-import FormRow from "../../../Form/FormRow";
-import RenditionDefinitionSelect from "../../../Form/RenditionDefinitionSelect";
-import {postRendition} from "../../../../api/rendition";
+import {FormGroup, FormLabel} from '@mui/material';
+import FormDialog from '../../../Dialog/FormDialog';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import RemoteErrors from '../../../Form/RemoteErrors';
+import {Asset, File} from '../../../../types';
+import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {toast} from 'react-toastify';
+import FormFieldErrors from '../../../Form/FormFieldErrors';
+import FormRow from '../../../Form/FormRow';
+import RenditionDefinitionSelect from '../../../Form/RenditionDefinitionSelect';
+import {postRendition} from '../../../../api/rendition';
+import {useFormSubmit} from '@alchemy/api';
+import {useModals, StackedModalProps} from '@alchemy/navigation';
 
 type FormData = {
     definition: string | undefined;
 };
-
 
 type Props = {
     asset: Asset;
@@ -29,28 +25,21 @@ export default function SaveFileAsRenditionDialog({
     asset,
     file,
     open,
+    modalIndex,
 }: Props) {
-    const {t} = useTranslation();
     const {closeModal} = useModals();
 
     const {
-        handleSubmit,
-        setError,
         control,
-        register,
-        formState: {errors, isDirty}
-    } = useForm<FormData>({
+        formState: {errors},
+        handleSubmit,
+        remoteErrors,
+        submitting,
+        forbidNavigation,
+    } = useFormSubmit({
         defaultValues: {
             definition: undefined,
-        }
-    });
-
-    const {
-        handleSubmit: onSubmit,
-        errors: remoteErrors,
-        submitting,
-        submitted,
-    } = useFormSubmit({
+        },
         onSubmit: async (data: FormData) => {
             return await postRendition({
                 definitionId: data.definition,
@@ -63,38 +52,35 @@ export default function SaveFileAsRenditionDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(!submitted && isDirty);
+    useDirtyFormPrompt(forbidNavigation);
 
     const formId = 'save-file-as-rendition';
 
-    return <FormDialog
-        title={`Save file as asset rendition`}
-        open={open}
-        loading={submitting}
-        formId={formId}
-        submitIcon={<FileCopyIcon/>}
-        submitLabel={'Save'}
-    >
-        <form
-            id={formId}
-            onSubmit={handleSubmit(onSubmit(setError))}
+    return (
+        <FormDialog
+            title={`Save file as asset rendition`}
+            open={open}
+            modalIndex={modalIndex}
+            loading={submitting}
+            formId={formId}
+            submitIcon={<FileCopyIcon />}
+            submitLabel={'Save'}
         >
-            <FormRow>
-                <FormGroup>
-                    <FormLabel>Rendition to add or replace</FormLabel>
-                    <RenditionDefinitionSelect
-                        disabled={submitting}
-                        name={'definition'}
-                        control={control}
-                        workspaceId={asset.workspace.id}
-                    />
-                    <FormFieldErrors
-                        field={'definition'}
-                        errors={errors}
-                    />
-                </FormGroup>
-            </FormRow>
-        </form>
-        <RemoteErrors errors={remoteErrors}/>
-    </FormDialog>
+            <form id={formId} onSubmit={handleSubmit}>
+                <FormRow>
+                    <FormGroup>
+                        <FormLabel>Rendition to add or replace</FormLabel>
+                        <RenditionDefinitionSelect
+                            disabled={submitting}
+                            name={'definition'}
+                            control={control}
+                            workspaceId={asset.workspace.id}
+                        />
+                        <FormFieldErrors field={'definition'} errors={errors} />
+                    </FormGroup>
+                </FormRow>
+            </form>
+            <RemoteErrors errors={remoteErrors} />
+        </FormDialog>
+    );
 }

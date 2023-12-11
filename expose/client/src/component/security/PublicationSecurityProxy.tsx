@@ -1,9 +1,9 @@
 import React, {PropsWithChildren} from 'react';
-import {Publication} from "../../types";
-import {securityMethods} from "./methods";
-import FullPageLoader from "../FullPageLoader";
-import {logPublicationView} from "../../lib/log";
-import {keycloakClient} from "../../lib/api-client";
+import {Publication} from '../../types';
+import {securityMethods} from './methods';
+import FullPageLoader from '../FullPageLoader';
+import {logPublicationView} from '../../lib/log';
+import {keycloakClient} from '../../lib/api-client';
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -28,14 +28,14 @@ export default function PublicationSecurityProxy({
     };
 
     if (!publication) {
-        return <FullPageLoader/>
+        return <FullPageLoader />;
     }
 
     const {
         authorized,
         securityContainerId,
         authorizationError,
-        securityMethod
+        securityMethod,
     } = publication!;
 
     if (authorized) {
@@ -43,20 +43,19 @@ export default function PublicationSecurityProxy({
     }
 
     if (authorizationError === 'not_allowed') {
-        return <div style={{
-            padding: 10,
-        }}>
-            <p>
-                Sorry! You are not allowed to access this publication.
-            </p>
-
-            <button
-                onClick={logout}
-                className={'btn btn-sm btn-logout'}
+        return (
+            <div
+                style={{
+                    padding: 10,
+                }}
             >
-                Logout
-            </button>
-        </div>
+                <p>Sorry! You are not allowed to access this publication.</p>
+
+                <button onClick={logout} className={'btn btn-sm btn-logout'}>
+                    Logout
+                </button>
+            </div>
+        );
     }
 
     if (securityMethods[securityMethod]) {
@@ -67,7 +66,5 @@ export default function PublicationSecurityProxy({
         });
     }
 
-    return <div>
-        Sorry! You cannot access this publication.
-    </div>
+    return <div>Sorry! You cannot access this publication.</div>;
 }

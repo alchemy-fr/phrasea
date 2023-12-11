@@ -1,16 +1,16 @@
 import {Config} from "./types/config";
 import {getEnv} from "./env";
-
-const fs = require('fs');
+import * as process from "process";
+import * as fs from "fs";
 
 function loadConfig(): object {
-    return JSON.parse(fs.readFileSync(__dirname + '/../config/config.json').toString());
+    return JSON.parse(fs.readFileSync(process.cwd()+ '/config/config.json').toString());
 }
 
 function replaceEnv(str: string): string | boolean | number | undefined {
     let transform;
     let hasEnv = false;
-    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (match, varName: string) => {
+    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (_match, varName: string) => {
         const s = varName;
         hasEnv = true;
 
@@ -120,6 +120,10 @@ export function castToBoolean(value: string | boolean | null | undefined): boole
 export function castToInt(value: string | number | null | undefined): number | undefined {
     if (typeof value === 'number') {
         return value;
+    }
+
+    if (!value) {
+        return;
     }
 
     const n = parseInt(value);

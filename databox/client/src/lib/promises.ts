@@ -1,4 +1,7 @@
-export async function promiseConcurrency<T>(promises: (() => Promise<T>)[], concurrency: number = 2): Promise<T[]> {
+export async function promiseConcurrency<T>(
+    promises: (() => Promise<T>)[],
+    concurrency: number = 2
+): Promise<T[]> {
     const allPromises = [...promises];
 
     const results: T[] = [];
@@ -23,7 +26,7 @@ export async function promiseConcurrency<T>(promises: (() => Promise<T>)[], conc
                     }
                 })
                 .catch(e => reject(e));
-        }
+        };
 
         for (let i = 0; i < concurrency && allPromises.length > 0; i++) {
             next();
