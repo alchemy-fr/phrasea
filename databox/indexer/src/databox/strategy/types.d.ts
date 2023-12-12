@@ -1,7 +1,7 @@
-import {DataboxClient} from "../client";
-import {Logger} from "winston";
-import {Asset} from "../../indexers";
-import {IndexLocation} from "../../types/config";
+import {DataboxClient} from '../client';
+import {Logger} from 'winston';
+import {Asset} from '../../indexers';
+import {IndexLocation} from '../../types/config';
 
 export type IndexAsset = (
     asset: Asset,

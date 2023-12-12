@@ -1,4 +1,9 @@
-import {createLogger as winstonCreateLogger, transports, Logger, format} from "winston";
+import {
+    createLogger as winstonCreateLogger,
+    transports,
+    Logger,
+    format,
+} from 'winston';
 const {combine, timestamp, printf} = format;
 
 const myFormat = printf(({context, level, message, timestamp}) => {
@@ -8,14 +13,8 @@ const myFormat = printf(({context, level, message, timestamp}) => {
 export function createLogger(context: string): Logger {
     return winstonCreateLogger({
         level: 'debug',
-        format: combine(
-            timestamp(),
-            myFormat
-        ),
+        format: combine(timestamp(), myFormat),
         defaultMeta: {context},
-        transports: [
-            new transports.Console(),
-        ],
+        transports: [new transports.Console()],
     });
 }
-

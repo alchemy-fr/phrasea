@@ -1,8 +1,8 @@
 import {MatomoRouteProxy} from '@alchemy/navigation';
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import {keycloakClient} from "../../api/api-client.ts";
-import config from "../../config.ts";
+import {keycloakClient} from '../../api/api-client.ts';
+import config from '../../config.ts';
 
 export default function RouteProxy({
     component: Component,
@@ -18,14 +18,8 @@ export default function RouteProxy({
     if (!isPublic && !isAuthenticated()) {
         document.location.href = getLoginUrl();
 
-        return <></>
+        return <></>;
     }
 
-    return <MatomoRouteProxy
-        component={Component}
-        {...rest}
-    />
+    return <MatomoRouteProxy component={Component} {...rest} />;
 }
-
-
-

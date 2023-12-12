@@ -5,7 +5,7 @@ import Container from '../Container';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
 import FullPageLoader from '../FullPageLoader';
 import {Translation} from 'react-i18next';
-import {routes} from "../../routes";
+import {routes} from '../../routes';
 
 export default function SelectTarget() {
     const [targets, setTargets] = useState();
@@ -17,12 +17,12 @@ export default function SelectTarget() {
 
     useEffect(() => {
         if (targets?.length === 1) {
-            navigate(getPath(routes.upload, {id: targets[0].id}))
+            navigate(getPath(routes.upload, {id: targets[0].id}));
         }
     }, [targets]);
 
     if (!targets || targets?.length) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     return (
@@ -40,20 +40,20 @@ export default function SelectTarget() {
                         </Translation>
                     </div>
                 )}
-                {targets.map(t => <Link
-                    key={t.id}
-                    to={`/upload/${t.id}`}
-                    className={'col-md-6 col-sm-12 target'}
-                >
-                            <span className={'target-box'}>
-                                <span className={'target-title'}>{t.name}</span>
-                                {t.description && (
-                                    <p className={'target-desc'}>
-                                        {t.description}
-                                    </p>
-                                )}
-                            </span>
-                </Link>)}
+                {targets.map(t => (
+                    <Link
+                        key={t.id}
+                        to={`/upload/${t.id}`}
+                        className={'col-md-6 col-sm-12 target'}
+                    >
+                        <span className={'target-box'}>
+                            <span className={'target-title'}>{t.name}</span>
+                            {t.description && (
+                                <p className={'target-desc'}>{t.description}</p>
+                            )}
+                        </span>
+                    </Link>
+                ))}
             </div>
         </Container>
     );

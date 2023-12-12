@@ -1,8 +1,14 @@
-import {getEnvStrict} from "./env";
+import {getEnvStrict} from './env';
 
-export function generatePublicUrl(path: string, source: string, query: Record<string, string> = {}): string {
+export function generatePublicUrl(
+    path: string,
+    source: string,
+    query: Record<string, string> = {}
+): string {
     query.path = path;
     query.source = source;
 
-    return `${getEnvStrict('PUBLIC_URL')}/assets/?${new URLSearchParams(query).toString()}`;
+    return `${getEnvStrict('PUBLIC_URL')}/assets/?${new URLSearchParams(
+        query
+    ).toString()}`;
 }

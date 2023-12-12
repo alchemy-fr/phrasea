@@ -1,11 +1,11 @@
 import {compileRoutes} from '@alchemy/navigation';
 import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
-import SelectTarget from "./components/page/SelectTarget";
-import Upload from "./components/page/Upload";
-import Download from "./components/page/Download";
-import FormEditor from "./components/page/FormEditor.jsx";
-import TargetDataEditor from "./components/page/TargetDataEditor.jsx";
-import React from "react";
+import SelectTarget from './components/page/SelectTarget';
+import Upload from './components/page/Upload';
+import Download from './components/page/Download';
+import FormEditor from './components/page/FormEditor.jsx';
+import TargetDataEditor from './components/page/TargetDataEditor.jsx';
+import React from 'react';
 
 const routes = {
     index: {

@@ -38,4 +38,3 @@ if (!config.disableIndexPage) {
 
 const compiledRoutes = compileRoutes(routes) as typeof routes;
 export {compiledRoutes as routes};
-

@@ -3,6 +3,7 @@ import {ModalStack} from '@alchemy/navigation';
 import {keycloakClient, oauthClient} from '../lib/api-client';
 import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
 import App from './App.tsx';
+import {ToastContainer} from 'react-toastify';
 
 type Props = {};
 
@@ -11,10 +12,18 @@ export default function Root({}: Props) {
         keycloakClient.logout(redirectUri);
     }, []);
 
-    return <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
-        <MatomoUser/>
-        <ModalStack>
-            <App/>
-        </ModalStack>
-    </AuthenticationProvider>
+    return (
+        <>
+            <ToastContainer position={'bottom-left'} />
+            <AuthenticationProvider
+                oauthClient={oauthClient}
+                onLogout={onLogout}
+            >
+                <MatomoUser />
+                <ModalStack>
+                    <App />
+                </ModalStack>
+            </AuthenticationProvider>
+        </>
+    );
 }

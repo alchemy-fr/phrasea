@@ -7,6 +7,7 @@ import DefaultErrorBoundary, {
 } from "./DefaultErrorBoundary";
 import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
 import {DefaultErrorComponent} from "./DefaultErrorComponent";
+import {NotFoundPage} from "@alchemy/phrasea-ui";
 
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
@@ -151,9 +152,7 @@ export function createRouterProviderRoutes(
     output.push({
         id: 'not_found',
         path: '*',
-        Component: () => <ErrorComponent
-            error={new Error('Not found')}
-        />,
+        Component: () => <NotFoundPage/>,
     });
 
     return [

@@ -4,6 +4,7 @@
   "scripts": {
     "lint": "turbo run lint",
     "dev": "turbo run dev --parallel",
+    "format": "turbo run format --parallel",
     "build": "turbo run build"
   },
   "devDependencies": {

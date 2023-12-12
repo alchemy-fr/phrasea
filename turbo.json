@@ -10,6 +10,12 @@
       ],
       "cache": false
     },
+    "format": {
+      "dependsOn": [
+        "^format"
+      ],
+      "cache": false
+    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": [

@@ -1,19 +1,24 @@
-import {Asset} from "../../indexers";
-import {PhraseanetRecord, SubDef} from "./types";
-import {escapeSlashes} from "../../lib/pathUtils";
-import {AttributeClass, AttributeInput, RenditionInput} from "../../databox/types";
+import {Asset} from '../../indexers';
+import {PhraseanetRecord, SubDef} from './types';
+import {escapeSlashes} from '../../lib/pathUtils';
+import {
+    AttributeClass,
+    AttributeInput,
+    RenditionInput,
+} from '../../databox/types';
 
 const renditionDefinitionMapping = {
     document: 'original',
 };
-const renditionDefinitionBlacklist = [
-    'original',
-];
+const renditionDefinitionBlacklist = ['original'];
 
-export type AttrDefinitionIndex = Record<string, {
-    id: string;
-    multiple: boolean;
-}>;
+export type AttrDefinitionIndex = Record<
+    string,
+    {
+        id: string;
+        multiple: boolean;
+    }
+>;
 
 export type AttrClassIndex = Record<string, AttributeClass>;
 
@@ -24,9 +29,13 @@ export function createAsset(
     collectionName: string,
     attrDefinitionIndex: AttrDefinitionIndex
 ): Asset {
-    const document: SubDef | undefined = record.subdefs.find(s => s.name === 'document');
+    const document: SubDef | undefined = record.subdefs.find(
+        s => s.name === 'document'
+    );
 
-    const path = `${escapeSlashes(collectionName)}/${escapeSlashes(record.original_name)}`;
+    const path = `${escapeSlashes(collectionName)}/${escapeSlashes(
+        record.original_name
+    )}`;
 
     return {
         workspaceId,
@@ -51,23 +60,25 @@ export function createAsset(
             } as AttributeInput;
         }),
         generateRenditions: false,
-        renditions: record.subdefs.map(s => {
-            const defName = renditionDefinitionMapping[s.name] || s.name;
+        renditions: record.subdefs
+            .map(s => {
+                const defName = renditionDefinitionMapping[s.name] || s.name;
 
-            if (renditionDefinitionBlacklist.includes(defName)) {
-                return null;
-            }
-
-            return {
-                name: defName,
-                sourceFile: {
-                    url: s.permalink.url,
-                    isPrivate: false,
-                    importFile: importFiles,
-                    type: s.mime_type,
+                if (renditionDefinitionBlacklist.includes(defName)) {
+                    return null;
                 }
-            };
-        }).filter(s => Boolean(s)) as RenditionInput[],
+
+                return {
+                    name: defName,
+                    sourceFile: {
+                        url: s.permalink.url,
+                        isPrivate: false,
+                        importFile: importFiles,
+                        type: s.mime_type,
+                    },
+                };
+            })
+            .filter(s => Boolean(s)) as RenditionInput[],
     };
 }
 

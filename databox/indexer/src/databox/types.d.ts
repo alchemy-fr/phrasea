@@ -1,8 +1,7 @@
-
 type AlternateUrl = {
     type: string;
     url: string;
-}
+};
 
 type Source = {
     url: string;
@@ -22,7 +21,7 @@ export type AssetInput = {
     attributes?: AttributeInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
-}
+};
 
 export type CollectionInput = {
     workspace?: string;
@@ -30,7 +29,7 @@ export type CollectionInput = {
     title?: string;
     parent?: string;
     key?: string;
-}
+};
 
 export type AttributeInput = ({value: any} | {values: any[]}) & {
     definition: string;
@@ -41,18 +40,18 @@ export type AttributeInput = ({value: any} | {values: any[]}) & {
     coordinates?: string;
     status?: string;
     confidence?: number;
-}
+};
 
 export type RenditionInput = {
     definitionId?: string;
     name?: string;
     source?: Source;
-}
+};
 
 export type RenditionClass = {
     id: string;
     name: string;
-}
+};
 
 export type AttributeDefinition = {
     id: string;
@@ -63,7 +62,7 @@ export type AttributeDefinition = {
     fieldType: string;
     workspace: string;
     class: string;
-}
+};
 
 export type AttributeClass = {
     ['@id']: string;
@@ -73,4 +72,4 @@ export type AttributeClass = {
     editable: boolean;
     public: boolean;
     workspace: string;
-}
+};

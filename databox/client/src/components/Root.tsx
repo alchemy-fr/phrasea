@@ -5,7 +5,7 @@ import {keycloakClient, oauthClient} from '../api/api-client';
 import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
 import {RouterProvider} from '@alchemy/navigation';
 import {routes} from '../routes.ts';
-import RouteProxy from "./Routing/RouteProxy.tsx";
+import RouteProxy from './Routing/RouteProxy.tsx';
 
 type Props = {};
 
@@ -15,11 +15,8 @@ export default function Root({}: Props) {
     }, []);
 
     return (
-        <AuthenticationProvider
-            oauthClient={oauthClient}
-            onLogout={onLogout}
-        >
-            <MatomoUser/>
+        <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
+            <MatomoUser />
             <ModalStack>
                 <UserPreferencesProvider>
                     <RouterProvider

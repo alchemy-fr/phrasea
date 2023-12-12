@@ -1,14 +1,17 @@
-import {createDataboxClientFromConfig} from "../databox/client.js";
-import {createLogger} from "../lib/logger.js";
-import {indexers} from "../indexers.js";
-import {getLocation} from "../locations.js";
-import {consume} from "../databox/entrypoint.js";
+import {createDataboxClientFromConfig} from '../databox/client.js';
+import {createLogger} from '../lib/logger.js';
+import {indexers} from '../indexers.js';
+import {getLocation} from '../locations.js';
+import {consume} from '../databox/entrypoint.js';
 
 export type IndexOptions = {
     createNewWorkspace?: boolean;
-}
+};
 
-export default async function indexCommand(locationName: string, options: IndexOptions) {
+export default async function indexCommand(
+    locationName: string,
+    options: IndexOptions
+) {
     const location = getLocation(locationName);
 
     const databoxLogger = createLogger('databox');
@@ -24,5 +27,4 @@ export default async function indexCommand(locationName: string, options: IndexO
     const iterator = indexer(location, logger, databoxClient, options);
 
     await consume(location, databoxClient, iterator, logger);
-};
-
+}

@@ -29,7 +29,7 @@ declare global {
             logo?: {
                 src: string;
                 margin?: string;
-            }
+            };
         };
         devMode?: boolean;
         allowedTypes: Readonly<Accept | undefined>;

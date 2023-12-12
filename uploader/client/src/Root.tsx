@@ -1,10 +1,12 @@
 import React from 'react';
 import {ModalStack} from '@alchemy/navigation';
 import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
-import UploaderUserProvider from "./context/UploaderUserProvider";
-import App from "./App";
-import {keycloakClient, oauthClient} from "./lib/apiClient";
-import FullPageLoader from "./components/FullPageLoader.jsx";
+import UploaderUserProvider from './context/UploaderUserProvider';
+import App from './App';
+import {keycloakClient, oauthClient} from './lib/apiClient';
+import FullPageLoader from './components/FullPageLoader.jsx';
+import {ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = {};
 
@@ -16,17 +18,23 @@ export default function Root({}: Props) {
     }, []);
 
     if (redirecting) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     return (
-        <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
-            <MatomoUser/>
-            <UploaderUserProvider>
-                <ModalStack>
-                    <App/>
-                </ModalStack>
-            </UploaderUserProvider>
-        </AuthenticationProvider>
+        <>
+            <ToastContainer position={'bottom-left'} />
+            <AuthenticationProvider
+                oauthClient={oauthClient}
+                onLogout={onLogout}
+            >
+                <MatomoUser />
+                <UploaderUserProvider>
+                    <ModalStack>
+                        <App />
+                    </ModalStack>
+                </UploaderUserProvider>
+            </AuthenticationProvider>
+        </>
     );
 }

@@ -16,7 +16,9 @@
         }
 
         if (typeof value === 'string') {
-            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+            return ['true', '1', 'on', 'y', 'yes'].includes(
+                value.toLowerCase()
+            );
         }
 
         return false;

@@ -1,17 +1,19 @@
-import {IndexIterator} from "../../indexers";
-import {createAsset, createS3ClientFromConfig} from "./shared";
-import {S3AmqpConfig} from "./types";
-import {streamify} from "../../lib/streamify";
-import {getStrict} from "../../configLoader";
+import {IndexIterator} from '../../indexers';
+import {createAsset, createS3ClientFromConfig} from './shared';
+import {S3AmqpConfig} from './types';
+import {streamify} from '../../lib/streamify';
+import {getStrict} from '../../configLoader';
 
-export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function *(
+export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function* (
     location,
     logger,
     databoxClient
 ) {
     const config = location.options;
     const s3Client = createS3ClientFromConfig(config);
-    const workspaceId = await databoxClient.getWorkspaceIdFromSlug(getStrict('workspaceSlug', config));
+    const workspaceId = await databoxClient.getWorkspaceIdFromSlug(
+        getStrict('workspaceSlug', config)
+    );
 
     const buckets = config.s3.bucketNames.split(',');
 
@@ -24,4 +26,4 @@ export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function *(
             yield createAsset(workspaceId, path, location.name, bucket);
         }
     }
-}
+};

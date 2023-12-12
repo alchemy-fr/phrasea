@@ -5,7 +5,7 @@ import {Backdrop, Typography} from '@mui/material';
 import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
-import {useUser} from "../../../lib/auth.ts";
+import {useUser} from '../../../lib/auth.ts';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
     const userContext = useUser();

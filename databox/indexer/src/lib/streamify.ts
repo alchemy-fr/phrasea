@@ -1,11 +1,15 @@
-import {Readable} from "stream";
+import {Readable} from 'stream';
 
 type Wrapper<T> = {
     value?: T;
     done: boolean;
-}
+};
 
-export async function* streamify(stream: Readable, event: string, endEvent: string): AsyncGenerator<string, void> {
+export async function* streamify(
+    stream: Readable,
+    event: string,
+    endEvent: string
+): AsyncGenerator<string, void> {
     let done = false;
     stream.on(endEvent, () => {
         done = true;
@@ -22,9 +26,12 @@ export async function* streamify(stream: Readable, event: string, endEvent: stri
     }
 }
 
-function oncePromise(stream: Readable, event: string): Promise<Wrapper<string>> {
+function oncePromise(
+    stream: Readable,
+    event: string
+): Promise<Wrapper<string>> {
     return new Promise<Wrapper<string>>(resolve => {
-        const handler = (obj: { name: string }) => {
+        const handler = (obj: {name: string}) => {
             stream.pause();
             stream.removeListener(event, handler);
 

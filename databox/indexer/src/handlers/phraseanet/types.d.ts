@@ -1,7 +1,7 @@
 export type ConfigDataboxMapping = {
     databoxId: string;
     workspaceSlug: string;
-}
+};
 
 export type PhraseanetConfig = {
     url: string;
@@ -18,11 +18,11 @@ export type SubDef = {
     mime_type?: string;
     permalink: {
         url: string;
-    }
+    };
 };
 
 export type PhraseanetMetaStruct = {
-    id: number,
+    id: number;
     namespace: string;
     source: string;
     tagname: string;
@@ -34,32 +34,32 @@ export type PhraseanetMetaStruct = {
     multivalue: boolean;
     readonly: boolean;
     required: boolean;
-}
+};
 
 export type PhraseanetSubDef = {
-    type: string;                       // image | video | audio | document
-    name: string;                       // thumbnail, thumbnail_gif, preview, preview_webm ...
+    type: string; // image | video | audio | document
+    name: string; // thumbnail, thumbnail_gif, preview, preview_webm ...
     databox_id: number;
-    class: string;                      // thumbnail | preview (todo: check other possible values ?)
+    class: string; // thumbnail | preview (todo: check other possible values ?)
     preset: Record<string, string>;
     downloadable: boolean;
     devices: string[];
     labels: Record<string, string>;
     options: Record<string, any>;
-}
+};
 
 export type PhraseanetCollection = {
     databox_id: number;
     base_id: number;
     collection_id: number;
-    name: string,
-}
+    name: string;
+};
 
 type PhraseanetCaption = {
     meta_structure_id: number;
     name: string;
     value: string;
-}
+};
 
 export type PhraseanetRecord = {
     databox_id: string;
@@ -71,4 +71,4 @@ export type PhraseanetRecord = {
     original_name: string;
     subdefs: SubDef[];
     caption?: PhraseanetCaption[];
-}
+};

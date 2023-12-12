@@ -1,8 +1,10 @@
+import ErrorLayout from "./ErrorLayout";
 
 type Props = {};
 
 export default function NotFoundPage({}: Props) {
-    return <>
-        Page not found.
-    </>
+    return <ErrorLayout
+        title={'404'}
+        description={`Page not found.`}
+    />
 }

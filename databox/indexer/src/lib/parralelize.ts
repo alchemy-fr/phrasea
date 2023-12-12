@@ -1,4 +1,3 @@
-
 export async function parralelize<T>(
     getIterator: () => AsyncGenerator<T>,
     handler: (item: T) => Promise<void>,

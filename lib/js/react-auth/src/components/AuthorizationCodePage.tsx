@@ -1,8 +1,9 @@
 import useEffectOnce from "@alchemy/react-hooks/src/useEffectOnce";
 import {OAuthClient} from "@alchemy/auth";
 import {useNavigate} from "react-router-dom";
-import React from "react";
 import {useAuth} from "../hooks/useAuth";
+import {toast} from "react-toastify";
+import React from "react";
 
 type Props = {
     oauthClient: OAuthClient,
@@ -18,14 +19,14 @@ export default function AuthorizationCodePage({
     errorHandler,
 }: Props) {
     const navigate = useNavigate();
-    const [error, setError] = React.useState<string | undefined>();
     const urlParams = new URLSearchParams(window.location.search);
     const {setTokens} = useAuth();
+    const [error, setError] = React.useState<any>();
 
     useEffectOnce(() => {
         const code = urlParams.get('code');
         if (!code) {
-            setError(`Missing authorization code.`);
+            setError(new Error(`Missing authorization code.`));
 
             return;
         }
@@ -74,17 +75,19 @@ export default function AuthorizationCodePage({
                     return ;
                 }
 
-                console.error(e);
-                setError(e.toString());
+                setError(e);
             });
     }, []);
 
+    React.useEffect(() => {
+        if (error) {
+            console.error(error);
+            toast.warn(error.toString());
+        }
+    }, [error]);
+
     if (error) {
-        return <div style={{
-            color: 'red',
-        }}>
-            {error}
-        </div>
+        throw error;
     }
 
     return <></>

@@ -156,7 +156,7 @@ importers:
         specifier: ^1.1.0
         version: 1.1.1
       react-toastify:
-        specifier: ^9.0.1
+        specifier: ^9.1.3
         version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
       sass:
         specifier: ^1.60.0
@@ -397,6 +397,9 @@ importers:
       react-scripts:
         specifier: 3.2.0
         version: 3.2.0(eslint@8.54.0)(react@18.2.0)(typescript@5.3.2)
+      react-toastify:
+        specifier: ^9.1.3
+        version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
       sass:
         specifier: ^1.44.0
         version: 1.69.5
@@ -525,9 +528,15 @@ importers:
 
   lib/js/navigation:
     dependencies:
+      '@alchemy/phrasea-ui':
+        specifier: workspace:*
+        version: link:../phrasea-ui
       '@remix-run/router':
-        specifier: ^1.13.1
-        version: 1.13.1
+        specifier: 1.11.0
+        version: 1.11.0
+      react-router-dom:
+        specifier: 6.18.0
+        version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
     devDependencies:
       '@jonkoops/matomo-tracker-react':
         specifier: ^0.7.0
@@ -544,11 +553,12 @@ importers:
       react-i18next:
         specifier: ^13.5.0
         version: 13.5.0(i18next@23.7.7)(react-dom@18.2.0)(react@18.2.0)
-      react-router-dom:
-        specifier: 6.18.0
-        version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
 
   lib/js/phrasea-ui:
+    dependencies:
+      styled-components:
+        specifier: ^6.1.1
+        version: 6.1.1(react-dom@18.2.0)(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.37
@@ -606,8 +616,11 @@ importers:
         specifier: ^13.5.0
         version: 13.5.0(i18next@23.7.7)(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
-        specifier: ^6.20.0
-        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^6.18.0
+        version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
+      react-toastify:
+        specifier: ^9.1.3
+        version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@10.17.60)(typescript@5.3.2)
@@ -919,6 +932,9 @@ importers:
       react-scripts:
         specifier: ^4.0.3
         version: 4.0.3(eslint@8.54.0)(react@18.2.0)(sass@1.69.5)(typescript@5.3.2)
+      react-toastify:
+        specifier: ^9.1.3
+        version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
       redux:
         specifier: ^4.0.1
         version: 4.2.1
@@ -7838,17 +7854,6 @@ packages:
   /@remix-run/router@1.11.0:
     resolution: {integrity: sha512-BHdhcWgeiudl91HvVa2wxqZjSHbheSgIiDvxrF1VjFzBzpTtuDPkOdOi3Iqvc08kXtFkLjhbS+ML9aM8mJS+wQ==}
     engines: {node: '>=14.0.0'}
-    dev: true
-
-  /@remix-run/router@1.13.0:
-    resolution: {integrity: sha512-5dMOnVnefRsl4uRnAdoWjtVTdh8e6aZqgM4puy9nmEADH72ck+uXwzpJLEKE9Q6F8ZljNewLgmTfkxUrBdv4WA==}
-    engines: {node: '>=14.0.0'}
-    dev: true
-
-  /@remix-run/router@1.13.1:
-    resolution: {integrity: sha512-so+DHzZKsoOcoXrILB4rqDkMDy7NLMErRdOxvzvOKb507YINKUP4Di+shbTZDhSE/pBZ+vr7XGIpcOO0VLSA+Q==}
-    engines: {node: '>=14.0.0'}
-    dev: false
 
   /@restart/context@2.1.4(react@18.2.0):
     resolution: {integrity: sha512-INJYZQJP7g+IoDUh/475NlGiTeMfwTXUEr3tmRneckHIxNolGOW9CTq83S8cxq0CgJwwcMzMJFchxvlwe7Rk8Q==}
@@ -10596,6 +10601,10 @@ packages:
 
   /@types/stack-utils@2.0.3:
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
+    dev: false
+
+  /@types/stylis@4.2.4:
+    resolution: {integrity: sha512-36ZrGJ8fgtBr6nwNnuJ9jXIj+bn/pF6UoqmrQT7+Y99+tFFeHHsoR54+194dHdyhPjgbeoNz3Qru0oRt0l6ASQ==}
     dev: false
 
   /@types/tapable@1.0.12:
@@ -14229,6 +14238,10 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
+  /camelize@1.0.1:
+    resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
+    dev: false
+
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
@@ -15268,6 +15281,11 @@ packages:
       postcss-selector-parser: 6.0.13
     dev: false
 
+  /css-color-keywords@1.0.0:
+    resolution: {integrity: sha512-FyyrDHZKEjXDpNJYvVsV960FiqQyXc/LlYmsxl2BcdMb2WPx0OGRVgTg55rPSyLSNMqP52R9r8geSp7apN3Ofg==}
+    engines: {node: '>=4'}
+    dev: false
+
   /css-color-names@0.0.4:
     resolution: {integrity: sha512-zj5D7X1U2h2zsXOAM8EyUREBnnts6H+Jm+d1M2DbiQQcUtnqgQsMrdo8JW9R80YFUmIdBZeMu5wvYM7hcgWP/Q==}
     dev: false
@@ -15441,6 +15459,14 @@ packages:
       domhandler: 4.3.1
       domutils: 2.8.0
       nth-check: 2.1.1
+
+  /css-to-react-native@3.2.0:
+    resolution: {integrity: sha512-e8RKaLXMOFii+02mOlqwjbD00KSEKqblnpO9e++1aXS1fPQOpS1YoqdVHBqPjHNoxeF2mimzVqawm2KCbEdtHQ==}
+    dependencies:
+      camelize: 1.0.1
+      css-color-keywords: 1.0.0
+      postcss-value-parser: 4.2.0
+    dev: false
 
   /css-tree@1.0.0-alpha.37:
     resolution: {integrity: sha512-DMxWJg0rnz7UgxKT0Q1HU/L9BeJI0M6ksor0OgqOnF+aRCDWg/N2641HmVyU9KVIu0OVVWOb2IpC9A+BJRnejg==}
@@ -27868,7 +27894,6 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
-    dev: true
 
   /potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -29130,20 +29155,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-router: 6.18.0(react@18.2.0)
-    dev: true
-
-  /react-router-dom@6.20.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-CbcKjEyiSVpA6UtCHOIYLUYn/UJfwzp55va4yEfpk7JBN3GPqWfHrdLkAvNCcpXr8QoihcDMuk0dzWZxtlB/mQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
-    dependencies:
-      '@remix-run/router': 1.13.0
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-router: 6.20.0(react@18.2.0)
-    dev: true
 
   /react-router@6.18.0(react@18.2.0):
     resolution: {integrity: sha512-vk2y7Dsy8wI02eRRaRmOs9g2o+aE72YCx5q9VasT1N9v+lrdB79tIqrjMfByHiY5+6aYkH2rUa5X839nwWGPDg==}
@@ -29153,17 +29164,6 @@ packages:
     dependencies:
       '@remix-run/router': 1.11.0
       react: 18.2.0
-    dev: true
-
-  /react-router@6.20.0(react@18.2.0):
-    resolution: {integrity: sha512-pVvzsSsgUxxtuNfTHC4IxjATs10UaAtvLGVSA1tbUE4GDaOSU1Esu2xF5nWLz7KPiMuW8BJWuPFdlGYJ7/rW0w==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-    dependencies:
-      '@remix-run/router': 1.13.0
-      react: 18.2.0
-    dev: true
 
   /react-scripts@3.2.0(eslint@8.54.0)(react@18.2.0)(typescript@5.3.2):
     resolution: {integrity: sha512-6LzuKbE2B4eFQG6i1FnTScn9HDcWBfXXnOwW9xKFPJ/E3rK8i1ufbOZ0ocKyRPxJAKdN7iqg3i7lt0+oxkSVOA==}
@@ -31100,6 +31100,10 @@ packages:
     dependencies:
       kind-of: 6.0.3
 
+  /shallowequal@1.1.0:
+    resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
+    dev: false
+
   /shebang-command@1.2.0:
     resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
     engines: {node: '>=0.10.0'}
@@ -31982,6 +31986,26 @@ packages:
       inline-style-parser: 0.1.1
     dev: false
 
+  /styled-components@6.1.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-cpZZP5RrKRIClBW5Eby4JM1wElLVP4NQrJbJ0h10TidTyJf4SIIwa3zLXOoPb4gJi8MsJ8mjq5mu2IrEhZIAcQ==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      react: '>= 16.8.0'
+      react-dom: '>= 16.8.0'
+    dependencies:
+      '@emotion/is-prop-valid': 1.2.1
+      '@emotion/unitless': 0.8.1
+      '@types/stylis': 4.2.4
+      css-to-react-native: 3.2.0
+      csstype: 3.1.2
+      postcss: 8.4.32
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      shallowequal: 1.1.0
+      stylis: 4.3.0
+      tslib: 2.6.2
+    dev: false
+
   /stylehacks@4.0.3:
     resolution: {integrity: sha512-7GlLk9JwlElY4Y6a/rmbH2MhVlTyVmiJd1PfTCqFaIBEGMYNsrO/v3SeGTdhBThLg4Z+NbOk/qFMwCa+J+3p/g==}
     engines: {node: '>=6.9.0'}
@@ -32004,6 +32028,10 @@ packages:
 
   /stylis@4.2.0:
     resolution: {integrity: sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==}
+
+  /stylis@4.3.0:
+    resolution: {integrity: sha512-E87pIogpwUsUwXw7dNyU4QDjdgVMy52m+XEOPEKUn161cCzWjjhPSQhByfd1CcNvrOLnXQ6OnnZDwnJrz/Z4YQ==}
+    dev: false
 
   /success-symbol@0.1.0:
     resolution: {integrity: sha512-7S6uOTxPklNGxOSbDIg4KlVLBQw1UiGVyfCUYgYxrZUKRblUkmGj7r8xlfQoFudvqLv6Ap5gd76/IIFfI9JG2A==}

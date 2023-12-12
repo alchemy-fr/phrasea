@@ -1,6 +1,6 @@
-import {getConfig} from "./configLoader";
-import {Logger} from "winston";
-import {Asset} from "./indexers";
+import {getConfig} from './configLoader';
+import {Logger} from 'winston';
+import {Asset} from './indexers';
 
 const whitelist: string[] | null = getConfig('whitelist', null);
 const blacklist: string[] | null = getConfig('blacklist', null);
@@ -18,4 +18,3 @@ export function passFilters(asset: Asset, logger: Logger): boolean {
 
     return true;
 }
-
