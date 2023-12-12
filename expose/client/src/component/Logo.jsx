@@ -1,5 +1,5 @@
 import React from 'react';
-import config from '../lib/config';
+import config from '../config';
 
 export function Logo() {
     const title = config.clientLogoAlt || 'Expose.';

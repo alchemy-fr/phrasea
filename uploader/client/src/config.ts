@@ -23,5 +23,6 @@ declare global {
 }
 
 const config = window.config;
+config.appName = 'uploader';
 
 export default config;

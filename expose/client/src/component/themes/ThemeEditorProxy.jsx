@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import config from '../../lib/config';
+import config from '../../config';
 
 class ThemeEditorProxy extends Component {
     state = {

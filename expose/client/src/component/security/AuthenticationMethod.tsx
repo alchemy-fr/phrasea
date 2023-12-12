@@ -1,4 +1,4 @@
-import config from '../../lib/config';
+import config from '../../config';
 import {oauthClient} from '../../lib/api-client';
 import FormLayout from './FormLayout';
 import {useAuth} from '@alchemy/react-auth';

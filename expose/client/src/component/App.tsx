@@ -1,5 +1,5 @@
 import {DashboardMenu} from '@alchemy/react-ps';
-import config from '../lib/config';
+import config from '../config';
 import {RouterProvider} from '@alchemy/navigation';
 import {routes} from '../routes.ts';
 import RouteProxy from './RouteProxy.tsx';
