@@ -25,6 +25,8 @@ COPY themes/phrasea /opt/keycloak/themes/phrasea
 
 FROM quay.io/keycloak/keycloak:22.0.1 as keycloak
 
+ENV KC_SPI_THEME_DEFAULT=phrasea
+
 COPY --from=builder /opt/keycloak /opt/keycloak
 
 
