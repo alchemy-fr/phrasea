@@ -4,7 +4,10 @@ import './locales/i18n';
 import Root from './Root.tsx';
 import React from 'react';
 import {DashboardMenu} from '@alchemy/react-ps';
-import config from "./config.ts";
+import config from "./config";
+import {initSentry} from '@alchemy/core'
+
+initSentry(config);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
