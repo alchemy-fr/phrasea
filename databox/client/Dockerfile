@@ -10,8 +10,6 @@ USER node
 
 WORKDIR /srv/workspace/databox/client
 
-ENV NODE_ENV=development
-
 RUN pnpm install \
     && mv index.tpl.html index.html
 

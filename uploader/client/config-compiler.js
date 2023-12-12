@@ -9,7 +9,7 @@
             return {};
         }
 
-        const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([\w,]*\))?/g)];
+        const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([.\w,]*\))?/g)];
         const struct = {};
         for (const t of types) {
             struct[t[1]] = t[2]
