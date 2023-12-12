@@ -16,7 +16,7 @@ export const fsIndexer: IndexIterator<FsConfig> = async function* (
 
     const iterator = getFiles(watchDir);
 
-    for await (let f of iterator) {
+    for await (const f of iterator) {
         yield createAsset(
             workspaceId,
             f,

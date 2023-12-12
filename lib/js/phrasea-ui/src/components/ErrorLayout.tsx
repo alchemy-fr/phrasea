@@ -60,7 +60,8 @@ export default function ErrorLayout({
     description,
     children,
 }: Props) {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    let canvasRef = useRef<HTMLCanvasElement | null>(null);
+
     React.useEffect(() => {
         if (!canvasRef.current) {
             return;

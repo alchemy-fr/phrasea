@@ -13,7 +13,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     const alternateUrls = getAlternateUrls(asset, location);
 
-    let branch = splitPath(path);
+    const branch = splitPath(path);
     branch.pop();
 
     let collIRI: string;

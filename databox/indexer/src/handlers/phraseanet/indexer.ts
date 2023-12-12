@@ -17,7 +17,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         const databoxCollections: Record<string, number[]> = {};
         logger.debug(`Fetching collections`);
         const collections = await client.getCollections();
-        for (let c of collections) {
+        for (const c of collections) {
             collectionIndex[c.base_id] = c.name;
             const databoxId = c.databox_id.toString();
             if (!databoxCollections[databoxId]) {
@@ -36,7 +36,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             location.options
         );
 
-        for (let dm of databoxMapping) {
+        for (const dm of databoxMapping) {
             let workspaceId = await databoxClient.getWorkspaceIdFromSlug(
                 dm.workspaceSlug
             );
@@ -58,7 +58,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const metaStructure = forceArray(
                 await client.getMetaStruct(dm.databoxId)
             );
-            for (let m of metaStructure) {
+            for (const m of metaStructure) {
                 logger.debug(`Creating "${m.name}" attribute definition`);
                 const id = m.id.toString();
 
@@ -102,7 +102,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             });
 
             const subDefs = await client.getSubDefinitions(dm.databoxId);
-            for (let sd of subDefs) {
+            for (const sd of subDefs) {
                 if (!classIndex[sd.class]) {
                     logger.debug(`Creating rendition class "${sd.class}" `);
                     classIndex[sd.class] =
@@ -135,7 +135,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             while (records.length > 0) {
                 offset += records.length;
                 const nextSearchPromise = client.search(searchParams, offset);
-                for (let r of records) {
+                for (const r of records) {
                     logger.debug(
                         `Phraseanet asset "${r.title}" (#${
                             r.record_id

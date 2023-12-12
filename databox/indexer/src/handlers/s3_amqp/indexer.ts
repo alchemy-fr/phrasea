@@ -17,12 +17,12 @@ export const s3AmqpIterator: IndexIterator<S3AmqpConfig> = async function* (
 
     const buckets = config.s3.bucketNames.split(',');
 
-    for (let bucket of buckets) {
+    for (const bucket of buckets) {
         logger.info(`Start Indexing S3 bucket "${bucket}"`);
 
         const stream = s3Client.listObjectsV2(bucket, '', true, '');
 
-        for await (let path of streamify(stream, 'data', 'end')) {
+        for await (const path of streamify(stream, 'data', 'end')) {
             yield createAsset(workspaceId, path, location.name, bucket);
         }
     }

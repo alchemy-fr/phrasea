@@ -4,15 +4,15 @@
     "lint": {
       "outputs": []
     },
+    "format": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "outputs": []
+    },
     "dev": {
       "dependsOn": [
         "^dev"
-      ],
-      "cache": false
-    },
-    "format": {
-      "dependsOn": [
-        "^format"
       ],
       "cache": false
     },
