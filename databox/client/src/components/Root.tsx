@@ -16,7 +16,7 @@ export default function Root({}: Props) {
 
     return (
         <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
-            <MatomoUser />
+            <MatomoUser/>
             <ModalStack>
                 <UserPreferencesProvider>
                     <RouterProvider

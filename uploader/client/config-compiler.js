@@ -53,5 +53,9 @@
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
+        appId: env.APP_ID || 'uploader',
+        sentryDsn: env.SENTRY_DSN,
+        sentryEnvironment: env.SENTRY_ENVIRONMENT,
+        sentryRelease: env.SENTRY_RELEASE,
     };
 });

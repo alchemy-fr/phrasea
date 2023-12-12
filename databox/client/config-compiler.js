@@ -1,49 +1,13 @@
 (function (config, env) {
     config = config || {};
 
-    let scriptTpl = '';
-    const analytics = config.databox.analytics;
+    const analytics = {};
 
-    if (analytics) {
-        switch (analytics.provider) {
-            case 'matomo':
-                scriptTpl = `
-<!-- Matomo -->
-<script type="text/javascript">
-  var _paq = window._paq || [];
-  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="//{host}/";
-    _paq.push(['setTrackerUrl', u+'matomo.php']);
-    _paq.push(['setSiteId', '{siteId}']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-  })();
-</script>
-`
-                    .replace('{host}', analytics.options.host)
-                    .replace('{siteId}', analytics.options.siteId);
-                break;
-            case 'google_analytics':
-                scriptTpl =
-                    `<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={propertyId}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', '{propertyId}');
-</script>
-`.replace(/{propertyId}/g, analytics.options.propertyId);
-                break;
-            default:
-                console.error(
-                    `Unsupported analytics provider ${analytics.provider}`
-                );
-        }
+    if (env.MATOMO_URL) {
+        analytics.matomo = {
+            baseUrl: env.MATOMO_URL,
+            siteId: env.MATOMO_SITE_ID,
+        };
     }
 
     const normalizeTypes = value => {
@@ -71,10 +35,21 @@
         return struct;
     };
 
+    function castBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return ['true', '1', 'on', 'y', 'yes'].includes(
+                value.toLowerCase()
+            );
+        }
+
+        return false;
+    }
+
     return {
-        customHTML: {
-            __TPL_HEAD__: scriptTpl,
-        },
         locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
@@ -83,10 +58,15 @@
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        devMode: env.DEV_MODE === 'true',
+        devMode: castBoolean(env.DEV_MODE),
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
-        displayServicesMenu: env.DISPLAY_SERVICES_MENU === 'true',
+        displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
+        analytics,
+        appId: env.APP_ID || 'databox',
+        sentryDsn: env.SENTRY_DSN,
+        sentryEnvironment: env.SENTRY_ENVIRONMENT,
+        sentryRelease: env.SENTRY_RELEASE,
     };
 });

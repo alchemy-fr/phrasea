@@ -9,7 +9,7 @@ import UploadDone from './UploadDone';
 import Container from '../Container';
 import {getPath, Link} from '@alchemy/navigation';
 import filesize from 'filesize';
-import config from '../../lib/config';
+import config from '../../config';
 import {getTarget} from '../../requests';
 import UploadBatch from '../../uploadBatch';
 import {retrieveImageFromClipboardAsBlob} from '../ImagePaste';

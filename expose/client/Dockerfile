@@ -33,6 +33,9 @@ RUN apk add --no-cache libstdc++ \
 
 EXPOSE 80
 
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+
 COPY ./expose/client/config-compiler.js /var/app/
 
 WORKDIR /var/app

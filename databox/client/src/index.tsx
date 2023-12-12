@@ -6,10 +6,14 @@ import Root from './components/Root';
 import './config';
 import './i18n';
 import './lib/leaflet';
+import {initSentry} from '@alchemy/core'
+import config from "./config.ts";
+
+initSentry(config);
 
 ReactDOM.render(
     <React.StrictMode>
-        <Root />
+        <Root/>
     </React.StrictMode>,
     document.getElementById('root')
 );
