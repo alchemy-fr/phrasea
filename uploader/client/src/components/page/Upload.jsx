@@ -264,21 +264,13 @@ class Upload extends Component {
                 const canSubmit = this.canSubmit(errors);
 
                 const allowedTypes = config.allowedTypes;
-                const accept = Object.entries(allowedTypes)
-                    .reduce(
-                        (a, [mimeType, ext]) => [...a, mimeType, ...ext],
-                        []
-                    )
-                    // Silently discard invalid entries as pickerOptionsFromAccept warns about these
-                    .filter(v => isMIMEType(v) || isExt(v))
-                    .join(',');
 
                 return (
                     <div className="upload-container">
                         <Dropzone
                             onDrop={this.onDrop}
                             multiple={maxFileCount !== 1}
-                            accept={accept.length > 0 ? accept : undefined}
+                            accept={allowedTypes || undefined}
                         >
                             {({getRootProps, getInputProps, isDragActive}) => {
                                 let classes = ['Upload'];

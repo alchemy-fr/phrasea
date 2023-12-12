@@ -24,7 +24,7 @@ final class FileValidator
     {
         if (is_string($value)) {
             $types = [];
-            preg_match_all('/([\w*]+\/[\w*]+)(\([\w,]*\))?/', $value, $matches);
+            preg_match_all('/([\w*]+\/[\w*]+)(\([\w,.]*\))?/', $value, $matches);
 
             foreach ($matches[0] as $i => $match) {
                 $extensions = [];
