@@ -23,6 +23,7 @@ import {useKeycloakUrls} from '@alchemy/react-auth';
 import config from '../../config.ts';
 import {keycloakClient} from '../../api/api-client.ts';
 import {useUser} from '../../lib/auth.ts';
+import {DashboardMenu} from '@alchemy/react-ps';
 
 export const menuHeight = 42;
 
@@ -235,6 +236,20 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 </>
                             )}
                         </Box>
+
+                        {config.displayServicesMenu && (
+                            <div style={{flexGrow: 0}}>
+                                    <DashboardMenu
+                                        style={{
+                                            position: 'relative',
+                                            marginLeft: 5,
+                                        }}
+                                        bodyPadding={0}
+                                        size={35}
+                                        dashboardBaseUrl={config.dashboardBaseUrl}
+                                    />
+                            </div>
+                        )}
                     </Toolbar>
                 </Container>
             </AppBar>

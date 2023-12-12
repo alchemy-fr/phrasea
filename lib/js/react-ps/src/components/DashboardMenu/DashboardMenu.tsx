@@ -1,13 +1,19 @@
-import {useCallback, useState} from 'react';
+import {CSSProperties, useCallback, useState} from 'react';
 import SvgMenu from '../../icons/Menu';
 
 type Props = {
     dashboardBaseUrl: string;
+    style?: CSSProperties;
+    size?: number;
+    bodyPadding?: number;
 };
 
 export default function DashboardMenu({
-                                          dashboardBaseUrl,
-                                      }: Props) {
+    dashboardBaseUrl,
+    style = {},
+    size = 45,
+    bodyPadding = 20,
+}: Props) {
     const [open, setOpen] = useState(false);
     const [openedOnce, setOpenedOnce] = useState(false);
 
@@ -17,9 +23,6 @@ export default function DashboardMenu({
         }
         setOpen(p => !p);
     }, [openedOnce, setOpen, setOpenedOnce]);
-
-    const size = 45;
-    const bodyPadding = 20;
 
     return <div
         className={`services-menu${open ? ' opened' : ''}`}
@@ -34,6 +37,7 @@ export default function DashboardMenu({
             top: bodyPadding,
             right: bodyPadding,
             padding: Math.round(size / 5),
+            ...style,
         }}
         onClick={toggleMenu}
     >
