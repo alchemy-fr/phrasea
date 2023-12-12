@@ -17,9 +17,9 @@ FROM quay.io/keycloak/keycloak:22.0.1 as builder
 COPY --from=spi-builder /app/group-uuid-pmapper/target/group-uuid-pmapper.jar /opt/keycloak/providers/
 COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-dependencies.jar /opt/keycloak/providers/
 
-RUN /opt/keycloak/bin/kc.sh build
+RUN /opt/keycloak/bin/kc.sh build \
+    && mkdir /opt/keycloak/themes/phrasea
 
-RUN mkdir /opt/keycloak/themes/phrasea
 COPY themes/phrasea /opt/keycloak/themes/phrasea
 
 
