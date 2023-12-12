@@ -146,10 +146,10 @@ class JobState
         $this->jobId = $data['jobId'];
         $this->status = $data['status'];
         $this->outputs = $data['outputs'];
-        $this->inputs = $data['inputs'];
+        $this->inputs = $data['inputs'] ?? null;
         $this->triggeredAt = $data['triggeredAt'];
-        $this->startedAt = $data['startedAt'];
-        $this->endedAt = $data['endedAt'];
+        $this->startedAt = $data['startedAt'] ?? null;
+        $this->endedAt = $data['endedAt'] ?? null;
         $this->errors = $data['errors'] ?? [];
     }
 
