@@ -13,7 +13,9 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -114,7 +116,6 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
         if (isset($bundles['SentryBundle'])) {
             $container->prependExtensionConfig('sentry', [
-                'register_error_listener' => false, // Disables the ErrorListener to avoid duplicated log in sentry
                 'tracing' => [
                     'dbal' => [
                         'enabled' => false,
@@ -130,11 +131,18 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     ],
                     'ignore_exceptions' => [
                         TooManyRequestsHttpException::class,
+                        NotFoundHttpException::class,
+                        UnsupportedFormatException::class,
                     ],
                 ]
             ]);
 
             if (isset($bundles['MonologBundle'])) {
+                $container->prependExtensionConfig('sentry', [
+                    'register_error_handler' => false, // Disables the ErrorListener to avoid duplicated log in sentry
+                    'register_error_listener' => false, // Disables the ErrorListener, ExceptionListener and FatalErrorListener integrations of the base PHP SDK
+                ]);
+
                 $container->prependExtensionConfig('monolog', [
                     'handlers' => [
                         'sentry' => [
