@@ -352,7 +352,11 @@ function createAxiosInterceptor(
     onTokenError?: OnTokenError
 ) {
     return async (config: InternalAxiosRequestConfig) => {
-        if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {
+        if (config.anonymous) {
+            return config;
+        }
+
+        if (method === "getTokenFromRefreshToken" && !oauthClient.isAuthenticated()) {
             return config;
         }
 
