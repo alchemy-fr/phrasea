@@ -20,6 +20,9 @@ importers:
       '@alchemy/theme-editor':
         specifier: workspace:*
         version: link:../../lib/js/theme-editor
+      '@mui/icons-material':
+        specifier: ^5.15.0
+        version: 5.15.0(@mui/material@5.15.0)(@types/react@18.2.39)(react@18.2.0)
       '@mui/material':
         specifier: ^5.15.0
         version: 5.15.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.39)(react-dom@18.2.0)(react@18.2.0)
@@ -29,6 +32,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      react-google-font-loader:
+        specifier: ^1.1.0
+        version: 1.1.0(react-dom@18.2.0)(react@18.2.0)
       vite-plugin-svgr:
         specifier: ^4.2.0
         version: 4.2.0(typescript@5.3.2)(vite@5.0.7)
@@ -17664,6 +17670,17 @@ packages:
       fscreen: 1.2.0
       prop-types: 15.8.1
       react: 18.2.0
+    dev: false
+
+  /react-google-font-loader@1.1.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-mnPYxBdhYEldTtREYPKllbmMvCGkTbpdmNjR6iTM3eTNWcg17OrfXjq9HRDZe+1+mhnUnI/AOcpvG0LIQPcLIw==}
+    peerDependencies:
+      react: ^16.6.3
+      react-dom: ^16.6.3
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-grid-gallery@0.5.6(react-dom@18.2.0)(react@18.2.0):

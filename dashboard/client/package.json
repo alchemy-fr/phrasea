@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@alchemy/theme-editor": "workspace:*",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vite-plugin-svgr": "^4.2.0",
-    "@mui/material": "^5.15.0"
+    "react-google-font-loader": "^1.1.0",
+    "vite-plugin-svgr": "^4.2.0"
   },
   "devDependencies": {
     "@types/node": "^18.8.5",
