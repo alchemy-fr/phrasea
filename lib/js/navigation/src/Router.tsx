@@ -1,13 +1,17 @@
-import {RouteDefinition, RouteParameters, Routes, RouteProxyProps, RouteProxyComponent, ErrorComponent} from "./types";
+import {
+    RouteDefinition,
+    RouteParameters,
+    Routes,
+    RouteProxyProps,
+    RouteProxyComponent,
+    TErrorBoundaryComponent, TErrorFallbackComponent,
+} from "./types";
 import {getFullPath, getLocationPrefix} from "./utils";
 import {Outlet, RouteObject} from "react-router-dom";
 import React, {PropsWithChildren} from "react";
-import DefaultErrorBoundary, {
-    ErrorFallbackProps, TErrorBoundaryComponent
-} from "./DefaultErrorBoundary";
 import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
-import {DefaultErrorComponent} from "./DefaultErrorComponent";
-import {NotFoundPage} from "@alchemy/phrasea-ui";
+import {NotFoundPage, ErrorPage} from "@alchemy/phrasea-ui";
+import {ErrorBoundary} from "@alchemy/core";
 
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
@@ -113,7 +117,7 @@ export function createRouteComponent(route: RouteDefinition, RouteProxyComponent
 
 export type RouterProviderOptions = {
     RouteProxyComponent?: RouteProxyComponent,
-    ErrorComponent?: ErrorComponent,
+    ErrorComponent?: TErrorFallbackComponent,
     ErrorBoundaryComponent?: TErrorBoundaryComponent,
     WrapperComponent?: React.FC<PropsWithChildren<{}>>;
 }
@@ -126,8 +130,8 @@ export function createRouterProviderRoutes(
 
     const {
         RouteProxyComponent: RouteProxyComponent = DefaultRouteProxy,
-        ErrorComponent = DefaultErrorComponent,
-        ErrorBoundaryComponent = DefaultErrorBoundary,
+        ErrorComponent = ErrorPage,
+        ErrorBoundaryComponent = ErrorBoundary,
         WrapperComponent
     } = options;
 
@@ -157,7 +161,7 @@ export function createRouterProviderRoutes(
 
     return [
         {
-            Component: () => <ErrorBoundaryComponent fallback={(props: ErrorFallbackProps) => <ErrorComponent {...props}/>}>
+            Component: () => <ErrorBoundaryComponent fallback={ErrorComponent}>
                 {WrapperComponent ? React.createElement(WrapperComponent, {
                     children: <Outlet />
                 }) : <Outlet />}

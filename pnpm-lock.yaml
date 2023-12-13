@@ -553,6 +553,9 @@ importers:
 
   lib/js/navigation:
     dependencies:
+      '@alchemy/core':
+        specifier: workspace:*
+        version: link:../core
       '@alchemy/phrasea-ui':
         specifier: workspace:*
         version: link:../phrasea-ui
@@ -824,9 +827,6 @@ importers:
       '@alchemy/storage':
         specifier: workspace:*
         version: link:../storage
-      acorn:
-        specifier: ^8.11.2
-        version: 8.11.2
     devDependencies:
       '@emotion/react':
         specifier: ^11.11.1

@@ -26,3 +26,10 @@ export type RouteParameters = Record<string, string | undefined | null>;
 
 export type RouteProxyComponent = FunctionComponent<RouteProxyProps>;
 export type ErrorComponent = ElementType;
+
+export type ErrorFallbackProps = { error: any };
+export type TErrorFallbackComponent = (props: ErrorFallbackProps) => React.JSX.Element;
+
+export type TErrorBoundaryComponent = React.JSXElementConstructor<PropsWithChildren<{
+    fallback: TErrorFallbackComponent;
+}>>;

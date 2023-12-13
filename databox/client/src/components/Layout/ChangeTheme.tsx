@@ -11,23 +11,27 @@ import {useTranslation} from 'react-i18next';
 import themes from '../../themes';
 import {ThemeName} from '../../lib/theme';
 import {UserPreferencesContext} from '../User/Preferences/UserPreferencesContext';
+import {StackedModalProps, useModals} from '@alchemy/navigation';
 
-type Props = {
-    onClose: () => void;
-};
+type Props = {} & StackedModalProps;
 
-export default function ChangeTheme({onClose}: Props) {
+export default function ChangeTheme({
+    open,
+}: Props) {
     const {t} = useTranslation();
     const prefContext = useContext(UserPreferencesContext);
     const {preferences, updatePreference} = prefContext;
+    const {closeModal} = useModals();
 
     const handleClick = (name: ThemeName) => {
         updatePreference('theme', name);
     };
 
+    const onClose = () => closeModal();
+
     return (
         <>
-            <Dialog onClose={onClose} open={true}>
+            <Dialog onClose={onClose} open={open}>
                 <DialogTitle>
                     {t('change_theme.title', 'Choose a theme')}
                 </DialogTitle>

@@ -1,0 +1,78 @@
+import React, {ChangeEventHandler, useContext} from "react";
+import ThemeEditorContext from "./ThemeEditorContext";
+import {Button, ThemeOptions, Typography, TextField, Box} from "@mui/material";
+import {getSessionStorage} from '@alchemy/storage';
+
+type Props = {
+    onClose: () => void;
+};
+
+export default function MuiThemeEditor({
+    onClose,
+}: Props) {
+    const themeEditorKey = 'theme-editor';
+    const storage = getSessionStorage();
+    const {
+        setThemeOptions,
+    } = useContext(ThemeEditorContext)!;
+    const [value, setValue] = React.useState(storage.getItem(themeEditorKey) || '');
+    const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+    const onChange = React.useCallback<ChangeEventHandler<HTMLTextAreaElement>>((e) => {
+        const v = e.target.value;
+        setValue(v);
+
+        storage.setItem(themeEditorKey, v);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+            const code = v.trim().replace(/^\s*(export\s+)?const\s+[^\s]+\s*=\s*\{/, '{');
+
+            console.log('code', code);
+
+            setThemeOptions(eval(`(function () {
+                return ${code}
+            })();`) as ThemeOptions);
+        }, 200);
+
+    }, [setThemeOptions, timeoutRef]);
+
+    return <>
+        <Typography variant={'h2'}>
+            Theme Editor
+        </Typography>
+        <Box
+            sx={{
+                pt: 2,
+                pb: 2,
+            }}
+        >
+            <TextField
+                onKeyDown={e => e.stopPropagation()}
+                label={`Theme Options`}
+                maxRows={20}
+                helperText={<>
+                    Check <a
+                    target={'_blank'}
+                    rel={'noopener noreferrer'}
+                    href={`https://bareynol.github.io/mui-theme-creator/`}
+                >Playground</a>
+                </>}
+                multiline={true}
+                style={{
+                    width: '100%',
+                }}
+                value={value}
+                onChange={onChange}
+            />
+        </Box>
+        <Button
+            onClick={onClose}
+        >
+            Close
+        </Button>
+    </>
+}
