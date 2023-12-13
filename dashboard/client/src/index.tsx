@@ -1,14 +1,14 @@
 import ReactDOM from 'react-dom/client';
 import Root from './Root.tsx';
 import React from 'react';
-import {CssBaseline, GlobalStyles, ThemeOptions} from "@mui/material";
+import {CssBaseline, GlobalStyles, ThemeOptions} from '@mui/material';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 
 const theme: ThemeOptions = {
     typography: {
-        fontFamily: '\'Montserrat\', sans-serif',
+        fontFamily: "'Montserrat', sans-serif",
         h1: {
-            fontSize: 24,
+            fontSize: 42,
             fontWeight: 600,
         },
         h2: {
@@ -32,17 +32,15 @@ const theme: ThemeOptions = {
         },
         background: {
             default: '#85dbff',
-        }
+        },
     },
-}
+};
 
 const scrollbarWidth = 3;
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <ThemeEditorProvider
-            defaultTheme={theme}
-        >
+        <ThemeEditorProvider defaultTheme={theme}>
             <CssBaseline />
             <GlobalStyles
                 styles={theme => ({

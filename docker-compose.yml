@@ -611,53 +611,29 @@ services:
     networks:
       - internal
     environment:
-      - STACK_NAME=${COMPOSE_PROJECT_NAME}
-      - DOCKER_TAG
-      - EXPOSE_API_PORT
-      - EXPOSE_CLIENT_PORT
-      - EXPOSE_STORAGE_BUCKET_NAME
-      - MAILER_DSN
-      - MAILHOG_PORT
-      - MATOMO_DATABASE_DBNAME
-      - MATOMO_HOST
-      - MATOMO_MYSQL_ROOT_PASSWORD
-      - MATOMO_PORT
-      - MINIO_PORT
-      - NOTIFY_PORT
-      - PGADMIN_PORT
-      - PHPMYADMIN_PORT
-      - PS_DEBUG_SERVER_NAME_PREFIX
-      - PS_GATEWAY_IP
-      - PS_SUBNET
-      - RABBITMQ_HOST
-      - RABBITMQ_PORT
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - RABBITMQ_SSL
-      - REGISTRY_NAMESPACE
-      - REPORT_DB_NAME
-      - XDEBUG_ENABLED
-      - UPLOADER_API_URL
-      - KEYCLOAK_URL
+      - DATABOX_API_URL
+      - DATABOX_CLIENT_URL
+      - DEV_MODE
+      - DISPLAY_SERVICES_MENU
+      - ELASTICHQ_URL
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
-      - UPLOADER_CLIENT_URL
-      - DATABOX_CLIENT_URL
+      - KEYCLOAK_URL
+      - MAILHOG_URL
+      - MATOMO_URL
       - NOTIFY_API_URL
-      - DATABOX_API_URL
-      - REPORT_API_URL
-      - DASHBOARD_URL
-      - ZIPPY_URL
-      - S3_ENDPOINT
-      - S3_PATH_PREFIX
       - PGADMIN_URL
       - PHPMYADMIN_URL
       - RABBITMQ_CONSOLE_URL
-      - TRAEFIK_CONSOLE_URL
-      - ELASTICHQ_URL
-      - MAILHOG_URL
-      - SAML_URL
+      - REPORT_API_URL
       - SAML2_URL
+      - SAML_URL
+      - STACK_NAME=${COMPOSE_PROJECT_NAME}
+      - STACK_VERSION=${DOCKER_TAG}
+      - TRAEFIK_CONSOLE_URL
+      - UPLOADER_API_URL
+      - UPLOADER_CLIENT_URL
+      - ZIPPY_URL
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
