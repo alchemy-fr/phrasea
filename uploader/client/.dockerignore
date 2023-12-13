@@ -2,9 +2,5 @@
 Dockerfile
 /README.md
 .dockerignore
-/public/env-config.*.js
-/public/index.html
-/npm-debug.log*
-/yarn-debug.log*
-/yarn-error.log*
+/index.html
 .idea

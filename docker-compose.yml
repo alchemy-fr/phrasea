@@ -600,16 +600,18 @@ services:
       - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
 
   dashboard:
+    extends:
+      service: a_client
     profiles:
       - dashboard
     image: ${REGISTRY_NAMESPACE}dashboard:${DOCKER_TAG}
-    build: dashboard
+    build:
+      context: ./
+      dockerfile: ./dashboard/client/Dockerfile
     networks:
       - internal
     environment:
-      - APP_ENV
       - STACK_NAME=${COMPOSE_PROJECT_NAME}
-      - DEV_MODE
       - DOCKER_TAG
       - EXPOSE_API_PORT
       - EXPOSE_CLIENT_PORT
@@ -657,8 +659,6 @@ services:
       - SAML_URL
       - SAML2_URL
     labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
   databox-api-php:

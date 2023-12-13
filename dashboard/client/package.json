@@ -1,0 +1,33 @@
+{
+  "name": "dashboard-client",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@alchemy/theme-editor": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite-plugin-svgr": "^4.2.0",
+    "@mui/material": "^5.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.8.5",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.53.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-checker": "^0.6.2",
+    "vite-plugin-svgr": "^4.2.0"
+  }
+}
