@@ -1,6 +1,6 @@
 import React, {ChangeEventHandler, useContext} from "react";
 import ThemeEditorContext from "./ThemeEditorContext";
-import {Button, ThemeOptions, Typography, TextField, Box} from "@mui/material";
+import {Alert, Box, Button, createTheme, TextField, ThemeOptions, Typography} from "@mui/material";
 import {getSessionStorage} from '@alchemy/storage';
 
 type Props = {
@@ -11,6 +11,7 @@ export default function MuiThemeEditor({
     onClose,
 }: Props) {
     const themeEditorKey = 'theme-editor';
+    const [error, setError] = React.useState<string | undefined>();
     const storage = getSessionStorage();
     const {
         setThemeOptions,
@@ -31,12 +32,22 @@ export default function MuiThemeEditor({
         timeoutRef.current = setTimeout(() => {
             const code = v.trim().replace(/^\s*(export\s+)?const\s+[^\s]+\s*=\s*\{/, '{');
 
-            console.log('code', code);
+            try {
+                const themeOptions = eval(`(function () {
+                    return ${code}
+                })();`) as ThemeOptions;
 
-            setThemeOptions(eval(`(function () {
-                return ${code}
-            })();`) as ThemeOptions);
-        }, 200);
+                try {
+                    createTheme(themeOptions);
+                    setThemeOptions(themeOptions);
+                    setError(undefined);
+                } catch (e: any) {
+                    setError(e.toString());
+                }
+            } catch (e: any) {
+                setError(`JS syntax: ${e.toString()}`);
+            }
+        }, 100);
 
     }, [setThemeOptions, timeoutRef]);
 
@@ -52,6 +63,7 @@ export default function MuiThemeEditor({
         >
             <TextField
                 onKeyDown={e => e.stopPropagation()}
+                onKeyPress={e => e.stopPropagation()}
                 label={`Theme Options`}
                 maxRows={20}
                 helperText={<>
@@ -69,6 +81,11 @@ export default function MuiThemeEditor({
                 onChange={onChange}
             />
         </Box>
+        {error && <Alert
+            severity={'error'}
+        >
+            {error}
+        </Alert>}
         <Button
             onClick={onClose}
         >
