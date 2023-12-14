@@ -4,6 +4,11 @@ import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
 import ApiIcon from "@mui/icons-material/Api";
 import SellIcon from '@mui/icons-material/Sell';
+import keycloakImg from './images/keycloak.png'
+import databoxImg from './images/databox.png'
+import uploaderImg from './images/uploader.png'
+import exposeImg from './images/expose.png'
+import notifyImg from './images/notify.png'
 
 type Props = {};
 
@@ -63,7 +68,7 @@ export default function Root({}: Props) {
                     mainUrl={KEYCLOAK_URL}
                     title={`Identity Manager`}
                     description={`Keycloak IAM`}
-                    logo={'/src/images/keycloak.png'}
+                    logo={keycloakImg}
                 />
                 {DATABOX_API_URL && (
                     <ClientApp
@@ -71,7 +76,7 @@ export default function Root({}: Props) {
                         clientUrl={DATABOX_CLIENT_URL}
                         title={`Databox`}
                         description={`Your DAM`}
-                        logo={'/src/images/databox.png'}
+                        logo={databoxImg}
                     />
                 )}
                 {EXPOSE_API_URL && (
@@ -80,7 +85,7 @@ export default function Root({}: Props) {
                         clientUrl={EXPOSE_CLIENT_URL}
                         title={`Expose`}
                         description={`Share Publications`}
-                        logo={'/src/images/expose.png'}
+                        logo={exposeImg}
                     />
                 )}
                 {UPLOADER_API_URL && (
@@ -89,7 +94,7 @@ export default function Root({}: Props) {
                         clientUrl={UPLOADER_CLIENT_URL}
                         title={`Uploader`}
                         description={`Standalone Asset deposit`}
-                        logo={'/src/images/uploader.png'}
+                        logo={uploaderImg}
                     />
                 )}
                 {NOTIFY_API_URL && (
@@ -97,7 +102,7 @@ export default function Root({}: Props) {
                         mainUrl={`${NOTIFY_API_URL}/admin`}
                         title={`Notify Admin`}
                         description={`Mail Sender`}
-                        logo={'/src/images/notify.png'}
+                        logo={notifyImg}
                         links={[
                             {
                                 icon: <ApiIcon />,
