@@ -73,8 +73,11 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       image: dashboard
-      context: ./dashboard
+      context: ./dashboard/client
+      withLibs: true
     secrets: inherit
+    needs:
+      - build_nodejs-base
 
   build_databox_api:
     name: 'Build Databox API'

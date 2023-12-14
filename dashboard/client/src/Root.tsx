@@ -1,4 +1,4 @@
-import {Alert, Chip, Container, Grid, Typography} from '@mui/material';
+import {Alert, Chip, Container, Grid, Typography, useMediaQuery, useTheme} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
@@ -22,11 +22,14 @@ export default function Root({}: Props) {
         STACK_VERSION,
     } = config.env;
 
-    console.log('config.env', config.env);
+    console.debug('config.env', config.env);
+
+    const theme = useTheme();
+    const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
 
     return (
         <Container>
-            <Typography
+            {isLarge && <Typography
                 variant={'h1'}
                 sx={{
                     '.MuiChip-root': {
@@ -40,9 +43,9 @@ export default function Root({}: Props) {
                     icon={<SellIcon/>}
                     label={STACK_VERSION}
                 />
-            </Typography>
+            </Typography>}
 
-            {DEV_MODE && <Alert
+            {isLarge && DEV_MODE && <Alert
                 sx={{
                     mt: 2,
                 }}

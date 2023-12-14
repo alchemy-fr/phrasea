@@ -40,13 +40,21 @@ export default function Service({
         <Grid item xs={6} sm={4} md={3}>
             <Card
                 sx={{
-                    minHeight: 280,
+                    minHeight: {
+                        xs: 180,
+                        sm: 200,
+                        md: 300,
+                    },
                 }}
             >
                 <AnchorLink href={mainUrl}>
                     <CardMedia
                         sx={theme => ({
-                            height: 140,
+                            height: {
+                                xs: 60,
+                                sm: 80,
+                                md: 140,
+                            },
                             backgroundSize: 'contain',
                             backgroundColor: theme.palette.background.default,
                         })}
@@ -56,12 +64,20 @@ export default function Service({
                 </AnchorLink>
                 <CardContent>
                     <AnchorLink href={mainUrl}>
-                        <Typography gutterBottom variant="h5" component="div">
+                        <Typography gutterBottom variant="h2">
                             {title}
                         </Typography>
                     </AnchorLink>
                     {description && (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                display: {
+                                    xs: 'none',
+                                    md: 'block',
+                                }
+                            }}
+                        >
                             {description}
                         </Typography>
                     )}
