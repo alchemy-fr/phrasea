@@ -3,6 +3,7 @@ import {createLogger} from '../lib/logger.js';
 import {indexers} from '../indexers.js';
 import {getLocation} from '../locations.js';
 import {consume} from '../databox/entrypoint.js';
+import {runServer} from "../server";
 
 export type IndexOptions = {
     createNewWorkspace?: boolean;
@@ -25,6 +26,8 @@ export default async function indexCommand(
 
     const logger = createLogger(location.name);
     const iterator = indexer(location, logger, databoxClient, options);
+
+    runServer(mainLogger);
 
     await consume(location, databoxClient, iterator, logger);
 }

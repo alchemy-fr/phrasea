@@ -1,9 +1,13 @@
 import {Command} from 'commander';
 import indexCommand from './command/index.js';
+import listCommand from "./command/list";
 
 const program = new Command();
 
-program.name('list').description('Databox indexer').version('1.0.0');
+program
+    .name('indexer')
+    .description('Databox Indexer')
+    .version('1.0.0');
 
 program
     .command('index')
@@ -15,5 +19,10 @@ program
         false
     )
     .action(indexCommand);
+
+program
+    .command('list')
+    .description('List locations')
+    .action(listCommand);
 
 program.parse();

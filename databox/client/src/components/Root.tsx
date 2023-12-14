@@ -14,7 +14,10 @@ export default function Root({}: Props) {
     }, []);
 
     return (
-        <AuthenticationProvider oauthClient={oauthClient} onLogout={onLogout}>
+        <AuthenticationProvider
+            oauthClient={oauthClient}
+            onLogout={onLogout}
+        >
             <MatomoUser/>
             <UserPreferencesProvider>
                 <ModalStack>

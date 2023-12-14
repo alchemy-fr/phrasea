@@ -29,6 +29,8 @@ export function createAsset(
     const p = dirPrefix ? dirPrefix + relativePath : path;
     const sourcePath = sourceDir ? sourceDir + relativePath : path;
 
+    console.log('generatePublicUrl(p, locationName)', generatePublicUrl(p, locationName));
+
     return {
         workspaceId,
         key: p,

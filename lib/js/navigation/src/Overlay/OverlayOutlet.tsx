@@ -1,24 +1,27 @@
-import React, {useRef} from 'react';
+import React, {PropsWithChildren, ReactNode, useRef} from 'react';
 import {useLocation, useNavigate} from "react-router-dom";
-import {getOverlayContext, TOverlayRouterContext} from "./OverlayRouterContext";
 import OverlayRouterProvider from "./OverlayRouterProvider";
+import {getOverlayContext, TOverlayContext} from "./OverlayContext";
+import {Routes} from "../types";
 
 
-type OverlayComponentProps = {
+type OverlayComponentProps = PropsWithChildren<{
     open: boolean;
     onClose: () => void;
-};
+}>;
 
 export type OverlayComponent = (props: OverlayComponentProps) => React.ReactNode
 
 type Props = {
     queryParam: string;
-    WrapperComponent: OverlayComponent;
+    routes: Routes;
+    WrapperComponent?: OverlayComponent;
 };
 
 export default function OverlayOutlet({
     queryParam,
-    WrapperComponent,
+    routes,
+    WrapperComponent = DefaultWrapperComponent,
 }: Props) {
     const location = useLocation();
     const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -60,7 +63,7 @@ export default function OverlayOutlet({
         });
     }, [navigate, location]);
 
-    const contextValue = React.useMemo<TOverlayRouterContext>(() => {
+    const contextValue = React.useMemo<TOverlayContext>(() => {
         return {
             close: () => {
                 setOpen(false);
@@ -69,9 +72,9 @@ export default function OverlayOutlet({
         }
     }, [onClose, setOpen]);
 
-    const OverlayRouterContext = getOverlayContext(queryParam);
+    const OverlayContext = getOverlayContext(queryParam);
 
-    return <OverlayRouterContext.Provider value={contextValue}>
+    return <OverlayContext.Provider value={contextValue}>
         <WrapperComponent
             open={open}
             onClose={onClose}
@@ -79,7 +82,12 @@ export default function OverlayOutlet({
             {finalUrl ? <OverlayRouterProvider
                 path={finalUrl}
                 queryParam={queryParam}
+                routes={routes}
             /> : ''}
         </WrapperComponent>
-    </OverlayRouterContext.Provider>
+    </OverlayContext.Provider>
+}
+
+function DefaultWrapperComponent({children}: OverlayComponentProps) {
+    return children as ReactNode;
 }

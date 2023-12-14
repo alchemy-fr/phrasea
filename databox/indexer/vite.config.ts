@@ -4,7 +4,7 @@ import {VitePluginNode} from 'vite-plugin-node';
 export default defineConfig({
     plugins: [
         ...VitePluginNode({
-            appPath: './src/index.ts',
+            appPath: './src/console.ts',
 
             // Optional, default: 'viteNodeApp'
             // the name of named export of you app from the appPath file

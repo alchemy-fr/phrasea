@@ -19,3 +19,7 @@ export function getLocation<T extends ConfigOptions = any>(
 
     return location;
 }
+
+export function getLocations() {
+    return locations;
+}

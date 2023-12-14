@@ -4,8 +4,11 @@
   "description": "Consumes S3 events from AMQP and synchronize Databox",
   "main": "dist/index.mjs",
   "license": "MIT",
+  "bin": {
+    "console": "node dist/console.mjs"
+  },
   "scripts": {
-    "console": "node dist/index.mjs",
+    "console": "node dist/console.mjs",
     "dev": "nodemon",
     "build": "rimraf ./dist && vite build",
     "test": "jest",

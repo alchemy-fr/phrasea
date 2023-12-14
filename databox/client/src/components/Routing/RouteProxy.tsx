@@ -1,8 +1,9 @@
-import {MatomoRouteProxy} from '@alchemy/navigation';
+import {MatomoRouteProxy, OverlayOutlet} from '@alchemy/navigation';
 import type {RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {keycloakClient} from '../../api/api-client.ts';
 import config from '../../config.ts';
+import {modalRoutes} from "../../routes.ts";
 
 export default function RouteProxy({
     component: Component,
@@ -21,5 +22,14 @@ export default function RouteProxy({
         return <></>;
     }
 
-    return <MatomoRouteProxy component={Component} {...rest} />;
+    return <MatomoRouteProxy
+        component={() => <>
+            <OverlayOutlet
+                routes={modalRoutes}
+                queryParam={'_m'}
+            />
+            <Component/>
+        </>}
+        {...rest}
+    />;
 }

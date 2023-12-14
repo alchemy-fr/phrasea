@@ -717,7 +717,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
-  a_indexer:
+  databox-indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
@@ -761,20 +761,6 @@ services:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
-
-  databox-indexer:
-    extends:
-      service: a_indexer
-    command: [ "/bin/sh", "-c", "exit" ]
-    environment:
-      - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
-      - PHRASEANET_SEARCH_ORDER=${INDEXER_PHRASEANET_SEARCH_ORDER}
-
-  databox-watcher:
-    extends:
-      service: a_indexer
-    depends_on:
-      - rabbitmq
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1002,6 +988,8 @@ services:
       - MAILER_DSN
       - DEFAULT_ADMIN_USERNAME
       - DEFAULT_ADMIN_PASSWORD
+      - INDEXER_DATABOX_CLIENT_ID
+      - INDEXER_DATABOX_CLIENT_SECRET
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:

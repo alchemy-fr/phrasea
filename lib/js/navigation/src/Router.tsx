@@ -124,7 +124,7 @@ export type RouterProviderOptions = {
 
 export function createRouterProviderRoutes(
     routes: Routes,
-    options: RouterProviderOptions,
+    options: RouterProviderOptions = {},
 ): RouteObject[] {
     const output: RouteObject[] = [];
 

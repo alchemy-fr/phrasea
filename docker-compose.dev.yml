@@ -245,16 +245,10 @@ services:
     volumes:
       - ./configurator:/usr/app
 
-  databox-watcher:
-    extends:
-      service: a_client
-    command: ["pnpm", "start:dev"]
-    volumes:
-      - ./databox/indexer:/srv/workspace/databox/indexer
-
   databox-indexer:
     extends:
       service: a_client
+    entrypoint: ''
     volumes:
       - ./databox/indexer:/srv/workspace/databox/indexer
 
