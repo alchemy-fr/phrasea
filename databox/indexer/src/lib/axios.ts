@@ -39,11 +39,6 @@ export function createHttpClient({
             if (!config) {
                 return false;
             }
-            logger.warn(
-                `Request "${config.method?.toUpperCase()} ${
-                    config.url
-                }" failed, retrying...`
-            );
 
             if (error.response) {
                 if (
@@ -53,7 +48,15 @@ export function createHttpClient({
                 ) {
                     return false;
                 }
+            }
 
+            logger.warn(
+                `Request "${config.method?.toUpperCase()} ${
+                    config.url
+                }" failed, retrying...`
+            );
+
+            if (error.response) {
                 logger.debug(
                     `Request "${config.method?.toUpperCase()} ${
                         config.url
@@ -85,10 +88,22 @@ export function createHttpClient({
                 }
 
                 logger.error(
-                    'Error response: ' + JSON.stringify(filtered, undefined, 2)
+                    `Error response (${error.config.url}): ` + JSON.stringify(filtered, undefined, 2)
                 );
             }
 
+            return Promise.reject(new Error(error.message));
+        }
+    );
+
+    client.interceptors.request.use(
+        (config) => {
+            logger.debug(`${config.method.toUpperCase()} ${config.url}
+${JSON.stringify(config.headers)}${config.data ? `\n${JSON.stringify(config.data)}` : ''}`);
+
+            return config;
+        },
+        (error) => {
             return Promise.reject(error);
         }
     );

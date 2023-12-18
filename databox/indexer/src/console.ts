@@ -1,6 +1,7 @@
 import {Command} from 'commander';
 import indexCommand from './command/index.js';
 import listCommand from "./command/list";
+import watchCommand from "./command/watch";
 
 const program = new Command();
 
@@ -19,6 +20,16 @@ program
         false
     )
     .action(indexCommand);
+
+program
+    .command('watch')
+    .description('Watch locations')
+    .option(
+        '-l, --location',
+        'List locations to watch',
+        false
+    )
+    .action(watchCommand);
 
 program
     .command('list')

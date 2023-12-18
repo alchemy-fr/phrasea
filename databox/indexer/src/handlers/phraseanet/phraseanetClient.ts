@@ -16,8 +16,8 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 
     return createHttpClient({
         baseURL,
-        params: {
-            oauth_token: token,
+        headers: {
+            Authorization: `OAuth ${token}`,
         },
         verifySSL,
         timeout: 60000,
