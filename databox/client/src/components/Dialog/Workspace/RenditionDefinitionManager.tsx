@@ -172,7 +172,7 @@ export default function RenditionDefinitionManager({
     };
 
     const onSort: OnSort = async ids => {
-        await apiClient.put(`/rendition-definitions/sort`, ids);
+        await apiClient.post(`/rendition-definitions/sort`, ids);
 
         toast.success(t('common.item_sorted', 'Order saved!') as string);
     };

@@ -1,9 +1,9 @@
 import React from 'react';
-import {ModalStack, RouterProvider} from '@alchemy/navigation';
+import {MatomoRouteWrapper, ModalStack, OverlayOutlet, RouterProvider, RouteWrapperProps} from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
 import {keycloakClient, oauthClient} from '../api/api-client';
 import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
-import {routes} from '../routes.ts';
+import {modalRoutes, routes} from '../routes.ts';
 import RouteProxy from './Routing/RouteProxy.tsx';
 
 type Props = {};
@@ -25,10 +25,23 @@ export default function Root({}: Props) {
                         routes={routes}
                         options={{
                             RouteProxyComponent: RouteProxy,
+                            WrapperComponent: WrapperComponent,
                         }}
                     />
                 </ModalStack>
             </UserPreferencesProvider>
         </AuthenticationProvider>
     );
+}
+
+function WrapperComponent({children}: RouteWrapperProps) {
+    return <>
+        <OverlayOutlet
+            routes={modalRoutes}
+            queryParam={'_m'}
+        />
+        <MatomoRouteWrapper>
+            {children}
+        </MatomoRouteWrapper>
+    </>
 }

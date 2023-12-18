@@ -27,6 +27,8 @@ export type RouteParameters = Record<string, string | undefined | null>;
 export type RouteProxyComponent = FunctionComponent<RouteProxyProps>;
 export type ErrorComponent = ElementType;
 
+export type RouteWrapperProps = PropsWithChildren<{}>;
+
 export type ErrorFallbackProps = { error: any };
 export type TErrorFallbackComponent = (props: ErrorFallbackProps) => React.JSX.Element;
 

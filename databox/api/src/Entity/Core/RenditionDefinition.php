@@ -34,7 +34,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
-        new Put(
+        new Post(
             uriTemplate: '/rendition-definitions/sort',
             controller: RenditionDefinitionSortAction::class,
             openapiContext: [
@@ -54,7 +54,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ],
             input: false,
             output: false,
-            name: 'put_sort'
+            read: false,
+            name: 'post_sort',
+            provider: null
         ),
     ],
     normalizationContext: [

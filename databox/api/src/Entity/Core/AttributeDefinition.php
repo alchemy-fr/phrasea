@@ -38,7 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
-        new Put(
+        new Post(
             uriTemplate: '/attribute-definitions/sort',
             controller: AttributeDefinitionSortAction::class,
             openapiContext: [

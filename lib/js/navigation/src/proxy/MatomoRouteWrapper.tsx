@@ -1,11 +1,11 @@
-import React from 'react';
+import React, {JSX} from 'react';
 import {useMatomo} from "@jonkoops/matomo-tracker-react";
 import {useLocation} from "react-router-dom";
-import {RouteProxyProps} from "../types";
+import {RouteWrapperProps} from "../types";
 
-export default function MatomoRouteProxy({
-    component: Component,
-}: RouteProxyProps) {
+export default function MatomoRouteWrapper({
+    children,
+}: RouteWrapperProps) {
     const {trackPageView, enableLinkTracking} = useMatomo();
     enableLinkTracking();
 
@@ -15,5 +15,5 @@ export default function MatomoRouteProxy({
         trackPageView && trackPageView();
     }, [location]);
 
-    return <Component/>
+    return children as JSX.Element;
 }

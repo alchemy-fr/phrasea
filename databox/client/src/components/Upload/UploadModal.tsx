@@ -23,8 +23,7 @@ import {
 import {getBatchActions} from '../Media/Asset/Attribute/BatchActions';
 import {
     StackedModalProps,
-    useInRouterDirtyFormPrompt,
-    useModals,
+    useModals, useOutsideRouterDirtyFormPrompt,
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy.ts';
 import {Asset} from '../../types.ts';
@@ -67,7 +66,7 @@ export default function UploadModal({
         }))
     );
     const {closeModal} = useModals();
-    useInRouterDirtyFormPrompt(t, files.length > 0);
+    useOutsideRouterDirtyFormPrompt(t, files.length > 0);
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,

@@ -4,7 +4,7 @@
   "public": true,
   "main": "index.ts",
   "files": [
-    "src/proxy/MatomoRouteProxy.tsx"
+    "src/proxy/MatomoRouteWrapper.tsx"
   ],
   "dependencies": {
     "@remix-run/router": "1.11.0",
