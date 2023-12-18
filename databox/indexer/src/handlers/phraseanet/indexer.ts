@@ -112,7 +112,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         });
                 }
 
-                logger.debug(
+                logger.info(
                     `Creating rendition "${sd.name}" of class "${sd.class}" for type="${sd.type}"`
                 );
                 await databoxClient.createRenditionDefinition({

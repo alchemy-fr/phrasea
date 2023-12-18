@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import './scss/index.scss';
 import Root from './components/Root';
@@ -11,11 +11,10 @@ import config from "./config.ts";
 
 initSentry(config);
 
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <Root/>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -251,7 +251,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
         >
             <Box
                 sx={theme => ({
-                    '> .MuiButtonBase-root, > .MuiButtonGroup-root': {
+                    '> .MuiButtonBase-root, > .MuiButtonGroup-root, > span': {
                         m: 1,
                     },
                     [theme.breakpoints.down('md')]: {
@@ -268,6 +268,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                             : t('asset_actions.select_all', 'Select all')
                     }
                 >
+            <span>
                     <Button
                         disabled={selectAllDisabled}
                         variant={'contained'}
@@ -292,6 +293,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                             />
                         </Badge>
                     </Button>
+                </span>
                 </Tooltip>
                 <LoadingButton
                     disabled={!canDownload}

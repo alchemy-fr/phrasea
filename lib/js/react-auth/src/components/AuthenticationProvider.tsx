@@ -1,5 +1,12 @@
 import React, {PropsWithChildren, useCallback} from 'react';
-import {OAuthClient, isValidSession, AuthTokens} from "@alchemy/auth";
+import {
+    OAuthClient,
+    isValidSession,
+    AuthTokens,
+    logoutEventType,
+    AuthEventHandler,
+    LogoutEvent
+} from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
 
@@ -21,6 +28,18 @@ export default function AuthenticationProvider({
     const sessionStorage = getSessionStorage();
     const redirectPath = React.useRef<string | undefined>(sessionStorage.getItem(redirectPathSessionStorageKey) || undefined);
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
+
+    React.useEffect(() => {
+        const listener: AuthEventHandler<LogoutEvent> = async () => {
+            setTokens(undefined);
+        };
+
+        oauthClient.registerListener(logoutEventType, listener);
+
+        return () => {
+            oauthClient.unregisterListener(logoutEventType, listener);
+        }
+    }, [oauthClient]);
 
     const updateTokens = React.useCallback<SetTokens>((tokens) => {
         setTokens(tokens);

@@ -40,7 +40,7 @@
     "react-compare-image": "^3.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
-    "react-dom": "^18.1.0",
+    "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.1",
     "react-hook-form": "^7.48.2",
     "react-i18next": "^13.5.0",
