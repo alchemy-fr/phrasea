@@ -18,26 +18,27 @@ import RenditionClassSelect from '../../Form/RenditionClassSelect';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
+import React from "react";
 
 function Item({
-    formId,
+    data,
     usedFormSubmit: {
-        register,
-        handleSubmit,
-        control,
-        formState: {errors},
         submitting,
-        forbidNavigation,
+        register,
+        control,
+        reset,
+        formState: {errors},
     },
     workspaceId,
 }: DefinitionItemFormProps<RenditionDefinition>) {
     const {t} = useTranslation();
 
-    useDirtyFormPrompt(forbidNavigation);
+    React.useEffect(() => {
+        reset(data);
+    }, [data]);
 
     return (
-        <form id={formId} onSubmit={handleSubmit}>
+        <>
             <FormRow>
                 <TextField
                     label={t('form.rendition_definition.name.label', 'Name')}
@@ -133,7 +134,7 @@ function Item({
                     />
                 </FormGroup>
             </FormRow>
-        </form>
+        </>
     );
 }
 

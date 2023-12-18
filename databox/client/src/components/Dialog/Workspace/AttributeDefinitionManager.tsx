@@ -217,6 +217,7 @@ export default function AttributeDefinitionManager({
             handleSave={handleSave}
             handleDelete={deleteAttributeDefinition}
             onSort={onSort}
+            normalizeData={createData}
         />
     );
 }

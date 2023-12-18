@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import {AttributeClass, Workspace} from '../../../types';
 import {
     deleteAttributeClass,
@@ -23,20 +23,13 @@ function Item({
     usedFormSubmit: {
         submitting,
         register,
-        handleSubmit,
         control,
         watch,
         setValue,
-        reset,
         formState: {errors},
     },
-    formId,
 }: DefinitionItemFormProps<AttributeClass>) {
     const {t} = useTranslation();
-
-    React.useEffect(() => {
-        reset(data);
-    }, [data]);
 
     const isPublic = watch('public');
     const isEditable = watch('editable');
@@ -45,13 +38,13 @@ function Item({
         : [AclPermission.EDIT];
 
     useEffect(() => {
-        if (!isPublic) {
+        if (!isPublic && isEditable) {
             setValue('editable', false);
         }
-    }, [isPublic]);
+    }, [isPublic, isEditable]);
 
     return (
-        <form id={formId} onSubmit={handleSubmit}>
+        <>
             <FormRow>
                 <TextField
                     label={t('form.attribute_class.name.label', 'Name')}
@@ -90,7 +83,7 @@ function Item({
                     />
                 </FormRow>
             )}
-        </form>
+        </>
     );
 }
 
