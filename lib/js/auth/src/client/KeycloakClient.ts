@@ -1,4 +1,10 @@
-import OAuthClient, {normalizeRedirectUri, OAuthClientOptions} from "./OAuthClient";
+import OAuthClient, {
+    LogoutEvent,
+    logoutEventType,
+    LogoutOptions,
+    normalizeRedirectUri,
+    OAuthClientOptions
+} from "./OAuthClient";
 
 type Options = {
     realm: string;
@@ -20,6 +26,15 @@ export default class KeycloakClient {
             baseUrl: this.getOpenIdConnectBaseUrl(),
             ...rest,
         });
+
+        this.client.registerListener(logoutEventType, this.onLogout.bind(this));
+    }
+
+    private async onLogout(options: LogoutEvent): Promise<void>
+    {
+        if (!options.quiet) {
+            this.logout(options);
+        }
     }
 
     private getRealmUrl(): string {
@@ -48,10 +63,16 @@ export default class KeycloakClient {
         return `${this.getOpenIdConnectBaseUrl()}/logout?${queryString}`;
     }
 
-    public logout(redirectPath: string | false = '/'): void {
-        this.client.logout();
+    public logout({
+        redirectPath = '/',
+        ...options
+    }: LogoutOptions): void {
+        this.client.logout({
+            ...options,
+            noEvent: true,
+        });
 
-        if (false !== redirectPath) {
+        if (redirectPath) {
             document.location.href = this.createLogoutUrl({redirectPath});
         }
     }

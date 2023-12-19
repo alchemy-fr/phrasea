@@ -8,12 +8,11 @@ import {
     LogoutEvent
 } from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
-import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
+import AuthenticationContext, {LogoutFunction, SetTokens} from "../context/AuthenticationContext";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
     onClear?: () => void;
-    onLogout?: () => void;
     oauthClient: OAuthClient,
 }>;
 
@@ -21,8 +20,6 @@ export default function AuthenticationProvider({
     oauthClient,
     children,
     onNewTokens,
-    onClear,
-    onLogout,
 }: Props) {
     const redirectPathSessionStorageKey = 'redirpath';
     const sessionStorage = getSessionStorage();
@@ -60,24 +57,18 @@ export default function AuthenticationProvider({
         setRedirectPath(undefined);
     }, [setRedirectPath]);
 
-    const clearSession = useCallback(() => {
-        onClear && onClear();
-        setTokens(undefined);
-    }, [setTokens]);
-
-    const logout = useCallback((redirectPathAfterLogin?: string) => {
-        onLogout && onLogout();
-        clearSession();
-
+    const logout = useCallback<LogoutFunction>((redirectPathAfterLogin?: string, quiet = false) => {
         if (redirectPathAfterLogin) {
             setRedirectPath(redirectPathAfterLogin);
-            return;
+        } else {
+            setTimeout(() => {
+                setRedirectPath(undefined);
+            }, 500);
         }
 
-        setTimeout(() => {
-            setRedirectPath(undefined);
-        }, 500);
-    }, [clearSession, setRedirectPath]);
+        oauthClient.logout({quiet});
+        setTokens(undefined);
+    }, [setTokens, setRedirectPath]);
 
     const isAuthenticated = (): boolean => {
         return isValidSession(tokens);

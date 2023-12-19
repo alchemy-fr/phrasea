@@ -5,7 +5,7 @@ import {toast} from "react-toastify";
 import {hydraDescriptionKey} from "./utils";
 
 type Options = {
-    logout?: (redirectPath?: string) => void;
+    logout?: (redirectPathAfterLogin?: string) => void;
 }
 
 export default function useRequestErrorHandler({

@@ -42,7 +42,7 @@ export default function TabbedDialog<P extends {}>({
     const closeModal = useCloseModal();
     const tabs = configTabs.filter(t => t.enabled);
     const tabIndex = tabs.findIndex(t => t.id === tab);
-    const currentTab = tabs[tabIndex];
+    const currentTab = tabIndex >= 0 ? tabs[tabIndex] : undefined;
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
         navigateToModal(route, {
@@ -50,6 +50,12 @@ export default function TabbedDialog<P extends {}>({
             tab: tabs[newValue].id,
         });
     };
+
+    React.useEffect(() => {
+        if (!currentTab) {
+            closeModal();
+        }
+    }, [currentTab, closeModal]);
 
     return (
         <RouteDialog>
@@ -81,7 +87,7 @@ export default function TabbedDialog<P extends {}>({
                             );
                         })}
                     </Tabs>
-                    {React.createElement(currentTab.component, {
+                    {currentTab && React.createElement(currentTab.component, {
                         ...rest,
                         ...currentTab.props,
                         onClose: closeModal,
