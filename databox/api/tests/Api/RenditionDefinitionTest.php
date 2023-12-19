@@ -31,4 +31,33 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
             'useAsThumbnail' => true,
         ]);
     }
+
+    public function testGetRenditionDefinition(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(RenditionDefinition::class, ['name' => 'preview']);
+
+        $response = $client->request('GET', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+        ]);
+        $this->assertArrayNotHasKey('useAsThumbnail', $response->toArray());
+
+        $client->request('GET', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'useAsThumbnail' => false,
+        ]);
+    }
 }

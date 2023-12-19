@@ -80,6 +80,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     final public const GROUP_READ = 'renddef:read';
     final public const GROUP_LIST = 'renddef:index';
     final public const GROUP_WRITE = 'renddef:w';
+    private const GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
 
     /**
      * Override trait for annotation.
@@ -104,37 +105,37 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $pickSourceFile = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsOriginal = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsPreview = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsThumbnail = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $useAsThumbnailActive = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::TEXT)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private ?string $definition = '';
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
-    #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
+    #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private int $priority = 0;
 
     /**
