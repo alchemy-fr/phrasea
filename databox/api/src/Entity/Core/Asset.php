@@ -19,11 +19,11 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
+use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
-use App\Controller\Core\AssetAttributeBatchUpdateAction;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Controller\Core\MultipleAssetCreateAction;
@@ -65,12 +65,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Post(
             uriTemplate: '/assets/{id}/attributes',
-            controller: AssetAttributeBatchUpdateAction::class,
-            securityPostDenormalize: 'is_granted("'.AssetVoter::EDIT_ATTRIBUTES.'", object)',
             input: AssetAttributeBatchUpdateInput::class,
+            processor: AssetAttributeBatchUpdateProcessor::class,
         ),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(securityPostValidation: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/assets/multiple',
             controller: MultipleAssetCreateAction::class,

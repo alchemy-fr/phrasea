@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -44,7 +45,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
     ],
     input: RenditionRuleInput::class,
     output: RenditionRuleOutput::class,
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     processor: RenditionRuleInputTransformer::class,
 )]
 #[ORM\Table]

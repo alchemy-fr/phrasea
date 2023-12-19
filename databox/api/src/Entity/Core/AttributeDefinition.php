@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -66,7 +67,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     input: AttributeDefinitionInput::class,
     output: AttributeDefinitionOutput::class,
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: AttributeDefinitionCollectionProvider::class,
 )]
 #[ORM\Table]
