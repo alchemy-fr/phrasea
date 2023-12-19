@@ -27,8 +27,10 @@ export default function AuthenticationProvider({
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
 
     React.useEffect(() => {
-        const listener: AuthEventHandler<LogoutEvent> = async () => {
-            setTokens(undefined);
+        const listener: AuthEventHandler<LogoutEvent> = async (event) => {
+            if (!event.preventDefault) {
+                setTokens(undefined);
+            }
         };
 
         oauthClient.registerListener(logoutEventType, listener);
@@ -57,17 +59,26 @@ export default function AuthenticationProvider({
         setRedirectPath(undefined);
     }, [setRedirectPath]);
 
-    const logout = useCallback<LogoutFunction>((redirectPathAfterLogin?: string, quiet = false) => {
-        if (redirectPathAfterLogin) {
-            setRedirectPath(redirectPathAfterLogin);
-        } else {
-            setTimeout(() => {
-                setRedirectPath(undefined);
-            }, 500);
+    const logout = useCallback<LogoutFunction>(async (redirectPathAfterLogin?: string, quiet = false) => {
+        const handler = () => {
+            if (redirectPathAfterLogin) {
+                setRedirectPath(redirectPathAfterLogin);
+            } else {
+                setTimeout(() => {
+                    setRedirectPath(undefined);
+                }, 500);
+            }
         }
 
-        oauthClient.logout({quiet});
-        setTokens(undefined);
+        const event = await oauthClient.logout({quiet});
+        console.log('event', event);
+        if (event?.preventDefault) {
+            handler();
+
+            return;
+        }
+
+        handler();
     }, [setTokens, setRedirectPath]);
 
     const isAuthenticated = (): boolean => {

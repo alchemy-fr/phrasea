@@ -1,14 +1,11 @@
 import type {RouteProxyProps} from '@alchemy/navigation';
-import {MatomoRouteWrapper} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import config from '../config.ts';
 import {keycloakClient} from '../lib/apiClient.ts';
-import Menu from './Menu.tsx';
 
 export default function RouteProxy({
     component: Component,
     public: isPublic,
-    ...rest
 }: RouteProxyProps) {
     const {isAuthenticated} = useAuth();
     const {getLoginUrl} = useKeycloakUrls({
@@ -22,9 +19,5 @@ export default function RouteProxy({
         return <></>;
     }
 
-    return (
-        <Menu>
-            <MatomoRouteWrapper component={Component} {...rest} />
-        </Menu>
-    );
+    return <Component/>
 }

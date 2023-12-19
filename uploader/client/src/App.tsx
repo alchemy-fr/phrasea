@@ -1,8 +1,9 @@
-import {RouterProvider} from '@alchemy/navigation';
+import {MatomoRouteWrapper, RouterProvider} from '@alchemy/navigation';
 import {routes} from './routes';
 import './scss/App.scss';
 import Menu from './components/Menu';
 import RouteProxy from './components/RouteProxy';
+import {PropsWithChildren} from "react";
 
 type Props = {};
 
@@ -12,8 +13,14 @@ export default function App({}: Props) {
             routes={routes}
             options={{
                 RouteProxyComponent: RouteProxy,
-                WrapperComponent: Menu,
+                WrapperComponent: Wrapper,
             }}
         />
     );
+}
+
+function Wrapper({children}: PropsWithChildren<{}>) {
+    return <MatomoRouteWrapper>
+        <Menu>{children}</Menu>
+    </MatomoRouteWrapper>
 }

@@ -28,6 +28,8 @@ export type UserInfoResponse = {
 
 export type AuthEvent = {
     type: string;
+    preventDefault?: boolean,
+    stopPropagation?: boolean,
 };
 
 export type LoginEvent = {
@@ -68,12 +70,17 @@ type Options = {
 
 export type {Options as OAuthClientOptions};
 
+type OrderedListener = {
+    p: number;
+    h: AuthEventHandler<any>;
+};
+
 export default class OAuthClient {
     public tokenPromise: Promise<any> | undefined;
     public readonly clientId: string;
     public readonly clientSecret: string | undefined;
     public readonly baseUrl: string;
-    private listeners: Record<string, AuthEventHandler<any>[]> = {};
+    private listeners: Record<string, OrderedListener[]> = {};
     private readonly storage: IStorage;
     private tokensCache: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -137,23 +144,27 @@ export default class OAuthClient {
         return jwtDecode<UserInfoResponse>(accessToken);
     }
 
-    public logout(options: LogoutOptions = {}): void {
+    public async logout(options: LogoutOptions = {}): Promise<LogoutEvent | undefined> {
         this.clearSessionTimeout();
-
-        if (!options.noEvent) {
-            this.triggerEvent<LogoutEvent>(logoutEventType, {
-                ...options,
-            });
-        }
         this.storage.removeItem(this.tokenStorageKey);
         this.tokensCache = undefined;
+
+        if (!options.noEvent) {
+            const event = {
+                ...options,
+            } as LogoutEvent;
+
+            await this.triggerEvent<LogoutEvent>(logoutEventType, event);
+
+            return event;
+        }
     }
 
-    public registerListener<E extends AuthEvent = AuthEvent>(event: string, callback: AuthEventHandler<E>): void {
+    public registerListener<E extends AuthEvent = AuthEvent>(event: string, callback: AuthEventHandler<E>, priority: number = 0): void {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
         }
-        this.listeners[event].push(callback);
+        this.listeners[event].push({p: priority, h: callback});
     }
 
     public unregisterListener<E extends AuthEvent = AuthEvent>(event: string, callback: AuthEventHandler<E>): void {
@@ -161,7 +172,7 @@ export default class OAuthClient {
             return;
         }
 
-        const index = this.listeners[event].findIndex(c => c === callback);
+        const index = this.listeners[event].findIndex(({h}) => h === callback);
         if (index >= 0) {
             delete this.listeners[event][index];
         }
@@ -253,16 +264,17 @@ export default class OAuthClient {
     }
 
     private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Omit<E, "type">): Promise<void> {
-        const e: E = {
-            ...event,
-            type,
-        } as E;
+        const e = event as E;
+        e.type = type;
 
         if (!this.listeners[type]) {
             return Promise.resolve();
         }
 
-        await Promise.all(this.listeners[type].map(func => func(e)).filter(f => !!f));
+        const orderedListeners = this.listeners[type];
+        orderedListeners.sort((a, b) => a.p - b.p);
+
+        await Promise.all(orderedListeners.map(({h}) => !e.stopPropagation && h(e)).filter(f => !!f));
     }
 
     private handleSessionTimeout(tokens: AuthTokens): void {

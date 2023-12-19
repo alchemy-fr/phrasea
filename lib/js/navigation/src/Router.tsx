@@ -4,11 +4,11 @@ import {
     Routes,
     RouteProxyProps,
     RouteProxyComponent,
-    TErrorBoundaryComponent, TErrorFallbackComponent,
+    TErrorBoundaryComponent, TErrorFallbackComponent, RouteWrapperProps,
 } from "./types";
 import {getFullPath, getLocationPrefix} from "./utils";
 import {Outlet, RouteObject} from "react-router-dom";
-import React, {PropsWithChildren} from "react";
+import React from "react";
 import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
 import {NotFoundPage, ErrorPage} from "@alchemy/phrasea-ui";
 import {ErrorBoundary} from "@alchemy/core";
@@ -119,7 +119,7 @@ export type RouterProviderOptions = {
     RouteProxyComponent?: RouteProxyComponent,
     ErrorComponent?: TErrorFallbackComponent,
     ErrorBoundaryComponent?: TErrorBoundaryComponent,
-    WrapperComponent?: React.FC<PropsWithChildren<{}>>;
+    WrapperComponent?: React.FC<RouteWrapperProps>;
 }
 
 export function createRouterProviderRoutes(

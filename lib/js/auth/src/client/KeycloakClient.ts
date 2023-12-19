@@ -27,13 +27,15 @@ export default class KeycloakClient {
             ...rest,
         });
 
-        this.client.registerListener(logoutEventType, this.onLogout.bind(this));
+        this.client.registerListener(logoutEventType, this.onLogout.bind(this), 255);
     }
 
-    private async onLogout(options: LogoutEvent): Promise<void>
+    private async onLogout(event: LogoutEvent): Promise<void>
     {
-        if (!options.quiet) {
-            this.logout(options);
+        if (!event.quiet) {
+            await this.logout({
+                ...event,
+            }, event);
         }
     }
 
@@ -63,16 +65,21 @@ export default class KeycloakClient {
         return `${this.getOpenIdConnectBaseUrl()}/logout?${queryString}`;
     }
 
-    public logout({
+    public async logout({
         redirectPath = '/',
         ...options
-    }: LogoutOptions = {}): void {
-        this.client.logout({
+    }: LogoutOptions = {}, event?: LogoutEvent): Promise<void> {
+        await this.client.logout({
             ...options,
             noEvent: true,
         });
 
         if (redirectPath) {
+            if (event) {
+                event.stopPropagation = true;
+                event.preventDefault = true;
+            }
+
             document.location.href = this.createLogoutUrl({redirectPath});
         }
     }
