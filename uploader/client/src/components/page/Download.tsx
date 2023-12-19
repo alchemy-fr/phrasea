@@ -1,8 +1,8 @@
 import React from 'react';
-import Container from "../Container.jsx";
-import AssetForm from "../AssetForm.jsx";
+import Container from '../Container.jsx';
+import AssetForm from '../AssetForm.jsx';
 import {getPath, Link, useNavigate, useParams} from '@alchemy/navigation';
-import {routes} from "../../routes.ts";
+import {routes} from '../../routes.ts';
 
 type Props = {};
 

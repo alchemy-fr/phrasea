@@ -1,25 +1,37 @@
 import {AxiosInstance} from 'axios';
-import {AssetInput, AttributeClass, AttributeDefinition, CollectionInput, RenditionClass} from "./types";
-import {lockPromise} from "../lib/promise";
-import {getConfig, getStrict} from "../configLoader";
-import {Logger} from "winston";
-import {createHttpClient} from "../lib/axios";
-import {configureClientCredentialsGrantType, OAuthClient} from "@alchemy/auth";
-import {MemoryStorage} from "@alchemy/storage";
+import {
+    AssetInput,
+    AttributeClass,
+    AttributeDefinition,
+    CollectionInput,
+    RenditionClass,
+} from './types';
+import {lockPromise} from '../lib/promise';
+import {getConfig, getStrict} from '../configLoader';
+import {Logger} from 'winston';
+import {createHttpClient} from '../lib/axios';
+import {configureClientCredentialsGrantType, OAuthClient} from '@alchemy/auth';
+import {MemoryStorage} from '@alchemy/storage';
 
-function createApiClient(baseURL: string, clientId: string, clientSecret: string, verifySSL: boolean, scope?: string) {
+function createApiClient(
+    baseURL: string,
+    clientId: string,
+    clientSecret: string,
+    verifySSL: boolean,
+    scope?: string
+) {
     const oauthClient = new OAuthClient({
         clientId,
         clientSecret,
         scope,
         baseUrl: `${baseURL}/oauth/v2`,
         storage: new MemoryStorage(),
-    })
+    });
 
     const client = createHttpClient({
         baseURL,
         verifySSL,
-        headers: {'Accept': 'application/ld+json'},
+        headers: {Accept: 'application/ld+json'},
     });
 
     configureClientCredentialsGrantType(client, oauthClient);
@@ -37,7 +49,7 @@ type ClientParameters = {
     scope?: string;
     verifySSL: boolean;
     ownerId: string;
-}
+};
 
 const maxTitleLength = 255;
 
@@ -49,20 +61,23 @@ export class DataboxClient {
     private readonly logger: Logger;
     private readonly ownerId: string;
 
-    constructor({
-                    apiUrl,
-                    clientId,
-                    clientSecret,
-                    scope,
-                    ownerId,
-                    verifySSL = true,
-                }: ClientParameters, logger: Logger) {
+    constructor(
+        {
+            apiUrl,
+            clientId,
+            clientSecret,
+            scope,
+            ownerId,
+            verifySSL = true,
+        }: ClientParameters,
+        logger: Logger
+    ) {
         const {client, oauthClient} = createApiClient(
             apiUrl,
             clientId,
             clientSecret,
             verifySSL,
-            scope,
+            scope
         );
         this.client = client;
         this.oauthClient = oauthClient;
@@ -78,8 +93,11 @@ export class DataboxClient {
 
         if (data.title && data.title.length > maxTitleLength) {
             const dots = ` ... [truncated]`;
-            data.title = data.title.substring(0, maxTitleLength - dots.length)+dots;
-            this.logger.warn(`Title truncated for asset ${JSON.stringify(data)}`);
+            data.title =
+                data.title.substring(0, maxTitleLength - dots.length) + dots;
+            this.logger.warn(
+                `Title truncated for asset ${JSON.stringify(data)}`
+            );
         }
 
         await this.client.post(`/assets`, {
@@ -101,11 +119,14 @@ export class DataboxClient {
             data: {
                 workspaceId,
                 keys: [key],
-            }
+            },
         });
     }
 
-    async createCollection(key: string, data: CollectionInput): Promise<string> {
+    async createCollection(
+        key: string,
+        data: CollectionInput
+    ): Promise<string> {
         if (collectionKeyMap[key]) {
             return collectionKeyMap[key];
         }
@@ -118,13 +139,15 @@ export class DataboxClient {
         }
 
         const r = await lockPromise(key, async () => {
-            return (await this.client.post(`/collections`, {
-                ownerId: this.ownerId,
-                ...data,
-            })).data;
+            return (
+                await this.client.post(`/collections`, {
+                    ownerId: this.ownerId,
+                    ...data,
+                })
+            ).data;
         });
 
-        return collectionKeyMap[key] = r.id;
+        return (collectionKeyMap[key] = r.id);
     }
 
     async createCollectionTreeBranch(data: CollectionInput[]): Promise<string> {
@@ -145,15 +168,22 @@ export class DataboxClient {
         return parentId!;
     }
 
-    async createAttributeDefinition(key: string, data: Partial<AttributeDefinition>): Promise<AttributeDefinition> {
+    async createAttributeDefinition(
+        key: string,
+        data: Partial<AttributeDefinition>
+    ): Promise<AttributeDefinition> {
         const r = await lockPromise(`attr-def-${key}`, async () => {
-            return (await this.client.post(`/attribute-definitions`, data)).data;
+            return (await this.client.post(`/attribute-definitions`, data))
+                .data;
         });
 
         return r;
     }
 
-    async createAttributeClass(key: string, data: Partial<AttributeClass>): Promise<AttributeClass> {
+    async createAttributeClass(
+        key: string,
+        data: Partial<AttributeClass>
+    ): Promise<AttributeClass> {
         const r = await lockPromise(`attr-class-${key}`, async () => {
             return (await this.client.post(`/attribute-classes`, data)).data;
         });
@@ -171,7 +201,7 @@ export class DataboxClient {
         const res = await this.client.get(`/rendition-classes`, {
             params: {
                 workspaceId,
-            }
+            },
         });
 
         return res.data['hydra:member'];
@@ -182,7 +212,10 @@ export class DataboxClient {
     }
 
     async flushWorkspace(workspaceId: string): Promise<string> {
-        const res = await this.client.post(`/workspaces/${workspaceId}/flush`, {});
+        const res = await this.client.post(
+            `/workspaces/${workspaceId}/flush`,
+            {}
+        );
 
         return res.data.id;
     }
@@ -195,12 +228,15 @@ export class DataboxClient {
 }
 
 export function createDataboxClientFromConfig(logger: Logger): DataboxClient {
-    return new DataboxClient({
-        apiUrl: getStrict('databox.url'),
-        clientId: getStrict('databox.clientId'),
-        clientSecret: getStrict('databox.clientSecret'),
-        ownerId: getStrict('databox.ownerId'),
-        verifySSL: getConfig('databox.verifySSL', true),
-        scope: 'chuck-norris'
-    }, logger);
+    return new DataboxClient(
+        {
+            apiUrl: getStrict('databox.url'),
+            clientId: getStrict('databox.clientId'),
+            clientSecret: getStrict('databox.clientSecret'),
+            ownerId: getStrict('databox.ownerId'),
+            verifySSL: getConfig('databox.verifySSL', true),
+            scope: 'chuck-norris',
+        },
+        logger
+    );
 }

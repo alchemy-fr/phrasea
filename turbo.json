@@ -4,6 +4,12 @@
     "lint": {
       "outputs": []
     },
+    "format": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "outputs": []
+    },
     "dev": {
       "dependsOn": [
         "^dev"

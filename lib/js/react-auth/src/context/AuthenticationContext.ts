@@ -3,9 +3,11 @@ import {AuthTokens} from "@alchemy/auth";
 
 export type SetTokens = (tokens: AuthTokens) => void;
 
+export type LogoutFunction = (redirectPathAfterLogin?: string, quiet?: boolean) => void;
+
 export type TAuthContext = {
     tokens?: AuthTokens | undefined;
-    logout: (redirectPathAfterLogin?: string) => void;
+    logout: LogoutFunction;
     setTokens: SetTokens;
     setRedirectPath?: ((url: string) => void) | undefined;
     clearRedirectPath: () => void;

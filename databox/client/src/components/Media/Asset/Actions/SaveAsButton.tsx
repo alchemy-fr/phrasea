@@ -82,6 +82,11 @@ export default function SaveAsButton({
         setOpen(false);
     };
 
+    const componentProps: ButtonProps = {};
+    if (Component === Button) {
+        (componentProps as ButtonProps).endIcon = <ArrowDropDownIcon />;
+    }
+
     return (
         <>
             <Component
@@ -91,8 +96,8 @@ export default function SaveAsButton({
                 aria-expanded={open ? 'true' : undefined}
                 aria-label="save"
                 aria-haspopup="menu"
-                endIcon={<ArrowDropDownIcon />}
                 ref={anchorRef}
+                {...componentProps}
             >
                 {children ?? 'Save'}
             </Component>

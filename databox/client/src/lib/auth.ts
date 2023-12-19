@@ -1,6 +1,3 @@
 import {useAuth, useKeycloakUser} from '@alchemy/react-auth';
 
-export {
-    useAuth,
-    useKeycloakUser as useUser,
-}
+export {useAuth, useKeycloakUser as useUser};

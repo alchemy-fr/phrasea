@@ -9,6 +9,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractSortAction extends AbstractController
@@ -17,11 +18,11 @@ abstract class AbstractSortAction extends AbstractController
     {
     }
 
-    protected function sort(Request $request, string $class, string $positionField, bool $reverse = false): void
+    protected function sort(Request $request, string $class, string $positionField, bool $reverse = false): Response
     {
         $ids = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (empty($ids)) {
-            return;
+            return new Response();
         }
 
         if ($reverse) {
@@ -59,5 +60,7 @@ abstract class AbstractSortAction extends AbstractController
                 ;
             }
         });
+
+        return new Response();
     }
 }

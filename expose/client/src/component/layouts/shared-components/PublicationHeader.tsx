@@ -1,4 +1,4 @@
-import config from '../../../lib/config';
+import config from '../../../config';
 import Description from './Description';
 import ZippyDownloadButton from './ZippyDownloadButton';
 import moment from 'moment';

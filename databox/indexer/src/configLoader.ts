@@ -1,40 +1,44 @@
-import {Config} from "./types/config";
-import {getEnv} from "./env";
-import * as process from "process";
-import * as fs from "fs";
+import {Config} from './types/config';
+import {getEnv} from './env';
+import * as process from 'process';
+import * as fs from 'fs';
 
 function loadConfig(): object {
-    return JSON.parse(fs.readFileSync(process.cwd()+ '/config/config.json').toString());
+    return JSON.parse(
+        fs.readFileSync(process.cwd() + '/config/config.json').toString()
+    );
 }
 
 function replaceEnv(str: string): string | boolean | number | undefined {
     let transform;
     let hasEnv = false;
-    let result: string | undefined = str.replace(/%env\(([^^)]+)\)%/g, (_match, varName: string) => {
-        const s = varName;
-        hasEnv = true;
+    let result: string | undefined = str.replace(
+        /%env\(([^^)]+)\)%/g,
+        (_match, varName: string) => {
+            const s = varName;
+            hasEnv = true;
 
-        let transformer: string | undefined,
-            name: string;
+            let transformer: string | undefined, name: string;
 
-        if (s.indexOf(':') > 0) {
-            [transformer, name] = s.split(':');
-        } else {
-            name = s;
+            if (s.indexOf(':') > 0) {
+                [transformer, name] = s.split(':');
+            } else {
+                name = s;
+            }
+            const v = getEnv(name);
+
+            switch (transformer) {
+                case 'bool':
+                    transform = 'bool';
+                    break;
+                case 'int':
+                    transform = 'int';
+                    break;
+            }
+
+            return v || '';
         }
-        const v = getEnv(name);
-
-        switch (transformer) {
-            case 'bool':
-                transform = 'bool';
-                break;
-            case 'int':
-                transform = 'int';
-                break;
-        }
-
-        return v || '';
-    });
+    );
 
     if (hasEnv && !result) {
         result = undefined;
@@ -61,7 +65,7 @@ function parseConfig(config: any): any {
             const sub = {};
             Object.keys(config).forEach(k => {
                 sub[k] = parseConfig(config[k]);
-            })
+            });
             return sub;
         }
     }
@@ -71,7 +75,11 @@ function parseConfig(config: any): any {
 
 export const config: Config = parseConfig(loadConfig());
 
-export function getConfig(configPath: string, defaultValue: any = undefined, root: object = config): any {
+export function getConfig(
+    configPath: string,
+    defaultValue: any = undefined,
+    root: object = config
+): any {
     const parts = configPath.split('.');
     let p = root;
 
@@ -100,24 +108,23 @@ export function getStrict(configPath: string, root: object = config): any {
     return v;
 }
 
-export function castToBoolean(value: string | boolean | null | undefined): boolean {
+export function castToBoolean(
+    value: string | boolean | null | undefined
+): boolean {
     if (typeof value === 'boolean') {
         return value;
     }
 
     if (value) {
-        return [
-            'true',
-            '1',
-            'y'
-        ].includes(value);
+        return ['true', '1', 'y'].includes(value);
     }
 
     return false;
 }
 
-
-export function castToInt(value: string | number | null | undefined): number | undefined {
+export function castToInt(
+    value: string | number | null | undefined
+): number | undefined {
     if (typeof value === 'number') {
         return value;
     }

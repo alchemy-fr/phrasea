@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -37,7 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [AttributeClass::GROUP_LIST],
     ],
     input: AttributeClassInput::class,
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: AttributeClassCollectionProvider::class,
 )]
 #[ORM\Table]

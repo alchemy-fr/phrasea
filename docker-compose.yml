@@ -74,6 +74,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+        SENTRY_RELEASE: ${SENTRY_RELEASE}
     networks:
       - internal
     environment:
@@ -85,6 +86,8 @@ services:
       - DASHBOARD_URL
       - AUTO_CONNECT_IDP
       - MATOMO_URL
+      - SENTRY_DSN=${CLIENT_SENTRY_DSN}
+      - SENTRY_ENVIRONMENT
     volumes:
       - ./configs:/configs
     labels:
@@ -121,7 +124,7 @@ services:
       - DASHBOARD_URL
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
-      - SENTRY_DSN
+      - SENTRY_DSN=${PHP_SENTRY_DSN}
       - SENTRY_ENVIRONMENT
       - KEYCLOAK_URL
       - KEYCLOAK_REALM_NAME
@@ -597,65 +600,41 @@ services:
       - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
 
   dashboard:
+    extends:
+      service: a_client
     profiles:
       - dashboard
     image: ${REGISTRY_NAMESPACE}dashboard:${DOCKER_TAG}
-    build: dashboard
+    build:
+      context: ./
+      dockerfile: ./dashboard/client/Dockerfile
     networks:
       - internal
     environment:
-      - APP_ENV
-      - STACK_NAME=${COMPOSE_PROJECT_NAME}
+      - DATABOX_API_URL
+      - DATABOX_CLIENT_URL
       - DEV_MODE
-      - DOCKER_TAG
-      - EXPOSE_API_PORT
-      - EXPOSE_CLIENT_PORT
-      - EXPOSE_STORAGE_BUCKET_NAME
-      - MAILER_DSN
-      - MAILHOG_PORT
-      - MATOMO_DATABASE_DBNAME
-      - MATOMO_HOST
-      - MATOMO_MYSQL_ROOT_PASSWORD
-      - MATOMO_PORT
-      - MINIO_PORT
-      - NOTIFY_PORT
-      - PGADMIN_PORT
-      - PHPMYADMIN_PORT
-      - PS_DEBUG_SERVER_NAME_PREFIX
-      - PS_GATEWAY_IP
-      - PS_SUBNET
-      - RABBITMQ_HOST
-      - RABBITMQ_PORT
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - RABBITMQ_SSL
-      - REGISTRY_NAMESPACE
-      - REPORT_DB_NAME
-      - XDEBUG_ENABLED
-      - UPLOADER_API_URL
-      - KEYCLOAK_URL
+      - DISPLAY_SERVICES_MENU
+      - ELASTICHQ_URL
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
-      - UPLOADER_CLIENT_URL
-      - DATABOX_CLIENT_URL
+      - KEYCLOAK_URL
+      - MAILHOG_URL
+      - MATOMO_URL
       - NOTIFY_API_URL
-      - DATABOX_API_URL
-      - REPORT_API_URL
-      - DASHBOARD_URL
-      - ZIPPY_URL
-      - S3_ENDPOINT
-      - S3_PATH_PREFIX
       - PGADMIN_URL
       - PHPMYADMIN_URL
       - RABBITMQ_CONSOLE_URL
-      - TRAEFIK_CONSOLE_URL
-      - ELASTICHQ_URL
-      - MAILHOG_URL
-      - SAML_URL
+      - REPORT_API_URL
       - SAML2_URL
+      - SAML_URL
+      - STACK_NAME=${COMPOSE_PROJECT_NAME}
+      - STACK_VERSION=${DOCKER_TAG}
+      - TRAEFIK_CONSOLE_URL
+      - UPLOADER_API_URL
+      - UPLOADER_CLIENT_URL
+      - ZIPPY_URL
     labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
   databox-api-php:
@@ -738,7 +717,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
-  a_indexer:
+  databox-indexer:
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
@@ -772,7 +751,7 @@ services:
       - WATCH_SOURCE_DIR=${INDEXER_WATCH_SOURCE_DIR}
       - PHRASEANET_URL
       - PHRASEANET_APP_OAUTH_TOKEN
-      - PHRASEANET_VERIFY_SSL=${VERIFY_SSL}
+      - PHRASEANET_VERIFY_SSL
       - PHRASEANET_DATABOX_ID=${INDEXER_PHRASEANET_DATABOX_ID}
       - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
       - PHRASEANET_SEARCH_ORDER=${INDEXER_PHRASEANET_SEARCH_ORDER}
@@ -782,20 +761,6 @@ services:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
-
-  databox-indexer:
-    extends:
-      service: a_indexer
-    command: [ "/bin/sh", "-c", "exit" ]
-    environment:
-      - PHRASEANET_SEARCH_QUERY=${INDEXER_PHRASEANET_SEARCH_QUERY}
-      - PHRASEANET_SEARCH_ORDER=${INDEXER_PHRASEANET_SEARCH_ORDER}
-
-  databox-watcher:
-    extends:
-      service: a_indexer
-    depends_on:
-      - rabbitmq
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1023,6 +988,8 @@ services:
       - MAILER_DSN
       - DEFAULT_ADMIN_USERNAME
       - DEFAULT_ADMIN_PASSWORD
+      - INDEXER_DATABOX_CLIENT_ID
+      - INDEXER_DATABOX_CLIENT_SECRET
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:

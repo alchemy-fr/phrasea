@@ -129,7 +129,7 @@ final class CrudTest extends AbstractDataboxTestCase
             ['POST', '/attribute-classes', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422,
+                'code' => 403,
             ]],
 
             ['POST', '/attribute-classes', KeycloakClientTestMock::ADMIN_UID, [
@@ -163,7 +163,6 @@ final class CrudTest extends AbstractDataboxTestCase
             ]],
 
             ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
-                'workspace' => '/workspaces/{workspaceId}',
             ], [
                 'code' => 422,
             ]],
@@ -197,9 +196,14 @@ final class CrudTest extends AbstractDataboxTestCase
             ]],
 
             ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
+            ], [
+                'code' => 400,
+            ]],
+
+            ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
             ], [
-                'code' => 422,
+                'code' => 403,
             ]],
 
             ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [

@@ -1,17 +1,20 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import './scss/index.scss';
 import Root from './components/Root';
 import './config';
 import './i18n';
 import './lib/leaflet';
+import {initSentry} from '@alchemy/core'
+import config from "./config.ts";
 
-ReactDOM.render(
+initSentry(config);
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <Root />
-    </React.StrictMode>,
-    document.getElementById('root')
+        <Root/>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

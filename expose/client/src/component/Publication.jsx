@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import config from '../lib/config';
+import config from '../config';
 // import { PropTypes } from 'prop-types'
 import {layouts} from './layouts';
 import ThemeEditorProxy from './themes/ThemeEditorProxy';

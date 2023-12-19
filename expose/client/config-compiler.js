@@ -16,7 +16,9 @@
         }
 
         if (typeof value === 'string') {
-            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+            return ['true', '1', 'on', 'y', 'yes'].includes(
+                value.toLowerCase()
+            );
         }
 
         return false;
@@ -35,5 +37,9 @@
             : 86400,
         disableIndexPage: castBoolean(env.DISABLE_INDEX_PAGE),
         analytics,
+        appId: env.APP_ID || 'expose',
+        sentryDsn: env.SENTRY_DSN,
+        sentryEnvironment: env.SENTRY_ENVIRONMENT,
+        sentryRelease: env.SENTRY_RELEASE,
     };
 });

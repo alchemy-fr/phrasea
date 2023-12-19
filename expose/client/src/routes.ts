@@ -1,4 +1,4 @@
-import config from './lib/config.ts';
+import config from './config';
 import PublicationIndex from './component/index/PublicationIndex.jsx';
 import {compileRoutes} from '@alchemy/navigation';
 import PublicationPage from './pages/PublicationPage.tsx';
@@ -38,4 +38,3 @@ if (!config.disableIndexPage) {
 
 const compiledRoutes = compileRoutes(routes) as typeof routes;
 export {compiledRoutes as routes};
-

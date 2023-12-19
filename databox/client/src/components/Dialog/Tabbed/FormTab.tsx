@@ -6,7 +6,7 @@ import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from '../../Form/RemoteErrors';
 import {useTranslation} from 'react-i18next';
-import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useInRouterDirtyFormPrompt, useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
     loading: boolean;
@@ -23,6 +23,12 @@ export function useDirtyFormPrompt(isDirty: boolean) {
     const {t} = useTranslation();
 
     useInRouterDirtyFormPrompt(t, isDirty);
+}
+
+export function useDirtyFormPromptOutsideRouter(isDirty: boolean) {
+    const {t} = useTranslation();
+
+    useOutsideRouterDirtyFormPrompt(t, isDirty);
 }
 
 export default function FormTab({

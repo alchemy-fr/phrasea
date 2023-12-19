@@ -21,3 +21,4 @@ api_platform:
         tokenUrl: '%env(KEYCLOAK_URL)%/oauth/v2/token'
         flow: authorizationCode
         authorizationUrl: '%env(KEYCLOAK_URL)%/oauth/v2/auth'
+    event_listeners_backward_compatibility_layer: false

@@ -7,9 +7,7 @@
     "verifySSL": "%env(bool:DATABOX_VERIFY_SSL)%",
     "concurrency": "%env(int:DATABOX_CONCURRENCY)%"
   },
-  "blacklist": [
-    "(^|/)\\..+$"
-  ],
+  "blacklist": ["(^|/)\\..+$"],
   "locations": [
     {
       "name": "test-s3",

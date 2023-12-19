@@ -6,9 +6,10 @@ import {
     UserPreferencesContext,
 } from './UserPreferencesContext';
 import {getUserPreferences, putUserPreferences} from '../../../api/user';
-import {createCachedTheme} from '../../../lib/theme';
-import {CssBaseline, GlobalStyles, ThemeProvider} from '@mui/material';
-import {useAuth} from "@alchemy/react-auth";
+import {createCachedThemeOptions} from '../../../lib/theme';
+import {CssBaseline, GlobalStyles} from '@mui/material';
+import {useAuth} from '@alchemy/react-auth';
+import {ThemeEditorProvider} from '@alchemy/theme-editor';
 
 const sessionStorageKey = 'userPrefs';
 
@@ -77,8 +78,8 @@ export default function UserPreferencesProvider({children}: Props) {
 
     return (
         <UserPreferencesContext.Provider value={value}>
-            <ThemeProvider
-                theme={createCachedTheme(preferences.theme ?? 'default')}
+            <ThemeEditorProvider
+                defaultTheme={createCachedThemeOptions(preferences.theme ?? 'default')}
             >
                 <CssBaseline />
                 <GlobalStyles
@@ -101,7 +102,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     })}
                 />
                 {children}
-            </ThemeProvider>
+            </ThemeEditorProvider>
         </UserPreferencesContext.Provider>
     );
 }

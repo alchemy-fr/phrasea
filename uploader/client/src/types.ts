@@ -6,4 +6,4 @@ export type UploaderUser = {
         form_schema: boolean;
         target_data: boolean;
     };
-}
+};

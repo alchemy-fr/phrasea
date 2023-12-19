@@ -1,3 +1,5 @@
+import {ErrorPage} from '@alchemy/phrasea-ui';
+
 type Props = {
     error: any;
 };
@@ -7,7 +9,7 @@ export function DefaultErrorComponent({
 }: Props) {
     console.trace(error);
 
-    return <div>
-        {error.toString()}
-    </div>
+    return <ErrorPage
+        error={error}
+    />
 }

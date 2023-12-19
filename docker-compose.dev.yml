@@ -9,6 +9,17 @@ services:
       - ./turbo.json:/srv/workspace/turbo.json:ro
       - ./node_modules:/srv/workspace/node_modules:ro
 
+  dashboard:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}dashboard-dev:${DOCKER_TAG}
+    build:
+      target: client-build
+    volumes:
+      - ./dashboard/client:/srv/workspace/dashboard/client:rw
+    environment:
+      - WDS_SOCKET_PORT=443
+
   uploader-client:
     extends:
       service: a_client
@@ -230,26 +241,14 @@ services:
     volumes:
       - ./report/src:/usr/app
 
-  dashboard:
-    volumes:
-    - ./dashboard/docker/root/entrypoint.sh:/entrypoint.sh
-    - ./dashboard/src:/var/app
-    - ./dashboard/src/public:/usr/share/nginx/html
-
   configurator:
     volumes:
       - ./configurator:/usr/app
 
-  databox-watcher:
-    extends:
-      service: a_client
-    command: ["yarn", "start:dev"]
-    volumes:
-      - ./databox/indexer:/srv/workspace/databox/indexer
-
   databox-indexer:
     extends:
       service: a_client
+    entrypoint: ''
     volumes:
       - ./databox/indexer:/srv/workspace/databox/indexer
 

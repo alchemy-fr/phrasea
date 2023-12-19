@@ -9,13 +9,13 @@ import UploadDone from './UploadDone';
 import Container from '../Container';
 import {getPath, Link} from '@alchemy/navigation';
 import filesize from 'filesize';
-import config from '../../lib/config';
+import config from '../../config';
 import {getTarget} from '../../requests';
 import UploadBatch from '../../uploadBatch';
 import {retrieveImageFromClipboardAsBlob} from '../ImagePaste';
 import FullPageLoader from '../FullPageLoader';
-import {withRouter} from "../withRouter";
-import {routes} from "../../routes";
+import {withRouter} from '../withRouter';
+import {routes} from '../../routes';
 
 const SELECT_FILES = 0;
 const FILL_FORM = 1;
@@ -214,7 +214,7 @@ class Upload extends Component {
             );
         }
         if (!target) {
-            return <FullPageLoader/>;
+            return <FullPageLoader />;
         }
 
         return (
@@ -257,28 +257,20 @@ class Upload extends Component {
                     />
                 );
             case UPLOAD_DONE:
-                return <UploadDone goHome={this.reset}/>;
+                return <UploadDone goHome={this.reset} />;
             case SELECT_FILES:
             default:
                 const errors = [];
                 const canSubmit = this.canSubmit(errors);
 
                 const allowedTypes = config.allowedTypes;
-                const accept = Object.entries(allowedTypes)
-                    .reduce(
-                        (a, [mimeType, ext]) => [...a, mimeType, ...ext],
-                        []
-                    )
-                    // Silently discard invalid entries as pickerOptionsFromAccept warns about these
-                    .filter(v => isMIMEType(v) || isExt(v))
-                    .join(',');
 
                 return (
                     <div className="upload-container">
                         <Dropzone
                             onDrop={this.onDrop}
                             multiple={maxFileCount !== 1}
-                            accept={accept.length > 0 ? accept : undefined}
+                            accept={allowedTypes || undefined}
                         >
                             {({getRootProps, getInputProps, isDragActive}) => {
                                 let classes = ['Upload'];
@@ -333,12 +325,14 @@ class Upload extends Component {
                             Next
                         </Button>
 
-                        <hr/>
+                        <hr />
                         <p>
                             or just{' '}
-                            <Link to={getPath(routes.download, {
-                                id: this.getTargetId()
-                            })}>
+                            <Link
+                                to={getPath(routes.download, {
+                                    id: this.getTargetId(),
+                                })}
+                            >
                                 download
                             </Link>{' '}
                             URLs.

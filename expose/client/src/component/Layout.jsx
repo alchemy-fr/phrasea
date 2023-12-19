@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
-import {Link} from '@alchemy/navigation';
-import config from '../lib/config';
+import {getCurrentPath, Link} from '@alchemy/navigation';
+import config from '../config';
 import {Logo} from './Logo';
 import {Trans} from 'react-i18next';
 import {keycloakClient} from '../lib/api-client';
@@ -72,7 +72,9 @@ class Layout extends PureComponent {
     }
 
     logout = () => {
-        keycloakClient.logout();
+        keycloakClient.logout({
+            redirectPath: getCurrentPath(),
+        });
     };
 
     renderAuthenticated() {

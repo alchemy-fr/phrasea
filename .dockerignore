@@ -16,3 +16,7 @@
 /report
 /tmp
 **/dist
+/uploader/client/index.html
+/expose/client/index.html
+/databox/client/index.html
+/dashboard/index.html

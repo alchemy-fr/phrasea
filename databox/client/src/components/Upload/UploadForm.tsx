@@ -22,7 +22,7 @@ import {SelectOption} from '../Form/RSelect';
 import {Asset, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
-import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 
 export type UploadData = {
@@ -75,7 +75,7 @@ export const UploadForm: FC<{
         submitting,
     } = usedFormSubmit;
 
-    useInRouterDirtyFormPrompt(t, forbidNavigation);
+    useOutsideRouterDirtyFormPrompt(t, forbidNavigation);
 
     const onTemplateSelect = React.useCallback(
         (values: OnChangeValue<SelectOption, true>) => {

@@ -1,5 +1,5 @@
 import {createInstance} from '@jonkoops/matomo-tracker-react';
-import config from './config';
+import config from '../config';
 
 const analytics = config.analytics;
 

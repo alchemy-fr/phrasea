@@ -4,14 +4,16 @@
   "public": true,
   "main": "index.ts",
   "files": [
-    "src/proxy/MatomoRouteProxy.tsx"
+    "src/proxy/MatomoRouteWrapper.tsx"
   ],
   "dependencies": {
-    "@remix-run/router": "^1.13.1"
+    "@remix-run/router": "1.11.0",
+    "react-router-dom": "6.18.0",
+    "@alchemy/core": "workspace:*",
+    "@alchemy/phrasea-ui": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-router-dom": "6.18.0",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "react-i18next": "^13.5.0"
   },
@@ -20,7 +22,6 @@
     "@types/react": "^18.2.37",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "react-i18next": "^13.5.0",
-    "i18next": "^23.7.7",
-    "react-router-dom": "6.18.0"
+    "i18next": "^23.7.7"
   }
 }

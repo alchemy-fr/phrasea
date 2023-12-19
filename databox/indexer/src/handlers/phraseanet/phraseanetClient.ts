@@ -1,13 +1,13 @@
-import {AxiosInstance} from "axios";
-import {getConfig, getStrict} from "../../configLoader";
+import {AxiosInstance} from 'axios';
+import {getConfig, getStrict} from '../../configLoader';
 import {
     PhraseanetCollection,
     PhraseanetConfig,
     PhraseanetMetaStruct,
     PhraseanetRecord,
-    PhraseanetSubDef
-} from "./types";
-import {createHttpClient} from "../../lib/axios";
+    PhraseanetSubDef,
+} from './types';
+import {createHttpClient} from '../../lib/axios';
 
 export function createPhraseanetClient(options: PhraseanetConfig) {
     const baseURL = getStrict('url', options);
@@ -16,8 +16,8 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 
     return createHttpClient({
         baseURL,
-        params: {
-            oauth_token: token,
+        headers: {
+            Authorization: `OAuth ${token}`,
         },
         verifySSL,
         timeout: 60000,
@@ -41,7 +41,10 @@ export default class PhraseanetClient {
         return res.data.response.collections;
     }
 
-    async search(params: Record<string, any>, offset: number = 0): Promise<PhraseanetRecord[]> {
+    async search(
+        params: Record<string, any>,
+        offset: number = 0
+    ): Promise<PhraseanetRecord[]> {
         if (this.searchOrder) {
             const [col, way] = this.searchOrder.split(',');
             params.sort = col;
@@ -54,25 +57,24 @@ export default class PhraseanetClient {
                 limit: 100,
                 search_type: 0,
                 query: this.searchQuery,
-                include: [
-                    'results.records.subdefs',
-                    'results.records.caption',
-                ],
+                include: ['results.records.subdefs', 'results.records.caption'],
                 ...params,
-            }
+            },
         });
 
         return res.data.response.results.records;
     }
 
     async getMetaStruct(databoxId: string): Promise<PhraseanetMetaStruct[]> {
-        const res = await this.client.get(`/api/v1/databoxes/${databoxId}/metadatas/`);
+        const res = await this.client.get(
+            `/api/v1/databoxes/${databoxId}/metadatas/`
+        );
 
         return res.data.response.document_metadatas;
     }
 
     async getSubDefinitions(databoxId?: string): Promise<PhraseanetSubDef[]> {
-        const dbid = typeof databoxId !== 'undefined' ? '/'+databoxId : '';
+        const dbid = typeof databoxId !== 'undefined' ? '/' + databoxId : '';
         const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 
         const subdefs: PhraseanetSubDef[] = [];
@@ -86,7 +88,7 @@ export default class PhraseanetClient {
                 Object.keys(sd).forEach(name => {
                     subdefs.push({
                         ...sd[name],
-                        type,   // could be included by api, but for now add it here
+                        type, // could be included by api, but for now add it here
                     });
                 });
             });

@@ -7,9 +7,9 @@ namespace App\User;
 use App\Entity\Core\UserPreference;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserPreferencesManager
+readonly class UserPreferencesManager
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 

@@ -28,17 +28,27 @@ export type UserInfoResponse = {
 
 export type AuthEvent = {
     type: string;
+    preventDefault?: boolean,
+    stopPropagation?: boolean,
 };
 
 export type LoginEvent = {
     tokens: AuthTokens;
 } & AuthEvent;
 
+export type LogoutOptions = {
+    quiet?: boolean;
+    redirectPath?: string | undefined;
+    noEvent?: boolean;
+};
+
+export type LogoutEvent = LogoutOptions & AuthEvent;
+
+export type SessionExpiredEvent = AuthEvent;
+
 export type RefreshTokenEvent = {
     tokens: AuthTokens;
 } & AuthEvent;
-
-export type LogoutEvent = AuthEvent;
 
 export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
 
@@ -60,12 +70,17 @@ type Options = {
 
 export type {Options as OAuthClientOptions};
 
+type OrderedListener = {
+    p: number;
+    h: AuthEventHandler<any>;
+};
+
 export default class OAuthClient {
     public tokenPromise: Promise<any> | undefined;
     public readonly clientId: string;
     public readonly clientSecret: string | undefined;
     public readonly baseUrl: string;
-    private listeners: Record<string, AuthEventHandler[]> = {};
+    private listeners: Record<string, OrderedListener[]> = {};
     private readonly storage: IStorage;
     private tokensCache: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -129,27 +144,35 @@ export default class OAuthClient {
         return jwtDecode<UserInfoResponse>(accessToken);
     }
 
-    public logout(): void {
+    public async logout(options: LogoutOptions = {}): Promise<LogoutEvent | undefined> {
         this.clearSessionTimeout();
-
-        this.triggerEvent(logoutEventType);
         this.storage.removeItem(this.tokenStorageKey);
         this.tokensCache = undefined;
+
+        if (!options.noEvent) {
+            const event = {
+                ...options,
+            } as LogoutEvent;
+
+            await this.triggerEvent<LogoutEvent>(logoutEventType, event);
+
+            return event;
+        }
     }
 
-    public registerListener(event: string, callback: AuthEventHandler): void {
+    public registerListener<E extends AuthEvent = AuthEvent>(event: string, callback: AuthEventHandler<E>, priority: number = 0): void {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
         }
-        this.listeners[event].push(callback);
+        this.listeners[event].push({p: priority, h: callback});
     }
 
-    public unregisterListener(event: string, callback: AuthEventHandler): void {
+    public unregisterListener<E extends AuthEvent = AuthEvent>(event: string, callback: AuthEventHandler<E>): void {
         if (!this.listeners[event]) {
             return;
         }
 
-        const index = this.listeners[event].findIndex(c => c === callback);
+        const index = this.listeners[event].findIndex(({h}) => h === callback);
         if (index >= 0) {
             delete this.listeners[event][index];
         }
@@ -240,14 +263,18 @@ export default class OAuthClient {
         return this.fetchTokens();
     }
 
-    private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Partial<E> = {}): Promise<void> {
-        event.type = type;
+    private async triggerEvent<E extends AuthEvent = AuthEvent>(type: string, event: Omit<E, "type">): Promise<void> {
+        const e = event as E;
+        e.type = type;
 
         if (!this.listeners[type]) {
             return Promise.resolve();
         }
 
-        await Promise.all(this.listeners[type].map(func => func(event as E)).filter(f => !!f));
+        const orderedListeners = this.listeners[type];
+        orderedListeners.sort((a, b) => a.p - b.p);
+
+        await Promise.all(orderedListeners.map(({h}) => !e.stopPropagation && h(e)).filter(f => !!f));
     }
 
     private handleSessionTimeout(tokens: AuthTokens): void {
@@ -261,8 +288,10 @@ export default class OAuthClient {
     }
 
     private sessionExpired(): void {
-        this.triggerEvent<LogoutEvent>(sessionExpiredEventType);
-        this.logout();
+        this.triggerEvent<SessionExpiredEvent>(sessionExpiredEventType, {});
+        this.logout({
+            quiet: true,
+        });
     }
 
     private clearSessionTimeout(): void {
@@ -352,7 +381,11 @@ function createAxiosInterceptor(
     onTokenError?: OnTokenError
 ) {
     return async (config: InternalAxiosRequestConfig) => {
-        if (method === "getTokenFromRefreshToken" && (config.anonymous || !oauthClient.isAuthenticated())) {
+        if (config.anonymous) {
+            return config;
+        }
+
+        if (method === "getTokenFromRefreshToken" && !oauthClient.isAuthenticated()) {
             return config;
         }
 

@@ -40,7 +40,6 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
 };
 
 export type DefinitionItemFormProps<D extends DefinitionBase & FieldValues> = {
-    formId: string;
     usedFormSubmit: UseFormSubmitReturn<D>;
     workspaceId: string;
 } & DefinitionItemProps<D>;
@@ -96,6 +95,7 @@ type Props<D extends DefinitionBase> = {
     handleDelete?: (id: string) => Promise<void>;
     workspaceId: string;
     onSort?: OnSort;
+    normalizeData?: (data: D) => D;
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
@@ -186,7 +186,18 @@ export default function DefinitionManager<D extends DefinitionBase>({
         },
     });
 
-    const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
+    const {
+        submitting,
+        remoteErrors,
+        forbidNavigation,
+        reset,
+    } = usedFormSubmit;
+
+    React.useEffect(() => {
+        if (item && 'new' !== item) {
+            reset(item);
+        }
+    }, [item]);
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
@@ -344,23 +355,20 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     }}
                 >
                     {item && (
-                        <>
-                            <form
-                                id={formId}
-                                onSubmit={usedFormSubmit.handleSubmit}
-                            >
-                                {React.createElement(itemComponent, {
-                                    data:
-                                        item === 'new'
-                                            ? (createNewItem() as D)
-                                            : item!,
-                                    key: item === 'new' ? 'new' : item!.id,
-                                    formId,
-                                    usedFormSubmit,
-                                    workspaceId,
-                                })}
-                            </form>
-                        </>
+                        <form
+                            id={formId}
+                            onSubmit={usedFormSubmit.handleSubmit}
+                        >
+                            {React.createElement(itemComponent, {
+                                data:
+                                    item === 'new'
+                                        ? (createNewItem() as D)
+                                        : item!,
+                                key: item === 'new' ? 'new' : item!.id,
+                                usedFormSubmit,
+                                workspaceId,
+                            })}
+                        </form>
                     )}
                     <RemoteErrors errors={remoteErrors} />
                     {item && item !== 'new' && handleDelete && (

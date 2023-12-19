@@ -1,12 +1,17 @@
-import {RouteDefinition, RouteParameters, Routes, RouteProxyProps, RouteProxyComponent, ErrorComponent} from "./types";
+import {
+    RouteDefinition,
+    RouteParameters,
+    Routes,
+    RouteProxyProps,
+    RouteProxyComponent,
+    TErrorBoundaryComponent, TErrorFallbackComponent, RouteWrapperProps,
+} from "./types";
 import {getFullPath, getLocationPrefix} from "./utils";
 import {Outlet, RouteObject} from "react-router-dom";
-import React, {PropsWithChildren} from "react";
-import DefaultErrorBoundary, {
-    ErrorFallbackProps, TErrorBoundaryComponent
-} from "./DefaultErrorBoundary";
+import React from "react";
 import DefaultRouteProxy from "./proxy/DefaultRouteProxy";
-import {DefaultErrorComponent} from "./DefaultErrorComponent";
+import {NotFoundPage, ErrorPage} from "@alchemy/phrasea-ui";
+import {ErrorBoundary} from "@alchemy/core";
 
 
 export function compileRoutes(routes: Routes, rootUrl?: string): Routes {
@@ -112,21 +117,21 @@ export function createRouteComponent(route: RouteDefinition, RouteProxyComponent
 
 export type RouterProviderOptions = {
     RouteProxyComponent?: RouteProxyComponent,
-    ErrorComponent?: ErrorComponent,
+    ErrorComponent?: TErrorFallbackComponent,
     ErrorBoundaryComponent?: TErrorBoundaryComponent,
-    WrapperComponent?: React.FC<PropsWithChildren<{}>>;
+    WrapperComponent?: React.FC<RouteWrapperProps>;
 }
 
 export function createRouterProviderRoutes(
     routes: Routes,
-    options: RouterProviderOptions,
+    options: RouterProviderOptions = {},
 ): RouteObject[] {
     const output: RouteObject[] = [];
 
     const {
         RouteProxyComponent: RouteProxyComponent = DefaultRouteProxy,
-        ErrorComponent = DefaultErrorComponent,
-        ErrorBoundaryComponent = DefaultErrorBoundary,
+        ErrorComponent = ErrorPage,
+        ErrorBoundaryComponent = ErrorBoundary,
         WrapperComponent
     } = options;
 
@@ -151,14 +156,12 @@ export function createRouterProviderRoutes(
     output.push({
         id: 'not_found',
         path: '*',
-        Component: () => <ErrorComponent
-            error={new Error('Not found')}
-        />,
+        Component: () => <NotFoundPage/>,
     });
 
     return [
         {
-            Component: () => <ErrorBoundaryComponent fallback={(props: ErrorFallbackProps) => <ErrorComponent {...props}/>}>
+            Component: () => <ErrorBoundaryComponent fallback={ErrorComponent}>
                 {WrapperComponent ? React.createElement(WrapperComponent, {
                     children: <Outlet />
                 }) : <Outlet />}

@@ -14,7 +14,7 @@ export default function MatomoUser({
 
     React.useEffect(() => {
         pushInstruction('setUserId', user ? (user[idProp] as string) : null);
-    }, []);
+    }, [user]);
 
     return null
 }

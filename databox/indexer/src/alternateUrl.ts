@@ -1,13 +1,10 @@
-import {config} from "./configLoader";
-import {AlternateUrl} from "./databox/types";
-import {Asset} from "./indexers";
-import {IndexLocation} from "./types/config";
+import {config} from './configLoader';
+import {AlternateUrl} from './databox/types';
+import {Asset} from './indexers';
+import {IndexLocation} from './types/config';
 
 export function getAlternateUrls(
-    {
-        path,
-        sourcePath,
-    }: Asset,
+    {path, sourcePath}: Asset,
     location: IndexLocation<any>
 ): AlternateUrl[] | undefined {
     const alternateUrls = location.alternateUrls || config.alternateUrls;
@@ -24,7 +21,7 @@ export function getAlternateUrls(
                 url: c.pathPattern.replace(/\${(.+)}/g, (_m, m1) => {
                     return dict[m1];
                 }),
-            }
+            };
         });
     }
 

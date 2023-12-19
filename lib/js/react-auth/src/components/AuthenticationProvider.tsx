@@ -1,12 +1,18 @@
 import React, {PropsWithChildren, useCallback} from 'react';
-import {OAuthClient, isValidSession, AuthTokens} from "@alchemy/auth";
+import {
+    OAuthClient,
+    isValidSession,
+    AuthTokens,
+    logoutEventType,
+    AuthEventHandler,
+    LogoutEvent
+} from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
-import AuthenticationContext, {SetTokens} from "../context/AuthenticationContext";
+import AuthenticationContext, {LogoutFunction, SetTokens} from "../context/AuthenticationContext";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
     onClear?: () => void;
-    onLogout?: () => void;
     oauthClient: OAuthClient,
 }>;
 
@@ -14,13 +20,25 @@ export default function AuthenticationProvider({
     oauthClient,
     children,
     onNewTokens,
-    onClear,
-    onLogout,
 }: Props) {
     const redirectPathSessionStorageKey = 'redirpath';
     const sessionStorage = getSessionStorage();
     const redirectPath = React.useRef<string | undefined>(sessionStorage.getItem(redirectPathSessionStorageKey) || undefined);
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
+
+    React.useEffect(() => {
+        const listener: AuthEventHandler<LogoutEvent> = async (event) => {
+            if (!event.preventDefault) {
+                setTokens(undefined);
+            }
+        };
+
+        oauthClient.registerListener(logoutEventType, listener);
+
+        return () => {
+            oauthClient.unregisterListener(logoutEventType, listener);
+        }
+    }, [oauthClient]);
 
     const updateTokens = React.useCallback<SetTokens>((tokens) => {
         setTokens(tokens);
@@ -41,24 +59,27 @@ export default function AuthenticationProvider({
         setRedirectPath(undefined);
     }, [setRedirectPath]);
 
-    const clearSession = useCallback(() => {
-        onClear && onClear();
-        setTokens(undefined);
-    }, [setTokens]);
+    const logout = useCallback<LogoutFunction>(async (redirectPathAfterLogin?: string, quiet = false) => {
+        const handler = () => {
+            if (redirectPathAfterLogin) {
+                setRedirectPath(redirectPathAfterLogin);
+            } else {
+                setTimeout(() => {
+                    setRedirectPath(undefined);
+                }, 500);
+            }
+        }
 
-    const logout = useCallback((redirectPathAfterLogin?: string) => {
-        onLogout && onLogout();
-        clearSession();
+        const event = await oauthClient.logout({quiet});
+        console.log('event', event);
+        if (event?.preventDefault) {
+            handler();
 
-        if (redirectPathAfterLogin) {
-            setRedirectPath(redirectPathAfterLogin);
             return;
         }
 
-        setTimeout(() => {
-            setRedirectPath(undefined);
-        }, 500);
-    }, [clearSession, setRedirectPath]);
+        handler();
+    }, [setTokens, setRedirectPath]);
 
     const isAuthenticated = (): boolean => {
         return isValidSession(tokens);

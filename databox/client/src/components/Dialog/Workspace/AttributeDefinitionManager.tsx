@@ -200,7 +200,7 @@ export default function AttributeDefinitionManager({
     };
 
     const onSort: OnSort = async ids => {
-        await apiClient.put(`/attribute-definitions/sort`, ids);
+        await apiClient.post(`/attribute-definitions/sort`, ids);
         toast.success(t('common.item_sorted', 'Order saved!') as string);
     };
 
@@ -217,6 +217,7 @@ export default function AttributeDefinitionManager({
             handleSave={handleSave}
             handleDelete={deleteAttributeDefinition}
             onSort={onSort}
+            normalizeData={createData}
         />
     );
 }

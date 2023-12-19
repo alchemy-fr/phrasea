@@ -9,26 +9,20 @@ import {useTranslation} from 'react-i18next';
 import {Controller} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import {deleteTag, getTags, postTag, putTag} from '../../../api/tag';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import ColorPicker from '../../Form/ColorPicker';
 
 function Item({
     usedFormSubmit: {
         register,
         control,
-        handleSubmit,
         submitting,
-        forbidNavigation,
         formState: {errors},
     },
-    formId,
 }: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
 
-    useDirtyFormPrompt(forbidNavigation);
-
     return (
-        <form id={formId} onSubmit={handleSubmit}>
+        <>
             <FormRow>
                 <TextField
                     label={t('form.tag.name.label', 'Name')}
@@ -55,7 +49,7 @@ function Item({
                 />
                 <FormFieldErrors field={'color'} errors={errors} />
             </FormRow>
-        </form>
+        </>
     );
 }
 

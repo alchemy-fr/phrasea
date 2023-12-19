@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -38,7 +39,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
     ],
     input: TagFilterRuleInput::class,
     output: TagFilterRuleOutput::class,
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: TagFilterRuleCollectionProvider::class,
 )]
 #[ORM\Table]

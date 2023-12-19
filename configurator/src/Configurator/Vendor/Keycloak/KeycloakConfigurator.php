@@ -39,6 +39,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                  ] as $scope) {
             $this->keycloakManager->createScope($scope);
         }
+
         foreach ($this->getAppScopes() as $app => $appScopes) {
             foreach ($appScopes as $scope) {
                 $this->keycloakManager->createScope($scope, [
@@ -74,6 +75,24 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                     'serviceAccountsEnabled' => false,
                 ]
             );
+        }
+
+        if (getenv('INDEXER_DATABOX_CLIENT_ID')) {
+            $clientData = $this->keycloakManager->createClient(
+                getenv('INDEXER_DATABOX_CLIENT_ID'),
+                getenv('INDEXER_DATABOX_CLIENT_SECRET'),
+                null,
+                [
+                    'standardFlowEnabled' => false,
+                    'implicitFlowEnabled' => false,
+                    'directAccessGrantsEnabled' => false,
+                    'serviceAccountsEnabled' => true,
+                ],
+            );
+
+            foreach ($this->getAppScopes()['databox'] as $scope) {
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
+            }
         }
 
         $defaultAdmin = $this->keycloakManager->createUser([

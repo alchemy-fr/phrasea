@@ -14,6 +14,7 @@
   "dependencies": {
     "@alchemy-fr/liform-react": "^0.9.3",
     "@alchemy/api": "workspace:*",
+    "@alchemy/core": "workspace:*",
     "@alchemy/auth": "workspace:*",
     "@alchemy/react-auth": "workspace:*",
     "@alchemy/navigation": "workspace:*",
@@ -25,6 +26,7 @@
     "i18next": "^21.8.0",
     "i18next-browser-languagedetector": "^6.1.2",
     "i18next-xhr-backend": "^3.1.2",
+    "react-toastify": "^9.1.3",
     "react": "^18.2.0",
     "react-bootstrap": "^1.0.1",
     "react-burger-menu": "^2.6.8",
@@ -33,7 +35,6 @@
     "react-i18next": "^11.15.1",
     "react-loader-spinner": "^3.1.14",
     "react-redux": "^5.1",
-    "react-scripts": "^4.0.3",
     "redux": "^4.0.1",
     "redux-form": "^7.4.2",
     "vite-plugin-svgr": "^4.2.0"

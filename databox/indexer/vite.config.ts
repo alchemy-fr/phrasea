@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite';
-import { VitePluginNode } from 'vite-plugin-node';
+import {defineConfig} from 'vite';
+import {VitePluginNode} from 'vite-plugin-node';
 
 export default defineConfig({
     plugins: [
         ...VitePluginNode({
-            appPath: './src/index.ts',
+            appPath: './src/console.ts',
 
             // Optional, default: 'viteNodeApp'
             // the name of named export of you app from the appPath file
@@ -36,7 +36,7 @@ export default defineConfig({
             // }
             // }
             // swc configs, see [swc doc](https://swc.rs/docs/configuration/swcrc)
-            swcOptions: {}
+            swcOptions: {},
         }),
     ],
     optimizeDeps: {

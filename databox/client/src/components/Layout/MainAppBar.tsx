@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useContext, useState} from 'react';
+import {useContext} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -17,12 +17,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import {SearchContext} from '../Media/Search/SearchContext';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import ChangeTheme from './ChangeTheme';
 import {zIndex} from '../../themes/zIndex';
 import {useKeycloakUrls} from '@alchemy/react-auth';
-import config from "../../config.ts";
-import {keycloakClient} from "../../api/api-client.ts";
-import {useUser} from "../../lib/auth.ts";
+import {ThemeEditorContext} from '@alchemy/theme-editor';
+import config from '../../config.ts';
+import {keycloakClient} from '../../api/api-client.ts';
+import {useUser} from '../../lib/auth.ts';
+import {DashboardMenu} from '@alchemy/react-ps';
+import {useModals} from '@alchemy/navigation';
+import ChangeTheme from "./ChangeTheme.tsx";
+import ThemeEditor from "./ThemeEditor.tsx";
 
 export const menuHeight = 42;
 
@@ -33,7 +37,8 @@ type Props = {
 
 export default function MainAppBar({onToggleLeftPanel}: Props) {
     const {t} = useTranslation();
-    const [changeTheme, setChangeTheme] = useState(false);
+    const {openModal} = useModals();
+    const themeEditorContext = useContext(ThemeEditorContext);
     const userContext = useUser();
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
         null
@@ -69,9 +74,6 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                 }}
                 position="static"
             >
-                {changeTheme && (
-                    <ChangeTheme onClose={() => setChangeTheme(false)} />
-                )}
                 <Container maxWidth={false}>
                     <Toolbar
                         disableGutters
@@ -200,7 +202,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                         </MenuItem>
                                         <MenuItem
                                             onClick={() => {
-                                                setChangeTheme(true);
+                                                openModal(ChangeTheme);
                                                 handleCloseUserMenu();
                                             }}
                                         >
@@ -211,6 +213,29 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                 primary={t(
                                                     'menu.change_theme',
                                                     'Change theme'
+                                                )}
+                                            />
+                                        </MenuItem>
+                                        <MenuItem
+                                            onClick={() => {
+                                                openModal(ThemeEditor, {}, {
+                                                    forwardedContexts: [
+                                                        {
+                                                            context: ThemeEditorContext,
+                                                            value: themeEditorContext,
+                                                        }
+                                                    ]
+                                                });
+                                                handleCloseUserMenu();
+                                            }}
+                                        >
+                                            <ListItemIcon>
+                                                <ColorLensIcon />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                                primary={t(
+                                                    'menu.theme_editor',
+                                                    'Theme Editor'
                                                 )}
                                             />
                                         </MenuItem>
@@ -235,6 +260,20 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 </>
                             )}
                         </Box>
+
+                        {config.displayServicesMenu && (
+                            <div style={{flexGrow: 0}}>
+                                    <DashboardMenu
+                                        style={{
+                                            position: 'relative',
+                                            marginLeft: 5,
+                                        }}
+                                        bodyPadding={0}
+                                        size={35}
+                                        dashboardBaseUrl={config.dashboardBaseUrl}
+                                    />
+                            </div>
+                        )}
                     </Toolbar>
                 </Container>
             </AppBar>

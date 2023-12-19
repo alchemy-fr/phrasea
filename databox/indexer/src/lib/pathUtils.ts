@@ -7,6 +7,8 @@ export function stripSlashes(path: string): string {
 }
 
 export function splitPath(path: string): string[] {
-    return path.replace(/^\//, '').split(/(?<!\\)\//)
+    return path
+        .replace(/^\//, '')
+        .split(/(?<!\\)\//)
         .map(stripSlashes);
 }

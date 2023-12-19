@@ -20,6 +20,14 @@ final class ConfigureCommand extends Command
         parent::__construct();
     }
 
+    protected function configure()
+    {
+        parent::configure();
+
+        $this->addOption('preset');
+    }
+
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->configurator->configure($output);

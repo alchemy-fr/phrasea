@@ -1,0 +1,19 @@
+{
+  "name": "@alchemy/core",
+  "version": "0.0.1",
+  "public": true,
+  "description": "Core library",
+  "keywords": [],
+  "main": "index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "dependencies": {
+    "@sentry/react": "^7.86.0"
+  },
+  "devDependencies": {
+    "@sentry/types": "^7.86.0",
+    "@types/react": "^18.2.37"
+  }
+}

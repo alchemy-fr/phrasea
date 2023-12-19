@@ -10,12 +10,8 @@ USER node
 
 WORKDIR /srv/workspace/databox/client
 
-ENV NODE_ENV=development
-
 RUN pnpm install \
     && mv index.tpl.html index.html
-
-RUN ls -la .
 
 RUN pnpm build
 
@@ -36,6 +32,9 @@ RUN apk add --no-cache libstdc++ \
     && rm /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
+
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 COPY ./databox/client/config-compiler.js /var/app/
 

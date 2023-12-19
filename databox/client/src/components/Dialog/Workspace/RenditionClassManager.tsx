@@ -6,7 +6,6 @@ import DefinitionManager, {
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {useForm} from 'react-hook-form';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import {
     deleteRenditionClass,
@@ -16,53 +15,40 @@ import {
 } from '../../../api/rendition';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import RenditionClassPermissions from './RenditionClassPermissions';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 
 function Item({
     data,
-    usedFormSubmit,
-    formId,
+    usedFormSubmit: {
+        submitting,
+        register,
+        control,
+        watch,
+        formState: {errors},
+    },
 }: DefinitionItemFormProps<RenditionClass>) {
     const {t} = useTranslation();
-
-    const {
-        register,
-        handleSubmit,
-        submitting,
-        watch,
-        control,
-        formState: {errors},
-        forbidNavigation,
-    } = usedFormSubmit;
-
-    const {} = useForm<any>({
-        defaultValues: data,
-    });
-    useDirtyFormPrompt(forbidNavigation);
 
     const isPublic = watch('public');
 
     return (
         <>
-            <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <TextField
-                        label={t('form.rendition_class.name.label', 'Name')}
-                        {...register('name')}
-                        disabled={submitting}
-                    />
-                    <FormFieldErrors field={'name'} errors={errors} />
-                </FormRow>
-                <FormRow>
-                    <CheckboxWidget
-                        label={t('form.rendition_class.public.label', 'Public')}
-                        control={control}
-                        name={'public'}
-                        disabled={submitting}
-                    />
-                    <FormFieldErrors field={'public'} errors={errors} />
-                </FormRow>
-            </form>
+            <FormRow>
+                <TextField
+                    label={t('form.rendition_class.name.label', 'Name')}
+                    {...register('name')}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'name'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t('form.rendition_class.public.label', 'Public')}
+                    control={control}
+                    name={'public'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'public'} errors={errors} />
+            </FormRow>
             {data.id && !isPublic && (
                 <FormRow>
                     <InputLabel>

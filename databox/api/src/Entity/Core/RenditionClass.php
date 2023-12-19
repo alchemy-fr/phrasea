@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -30,12 +31,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(securityPostValidation: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
         'groups' => [RenditionClass::GROUP_LIST],
     ],
-    security: 'is_granted("IS_AUTHENTICATED_FULLY")',
+    security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
     provider: RenditionClassCollectionProvider::class,
 )]
 #[ORM\Table]

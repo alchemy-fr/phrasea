@@ -1,5 +1,5 @@
 import React from 'react';
-import config from '../lib/config';
+import config from '../config';
 import FullPageLoader from './FullPageLoader';
 import apiClient from '../lib/api-client';
 import Root from './Root.tsx';

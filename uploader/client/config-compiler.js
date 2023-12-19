@@ -9,7 +9,7 @@
             return {};
         }
 
-        const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([\w,]*\))?/g)];
+        const types = [...v.matchAll(/([\w*]+\/[\w*+.-]+)(\([.\w,]*\))?/g)];
         const struct = {};
         for (const t of types) {
             struct[t[1]] = t[2]
@@ -30,7 +30,9 @@
         }
 
         if (typeof value === 'string') {
-            return ['true', '1', 'on', 'y', 'yes'].includes(value.toLowerCase());
+            return ['true', '1', 'on', 'y', 'yes'].includes(
+                value.toLowerCase()
+            );
         }
 
         return false;
@@ -51,5 +53,9 @@
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
+        appId: env.APP_ID || 'uploader',
+        sentryDsn: env.SENTRY_DSN,
+        sentryEnvironment: env.SENTRY_ENVIRONMENT,
+        sentryRelease: env.SENTRY_RELEASE,
     };
 });

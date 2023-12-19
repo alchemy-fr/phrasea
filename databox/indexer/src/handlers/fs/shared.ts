@@ -1,12 +1,12 @@
-import path from "path";
-import { readdir } from 'fs/promises';
-import {Asset} from "../../indexers";
-import {generatePublicUrl} from "../../resourceResolver";
-import {getConfig, getStrict} from "../../configLoader";
-import {FsConfig} from "./types";
+import path from 'path';
+import {readdir} from 'fs/promises';
+import {Asset} from '../../indexers';
+import {generatePublicUrl} from '../../resourceResolver';
+import {getConfig, getStrict} from '../../configLoader';
+import {FsConfig} from './types';
 
 export async function* getFiles(dir: string): AsyncGenerator<string> {
-    const entries = await readdir(dir, { withFileTypes: true });
+    const entries = await readdir(dir, {withFileTypes: true});
     for (const entry of entries) {
         const res = path.resolve(dir, entry.name);
         if (entry.isDirectory()) {
@@ -23,11 +23,13 @@ export function createAsset(
     locationName: string,
     watchDir: string,
     dirPrefix?: string | undefined,
-    sourceDir?: string | undefined,
-    ): Asset {
+    sourceDir?: string | undefined
+): Asset {
     const relativePath = path.substring(watchDir.length);
     const p = dirPrefix ? dirPrefix + relativePath : path;
     const sourcePath = sourceDir ? sourceDir + relativePath : path;
+
+    console.log('generatePublicUrl(p, locationName)', generatePublicUrl(p, locationName));
 
     return {
         workspaceId,
