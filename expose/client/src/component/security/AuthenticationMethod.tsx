@@ -1,7 +1,7 @@
 import config from '../../config';
-import {oauthClient} from '../../lib/api-client';
+import {keycloakClient} from '../../lib/api-client';
 import FormLayout from './FormLayout';
-import {useAuth} from '@alchemy/react-auth';
+import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {getCurrentPath} from '@alchemy/navigation';
 import React from 'react';
 
@@ -10,13 +10,10 @@ type Props = {};
 export default function AuthenticationMethod({}: Props) {
     const {setRedirectPath} = useAuth();
 
-    const loginUrl = React.useMemo<string>(() => {
-        const {autoConnectIdP} = config;
-
-        return oauthClient.createAuthorizeUrl({
-            connectTo: autoConnectIdP || undefined,
-        });
-    }, []);
+    const {getLoginUrl} = useKeycloakUrls({
+        keycloakClient: keycloakClient,
+        autoConnectIdP: config.autoConnectIdP,
+    })
 
     const onConnect = React.useCallback(() => {
         setRedirectPath && setRedirectPath(getCurrentPath());
@@ -34,7 +31,7 @@ export default function AuthenticationMethod({}: Props) {
                     <a
                         className={'btn btn-primary'}
                         onClick={onConnect}
-                        href={loginUrl}
+                        href={getLoginUrl()}
                     >
                         Login
                     </a>

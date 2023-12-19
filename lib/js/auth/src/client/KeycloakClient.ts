@@ -66,7 +66,7 @@ export default class KeycloakClient {
     public logout({
         redirectPath = '/',
         ...options
-    }: LogoutOptions): void {
+    }: LogoutOptions = {}): void {
         this.client.logout({
             ...options,
             noEvent: true,
