@@ -23,7 +23,8 @@ import {
 import {getBatchActions} from '../Media/Asset/Attribute/BatchActions';
 import {
     StackedModalProps,
-    useModals, useOutsideRouterDirtyFormPrompt,
+    useModals,
+    useOutsideRouterDirtyFormPrompt,
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy.ts';
 import {Asset} from '../../types.ts';

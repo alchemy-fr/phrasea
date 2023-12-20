@@ -22,7 +22,7 @@ import SaveAsButton from './Actions/SaveAsButton';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
 import {modalRoutes} from '../../../routes.ts';
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 type Props = {
     anchorPosition: PopoverPosition;

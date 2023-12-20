@@ -88,7 +88,8 @@ export function createHttpClient({
                 }
 
                 logger.error(
-                    `Error response (${error.config.url}): ` + JSON.stringify(filtered, undefined, 2)
+                    `Error response (${error.config.url}): ` +
+                        JSON.stringify(filtered, undefined, 2)
                 );
             }
 
@@ -97,13 +98,15 @@ export function createHttpClient({
     );
 
     client.interceptors.request.use(
-        (config) => {
+        config => {
             logger.debug(`${config.method.toUpperCase()} ${config.url}
-${JSON.stringify(config.headers)}${config.data ? `\n${JSON.stringify(config.data)}` : ''}`);
+${JSON.stringify(config.headers)}${
+                config.data ? `\n${JSON.stringify(config.data)}` : ''
+            }`);
 
             return config;
         },
-        (error) => {
+        error => {
             return Promise.reject(error);
         }
     );

@@ -1,15 +1,13 @@
 import {createDataboxClientFromConfig} from '../databox/client.js';
 import {createLogger} from '../lib/logger.js';
-import {runServer} from "../server";
-import {IndexLocation} from "../types/config";
-import {getConfig} from "../configLoader";
-import {watchers} from "../watchers";
+import {runServer} from '../server';
+import {IndexLocation} from '../types/config';
+import {getConfig} from '../configLoader';
+import {watchers} from '../watchers';
 
-export type WatchOptions = {
-};
+export type WatchOptions = {};
 
 export default async function watchCommand(options: WatchOptions) {
-
     const mainLogger = createLogger('app');
     const databoxLogger = createLogger('databox');
 
@@ -28,5 +26,4 @@ export default async function watchCommand(options: WatchOptions) {
     });
 
     runServer(mainLogger);
-
 }

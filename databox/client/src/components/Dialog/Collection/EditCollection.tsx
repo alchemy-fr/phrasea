@@ -37,11 +37,7 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
         },
     });
 
-    const {
-        submitting,
-        remoteErrors,
-        forbidNavigation,
-    } = usedFormSubmit;
+    const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
     useInRouterDirtyFormPrompt(t, forbidNavigation);
 
     const formId = 'edit-collection';

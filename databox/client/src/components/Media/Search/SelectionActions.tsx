@@ -268,32 +268,37 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                             : t('asset_actions.select_all', 'Select all')
                     }
                 >
-            <span>
-                    <Button
-                        disabled={selectAllDisabled}
-                        variant={'contained'}
-                        sx={theme => ({
-                            '.MuiCheckbox-root': {
-                                'p': 0,
-                                'm': 0,
-                                'color': theme.palette.primary.contrastText,
-                                '&.Mui-checked, &.MuiCheckbox-indeterminate': {
-                                    m: 0,
-                                    color: theme.palette.primary.contrastText,
+                    <span>
+                        <Button
+                            disabled={selectAllDisabled}
+                            variant={'contained'}
+                            sx={theme => ({
+                                '.MuiCheckbox-root': {
+                                    'p': 0,
+                                    'm': 0,
+                                    'color': theme.palette.primary.contrastText,
+                                    '&.Mui-checked, &.MuiCheckbox-indeterminate':
+                                        {
+                                            m: 0,
+                                            color: theme.palette.primary
+                                                .contrastText,
+                                        },
                                 },
-                            },
-                        })}
-                        onClick={toggleSelectAll}
-                    >
-                        <Badge badgeContent={selectionLength} color="secondary">
-                            <Checkbox
-                                indeterminate={!allSelected && hasSelection}
-                                checked={allSelected}
-                                disabled={selectAllDisabled}
-                            />
-                        </Badge>
-                    </Button>
-                </span>
+                            })}
+                            onClick={toggleSelectAll}
+                        >
+                            <Badge
+                                badgeContent={selectionLength}
+                                color="secondary"
+                            >
+                                <Checkbox
+                                    indeterminate={!allSelected && hasSelection}
+                                    checked={allSelected}
+                                    disabled={selectAllDisabled}
+                                />
+                            </Badge>
+                        </Button>
+                    </span>
                 </Tooltip>
                 <LoadingButton
                     disabled={!canDownload}

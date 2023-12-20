@@ -186,12 +186,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
         },
     });
 
-    const {
-        submitting,
-        remoteErrors,
-        forbidNavigation,
-        reset,
-    } = usedFormSubmit;
+    const {submitting, remoteErrors, forbidNavigation, reset} = usedFormSubmit;
 
     React.useEffect(() => {
         if (item && 'new' !== item) {

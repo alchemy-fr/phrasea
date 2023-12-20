@@ -79,7 +79,9 @@ export default function UserPreferencesProvider({children}: Props) {
     return (
         <UserPreferencesContext.Provider value={value}>
             <ThemeEditorProvider
-                defaultTheme={createCachedThemeOptions(preferences.theme ?? 'default')}
+                defaultTheme={createCachedThemeOptions(
+                    preferences.theme ?? 'default'
+                )}
             >
                 <CssBaseline />
                 <GlobalStyles

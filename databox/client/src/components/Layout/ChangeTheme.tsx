@@ -15,9 +15,7 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type Props = {} & StackedModalProps;
 
-export default function ChangeTheme({
-    open,
-}: Props) {
+export default function ChangeTheme({open}: Props) {
     const {t} = useTranslation();
     const prefContext = useContext(UserPreferencesContext);
     const {preferences, updatePreference} = prefContext;

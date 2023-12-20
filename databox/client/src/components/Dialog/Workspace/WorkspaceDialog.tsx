@@ -16,8 +16,8 @@ import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes.ts';
 import {useForceLogin} from '@alchemy/react-auth';
-import config from "../../../config.ts";
-import {keycloakClient} from "../../../api/api-client.ts";
+import config from '../../../config.ts';
+import {keycloakClient} from '../../../api/api-client.ts';
 
 type Props = {};
 

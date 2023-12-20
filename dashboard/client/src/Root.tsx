@@ -1,14 +1,22 @@
-import {Alert, Chip, Container, Grid, Typography, useMediaQuery, useTheme} from '@mui/material';
+import {
+    Alert,
+    Chip,
+    Container,
+    Grid,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
-import ApiIcon from "@mui/icons-material/Api";
+import ApiIcon from '@mui/icons-material/Api';
 import SellIcon from '@mui/icons-material/Sell';
-import keycloakImg from './images/keycloak.png'
-import databoxImg from './images/databox.png'
-import uploaderImg from './images/uploader.png'
-import exposeImg from './images/expose.png'
-import notifyImg from './images/notify.png'
+import keycloakImg from './images/keycloak.png';
+import databoxImg from './images/databox.png';
+import uploaderImg from './images/uploader.png';
+import exposeImg from './images/expose.png';
+import notifyImg from './images/notify.png';
 
 type Props = {};
 
@@ -34,28 +42,31 @@ export default function Root({}: Props) {
 
     return (
         <Container>
-            {isLarge && <Typography
-                variant={'h1'}
-                sx={{
-                    '.MuiChip-root': {
-                        ml: 2,
-                        fontWeight: 400,
-                    }
-                }}
-            >
-                {STACK_NAME}
-                <Chip
-                    icon={<SellIcon/>}
-                    label={STACK_VERSION}
-                />
-            </Typography>}
+            {isLarge && (
+                <Typography
+                    variant={'h1'}
+                    sx={{
+                        '.MuiChip-root': {
+                            ml: 2,
+                            fontWeight: 400,
+                        },
+                    }}
+                >
+                    {STACK_NAME}
+                    <Chip icon={<SellIcon />} label={STACK_VERSION} />
+                </Typography>
+            )}
 
-            {isLarge && DEV_MODE && <Alert
-                sx={{
-                    mt: 2,
-                }}
-                severity={'info'}
-            >Developer Mode is enabled</Alert>}
+            {isLarge && DEV_MODE && (
+                <Alert
+                    sx={{
+                        mt: 2,
+                    }}
+                    severity={'info'}
+                >
+                    Developer Mode is enabled
+                </Alert>
+            )}
 
             <Grid
                 sx={{

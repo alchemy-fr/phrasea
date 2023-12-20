@@ -74,7 +74,7 @@ export default function Service({
                                 display: {
                                     xs: 'none',
                                     md: 'block',
-                                }
+                                },
                             }}
                         >
                             {description}

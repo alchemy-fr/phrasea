@@ -87,12 +87,13 @@ export default function TabbedDialog<P extends {}>({
                             );
                         })}
                     </Tabs>
-                    {currentTab && React.createElement(currentTab.component, {
-                        ...rest,
-                        ...currentTab.props,
-                        onClose: closeModal,
-                        minHeight,
-                    })}
+                    {currentTab &&
+                        React.createElement(currentTab.component, {
+                            ...rest,
+                            ...currentTab.props,
+                            onClose: closeModal,
+                            minHeight,
+                        })}
                 </BootstrapDialog>
             )}
         </RouteDialog>

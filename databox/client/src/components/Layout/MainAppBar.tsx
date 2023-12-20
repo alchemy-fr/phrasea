@@ -25,8 +25,8 @@ import {keycloakClient} from '../../api/api-client.ts';
 import {useUser} from '../../lib/auth.ts';
 import {DashboardMenu} from '@alchemy/react-ps';
 import {useModals} from '@alchemy/navigation';
-import ChangeTheme from "./ChangeTheme.tsx";
-import ThemeEditor from "./ThemeEditor.tsx";
+import ChangeTheme from './ChangeTheme.tsx';
+import ThemeEditor from './ThemeEditor.tsx';
 
 export const menuHeight = 42;
 
@@ -218,14 +218,19 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                         </MenuItem>
                                         <MenuItem
                                             onClick={() => {
-                                                openModal(ThemeEditor, {}, {
-                                                    forwardedContexts: [
-                                                        {
-                                                            context: ThemeEditorContext,
-                                                            value: themeEditorContext,
-                                                        }
-                                                    ]
-                                                });
+                                                openModal(
+                                                    ThemeEditor,
+                                                    {},
+                                                    {
+                                                        forwardedContexts: [
+                                                            {
+                                                                context:
+                                                                    ThemeEditorContext,
+                                                                value: themeEditorContext,
+                                                            },
+                                                        ],
+                                                    }
+                                                );
                                                 handleCloseUserMenu();
                                             }}
                                         >
@@ -263,15 +268,15 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
 
                         {config.displayServicesMenu && (
                             <div style={{flexGrow: 0}}>
-                                    <DashboardMenu
-                                        style={{
-                                            position: 'relative',
-                                            marginLeft: 5,
-                                        }}
-                                        bodyPadding={0}
-                                        size={35}
-                                        dashboardBaseUrl={config.dashboardBaseUrl}
-                                    />
+                                <DashboardMenu
+                                    style={{
+                                        position: 'relative',
+                                        marginLeft: 5,
+                                    }}
+                                    bodyPadding={0}
+                                    size={35}
+                                    dashboardBaseUrl={config.dashboardBaseUrl}
+                                />
                             </div>
                         )}
                     </Toolbar>
