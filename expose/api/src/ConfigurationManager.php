@@ -32,7 +32,7 @@ class ConfigurationManager
         ],
         'dashboardBaseUrl' => [
             'overridableInAdmin' => false,
-            'name' => 'DASHBOARD_URL',
+            'name' => 'DASHBOARD_CLIENT_URL',
             'type' => 'string',
         ],
         'mapBoxToken' => [

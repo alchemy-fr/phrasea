@@ -61,7 +61,7 @@
         devMode: castBoolean(env.DEV_MODE),
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
-        dashboardBaseUrl: env.DASHBOARD_URL,
+        dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
         analytics,
         appId: env.APP_ID || 'databox',

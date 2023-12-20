@@ -1,12 +1,4 @@
-import {
-    Alert,
-    Chip,
-    Container,
-    Grid,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from '@mui/material';
+import {Alert, Chip, Container, Grid, Typography, useMediaQuery, useTheme,} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
@@ -17,6 +9,7 @@ import databoxImg from './images/databox.png';
 import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
 import notifyImg from './images/notify.png';
+import DashboardBar from "./DashboardBar";
 
 type Props = {};
 
@@ -26,7 +19,6 @@ export default function Dashboard({}: Props) {
         EXPOSE_API_URL,
         UPLOADER_API_URL,
         NOTIFY_API_URL,
-        KEYCLOAK_URL,
         DATABOX_CLIENT_URL,
         EXPOSE_CLIENT_URL,
         UPLOADER_CLIENT_URL,
@@ -35,7 +27,7 @@ export default function Dashboard({}: Props) {
         STACK_VERSION,
     } = config.env;
 
-    console.debug('config.env', config.env);
+    console.debug('config', config);
 
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
@@ -43,18 +35,23 @@ export default function Dashboard({}: Props) {
     return (
         <Container>
             {isLarge && (
-                <Typography
-                    variant={'h1'}
-                    sx={{
-                        '.MuiChip-root': {
-                            ml: 2,
-                            fontWeight: 400,
-                        },
-                    }}
-                >
-                    {STACK_NAME}
-                    <Chip icon={<SellIcon />} label={STACK_VERSION} />
-                </Typography>
+                <DashboardBar>
+                    <Typography
+                        variant={'h1'}
+                        sx={{
+                            '.MuiChip-root': {
+                                ml: 2,
+                            },
+                        }}
+                    >
+                        {STACK_NAME}
+                        <Chip
+                            icon={<SellIcon/>}
+                          label={STACK_VERSION}
+                            color={'info'}
+                        />
+                    </Typography>
+                </DashboardBar>
             )}
 
             {isLarge && DEV_MODE && (
@@ -76,14 +73,14 @@ export default function Dashboard({}: Props) {
                 spacing={2}
             >
                 <Service
-                    mainUrl={KEYCLOAK_URL}
+                    mainUrl={config.keycloakUrl}
                     title={`Identity Manager`}
                     description={`Keycloak IAM`}
                     logo={keycloakImg}
                     links={[
                         {
-                            icon: <ApiIcon />,
-                            href: KEYCLOAK_URL,
+                            icon: <ApiIcon/>,
+                            href: config.keycloakUrl,
                             title: `Keycloak Home`,
                         },
                     ]}
@@ -123,7 +120,7 @@ export default function Dashboard({}: Props) {
                         logo={notifyImg}
                         links={[
                             {
-                                icon: <ApiIcon />,
+                                icon: <ApiIcon/>,
                                 href: NOTIFY_API_URL,
                                 title: `API documentation of Notify`,
                             },

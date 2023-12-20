@@ -1,22 +1,16 @@
-import * as React from 'react';
 import {useContext} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {useTranslation} from 'react-i18next';
-import {Divider, ListItemIcon, ListItemText} from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
+import {ListItemIcon, ListItemText} from '@mui/material';
 import {SearchContext} from '../Media/Search/SearchContext';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import {zIndex} from '../../themes/zIndex';
 import {useKeycloakUrls} from '@alchemy/react-auth';
 import {ThemeEditorContext} from '@alchemy/theme-editor';
@@ -27,6 +21,7 @@ import {DashboardMenu} from '@alchemy/react-ps';
 import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme.tsx';
 import ThemeEditor from './ThemeEditor.tsx';
+import {UserMenu} from '@alchemy/phrasea-ui';
 
 export const menuHeight = 42;
 
@@ -39,10 +34,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const themeEditorContext = useContext(ThemeEditorContext);
-    const userContext = useUser();
-    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-        null
-    );
+    const {user, logout} = useUser();
     const searchContext = useContext(SearchContext);
     const {getAccountUrl, getLoginUrl} = useKeycloakUrls({
         keycloakClient,
@@ -51,15 +43,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     const onTitleClick = () =>
         searchContext.selectWorkspace(undefined, undefined, true);
 
-    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElUser(event.currentTarget);
-    };
-
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
-
-    const username = userContext.user?.username;
+    const username = user?.username;
 
     return (
         <div
@@ -147,63 +131,16 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     {t('menu.sign_in', 'Sign in')}
                                 </MenuItem>
                             ) : (
-                                <>
-                                    <Tooltip title="Open settings">
-                                        <IconButton
-                                            onClick={handleOpenUserMenu}
-                                            sx={{p: 0}}
-                                        >
-                                            <Avatar
-                                                sx={{
-                                                    width: menuHeight - 8,
-                                                    height: menuHeight - 8,
-                                                    bgcolor: 'secondary.main',
-                                                    color: 'secondary.contrastText',
-                                                }}
-                                                alt={username}
-                                                src="/broken-image.jpg"
-                                            >
-                                                {(
-                                                    username[0] || 'U'
-                                                ).toUpperCase()}
-                                            </Avatar>
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Menu
-                                        sx={{mt: `${menuHeight - 10}px`}}
-                                        id="menu-appbar"
-                                        anchorEl={anchorElUser}
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        keepMounted
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        open={Boolean(anchorElUser)}
-                                        onClose={handleCloseUserMenu}
-                                    >
-                                        <MenuItem
-                                            component={'a'}
-                                            href={getAccountUrl()}
-                                        >
-                                            <ListItemIcon>
-                                                <AccountBoxIcon />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'menu.account',
-                                                    'My account'
-                                                )}
-                                                secondary={username}
-                                            />
-                                        </MenuItem>
+                                <UserMenu
+                                    menuHeight={menuHeight}
+                                    username={username}
+                                    accountUrl={getAccountUrl()}
+                                    onLogout={logout}
+                                    actions={({closeMenu}) => <>
                                         <MenuItem
                                             onClick={() => {
                                                 openModal(ChangeTheme);
-                                                handleCloseUserMenu();
+                                                closeMenu();
                                             }}
                                         >
                                             <ListItemIcon>
@@ -225,13 +162,13 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                         forwardedContexts: [
                                                             {
                                                                 context:
-                                                                    ThemeEditorContext,
+                                                                ThemeEditorContext,
                                                                 value: themeEditorContext,
                                                             },
                                                         ],
                                                     }
                                                 );
-                                                handleCloseUserMenu();
+                                                closeMenu();
                                             }}
                                         >
                                             <ListItemIcon>
@@ -244,25 +181,8 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                 )}
                                             />
                                         </MenuItem>
-                                        <Divider light />
-                                        <MenuItem
-                                            key={'logout'}
-                                            onClick={() =>
-                                                userContext.logout!()
-                                            }
-                                        >
-                                            <ListItemIcon>
-                                                <LogoutIcon />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                                primary={t(
-                                                    'menu.logout',
-                                                    'Logout'
-                                                )}
-                                            />
-                                        </MenuItem>
-                                    </Menu>
-                                </>
+                                    </>}
+                                />
                             )}
                         </Box>
 

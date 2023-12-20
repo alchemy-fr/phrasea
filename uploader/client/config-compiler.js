@@ -51,7 +51,7 @@
         clientId: env.CLIENT_ID,
         devMode: castBoolean(env.DEV_MODE),
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
-        dashboardBaseUrl: env.DASHBOARD_URL,
+        dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
         allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
         appId: env.APP_ID || 'uploader',
         sentryDsn: env.SENTRY_DSN,

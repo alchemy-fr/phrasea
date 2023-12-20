@@ -1,9 +1,9 @@
 import ReactDOM from 'react-dom/client';
-import Dashboard from './Dashboard.tsx';
 import React from 'react';
 import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {scrollbarWidth, theme} from './theme.ts';
+import Root from "./Root.tsx";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     },
                 })}
             />
-            <Dashboard />
+            <Root/>
         </ThemeEditorProvider>
     </React.StrictMode>
 );

@@ -83,7 +83,7 @@ services:
       - KEYCLOAK_REALM_NAME
       - MATOMO_HOST
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_URL
+      - DASHBOARD_CLIENT_URL
       - AUTO_CONNECT_IDP
       - MATOMO_URL
       - SENTRY_DSN=${CLIENT_SENTRY_DSN}
@@ -121,7 +121,7 @@ services:
       - RABBITMQ_SSL
       - REPORT_API_URL
       - DISPLAY_SERVICES_MENU
-      - DASHBOARD_URL
+      - DASHBOARD_CLIENT_URL
       - NEWRELIC_ENABLED
       - NEWRELIC_LICENSE_KEY
       - SENTRY_DSN=${PHP_SENTRY_DSN}
@@ -634,6 +634,10 @@ services:
       - UPLOADER_API_URL
       - UPLOADER_CLIENT_URL
       - ZIPPY_URL
+      - SENTRY_DSN
+      - SENTRY_ENVIRONMENT
+      - SENTRY_RELEASE
+      - CLIENT_ID=${DASHBOARD_CLIENT_ID}
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
@@ -972,9 +976,11 @@ services:
       - DATABOX_CLIENT_ID
       - EXPOSE_CLIENT_ID
       - UPLOADER_CLIENT_ID
+      - DASHBOARD_CLIENT_ID
       - DATABOX_CLIENT_URL
       - EXPOSE_CLIENT_URL
       - UPLOADER_CLIENT_URL
+      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_HOST=db
