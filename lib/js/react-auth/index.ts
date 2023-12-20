@@ -6,6 +6,7 @@ import {useKeycloakUrls} from "./src/hooks/useKeycloakUrls";
 import AuthorizationCodePage from "./src/components/AuthorizationCodePage";
 import MatomoUser from "./src/components/MatomoUser";
 import {useForceLogin} from "./src/hooks/useForceLogin";
+import SessionAboutToExpireModal from "./src/components/SessionAboutToExpireModal";
 
 export {
     AuthenticationContext,
@@ -17,6 +18,7 @@ export {
     useKeycloakUrls,
     MatomoUser,
     useForceLogin,
+    SessionAboutToExpireModal,
 };
 export type {
     TAuthContext,

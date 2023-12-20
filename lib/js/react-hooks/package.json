@@ -6,7 +6,8 @@
     "src/useDebounceLoader.ts",
     "src/useDebounceScroll.ts",
     "src/useEffectOnce.ts",
-    "src/useWindowSize.ts"
+    "src/useWindowSize.ts",
+    "src/useTimeout.ts"
   ],
   "dependencies": {},
   "peerDependencies": {

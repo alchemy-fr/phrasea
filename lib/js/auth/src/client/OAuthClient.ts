@@ -172,10 +172,7 @@ export default class OAuthClient {
             return;
         }
 
-        const index = this.listeners[event].findIndex(({h}) => h === callback);
-        if (index >= 0) {
-            delete this.listeners[event][index];
-        }
+        this.listeners[event] = this.listeners[event]!.filter(({h}) => h !== callback);
     }
 
     public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<AuthTokens> {

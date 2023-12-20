@@ -59,7 +59,6 @@ export default function Service({
                             backgroundColor: theme.palette.background.default,
                         })}
                         image={logo}
-                        title="green iguana"
                     />
                 </AnchorLink>
                 <CardContent>

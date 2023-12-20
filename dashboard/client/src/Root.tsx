@@ -69,6 +69,13 @@ export default function Root({}: Props) {
                     title={`Identity Manager`}
                     description={`Keycloak IAM`}
                     logo={keycloakImg}
+                    links={[
+                        {
+                            icon: <ApiIcon />,
+                            href: KEYCLOAK_URL,
+                            title: `Keycloak Home`,
+                        },
+                    ]}
                 />
                 {DATABOX_API_URL && (
                     <ClientApp

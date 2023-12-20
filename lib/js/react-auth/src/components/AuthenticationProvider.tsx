@@ -1,14 +1,17 @@
 import React, {PropsWithChildren, useCallback} from 'react';
 import {
-    OAuthClient,
-    isValidSession,
-    AuthTokens,
-    logoutEventType,
     AuthEventHandler,
-    LogoutEvent
+    AuthTokens,
+    isValidSession,
+    LogoutEvent,
+    logoutEventType,
+    OAuthClient,
+    RefreshTokenEvent, refreshTokenEventType
 } from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {LogoutFunction, SetTokens} from "../context/AuthenticationContext";
+import SessionExpireContainer from "./SessionExpireContainer";
+import {StayInFunction} from "./SessionAboutToExpireModal";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
@@ -27,16 +30,23 @@ export default function AuthenticationProvider({
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
 
     React.useEffect(() => {
-        const listener: AuthEventHandler<LogoutEvent> = async (event) => {
+        const logoutListener: AuthEventHandler<LogoutEvent> = async (event) => {
             if (!event.preventDefault) {
                 setTokens(undefined);
             }
         };
+        const refreshTokenListener: AuthEventHandler<RefreshTokenEvent> = async (event) => {
+            if (!event.preventDefault) {
+                setTokens(event.tokens);
+            }
+        };
 
-        oauthClient.registerListener(logoutEventType, listener);
+        oauthClient.registerListener(logoutEventType, logoutListener);
+        oauthClient.registerListener(refreshTokenEventType, refreshTokenListener);
 
         return () => {
-            oauthClient.unregisterListener(logoutEventType, listener);
+            oauthClient.unregisterListener(logoutEventType, logoutListener);
+            oauthClient.unregisterListener(refreshTokenEventType, refreshTokenListener);
         }
     }, [oauthClient]);
 
@@ -85,6 +95,10 @@ export default function AuthenticationProvider({
         return isValidSession(tokens);
     };
 
+    const stayIn = React.useCallback<StayInFunction>(async () => {
+        await oauthClient.getTokenFromRefreshToken();
+    }, [oauthClient]);
+
     return <AuthenticationContext.Provider
         value={{
             tokens,
@@ -96,6 +110,10 @@ export default function AuthenticationProvider({
             isAuthenticated,
         }}
     >
+        <SessionExpireContainer
+            tokens={tokens}
+            stayIn={stayIn}
+        />
         {children}
     </AuthenticationContext.Provider>
 }
