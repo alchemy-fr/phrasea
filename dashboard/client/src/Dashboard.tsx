@@ -20,7 +20,7 @@ import notifyImg from './images/notify.png';
 
 type Props = {};
 
-export default function Root({}: Props) {
+export default function Dashboard({}: Props) {
     const {
         DATABOX_API_URL,
         EXPOSE_API_URL,

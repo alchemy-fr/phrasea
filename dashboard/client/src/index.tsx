@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import Root from './Root.tsx';
+import Dashboard from './Dashboard.tsx';
 import React from 'react';
 import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     },
                 })}
             />
-            <Root />
+            <Dashboard />
         </ThemeEditorProvider>
     </React.StrictMode>
 );
