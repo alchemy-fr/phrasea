@@ -326,7 +326,11 @@ export default class OAuthClient {
 
         const t = this.storage.getItem(this.tokenStorageKey);
         if (t) {
-            return this.tokensCache = JSON.parse(t) as AuthTokens;
+            const tokens = JSON.parse(t) as AuthTokens;
+
+            this.handleSessionTimeout(tokens)
+
+            return this.tokensCache = tokens;
         }
     }
 

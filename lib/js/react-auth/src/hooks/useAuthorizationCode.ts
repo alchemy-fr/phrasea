@@ -21,15 +21,21 @@ export function useAuthorizationCode({
     successUri,
     errorHandler,
     navigate,
-}: Props) {
+    allowNoCode,
+}: {
+    allowNoCode?: boolean;
+} & Props) {
     const {setTokens} = useAuth();
     const [error, setError] = React.useState<any>();
     const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
 
     useEffectOnce(() => {
         const code = urlParams.get('code');
         if (!code) {
-            setError(new Error(`Missing authorization code.`));
+            if (!allowNoCode) {
+                setError(new Error(`Missing authorization code.`));
+            }
 
             return;
         }
@@ -84,5 +90,6 @@ export function useAuthorizationCode({
 
     return {
         error,
+        hasCode: Boolean(code),
     }
 }

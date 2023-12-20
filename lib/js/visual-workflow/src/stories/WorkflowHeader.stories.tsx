@@ -32,7 +32,6 @@ type Story = StoryObj<typeof WorkflowHeader>;
 
 const refresh = async (): Promise<void> => {
     return new Promise<void>((resolve) => {
-        console.log(`Refreshing workflow`);
         setTimeout(() => {
             resolve();
         }, 1000);

@@ -9,7 +9,6 @@ export function useTimeout(handler: () => void | undefined, delay: number | unde
         }
 
         if (undefined !== delay && handler) {
-            console.log('setTimeout delay', delay);
             timeoutRef.current = setTimeout(handler, delay);
         }
 

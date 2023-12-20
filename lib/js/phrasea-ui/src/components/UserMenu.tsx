@@ -12,7 +12,7 @@ import {useTranslation} from 'react-i18next';
 type Props = {
     actions?: (props: {
         closeMenu: () => void,
-    }) => ReactNode;
+    }) => ReactNode[];
     accountUrl?: string;
     onLogout?: () => void;
     menuHeight: number;
@@ -38,6 +38,48 @@ export default function UserMenu({
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
+    let menuItems: ReactNode[] = [];
+    if (accountUrl) {
+        menuItems.push(<MenuItem
+            component={'a'}
+            href={accountUrl}
+            key={'account'}
+        >
+            <ListItemIcon>
+                <AccountBoxIcon/>
+            </ListItemIcon>
+            <ListItemText
+                primary={t(
+                    'ui:menu.account',
+                    'My account'
+                )}
+                secondary={username}
+            />
+        </MenuItem>)
+    }
+    if (actions) {
+        menuItems = menuItems.concat(actions({
+            closeMenu: handleCloseUserMenu,
+        }));
+    }
+    if (onLogout) {
+        menuItems.push(<Divider key={'logout_div'} light/>);
+        menuItems.push(<MenuItem
+            key={'logout'}
+            onClick={onLogout}
+        >
+            <ListItemIcon>
+                <LogoutIcon/>
+            </ListItemIcon>
+            <ListItemText
+                primary={t(
+                    'ui:menu.logout',
+                    'Logout'
+                )}
+            />
+        </MenuItem>);
+    }
 
     return <>
         <Tooltip title="Open settings">
@@ -75,41 +117,7 @@ export default function UserMenu({
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
         >
-            {accountUrl && <MenuItem
-                component={'a'}
-                href={accountUrl}
-            >
-                <ListItemIcon>
-                    <AccountBoxIcon/>
-                </ListItemIcon>
-                <ListItemText
-                    primary={t(
-                        'ui:menu.account',
-                        'My account'
-                    )}
-                    secondary={username}
-                />
-            </MenuItem>}
-            {actions && actions({
-                closeMenu: handleCloseUserMenu,
-            })}
-            {onLogout && <>
-                <Divider light/>
-                <MenuItem
-                    key={'logout'}
-                    onClick={onLogout}
-                >
-                    <ListItemIcon>
-                        <LogoutIcon/>
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={t(
-                            'ui:menu.logout',
-                            'Logout'
-                        )}
-                    />
-                </MenuItem>
-            </>}
+            {menuItems}
         </Menu>
     </>
 }

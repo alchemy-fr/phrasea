@@ -10,10 +10,16 @@ import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
 import notifyImg from './images/notify.png';
 import DashboardBar from "./DashboardBar";
+import {useKeycloakUser} from '@alchemy/react-auth'
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 type Props = {};
 
 export default function Dashboard({}: Props) {
+    const theme = useTheme();
+    const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
+    const {user} = useKeycloakUser();
+
     const {
         DATABOX_API_URL,
         EXPOSE_API_URL,
@@ -29,9 +35,6 @@ export default function Dashboard({}: Props) {
 
     console.debug('config', config);
 
-    const theme = useTheme();
-    const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
-
     return (
         <Container>
             {isLarge && (
@@ -45,16 +48,16 @@ export default function Dashboard({}: Props) {
                         }}
                     >
                         {STACK_NAME}
-                        <Chip
+                        {user && <Chip
                             icon={<SellIcon/>}
                           label={STACK_VERSION}
                             color={'info'}
-                        />
+                        />}
                     </Typography>
                 </DashboardBar>
             )}
 
-            {isLarge && DEV_MODE && (
+            {user && isLarge && DEV_MODE && (
                 <Alert
                     sx={{
                         mt: 2,
@@ -73,15 +76,15 @@ export default function Dashboard({}: Props) {
                 spacing={2}
             >
                 <Service
-                    mainUrl={config.keycloakUrl}
+                    mainUrl={`${config.keycloakUrl}/admin/${config.realmName}/console`}
                     title={`Identity Manager`}
                     description={`Keycloak IAM`}
                     logo={keycloakImg}
                     links={[
                         {
-                            icon: <ApiIcon/>,
-                            href: config.keycloakUrl,
-                            title: `Keycloak Home`,
+                            icon: <AdminPanelSettingsIcon />,
+                            href: `${config.keycloakUrl}/admin/master/console`,
+                            title: `Master Admin`,
                         },
                     ]}
                 />

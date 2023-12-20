@@ -1,12 +1,17 @@
 import {oauthClient} from './lib/apiClient';
 import {AuthenticationProvider, SessionExpireContainer, useAuthorizationCode} from '@alchemy/react-auth';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import Dashboard from "./Dashboard.tsx";
 
 type Props = {};
 
 export default function Root({}: Props) {
-    useAuthorizationCode({
+    const {
+        error,
+        hasCode,
+    } = useAuthorizationCode({
         oauthClient,
+        allowNoCode: true,
         navigate: (path, {replace} = {}) => {
             if (replace) {
                 document.location.replace(path);
@@ -17,8 +22,15 @@ export default function Root({}: Props) {
         successUri: '/'
     });
 
+    if (error) {
+        return <div>
+            {error.toString()}
+        </div>
+    }
+
     return (
         <AuthenticationProvider oauthClient={oauthClient}>
+            {hasCode && <FullPageLoader/>}
             <SessionExpireContainer/>
             <Dashboard />
         </AuthenticationProvider>

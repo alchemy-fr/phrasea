@@ -136,8 +136,9 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     username={username}
                                     accountUrl={getAccountUrl()}
                                     onLogout={logout}
-                                    actions={({closeMenu}) => <>
+                                    actions={({closeMenu}) => [
                                         <MenuItem
+                                            key={'change_theme'}
                                             onClick={() => {
                                                 openModal(ChangeTheme);
                                                 closeMenu();
@@ -152,8 +153,9 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                     'Change theme'
                                                 )}
                                             />
-                                        </MenuItem>
+                                        </MenuItem>,
                                         <MenuItem
+                                            key={'theme_editor'}
                                             onClick={() => {
                                                 openModal(
                                                     ThemeEditor,
@@ -181,7 +183,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                 )}
                                             />
                                         </MenuItem>
-                                    </>}
+                                    ]}
                                 />
                             )}
                         </Box>

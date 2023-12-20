@@ -33,6 +33,7 @@ export default function AuthenticationProvider({
                 setTokens(undefined);
             }
         };
+
         const refreshTokenListener: AuthEventHandler<RefreshTokenEvent> = async (event) => {
             if (!event.preventDefault) {
                 setTokens(event.tokens);
