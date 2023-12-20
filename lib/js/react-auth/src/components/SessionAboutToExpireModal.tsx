@@ -4,21 +4,15 @@ import {useTranslation} from 'react-i18next';
 import React from "react";
 import {useAuth} from "../hooks/useAuth";
 
-export type StayInFunction = () => Promise<void>;
-
 type Props = {
-    expiresAt: number | undefined;
-    stayIn: StayInFunction;
     onClose: () => void;
 };
 
 export default function SessionAboutToExpireModal({
-    expiresAt,
-    stayIn,
     onClose,
 }: Props) {
     const {t} = useTranslation();
-    const {logout} = useAuth();
+    const {logout, refreshToken} = useAuth();
     const [refreshing, setRefreshing] = React.useState(false);
 
     const handleClose = () => {
@@ -26,9 +20,12 @@ export default function SessionAboutToExpireModal({
     }
 
     const stay = async () => {
+        if (!refreshToken) {
+            return;
+        }
         setRefreshing(true);
         try {
-            await stayIn();
+            await refreshToken();
             handleClose();
         } catch (e: any) {
             if (e.isAxiosError && e.response?.status === 401) {
@@ -39,12 +36,11 @@ export default function SessionAboutToExpireModal({
         }
     }
 
-    const expired = undefined === expiresAt;
+    const expired = !Boolean(refreshToken);
 
     return <Dialog
         open={true}
         keepMounted
-        onClose={handleClose}
     >
         <DialogTitle>{
             expired ?

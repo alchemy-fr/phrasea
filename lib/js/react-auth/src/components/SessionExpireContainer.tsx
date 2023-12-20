@@ -1,18 +1,12 @@
 import React from 'react';
 import {useTimeout} from "@alchemy/react-hooks/src/useTimeout";
-import SessionAboutToExpireModal, {StayInFunction} from "./SessionAboutToExpireModal";
-import {AuthTokens} from "@alchemy/auth";
+import SessionAboutToExpireModal from "./SessionAboutToExpireModal";
+import {useAuth} from "../hooks/useAuth";
 
+type Props = {};
 
-type Props = {
-    stayIn: StayInFunction;
-    tokens: AuthTokens | undefined;
-};
-
-export default function SessionExpireContainer({
-    tokens,
-    stayIn,
-}: Props) {
+export default function SessionExpireContainer({}: Props) {
+    const {tokens} = useAuth();
     const [displayExpire, setDisplayExpire] = React.useState(false);
 
     const displayExpireModal = React.useCallback(() => {
@@ -34,8 +28,6 @@ export default function SessionExpireContainer({
 
     return <>
         {displayExpire && <SessionAboutToExpireModal
-            expiresAt={tokens?.expiresAt}
-            stayIn={stayIn}
             onClose={onClose}
         />}
     </>

@@ -7,6 +7,7 @@ import AuthorizationCodePage from "./src/components/AuthorizationCodePage";
 import MatomoUser from "./src/components/MatomoUser";
 import {useForceLogin} from "./src/hooks/useForceLogin";
 import SessionAboutToExpireModal from "./src/components/SessionAboutToExpireModal";
+import SessionExpireContainer from "./src/components/SessionExpireContainer";
 
 export {
     AuthenticationContext,
@@ -19,6 +20,7 @@ export {
     MatomoUser,
     useForceLogin,
     SessionAboutToExpireModal,
+    SessionExpireContainer,
 };
 export type {
     TAuthContext,

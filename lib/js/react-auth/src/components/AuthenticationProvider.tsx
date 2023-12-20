@@ -9,9 +9,7 @@ import {
     RefreshTokenEvent, refreshTokenEventType
 } from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
-import AuthenticationContext, {LogoutFunction, SetTokens} from "../context/AuthenticationContext";
-import SessionExpireContainer from "./SessionExpireContainer";
-import {StayInFunction} from "./SessionAboutToExpireModal";
+import AuthenticationContext, {LogoutFunction, RefreshTokenFunction, SetTokens} from "../context/AuthenticationContext";
 
 type Props = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
@@ -55,6 +53,10 @@ export default function AuthenticationProvider({
         onNewTokens && onNewTokens(tokens);
     }, [setTokens]);
 
+    const refreshToken = React.useCallback<RefreshTokenFunction>(async () => {
+        return await oauthClient.getTokenFromRefreshToken();
+    }, [oauthClient]);
+
     const setRedirectPath = React.useCallback((path: string | undefined) => {
         redirectPath.current = path;
 
@@ -69,7 +71,10 @@ export default function AuthenticationProvider({
         setRedirectPath(undefined);
     }, [setRedirectPath]);
 
-    const logout = useCallback<LogoutFunction>(async (redirectPathAfterLogin?: string, quiet = false) => {
+    const logout = useCallback<LogoutFunction>(async ({
+        redirectPathAfterLogin,
+        ...options
+    } = {}) => {
         const handler = () => {
             if (redirectPathAfterLogin) {
                 setRedirectPath(redirectPathAfterLogin);
@@ -80,8 +85,7 @@ export default function AuthenticationProvider({
             }
         }
 
-        const event = await oauthClient.logout({quiet});
-        console.log('event', event);
+        const event = await oauthClient.logout(options);
         if (event?.preventDefault) {
             handler();
 
@@ -95,10 +99,6 @@ export default function AuthenticationProvider({
         return isValidSession(tokens);
     };
 
-    const stayIn = React.useCallback<StayInFunction>(async () => {
-        await oauthClient.getTokenFromRefreshToken();
-    }, [oauthClient]);
-
     return <AuthenticationContext.Provider
         value={{
             tokens,
@@ -108,12 +108,9 @@ export default function AuthenticationProvider({
             redirectPath,
             clearRedirectPath,
             isAuthenticated,
+            refreshToken: tokens ? refreshToken : undefined,
         }}
     >
-        <SessionExpireContainer
-            tokens={tokens}
-            stayIn={stayIn}
-        />
         {children}
     </AuthenticationContext.Provider>
 }
