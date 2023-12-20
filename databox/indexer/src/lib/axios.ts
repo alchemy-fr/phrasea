@@ -97,19 +97,5 @@ export function createHttpClient({
         }
     );
 
-    client.interceptors.request.use(
-        config => {
-            logger.debug(`${config.method.toUpperCase()} ${config.url}
-${JSON.stringify(config.headers)}${
-                config.data ? `\n${JSON.stringify(config.data)}` : ''
-            }`);
-
-            return config;
-        },
-        error => {
-            return Promise.reject(error);
-        }
-    );
-
     return client;
 }
