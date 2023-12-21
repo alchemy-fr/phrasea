@@ -7,7 +7,7 @@ import {
     RenditionInput,
 } from '../../databox/types';
 
-const renditionDefinitionMapping = {
+const renditionDefinitionMapping: Record<string, string> = {
     document: 'original',
 };
 const renditionDefinitionBlacklist = ['original'];
@@ -82,6 +82,6 @@ export function createAsset(
     };
 }
 
-export const attributeTypesEquivalence = {
+export const attributeTypesEquivalence: Record<string, string> = {
     string: 'text',
 };

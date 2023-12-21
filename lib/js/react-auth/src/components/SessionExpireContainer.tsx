@@ -18,9 +18,9 @@ export default function SessionExpireContainer({}: Props) {
     }, []);
 
     let delay: number | undefined = undefined;
-    if (tokens) {
+    if (tokens?.refreshExpiresAt) {
         const beforeEnd = 60000;
-        const end = tokens.expiresAt * 1000 - new Date().getTime();
+        const end = tokens.refreshExpiresAt * 1000 - new Date().getTime();
         delay = Math.max(end - beforeEnd, 5000)
     }
 

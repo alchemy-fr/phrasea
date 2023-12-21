@@ -10,7 +10,7 @@ function loadConfig(): object {
 }
 
 function replaceEnv(str: string): string | boolean | number | undefined {
-    let transform;
+    let transform: string | undefined;
     let hasEnv = false;
     let result: string | undefined = str.replace(
         /%env\(([^^)]+)\)%/g,
@@ -62,8 +62,8 @@ function parseConfig(config: any): any {
         if (Array.isArray(config)) {
             return config.map(parseConfig);
         } else {
-            const sub = {};
-            Object.keys(config).forEach(k => {
+            const sub: Record<string, any> = {};
+            Object.keys(config).forEach((k: string) => {
                 sub[k] = parseConfig(config[k]);
             });
             return sub;
@@ -84,10 +84,11 @@ export function getConfig(
     let p = root;
 
     for (let i = 0; i < parts.length; ++i) {
-        const k = parts[i];
+        const k = parts[i] as string;
         if (!p.hasOwnProperty(k)) {
             return defaultValue;
         }
+        // @ts-expect-error any
         p = p[parts[i]];
     }
 

@@ -62,6 +62,7 @@ class WorkspaceDuplicateManager
             $i->setWorkspace($to);
             $i->setClass($classMap[$item->getClass()->getId()]);
             $i->setPriority($item->getPriority());
+            $i->setKey($item->getKey());
             $i->setUseAsOriginal($item->isUseAsOriginal());
             $i->setUseAsPreview($item->isUseAsPreview());
             $i->setUseAsThumbnail($item->isUseAsThumbnail());

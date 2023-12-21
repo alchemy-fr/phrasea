@@ -191,7 +191,7 @@ export class DataboxClient {
         return r;
     }
 
-    async createRenditionClass(data): Promise<string> {
+    async createRenditionClass(data: object): Promise<string> {
         const res = await this.client.post(`/rendition-classes`, data);
 
         return res.data.id;
@@ -207,7 +207,7 @@ export class DataboxClient {
         return res.data['hydra:member'];
     }
 
-    async createRenditionDefinition(data): Promise<void> {
+    async createRenditionDefinition(data: object): Promise<void> {
         await this.client.post(`/rendition-definitions`, data);
     }
 

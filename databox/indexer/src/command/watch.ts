@@ -4,10 +4,13 @@ import {runServer} from '../server';
 import {IndexLocation} from '../types/config';
 import {getConfig} from '../configLoader';
 import {watchers} from '../watchers';
+import {CommandCommonOptions} from "../types";
+import {applyCommonOptions} from "./commandUtil";
 
-export type WatchOptions = {};
+export type WatchOptions = {} & CommandCommonOptions;
 
 export default async function watchCommand(options: WatchOptions) {
+    applyCommonOptions(options);
     const mainLogger = createLogger('app');
     const databoxLogger = createLogger('databox');
 

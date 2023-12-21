@@ -59,15 +59,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 await client.getMetaStruct(dm.databoxId)
             );
             for (const m of metaStructure) {
-                logger.debug(`Creating "${m.name}" attribute definition`);
+                logger.info(`Creating "${m.name}" attribute definition`);
                 const id = m.id.toString();
 
                 if (!attrClassIndex[defaultPublicClass]) {
+                    const name = 'Phraseanet Public';
+                    logger.info(`Creating "${name}" attribute class`);
                     attrClassIndex[defaultPublicClass] =
                         await databoxClient.createAttributeClass(
                             defaultPublicClass,
                             {
-                                name: 'Phraseanet Public',
+                                name,
                                 public: true,
                                 editable: true,
                                 workspace: `/workspaces/${workspaceId}`,
@@ -104,7 +106,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const subDefs = await client.getSubDefinitions(dm.databoxId);
             for (const sd of subDefs) {
                 if (!classIndex[sd.class]) {
-                    logger.debug(`Creating rendition class "${sd.class}" `);
+                    logger.info(`Creating rendition class "${sd.class}" `);
                     classIndex[sd.class] =
                         await databoxClient.createRenditionClass({
                             name: sd.class,
@@ -117,6 +119,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 );
                 await databoxClient.createRenditionDefinition({
                     name: sd.name,
+                    key: `${sd.name}_${sd.type ?? ''}`,
                     class: `/rendition-classes/${classIndex[sd.class]}`,
                     useAsOriginal: sd.name === 'document',
                     useAsPreview: sd.name === 'preview',

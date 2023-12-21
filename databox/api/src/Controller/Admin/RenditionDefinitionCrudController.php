@@ -43,6 +43,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         $id = IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
+        $key = TextField::new('key');
         $class = AssociationField::new('class');
         $pickSourceFile = Field::new('pickSourceFile');
         $useAsOriginal = Field::new('useAsOriginal');
@@ -59,11 +60,11 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $download, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $definition, $priority, $createdAt, $updatedAt, $workspace, $class, $renditions];
+            return [$id, $name, $key, $download, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $definition, $priority, $createdAt, $updatedAt, $workspace, $class, $renditions];
         } elseif (Crud::PAGE_NEW === $pageName) {
             return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
         } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
+            return [$workspace, $name, $key, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
         }
 
         return [];
