@@ -172,10 +172,7 @@ export default class OAuthClient {
             return;
         }
 
-        const index = this.listeners[event].findIndex(({h}) => h === callback);
-        if (index >= 0) {
-            delete this.listeners[event][index];
-        }
+        this.listeners[event] = this.listeners[event]!.filter(({h}) => h !== callback);
     }
 
     public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<AuthTokens> {
@@ -329,7 +326,11 @@ export default class OAuthClient {
 
         const t = this.storage.getItem(this.tokenStorageKey);
         if (t) {
-            return this.tokensCache = JSON.parse(t) as AuthTokens;
+            const tokens = JSON.parse(t) as AuthTokens;
+
+            this.handleSessionTimeout(tokens)
+
+            return this.tokensCache = tokens;
         }
     }
 

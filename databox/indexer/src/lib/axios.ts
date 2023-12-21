@@ -87,8 +87,13 @@ export function createHttpClient({
                     };
                 }
 
+                logger.debug(
+                    `Error response headers (${error.config?.url}): ` +
+                        JSON.stringify(error.response.headers, undefined, 2)
+                );
                 logger.error(
-                    `Error response (${error.config.url}): ` + JSON.stringify(filtered, undefined, 2)
+                    `Error response (${error.config?.url}): ` +
+                        JSON.stringify(filtered, undefined, 2)
                 );
             }
 
@@ -96,14 +101,22 @@ export function createHttpClient({
         }
     );
 
+    const obfuscate = (str: string) => str.replace(/([\w._-]{5})[\w._-]{30,}/g, '$1***');
+
     client.interceptors.request.use(
-        (config) => {
-            logger.debug(`${config.method.toUpperCase()} ${config.url}
-${JSON.stringify(config.headers)}${config.data ? `\n${JSON.stringify(config.data)}` : ''}`);
+        config => {
+            if (!config) {
+                return config;
+            }
+
+            logger.debug(`${config.method?.toUpperCase()} ${config.url}
+${obfuscate(JSON.stringify(config.headers, null, 2))}${
+                config.data ? `\n${obfuscate(JSON.stringify(config.data, null, 2))}` : ''
+            }`);
 
             return config;
         },
-        (error) => {
+        error => {
             return Promise.reject(error);
         }
     );

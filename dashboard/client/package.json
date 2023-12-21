@@ -11,13 +11,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@alchemy/api": "workspace:*",
+    "@alchemy/auth": "workspace:*",
+    "@alchemy/core": "workspace:*",
+    "@alchemy/react-auth": "workspace:*",
     "@alchemy/theme-editor": "workspace:*",
-    "@mui/material": "^5.15.0",
+    "@alchemy/phrasea-ui": "workspace:*",
+    "@mui/material": "^5.15.1",
     "@mui/icons-material": "^5.15.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-google-font-loader": "^1.1.0",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.2.0",
+    "react-i18next": "^13.5.0"
   },
   "devDependencies": {
     "@types/node": "^18.8.5",

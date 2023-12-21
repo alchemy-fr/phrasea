@@ -19,5 +19,5 @@ export default function RouteProxy({
         return <></>;
     }
 
-    return <Component/>
+    return <Component />;
 }

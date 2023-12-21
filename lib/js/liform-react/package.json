@@ -1,0 +1,37 @@
+{
+  "name": "@alchemy/liform-react",
+  "version": "1.0.0",
+  "description": "Generate forms from json-schema to use with React (and redux-form)",
+  "main": "./src/index.jsx",
+  "scripts": {},
+  "keywords": [
+    "react",
+    "json-schema",
+    "form",
+    "redux-form"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/limenius/liform-react.git"
+  },
+  "author": "Nacho Martin",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "classnames": "^2.2.5",
+    "deepmerge": "^2.0.1",
+    "lodash": "^4.17.21",
+    "prop-types": "^15.5.10",
+    "react-redux": "^9.0.4",
+    "redux": "^4.2.1",
+    "redux-form": "^8.3.10"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

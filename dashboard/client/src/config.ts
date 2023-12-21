@@ -1,7 +1,8 @@
+import {WindowConfig} from '@alchemy/core';
+
 declare global {
     interface Window {
         config: {
-            locales: string[];
             env: {
                 DATABOX_API_URL: string;
                 DATABOX_CLIENT_URL: string;
@@ -10,7 +11,6 @@ declare global {
                 ELASTICHQ_URL: string;
                 EXPOSE_API_URL: string;
                 EXPOSE_CLIENT_URL: string;
-                KEYCLOAK_URL: string;
                 MAILHOG_URL: string;
                 MATOMO_URL: string;
                 NOTIFY_API_URL: string;
@@ -27,10 +27,12 @@ declare global {
                 UPLOADER_CLIENT_URL: string;
                 ZIPPY_URL: string;
             };
-        };
+        } & WindowConfig;
     }
 }
 
 const config = window.config;
+
+config.appName = 'dashboard';
 
 export default config;

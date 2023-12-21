@@ -13,7 +13,7 @@ export default function AuthenticationMethod({}: Props) {
     const {getLoginUrl} = useKeycloakUrls({
         keycloakClient: keycloakClient,
         autoConnectIdP: config.autoConnectIdP,
-    })
+    });
 
     const onConnect = React.useCallback(() => {
         setRedirectPath && setRedirectPath(getCurrentPath());

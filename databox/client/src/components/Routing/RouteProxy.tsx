@@ -16,8 +16,8 @@ export default function RouteProxy({
     if (!isPublic && !isAuthenticated()) {
         document.location.href = getLoginUrl();
 
-        return null
+        return null;
     }
 
-    return <Component/>
+    return <Component />;
 }

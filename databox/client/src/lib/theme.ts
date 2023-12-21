@@ -12,5 +12,9 @@ export function createCachedThemeOptions(name: ThemeName): ThemeOptions {
         return themeCache[name];
     }
 
-    return (themeCache[name] = mergeDeep({}, baseTheme, themes[name]) as ThemeOptions);
+    return (themeCache[name] = mergeDeep(
+        {},
+        baseTheme,
+        themes[name]
+    ) as ThemeOptions);
 }

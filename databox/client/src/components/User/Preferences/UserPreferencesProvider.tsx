@@ -8,7 +8,7 @@ import {
 import {getUserPreferences, putUserPreferences} from '../../../api/user';
 import {createCachedThemeOptions} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles} from '@mui/material';
-import {useAuth} from '@alchemy/react-auth';
+import {useKeycloakUser} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 
 const sessionStorageKey = 'userPrefs';
@@ -29,7 +29,7 @@ export default function UserPreferencesProvider({children}: Props) {
     const [preferences, setPreferences] = React.useState<UserPreferences>(
         getFromStorage()
     );
-    const {tokens} = useAuth();
+    const {user} = useKeycloakUser();
 
     const updatePreference = React.useCallback<UpdatePreferenceHandler>(
         (name, value) => {
@@ -42,7 +42,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     newPrefs[name] = value;
                 }
 
-                if (tokens) {
+                if (user) {
                     putUserPreferences(name, newPrefs[name]);
                 }
 
@@ -54,18 +54,18 @@ export default function UserPreferencesProvider({children}: Props) {
                 return newPrefs;
             });
         },
-        [tokens]
+        [user]
     );
 
     React.useEffect(() => {
-        if (tokens) {
+        if (user) {
             getUserPreferences().then(r =>
                 setPreferences({
                     ...r,
                 })
             );
         }
-    }, [tokens]);
+    }, [user?.id]);
 
     const value = React.useMemo<TUserPreferencesContext>(() => {
         return {
@@ -79,7 +79,9 @@ export default function UserPreferencesProvider({children}: Props) {
     return (
         <UserPreferencesContext.Provider value={value}>
             <ThemeEditorProvider
-                defaultTheme={createCachedThemeOptions(preferences.theme ?? 'default')}
+                defaultTheme={createCachedThemeOptions(
+                    preferences.theme ?? 'default'
+                )}
             >
                 <CssBaseline />
                 <GlobalStyles

@@ -15,9 +15,6 @@ import RenditionClassManager from './RenditionClassManager';
 import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes.ts';
-import {useForceLogin} from '@alchemy/react-auth';
-import config from "../../../config.ts";
-import {keycloakClient} from "../../../api/api-client.ts";
 
 type Props = {};
 
@@ -26,11 +23,6 @@ export default function WorkspaceDialog({}: Props) {
     const {id} = useParams();
 
     const [data, setData] = useState<Workspace>();
-
-    useForceLogin({
-        keycloakClient,
-        autoConnectIdP: config.autoConnectIdP,
-    });
 
     useEffect(() => {
         getWorkspace(id!).then(c => setData(c));

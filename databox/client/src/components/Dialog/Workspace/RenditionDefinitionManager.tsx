@@ -18,7 +18,7 @@ import RenditionClassSelect from '../../Form/RenditionClassSelect';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
-import React from "react";
+import React from 'react';
 
 function Item({
     data,

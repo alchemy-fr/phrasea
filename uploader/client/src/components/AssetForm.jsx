@@ -86,7 +86,7 @@ export default class AssetForm extends Component {
         }
 
         if (r.errors && Object.keys(r.errors).length > 0) {
-            const {errors} = r.body;
+            const {errors} = r;
             const errs = {};
 
             Object.keys(errors).forEach(i => {

@@ -1,10 +1,10 @@
-import {ThemeOptions} from "@mui/material";
+import {ThemeOptions} from '@mui/material';
 
 export const theme: ThemeOptions = {
     typography: {
         fontFamily: "'Montserrat', sans-serif",
         h1: {
-            fontSize: '3rem',
+            fontSize: '2rem',
             fontWeight: 600,
         },
         h2: {

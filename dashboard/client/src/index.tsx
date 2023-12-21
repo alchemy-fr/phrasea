@@ -1,16 +1,15 @@
 import ReactDOM from 'react-dom/client';
-import Root from './Root.tsx';
 import React from 'react';
 import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
-import {scrollbarWidth, theme} from "./theme.ts";
+import {scrollbarWidth, theme} from './theme.ts';
+import Root from "./Root.tsx";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <ThemeEditorProvider
             defaultTheme={theme}
-            transformTheme={(theme) => responsiveFontSizes(theme, {
-            })}
+            transformTheme={theme => responsiveFontSizes(theme, {})}
         >
             <CssBaseline />
             <GlobalStyles
@@ -32,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     },
                 })}
             />
-            <Root />
+            <Root/>
         </ThemeEditorProvider>
     </React.StrictMode>
 );

@@ -1,7 +1,13 @@
-import {MatomoRouteWrapper, ModalStack, OverlayOutlet, RouterProvider, RouteWrapperProps} from '@alchemy/navigation';
+import {
+    MatomoRouteWrapper,
+    ModalStack,
+    OverlayOutlet,
+    RouterProvider,
+    RouteWrapperProps,
+} from '@alchemy/navigation';
 import UserPreferencesProvider from './User/Preferences/UserPreferencesProvider';
 import {oauthClient} from '../api/api-client';
-import {AuthenticationProvider, MatomoUser} from '@alchemy/react-auth';
+import {AuthenticationProvider, MatomoUser, SessionExpireContainer} from '@alchemy/react-auth';
 import {modalRoutes, routes} from '../routes.ts';
 import RouteProxy from './Routing/RouteProxy.tsx';
 
@@ -9,12 +15,11 @@ type Props = {};
 
 export default function Root({}: Props) {
     return (
-        <AuthenticationProvider
-            oauthClient={oauthClient}
-        >
-            <MatomoUser/>
+        <AuthenticationProvider oauthClient={oauthClient}>
+            <MatomoUser />
             <UserPreferencesProvider>
                 <ModalStack>
+                    <SessionExpireContainer/>
                     <RouterProvider
                         routes={routes}
                         options={{
@@ -29,13 +34,10 @@ export default function Root({}: Props) {
 }
 
 function WrapperComponent({children}: RouteWrapperProps) {
-    return <>
-        <OverlayOutlet
-            routes={modalRoutes}
-            queryParam={'_m'}
-        />
-        <MatomoRouteWrapper>
-            {children}
-        </MatomoRouteWrapper>
-    </>
+    return (
+        <>
+            <OverlayOutlet routes={modalRoutes} queryParam={'_m'} />
+            <MatomoRouteWrapper>{children}</MatomoRouteWrapper>
+        </>
+    );
 }

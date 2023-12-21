@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\AbstractUuidEntity;
@@ -65,12 +66,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: [
         'groups' => [RenditionDefinition::GROUP_WRITE],
     ],
+    input: RenditionDefinitionInput::class,
     order: ['priority' => 'DESC'],
     provider: RenditionDefinitionCollectionProvider::class,
 )]
 
 #[ORM\Table]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
+#[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity]
 class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 {
@@ -89,6 +92,12 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
+
+    /**
+     * Unique key by workspace. Used to prevent duplicates.
+     */
+    #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
+    private ?string $key = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::STRING, length: 80)]
@@ -254,5 +263,15 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     public function setPickSourceFile(bool $pickSourceFile): void
     {
         $this->pickSourceFile = $pickSourceFile;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): void
+    {
+        $this->key = $key;
     }
 }

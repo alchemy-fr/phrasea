@@ -30,7 +30,6 @@ type Story = StoryObj<typeof WorkflowUpdater>;
 
 const rerun = async (jobId: string): Promise<void> => {
     return new Promise<void>((resolve) => {
-        console.log(`Rerunning job ${jobId}`);
         setTimeout(() => {
             resolve();
         }, 200);

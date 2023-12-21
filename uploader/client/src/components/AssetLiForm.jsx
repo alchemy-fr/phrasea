@@ -1,8 +1,9 @@
 import React from 'react';
-import {createStore, combineReducers} from 'redux';
+import {combineReducers} from 'redux';
 import {reducer as formReducer} from 'redux-form';
 import {Provider} from 'react-redux';
-import Liform, {renderField, DefaultTheme} from '@alchemy-fr/liform-react';
+import Liform, {renderField, DefaultTheme} from '@alchemy/liform-react';
+import {configureStore} from '@reduxjs/toolkit';
 
 const BaseForm = props => {
     const {schema, handleSubmit, theme, error, submitting, onCancel} = props;
@@ -36,7 +37,7 @@ const BaseForm = props => {
 
 const AssetLiForm = props => {
     const reducer = combineReducers({form: formReducer});
-    const store = createStore(reducer);
+    const store = configureStore({reducer});
 
     const initialValues = {};
 

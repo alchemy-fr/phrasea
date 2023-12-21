@@ -83,8 +83,11 @@ const AppProxy = React.memo(() => {
 export default function App() {
     const {logout} = useAuth();
     const onError = useRequestErrorHandler({
-        logout: (redirectPathAfterLogin) => {
-            logout(redirectPathAfterLogin, true);
+        logout: redirectPathAfterLogin => {
+            logout({
+                redirectPathAfterLogin,
+                quiet: true,
+            });
         },
     });
 

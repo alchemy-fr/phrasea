@@ -18,8 +18,8 @@ export function getAlternateUrls(
         return alternateUrls.map((c): AlternateUrl => {
             return {
                 type: c.name,
-                url: c.pathPattern.replace(/\${(.+)}/g, (_m, m1) => {
-                    return dict[m1];
+                url: c.pathPattern.replace(/\${(.+)}/g, (_m, m1: string) => {
+                    return dict[m1 as keyof typeof dict] as string;
                 }),
             };
         });

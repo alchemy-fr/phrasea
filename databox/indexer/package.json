@@ -10,7 +10,8 @@
   "scripts": {
     "console": "node dist/console.mjs",
     "dev": "nodemon",
-    "build": "rimraf ./dist && vite build",
+    "validate": "tsc -p ./tsconfig.check.json",
+    "build": "pnpm validate && rimraf ./dist && vite build",
     "test": "jest",
     "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",

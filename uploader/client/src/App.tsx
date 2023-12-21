@@ -3,7 +3,7 @@ import {routes} from './routes';
 import './scss/App.scss';
 import Menu from './components/Menu';
 import RouteProxy from './components/RouteProxy';
-import {PropsWithChildren} from "react";
+import {PropsWithChildren} from 'react';
 
 type Props = {};
 
@@ -20,7 +20,9 @@ export default function App({}: Props) {
 }
 
 function Wrapper({children}: PropsWithChildren<{}>) {
-    return <MatomoRouteWrapper>
-        <Menu>{children}</Menu>
-    </MatomoRouteWrapper>
+    return (
+        <MatomoRouteWrapper>
+            <Menu>{children}</Menu>
+        </MatomoRouteWrapper>
+    );
 }
