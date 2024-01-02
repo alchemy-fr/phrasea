@@ -3,9 +3,10 @@ import '../../scss/Upload.scss';
 import {getTargets} from '../../requests';
 import Container from '../Container';
 import {getPath, Link, useNavigate} from '@alchemy/navigation';
-import FullPageLoader from '../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Translation} from 'react-i18next';
 import {routes} from '../../routes';
+
 
 export default function SelectTarget() {
     const [targets, setTargets] = useState();
@@ -21,8 +22,10 @@ export default function SelectTarget() {
         }
     }, [targets]);
 
-    if (!targets || targets?.length) {
-        return <FullPageLoader />;
+    if (!targets || targets?.length === 1) {
+        return <FullPageLoader
+            backdrop={false}
+        />;
     }
 
     return (

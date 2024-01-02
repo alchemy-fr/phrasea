@@ -1,6 +1,6 @@
 import React from 'react';
 import config from '../config';
-import FullPageLoader from './FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import apiClient from '../lib/api-client';
 import Root from './Root.tsx';
 

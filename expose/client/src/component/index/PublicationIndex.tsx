@@ -5,7 +5,7 @@ import moment from 'moment';
 import SortImg from '../../images/sort.svg?react';
 import {Dropdown, DropdownButton} from 'react-bootstrap';
 import {Logo} from '../Logo';
-import FullPageLoader from '../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {getThumbPlaceholder} from '../layouts/shared-components/placeholders';
 import apiClient from '../../lib/api-client';
 import {useTranslation} from 'react-i18next';
@@ -113,7 +113,9 @@ export default function PublicationIndex({}: Props) {
                             </div>
                         ))
                     ) : (
-                        <FullPageLoader />
+                        <FullPageLoader
+                            backdrop={false}
+                        />
                     )}
                 </div>
             </div>

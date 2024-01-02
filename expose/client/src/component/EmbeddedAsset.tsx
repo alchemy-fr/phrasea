@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import FullPageLoader from './FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Asset} from '../types';
 import AssetProxy from './layouts/shared-components/AssetProxy';
 import {loadAsset} from './api';
@@ -38,7 +38,9 @@ export default function EmbeddedAsset({id}: Props) {
     }
 
     if (!data) {
-        return <FullPageLoader />;
+        return <FullPageLoader
+            backdrop={false}
+        />;
     }
 
     const {publication} = data;

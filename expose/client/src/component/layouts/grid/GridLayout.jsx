@@ -13,7 +13,7 @@ import {
 import AssetProxy from '../shared-components/AssetProxy';
 import PublicationHeader from '../shared-components/PublicationHeader';
 import {Trans} from 'react-i18next';
-import FullPageLoader from '../../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logAssetView} from '../../../lib/log';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
 
@@ -117,7 +117,9 @@ class GridLayout extends React.Component {
 
     renderGallery() {
         if (!this.state.thumbsLoaded) {
-            return <FullPageLoader />;
+            return <FullPageLoader
+                backdrop={false}
+            />;
         }
 
         const {downloadEnabled} = this.props.data;

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, Form} from 'react-bootstrap';
 import Container from '../Container';
 import {getTargetParams, getTargets} from '../../requests';
-import FullPageLoader from '../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import apiClient from '../../lib/apiClient';
 
 export default class TargetDataEditor extends Component {

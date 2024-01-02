@@ -1,7 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import {Publication} from '../../types';
 import {securityMethods} from './methods';
-import FullPageLoader from '../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logPublicationView} from '../../lib/log';
 import {keycloakClient} from '../../lib/api-client';
 
@@ -28,7 +28,9 @@ export default function PublicationSecurityProxy({
     };
 
     if (!publication) {
-        return <FullPageLoader />;
+        return <FullPageLoader
+            backdrop={false}
+        />;
     }
 
     const {

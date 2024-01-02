@@ -13,7 +13,7 @@ import config from '../../config';
 import {getTarget} from '../../requests';
 import UploadBatch from '../../uploadBatch';
 import {retrieveImageFromClipboardAsBlob} from '../ImagePaste';
-import FullPageLoader from '../FullPageLoader';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {withRouter} from '../withRouter';
 import {routes} from '../../routes';
 
@@ -214,7 +214,9 @@ class Upload extends Component {
             );
         }
         if (!target) {
-            return <FullPageLoader />;
+            return <FullPageLoader
+                backdrop={false}
+            />;
         }
 
         return (
