@@ -30,16 +30,15 @@ class TargetCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $slug = TextField::new('slug');
         $name = TextField::new('name');
+        $slug = TextField::new('slug');
         $description = TextareaField::new('description');
         $targetUrl = TextField::new('targetUrl')
-            ->setHelp('i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://databox-api/incoming-uploads" for Databox upload');
+            ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://databox-api/incoming-uploads" for Databox upload');
         $targetTokenType = TextField::new('targetTokenType')
             ->setHelp('Use "OAuth" for Phraseanet')
             ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "Bearer"']]);
-        $targetAccessToken = TextField::new('targetAccessToken')
-            ->setHelp('use "avoid" to do not notify target (for pull mode)');
+        $targetAccessToken = TextField::new('targetAccessToken');
         $defaultDestination = TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)');
         $allowedGroups = GroupChoiceField::new('allowedGroups');

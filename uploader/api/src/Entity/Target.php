@@ -60,10 +60,9 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Groups(['target:index'])]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\Url]
-    #[Assert\NotBlank]
     #[Groups(['target:write'])]
     private ?string $targetUrl = null;
 

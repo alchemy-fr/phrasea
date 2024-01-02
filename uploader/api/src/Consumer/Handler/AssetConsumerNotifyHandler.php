@@ -35,7 +35,7 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
 
         $target = $commit->getTarget();
         $accessToken = $target->getTargetAccessToken();
-        if ('avoid' === $accessToken) {
+        if (empty($target->getTargetUrl()) || 'avoid' === $accessToken) {
             return;
         }
 
