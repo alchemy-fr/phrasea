@@ -1,8 +1,7 @@
 import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig} from "axios";
 import {jwtDecode} from "jwt-decode";
-import {IStorage} from "@alchemy/storage";
+import {CookieStorage, IStorage} from "@alchemy/storage";
 import {createHttpClient, HttpClient} from "@alchemy/api";
-import {CookieStorage} from "@alchemy/storage";
 import {AuthTokens} from "../types";
 
 export type TokenResponse = {
@@ -19,12 +18,7 @@ interface ValidationError {
     error_description: string;
 }
 
-export type UserInfoResponse = {
-    preferred_username: string;
-    groups: string[];
-    roles: string[];
-    sub: string;
-}
+export type UserInfoResponse = any;
 
 export type AuthEvent = {
     type: string;
@@ -104,6 +98,10 @@ export default class OAuthClient {
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
+    }
+
+    public isTokenPersisted(): boolean {
+        return Boolean(this.storage.getItem(this.tokenStorageKey));
     }
 
     public getAccessToken(): string | undefined {
@@ -219,6 +217,35 @@ export default class OAuthClient {
         }
     }
 
+    async getTokenFromUsernamePassword(username: string, password: string, extraData: Record<string, any> = {}): Promise<AuthTokens> {
+        const tokens = await this.getToken({
+            grant_type: 'password',
+            username,
+            password,
+            ...extraData,
+        });
+
+        this.handleSessionTimeout(tokens);
+
+        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
+            tokens,
+        });
+
+        return tokens;
+    }
+
+    async getTokenFromCustomGrantType(data: Record<string, any> = {}): Promise<AuthTokens> {
+        const tokens = await this.getToken(data);
+
+        this.handleSessionTimeout(tokens);
+
+        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
+            tokens,
+        });
+
+        return tokens;
+    }
+
     public async getTokenFromClientCredentials(): Promise<AuthTokens> {
         const tokens = await this.getToken({
             grant_type: 'client_credentials',
@@ -274,7 +301,7 @@ export default class OAuthClient {
         await Promise.all(orderedListeners.map(({h}) => !e.stopPropagation && h(e)).filter(f => !!f));
     }
 
-    private handleSessionTimeout(tokens: AuthTokens): void {
+    public handleSessionTimeout(tokens: AuthTokens): void {
         this.clearSessionTimeout();
 
         if (tokens.refreshExpiresIn) {
@@ -351,6 +378,10 @@ export default class OAuthClient {
 
         const res = (await this.httpClient.post(`/token`, params)).data as TokenResponse;
 
+        return this.saveTokensFromResponse(res);
+    }
+
+    public saveTokensFromResponse(res: TokenResponse): AuthTokens {
         const tokens = this.createAuthTokensFromResponse(res);
         this.persistTokens(tokens);
 
