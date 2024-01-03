@@ -119,6 +119,8 @@ export default function DefinitionManager<D extends DefinitionBase>({
     const {loading, list, item} = state;
     const {t} = useTranslation();
 
+    const newItem = React.useMemo(() => createNewItem(), [item, createNewItem]);
+
     const handleItemClick = useCallback(
         (data: D) => () => {
             setState(p => ({
@@ -191,8 +193,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
     React.useEffect(() => {
         if (item && 'new' !== item) {
             reset(item);
+        } else if ('new' === item) {
+            reset(newItem as D);
         }
-    }, [item]);
+    }, [item, newItem]);
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
@@ -357,7 +361,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             {React.createElement(itemComponent, {
                                 data:
                                     item === 'new'
-                                        ? (createNewItem() as D)
+                                        ? (newItem as D)
                                         : item!,
                                 key: item === 'new' ? 'new' : item!.id,
                                 usedFormSubmit,

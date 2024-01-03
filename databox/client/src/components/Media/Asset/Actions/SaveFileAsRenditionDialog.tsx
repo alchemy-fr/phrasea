@@ -3,14 +3,14 @@ import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
 import {Asset, File} from '../../../../types';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import FormFieldErrors from '../../../Form/FormFieldErrors';
 import FormRow from '../../../Form/FormRow';
 import RenditionDefinitionSelect from '../../../Form/RenditionDefinitionSelect';
+import {useTranslation} from 'react-i18next';
 import {postRendition} from '../../../../api/rendition';
 import {useFormSubmit} from '@alchemy/api';
-import {useModals, StackedModalProps} from '@alchemy/navigation';
+import {useModals, StackedModalProps, useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
 
 type FormData = {
     definition: string | undefined;
@@ -28,6 +28,7 @@ export default function SaveFileAsRenditionDialog({
     modalIndex,
 }: Props) {
     const {closeModal} = useModals();
+    const {t} = useTranslation();
 
     const {
         control,
@@ -52,7 +53,7 @@ export default function SaveFileAsRenditionDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(forbidNavigation);
+    useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
 
     const formId = 'save-file-as-rendition';
 

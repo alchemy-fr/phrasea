@@ -163,7 +163,7 @@ export default function AssetResults() {
     const onOpen = useCallback<OnOpen>(
         (assetId: string, renditionId: string): void => {
             navigateToModal(modalRoutes.assets.routes.view, {
-                assetId,
+                id: assetId,
                 renditionId,
             });
             // eslint-disable-next-line
@@ -197,22 +197,22 @@ export default function AssetResults() {
                 return;
             }
 
-            const apply = (deferred: boolean) => {
-                const d = () => {
+            setPreviewAnchorEl(p => {
+                const deferred = !p || previewLocked;
+
+                if (!deferred) {
+                    return {
+                        asset,
+                        anchorEl,
+                    };
+                }
+
+                timer.current = setTimeout(() => {
                     setPreviewAnchorEl({
                         asset,
                         anchorEl,
                     });
-                };
-                if (!deferred) {
-                    d();
-                } else {
-                    timer.current = setTimeout(d, previewEnterDelay);
-                }
-            };
-
-            setPreviewAnchorEl(p => {
-                apply(!p || previewLocked);
+                }, previewEnterDelay);
 
                 return p;
             });

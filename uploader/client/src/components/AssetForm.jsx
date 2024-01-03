@@ -81,7 +81,7 @@ export default class AssetForm extends Component {
         try {
             r = (await apiClient.post(submitPath, data)).data;
         } catch (e) {
-            console.log(e);
+            console.debug(e);
             throw new SubmissionError({_error: e.toString()});
         }
 

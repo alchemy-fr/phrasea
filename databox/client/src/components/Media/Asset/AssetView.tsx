@@ -40,7 +40,7 @@ const scrollBarDelta = 8;
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
-    const {assetId, renditionId} = useParams();
+    const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
 
     const [data, setData] = useState<Asset>();
@@ -81,7 +81,7 @@ export default function AssetView({modalIndex}: Props) {
 
     const handleRenditionChange = (renditionId: string) => {
         navigateToModal(modalRoutes.assets.routes.view, {
-            assetId,
+            id: assetId,
             renditionId,
         });
     };

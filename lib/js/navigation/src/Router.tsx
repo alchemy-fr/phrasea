@@ -93,12 +93,18 @@ function resolvePath(uriTemplate: string, params?: RouteParameters): string {
 
     const queryStringKeys = Object.keys(qs);
     if (queryStringKeys.length > 0) {
-        const u = new URL(path);
+        const hasScheme = path.includes('://');
+        const dummyScheme = 'https://localhost';
+
+        const u = new URL(hasScheme ? path: dummyScheme+path);
         queryStringKeys.map((key) => {
             u.searchParams.set(key, qs[key]);
         });
 
         path = u.toString();
+        if (!hasScheme) {
+            path = path.substring(dummyScheme.length);
+        }
     }
 
     return path;

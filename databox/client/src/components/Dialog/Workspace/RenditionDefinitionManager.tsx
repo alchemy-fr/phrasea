@@ -151,6 +151,11 @@ type Props = {
 function createNewItem(): Partial<RenditionDefinition> {
     return {
         name: '',
+        pickSourceFile: false,
+        useAsOriginal: false,
+        useAsPreview: false,
+        useAsThumbnail: false,
+        useAsThumbnailActive: false,
     };
 }
 
