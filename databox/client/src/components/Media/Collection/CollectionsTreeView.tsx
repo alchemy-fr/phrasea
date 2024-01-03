@@ -1,10 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import TreeItem from '@mui/lab/TreeItem';
+import {TreeItem, TreeView} from '@mui/x-tree-view';
 import {CollectionOptionalWorkspace, Workspace} from '../../../types';
 import {getCollection, getWorkspaces} from '../../../api/collection';
-import {TreeView} from '@mui/lab';
 import {
     Box,
     CircularProgress,
@@ -19,7 +18,6 @@ import EditableCollectionTree, {
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 
 const nodeSeparator = '|';
-export const newCollectionPathSeparator = '\\|\\';
 
 export {nodeSeparator as treeViewPathSeparator};
 

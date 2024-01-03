@@ -12,11 +12,10 @@ import {ListItemIcon, ListItemText} from '@mui/material';
 import {SearchContext} from '../Media/Search/SearchContext';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import {zIndex} from '../../themes/zIndex';
-import {useKeycloakUrls} from '@alchemy/react-auth';
+import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {ThemeEditorContext} from '@alchemy/theme-editor';
 import config from '../../config.ts';
 import {keycloakClient} from '../../api/api-client.ts';
-import {useUser} from '../../lib/auth.ts';
 import {DashboardMenu} from '@alchemy/react-ps';
 import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme.tsx';
@@ -34,7 +33,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const themeEditorContext = useContext(ThemeEditorContext);
-    const {user, logout} = useUser();
+    const {user, logout} = useAuth();
     const searchContext = useContext(SearchContext);
     const {getAccountUrl, getLoginUrl} = useKeycloakUrls({
         keycloakClient,
@@ -42,8 +41,6 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
     });
     const onTitleClick = () =>
         searchContext.selectWorkspace(undefined, undefined, true);
-
-    const username = user?.username;
 
     return (
         <div
@@ -126,14 +123,14 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                         ></Box>
 
                         <Box sx={{flexGrow: 0}}>
-                            {!username ? (
+                            {!user ? (
                                 <MenuItem component={'a'} href={getLoginUrl()}>
                                     {t('menu.sign_in', 'Sign in')}
                                 </MenuItem>
                             ) : (
                                 <UserMenu
                                     menuHeight={menuHeight}
-                                    username={username}
+                                    username={user.username}
                                     accountUrl={getAccountUrl()}
                                     onLogout={logout}
                                     actions={({closeMenu}) => [

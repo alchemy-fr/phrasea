@@ -1,5 +1,6 @@
 import React from 'react';
-import {useUser} from "../hooks/useUser";
+import {useAuth} from "../hooks/useAuth";
+import {AuthUser} from '@alchemy/auth'
 import {useMatomo} from "@jonkoops/matomo-tracker-react";
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 export default function MatomoUser({
     idProp = 'sub'
 }: Props) {
-    const {user} = useUser<Record<string, string>>();
+    const {user} = useAuth<Record<string, string> & AuthUser>();
     const {pushInstruction} = useMatomo();
 
     React.useEffect(() => {

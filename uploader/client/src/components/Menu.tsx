@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useContext} from 'react';
 import UserInfo from './UserInfo';
 import Languages from './Languages';
-import {useKeycloakUser} from '@alchemy/react-auth';
+import {useAuth} from '@alchemy/react-auth';
 import {getPath, Link} from '@alchemy/navigation';
 import UploaderUserContext from '../context/UploaderUserContext';
 import {slide as Slide, State} from 'react-burger-menu';
@@ -10,7 +10,7 @@ import {routes} from '../routes';
 type Props = PropsWithChildren<{}>;
 
 export default function Menu({children}: Props) {
-    const {user, isAuthenticated, logout} = useKeycloakUser();
+    const {user, isAuthenticated, logout} = useAuth();
     const {uploaderUser} = useContext(UploaderUserContext);
     const [open, setOpen] = React.useState(false);
 

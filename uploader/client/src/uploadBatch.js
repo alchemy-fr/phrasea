@@ -137,7 +137,7 @@ export default class UploadBatch {
     async uploadFile(index, retry = 0) {
         const file = this.files[index];
 
-        const username = oauthClient.getUsername();
+        const username = oauthClient.getDecodedToken()?.preferred_username;
 
         try {
             const res = await uploadMultipartFile(

@@ -31,7 +31,7 @@ import {useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes.ts';
-import {useUser} from '../../lib/auth.ts';
+import {useAuth} from '@alchemy/react-auth';
 
 type Props = {
     level: number;
@@ -56,7 +56,7 @@ export default function CollectionMenuItem({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
-    const userContext = useUser();
+    const authContext = useAuth();
     const [expanded, setExpanded] = useState(false);
     const [expanding, setExpanding] = useState(false);
     const [nextCollections, setNextCollections] = useState<{
@@ -243,7 +243,7 @@ export default function CollectionMenuItem({
                                     onClick={() =>
                                         openModal(UploadModal, {
                                             files: [],
-                                            userId: userContext!.user!.id,
+                                            userId: authContext!.user!.id,
                                             workspaceTitle: workspace.name,
                                             workspaceId: workspace.id,
                                             collectionId: id,

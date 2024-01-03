@@ -1,7 +1,7 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import {PropsWithChildren} from "react";
-import {useKeycloakUrls, useKeycloakUser} from '@alchemy/react-auth';
+import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import config from "./config.ts";
 import {keycloakClient} from "./lib/apiClient.ts";
 import MenuItem from "@mui/material/MenuItem";
@@ -21,7 +21,7 @@ export default function DashboardBar({
         keycloakClient,
     });
 
-    const {user, logout} = useKeycloakUser();
+    const {user, logout} = useAuth();
 
     return (
         <AppBar position="sticky">

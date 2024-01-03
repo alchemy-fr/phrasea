@@ -8,7 +8,7 @@ import {
 import {getUserPreferences, putUserPreferences} from '../../../api/user';
 import {createCachedThemeOptions} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles} from '@mui/material';
-import {useKeycloakUser} from '@alchemy/react-auth';
+import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 
 const sessionStorageKey = 'userPrefs';
@@ -29,7 +29,7 @@ export default function UserPreferencesProvider({children}: Props) {
     const [preferences, setPreferences] = React.useState<UserPreferences>(
         getFromStorage()
     );
-    const {user} = useKeycloakUser();
+    const {user} = useAuth();
 
     const updatePreference = React.useCallback<UpdatePreferenceHandler>(
         (name, value) => {

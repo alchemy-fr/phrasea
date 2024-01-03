@@ -2,32 +2,57 @@ import React, {PropsWithChildren, useCallback} from 'react';
 import {
     AuthEventHandler,
     AuthTokens,
+    AuthUser,
     isValidSession,
+    keycloakNormalizer,
+    LoginEvent,
+    loginEventType,
     LogoutEvent,
     logoutEventType,
     OAuthClient,
-    RefreshTokenEvent, refreshTokenEventType
+    RefreshTokenEvent,
+    refreshTokenEventType,
+    UserInfoResponse,
+    UserNormalizer
 } from "@alchemy/auth";
 import {getSessionStorage} from "@alchemy/storage";
 import AuthenticationContext, {LogoutFunction, RefreshTokenFunction, SetTokens} from "../context/AuthenticationContext";
+import {jwtDecode} from "jwt-decode";
 
-type Props = PropsWithChildren<{
+type Props<U extends AuthUser, UIR extends UserInfoResponse> = PropsWithChildren<{
     onNewTokens?: (tokens: AuthTokens) => void;
     onClear?: () => void;
-    oauthClient: OAuthClient,
+    oauthClient: OAuthClient<UIR>,
+    normalizeUser?: UserNormalizer<U, UIR>;
 }>;
 
-export default function AuthenticationProvider({
+export default function AuthenticationProvider<U extends AuthUser, UIR extends UserInfoResponse>({
     oauthClient,
     children,
     onNewTokens,
-}: Props) {
+    // @ts-expect-error Invalid resolution
+    normalizeUser = keycloakNormalizer,
+}: Props<U, UIR>) {
     const redirectPathSessionStorageKey = 'redirpath';
     const sessionStorage = getSessionStorage();
     const redirectPath = React.useRef<string | undefined>(sessionStorage.getItem(redirectPathSessionStorageKey) || undefined);
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(oauthClient.getTokens());
 
+    const user = React.useMemo(() => {
+        if (!tokens?.accessToken) {
+            return;
+        }
+
+        return normalizeUser(jwtDecode<UIR>(tokens.accessToken));
+    }, [tokens]);
+
     React.useEffect(() => {
+        const loginListener: AuthEventHandler<LoginEvent> = async (event) => {
+            if (!event.preventDefault) {
+                setTokens(event.tokens);
+            }
+        };
+
         const logoutListener: AuthEventHandler<LogoutEvent> = async (event) => {
             if (!event.preventDefault) {
                 setTokens(undefined);
@@ -40,10 +65,12 @@ export default function AuthenticationProvider({
             }
         };
 
+        oauthClient.registerListener(loginEventType, loginListener);
         oauthClient.registerListener(logoutEventType, logoutListener);
         oauthClient.registerListener(refreshTokenEventType, refreshTokenListener);
 
         return () => {
+            oauthClient.unregisterListener(loginEventType, loginListener);
             oauthClient.unregisterListener(logoutEventType, logoutListener);
             oauthClient.unregisterListener(refreshTokenEventType, refreshTokenListener);
         }
@@ -55,7 +82,7 @@ export default function AuthenticationProvider({
     }, [setTokens]);
 
     const refreshToken = React.useCallback<RefreshTokenFunction>(async () => {
-        return await oauthClient.getTokenFromRefreshToken();
+        return (await oauthClient.getTokenFromRefreshToken()).tokens;
     }, [oauthClient]);
 
     const setRedirectPath = React.useCallback((path: string | undefined) => {
@@ -102,6 +129,7 @@ export default function AuthenticationProvider({
 
     return <AuthenticationContext.Provider
         value={{
+            user,
             tokens,
             setTokens: updateTokens,
             logout,

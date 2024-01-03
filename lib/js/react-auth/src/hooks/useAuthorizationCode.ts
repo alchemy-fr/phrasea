@@ -1,13 +1,12 @@
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce'
 import React from "react";
-import {useAuth} from "./useAuth";
 import {OAuthClient} from "@alchemy/auth";
 
 type Props = {
     navigate: (path: string, options?: {
         replace?: boolean;
     }) => void;
-    oauthClient: OAuthClient,
+    oauthClient: OAuthClient<any>,
     successUri?: string,
     successHandler?: () => void,
     errorHandler?: (e: any) => void,
@@ -25,7 +24,6 @@ export function useAuthorizationCode({
 }: {
     allowNoCode?: boolean;
 } & Props) {
-    const {setTokens} = useAuth();
     const [error, setError] = React.useState<any>();
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -46,8 +44,7 @@ export function useAuthorizationCode({
             code,
             window.location.href.split('?')[0]
         )
-            .then((tokens) => {
-                setTokens(tokens);
+            .then(() => {
                 if (successHandler) {
                     successHandler();
 

@@ -5,6 +5,7 @@ import OAuthClient, {
     normalizeRedirectUri,
     OAuthClientOptions
 } from "./OAuthClient";
+import {KeycloakUserInfoResponse} from "../types";
 
 type Options = {
     realm: string;
@@ -13,7 +14,7 @@ type Options = {
 export default class KeycloakClient {
     private readonly baseUrl: string;
     private readonly realm: string;
-    public readonly client: OAuthClient;
+    public readonly client: OAuthClient<KeycloakUserInfoResponse>;
 
     constructor({
         realm,

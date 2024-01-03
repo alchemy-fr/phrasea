@@ -5,15 +5,15 @@ import {Backdrop, Typography} from '@mui/material';
 import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
-import {useUser} from '../../../lib/auth.ts';
+import {useAuth} from '@alchemy/react-auth';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
-    const userContext = useUser();
+    const authContext = useAuth();
     const {openModal} = useModals();
 
     const onDrop = useCallback(
         (acceptedFiles: File[]) => {
-            const authenticated = Boolean(userContext.user);
+            const authenticated = Boolean(authContext.user);
             if (!authenticated) {
                 window.alert(
                     'You must be authenticated in order to upload new files'
@@ -23,17 +23,17 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
 
             openModal(UploadModal, {
                 files: acceptedFiles,
-                userId: userContext.user!.id,
+                userId: authContext.user!.id,
             });
         },
-        [userContext]
+        [authContext]
     );
 
     const onPaste = (e: any) => {
         retrieveImageFromClipboardAsBlob(e, imageBlob => {
             openModal(UploadModal, {
                 files: [imageBlob],
-                userId: userContext.user!.id,
+                userId: authContext.user!.id,
             });
         });
     };

@@ -6,5 +6,5 @@ set -e
 
 load-env
 
-docker compose -f docker-compose.init.yml build
-docker compose build
+docker compose -f docker-compose.init.yml build $@
+docker compose build $@

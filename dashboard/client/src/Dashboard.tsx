@@ -10,7 +10,7 @@ import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
 import notifyImg from './images/notify.png';
 import DashboardBar from "./DashboardBar";
-import {useKeycloakUser} from '@alchemy/react-auth'
+import {useAuth} from '@alchemy/react-auth'
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 type Props = {};
@@ -18,7 +18,7 @@ type Props = {};
 export default function Dashboard({}: Props) {
     const theme = useTheme();
     const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
-    const {user} = useKeycloakUser();
+    const {user} = useAuth();
 
     const {
         DATABOX_API_URL,

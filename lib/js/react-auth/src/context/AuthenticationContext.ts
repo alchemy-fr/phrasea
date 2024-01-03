@@ -1,5 +1,5 @@
 import {createContext, MutableRefObject} from 'react';
-import {AuthTokens, LogoutOptions} from "@alchemy/auth";
+import {AuthTokens, AuthUser, LogoutOptions} from "@alchemy/auth";
 
 export type SetTokens = (tokens: AuthTokens) => void;
 export type RefreshTokenFunction = () => Promise<AuthTokens>;
@@ -10,7 +10,8 @@ type ExtendedLogoutOptions = {
 
 export type LogoutFunction = (options?: ExtendedLogoutOptions) => void;
 
-export type TAuthContext = {
+export type TAuthContext<U extends AuthUser = AuthUser> = {
+    user?: U | undefined;
     tokens?: AuthTokens | undefined;
     logout: LogoutFunction;
     refreshToken?: RefreshTokenFunction;

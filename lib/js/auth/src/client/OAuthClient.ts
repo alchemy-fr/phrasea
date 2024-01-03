@@ -2,7 +2,7 @@ import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConf
 import {jwtDecode} from "jwt-decode";
 import {CookieStorage, IStorage} from "@alchemy/storage";
 import {createHttpClient, HttpClient} from "@alchemy/api";
-import {AuthTokens} from "../types";
+import {AuthTokens, TokenResponseWithTokens, UserInfoResponse} from "../types";
 
 export type TokenResponse = {
     access_token: string;
@@ -17,8 +17,6 @@ interface ValidationError {
     error: string;
     error_description: string;
 }
-
-export type UserInfoResponse = any;
 
 export type AuthEvent = {
     type: string;
@@ -69,7 +67,7 @@ type OrderedListener = {
     h: AuthEventHandler<any>;
 };
 
-export default class OAuthClient {
+export default class OAuthClient<UIR extends UserInfoResponse> {
     public tokenPromise: Promise<any> | undefined;
     public readonly clientId: string;
     public readonly clientSecret: string | undefined;
@@ -116,10 +114,6 @@ export default class OAuthClient {
         return this.fetchTokens()?.refreshToken;
     }
 
-    public getUsername(): string | undefined {
-        return this.getDecodedToken()?.preferred_username;
-    }
-
     public isAuthenticated(): boolean {
         return isValidSession(this.fetchTokens());
     }
@@ -133,13 +127,13 @@ export default class OAuthClient {
         return false;
     }
 
-    public getDecodedToken(): UserInfoResponse | undefined {
+    public getDecodedToken(): UIR | undefined {
         const accessToken = this.getAccessToken();
         if (!accessToken) {
             return;
         }
 
-        return jwtDecode<UserInfoResponse>(accessToken);
+        return jwtDecode<UIR>(accessToken);
     }
 
     public async logout(options: LogoutOptions = {}): Promise<LogoutEvent | undefined> {
@@ -173,12 +167,14 @@ export default class OAuthClient {
         this.listeners[event] = this.listeners[event]!.filter(({h}) => h !== callback);
     }
 
-    public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<AuthTokens> {
-        const tokens = await this.getToken({
+    public async getTokenFromAuthCode(code: string, redirectUri: string): Promise<TokenResponseWithTokens> {
+        const res = await this.getToken({
             code,
             grant_type: 'authorization_code',
             redirect_uri: redirectUri,
         });
+
+        const {tokens} = res;
 
         this.persistTokens(tokens);
 
@@ -188,15 +184,17 @@ export default class OAuthClient {
             tokens,
         });
 
-        return tokens;
+        return res;
     }
 
-    async getTokenFromRefreshToken(): Promise<AuthTokens> {
+    async getTokenFromRefreshToken(): Promise<TokenResponseWithTokens> {
         try {
-            const tokens = await this.getToken({
+            const res = await this.getToken({
                 refresh_token: this.getRefreshToken()!,
                 grant_type: 'refresh_token',
             });
+
+            const {tokens} = res;
 
             this.handleSessionTimeout(tokens);
 
@@ -204,7 +202,7 @@ export default class OAuthClient {
                 tokens,
             });
 
-            return tokens;
+            return res;
         } catch (e: any) {
             console.debug('e', e);
             if (axios.isAxiosError<ValidationError>(e)) {
@@ -217,25 +215,15 @@ export default class OAuthClient {
         }
     }
 
-    async getTokenFromUsernamePassword(username: string, password: string, extraData: Record<string, any> = {}): Promise<AuthTokens> {
-        const tokens = await this.getToken({
+    async getTokenFromUsernamePassword(username: string, password: string, extraData: Record<string, any> = {}): Promise<TokenResponseWithTokens> {
+        const res = await this.getToken({
             grant_type: 'password',
             username,
             password,
             ...extraData,
         });
 
-        this.handleSessionTimeout(tokens);
-
-        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
-            tokens,
-        });
-
-        return tokens;
-    }
-
-    async getTokenFromCustomGrantType(data: Record<string, any> = {}): Promise<AuthTokens> {
-        const tokens = await this.getToken(data);
+        const {tokens} = res;
 
         this.handleSessionTimeout(tokens);
 
@@ -243,21 +231,35 @@ export default class OAuthClient {
             tokens,
         });
 
-        return tokens;
+        return res;
     }
 
-    public async getTokenFromClientCredentials(): Promise<AuthTokens> {
-        const tokens = await this.getToken({
+    async getTokenFromCustomGrantType(data: Record<string, any> = {}): Promise<TokenResponseWithTokens> {
+        const res = await this.getToken(data);
+        const {tokens} = res;
+
+        this.handleSessionTimeout(tokens);
+
+        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
+            tokens,
+        });
+
+        return res;
+    }
+
+    public async getTokenFromClientCredentials(): Promise<TokenResponseWithTokens> {
+        const res = await this.getToken({
             grant_type: 'client_credentials',
             client_id: this.clientId,
             client_secret: this.clientSecret,
         });
+        const {tokens} = res;
 
         await this.triggerEvent<RefreshTokenEvent>(refreshTokenEventType, {
             tokens,
         });
 
-        return tokens;
+        return res;
     }
 
     public async wrapPromiseWithValidToken<T = any>(callback: (tokens: AuthTokens) => Promise<T>): Promise<T> {
@@ -361,7 +363,7 @@ export default class OAuthClient {
         }
     }
 
-    private async getToken(data: Record<string, string | undefined>): Promise<AuthTokens> {
+    private async getToken(data: Record<string, string | undefined>): Promise<TokenResponseWithTokens> {
         const params = new URLSearchParams();
         const formData: Record<string, string | undefined> = {
             ...data,
@@ -376,9 +378,12 @@ export default class OAuthClient {
             }
         });
 
-        const res = (await this.httpClient.post(`/token`, params)).data as TokenResponse;
+        const res = (await this.httpClient.post(`token`, params)).data as TokenResponse;
 
-        return this.saveTokensFromResponse(res);
+        return {
+            ...res,
+            tokens: this.saveTokensFromResponse(res)
+        };
     }
 
     public saveTokensFromResponse(res: TokenResponse): AuthTokens {
@@ -393,7 +398,7 @@ type OnTokenError = (error: AxiosError) => void;
 
 export function configureClientAuthentication(
     client: AxiosInstance,
-    oauthClient: OAuthClient,
+    oauthClient: OAuthClient<any>,
     onTokenError?: OnTokenError
 ): void {
     client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromRefreshToken", onTokenError));
@@ -401,14 +406,14 @@ export function configureClientAuthentication(
 
 export function configureClientCredentialsGrantType(
     client: AxiosInstance,
-    oauthClient: OAuthClient,
+    oauthClient: OAuthClient<any>,
     onTokenError?: OnTokenError
 ): void {
     client.interceptors.request.use(createAxiosInterceptor(oauthClient, "getTokenFromClientCredentials", onTokenError));
 }
 
 function createAxiosInterceptor(
-    oauthClient: OAuthClient,
+    oauthClient: OAuthClient<any>,
     method: "getTokenFromRefreshToken" | "getTokenFromClientCredentials",
     onTokenError?: OnTokenError
 ) {
@@ -434,7 +439,7 @@ function createAxiosInterceptor(
                 } catch (e: any) {
                     if (e.isAxiosError) {
                         const err = e as AxiosError<any>;
-                        if (err.response && [400].includes(err.response.status)) {
+                        if (err.response && 400 === err.response.status) {
                             oauthClient.logout();
 
                             onTokenError && onTokenError(err);

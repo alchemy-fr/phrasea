@@ -19,7 +19,7 @@ async function search(
     sortBy: SortBy[],
     url?: string,
     attrFilters?: Filters,
-    userContext?: UserSearchContext
+    searchContext?: UserSearchContext
 ): Promise<{
     result: Asset[];
     facets: TFacets;
@@ -54,9 +54,9 @@ async function search(
         order,
     };
 
-    if (userContext) {
+    if (searchContext) {
         options.context = {
-            ...userContext,
+            ...searchContext,
         };
     }
 

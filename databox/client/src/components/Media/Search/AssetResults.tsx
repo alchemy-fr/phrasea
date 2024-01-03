@@ -34,7 +34,7 @@ import UploadModal from '../../Upload/UploadModal';
 import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
-import {useUser} from '../../../lib/auth.ts';
+import {useAuth} from '@alchemy/react-auth';
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -102,7 +102,7 @@ export function getAssetListFromEvent(
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
-    const userContext = useUser();
+    const authContext = useAuth();
     const navigateToModal = useNavigateToModal();
     const {loading, pages, loadMore} = resultContext;
     const {previewLocked, displayPreview} = useContext(DisplayContext)!;
@@ -156,9 +156,9 @@ export default function AssetResults() {
     >((): void => {
         openModal(UploadModal, {
             files: [],
-            userId: userContext.user!.id,
+            userId: authContext.user!.id,
         });
-    }, [userContext]);
+    }, [authContext]);
 
     const onOpen = useCallback<OnOpen>(
         (assetId: string, renditionId: string): void => {
@@ -323,7 +323,7 @@ export default function AssetResults() {
                     anchorEl={previewAnchorEl?.anchorEl}
                     displayAttributes={layout === LayoutEnum.Grid}
                 />
-                {userContext.user && (
+                {authContext.user && (
                     <Fab
                         onClick={openUpload}
                         color="primary"

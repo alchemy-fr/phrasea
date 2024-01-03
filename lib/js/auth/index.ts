@@ -2,19 +2,20 @@ import OAuthClient, {
     AuthEvent,
     AuthEventHandler,
     configureClientAuthentication,
-    configureClientCredentialsGrantType, isValidSession,
+    configureClientCredentialsGrantType,
+    isValidSession,
     LoginEvent,
     loginEventType,
-    LogoutOptions,
     LogoutEvent,
     logoutEventType,
+    LogoutOptions,
     RefreshTokenEvent,
     refreshTokenEventType,
     sessionExpiredEventType,
-    UserInfoResponse,
 } from "./src/client/OAuthClient";
 
 import KeycloakClient from "./src/client/KeycloakClient";
+import {keycloakNormalizer} from "./src/userNormalizer/keycloakNormalizer";
 
 export {
     OAuthClient,
@@ -26,6 +27,7 @@ export {
     refreshTokenEventType,
     KeycloakClient,
     isValidSession,
+    keycloakNormalizer,
 };
 export type {
     AuthEvent,
@@ -34,7 +36,6 @@ export type {
     LogoutOptions,
     LoginEvent,
     RefreshTokenEvent,
-    UserInfoResponse,
 }
 
 export * from './src/types';
