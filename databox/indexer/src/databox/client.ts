@@ -10,7 +10,7 @@ import {lockPromise} from '../lib/promise';
 import {getConfig, getStrict} from '../configLoader';
 import {Logger} from 'winston';
 import {createHttpClient} from '../lib/axios';
-import {configureClientCredentialsGrantType, OAuthClient} from '@alchemy/auth';
+import {configureClientCredentialsGrantType, KeycloakUserInfoResponse, OAuthClient} from '@alchemy/auth';
 import {MemoryStorage} from '@alchemy/storage';
 
 function createApiClient(
@@ -20,7 +20,7 @@ function createApiClient(
     verifySSL: boolean,
     scope?: string
 ) {
-    const oauthClient = new OAuthClient({
+    const oauthClient = new OAuthClient<KeycloakUserInfoResponse>({
         clientId,
         clientSecret,
         scope,
@@ -57,7 +57,7 @@ const collectionKeyMap: Record<string, string> = {};
 
 export class DataboxClient {
     private readonly client: AxiosInstance;
-    private readonly oauthClient: OAuthClient;
+    private readonly oauthClient: OAuthClient<KeycloakUserInfoResponse>;
     private readonly logger: Logger;
     private readonly ownerId: string;
 
