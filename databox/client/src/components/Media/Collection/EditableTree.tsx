@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import TreeItem from '@mui/lab/TreeItem';
+import {TreeItem} from '@mui/x-tree-view';
 import {IconButton, Stack, TextField, Theme} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
@@ -34,7 +34,7 @@ export default function EditableCollectionTree({
     const id = node.id;
     const remainingPath = nodes.slice(1);
     const [value, setValue] = useState<string | undefined>(node.value);
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLLIElement>(null);
 
     useEffect(() => {
         setValue(node.value);
