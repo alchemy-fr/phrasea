@@ -13,7 +13,7 @@ WORKDIR /srv/workspace/databox/client
 RUN pnpm install \
     && mv index.tpl.html index.html
 
-RUN pnpm build
+RUN NODE_OPTIONS="--max-old-space-size=8192" && pnpm build
 
 ############
 
