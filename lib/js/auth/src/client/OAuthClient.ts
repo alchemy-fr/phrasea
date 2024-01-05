@@ -176,13 +176,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
 
         const {tokens} = res;
 
-        this.persistTokens(tokens);
-
-        this.handleSessionTimeout(tokens);
-
-        await this.triggerEvent<LoginEvent>(loginEventType, {
-            tokens,
-        });
+        await this.triggerLogin(tokens);
 
         return res;
     }
@@ -225,24 +219,24 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
 
         const {tokens} = res;
 
-        this.handleSessionTimeout(tokens);
-
-        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
-            tokens,
-        });
+        await this.triggerLogin(tokens);
 
         return res;
+    }
+
+    public async triggerLogin(tokens: AuthTokens): Promise<void> {
+        this.handleSessionTimeout(tokens);
+
+        await this.triggerEvent<LoginEvent>(loginEventType, {
+            tokens,
+        });
     }
 
     async getTokenFromCustomGrantType(data: Record<string, any> = {}): Promise<TokenResponseWithTokens> {
         const res = await this.getToken(data);
         const {tokens} = res;
 
-        this.handleSessionTimeout(tokens);
-
-        await this.triggerEvent<RefreshTokenEvent>(loginEventType, {
-            tokens,
-        });
+        await this.triggerLogin(tokens);
 
         return res;
     }
@@ -303,7 +297,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         await Promise.all(orderedListeners.map(({h}) => !e.stopPropagation && h(e)).filter(f => !!f));
     }
 
-    public handleSessionTimeout(tokens: AuthTokens): void {
+    private handleSessionTimeout(tokens: AuthTokens): void {
         this.clearSessionTimeout();
 
         if (tokens.refreshExpiresIn) {

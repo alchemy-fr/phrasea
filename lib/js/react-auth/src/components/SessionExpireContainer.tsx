@@ -10,7 +10,9 @@ export default function SessionExpireContainer({}: Props) {
     const [displayExpire, setDisplayExpire] = React.useState(false);
 
     const displayExpireModal = React.useCallback(() => {
-        setDisplayExpire(true);
+        if (tokens) {
+            setDisplayExpire(true);
+        }
     }, [tokens]);
 
     const onClose = React.useCallback(() => {

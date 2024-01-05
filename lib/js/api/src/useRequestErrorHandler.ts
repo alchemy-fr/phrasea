@@ -24,6 +24,14 @@ export default function useRequestErrorHandler({
         const status = error.response?.status;
         const data = error.response?.data;
 
+        const handledStatuses = error.config?.handledErrorStatuses;
+        if (handledStatuses && handledStatuses.length > 0
+            && status
+            && handledStatuses.includes(status)
+        ) {
+            return;
+        }
+
         switch (status) {
             case 401:
                 toast.error(

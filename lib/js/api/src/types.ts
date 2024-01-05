@@ -10,6 +10,7 @@ declare module 'axios' {
     export interface AxiosRequestConfig {
         meta?: RequestMeta;
         errorHandled?: boolean;
+        handledErrorStatuses?: number[];
     }
 }
 
