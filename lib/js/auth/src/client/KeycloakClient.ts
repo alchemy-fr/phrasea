@@ -1,11 +1,9 @@
 import OAuthClient, {
-    LogoutEvent,
     logoutEventType,
-    LogoutOptions,
     normalizeRedirectUri,
     OAuthClientOptions
 } from "./OAuthClient";
-import {KeycloakUserInfoResponse} from "../types";
+import {KeycloakUserInfoResponse, LogoutEvent, LogoutOptions} from "../types";
 
 type Options = {
     realm: string;

@@ -1,4 +1,42 @@
-import {TokenResponse} from "./client/OAuthClient";
+export interface ValidationError {
+    error: string;
+    error_description: string;
+}
+
+export type AuthEvent = {
+    type: string;
+    preventDefault?: boolean,
+    stopPropagation?: boolean,
+};
+
+export type LoginEvent = {
+    tokens: AuthTokens;
+} & AuthEvent;
+
+export type LogoutOptions = {
+    quiet?: boolean;
+    redirectPath?: string | undefined;
+    noEvent?: boolean;
+};
+
+export type LogoutEvent = LogoutOptions & AuthEvent;
+
+export type SessionExpiredEvent = AuthEvent;
+
+export type RefreshTokenEvent = {
+    tokens: AuthTokens;
+} & AuthEvent;
+
+export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
+
+export type TokenResponse = {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+    expires_in: number;
+    refresh_expires_in: number;
+    device_token?: string;
+};
 
 export type AuthTokens = {
     accessToken: string;

@@ -1,15 +1,9 @@
 import OAuthClient, {
-    AuthEvent,
-    AuthEventHandler,
     configureClientAuthentication,
     configureClientCredentialsGrantType,
     isValidSession,
-    LoginEvent,
     loginEventType,
-    LogoutEvent,
     logoutEventType,
-    LogoutOptions,
-    RefreshTokenEvent,
     refreshTokenEventType,
     sessionExpiredEventType,
 } from "./src/client/OAuthClient";
@@ -29,13 +23,5 @@ export {
     isValidSession,
     keycloakNormalizer,
 };
-export type {
-    AuthEvent,
-    AuthEventHandler,
-    LogoutEvent,
-    LogoutOptions,
-    LoginEvent,
-    RefreshTokenEvent,
-}
 
 export * from './src/types';

@@ -2,53 +2,20 @@ import axios, {AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConf
 import {jwtDecode} from "jwt-decode";
 import {CookieStorage, IStorage} from "@alchemy/storage";
 import {createHttpClient, HttpClient} from "@alchemy/api";
-import {AuthTokens, TokenResponseWithTokens, UserInfoResponse} from "../types";
-
-export type TokenResponse = {
-    access_token: string;
-    refresh_token: string;
-    token_type: string;
-    expires_in: number;
-    refresh_expires_in: number;
-    device_token?: string;
-};
-
-interface ValidationError {
-    error: string;
-    error_description: string;
-}
-
-export type AuthEvent = {
-    type: string;
-    preventDefault?: boolean,
-    stopPropagation?: boolean,
-};
-
-export type LoginEvent = {
-    tokens: AuthTokens;
-} & AuthEvent;
-
-export type LogoutOptions = {
-    quiet?: boolean;
-    redirectPath?: string | undefined;
-    noEvent?: boolean;
-};
-
-export type LogoutEvent = LogoutOptions & AuthEvent;
-
-export type SessionExpiredEvent = AuthEvent;
-
-export type RefreshTokenEvent = {
-    tokens: AuthTokens;
-} & AuthEvent;
-
-export type AuthEventHandler<E extends AuthEvent = AuthEvent> = (event: E) => Promise<void>;
+import {
+    AuthEvent,
+    AuthEventHandler,
+    AuthTokens, LoginEvent,
+    LogoutEvent,
+    LogoutOptions, RefreshTokenEvent, SessionExpiredEvent, TokenResponse,
+    TokenResponseWithTokens,
+    UserInfoResponse, ValidationError
+} from "../types";
 
 export const loginEventType = 'login';
 export const refreshTokenEventType = 'refreshToken';
 export const logoutEventType = 'logout';
 export const sessionExpiredEventType = 'sessionExpired';
-
 
 type Options = {
     storage?: IStorage;
