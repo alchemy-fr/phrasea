@@ -404,7 +404,7 @@ div.kc-logo-text span {
 }
 
 ul {
-    list-style: unset;
+    list-style: none;
     margin-left: 1em;
 }
 
