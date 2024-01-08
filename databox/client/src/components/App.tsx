@@ -15,6 +15,7 @@ import uploaderClient from '../api/uploader-client';
 import {zIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
 import {useRequestErrorHandler} from '@alchemy/api';
+import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 
 const AppProxy = React.memo(() => {
@@ -81,7 +82,7 @@ const AppProxy = React.memo(() => {
 });
 
 export default function App() {
-    const {logout} = useAuth();
+    const {logout, user} = useAuth();
     const onError = useRequestErrorHandler({
         logout: redirectPathAfterLogin => {
             logout({
@@ -100,6 +101,10 @@ export default function App() {
             uploaderClient.removeErrorListener(onError);
         };
     }, [onError]);
+
+    React.useEffect(() => {
+        setSentryUser(user);
+    }, [user]);
 
     return (
         <>

@@ -37,6 +37,22 @@ export function initSentry({
     Sentry.setTag("app.id", appId);
 }
 
+export function setSentryUser(user: {
+    id: string;
+    username: string;
+} | undefined) {
+    console.log('setSentryUser', user);
+    Sentry.setUser(
+        user
+            ? {
+                id: user.id,
+                email: user.username,
+            }
+            : null,
+    );
+}
+
+
 export function logError(error: any, captureContext?: CaptureContext): void {
     console.error(error);
     Sentry.captureException(error, captureContext);
