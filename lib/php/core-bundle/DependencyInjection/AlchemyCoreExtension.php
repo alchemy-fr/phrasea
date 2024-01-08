@@ -4,6 +4,7 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
+use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
@@ -132,7 +134,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     'ignore_exceptions' => [
                         TooManyRequestsHttpException::class,
                         NotFoundHttpException::class,
+                        AccessDeniedHttpException::class,
                         UnsupportedFormatException::class,
+                        ValidationException::class,
                     ],
                 ]
             ]);
