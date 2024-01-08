@@ -65,7 +65,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     input: AssetDataTemplateInput::class,
     output: AssetDataTemplateOutput::class,
     provider: AssetDataTemplateCollectionProvider::class,
-    processor: AssetDataTemplateInputTransformer::class,
 )]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable

@@ -102,7 +102,7 @@ export default function UploadModal({
                     name: options.name,
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
-                    collection: options.rememberCollection
+                    collection: options.rememberCollection && data.destination?.startsWith('/collections/')
                         ? data.destination
                         : undefined,
                     includeCollectionChildren:
