@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Voter;
+namespace Alchemy\AuthBundle\Security\Voter;
 
+use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class ChuckNorrisVoter extends AbstractVoter
+final class SuperAdminVoter extends AbstractVoter
 {
-    final public const ROLE = 'ROLE_CHUCK-NORRIS';
+    /**
+     * Never replace '-' to '_'.
+     * Role inherited from API scope will contain '-'.
+     */
+    final public const ROLE = 'ROLE_SUPER-ADMIN';
 
     protected function supports(string $attribute, $subject): bool
     {

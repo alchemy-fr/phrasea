@@ -235,7 +235,7 @@ export function createDataboxClientFromConfig(logger: Logger): DataboxClient {
             clientSecret: getStrict('databox.clientSecret'),
             ownerId: getStrict('databox.ownerId'),
             verifySSL: getConfig('databox.verifySSL', true),
-            scope: 'chuck-norris',
+            scope: 'super-admin',
         },
         logger
     );

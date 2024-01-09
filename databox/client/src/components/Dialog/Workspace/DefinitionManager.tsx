@@ -30,8 +30,8 @@ import SortableList, {
     SortableItem,
     SortableItemProps,
 } from '../../Ui/Sortable/SortableList';
-import {FieldValues} from 'react-hook-form';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab.tsx';
+import {DefaultValues} from "react-hook-form";
 
 type DefinitionBase = ApiHydraObjectResponse & {id: string};
 
@@ -39,7 +39,7 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
 };
 
-export type DefinitionItemFormProps<D extends DefinitionBase & FieldValues> = {
+export type DefinitionItemFormProps<D extends DefinitionBase> = {
     usedFormSubmit: UseFormSubmitReturn<D>;
     workspaceId: string;
 } & DefinitionItemProps<D>;
@@ -155,6 +155,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     }, []);
 
     const usedFormSubmit = useFormSubmit({
+        defaultValues: newItem as DefaultValues<D>,
         onSubmit: async (data: D) => {
             const newData = await handleSave(data);
 

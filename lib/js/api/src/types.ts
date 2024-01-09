@@ -31,5 +31,6 @@ export type UseFormSubmitReturn<T extends FieldValues, R = T> = {
     remoteErrors: RemoteErrors,
     submitting: boolean,
     submitted: boolean,
+    isDirty: boolean,
     forbidNavigation: boolean,
 } & Omit<UseFormReturn<T>, "handleSubmit">;

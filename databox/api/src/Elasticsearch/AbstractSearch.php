@@ -6,20 +6,20 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Security\Voter\ChuckNorrisVoter;
+use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractSearch
 {
+    use SecurityAwareTrait;
+
     protected EntityManagerInterface $em;
-    protected Security $security;
 
     protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
-        if ($this->security->isGranted(ChuckNorrisVoter::ROLE)) {
+        if ($this->isSuperAdmin()) {
             return null;
         }
 
@@ -102,11 +102,5 @@ abstract class AbstractSearch
     public function setEm(EntityManagerInterface $em): void
     {
         $this->em = $em;
-    }
-
-    #[Required]
-    public function setSecurity(Security $security): void
-    {
-        $this->security = $security;
     }
 }

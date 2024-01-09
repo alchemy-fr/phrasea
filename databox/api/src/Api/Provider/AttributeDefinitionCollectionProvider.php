@@ -33,7 +33,7 @@ class AttributeDefinitionCollectionProvider extends AbstractCollectionProvider
                 ->setParameter('ws', $filters['workspaceId']);
         }
 
-        if (!$this->isChuckNorris()) {
+        if (!$this->isAdmin()) {
             $user = $this->security->getUser();
 
             if ($user instanceof JwtUser) {

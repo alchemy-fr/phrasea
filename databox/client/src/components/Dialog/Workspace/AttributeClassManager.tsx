@@ -100,6 +100,9 @@ function ListItem({data}: DefinitionItemProps<AttributeClass>) {
     return (
         <ListItemText
             primary={data.name}
+            secondaryTypographyProps={{
+                component: 'div',
+            }}
             secondary={
                 <>
                     <Chip

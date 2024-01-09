@@ -37,7 +37,7 @@ class AttributeClassCollectionProvider extends AbstractCollectionProvider
                 ->setParameter('ws', $filters['workspaceId']);
         }
 
-        if (!$this->isChuckNorris()) {
+        if (!$this->isAdmin()) {
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $user->getId(),
