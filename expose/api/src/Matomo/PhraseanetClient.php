@@ -15,8 +15,7 @@ final class PhraseanetClient
     public function __construct(
         HttpClientInterface $phraseanetClient,
         string $phraseanetAuthToken
-    )
-    {
+    ) {
         $this->client = $phraseanetClient;
         $this->authToken = $phraseanetAuthToken;
     }
@@ -66,10 +65,10 @@ final class PhraseanetClient
                 'metadatas' => [
                     [
                         'field_name' => 'MatomoMediaMetrics',
-                        'value' => \GuzzleHttp\json_encode($stat)
-                    ]
-                ]
-            ]
+                        'value' => json_encode($stat, JSON_THROW_ON_ERROR),
+                    ],
+                ],
+            ],
         ]);
 
         $code = $res->getStatusCode();
@@ -79,7 +78,8 @@ final class PhraseanetClient
     }
 }
 
-function shouldUpdate(array $current, array $new): bool {
+function shouldUpdate(array $current, array $new): bool
+{
     if (empty($current)) {
         return true;
     }

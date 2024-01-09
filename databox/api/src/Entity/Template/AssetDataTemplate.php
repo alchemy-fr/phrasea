@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AssetDataTemplateInputTransformer;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
