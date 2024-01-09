@@ -1,17 +1,10 @@
-import {UserType} from '../../types';
-
-export type Permission = {
-    id: string;
-    userType: UserType;
-    userId: string | null;
-    mask: number;
-};
+import {Ace, UserType} from '../../types';
 
 export type OnMaskChange = (
     userType: UserType,
     userId: string | null,
     mask: number
-) => Promise<void>;
+) => Promise<Ace>;
 
 export type OnPermissionDelete = (
     userType: UserType,

@@ -21,8 +21,8 @@ export async function postRenditionRule(
     objectId: string,
     userType: UserType,
     userId: string | null
-): Promise<void> {
-    await apiClient.post(`/rendition-rules`, {
+): Promise<RenditionRule> {
+    return (await apiClient.post(`/rendition-rules`, {
         workspaceId:
             objectType === CollectionOrWorkspace.Workspace
                 ? objectId
@@ -34,7 +34,7 @@ export async function postRenditionRule(
         userId: userType === UserType.User ? userId : undefined,
         groupId: userType === UserType.Group ? userId : undefined,
         allowed: [`/rendition-classes/${classId}`],
-    });
+    })).data;
 }
 
 export async function deleteRenditionRule(id: string): Promise<void> {

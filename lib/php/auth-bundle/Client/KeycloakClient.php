@@ -137,6 +137,23 @@ final readonly class KeycloakClient
         return $this->get($this->urlGenerator->getGroupsApiUrl(), $accessToken, $limit, $offset);
     }
 
+    public function getGroup(string $accessToken, string $groupId, array $options = []): ?array
+    {
+        try {
+            return $this->wrapRequest(function () use ($groupId, $accessToken, $options) {
+                return $this->keycloakClient->request('GET', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), array_merge([
+                    'headers' => [
+                        'Authorization' => 'Bearer '.$accessToken,
+                    ],
+                ], $options));
+            });
+        } catch (ClientException $e) {
+            $this->logger->error($e->getMessage());
+
+            return null;
+        }
+    }
+
     private function get(string $path, string $accessToken, int $limit = null, int $offset = null, array $options = []): array
     {
         return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset, $options) {

@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
-import {CollectionOrWorkspace, UserType} from '../../../types';
-import {OnPermissionDelete, Permission} from '../../Permissions/permissions';
+import {Ace, CollectionOrWorkspace, RenditionRule, UserType} from '../../../types';
+import {OnPermissionDelete} from '../../Permissions/permissions';
 import PermissionList from '../../Permissions/PermissionList';
 import {
     deleteRenditionRule,
@@ -19,20 +19,24 @@ export default function RenditionClassPermissions({
     collectionId,
     workspaceId,
 }: Props) {
-    const loadPermissions = useCallback(async (): Promise<Permission[]> => {
-        const rules = await getRenditionRules(classId);
-
-        return rules.map(r => ({
+    const mapRuleToAce = (r: RenditionRule): Ace => {
+        return {
             id: r.id,
             userType: r.groupId ? UserType.Group : UserType.User,
             userId: r.userId || r.groupId,
             mask: 1,
-        }));
+        }
+    }
+
+    const loadPermissions = useCallback(async (): Promise<Ace[]> => {
+        const rules = await getRenditionRules(classId);
+
+        return rules.map(mapRuleToAce);
     }, [classId]);
 
     const updatePermission = useCallback(
         async (userType: UserType, userId: string | null) => {
-            postRenditionRule(
+            return mapRuleToAce(await postRenditionRule(
                 classId,
                 collectionId
                     ? CollectionOrWorkspace.Collection
@@ -40,7 +44,7 @@ export default function RenditionClassPermissions({
                 (collectionId || workspaceId)!,
                 userType,
                 userId
-            );
+            ));
         },
         [classId]
     );
