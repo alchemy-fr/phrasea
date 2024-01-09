@@ -21,8 +21,7 @@ final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface
     public function __construct(
         private readonly BatchAttributeManager $batchAttributeManager,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     /**

@@ -31,3 +31,4 @@ services:
       public: true
 
   Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~
+  Alchemy\AuthBundle\Security\Voter\SuperAdminVoter: ~

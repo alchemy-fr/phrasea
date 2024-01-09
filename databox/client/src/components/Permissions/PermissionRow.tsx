@@ -1,6 +1,6 @@
 import {ChangeEvent, useState} from 'react';
 import {Ace, UserType} from '../../types';
-import {Button, Checkbox} from '@mui/material';
+import {Button, Checkbox, Skeleton} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {aclPermissions} from '../Acl/acl';
 
@@ -28,6 +28,7 @@ export default function PermissionRow({
     onMaskChange,
     onDelete,
     permissions,
+    resolving,
     all = true,
 }: Props) {
     const {t} = useTranslation();
@@ -62,7 +63,11 @@ export default function PermissionRow({
 
     return (
         <tr>
-            <td className={'ug'}>{userName ?? `${userType} - ${userId}`}</td>
+            <td className={'ug'}>
+                {resolving ? <Skeleton
+                    width={100}
+                /> : (userName ?? `${userType} - ${userId}`)}
+            </td>
             {permissions.map((k: string) => {
                 return (
                     <td key={k} className={'p'}>

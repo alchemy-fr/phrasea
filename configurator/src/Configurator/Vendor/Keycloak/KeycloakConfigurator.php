@@ -117,7 +117,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     {
         return [
             'databox' => [
-                'chuck-norris',
+                'super-admin',
                 'asset:create',
                 'asset:delete',
                 'asset:edit',

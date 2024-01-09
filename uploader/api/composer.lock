@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "5a0316c05d67e0674674a87b1b007453b3d13ce8"
+                "reference": "a8e2beac2945e07596a58b018cf70cf38d53504f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/5a0316c05d67e0674674a87b1b007453b3d13ce8",
-                "reference": "5a0316c05d67e0674674a87b1b007453b3d13ce8",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/a8e2beac2945e07596a58b018cf70cf38d53504f",
+                "reference": "a8e2beac2945e07596a58b018cf70cf38d53504f",
                 "shasum": ""
             },
             "require": {
@@ -56,11 +56,11 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2023-10-02T12:29:19+00:00"
+            "time": "2024-01-09T16:45:13+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +175,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -230,7 +230,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -285,7 +285,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
@@ -338,7 +338,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
@@ -391,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -11465,7 +11465,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-libs",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

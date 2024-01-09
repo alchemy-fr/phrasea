@@ -39,7 +39,6 @@ use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;

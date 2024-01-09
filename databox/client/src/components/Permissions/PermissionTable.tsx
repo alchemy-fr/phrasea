@@ -1,10 +1,5 @@
-import {
-    DisplayedPermissions,
-    OnMaskChange,
-    OnPermissionDelete,
-    Permission,
-} from './permissions';
-import {Group, User, UserType} from '../../types';
+import {DisplayedPermissions, OnMaskChange, OnPermissionDelete} from './permissions';
+import {Ace, UserType} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {AclPermission, aclPermissions} from '../Acl/acl';
 import {Box} from '@mui/material';
@@ -16,13 +11,9 @@ export default function PermissionTable({
     permissions,
     onMaskChange,
     onDelete,
-    users,
-    groups,
     displayedPermissions,
 }: {
-    permissions: Permission[] | undefined;
-    users: User[] | undefined;
-    groups: Group[] | undefined;
+    permissions: Ace[] | undefined;
     onMaskChange: OnMaskChange;
     onDelete: OnPermissionDelete;
     displayedPermissions?: DisplayedPermissions;
@@ -117,16 +108,7 @@ export default function PermissionTable({
                             permissions={columns}
                             onMaskChange={onMaskChange}
                             onDelete={onDelete}
-                            userName={
-                                users && groups
-                                    ? getUserName(
-                                          p.userType,
-                                          p.userId,
-                                          users,
-                                          groups
-                                      )
-                                    : undefined
-                            }
+                            userName={getUserName(p)}
                             key={p.id || `${p.userId}::${p.userType}`}
                         />
                     ))}
@@ -135,21 +117,18 @@ export default function PermissionTable({
     );
 }
 
-function getUserName(
-    userType: UserType,
-    userId: string | null,
-    users: User[],
-    groups: Group[]
-): string | undefined {
-    if (userType === UserType.User) {
+function getUserName(p: Ace): string | undefined {
+    const userId = p.userId;
+
+    if (p.userType === UserType.User) {
         if (userId) {
-            return users.find(i => i.id === userId)?.username;
+            return p.user?.username ?? 'User not found';
         }
 
         return 'All users';
-    } else if (userType === UserType.Group) {
+    } else if (p.userType === UserType.Group) {
         if (userId) {
-            return groups.find(i => i.id === userId)?.name;
+            return p.group?.name ?? 'Group not found';
         }
 
         return 'All groups';

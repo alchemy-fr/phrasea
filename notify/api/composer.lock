@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caecfa4b0283925e1a989042ef42b281",
+    "content-hash": "864e77f1b62b9f998238e0454112ec5b",
     "packages": [
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-bump-sf6",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -66,7 +66,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-bump-sf6",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -123,7 +123,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-bump-sf6",
+            "version": "dev-PS-606-fixes",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",

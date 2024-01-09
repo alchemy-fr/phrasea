@@ -7,14 +7,15 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AttributeDefinition;
-use App\Security\Voter\ChuckNorrisVoter;
+use App\Util\SecurityAwareTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry, private readonly Security $security)
+    use SecurityAwareTrait;
+
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AttributeDefinition::class);
     }
@@ -31,7 +32,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->innerJoin('t.workspace', 'w')
         ;
 
-        if (!$this->security->isGranted(ChuckNorrisVoter::ROLE)) {
+        if (!$this->isSuperAdmin()) {
             if (null !== $userId) {
                 AccessControlEntryRepository::joinAcl(
                     $queryBuilder,

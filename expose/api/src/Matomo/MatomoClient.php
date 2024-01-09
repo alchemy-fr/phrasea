@@ -16,8 +16,7 @@ final class MatomoClient
         HttpClientInterface $matomoClient,
         string $matomoSiteId,
         string $matomoAuthToken
-    )
-    {
+    ) {
         $this->client = $matomoClient;
         $this->matomoSiteId = $matomoSiteId;
         $this->authToken = $matomoAuthToken;
@@ -36,7 +35,7 @@ final class MatomoClient
                 'period' => 'range',
                 'filter_offset' => $offset,
                 'filter_limit' => $limit,
-            ]
+            ],
         ]);
 
         return $response->toArray();

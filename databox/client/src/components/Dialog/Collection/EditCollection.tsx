@@ -19,10 +19,7 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
     const usedFormSubmit = useFormSubmit({
-        defaultValues: {
-            title: '',
-            privacy: 0,
-        },
+        defaultValues: data,
         onSubmit: async (data: Collection) => {
             return await putCollection(data.id, data);
         },

@@ -40,7 +40,7 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
                 $rendDef = $this->em->getRepository(RenditionDefinition::class)
                     ->findOneBy([
                         'key' => $data->key,
-                        'workspace' => $workspace->getId()
+                        'workspace' => $workspace->getId(),
                     ]);
 
                 if ($rendDef) {
