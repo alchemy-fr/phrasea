@@ -1001,6 +1001,31 @@ services:
     volumes:
       - ./configs:/configs
 
+  cypress:
+    image: ${REGISTRY_NAMESPACE}cypress:$DOCKER_TAG
+    build: ./cypress
+    profiles:
+      - cypress
+    environment:
+      - CYPRESS_BASE_URL=${DASHBOARD_CLIENT_URL}
+      - MAILHOG_URL
+      - CYPRESS_EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
+      - CYPRESS_EXPOSE_API_URL=${EXPOSE_API_URL}
+      - CYPRESS_KEYCLOAK_URL=${KEYCLOAK_URL}
+      - CYPRESS_KEYCLOAK_REALM_NAME=${KEYCLOAK_REALM_NAME}
+      - CYPRESS_ADMIN_USERNAME=${DEFAULT_ADMIN_USERNAME}
+      - CYPRESS_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD}
+      - CYPRESS_EXPOSE_ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
+      - CYPRESS_EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
+    volumes:
+      - cypress_output:/cypress/output
+    extra_hosts:
+      - expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - dashboard.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
 volumes:
   db:
   redis:
@@ -1013,3 +1038,4 @@ volumes:
   elasticsearch:
   expose-nginx-cache:
   zippy:
+  cypress_output:
