@@ -213,6 +213,7 @@ jobs:
       - build_expose_api
       - build_expose_client
       - build_keycloak
+      - build_cypress
       - build_matomo_nginx
       - build_matomo_php
       - build_notify_api
