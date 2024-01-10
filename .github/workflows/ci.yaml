@@ -296,3 +296,27 @@ jobs:
           docker image ls | grep ${{ env.DOCKER_TAG }} | awk '{ print $1 }' | xargs -I {} echo docker tag {}:${{ env.DOCKER_TAG }} {}:${{ github.ref_name }} | sed "s,${{ env.REGISTRY_NAMESPACE }},${ECR_REGISTRY}/ps-,2" | bash
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
+
+      - name: Run Cypress tests
+        if: "!contains(github.event.head_commit.message, '[skip cypress]')"
+        run: |
+          docker compose run --rm cypress
+
+      - name: Extract Cypress output
+        if: failure()
+        run: |
+          mkdir cypress-output
+          docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
+          docker cp dummy:/cypress/output ./cypress-output/
+          docker stop dummy
+          docker compose down --volumes
+
+      - name: Upload Cypress output
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-error
+          path: |
+            ./cypress-output/output/screenshots
+            ./cypress-output/output/results
+          retention-days: 2
