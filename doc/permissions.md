@@ -1,6 +1,6 @@
 # Permissions
 
-By default Phrasea offers 2 priviledged roles:
+By default, Phrasea offers 2 privileged roles:
 
 - **Super Admin** which can do anything
 - **Admin** which can do some things on some services
