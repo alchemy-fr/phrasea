@@ -906,7 +906,7 @@ services:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
-      - KC_HOSTNAME=keycloak.${PHRASEA_DOMAIN}
+      - KC_HOSTNAME=keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - KC_DB_USERNAME=${POSTGRES_USER}
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
@@ -1002,7 +1002,6 @@ services:
       - ./configs:/configs
 
   cypress:
-    image: ${REGISTRY_NAMESPACE}cypress:$DOCKER_TAG
     build: ./cypress
     profiles:
       - cypress
