@@ -16,8 +16,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     ) {
     }
 
-    public function configure(OutputInterface $output): void
+    public function configure(OutputInterface $output, array $presets): void
     {
+        $hasTestPreset = in_array('test', $presets, true);
+
         $this->configureRealm();
 
         foreach ($this->symfonyApplications as $app) {
@@ -108,7 +110,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'credentials' => [[
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => true,
+                'temporary' => !$hasTestPreset,
             ]]
         ]);
 

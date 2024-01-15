@@ -7,14 +7,16 @@ describe('Visit publication', () => {
     it('passes', () => {
         getTokenClientCredentials(exposeAdminClientId, exposeAdminClientSecret).as('token');
 
-        createPublication({
-            title: 'Publication 1',
-            config: {
-                layout: 'grid',
-                enabled: true,
-                publiclyListed: true,
-            }
-        }).as('publication');
+        cy.get('@token').then((token) => {
+            createPublication(token, {
+                title: 'Publication 1',
+                config: {
+                    layout: 'grid',
+                    enabled: true,
+                    publiclyListed: true,
+                }
+            }).as('publication');
+        })
 
         cy.get('@publication').then((publication) => {
             const assets = ['databox', 'expose', 'uploader'];

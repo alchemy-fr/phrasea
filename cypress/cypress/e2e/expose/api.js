@@ -1,17 +1,16 @@
 import {exposeApiUrl} from "../lib/urls";
 
-export function createPublication(data) {
-    return cy.get('@token').then((token) => cy.request({
-            url: `${exposeApiUrl}/publications`,
-            method: 'POST',
-            body: data,
-            auth: {
-                bearer: token,
-            },
-        }).then(res => {
-            return res.body;
-        })
-    );
+export function createPublication(token, data) {
+    return cy.request({
+        url: `${exposeApiUrl}/publications`,
+        method: 'POST',
+        body: data,
+        auth: {
+            bearer: token,
+        },
+    }).then(res => {
+        return res.body;
+    });
 }
 
 export function createAsset(data, src) {
