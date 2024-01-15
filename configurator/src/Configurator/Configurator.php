@@ -23,12 +23,12 @@ final class Configurator
         $this->configurators = $configurators;
     }
 
-    public function configure(OutputInterface $output): void
+    public function configure(OutputInterface $output, array $presets): void
     {
         foreach ($this->configurators as $configurator) {
             $output->writeln(sprintf('Configuring %s...', $configurator::class));
             try {
-                $configurator->configure($output);
+                $configurator->configure($output, $presets);
             } catch (ClientException $e) {
                 dump($e->getResponse()->getContent(false));
                 throw $e;

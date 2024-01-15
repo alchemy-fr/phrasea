@@ -108,6 +108,11 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 
 docker compose restart keycloak
 docker compose run --rm dockerize -wait http://keycloak:8080 -timeout 200s
-docker compose run --rm configurator configure -vvv
+
+PRESETS=""
+for p in $@; do
+  PRESETS="${PRESETS} --preset $p"
+done
+docker compose run --rm configurator configure -vvv$PRESETS
 
 echo "Done."

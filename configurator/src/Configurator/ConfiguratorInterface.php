@@ -10,5 +10,5 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('app.configurator')]
 interface ConfiguratorInterface
 {
-    public function configure(OutputInterface $output): void;
+    public function configure(OutputInterface $output, array $presets): void;
 }

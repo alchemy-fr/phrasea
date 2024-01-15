@@ -36,7 +36,7 @@ export default function DashboardBar({
                 <Box sx={{flexGrow: 0}}>
                     {!user ? (
                         <MenuItem component={'a'} href={getLoginUrl()}>
-                            {t('menu.sign_in', 'Sign in')}
+                            {t('menu.sign_in', 'Sign In')}
                         </MenuItem>
                     ) : (
                         <UserMenu

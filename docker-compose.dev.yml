@@ -267,6 +267,16 @@ services:
       - 'start-dev'
       - '--hostname-strict-https=false'
 
+  cypress:
+    entrypoint: ""
+    command: npx cypress open --e2e --browser chrome --project ./
+    environment:
+      - DISPLAY=unix${DISPLAY}
+    volumes:
+      - ./cypress/cypress:/cypress/cypress
+      - ./cypress/cypress.config.js:/cypress/cypress.config.js
+      - /tmp/.X11-unix:/tmp/.X11-unix
+
 volumes:
   dev:
     driver: local

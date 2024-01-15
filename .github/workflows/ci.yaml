@@ -220,29 +220,61 @@ jobs:
           sudo mv mkcert-v1.4.3-linux-amd64 /usr/bin/mkcert
           sudo chmod +x /usr/bin/mkcert
           mkcert -install
+
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Pull images
         run: |
             docker compose pull
+
       - name: Setup
         run: |
           docker compose down --volumes
           bin/dev/make-cert.sh
           sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
-          bin/setup.sh
+          bin/setup.sh test
+
       - name: Test
         run: bin/test.sh
+
+      - name: Run Cypress tests
+        if: "!contains(github.event.head_commit.message, '[skip cypress]')"
+        run: |
+          docker compose up -d
+          docker compose run --rm cypress
+
+      - name: Extract Cypress output
+        if: failure()
+        run: |
+          mkdir cypress-output
+          docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
+          docker cp dummy:/cypress/output ./cypress-output/
+          docker stop dummy
+          docker compose down --volumes
+
+      - name: Upload Cypress output
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-error
+          path: |
+            ./cypress-output/output/screenshots
+            ./cypress-output/output/results
+          retention-days: 2
+
       - name: Clean containers
         if: ${{ always() }}
         run: |
           docker compose down --volumes
+
       - name: Login to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -251,6 +283,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Push images to Dockerhub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -281,11 +314,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_ACCESS_KEY_SECRET }}
           aws-region: us-east-1
+
       - name: Login to Amazon ECR Public
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v1
         with:
           registry-type: public
+
       - name: Push images to AWS ECR
         env:
           AWS_ECR_ACCESS_KEY_ID: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
