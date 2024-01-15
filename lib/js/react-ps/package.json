@@ -15,7 +15,7 @@
     "i18next-browser-languagedetector": "^6.1.8",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-i18next": "^11.0.0"
+    "react-i18next": "^13.5.0"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
@@ -46,7 +46,7 @@
     "prompt": "^1.0.0",
     "react": "^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-i18next": "^12.0.0",
+    "react-i18next": "^13.5.0",
     "replace-in-file": "^3.4.2",
     "rimraf": "^2.6.2",
     "rollup": "^0.67.0",
