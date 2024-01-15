@@ -175,6 +175,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $labels = null;
+
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
@@ -397,5 +400,15 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setSortable(bool $sortable): void
     {
         $this->sortable = $sortable;
+    }
+
+    public function getLabels(): ?array
+    {
+        return $this->labels;
+    }
+
+    public function setLabels(?array $labels): void
+    {
+        $this->labels = $labels;
     }
 }

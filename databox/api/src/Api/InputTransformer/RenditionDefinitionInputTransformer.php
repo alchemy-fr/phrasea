@@ -86,6 +86,9 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->priority) {
             $object->setPriority($data->priority);
         }
+        if (null !== $data->labels) {
+            $object->setLabels($data->labels);
+        }
 
         return $object;
     }

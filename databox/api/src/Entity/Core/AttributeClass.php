@@ -84,6 +84,10 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     #[ORM\Column(type: Types::STRING, length: 150, nullable: true)]
     private ?string $key = null;
 
+    #[Groups([AttributeClass::GROUP_READ])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $labels = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -138,5 +142,15 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function getLabels(): ?array
+    {
+        return $this->labels;
+    }
+
+    public function setLabels(?array $labels): void
+    {
+        $this->labels = $labels;
     }
 }

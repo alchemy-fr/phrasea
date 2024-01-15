@@ -142,6 +142,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private ?string $definition = '';
 
+    #[Groups([RenditionDefinition::GROUP_READ])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $labels = null;
+
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
@@ -273,5 +277,15 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     public function setKey(?string $key): void
     {
         $this->key = $key;
+    }
+
+    public function getLabels(): ?array
+    {
+        return $this->labels;
+    }
+
+    public function setLabels(?array $labels): void
+    {
+        $this->labels = $labels;
     }
 }

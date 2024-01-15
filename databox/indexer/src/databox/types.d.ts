@@ -53,6 +53,8 @@ export type RenditionClass = {
     name: string;
 };
 
+type Labels = Record<string, any>;
+
 export type AttributeDefinition = {
     id: string;
     multiple: boolean;
@@ -62,6 +64,7 @@ export type AttributeDefinition = {
     fieldType: string;
     workspace: string;
     class: string;
+    labels?: Labels | undefined;
 };
 
 export type AttributeClass = {

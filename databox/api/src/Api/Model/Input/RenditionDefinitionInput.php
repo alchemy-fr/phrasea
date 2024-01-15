@@ -82,4 +82,10 @@ class RenditionDefinitionInput
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public $key;
+
+    /**
+     * @var array|null
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $labels;
 }
