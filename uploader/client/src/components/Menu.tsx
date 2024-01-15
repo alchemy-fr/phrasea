@@ -46,7 +46,7 @@ export default function Menu({children}: Props) {
         keycloakClient,
         autoConnectIdP: config.autoConnectIdP,
     });
-    const avatarSize = 32;
+    const avatarSize = 24;
 
     return (
         <>
