@@ -64,6 +64,9 @@ class AttributeClassInputTransformer extends AbstractInputTransformer
         if (null !== $data->public) {
             $object->setPublic($data->public);
         }
+        if (null !== $data->labels) {
+            $object->setLabels($data->labels);
+        }
 
         return $object;
     }

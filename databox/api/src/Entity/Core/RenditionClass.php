@@ -65,6 +65,10 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 
+    #[Groups([RenditionClass::GROUP_LIST, RenditionClass::GROUP_READ])]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $labels = null;
+
     /**
      * @var RenditionDefinition[]
      */
@@ -100,5 +104,15 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
     public function setPublic(bool $public): void
     {
         $this->public = $public;
+    }
+
+    public function getLabels(): ?array
+    {
+        return $this->labels;
+    }
+
+    public function setLabels(?array $labels): void
+    {
+        $this->labels = $labels;
     }
 }
