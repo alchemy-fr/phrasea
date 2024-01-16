@@ -7,18 +7,18 @@ import {UploaderUser} from '../types.ts';
 type Props = PropsWithChildren<{}>;
 
 export default function UploaderUserProvider({children}: Props) {
-    const {tokens} = useAuth();
+    const {user} = useAuth();
     const [uploaderUser, setUploaderUser] = React.useState<
         UploaderUser | undefined
     >();
 
     React.useEffect(() => {
-        if (tokens) {
+        if (user) {
             apiClient.get('/me').then(r => {
                 setUploaderUser(r.data);
             });
         }
-    }, [tokens]);
+    }, [user?.id]);
 
     return (
         <UploaderUserContext.Provider

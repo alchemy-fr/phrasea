@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class SyncMatomoPhraseanetCommand extends Command
 {
-    static $defaultName = 'app:matomo:sync-phraseanet';
+    public static $defaultName = 'app:matomo:sync-phraseanet';
 
     private MatomoClient $matomoClient;
     private PhraseanetClient $phraseanetClient;
@@ -20,8 +20,7 @@ final class SyncMatomoPhraseanetCommand extends Command
     public function __construct(
         MatomoClient $matomoClient,
         PhraseanetClient $phraseanetClient
-    )
-    {
+    ) {
         $this->matomoClient = $matomoClient;
         $this->phraseanetClient = $phraseanetClient;
         parent::__construct();

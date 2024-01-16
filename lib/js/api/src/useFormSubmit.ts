@@ -100,8 +100,9 @@ export default function useFormSubmit<T extends FieldValues, R = T>({
         onSubmit = fn;
     };
 
-    const forbidNavigation =
-        useFormResponse.formState.isDirty && !submitted && !submitting;
+
+    const isDirtyAlt = !!Object.keys(useFormResponse.formState.dirtyFields).length;
+    const forbidNavigation = isDirtyAlt && !submitted && !submitting;
 
     return {
         ...useFormResponse,
@@ -110,6 +111,7 @@ export default function useFormSubmit<T extends FieldValues, R = T>({
         remoteErrors,
         submitting,
         submitted,
+        isDirty: isDirtyAlt,
         forbidNavigation,
     };
 }

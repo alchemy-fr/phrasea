@@ -12,9 +12,9 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class JWTManager
+readonly class JWTManager
 {
-    public function __construct(private readonly string $signingKey, private readonly string $baseUri, private readonly int $ttl)
+    public function __construct(private string $signingKey, private string $baseUri, private int $ttl)
     {
     }
 
@@ -42,7 +42,7 @@ class JWTManager
         $token = $config->parser()->parse($jwt);
         assert($token instanceof UnencryptedToken);
 
-        $uri = preg_replace('#(&|\?)jwt=.+$#', '', $uri);
+        $uri = preg_replace('#([&?])jwt=.+$#', '', $uri);
 
         $config->setValidationConstraints(
             new Constraint\LooseValidAt(

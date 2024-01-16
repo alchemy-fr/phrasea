@@ -31,7 +31,12 @@ class AttributeClassInput
     public $editable;
 
     /**
-     * @var string
+     * @var string|null
      */
     public $key;
+
+    /**
+     * @var array|null
+     */
+    public $labels;
 }

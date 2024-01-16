@@ -75,11 +75,17 @@ class RenditionDefinitionInput
      * @var int|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $priority = null;
+    public $priority;
 
     /**
      * @var string|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
-    public $key = null;
+    public $key;
+
+    /**
+     * @var array|null
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $labels;
 }

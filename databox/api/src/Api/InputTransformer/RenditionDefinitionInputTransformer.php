@@ -40,7 +40,7 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
                 $rendDef = $this->em->getRepository(RenditionDefinition::class)
                     ->findOneBy([
                         'key' => $data->key,
-                        'workspace' => $workspace->getId()
+                        'workspace' => $workspace->getId(),
                     ]);
 
                 if ($rendDef) {
@@ -85,6 +85,9 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         }
         if (null !== $data->priority) {
             $object->setPriority($data->priority);
+        }
+        if (null !== $data->labels) {
+            $object->setLabels($data->labels);
         }
 
         return $object;

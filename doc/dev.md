@@ -40,6 +40,11 @@ sudo bin/dev/append-etc-hosts.sh
 
 ### Configure env vars
 
+```bash
+# bin/build.sh optimize build order in order to maximize benefit of docker layer caching:
+bin/build.sh
+```
+
 Configure your local env var:
 ```dotenv
 APP_ENV=dev
@@ -50,18 +55,12 @@ VERIFY_SSL=false
 ```
 
 ```bash
-# bin/build.sh optimize build order in order to maximize benefit of docker layer caching: 
-bin/build.sh
-
 # Build the dev container
 dc build dev
 
 # Install app dependencies
 dc run --rm dev bin/dev/composer-install.sh
-dc run --rm dev bin/dev/yarn-install.sh
-
-# Start the stack
-dc up -d
+dc run --rm dev pnpm install
 ```
 
 ### Composer caching in Docker

@@ -16,4 +16,4 @@ if [ ! -t 1 ] ; then
   exit 0
 fi
 
-exec "$@"
+exec su app -c "$*"

@@ -16,8 +16,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     ) {
     }
 
-    public function configure(OutputInterface $output): void
+    public function configure(OutputInterface $output, array $presets): void
     {
+        $hasTestPreset = in_array('test', $presets, true);
+
         $this->configureRealm();
 
         foreach ($this->symfonyApplications as $app) {
@@ -48,9 +50,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             }
         }
 
+        $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
-            $client = $this->configureClient(
+            $clientData = $this->configureClient(
                 $clientId,
                 getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
                 getenv(sprintf('%s_API_URL', strtoupper($app))).'/admin',
@@ -59,10 +62,16 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 ]
             );
 
-            $this->keycloakManager->addServiceAccountRole($client, 'view-users', 'realm-management');
+            $this->keycloakManager->addServiceAccountRole($clientData, 'view-users', 'realm-management');
 
             foreach ($this->getAdminClientServiceAccountRoles()[$app] ?? [] as $role) {
-                $this->keycloakManager->addServiceAccountRole($client, $role, 'realm-management');
+                $this->keycloakManager->addServiceAccountRole($clientData, $role, 'realm-management');
+            }
+
+            if (isset($appScopes[$app])) {
+                foreach ($appScopes[$app] as $scope) {
+                    $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
+                }
             }
         }
 
@@ -101,7 +110,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'credentials' => [[
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
-                'temporary' => true,
+                'temporary' => !$hasTestPreset,
             ]]
         ]);
 
@@ -117,7 +126,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     {
         return [
             'databox' => [
-                'chuck-norris',
+                'super-admin',
                 'asset:create',
                 'asset:delete',
                 'asset:edit',

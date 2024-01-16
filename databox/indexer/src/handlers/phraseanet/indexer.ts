@@ -90,6 +90,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 attributeTypesEquivalence[m.type] || m.type,
                             workspace: `/workspaces/${workspaceId}`,
                             class: attrClassIndex[defaultPublicClass]['@id'],
+                            labels: {
+                                phraseanetDefinition: m,
+                            },
                         }
                     );
             }
@@ -127,6 +130,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     useAsThumbnailActive: sd.name === 'thumbnailgif',
                     priority: 0,
                     workspace: `/workspaces/${workspaceId}`,
+                    labels: {
+                        phraseanetDefinition: sd,
+                    },
                 });
             }
 

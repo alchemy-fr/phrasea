@@ -1,6 +1,5 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {Ace, Group, User, UserType} from '../../types';
-import {getGroups, getUsers} from '../../api/user';
+import React, {useCallback, useEffect} from 'react';
+import {Ace, UserType} from '../../types';
 import UserSelect from '../Form/UserSelect';
 import GroupSelect from '../Form/GroupSelect';
 import {Grid} from '@mui/material';
@@ -9,24 +8,17 @@ import {useTranslation} from 'react-i18next';
 import {
     DisplayedPermissions,
     OnPermissionDelete,
-    Permission,
 } from './permissions';
 import PermissionTable from './PermissionTable';
 
-type State = {
-    permissions: Permission[];
-    users: User[];
-    groups: Group[];
-};
-
 type Props = {
     displayedPermissions?: DisplayedPermissions;
-    loadPermissions: () => Promise<Permission[]>;
+    loadPermissions: () => Promise<Ace[]>;
     updatePermission: (
         userType: UserType,
         userId: string | null,
         mask: number
-    ) => Promise<void>;
+    ) => Promise<Ace>;
     deletePermission: (
         userType: UserType,
         userId: string | null
@@ -39,76 +31,40 @@ export default function PermissionList({
     updatePermission,
     deletePermission,
 }: Props) {
-    const [data, setData] = useState<State>();
+    const [permissions, setPermissions] = React.useState<Ace[]>();
     const {t} = useTranslation();
 
-    const resolveUsersPromise = useRef<(value: User[]) => void>();
-    const resolveGroupsPromise = useRef<(value: Group[]) => void>();
-    const usersPromise = useRef<Promise<User[]>>(
-        new Promise(resolve => {
-            resolveUsersPromise.current = resolve;
-        })
-    );
-    const groupsPromise = useRef<Promise<Group[]>>(
-        new Promise(resolve => {
-            resolveGroupsPromise.current = resolve;
-        })
-    );
-
     useEffect(() => {
-        Promise.all([loadPermissions(), getUsers(), getGroups()]).then(
-            ([permissions, users, groups]) => {
-                resolveUsersPromise.current!(users);
-                resolveGroupsPromise.current!(groups);
-
-                // Set data must occur AFTER promises resolution
-                setData({
-                    permissions,
-                    users,
-                    groups,
-                });
-            }
-        );
+        loadPermissions().then(p => setPermissions(p));
     }, []);
 
-    const addEntry = (
+    const addEntry = async (
         entry: {id: string; type: UserType},
         mask: number
-    ): void => {
-        updatePermission(entry.type, entry.id, mask);
+    ): Promise<void> => {
+        setPermissions(p => p!.concat([{
+            mask: mask,
+            userId: entry.id,
+            userType: entry.type,
+            resolving: true,
+        } as Ace]));
 
-        setData(p => {
-            const aces = [...(p!.permissions ?? [])];
+        const ace = await updatePermission(entry.type, entry.id, mask);
 
-            aces.push({
-                mask: mask,
-                userId: entry.id,
-                userType: entry.type,
-            } as Ace);
-
-            return {
-                ...p!,
-                permissions: aces,
-            };
-        });
+        setPermissions(p => p!.map(p => p.resolving && p.userId === entry.id ? ace : p));
     };
 
     const onDelete: OnPermissionDelete = useCallback(
         async (userType: UserType, userId: string | null) => {
             deletePermission(userType, userId);
 
-            setData(p => {
-                return {
-                    ...p!,
-                    permissions: p!.permissions.filter(
-                        (ace: Ace) =>
-                            !(
-                                ace.userType === userType &&
-                                ace.userId === userId
-                            )
-                    ),
-                };
-            });
+            setPermissions(p => p!.filter(
+                (ace: Ace) =>
+                    !(
+                        ace.userType === userType &&
+                        ace.userId === userId
+                    )
+            ));
         },
         [deletePermission]
     );
@@ -146,7 +102,6 @@ export default function PermissionList({
                 <Grid item md={6}>
                     <FormRow>
                         <GroupSelect
-                            data={groupsPromise.current}
                             placeholder={t(
                                 'acl.form.user_select.placeholder',
                                 `Select group`
@@ -155,8 +110,7 @@ export default function PermissionList({
                             onChange={option => {
                                 option && onSelectGroup(option.value);
                             }}
-                            disabledValues={data?.permissions
-                                .filter(
+                            disabledValues={permissions?.filter(
                                     ace =>
                                         ace.userType === 'group' && ace.userId
                                 )
@@ -167,7 +121,6 @@ export default function PermissionList({
                 <Grid item md={6}>
                     <FormRow>
                         <UserSelect
-                            data={usersPromise.current}
                             placeholder={t(
                                 'acl.form.group_select.placeholder',
                                 `Select user`
@@ -176,8 +129,7 @@ export default function PermissionList({
                             onChange={option => {
                                 option && onSelectUser(option.value);
                             }}
-                            disabledValues={data?.permissions
-                                .filter(
+                            disabledValues={permissions?.filter(
                                     ace => ace.userType === 'user' && ace.userId
                                 )
                                 .map(ace => ace.userId!)}
@@ -186,9 +138,7 @@ export default function PermissionList({
                 </Grid>
             </Grid>
             <PermissionTable
-                permissions={data?.permissions}
-                users={data?.users}
-                groups={data?.groups}
+                permissions={permissions}
                 displayedPermissions={displayedPermissions}
                 onMaskChange={updatePermission}
                 onDelete={onDelete}

@@ -3,7 +3,12 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {TreeItem, TreeView} from '@mui/x-tree-view';
 import {CollectionOptionalWorkspace, Workspace} from '../../../types';
-import {getCollection, getWorkspaces} from '../../../api/collection';
+import {
+    collectionChildrenLimit,
+    collectionSecondLimit,
+    getCollections,
+    getWorkspaces
+} from '../../../api/collection';
 import {
     Box,
     CircularProgress,
@@ -76,8 +81,14 @@ function CollectionTree({
 
         if (!loaded) {
             setLoaded(true);
-            const r = await getCollection(collection.id);
-            setTree(r.children);
+
+            const data = await getCollections({
+                parent: collection.id,
+                limit: collectionSecondLimit,
+                childrenLimit: collectionChildrenLimit,
+            });
+
+            setTree(data.result);
         }
     }
 

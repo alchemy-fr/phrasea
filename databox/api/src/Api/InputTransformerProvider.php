@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api;
 
+use ApiPlatform\Documentation\Entrypoint;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\InputTransformer\InputTransformerInterface;
@@ -35,7 +36,7 @@ final class InputTransformerProvider implements ProviderInterface
             return $data;
         }
 
-        if (!is_object($data)) {
+        if (!is_object($data) || $data instanceof Entrypoint) {
             return $data;
         }
 

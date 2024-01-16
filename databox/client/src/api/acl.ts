@@ -21,14 +21,14 @@ export async function putAce(
     objectType: string,
     objectId: string | undefined,
     mask: number
-): Promise<void> {
-    await apiClient.put(`/permissions/ace`, {
+): Promise<Ace> {
+    return (await apiClient.put(`/permissions/ace`, {
         userType,
         userId,
         objectType,
         objectId,
         mask,
-    });
+    })).data;
 }
 
 export async function deleteAce(

@@ -87,6 +87,7 @@
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
         "exercise/htmlpurifier-bundle": "^4.0",
+        "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
         "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",

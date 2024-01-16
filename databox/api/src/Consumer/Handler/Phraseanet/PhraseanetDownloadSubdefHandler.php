@@ -61,6 +61,9 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
 
         $workspace = $asset->getWorkspace();
         $url = $payload['permalink'];
+        if (empty($url)) {
+            throw new \InvalidArgumentException(sprintf('Empty Phraseanet permalink'));
+        }
 
         [$urlPart] = explode('?', (string) $url, 2);
 

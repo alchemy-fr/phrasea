@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AssetDataTemplateInputTransformer;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
@@ -65,7 +64,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     input: AssetDataTemplateInput::class,
     output: AssetDataTemplateOutput::class,
     provider: AssetDataTemplateCollectionProvider::class,
-    processor: AssetDataTemplateInputTransformer::class,
 )]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable

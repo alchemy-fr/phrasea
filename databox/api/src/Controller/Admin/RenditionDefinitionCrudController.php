@@ -4,7 +4,10 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\RenditionDefinition;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -20,6 +23,12 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return RenditionDefinition::class;
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -40,33 +49,35 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $workspace = AssociationField::new('workspace');
-        $name = TextField::new('name');
-        $key = TextField::new('key');
-        $class = AssociationField::new('class');
-        $pickSourceFile = Field::new('pickSourceFile');
-        $useAsOriginal = Field::new('useAsOriginal');
-        $useAsPreview = Field::new('useAsPreview');
-        $useAsThumbnail = Field::new('useAsThumbnail');
-        $useAsThumbnailActive = Field::new('useAsThumbnailActive', 'Thumb Active');
-        $priority = IntegerField::new('priority');
-        $download = Field::new('download');
-        $definition = TextareaField::new('definition');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $renditions = AssociationField::new('renditions');
+        yield IdField::new();
+        yield TextField::new('name');
+        yield AssociationField::new('class');
+        yield AssociationField::new('workspace');
+        yield TextField::new('key')
+            ->hideOnIndex()
+        ;
+        yield Field::new('pickSourceFile')
+        ->hideOnIndex();
+        yield Field::new('useAsOriginal');
+        yield Field::new('useAsPreview');
+        yield Field::new('useAsThumbnail');
+        yield Field::new('useAsThumbnailActive', 'Thumb Active')
+            ->hideOnIndex();
+        yield IntegerField::new('priority');
+        yield Field::new('download')
+            ->hideOnIndex()
+        ;
+//        yield TextareaField::new('definition')
+//            ->hideOnIndex()
+//        ;
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $key, $download, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $definition, $priority, $createdAt, $updatedAt, $workspace, $class, $renditions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $name, $key, $class, $pickSourceFile, $useAsOriginal, $useAsPreview, $useAsThumbnail, $useAsThumbnailActive, $priority];
-        }
-
-        return [];
+        yield JsonField::new('labels')
+            ->hideOnForm()
+            ->hideOnIndex()
+        ;
     }
 }

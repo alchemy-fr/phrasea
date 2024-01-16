@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Util;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use App\Security\Voter\ChuckNorrisVoter;
+use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -21,9 +21,14 @@ trait SecurityAwareTrait
         $this->security = $security;
     }
 
-    protected function isChuckNorris(): bool
+    protected function isSuperAdmin(): bool
     {
-        return $this->security->isGranted(ChuckNorrisVoter::ROLE);
+        return $this->security->isGranted(SuperAdminVoter::ROLE);
+    }
+
+    protected function isAdmin(): bool
+    {
+        return $this->security->isGranted(JwtUser::ROLE_ADMIN);
     }
 
     protected function isGranted(mixed $attributes, mixed $subject = null): bool

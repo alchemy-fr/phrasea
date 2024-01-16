@@ -85,6 +85,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->translatable) {
             $object->setTranslatable($data->translatable);
         }
+        if (null !== $data->labels) {
+            $object->setLabels($data->labels);
+        }
 
         return $object;
     }

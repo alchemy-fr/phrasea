@@ -44,7 +44,6 @@ export default function CheckboxWidget<TFieldValues extends FieldValues>({
                     )}
                 />
             }
-            disabled={disabled}
             label={label}
             labelPlacement="end"
         />

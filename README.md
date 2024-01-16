@@ -26,6 +26,7 @@ In that case, you need to assign a unique `APP_ID` to each instance. This `APP_I
 - [S3 Storage](./doc/storage/s3.md)
 - [Cloud Front](./doc/storage/cloudfront.md)
 - [Backup and Restore](./doc/backup-restore.md)
+- [Permissions](./doc/permissions.md)
 
 ## Infra
 

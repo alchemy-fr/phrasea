@@ -1,6 +1,6 @@
 alchemy_webhook:
   normalizer_roles:
-    - ROLE_CHUCK-NORRIS
+    - ROLE_SUPER-ADMIN
   events:
     'custom:event':
       description: A custom event

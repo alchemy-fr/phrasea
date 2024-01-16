@@ -24,7 +24,7 @@ export default function AclForm({
 
     const updatePermission = useCallback(
         async (userType: UserType, userId: string | null, mask: number) => {
-            await putAce(userType, userId, objectType, objectId, mask);
+            return await putAce(userType, userId, objectType, objectId, mask);
         },
         [objectType, objectId]
     );

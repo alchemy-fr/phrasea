@@ -52,15 +52,15 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
 function denormalizeFormData(data: WorkspaceFormData): Workspace {
     return {
         ...data,
-        enabledLocales: flattenSortableList(data.enabledLocales),
-        localeFallbacks: flattenSortableList(data.localeFallbacks),
+        enabledLocales: flattenSortableList(data.enabledLocales || undefined),
+        localeFallbacks: flattenSortableList(data.localeFallbacks || undefined),
     };
 }
 
 function normalizeFormData(data: Workspace): WorkspaceFormData {
     return {
         ...data,
-        enabledLocales: extendSortableList(data.enabledLocales),
-        localeFallbacks: extendSortableList(data.localeFallbacks),
+        enabledLocales: extendSortableList(data.enabledLocales || undefined),
+        localeFallbacks: extendSortableList(data.localeFallbacks || undefined),
     };
 }

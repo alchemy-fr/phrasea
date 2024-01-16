@@ -11,9 +11,9 @@ export default function Root({}: Props) {
         <>
             <ToastContainer position={'bottom-left'} />
             <AuthenticationProvider oauthClient={oauthClient}>
+                <SessionExpireContainer/>
                 <MatomoUser />
                 <ModalStack>
-                    <SessionExpireContainer/>
                     <App />
                 </ModalStack>
             </AuthenticationProvider>

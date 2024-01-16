@@ -26,6 +26,7 @@ RUN apk add --no-cache \
         openssh-client \
         perl \
         python3 \
+        sudo \
         vim \
         zsh \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
@@ -40,7 +41,13 @@ RUN apk add --no-cache \
     && make \
     && make test \
     && make install) \
-    && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini
+    && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini \
+    && adduser -D -u 1000 app \
+    && addgroup -S sudo \
+    && addgroup app sudo \
+    && mkdir -p /etc/sudoers.d \
+    && echo $'%sudo ALL = (ALL) NOPASSWD: ALL \n\
+Defaults exempt_group = sudo' > /etc/sudoers.d/nopasswd
 
 ENV APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
@@ -97,8 +104,7 @@ RUN set -eux; \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)"; \
 	apk add --no-cache --virtual .api-phpexts-rundeps $runDeps; \
-	apk del .build-deps \
-    && adduser -D -u 1000 app
+	apk del .build-deps
 
 COPY --from=composer:2.5.8 /usr/bin/composer /usr/bin/composer
 
@@ -191,4 +197,4 @@ RUN chmod -R +x \
 
 ENTRYPOINT ["/bootstrap/entrypoint.sh"]
 
-CMD ["su", "app", "-c", "zsh"]
+CMD ["/bin/zsh"]
