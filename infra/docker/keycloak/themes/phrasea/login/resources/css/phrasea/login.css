@@ -8,12 +8,21 @@
     background: #f1f1f1;
 }
 
+#kc-header-wrapper {
+    padding: 40px 10px 20px;
+}
+
 .login-pf-header {
     margin-top: 1em;
 }
 
 .login-pf-page {
     min-height: 100vh;
+    padding-top: 0px;
+}
+
+.login-pf-page .login-pf-page-header {
+    margin-bottom: 0px;
 }
 
 #login-content-wrapper {
@@ -48,7 +57,6 @@
 
 .card-pf {
     max-width: 667px;
-    min-height: 423px;
     border-top: 0;
     border-bottom: 24px solid #0066cc;
     border-radius: 24px;
@@ -56,7 +64,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 20px 40px;
     background: #fff;
 }
@@ -361,16 +368,6 @@ div.kc-logo-text span {
 /* END Forgot-password */
 
 /* Info */
-
-#kc-info-message .instruction {
-    font-family: "Lexend Deca";
-    font-style: normal;
-    font-weight: 500;
-    font-size: 34.9911px;
-    line-height: 44px;
-    text-align: center;
-    color: #000000;
-}
 
 .login-pf-page .card-pf p {
     font-family: "Lexend Deca";
