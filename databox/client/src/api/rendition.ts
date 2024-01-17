@@ -62,6 +62,9 @@ export async function putRenditionDefinition(
     id: string | undefined,
     data: RenditionDefinition
 ): Promise<RenditionDefinition> {
+    // @ts-expect-error no workspace
+    delete data.workspace;
+
     return (await apiClient.put(`${renditionDefinitionNS}/${id}`, data)).data;
 }
 

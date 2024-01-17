@@ -44,7 +44,7 @@ function Item({
     } = usedFormSubmit;
 
     useEffect(() => {
-        reset(createData(data));
+        reset(normalizeData(data));
     }, [data]);
 
     return (
@@ -217,12 +217,12 @@ export default function AttributeDefinitionManager({
             handleSave={handleSave}
             handleDelete={deleteAttributeDefinition}
             onSort={onSort}
-            normalizeData={createData}
+            normalizeData={normalizeData}
         />
     );
 }
 
-function createData(data: AttributeDefinition) {
+function normalizeData(data: AttributeDefinition) {
     return {
         ...data,
         class: data?.class && (data?.class as AttributeClass)['@id'],

@@ -31,7 +31,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Put(
+            security: 'is_granted("EDIT", object)',
+            input: RenditionDefinitionInput::class,
+        ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),

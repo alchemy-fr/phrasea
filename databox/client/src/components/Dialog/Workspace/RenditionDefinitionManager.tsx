@@ -1,4 +1,4 @@
-import {RenditionDefinition, Workspace} from '../../../types';
+import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
 import {FormGroup, FormLabel, ListItemText, TextField} from '@mui/material';
 import FormRow from '../../Form/FormRow';
 import DefinitionManager, {
@@ -34,7 +34,7 @@ function Item({
     const {t} = useTranslation();
 
     React.useEffect(() => {
-        reset(data);
+        reset(normalizeData(data));
     }, [data]);
 
     return (
@@ -196,6 +196,15 @@ export default function RenditionDefinitionManager({
             handleSave={handleSave}
             handleDelete={deleteRenditionDefinition}
             onSort={onSort}
+            normalizeData={normalizeData}
         />
     );
+}
+
+
+function normalizeData(data: RenditionDefinition) {
+    return {
+        ...data,
+        class: data?.class && (data?.class as RenditionClass)['@id'],
+    };
 }

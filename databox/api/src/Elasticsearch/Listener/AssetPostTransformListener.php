@@ -79,8 +79,12 @@ class AssetPostTransformListener implements EventSubscriberInterface
                         $cUsers[] = $collection->getOwnerId();
                     }
 
-                    $cUsers = array_merge($cUsers, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
-                    $cGroups = array_merge($cGroups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
+                    $pColl = $collection;
+                    while ($pColl) {
+                        $cUsers = array_merge($cUsers, $this->permissionManager->getAllowedUsers($pColl, PermissionInterface::VIEW));
+                        $cGroups = array_merge($cGroups, $this->permissionManager->getAllowedGroups($pColl, PermissionInterface::VIEW));
+                        $pColl = $pColl->getParent();
+                    }
                 }
 
                 $absPath = $collection->getAbsolutePath();
