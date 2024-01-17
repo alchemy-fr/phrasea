@@ -119,5 +119,4 @@ public class GroupMembershipUuidMapper extends AbstractOIDCProtocolMapper implem
         String protocolClaim = mappingModel.getConfig().get(OIDCAttributeMapperHelper.TOKEN_CLAIM_NAME);
         token.getOtherClaims().put(protocolClaim, membership);
     }
-
 };
