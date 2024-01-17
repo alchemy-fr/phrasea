@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -137,6 +138,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         AccessDeniedHttpException::class,
                         UnsupportedFormatException::class,
                         ValidationException::class,
+                        UnauthorizedHttpException::class,
                     ],
                 ]
             ]);

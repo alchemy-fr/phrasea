@@ -6,6 +6,7 @@ namespace App\Api;
 
 use ApiPlatform\Documentation\Entrypoint;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\OpenApi\OpenApi;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\InputTransformer\InputTransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
@@ -36,7 +37,10 @@ final class InputTransformerProvider implements ProviderInterface
             return $data;
         }
 
-        if (!is_object($data) || $data instanceof Entrypoint) {
+        if (!is_object($data)
+            || $data instanceof Entrypoint
+            || $data instanceof OpenApi
+        ) {
             return $data;
         }
 
