@@ -38,7 +38,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         $id = IdField::new();
         $name = TextField::new('name');
         $slug = TextField::new('slug');
-        $isPublic = BooleanField::new('public');
+        $isPublic = BooleanField::new('public')
+            ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');
         $ownerId = TextField::new('ownerId');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $enabledLocales = ArrayField::new('enabledLocales');

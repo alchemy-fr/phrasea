@@ -91,7 +91,8 @@ export async function moveCollection(
     parentId: string | undefined
 ): Promise<void> {
     await apiClient.put(
-        `/collections/${id}/move/${parentId ? parentId : 'root'}`
+        `/collections/${id}/move/${parentId ? parentId : 'root'}`,
+        {}
     );
 }
 
