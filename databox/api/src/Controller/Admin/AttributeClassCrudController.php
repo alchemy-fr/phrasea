@@ -8,8 +8,8 @@ use App\Entity\Core\AttributeClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -42,8 +42,8 @@ class AttributeClassCrudController extends AbstractAclAdminCrudController
     {
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
-        $public = Field::new('public');
-        $editable = Field::new('editable');
+        $public = BooleanField::new('public');
+        $editable = BooleanField::new('editable');
         $id = IdField::new();
         $key = TextField::new('key');
         $createdAt = DateTimeField::new('createdAt');

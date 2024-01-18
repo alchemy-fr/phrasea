@@ -8,8 +8,8 @@ use App\Entity\Core\RenditionClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -41,7 +41,7 @@ class RenditionClassCrudController extends AbstractAdminCrudController
         $id = IdField::new();
         $workspace = AssociationField::new('workspace');
         $name = TextField::new('name');
-        $public = Field::new('public');
+        $public = BooleanField::new('public');
         $createdAt = DateTimeField::new('createdAt');
         $definitions = AssociationField::new('definitions');
 

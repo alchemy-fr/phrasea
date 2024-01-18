@@ -8,7 +8,7 @@ use App\Entity\Core\AssetTitleAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -40,7 +40,7 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
         $workspace = AssociationField::new('workspace');
         $definition = AssociationField::new('definition');
         $priority = IntegerField::new('priority');
-        $overrides = Field::new('overrides');
+        $overrides = BooleanField::new('overrides');
         $id = IdField::new();
 
         if (Crud::PAGE_INDEX === $pageName) {
