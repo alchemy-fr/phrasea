@@ -11,10 +11,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -58,9 +58,9 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         ;
         yield Field::new('pickSourceFile')
         ->hideOnIndex();
-        yield Field::new('useAsOriginal');
-        yield Field::new('useAsPreview');
-        yield Field::new('useAsThumbnail');
+        yield BooleanField::new('useAsOriginal');
+        yield BooleanField::new('useAsPreview');
+        yield BooleanField::new('useAsThumbnail');
         yield Field::new('useAsThumbnailActive', 'Thumb Active')
             ->hideOnIndex();
         yield IntegerField::new('priority');
