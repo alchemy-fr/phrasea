@@ -24,13 +24,38 @@ class RenditionRuleInputTransformer extends AbstractInputTransformer
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
         /** @var RenditionRule $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new RenditionRule();
+        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
 
-        $object->setUserId($data->userId ?? $data->groupId);
-        $object->setUserType($data->groupId ? RenditionRule::TYPE_GROUP : RenditionRule::TYPE_USER);
-        $object->setObjectId($data->collectionId ?? $data->workspaceId);
-        $object->setObjectType($data->collectionId ? RenditionRule::TYPE_COLLECTION : RenditionRule::TYPE_WORKSPACE);
-        $object->setAllowed($data->allowed);
+        $objectId = $data->collectionId ?? $data->workspaceId;
+        $userId = $data->userId ?? $data->groupId;
+        $userType = $data->groupId ? RenditionRule::TYPE_GROUP : RenditionRule::TYPE_USER;
+        $objectType = $data->collectionId ? RenditionRule::TYPE_COLLECTION : RenditionRule::TYPE_WORKSPACE;
+
+        $isNew = null === $object;
+        if ($isNew) {
+            $object = $this->em->getRepository(RenditionRule::class)
+                ->findOneBy([
+                    'objectId' => $objectId,
+                    'userId' => $userId,
+                    'userType' => $userType,
+                    'objectType' => $objectType,
+                ]);
+
+            $object ??= new RenditionRule();
+
+            $allowedCollection = $object->getAllowed();
+            foreach ($data->allowed as $allowed) {
+                $allowedCollection->add($allowed);
+            }
+        }
+
+        $object->setUserId($userId);
+        $object->setUserType($userType);
+        $object->setObjectId($objectId);
+        $object->setObjectType($objectType);
+        if (!$isNew) {
+            $object->setAllowed($data->allowed);
+        }
 
         return $object;
     }
