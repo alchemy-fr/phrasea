@@ -95,7 +95,7 @@ export interface AttributeDefinition extends IPermissions {
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
     workspace: Workspace | string;
-    class: AttributeClass | string;
+    class: AttributeClass | string | null;
 }
 
 export interface AttributeClass extends ApiHydraObjectResponse {
@@ -114,7 +114,7 @@ export interface FieldType extends ApiHydraObjectResponse {
 export interface RenditionDefinition extends ApiHydraObjectResponse {
     id: string;
     name: string;
-    class: AttributeClass | string;
+    class: AttributeClass | string | null;
     workspace: Workspace | string;
     pickSourceFile?: boolean;
     useAsOriginal?: boolean;

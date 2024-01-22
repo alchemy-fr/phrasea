@@ -156,6 +156,7 @@ function createNewItem(): Partial<RenditionDefinition> {
         useAsPreview: false,
         useAsThumbnail: false,
         useAsThumbnailActive: false,
+        class: null,
     };
 }
 

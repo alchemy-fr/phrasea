@@ -110,6 +110,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     handleSave,
     workspaceId,
     onSort,
+    normalizeData,
 }: Props<D>) {
     const [state, setState] = useState<State<D>>({
         list: undefined,
@@ -176,7 +177,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 return {
                     ...p,
                     list: newList,
-                    item: newData,
+                    item: normalizeData ? normalizeData(newData) : newData,
                 };
             });
 

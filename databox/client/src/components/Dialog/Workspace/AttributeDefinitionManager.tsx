@@ -173,11 +173,13 @@ type Props = {
 function createNewItem(): Partial<AttributeDefinition> {
     return {
         name: '',
+        slug: '',
         multiple: false,
         translatable: false,
         allowInvalid: false,
         searchable: true,
         fieldType: 'text',
+        class: null,
     };
 }
 
