@@ -16,7 +16,13 @@ class RenditionRuleOutput extends AbstractUuidOutput
     private ?string $userId = null;
 
     #[Groups([RenditionRule::GROUP_LIST])]
+    public ?UserOutput $user = null;
+
+    #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $groupId = null;
+
+    #[Groups([RenditionRule::GROUP_LIST])]
+    public ?GroupOutput $group = null;
 
     #[Groups([RenditionRule::GROUP_LIST])]
     private ?string $workspaceId = null;

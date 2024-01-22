@@ -145,6 +145,8 @@ export interface RenditionRule extends ApiHydraObjectResponse {
     groupId: string | null;
     workspaceId: string | null;
     collectionId: string | null;
+    group: Group | null;
+    user: User | null;
     allowed: RenditionClass[];
 }
 

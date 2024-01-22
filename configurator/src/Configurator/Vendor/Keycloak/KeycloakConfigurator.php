@@ -125,21 +125,21 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     private function getAppScopes(): array
     {
         return [
-            'databox' => [
+            'databox' => array_merge([
                 'super-admin',
-                'asset:create',
-                'asset:delete',
-                'asset:edit',
-                'collection:create',
-                'collection:delete',
-                'collection:edit',
-                'rendition:create',
-                'rendition:delete',
-                'rendition:edit',
-                'workspace:create',
-                'workspace:delete',
-                'workspace:edit',
-            ],
+                ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
+                    'create',
+                    'read',
+                    'edit',
+                    'delete',
+            ]), [
+                    'asset',
+                    'collection',
+                    'rendition',
+                    'rendition-class',
+                    'rendition-rule',
+                    'workspace',
+            ])),
             'expose' => [
                 'publish',
             ],

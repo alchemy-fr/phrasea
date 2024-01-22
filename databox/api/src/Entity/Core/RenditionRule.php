@@ -46,7 +46,6 @@ use Ramsey\Uuid\Doctrine\UuidType;
     input: RenditionRuleInput::class,
     output: RenditionRuleOutput::class,
     security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-    processor: RenditionRuleInputTransformer::class,
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['user_type', 'user_id'], name: 'rr_user_idx')]
@@ -85,7 +84,7 @@ class RenditionRule extends AbstractUuidEntity
     protected string $objectId;
 
     /**
-     * @var RenditionClass[]|Collection
+     * @var RenditionClass[]|DoctrineCollection
      */
     #[ORM\JoinTable(name: 'sdr_allowed')]
     #[ORM\ManyToMany(targetEntity: RenditionClass::class)]

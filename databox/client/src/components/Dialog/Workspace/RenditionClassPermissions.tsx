@@ -25,6 +25,8 @@ export default function RenditionClassPermissions({
             userType: r.groupId ? UserType.Group : UserType.User,
             userId: r.userId || r.groupId,
             mask: 1,
+            user: r.user,
+            group: r.group,
         }
     }
 
