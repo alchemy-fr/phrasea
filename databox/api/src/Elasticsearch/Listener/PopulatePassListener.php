@@ -17,8 +17,10 @@ class PopulatePassListener implements EventSubscriberInterface
 {
     private array $pendingPasses = [];
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexSyncState $indexSyncState)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly IndexSyncState $indexSyncState
+    ) {
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void
@@ -98,7 +100,7 @@ class PopulatePassListener implements EventSubscriberInterface
         return $populatePass;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',

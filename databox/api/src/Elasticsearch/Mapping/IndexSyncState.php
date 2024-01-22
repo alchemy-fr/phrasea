@@ -9,10 +9,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Configuration\ManagerInterface;
 use FOS\ElasticaBundle\Index\MappingBuilder;
 
-class IndexSyncState
+readonly class IndexSyncState
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly ManagerInterface $configManager, private readonly MappingBuilder $mappingBuilder, private readonly IndexMappingDiff $mappingDiff)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private ManagerInterface $configManager,
+        private MappingBuilder $mappingBuilder,
+        private IndexMappingDiff $mappingDiff
+    ) {
     }
 
     public function snapshotStateMapping(string $indexName): void
@@ -38,11 +42,8 @@ class IndexSyncState
             'indexName' => $indexName,
         ]);
 
-        if (null === $state) {
-            return null;
-        }
+        return $state?->getMapping();
 
-        return $state->getMapping();
     }
 
     public function getCurrentConfigMapping(string $indexName): array

@@ -57,6 +57,8 @@ ENV FPM_HOSTNAME=databox-api-php
 
 FROM api-php as worker
 
+ENV PHP_MEMORY_LIMIT=1G
+
 RUN apk add --no-cache \
         supervisor \
         perl \

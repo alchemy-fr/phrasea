@@ -105,7 +105,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private array $config = [];
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
-    private array $enabledLocales = [];
+    private array $enabledLocales = ['en'];
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $localeFallbacks = ['en'];

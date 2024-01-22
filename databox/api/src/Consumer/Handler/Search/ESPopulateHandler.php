@@ -36,7 +36,9 @@ class ESPopulateHandler extends AbstractEntityManagerHandler
                 'endedAt' => null,
             ]);
             foreach ($unterminated as $pp) {
-                $this->em->remove($pp);
+                $pp->setError(sprintf('Unexpected command return code %d (expected 0)', $code));
+                $pp->setEndedAt(new \DateTimeImmutable());
+                $this->em->persist($pp);
             }
             $this->em->flush();
         }
