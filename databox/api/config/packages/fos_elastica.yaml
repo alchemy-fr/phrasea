@@ -124,6 +124,12 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
+                nlUsers:
+                    property_path: false
+                    type: keyword
+                nlGroups:
+                    property_path: false
+                    type: keyword
             persistence:
                 driver: orm
                 model: App\Entity\Core\Collection

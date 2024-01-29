@@ -122,7 +122,17 @@ class CollectionSearch extends AbstractSearch
 
             $boolQuery->addFilter($parentsBoolQuery);
         } else {
-            $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
+            if (null !== $userId) {
+                $rootLevelQuery = new Query\BoolQuery();
+                $rootLevelQuery->addShould(new Query\Term(['pathDepth' => 0]));
+                $rootLevelQuery->addShould(new Query\Term(['nlUsers' => $userId]));
+                if (!empty($groupIds)) {
+                    $rootLevelQuery->addShould(new Query\Terms('nlGroups', $groupIds));
+                }
+                $boolQuery->addFilter($rootLevelQuery);
+            } else {
+                $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
+            }
         }
 
         if (isset($options['workspaces'])) {
