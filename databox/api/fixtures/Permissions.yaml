@@ -1,0 +1,84 @@
+App\Entity\Core\Workspace:
+  w_permissions:
+    name: Permissions
+    slug: permissions
+    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+
+# Collections hierarchy:
+# A
+#   B
+#     C
+#       D
+#     C2
+# A2
+
+App\Entity\Core\Collection:
+  collection_p (template):
+    workspace: '@w_permissions'
+    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+
+  c_{a, a2, a3, a4, a5} (extends collection_p):
+    title: '<ucwords($current)>'
+
+  c_{b, b2, b3, b4} (extends collection_p):
+    parent: '@c_a'
+    title: '<ucwords($current)>'
+
+  c_{c, c2} (extends collection_p):
+    parent: '@c_b'
+    title: '<ucwords($current)>'
+
+  c_{d} (extends collection_p):
+    parent: '@c_c'
+    title: '<ucwords($current)>'
+
+App\Entity\Core\Asset:
+  asset_p (template):
+    workspace: '@w_permissions'
+    privacy: '<numberBetween(1, 5)>'
+    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+
+  a_{a} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o1'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+  a_{a2} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o2'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+  a_{b} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o3'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+  a_{c} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o4'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+  a_{c2} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o5'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+  a_{d} (extends asset_p):
+    title: 'Image in <ucwords($current)>'
+    source: '@f_img_o6'
+    __calls:
+        - addToCollection: ['@c_<current()>']
+
+App\Entity\Core\File:
+  file_p (template):
+    workspace: '@w_newspaper'
+    storage: s3_main
+
+  f_img_o{1..6} (extends file_p):
+    type: image/jpeg
+    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'

@@ -261,27 +261,6 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         return $bestPrivacy;
     }
 
-    public function getBestPrivacyInDescendantHierarchy(): int
-    {
-        $bestPrivacy = $this->privacy;
-        // Early return if best
-        if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
-            return $this->privacy;
-        }
-
-        foreach ($this->children as $child) {
-            if (($better = $child->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
-                // Early return if best
-                if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
-                    return $this->privacy;
-                }
-                $bestPrivacy = $better;
-            }
-        }
-
-        return $bestPrivacy;
-    }
-
     public function isVisible(): bool
     {
         return $this->privacy >= WorkspaceItemPrivacyInterface::PRIVATE;
