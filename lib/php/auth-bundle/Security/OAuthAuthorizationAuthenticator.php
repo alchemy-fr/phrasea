@@ -85,6 +85,15 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
                 'redirect' => $redirect,
             ] = $this->authStateEncoder->decodeState($state);
 
+            if ('cross-site' === $request->headers->get('sec-fetch-site')) {
+                return new Response(sprintf('<html>
+<head>
+<meta http-equiv="refresh" content="0;URL=\'%1$s\'"/>
+</head>
+<body><p>Redirecting to <a href="%1$s">%1$s</a>.</p></body>
+</html>', $redirect));
+            }
+
             return new RedirectResponse($redirect);
         }
 
