@@ -7,6 +7,7 @@ import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {CollectionForm} from '../../Form/CollectionForm';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useCollectionStore} from "../../../store/collectionStore.ts";
 
 export type OnCollectionEdit = (coll: Collection) => void;
 
@@ -18,12 +19,18 @@ type Props = {
 export default function EditCollection({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
+    const {
+        updateCollection
+    } = useCollectionStore();
+
     const usedFormSubmit = useFormSubmit({
         defaultValues: data,
         onSubmit: async (data: Collection) => {
             return await putCollection(data.id, data);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            updateCollection(data);
+
             toast.success(
                 t(
                     'form.collection_edit.success',

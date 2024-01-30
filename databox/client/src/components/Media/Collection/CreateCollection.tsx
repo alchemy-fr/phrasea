@@ -16,7 +16,7 @@ type Props = {
     titlePath?: string[];
     workspaceId?: string;
     workspaceTitle: string;
-    onCreate: OnCollectionEdit;
+    onCreate?: OnCollectionEdit;
 } & StackedModalProps;
 
 export default function CreateCollection({
@@ -54,7 +54,7 @@ export default function CreateCollection({
                 ) as string
             );
             closeModal();
-            onCreate(coll);
+            onCreate && onCreate(coll);
         },
     });
 

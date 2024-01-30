@@ -1,11 +1,5 @@
-import {MouseEvent, useContext, useEffect, useState} from 'react';
-import {Collection, CollectionOptionalWorkspace} from '../../types';
-import {
-    collectionChildrenLimit,
-    collectionSecondLimit,
-    deleteCollection,
-    getCollections,
-} from '../../api/collection';
+import React, {MouseEvent, useContext, useState} from 'react';
+import {Collection} from '../../types';
 import {SearchContext} from './Search/SearchContext';
 import {
     CircularProgress,
@@ -13,8 +7,12 @@ import {
     IconButton,
     ListItem,
     ListItemButton,
+    ListItemIcon,
     ListItemText,
 } from '@mui/material';
+import FolderIcon from '@mui/icons-material/Folder';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -28,29 +26,25 @@ import {useTranslation} from 'react-i18next';
 import ModalLink from '../Routing/ModalLink';
 import ConfirmDialog from '../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
-import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
+import {CollectionPager, useCollectionStore} from "../../store/collectionStore.ts";
+import {deleteCollection as apiDeleteCollection} from '../../api/collection';
 
 type Props = {
     level: number;
     absolutePath: string;
     titlePath?: string[];
-    onCollectionEdit: OnCollectionEdit;
-    onCollectionDelete: () => void;
-} & Collection;
+    onCollectionDelete?: () => void;
+    data: Collection;
+};
 
 export default function CollectionMenuItem({
-    id,
-    ['@id']: iri,
-    children,
+    data,
     absolutePath,
     titlePath,
-    title,
-    capabilities,
     onCollectionDelete,
-    workspace,
     level,
 }: Props) {
     const {t} = useTranslation();
@@ -58,61 +52,32 @@ export default function CollectionMenuItem({
     const searchContext = useContext(SearchContext);
     const authContext = useAuth();
     const [expanded, setExpanded] = useState(false);
-    const [expanding, setExpanding] = useState(false);
-    const [nextCollections, setNextCollections] = useState<{
-        loadingMore: boolean;
-        items?: CollectionOptionalWorkspace[];
-        total?: number;
-        page: number;
-    }>({
-        page: 0,
-        loadingMore: false,
-        items: children,
-    });
+    const childCount = data.children?.length ?? 0;
 
-    const childCount = nextCollections.items?.length ?? 0;
+    const loadChildren = useCollectionStore((state) => state.loadChildren);
+    const addCollection = useCollectionStore((state) => state.addCollection);
+    const deleteCollection = useCollectionStore((state) => state.deleteCollection);
+    useCollectionStore((state) => state.collections); // Subscribe to collection updates
 
-    useEffect(() => {
+    const pager =
+        useCollectionStore((state) => state.tree)[data.id]
+        ?? {
+            items: data.children,
+            expanding: false,
+            loadingMore: false,
+        } as CollectionPager;
+
+    const {workspace} = data;
+
+    React.useEffect(() => {
         if (expanded) {
             (async () => {
                 if (expanded && childCount > 0) {
-                    const timeout = setTimeout(() => {
-                        setExpanding(true);
-                    }, 800);
-
-                    const data = await getCollections({
-                        parent: id,
-                        limit: collectionSecondLimit,
-                        childrenLimit: collectionChildrenLimit,
-                    });
-                    clearTimeout(timeout);
-                    setNextCollections(prevState => ({
-                        loadingMore: false,
-                        page: 1,
-                        total:
-                            prevState.page < 1
-                                ? (prevState.total ?? 0) + data.total
-                                : data.total,
-                        items:
-                            prevState.page < 1
-                                ? (
-                                      data.result as CollectionOptionalWorkspace[]
-                                  ).concat(
-                                      (prevState.items || []).filter(
-                                          pc =>
-                                              !data.result.some(
-                                                  c => c.id === pc.id
-                                              )
-                                      )
-                                  )
-                                : data.result,
-                    }));
-
-                    setExpanding(false);
+                    loadChildren(data.id)
                 }
             })();
         }
-    }, [expanded]);
+    }, [expanded, data]);
 
     const expand = (force?: boolean) => {
         setExpanded(p => !p || true === force);
@@ -126,14 +91,14 @@ export default function CollectionMenuItem({
         e.stopPropagation();
 
         openModal(ConfirmDialog, {
-            textToType: title,
+            textToType: data.title,
             title: t(
                 'collection_delete.title.confirm',
                 'Are you sure you want to delete this collection?'
             ),
             onConfirm: async () => {
-                await deleteCollection(id);
-                onCollectionDelete();
+                await apiDeleteCollection(data.id);
+                onCollectionDelete && onCollectionDelete();
                 toast.success(
                     t(
                         'delete.collection.confirmed',
@@ -144,75 +109,15 @@ export default function CollectionMenuItem({
         });
     };
 
-    function getNextPage(): number | undefined {
-        if (childCount >= collectionChildrenLimit) {
-            if (nextCollections.items) {
-                if (childCount < nextCollections.total!) {
-                    return Math.floor(childCount / collectionSecondLimit) + 1;
-                }
-            } else {
-                return 1;
-            }
-        }
-    }
-
-    const nextPage = getNextPage();
-
     const selected = searchContext.collections.includes('/' + absolutePath);
+    const expanding = false; // TODO
     const onClick = () => {
         searchContext.selectCollection(
             absolutePath,
-            (titlePath ?? []).concat(title).join(` / `),
+            (titlePath ?? []).concat(data.title).join(` / `),
             selected
         );
         expand(true);
-    };
-
-    const loadMore = async (): Promise<void> => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            loadingMore: true,
-        }));
-
-        const page = getNextPage();
-        const items = await getCollections({
-            parent: id,
-            page,
-            limit: collectionSecondLimit,
-            childrenLimit: collectionChildrenLimit,
-        });
-
-        setNextCollections(prevState => ({
-            loadingMore: false,
-            page: page ?? 1,
-            total: nextCollections.total,
-            items: (prevState.items || []).concat(items.result),
-        }));
-    };
-
-    const onSubCollEdit: OnCollectionEdit = item => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            total: nextCollections.total,
-            items: prevState.items?.map(i => (i.id === item.id ? item : i)),
-        }));
-    };
-
-    const onSubCollDelete = (id: string) => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            total: nextCollections.total,
-            items: prevState.items?.filter(i => i.id !== id),
-        }));
-    };
-
-    const onCollectionCreate: OnCollectionEdit = item => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            total: (prevState.total ?? 0) + 1,
-            items: (prevState.items || []).concat(item),
-        }));
-        setExpanded(true);
     };
 
     const currentInSelectedHierarchy = searchContext.collections.some(c =>
@@ -234,7 +139,7 @@ export default function CollectionMenuItem({
                 secondaryAction={
                     <>
                         <span className="c-action">
-                            {capabilities.canEdit && (
+                            {data.capabilities.canEdit && (
                                 <IconButton
                                     title={t(
                                         'collection.item.create_asset',
@@ -246,18 +151,18 @@ export default function CollectionMenuItem({
                                             userId: authContext!.user!.id,
                                             workspaceTitle: workspace.name,
                                             workspaceId: workspace.id,
-                                            collectionId: id,
+                                            collectionId: data.id,
                                             titlePath: (titlePath ?? []).concat(
-                                                title
+                                                data.title
                                             ),
                                         })
                                     }
                                     aria-label="create-asset"
                                 >
-                                    <AddPhotoAlternateIcon />
+                                    <AddPhotoAlternateIcon/>
                                 </IconButton>
                             )}
-                            {capabilities.canEdit && (
+                            {data.capabilities.canEdit && (
                                 <IconButton
                                     title={t(
                                         'collection.item.create_collection',
@@ -265,27 +170,27 @@ export default function CollectionMenuItem({
                                     )}
                                     onClick={() =>
                                         openModal(CreateCollection, {
-                                            parent: iri,
+                                            parent: data['@id'],
                                             workspaceTitle: workspace.name,
                                             titlePath: (titlePath ?? []).concat(
-                                                title
+                                                data.title
                                             ),
-                                            onCreate: onCollectionCreate,
+                                            onCreate: (coll) => addCollection(coll, data.id, data.id),
                                         })
                                     }
                                     aria-label="add-child"
                                 >
-                                    <CreateNewFolderIcon />
+                                    <CreateNewFolderIcon/>
                                 </IconButton>
                             )}
-                            {capabilities.canEdit && (
+                            {data.capabilities.canEdit && (
                                 <IconButton
                                     component={ModalLink}
                                     route={
                                         modalRoutes.collections.routes.manage
                                     }
                                     params={{
-                                        id,
+                                        id: data.id,
                                         tab: 'edit',
                                     }}
                                     title={t(
@@ -294,15 +199,15 @@ export default function CollectionMenuItem({
                                     )}
                                     aria-label="edit"
                                 >
-                                    <EditIcon />
+                                    <EditIcon/>
                                 </IconButton>
                             )}
-                            {capabilities.canDelete && (
+                            {data.capabilities.canDelete && (
                                 <IconButton
                                     onClick={onDelete}
                                     aria-label="delete"
                                 >
-                                    <DeleteIcon />
+                                    <DeleteIcon/>
                                 </IconButton>
                             )}
                         </span>
@@ -315,11 +220,11 @@ export default function CollectionMenuItem({
                             aria-label="expand-toggle"
                         >
                             {expanding ? (
-                                <CircularProgress size={24} />
+                                <CircularProgress size={24}/>
                             ) : !expanded ? (
-                                <ExpandLessIcon />
+                                <ExpandLessIcon/>
                             ) : (
-                                <ExpandMoreIcon />
+                                <ExpandMoreIcon/>
                             )}
                         </IconButton>
                     </>
@@ -332,7 +237,14 @@ export default function CollectionMenuItem({
                     onClick={onClick}
                     style={{paddingLeft: `${10 + level * 10}px`}}
                 >
-                    <ListItemText primary={title} />
+                    <ListItemIcon
+                        sx={{
+                            minWidth: 35,
+                        }}
+                    >
+                        {data.public ? <FolderOutlinedIcon/> : (data.shared ? <FolderSharedIcon/> : <FolderIcon/>)}
+                    </ListItemIcon>
+                    <ListItemText primary={data.title}/>
                 </ListItemButton>
             </ListItem>
 
@@ -343,28 +255,24 @@ export default function CollectionMenuItem({
             >
                 {childCount > 0 && (
                     <div className="sub-colls">
-                        {nextCollections.items!.map(c => {
+                        {pager?.items.map(c => {
                             return (
                                 <CollectionMenuItem
-                                    {...c}
-                                    workspace={c.workspace || workspace}
-                                    onCollectionEdit={onSubCollEdit}
-                                    onCollectionDelete={() =>
-                                        onSubCollDelete(c.id)
-                                    }
+                                    data={c}
+                                    onCollectionDelete={() => deleteCollection(c.id, data.id, data.id)}
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
-                                    titlePath={(titlePath ?? []).concat(title)}
+                                    titlePath={(titlePath ?? []).concat(data.title)}
                                     level={level + 1}
                                 />
                             );
                         })}
-                        {Boolean(nextPage) && (
+                        {(pager && pager.items.length < (pager.total ?? 0)) && (
                             <ListItemButton
-                                onClick={loadMore}
-                                disabled={nextCollections.loadingMore}
+                                // onClick={loadMore}
+                                // disabled={nextCollections.loadingMore}
                             >
-                                <MoreHorizIcon />
+                                <MoreHorizIcon/>
                                 Load more collections
                             </ListItemButton>
                         )}

@@ -6,7 +6,7 @@ import {clearAssociationIds} from './clearAssociation';
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
 
-type CollectionOptions = {
+export type CollectionOptions = {
     limit?: number;
     childrenLimit?: number;
     page?: number;

@@ -12,9 +12,9 @@ use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::preRemove)]
-class WorkspaceListener implements EventSubscriber
+readonly class WorkspaceListener implements EventSubscriber
 {
-    public function __construct(private readonly PostFlushStack $postFlushStack)
+    public function __construct(private PostFlushStack $postFlushStack)
     {
     }
 

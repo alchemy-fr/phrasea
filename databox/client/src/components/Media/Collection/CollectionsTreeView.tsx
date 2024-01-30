@@ -72,7 +72,7 @@ function CollectionTree({
     const [loaded, setLoaded] = React.useState(false);
     const [tree, setTree] = React.useState<
         CollectionOptionalWorkspace[] | undefined
-    >(collection.children);
+    >(collection.children); // TODO use useCollectionStore()
 
     async function load() {
         if (!collection.children || collection.children.length === 0) {

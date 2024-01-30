@@ -7,6 +7,7 @@ namespace App\Listener;
 use Alchemy\AclBundle\Event\AclDeleteEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use App\Api\OutputTransformer\CollectionOutputTransformer;
 use App\Consumer\Handler\Search\IndexAllAssetsHandler;
 use App\Consumer\Handler\Search\IndexAllCollectionsHandler;
 use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
@@ -15,12 +16,20 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-readonly class AclListener implements EventSubscriberInterface
+#[AsEventListener(event: AclUpsertEvent::NAME, method: 'onAclUpsert')]
+#[AsEventListener(event: AclDeleteEvent::NAME, method: 'onAclDelete')]
+readonly class AclListener
 {
-    public function __construct(private ESSearchIndexer $searchIndexer, private ObjectMapping $objectMapping, private EventProducer $eventProducer)
-    {
+    public function __construct(
+        private ESSearchIndexer $searchIndexer,
+        private ObjectMapping $objectMapping,
+        private EventProducer $eventProducer,
+        private TagAwareCacheInterface $collectionCache,
+    ) {
     }
 
     public function onAclUpsert(AclUpsertEvent $event): void
@@ -35,6 +44,8 @@ readonly class AclListener implements EventSubscriberInterface
 
     private function reIndexAsset(string $objectType, string $objectId = null): void
     {
+        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+
         $objectClass = $this->objectMapping->getClassName($objectType);
 
         if (null === $objectId) {
@@ -57,13 +68,5 @@ readonly class AclListener implements EventSubscriberInterface
         } else {
             $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], ESSearchIndexer::ACTION_UPSERT);
         }
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [
-            AclUpsertEvent::NAME => 'onAclUpsert',
-            AclDeleteEvent::NAME => 'onAclDelete',
-        ];
     }
 }

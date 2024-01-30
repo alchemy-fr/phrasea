@@ -1,32 +1,31 @@
-import {PureComponent} from 'react';
-import {Workspace} from '../../types';
-import {getWorkspaces} from '../../api/collection';
-import WorkspaceMenuItem from './WorkspaceMenuItem';
+import React from 'react';
+import {useCollectionStore} from "../../store/collectionStore.ts";
+import WorkspaceMenuItem from "./WorkspaceMenuItem.tsx";
+import {getWorkspaces} from "../../api/collection.ts";
+import {Workspace} from "../../types.ts";
 
-type State = {
-    workspaces: Workspace[];
-};
+type Props = {};
 
-export default class CollectionsPanel extends PureComponent<{}, State> {
-    state: State = {
-        workspaces: [],
-    };
+export default function CollectionsPanel({}: Props) {
+    const [workspaces, setWorkspaces] = React.useState<Workspace[]>([]);
 
-    componentDidMount() {
-        this.load();
-    }
+    const setRootCollections = useCollectionStore((state) => state.setRootCollections);
 
-    async load() {
-        this.setState({workspaces: await getWorkspaces()});
-    }
+    React.useEffect(() => {
+        getWorkspaces().then(result => {
+            setRootCollections(result);
+            setWorkspaces(result);
+        })
+    }, []);
 
-    render() {
-        return (
-            <>
-                {this.state.workspaces.map(w => (
-                    <WorkspaceMenuItem {...w} key={w.id} />
-                ))}
-            </>
-        );
-    }
+    return (
+        <>
+            {workspaces.map(w => (
+                <WorkspaceMenuItem
+                    data={w}
+                    key={w.id}
+                />
+            ))}
+        </>
+    );
 }

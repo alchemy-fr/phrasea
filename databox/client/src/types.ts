@@ -193,6 +193,8 @@ export interface Collection extends IPermissions {
     title: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
+    public: boolean;
+    shared: boolean;
     privacy: number;
     createdAt: string;
     updatedAt: string;
