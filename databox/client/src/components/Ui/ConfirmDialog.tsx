@@ -12,6 +12,7 @@ type Props = PropsWithChildren<
     {
         onCancel?: () => void;
         onConfirm: () => Promise<void>;
+        onConfirmed?: () => void;
         title: ReactNode;
         confirmLabel?: ReactNode;
         disabled?: boolean;
@@ -22,6 +23,7 @@ type Props = PropsWithChildren<
 export default function ConfirmDialog({
     onCancel,
     onConfirm,
+    onConfirmed,
     title,
     confirmLabel,
     disabled,
@@ -47,6 +49,8 @@ export default function ConfirmDialog({
         try {
             await onConfirm();
             closeModal();
+
+            onConfirmed && onConfirmed();
         } catch (e: any) {
             if (e.isAxiosError) {
                 const err = e as AxiosError<any>;

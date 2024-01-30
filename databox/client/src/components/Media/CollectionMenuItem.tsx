@@ -30,13 +30,13 @@ import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from "../../store/collectionStore.ts";
-import {deleteCollection as apiDeleteCollection} from '../../api/collection';
+import {deleteCollection} from '../../api/collection';
 
 type Props = {
     level: number;
+    workspaceId: string;
     absolutePath: string;
     titlePath?: string[];
-    onCollectionDelete?: () => void;
     data: Collection;
 };
 
@@ -44,19 +44,18 @@ export default function CollectionMenuItem({
     data,
     absolutePath,
     titlePath,
-    onCollectionDelete,
     level,
+    workspaceId,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
     const authContext = useAuth();
-    const [expanded, setExpanded] = useState(false);
+    const [[expanded, clicked], setExpanded] = useState<[boolean, boolean]>([false, false]);
     const childCount = data.children?.length ?? 0;
 
     const loadChildren = useCollectionStore((state) => state.loadChildren);
     const addCollection = useCollectionStore((state) => state.addCollection);
-    const deleteCollection = useCollectionStore((state) => state.deleteCollection);
     useCollectionStore((state) => state.collections); // Subscribe to collection updates
 
     const pager =
@@ -70,21 +69,21 @@ export default function CollectionMenuItem({
     const {workspace} = data;
 
     React.useEffect(() => {
-        if (expanded) {
+        if (expanded && clicked) {
             (async () => {
-                if (expanded && childCount > 0) {
-                    loadChildren(data.id)
+                if (childCount > 0) {
+                    loadChildren(workspaceId, data.id)
                 }
             })();
         }
-    }, [expanded, data]);
+    }, [expanded, clicked]);
 
-    const expand = (force?: boolean) => {
-        setExpanded(p => !p || true === force);
+    const expand = (force?: boolean, clicked?: boolean) => {
+        setExpanded(p => [!p[0] || true === force, clicked || p[1]]);
     };
     const expandClick = (e: MouseEvent) => {
         e.stopPropagation();
-        expand();
+        expand(false, true);
     };
 
     const onDelete = (e: MouseEvent): void => {
@@ -97,8 +96,7 @@ export default function CollectionMenuItem({
                 'Are you sure you want to delete this collection?'
             ),
             onConfirm: async () => {
-                await apiDeleteCollection(data.id);
-                onCollectionDelete && onCollectionDelete();
+                await deleteCollection(data.id);
                 toast.success(
                     t(
                         'delete.collection.confirmed',
@@ -117,7 +115,7 @@ export default function CollectionMenuItem({
             (titlePath ?? []).concat(data.title).join(` / `),
             selected
         );
-        expand(true);
+        expand(true, true);
     };
 
     const currentInSelectedHierarchy = searchContext.collections.some(c =>
@@ -175,7 +173,10 @@ export default function CollectionMenuItem({
                                             titlePath: (titlePath ?? []).concat(
                                                 data.title
                                             ),
-                                            onCreate: (coll) => addCollection(coll, data.id, data.id),
+                                            onCreate: (coll) => {
+                                                addCollection(coll, workspaceId, data.id);
+                                                expand(true);
+                                            },
                                         })
                                     }
                                     aria-label="add-child"
@@ -259,7 +260,7 @@ export default function CollectionMenuItem({
                             return (
                                 <CollectionMenuItem
                                     data={c}
-                                    onCollectionDelete={() => deleteCollection(c.id, data.id, data.id)}
+                                    workspaceId={workspaceId}
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
                                     titlePath={(titlePath ?? []).concat(data.title)}

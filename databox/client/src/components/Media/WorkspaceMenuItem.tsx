@@ -45,7 +45,6 @@ export default function WorkspaceMenuItem({
     const [expanded, setExpanded] = useState(false);
 
     const addCollection = useCollectionStore((state) => state.addCollection);
-    const deleteCollection = useCollectionStore((state) => state.deleteCollection);
     const loadMore = useCollectionStore((state) => state.loadMore);
     const pager = useCollectionStore(useShallow((state) => state.tree))[id];
 
@@ -164,7 +163,7 @@ export default function WorkspaceMenuItem({
                     pager!.items.map(c => (
                         <CollectionMenuItem
                             data={c}
-                            onCollectionDelete={() => deleteCollection(c.id, id)}
+                            workspaceId={id}
                             key={c.id}
                             absolutePath={c.id}
                             level={0}

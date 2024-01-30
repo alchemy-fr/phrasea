@@ -3,34 +3,51 @@ import {Collection, Workspace} from "../types.ts";
 import {collectionChildrenLimit, CollectionOptions, collectionSecondLimit, getCollections} from "../api/collection.ts";
 
 export type CollectionPager = {
-    items: Collection[];
+    items: CollectionExtended[];
     loadingMore: boolean;
     expanding: boolean;
     total?: number;
 }
 
+type CollectionExtended = {
+    workspaceId: string;
+    parentId: string | undefined;
+} & Collection;
+
 type State = {
-    collections: Record<string, Collection>;
+    collections: Record<string, CollectionExtended>;
     tree: Record<string, CollectionPager>;
     setRootCollections: (workspaces: Workspace[]) => void;
     updateCollection: (collection: Collection) => void;
-    loadChildren: (parentId: string) => Promise<void>;
-    loadMore: (pagerId: string) => Promise<void>;
-    addCollection: (collection: Collection, pagerId: string, parentId?: string) => void;
-    deleteCollection: (id: string, pagerId: string, parentId?: string) => void;
+    loadChildren: (workspaceId: string, parentId: string) => Promise<void>;
+    loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
+    addCollection: (collection: Collection, workspaceId: string, parentId?: string) => void;
+    deleteCollection: (id: string) => void;
+    moveCollection: (id: string, to: string | undefined) => void;
 }
 
-function updateCollectionByReference(state: Record<string, Collection>, collection: Collection): Collection {
-    if (state[collection.id]) {
+function updateCollectionByReference(
+    state: Record<string, Collection>,
+    collection: Collection,
+    workspaceId: string,
+    parentId?: string | undefined
+): CollectionExtended {
+    const c = state[collection.id];
+
+    if (c) {
         (Object.keys(collection) as (keyof typeof collection)[]).forEach((k) => {
             // @ts-expect-error key typing
-            state[collection.id][k] = collection[k];
+            c[k] = collection[k];
         });
     } else {
-        state[collection.id] = {...collection};
+        return state[collection.id] = {
+            ...collection,
+            workspaceId,
+            parentId,
+        } as CollectionExtended;
     }
 
-    return state[collection.id];
+    return c as CollectionExtended;
 }
 
 
@@ -38,13 +55,17 @@ export const useCollectionStore = create<State>((set, getState) => ({
     collections: {},
     tree: {},
 
-    loadChildren: async (parentId: string) => {
+    loadChildren: async (workspaceId: string, parentId: string) => {
         const timeout = setTimeout(() => {
             set((state) => {
                 const tree = {...state.tree};
 
+                if (!tree[parentId]) {
+                    return {};
+                }
+
                 tree[parentId] = {
-                    ...(tree[parentId] ?? {}),
+                    ...tree[parentId],
                     expanding: true,
                 };
 
@@ -64,7 +85,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
             const newCollections = {...state.collections};
 
             const items = data.result.map(c => {
-                return updateCollectionByReference(newCollections, c);
+                return updateCollectionByReference(newCollections, c, workspaceId, parentId);
             });
 
             tree[parentId] = {
@@ -82,23 +103,30 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    loadMore: async (pagerId: string, parentId?: string) => {
-        const pager = getState().tree[pagerId]!;
+    loadMore: async (workspaceId: string, parentId?: string | undefined) => {
+        const pagerId = workspaceId ?? parentId;
+        const pager = getState().tree[pagerId];
+        if (!pager) {
+            return;
+        }
+
         const nextPage = getNextPage(pager) ?? 1;
 
         const setLoading = (loading: boolean) => {
             set((state) => {
                 const tree = {...state.tree};
+                if (!tree[pagerId]) {
+                    return {};
+                }
 
                 tree[pagerId] = {
-                    ...(tree[pagerId] ?? {}),
+                    ...tree[pagerId],
                     loadingMore: loading,
                 };
 
                 return {tree};
             });
         }
-
 
         const options: CollectionOptions = {
             page: nextPage,
@@ -121,7 +149,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 const newCollections = {...state.collections};
 
                 const items = data.result.map(c => {
-                    return updateCollectionByReference(newCollections, c);
+                    return updateCollectionByReference(newCollections, c, workspaceId, parentId);
                 });
 
                 const existingTree = tree[pagerId]!;
@@ -153,7 +181,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 const wsId = ws.id;
 
                 const items = ws.collections.map(c => {
-                    return updateCollectionByReference(newCollections, c);
+                    return updateCollectionByReference(newCollections, c, ws.id);
                 });
 
                 tree[wsId] = {
@@ -174,7 +202,12 @@ export const useCollectionStore = create<State>((set, getState) => ({
         set((state) => {
             const newCollections = {...state.collections};
 
-            updateCollectionByReference(newCollections, collection);
+            const coll = newCollections[collection.id];
+            if (!coll) {
+                return {};
+            }
+
+            updateCollectionByReference(newCollections, collection, coll.workspaceId, coll.parentId);
 
             return {
                 collections: newCollections,
@@ -182,26 +215,25 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    addCollection: (collection: Collection, pagerId: string, parentId?: string) => {
+    addCollection: (collection: Collection, workspaceId: string, parentId?: string) => {
         set((state) => {
             const newCollections = {...state.collections};
             const tree = {...state.tree};
 
-            const c = updateCollectionByReference(newCollections, collection);
+            const c = updateCollectionByReference(newCollections, collection, workspaceId, parentId);
 
             if (parentId) {
                 const parentCollection = newCollections[parentId];
                 if (parentCollection && (parentCollection.children?.length ?? 0) === 0) {
-                    updateCollectionByReference(newCollections, {
-                        ...parentCollection,
-                        children: [c]
-                    });
+                    newCollections[parentCollection.id].children = [c];
                 }
             }
 
+            const pagerId = c.parentId ?? c.workspaceId;
             const pager = tree[pagerId] ?? {
                 items: [],
-                total: 0,
+                loadingMore: false,
+                expanding: false,
             };
 
             tree[pagerId] = {
@@ -217,7 +249,48 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    deleteCollection: (id: string, pagerId: string, parentId?: string) => {
+    deleteCollection: (id: string) => {
+        set((state) => {
+            const newCollections = {...state.collections};
+            const collection = newCollections[id];
+            if (!collection) {
+                return {};
+            }
+            const {
+                parentId,
+                workspaceId,
+            } = newCollections[id];
+            const pagerId = parentId ?? workspaceId;
+
+            delete newCollections[id];
+
+            if (parentId) {
+                const parentCollection = newCollections[parentId];
+                if (parentCollection) {
+                    newCollections[parentCollection.id].children = parentCollection.children?.filter(child => child.id !== id);
+                }
+            }
+
+            const tree = {...state.tree};
+            const pager = tree[pagerId];
+            if (!pager) {
+                return {};
+            }
+
+            tree[pagerId] = {
+                ...pager,
+                items: pager.items.filter(child => child.id !== id),
+                total: (pager.total ?? 1) - 1,
+            };
+
+            return {
+                tree,
+                collections: newCollections,
+            };
+        })
+    },
+
+    moveCollection: (id: string, to: string | undefined) => {
         set((state) => {
             const newCollections = {...state.collections};
             const collection = newCollections[id];
@@ -225,30 +298,50 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 return {};
             }
 
+            const {
+                workspaceId,
+                parentId,
+            } = collection;
+            const oldPagerId = parentId ?? workspaceId;
+
+            collection.parentId = to;
+
             const tree = {...state.tree};
 
-            delete newCollections[id];
-
             if (parentId) {
-                const parentCollection = newCollections[parentId];
-                if (parentCollection) {
-                    updateCollectionByReference(newCollections, {
-                        ...parentCollection,
-                        children: parentCollection.children?.filter(child => child.id !== id)
-                    });
+                const oldParent = newCollections[parentId];
+                if (oldParent) {
+                    newCollections[oldParent.id].children = oldParent.children?.filter(child => child.id !== id);
                 }
             }
 
-            const pager = tree[pagerId] ?? {
-                items: [],
-                total: 0,
-            };
+            if (to) {
+                const newParent = newCollections[to];
+                if (newParent && (newParent.children?.length ?? 0) === 0) {
+                    newCollections[newParent.id].children = [collection];
+                }
+            }
 
-            tree[pagerId] = {
-                ...pager,
-                items: pager.items.filter(child => child.id !== id),
-                total: (pager.total ?? 1) - 1,
-            };
+            const oldPager = tree[oldPagerId];
+            if (oldPager) {
+                tree[oldPagerId] = {
+                    ...oldPager,
+                    items: oldPager.items.filter(child => child.id !== collection.id),
+                    total: (oldPager.total ?? 1) - 1,
+                };
+            }
+
+            const newPagerId = to ?? workspaceId;
+            const newPager = tree[newPagerId];
+            if (newPager) {
+                tree[newPagerId] = {
+                    ...newPager,
+                    items: newPager.items.concat([collection]),
+                    total: (newPager.total ?? 0) + 1,
+                };
+
+                console.log('tree[newPagerId]', newPagerId, tree[newPagerId]);
+            }
 
             return {
                 tree,

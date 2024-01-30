@@ -2,10 +2,7 @@ import {useState} from 'react';
 import {Collection} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {Typography} from '@mui/material';
-import {
-    CollectionsTreeView,
-    treeViewPathSeparator,
-} from './CollectionsTreeView';
+import {CollectionsTreeView, treeViewPathSeparator,} from './CollectionsTreeView';
 import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {LoadingButton} from '@mui/lab';
@@ -25,9 +22,10 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
         setLoading(true);
         try {
             const d = dest.startsWith('/workspaces/')
-                ? 'root'
+                ? undefined
                 : dest.replace(/^\/collections\//, '');
             await moveCollection(collection.id, d);
+
             clearWorkspaceCache();
             toast.success(
                 t('form.collection_move.success', 'Collection moved!') as string
@@ -63,7 +61,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
             />
             <LoadingButton
                 sx={{mt: 2}}
-                startIcon={<DriveFileMoveIcon />}
+                startIcon={<DriveFileMoveIcon/>}
                 variant={'contained'}
                 onClick={move}
                 disabled={loading || !dest}

@@ -2,6 +2,7 @@ import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
+import {useCollectionStore} from "../store/collectionStore.ts";
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -91,9 +92,10 @@ export async function moveCollection(
     parentId: string | undefined
 ): Promise<void> {
     await apiClient.put(
-        `/collections/${id}/move/${parentId ? parentId : 'root'}`,
+        `/collections/${id}/move/${parentId || 'root'}`,
         {}
     );
+    useCollectionStore.getState().moveCollection(id, parentId);
 }
 
 type CollectionPostType = {
@@ -126,6 +128,8 @@ export async function putWorkspace(
 
 export async function deleteCollection(id: string): Promise<void> {
     await apiClient.delete(`/collections/${id}`);
+
+    useCollectionStore.getState().deleteCollection(id);
 }
 
 export async function addAssetToCollection(
