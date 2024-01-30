@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -82,12 +83,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Post(
             uriTemplate: '/assets/move',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: MoveAssetInput::class,
             name: 'post_move',
             processor: MoveAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/copy',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: CopyAssetInput::class,
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
@@ -95,6 +98,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Delete(
             uriTemplate: '/assets-by-keys',
             controller: DeleteAssetByKeysAction::class,
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'delete_by_key',
         ),
         new Delete(
