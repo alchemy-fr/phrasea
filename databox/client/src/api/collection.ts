@@ -43,7 +43,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
     const collections = await getCollections({
         groupByWorkspace: true,
-        limit: collectionChildrenLimit + 1,
+        limit: collectionChildrenLimit,
     });
 
     const workspaces: {[key: string]: Workspace} = {};
@@ -55,24 +55,14 @@ export async function getWorkspaces(): Promise<Workspace[]> {
                 collections: [],
             };
         }
-        const list = workspaces[c.workspace.id].collections;
-
-        if (list.length === collectionChildrenLimit) {
-            return;
-        }
-
-        list.push(c);
+        workspaces[c.workspace.id].collections.push(c);
     });
 
-    return (cache.ws = (Object.keys(workspaces) as Array<string>).map(
-        i => workspaces[i]
-    ));
+    return (cache.ws = Object.keys(workspaces).map(i => workspaces[i]));
 }
 
 export async function getCollection(id: string): Promise<Collection> {
-    const res = await apiClient.get(`/collections/${id}`);
-
-    return res.data;
+    return (await apiClient.get(`/collections/${id}`)).data;
 }
 
 export async function putCollection(

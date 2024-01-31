@@ -15,7 +15,6 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import BusinessIcon from '@mui/icons-material/Business';
 import CreateCollection from './Collection/CreateCollection';
 import ModalLink from '../Routing/ModalLink';
@@ -24,6 +23,7 @@ import {useModals} from '@alchemy/navigation';
 import {modalRoutes} from '../../routes.ts';
 import {useCollectionStore} from "../../store/collectionStore.ts";
 import {useShallow} from 'zustand/react/shallow'
+import LoadMoreCollections from "./Collection/LoadMoreCollections.tsx";
 
 export type WorkspaceMenuItemProps = {
     data: Workspace;
@@ -170,13 +170,10 @@ export default function WorkspaceMenuItem({
                         />
                     ))}
                 {(pager && pager.items.length < (pager.total ?? 0)) && (
-                    <ListItemButton
-                        onClick={() => loadMore(id)}
-                        disabled={pager.loadingMore}
-                    >
-                        <MoreHorizIcon/>
-                        Load more collections
-                    </ListItemButton>
+                    <LoadMoreCollections
+                        onLoadMore={() => loadMore(id)}
+                        loading={pager.loadingMore}
+                    />
                 )}
             </Collapse>
         </>

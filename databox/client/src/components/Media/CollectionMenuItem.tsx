@@ -13,7 +13,6 @@ import {
 import FolderIcon from '@mui/icons-material/Folder';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +30,7 @@ import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from "../../store/collectionStore.ts";
 import {deleteCollection} from '../../api/collection';
+import LoadMoreCollections from "./Collection/LoadMoreCollections.tsx";
 
 type Props = {
     level: number;
@@ -56,6 +56,7 @@ export default function CollectionMenuItem({
 
     const loadChildren = useCollectionStore((state) => state.loadChildren);
     const addCollection = useCollectionStore((state) => state.addCollection);
+    const loadMore = useCollectionStore((state) => state.loadMore);
     useCollectionStore((state) => state.collections); // Subscribe to collection updates
 
     const pager =
@@ -108,7 +109,6 @@ export default function CollectionMenuItem({
     };
 
     const selected = searchContext.collections.includes('/' + absolutePath);
-    const expanding = false; // TODO
     const onClick = () => {
         searchContext.selectCollection(
             absolutePath,
@@ -220,7 +220,7 @@ export default function CollectionMenuItem({
                             onClick={expandClick}
                             aria-label="expand-toggle"
                         >
-                            {expanding ? (
+                            {pager.expanding ? (
                                 <CircularProgress size={24}/>
                             ) : !expanded ? (
                                 <ExpandLessIcon/>
@@ -269,13 +269,10 @@ export default function CollectionMenuItem({
                             );
                         })}
                         {(pager && pager.items.length < (pager.total ?? 0)) && (
-                            <ListItemButton
-                                // onClick={loadMore}
-                                // disabled={nextCollections.loadingMore}
-                            >
-                                <MoreHorizIcon/>
-                                Load more collections
-                            </ListItemButton>
+                            <LoadMoreCollections
+                                onLoadMore={() => loadMore(workspaceId, data.id)}
+                                loading={pager.loadingMore}
+                            />
                         )}
                     </div>
                 )}
