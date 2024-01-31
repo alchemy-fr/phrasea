@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\MappedSuperclass]
@@ -17,16 +18,16 @@ abstract class AbstractUuidEntity
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ApiProperty(identifier: true)]
-    private string $id;
+    private UuidInterface $id;
 
     public function __construct(string $id = null)
     {
-        $this->id = $id ?? Uuid::uuid4()->toString();
+        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
     }
 
     public function getId(): string
     {
-        return $this->id;
+        return $this->id->toString();
     }
 
     public function __serialize(): array
@@ -38,6 +39,6 @@ abstract class AbstractUuidEntity
 
     public function __unserialize($data)
     {
-        $this->id = $data['id'];
+        $this->id = Uuid::fromString($data['id']);
     }
 }

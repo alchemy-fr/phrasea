@@ -36,8 +36,12 @@ class ESSearchIndexer
     private array $dependenciesStack = [];
     private int $dependenciesCount = 0;
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly LoggerInterface $logger, private readonly bool $direct = false)
-    {
+    public function __construct(
+        private readonly EventProducer $eventProducer,
+        private readonly EntityManagerInterface $em,
+        private readonly LoggerInterface $logger,
+        private readonly bool $direct = false
+    ) {
     }
 
     public function addObjectPersister(string $class, ObjectPersisterInterface $objectPersister): void
