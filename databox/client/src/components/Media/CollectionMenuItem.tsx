@@ -51,7 +51,8 @@ export default function CollectionMenuItem({
     const {openModal} = useModals();
     const searchContext = useContext(SearchContext);
     const authContext = useAuth();
-    const [[expanded, clicked], setExpanded] = useState<[boolean, boolean]>([false, false]);
+    const [expanded, setExpanded] = useState<boolean>(false);
+    const [childrenLoaded, setChildrenLoaded] = React.useState(false);
     const childCount = data.children?.length ?? 0;
 
     const loadChildren = useCollectionStore((state) => state.loadChildren);
@@ -70,21 +71,23 @@ export default function CollectionMenuItem({
     const {workspace} = data;
 
     React.useEffect(() => {
-        if (expanded && clicked) {
-            (async () => {
-                if (childCount > 0) {
-                    loadChildren(workspaceId, data.id)
-                }
-            })();
+        if (expanded && !childrenLoaded && childCount > 0) {
+            loadChildren(workspaceId, data.id).then(() => {
+                setChildrenLoaded(true);
+            })
         }
-    }, [expanded, clicked]);
+    }, [expanded, childrenLoaded]);
 
-    const expand = (force?: boolean, clicked?: boolean) => {
-        setExpanded(p => [!p[0] || true === force, clicked || p[1]]);
+    const expand = (force?: boolean) => {
+        setExpanded(p => !p || true === force);
     };
     const expandClick = (e: MouseEvent) => {
         e.stopPropagation();
-        expand(false, true);
+        expand();
+
+        if (e.detail > 1) { // is double click
+            loadChildren(workspaceId, data.id);
+        }
     };
 
     const onDelete = (e: MouseEvent): void => {
@@ -115,7 +118,7 @@ export default function CollectionMenuItem({
             (titlePath ?? []).concat(data.title).join(` / `),
             selected
         );
-        expand(true, true);
+        expand(true);
     };
 
     const currentInSelectedHierarchy = searchContext.collections.some(c =>

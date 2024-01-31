@@ -14,7 +14,10 @@ export default function Acl({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
             disableGutters={true}
         >
-            <AclForm objectId={data.id} objectType={'collection'} />
+            <AclForm
+                objectId={data.id}
+                objectType={'collection'}
+            />
         </ContentTab>
     );
 }

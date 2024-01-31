@@ -19,7 +19,9 @@ type State = {
     tree: Record<string, CollectionPager>;
     setRootCollections: (workspaces: Workspace[]) => void;
     updateCollection: (collection: Collection) => void;
+    partialUpdateCollection: (id: string, updates: Partial<Collection>) => void;
     loadChildren: (workspaceId: string, parentId: string) => Promise<void>;
+    loadRoot: (workspaceId: string) => Promise<void>;
     loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
     addCollection: (collection: Collection, workspaceId: string, parentId?: string) => void;
     deleteCollection: (id: string) => void;
@@ -28,7 +30,7 @@ type State = {
 
 function updateCollectionByReference(
     state: Record<string, Collection>,
-    collection: Collection,
+    collection: Collection | CollectionExtended,
     workspaceId: string,
     parentId?: string | undefined
 ): CollectionExtended {
@@ -55,22 +57,9 @@ export const useCollectionStore = create<State>((set, getState) => ({
     collections: {},
     tree: {},
 
-    loadChildren: async (workspaceId: string, parentId: string) => {
+    loadChildren: async (workspaceId, parentId) => {
         const timeout = setTimeout(() => {
-            set((state) => {
-                const tree = {...state.tree};
-
-                tree[parentId] = {
-                    ...(tree[parentId] ?? {
-                        loadingMore: false,
-                        items: [],
-                    }),
-                    ...tree[parentId],
-                    expanding: true,
-                };
-
-                return {tree};
-            })
+            set(createPagerExpandingSetter(parentId))
         }, 800);
 
         const data = await getCollections({
@@ -103,7 +92,42 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    loadMore: async (workspaceId: string, parentId?: string | undefined) => {
+    loadRoot: async (workspaceId) => {
+        const timeout = setTimeout(() => {
+            set(createPagerExpandingSetter(workspaceId));
+        }, 800);
+
+        const data = await getCollections({
+            workspaces: [workspaceId],
+            limit: collectionSecondLimit,
+            childrenLimit: collectionChildrenLimit,
+        });
+        clearTimeout(timeout);
+
+        set((state) => {
+            const tree = {...state.tree};
+            const newCollections = {...state.collections};
+
+            const items = data.result.map(c => {
+                return updateCollectionByReference(newCollections, c, workspaceId);
+            });
+
+            tree[workspaceId] = {
+                ...(tree[workspaceId] ?? {}),
+                items,
+                total: data.total,
+                expanding: false,
+                loadingMore: false,
+            };
+
+            return {
+                tree,
+                collections: newCollections,
+            };
+        })
+    },
+
+    loadMore: async (workspaceId, parentId) => {
         const pagerId = parentId ?? workspaceId;
         const pager = getState().tree[pagerId];
         if (!pager) {
@@ -172,7 +196,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
         }
     },
 
-    setRootCollections: (workspaces: Workspace[]) => {
+    setRootCollections: (workspaces) => {
         set((state) => {
             const newCollections = {...state.collections};
             const tree = {...state.tree};
@@ -198,16 +222,26 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    updateCollection: (collection: Collection) => {
+    updateCollection: (collection) => {
+        getState().partialUpdateCollection(collection.id, collection);
+    },
+
+    partialUpdateCollection: (id, updates) => {
         set((state) => {
             const newCollections = {...state.collections};
 
-            const coll = newCollections[collection.id];
-            if (!coll) {
+            const oldColl: CollectionExtended | undefined = newCollections[id];
+            if (!oldColl) {
                 return {};
             }
 
-            updateCollectionByReference(newCollections, collection, coll.workspaceId, coll.parentId);
+            const oldPublic = oldColl.public;
+            const oldShared = oldColl.shared;
+
+            updateCollectionByReference(newCollections, {
+                ...oldColl,
+                ...updates,
+            }, oldColl.workspaceId, oldColl.parentId);
 
             const applyToChildren = (parentId: string, specs: Record<string, any>) => {
                 if (state.tree[parentId]) {
@@ -224,15 +258,30 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 }
             }
 
-            if (collection.public) {
-                applyToChildren(collection.id, {public: true});
+            const subSpecs: {
+                public?: boolean;
+                shared?: boolean;
+            } = {};
+
+
+            if (!oldPublic && updates.public) {
+                subSpecs.public = true;
             }
-            if (collection.shared) {
-                applyToChildren(collection.id, {shared: true});
+            if (!oldShared && updates.shared) {
+                subSpecs.shared = true;
             }
 
-            if (state.tree[coll.id]) {
-                state.loadChildren(coll.workspaceId, coll.id);
+            if (Object.keys(subSpecs).length > 0) {
+                applyToChildren(id, subSpecs);
+            }
+
+            const shouldRefresh =
+                oldPublic && false === updates.public
+                || oldShared && false === updates.shared
+            ;
+
+            if (shouldRefresh && state.tree[id]) {
+                state.loadChildren(oldColl.workspaceId, id);
             }
 
             return {
@@ -241,7 +290,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    addCollection: (collection: Collection, workspaceId: string, parentId?: string) => {
+    addCollection: (collection, workspaceId, parentId) => {
         set((state) => {
             const newCollections = {...state.collections};
             const tree = {...state.tree};
@@ -275,7 +324,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    deleteCollection: (id: string) => {
+    deleteCollection: (id) => {
         set((state) => {
             const newCollections = {...state.collections};
             const collection = newCollections[id];
@@ -316,7 +365,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
         })
     },
 
-    moveCollection: (id: string, to: string | undefined) => {
+    moveCollection: (id, to) => {
         set((state) => {
             const newCollections = {...state.collections};
             const collection = newCollections[id];
@@ -388,5 +437,22 @@ export function getNextPage(pager: CollectionPager): number | undefined {
         } else {
             return 1;
         }
+    }
+}
+
+const createPagerExpandingSetter = (pagerId: string) => {
+    return (state: State) => {
+        const tree = {...state.tree};
+
+        tree[pagerId] = {
+            ...(tree[pagerId] ?? {
+                loadingMore: false,
+                items: [],
+            }),
+            ...tree[pagerId],
+            expanding: true,
+        };
+
+        return {tree};
     }
 }

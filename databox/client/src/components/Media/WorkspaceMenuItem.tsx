@@ -1,8 +1,9 @@
-import {MouseEvent, useContext, useState} from 'react';
+import React, {MouseEvent, useContext} from 'react';
 import {Workspace} from '../../types';
 import CollectionMenuItem from './CollectionMenuItem';
 import {SearchContext} from './Search/SearchContext';
 import {
+    CircularProgress,
     Collapse,
     IconButton,
     ListItem,
@@ -42,10 +43,11 @@ export default function WorkspaceMenuItem({
     const searchContext = useContext(SearchContext);
     const {openModal} = useModals();
     const selected = searchContext.workspaces.includes(id);
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = React.useState(false);
 
     const addCollection = useCollectionStore((state) => state.addCollection);
     const loadMore = useCollectionStore((state) => state.loadMore);
+    const loadRoot = useCollectionStore((state) => state.loadRoot);
     const pager = useCollectionStore(useShallow((state) => state.tree))[id];
 
     const expand = (force?: boolean) => {
@@ -54,6 +56,10 @@ export default function WorkspaceMenuItem({
     const expandClick = (e: MouseEvent) => {
         e.stopPropagation();
         expand();
+
+        if (e.detail > 1) { // is double click
+            loadRoot(id);
+        }
     };
 
     const onClick = () => {
@@ -128,7 +134,9 @@ export default function WorkspaceMenuItem({
                                 onClick={expandClick}
                                 aria-label="expand-toggle"
                             >
-                                {!expanded ? (
+                                {pager.expanding ? (
+                                    <CircularProgress size={24}/>
+                                ) : !expanded ? (
                                     <ExpandLessIcon/>
                                 ) : (
                                     <ExpandMoreIcon/>

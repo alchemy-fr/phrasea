@@ -23,6 +23,7 @@ type Props = {
         userType: UserType,
         userId: string | null
     ) => Promise<void>;
+    onListChanged?: (permissions: Ace[]) => void;
 };
 
 export default function PermissionList({
@@ -30,6 +31,7 @@ export default function PermissionList({
     loadPermissions,
     updatePermission,
     deletePermission,
+    onListChanged,
 }: Props) {
     const [permissions, setPermissions] = React.useState<Ace[]>();
     const {t} = useTranslation();
@@ -37,6 +39,12 @@ export default function PermissionList({
     useEffect(() => {
         loadPermissions().then(p => setPermissions(p));
     }, []);
+
+    useEffect(() => {
+        if (permissions) {
+            onListChanged && onListChanged(permissions);
+        }
+    }, [permissions]);
 
     const addEntry = async (
         entry: {id: string; type: UserType},
