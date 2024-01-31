@@ -11,21 +11,26 @@ import TagRulesTab from './TagRulesTab';
 import Operations from './Operations';
 import InfoCollection from './InfoCollection';
 import {modalRoutes} from '../../../routes.ts';
+import {useCloseModal} from "../../Routing/ModalLink.tsx";
 
 type Props = {};
 
 export default function CollectionDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
-
     const [data, setData] = useState<Collection>();
+    const closeModal = useCloseModal();
 
     useEffect(() => {
-        getCollection(id!).then(c => setData(c));
+        getCollection(id!)
+            .then(c => setData(c))
+            .catch(() => {
+                closeModal();
+            });
     }, [id]);
 
     if (!data) {
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     return (
