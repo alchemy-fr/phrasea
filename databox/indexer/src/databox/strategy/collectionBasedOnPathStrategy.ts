@@ -1,6 +1,6 @@
 import {IndexAsset} from './types';
 import {getAlternateUrls} from '../../alternateUrl';
-import p from 'path';
+import * as p from 'path';
 import {splitPath} from '../../lib/pathUtils';
 
 export const collectionBasedOnPathStrategy: IndexAsset = async (
@@ -18,14 +18,15 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     let collIRI: string;
     try {
-        collIRI = await databoxClient.createCollectionTreeBranch(
+        collIRI = "/collections/" + await databoxClient.createCollectionTreeBranch(
+            asset.workspaceId,
+            asset.collectionKeyPrefix,
             branch.map(k => ({
-                workspaceId: asset.workspaceId,
                 key: k,
                 title: k,
             }))
         );
-    } catch (e: any) {
+    } catch (e) {
         logger.error(
             `Failed to create collection branch "${branch.join(
                 '/'
@@ -35,7 +36,8 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
     }
 
     try {
-        await databoxClient.createAsset({
+        // create real asset
+        const assetId = await databoxClient.createAsset({
             sourceFile: asset.publicUrl
                 ? {
                       url: asset.publicUrl,
@@ -49,9 +51,21 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             key: asset.key,
             title: asset.title || p.basename(path),
             attributes: asset.attributes,
+            tags: asset.tags,
             renditions: asset.renditions,
         });
-    } catch (e: any) {
+        // also create links into collections
+        for(const c of asset.shortcutIntoCollections) {
+            await databoxClient.copyAsset({
+                destination: "/collections/" + c,
+                ids: [assetId],
+                byReference: true,
+                withAttributes: false,
+                withTags: false,
+            })
+        }
+
+    } catch (e) {
         logger.error(`Failed to create asset "${path}": ${e.toString()}`);
         throw e;
     }

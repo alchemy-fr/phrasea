@@ -1,10 +1,12 @@
 import {AxiosInstance} from 'axios';
 import {
+    AssetCopyInput,
     AssetInput,
     AttributeClass,
     AttributeDefinition,
     CollectionInput,
     RenditionClass,
+    Tag,
 } from './types';
 import {lockPromise} from '../lib/promise';
 import {getConfig, getStrict} from '../configLoader';
@@ -85,7 +87,7 @@ export class DataboxClient {
         this.logger = logger;
     }
 
-    async createAsset(data: AssetInput): Promise<void> {
+    async createAsset(data: AssetInput): Promise<string> {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
             delete data.workspaceId;
@@ -100,7 +102,16 @@ export class DataboxClient {
             );
         }
 
-        await this.client.post(`/assets`, {
+        const a = (await this.client.post(`/assets`, {
+            ownerId: this.ownerId,
+            ...data,
+        }));
+
+        return a.data.id;
+    }
+
+    async copyAsset(data: AssetCopyInput): Promise<void> {
+        await this.client.post(`/assets/copy`, {
             ownerId: this.ownerId,
             ...data,
         });
@@ -147,48 +158,63 @@ export class DataboxClient {
             ).data;
         });
 
+        // console.log(`created collection "${data.title}" with key="${key}" ; parent="${data.parent}"   returns ${r.id}`);
         return (collectionKeyMap[key] = r.id);
     }
 
-    async createCollectionTreeBranch(data: CollectionInput[]): Promise<string> {
+    async createCollectionTreeBranch(workspaceId: string, keyPrefix: string, data: CollectionInput[]): Promise<string> {
         let parentId: string | undefined = undefined;
-        const previousKeys: string[] = [];
+        let key = keyPrefix;
+        let id = "";
         for (let i = 0; i < data.length; ++i) {
-            previousKeys.push(data[i].key!);
-
-            const key = previousKeys.join('/');
-            const id = await this.createCollection(key, {
+            key += '/' + data[i].key;
+            id = await this.createCollection(key, {
                 ...data[i],
-                key,
+                workspaceId: workspaceId,
+                key: key,
                 parent: parentId,
             });
             parentId = `/collections/${id}`;
         }
 
-        return parentId!;
+        return id!;
     }
 
     async createAttributeDefinition(
         key: string,
         data: Partial<AttributeDefinition>
     ): Promise<AttributeDefinition> {
-        const r = await lockPromise(`attr-def-${key}`, async () => {
-            return (await this.client.post(`/attribute-definitions`, data))
-                .data;
+        return await lockPromise(`attr-def-${key}`, async () => {
+            return (await this.client.post(`/attribute-definitions`, data)).data;
+        });
+    }
+
+    async createTag(
+        key: string,
+        data: Partial<Tag>
+    ): Promise<Tag> {
+        return await lockPromise(`tag-${key}`, async () => {
+            return (await this.client.post(`/tags`, data)).data;
+        });
+    }
+
+    async getTags(workspaceId: string): Promise<Tag[]> {
+        const res = await this.client.get(`/tags`, {
+            params: {
+                workspaceId,
+            },
         });
 
-        return r;
+        return res.data["hydra:member"];
     }
 
     async createAttributeClass(
         key: string,
         data: Partial<AttributeClass>
     ): Promise<AttributeClass> {
-        const r = await lockPromise(`attr-class-${key}`, async () => {
+        return await lockPromise(`attr-class-${key}`, async () => {
             return (await this.client.post(`/attribute-classes`, data)).data;
         });
-
-        return r;
     }
 
     async createRenditionClass(data: object): Promise<string> {
@@ -218,6 +244,25 @@ export class DataboxClient {
         );
 
         return res.data.id;
+    }
+
+    async getOrCreateWorkspaceIdWithSlug(slug: string): Promise<string> {
+        try {
+            return (await this.client.post(
+                `/workspaces`,
+                {
+                    name: slug,
+                    slug: slug,
+                    public: true,
+                    enabledLocales: [],
+                    localeFallbacks: [],
+                    ownerId: getStrict('databox.ownerId')
+                }
+            )).data.id;
+        }
+        catch (e) {
+            return this.getWorkspaceIdFromSlug(slug);
+        }
     }
 
     async getWorkspaceIdFromSlug(slug: string): Promise<string> {

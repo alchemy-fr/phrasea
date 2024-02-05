@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CopyAssetProcessor implements ProcessorInterface
 {
     use SecurityAwareTrait;
+    use WithOwnerIdProcessorTrait;
 
     public function __construct(
         private readonly EventProducer $eventProducer,
@@ -36,6 +37,9 @@ class CopyAssetProcessor implements ProcessorInterface
     {
         /** @var JwtUser $user */
         $user = $this->getUser();
+        $userId = $user instanceof JwtUser ? $user->getId() : $data->getOwnerId();
+        $userGroups = $user instanceof JwtUser ? $user->getGroups() : [];
+
         $assets = $this->em->getRepository(Asset::class)
             ->findByIds($data->ids);
 
@@ -55,8 +59,8 @@ class CopyAssetProcessor implements ProcessorInterface
             $symlink = $data->byReference && $this->isGranted(AbstractVoter::EDIT, $asset);
 
             $this->eventProducer->publish(AssetCopyHandler::createEvent(
-                $user->getId(),
-                $user->getGroups(),
+                $userId,
+                $userGroups,
                 $asset->getId(),
                 $data->destination,
                 $symlink,

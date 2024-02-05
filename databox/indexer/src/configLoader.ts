@@ -85,10 +85,9 @@ export function getConfig(
 
     for (let i = 0; i < parts.length; ++i) {
         const k = parts[i] as string;
-        if (!p.hasOwnProperty(k)) {
+        if (!Object.prototype.hasOwnProperty.call(p, k)) {
             return defaultValue;
         }
-        // @ts-expect-error any
         p = p[parts[i]];
     }
 

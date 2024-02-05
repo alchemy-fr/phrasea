@@ -46,15 +46,19 @@
       "type": "phraseanet",
       "options": {
         "url": "%env(PHRASEANET_URL)%",
+        "instanceId": "todo: pass as env ?",
         "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
         "importFiles": "%env(bool:IMPORT_FILES)%",
-        "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%",
         "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
         "databoxMapping": [
           {
             "databoxId": "%env(PHRASEANET_DATABOX_ID)%",
-            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+            "sourceCollection": "collname ; todo: pass as env ?",
+            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
+            "recordsCollectionPath": "import/from/phr ; todo: pass as env ?",
+            "storiesCollectionPath": "import/from/phr/stories ; todo: pass as env ?",
+            "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%"
           }
         ]
       }

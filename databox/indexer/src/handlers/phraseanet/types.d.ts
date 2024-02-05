@@ -1,11 +1,15 @@
 export type ConfigDataboxMapping = {
+    sourceCollection: string;
     databoxId: string;
+    searchQuery?: string;
     workspaceSlug: string;
+    recordsCollectionPath: string;
+    storiesCollectionPath: string;
 };
 
 export type PhraseanetConfig = {
     url: string;
-    searchQuery?: string;
+    instanceId?: string;
     searchOrder?: string;
     token: string;
     verifySSL?: boolean;
@@ -36,6 +40,17 @@ export type PhraseanetMetaStruct = {
     required: boolean;
 };
 
+export type PhraseanetStatusBitStruct = {
+    bit: number;
+    label_on: string;
+    label_off: string;
+};
+
+export type PhraseanetStatusBit = {
+    bit: number;
+    state: boolean;
+};
+
 export type PhraseanetSubDef = {
     type: string; // image | video | audio | document
     name: string; // thumbnail, thumbnail_gif, preview, preview_webm ...
@@ -62,6 +77,7 @@ type PhraseanetCaption = {
 };
 
 export type PhraseanetRecord = {
+    resource_id: string;
     databox_id: string;
     base_id: string;
     record_id: string;
@@ -71,4 +87,21 @@ export type PhraseanetRecord = {
     original_name: string;
     subdefs: SubDef[];
     caption?: PhraseanetCaption[];
+    status: PhraseanetStatusBit[];
 };
+
+export type PhraseanetStory = {
+    resource_id: string;
+    databox_id: string;
+    base_id: string;
+    story_id: string;
+    collection_id: string;
+    uuid: string;
+    title: string;
+    original_name: string;
+    subdefs: SubDef[];
+    caption?: PhraseanetCaption[];
+    status: PhraseanetStatusBit[];
+    children: PhraseanetRecord[];
+};
+

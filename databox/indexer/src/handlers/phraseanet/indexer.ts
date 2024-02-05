@@ -1,20 +1,26 @@
 import {IndexIterator} from '../../indexers';
-import {ConfigDataboxMapping, PhraseanetConfig} from './types';
+import {ConfigDataboxMapping, PhraseanetConfig, PhraseanetRecord, PhraseanetStory} from './types';
 import PhraseanetClient from './phraseanetClient';
 import {
     AttrClassIndex,
     AttrDefinitionIndex,
     attributeTypesEquivalence,
     createAsset,
+    TagIndex,
 } from './shared';
 import {forceArray} from '../../lib/utils';
 import {getConfig, getStrict} from '../../configLoader';
+import {splitPath} from "../../lib/pathUtils";
+import {Tag} from "../../databox/types";
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
         const client = new PhraseanetClient(location.options);
         const collectionIndex: Record<string, string> = {};
         const databoxCollections: Record<string, number[]> = {};
+
+        const instanceId = await client.getInstanceId();
+
         logger.debug(`Fetching collections`);
         const collections = await client.getCollections();
         for (const c of collections) {
@@ -37,9 +43,11 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         );
 
         for (const dm of databoxMapping) {
-            let workspaceId = await databoxClient.getWorkspaceIdFromSlug(
+
+            let workspaceId = await databoxClient.getOrCreateWorkspaceIdWithSlug(
                 dm.workspaceSlug
             );
+
             if (options.createNewWorkspace) {
                 logger.debug(
                     `Flushing databox workspace "${dm.workspaceSlug}"`
@@ -51,10 +59,42 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 `Start indexing databox "${dm.databoxId}" to workspace "${dm.workspaceSlug}"`
             );
 
+            // prefix of the idempotence key for the __collections__
+            const collectionKeyPrefix = instanceId + "_" + dm.databoxId + ":"
+
+            // create the collection(s) for __records__
+            const branch = splitPath(dm.recordsCollectionPath);
+            await databoxClient.createCollectionTreeBranch(
+                workspaceId,
+                collectionKeyPrefix,
+                branch.map(k => ({
+                    key: k,
+                    title: k,
+                }))
+            );
+            logger.info(`Created records collection : "${branch.join('/')}"`)
+
+            // create the collection(s) for __stories__
+            let storiesCollectionId: string | null = null;
+            if (dm.storiesCollectionPath !== null) {
+                const branch = splitPath(dm.storiesCollectionPath);
+                storiesCollectionId = await databoxClient.createCollectionTreeBranch(
+                    workspaceId,
+                    collectionKeyPrefix,
+                    branch.map(k => ({
+                        key: k,
+                        title: k,
+                    }))
+                );
+                logger.info(`Created stories collection : "${branch.join('/')}"`)
+            }
+
             const attrClassIndex: AttrClassIndex = {};
             const defaultPublicClass = 'public';
             const attrDefinitionIndex: AttrDefinitionIndex = {};
-            logger.debug(`Fetching Meta structures`);
+            const tagIndex: TagIndex = {};
+
+            logger.info(`Fetching Meta structures`);
             const metaStructure = forceArray(
                 await client.getMetaStruct(dm.databoxId)
             );
@@ -82,7 +122,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     await databoxClient.createAttributeDefinition(
                         m.id.toString(),
                         {
-                            key: id,
+                            key: `${m.name}_${m.type}_${m.multivalue ? '1' : '0'}`,
                             name: m.name,
                             editable: !m.readonly,
                             multiple: m.multivalue,
@@ -97,7 +137,31 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     );
             }
 
-            logger.debug(`Fetching subdefs`);
+
+            logger.info(`Fetching status-bits`);
+            // fetch known tags
+            const tagsIdByName: Record<string, string> = {};
+            for(const t of await databoxClient.getTags(workspaceId)) {
+                tagsIdByName[t.name] = t.id;
+            }
+            for(const sb of await client.getStatusBitsStruct(dm.databoxId)) {
+                if(tagsIdByName[sb.label_on] === undefined) {
+                    const key = instanceId + "_" + dm.databoxId + ".sb" + sb.bit;
+                    const tag: Tag = await databoxClient.createTag(
+                        key,
+                        {
+                            workspace: `/workspaces/${workspaceId}`,
+                            name: sb.label_on
+                        }
+                    );
+                    logger.info(`Created "${tag.name}" tag with key "${key}" --> id=${tag.id}`);
+                    tagsIdByName[sb.label_on] = tag.id;
+                }
+                tagIndex[sb.bit] = "/tags/" + tagsIdByName[sb.label_on];
+            }
+
+
+            logger.info(`Fetching subdefs`);
             const classIndex: Record<string, string> = {};
             const renditionClasses = await databoxClient.getRenditionClasses(
                 workspaceId
@@ -139,16 +203,57 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const searchParams = {
                 bases: databoxCollections[dm.databoxId],
             };
+
+
+            // create stories as collections
+            //
+            logger.info(`Fetching stories`);
+            const recordStories: Record<string, string[]> = {};   // key: record_id ; values: story_id's
+            if(storiesCollectionId !== null) {
+                let stories: PhraseanetStory[] = [];
+                let offset = 0;
+                do {
+                    stories = await client.searchStories(searchParams, offset, "");
+                    for (const s of stories) {
+                        const storyCollId = await databoxClient.createCollection(
+                            s.resource_id,
+                            {
+                                workspaceId: workspaceId,
+                                key: s.resource_id,
+                                title: s.title,
+                                parent: "/collections/" + storiesCollectionId
+                            }
+                        );
+                        logger.info(
+                            `Phraseanet story "${s.title}" (#${
+                                s.story_id
+                            }) from base "${collectionIndex[s.base_id]}" (#${
+                                s.base_id
+                            }) ==> collection ${storyCollId}`
+                        );
+                        for (const r of s.children) {
+                            if (recordStories[r.record_id] === undefined) {
+                                recordStories[r.record_id] = [];
+                            }
+                            recordStories[r.record_id].push(storyCollId);
+                        }
+                    }
+                    offset += stories.length;
+                }
+                while (stories.length > 0);
+            }
+
+            // create records as assets
+            //
+            let records: PhraseanetRecord[];
             let offset = 0;
-            let records = await client.search(searchParams, offset);
-            while (records.length > 0) {
-                offset += records.length;
-                const nextSearchPromise = client.search(searchParams, offset);
+            do {
+                records = await client.searchRecords(searchParams, offset, dm.searchQuery);
                 for (const r of records) {
-                    logger.debug(
+                    logger.info(
                         `Phraseanet asset "${r.title}" (#${
                             r.record_id
-                        }) from collection "${collectionIndex[r.base_id]}" (#${
+                        }) from base "${collectionIndex[r.base_id]}" (#${
                             r.base_id
                         })`
                     );
@@ -156,12 +261,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         workspaceId,
                         importFiles,
                         r,
+                        dm.recordsCollectionPath,
+                        collectionKeyPrefix,
                         collectionIndex[r.base_id],
-                        attrDefinitionIndex
+                        attrDefinitionIndex,
+                        tagIndex,
+                        recordStories[r.record_id] ?? []
                     );
                 }
-
-                records = await nextSearchPromise;
+                offset += records.length;
             }
+            while (records.length > 0);
+
         }
     };
