@@ -140,8 +140,10 @@ class AssetSearch extends AbstractSearch
         $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
+            $result->setAllowOutOfRangePages(true);
             $result->setCurrentPage((int) $options['page']);
         }
+        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
 
         $start = microtime(true);
         $facets = $adapter->getAggregations();

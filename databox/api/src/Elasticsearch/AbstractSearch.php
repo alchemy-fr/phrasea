@@ -30,10 +30,10 @@ abstract class AbstractSearch
         if (null !== $userId) {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PRIVATE,
                 ]));
-                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
                 $shoulds[] = $publicWorkspaceBoolQuery;
             }
 
@@ -41,10 +41,10 @@ abstract class AbstractSearch
             if (!empty($allowedWorkspaceIds)) {
                 $workspaceBoolQuery = new Query\BoolQuery();
 
+                $workspaceBoolQuery->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
                 $workspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
                 ]));
-                $workspaceBoolQuery->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
 
                 $shoulds[] = $workspaceBoolQuery;
             }
@@ -57,10 +57,10 @@ abstract class AbstractSearch
         } else {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
+                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
                 $publicWorkspaceBoolQuery->addMust(new Query\Range('privacy', [
                     'gte' => WorkspaceItemPrivacyInterface::PUBLIC,
                 ]));
-                $publicWorkspaceBoolQuery->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
                 $shoulds[] = $publicWorkspaceBoolQuery;
             }
         }
