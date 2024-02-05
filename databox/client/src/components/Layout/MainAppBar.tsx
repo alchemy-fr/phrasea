@@ -40,7 +40,10 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         autoConnectIdP: config.autoConnectIdP,
     });
     const onTitleClick = () =>
-        searchContext.selectWorkspace(undefined, undefined, true);
+        searchContext.selectWorkspace(undefined, undefined, {
+            forceReload: true,
+            clearSearch: true,
+        });
 
     return (
         <div

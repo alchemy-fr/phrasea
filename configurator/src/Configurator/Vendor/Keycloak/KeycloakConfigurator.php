@@ -19,6 +19,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     public function configure(OutputInterface $output, array $presets): void
     {
         $hasTestPreset = in_array('test', $presets, true);
+        $hasDevPreset = in_array('dev', $presets, true);
 
         $this->configureRealm();
 
@@ -120,6 +121,15 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->keycloakManager->addClientRolesToUser($defaultAdmin['id'], [
             'realm-admin',
         ]);
+
+        if ($hasDevPreset) {
+            $this->keycloakManager->createClient('postman', null, null, [
+                'standardFlowEnabled' => false,
+                'implicitFlowEnabled' => false,
+                'directAccessGrantsEnabled' => true,
+                'serviceAccountsEnabled' => false,
+            ]);
+        }
     }
 
     private function getAppScopes(): array

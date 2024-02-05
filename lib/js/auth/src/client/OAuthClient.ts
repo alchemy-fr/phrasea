@@ -298,8 +298,10 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
             expiresAt: now + res.expires_in,
             refreshToken: res.refresh_token,
             refreshExpiresIn: res.refresh_expires_in,
-            refreshExpiresAt: now + res.refresh_expires_in,
+            refreshExpiresAt: res.refresh_expires_in ? now + res.refresh_expires_in : undefined,
             deviceToken: res.device_token,
+            deviceTokenExpiresIn: res.device_token_expires_in,
+            deviceTokenExpiresAt: res.device_token_expires_in ? now + res.device_token_expires_in : undefined,
         };
     }
 

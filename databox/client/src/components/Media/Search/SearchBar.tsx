@@ -88,6 +88,7 @@ export default function SearchBar({}: Props) {
                             onChange={e => setQueryValue(e.target.value)}
                             inputRef={inputRef}
                             placeholder="Search…"
+                            onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                             inputProps={{'aria-label': 'search'}}
                         />
                         <Button

@@ -20,9 +20,17 @@ abstract class AbstractUuidEntity
     #[ApiProperty(identifier: true)]
     private UuidInterface $id;
 
-    public function __construct(string $id = null)
+    public function __construct(string|UuidInterface $id = null)
     {
-        $this->id = null !== $id ? Uuid::fromString($id) : Uuid::uuid4();
+        if (null !== $id) {
+            if ($id instanceof UuidInterface) {
+                $this->id = $id;
+            } else {
+                $this->id = Uuid::fromString($id);
+            }
+        } else {
+            $this->id = Uuid::uuid4();
+        }
     }
 
     public function getId(): string
