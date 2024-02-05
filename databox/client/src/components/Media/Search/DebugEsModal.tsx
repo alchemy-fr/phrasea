@@ -3,6 +3,9 @@ import {Box, Button, Chip} from '@mui/material';
 import AppDialog from '../../Layout/AppDialog';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
+import CopyToClipboard from "../../../lib/CopyToClipboard.tsx";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CloseIcon from "@mui/icons-material/Close";
 
 type Props = {
     debug: ESDebug;
@@ -56,7 +59,25 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
             onClose={closeModal}
             actions={({onClose}) => (
                 <>
-                    <Button autoFocus onClick={onClose} color="primary">
+                    <CopyToClipboard>
+                        {({copy}) => (
+                            <Button
+                                startIcon={<ContentCopyIcon />}
+                                onMouseDown={e => e.stopPropagation()}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    copy(JSON.stringify(debug.query, undefined, 2));
+                                }}
+                            >
+                                Copy
+                            </Button>
+                        )}
+                    </CopyToClipboard>
+                    <Button
+                        startIcon={<CloseIcon />}
+                        autoFocus
+                        onClick={onClose}
+                        color="primary">
                         {t('modal.close', 'Close')}
                     </Button>
                 </>
