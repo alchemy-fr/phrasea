@@ -1,4 +1,4 @@
-import {FormEvent, useContext, useEffect, useRef, useState} from 'react';
+import {FormEvent, MouseEventHandler, useContext, useEffect, useRef, useState} from 'react';
 import {styled} from '@mui/material/styles';
 import {alpha, Box, Button, InputBase} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -58,6 +58,16 @@ export default function SearchBar({}: Props) {
         setQueryValue(search.query);
     }, [search.query]);
 
+    const onClick: MouseEventHandler<HTMLInputElement> = () => {
+        if (search.query) {
+            setTimeout(() => {
+                if (inputRef.current?.value === '') {
+                    search.setQuery('', true);
+                }
+            }, 10);
+        }
+    };
+
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
         search.setQuery(queryValue, true);
@@ -80,13 +90,15 @@ export default function SearchBar({}: Props) {
                 <form onSubmit={onSubmit}>
                     <Search>
                         <SearchIconWrapper>
-                            <SearchIcon />
+                            <SearchIcon/>
                         </SearchIconWrapper>
                         <StyledInputBase
                             autoFocus={true}
+                            type={'search'}
                             value={queryValue}
                             onChange={e => setQueryValue(e.target.value)}
                             inputRef={inputRef}
+                            onClick={onClick}
                             placeholder="Search…"
                             onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                             inputProps={{'aria-label': 'search'}}
@@ -103,8 +115,8 @@ export default function SearchBar({}: Props) {
                         </Button>
                     </Search>
                 </form>
-                <GeoPointFilter />
-                <SortBy />
+                <GeoPointFilter/>
+                <SortBy/>
             </Box>
             {search.attrFilters.length > 0 && (
                 <Box
