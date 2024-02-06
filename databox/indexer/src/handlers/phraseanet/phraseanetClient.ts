@@ -12,8 +12,6 @@ import {
 import {createHttpClient} from '../../lib/axios';
 import {
     PhraseanetSearchType,
-    PhraseanetSearchTypeRecord,
-    PhraseanetSearchTypeStory
 } from "./shared";
 
 export function createPhraseanetClient(options: PhraseanetConfig) {
@@ -34,21 +32,16 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
     private readonly searchOrder?: string;
-    private readonly instanceId?: string;       // todo: replace by api call
+    private readonly id: string;    // not the phraseanet conf.instanceId
 
     constructor(options: PhraseanetConfig) {
         this.client = createPhraseanetClient(options);
         this.searchOrder = options.searchOrder;
-        this.instanceId = options.instanceId;      // todo: replace by api call
+        this.id = btoa(options.url);
     }
 
-    async getInstanceId(): Promise<string> {
-        // todo: replace by api call
-        return this.instanceId ?? "";
-
-        // todo: change api call to return instance_id
-        // return (await this.client.get(`/api/v1/monitor/phraseanet`))
-        //     .data.response.global_values.httpServer.siteId;
+    getId(): string {
+        return this.id;
     }
 
     async getCollections(): Promise<PhraseanetCollection[]> {
@@ -62,7 +55,7 @@ export default class PhraseanetClient {
         offset: number = 0,
         searchQuery: string
     ): Promise<PhraseanetRecord[]> {
-        return this.search(params, offset, PhraseanetSearchTypeRecord, searchQuery) as unknown as Promise<PhraseanetRecord[]>;
+        return this.search(params, offset, PhraseanetSearchType.Record, searchQuery) as unknown as Promise<PhraseanetRecord[]>;
     }
 
     searchStories(
@@ -70,7 +63,7 @@ export default class PhraseanetClient {
         offset: number = 0,
         searchQuery: string
     ): Promise<PhraseanetStory[]> {
-        return this.search(params, offset, PhraseanetSearchTypeStory, searchQuery) as unknown as Promise<PhraseanetStory[]>;
+        return this.search(params, offset, PhraseanetSearchType.Story, searchQuery) as unknown as Promise<PhraseanetStory[]>;
     }
 
     async search(
@@ -104,7 +97,7 @@ export default class PhraseanetClient {
             },
         });
 
-        return searchType == PhraseanetSearchTypeRecord ? res.data.response.results.records : res.data.response.results.stories;
+        return searchType == PhraseanetSearchType.Record ? res.data.response.results.records : res.data.response.results.stories;
     }
 
     async getMetaStruct(databoxId: string): Promise<PhraseanetMetaStruct[]> {

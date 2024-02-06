@@ -34,6 +34,7 @@ export function createAsset(
     record: PhraseanetRecord,
     rootCollectionPath: string,
     collectionKeyPrefix: string,
+    key: string,
     collectionName: string,
     attrDefinitionIndex: AttrDefinitionIndex,
     tagIndex: TagIndex,
@@ -50,7 +51,7 @@ export function createAsset(
     const attributes: AttributeInput[] = [];
     for(const c of record.caption ?? []) {
         const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
-        if(ad != undefined) {
+        if(ad !== undefined) {
             const d = {
                 definitionId: ad.id,
                 origin: 'machine',
@@ -73,7 +74,7 @@ export function createAsset(
 
     return {
         workspaceId: workspaceId,
-        key: record.resource_id,
+        key: key,
         path: path,
         collectionKeyPrefix: collectionKeyPrefix,
         title: record.title,
@@ -110,8 +111,7 @@ export const attributeTypesEquivalence: Record<string, string> = {
     string: 'text',
 };
 
-export type PhraseanetSearchType = 0 | 1;
-export const PhraseanetSearchTypeRecord: PhraseanetSearchType = 0;
-export const PhraseanetSearchTypeStory: PhraseanetSearchType = 1;
-
-
+export enum PhraseanetSearchType {
+    Record = 0,
+    Story = 1,
+}

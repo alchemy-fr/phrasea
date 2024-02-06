@@ -10,6 +10,12 @@ export type ConfigDataboxMapping = {
 export type PhraseanetConfig = {
     url: string;
     instanceId?: string;
+    idempotencePrefixes?: {
+        asset?: string;
+        collection?: string;
+        attributeDefinition?: string;
+        renditionDefinition?: string;
+    };
     searchOrder?: string;
     token: string;
     verifySSL?: boolean;

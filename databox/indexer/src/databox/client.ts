@@ -253,7 +253,7 @@ export class DataboxClient {
                 {
                     name: slug,
                     slug: slug,
-                    public: true,
+                    public: false,
                     enabledLocales: [],
                     localeFallbacks: [],
                     ownerId: getStrict('databox.ownerId')

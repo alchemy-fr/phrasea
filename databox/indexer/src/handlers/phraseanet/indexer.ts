@@ -19,9 +19,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         const collectionIndex: Record<string, string> = {};
         const databoxCollections: Record<string, number[]> = {};
 
-        const instanceId = await client.getInstanceId();
 
-        logger.debug(`Fetching collections`);
+        logger.info(`Fetching collections`);
         const collections = await client.getCollections();
         for (const c of collections) {
             collectionIndex[c.base_id] = c.name;
@@ -42,6 +41,15 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             location.options
         );
 
+        const idempotencePrefixes: Record<string, string> = {};
+        for(const k of ["asset", "collection", "attributeDefinition", "renditionDefinition"]) {
+            idempotencePrefixes[k] = getConfig(
+                `idempotencePrefixes.${k}`,
+                client.getId() + "_",
+                location.options
+            );
+        }
+
         for (const dm of databoxMapping) {
 
             let workspaceId = await databoxClient.getOrCreateWorkspaceIdWithSlug(
@@ -60,7 +68,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
 
             // prefix of the idempotence key for the __collections__
-            const collectionKeyPrefix = instanceId + "_" + dm.databoxId + ":"
+            const collectionKeyPrefix = idempotencePrefixes["collection"] + dm.databoxId + ":"
 
             // create the collection(s) for __records__
             const branch = splitPath(dm.recordsCollectionPath);
@@ -122,7 +130,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     await databoxClient.createAttributeDefinition(
                         m.id.toString(),
                         {
-                            key: `${m.name}_${m.type}_${m.multivalue ? '1' : '0'}`,
+                            key: `${idempotencePrefixes["attributeDefinition"]}${m.name}_${m.type}_${m.multivalue ? '1' : '0'}`,
                             name: m.name,
                             editable: !m.readonly,
                             multiple: m.multivalue,
@@ -146,7 +154,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
             for(const sb of await client.getStatusBitsStruct(dm.databoxId)) {
                 if(tagsIdByName[sb.label_on] === undefined) {
-                    const key = instanceId + "_" + dm.databoxId + ".sb" + sb.bit;
+                    logger.info(`Creating "${sb.label_on}" tag"`);
+                    const key = client.getId() + "_" + dm.databoxId + ".sb" + sb.bit;
                     const tag: Tag = await databoxClient.createTag(
                         key,
                         {
@@ -154,7 +163,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             name: sb.label_on
                         }
                     );
-                    logger.info(`Created "${tag.name}" tag with key "${key}" --> id=${tag.id}`);
                     tagsIdByName[sb.label_on] = tag.id;
                 }
                 tagIndex[sb.bit] = "/tags/" + tagsIdByName[sb.label_on];
@@ -186,7 +194,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 );
                 await databoxClient.createRenditionDefinition({
                     name: sd.name,
-                    key: `${sd.name}_${sd.type ?? ''}`,
+                    key: `${idempotencePrefixes["renditionDefinition"]}${sd.name}_${sd.type ?? ''}`,
                     class: `/rendition-classes/${classIndex[sd.class]}`,
                     useAsOriginal: sd.name === 'document',
                     useAsPreview: sd.name === 'preview',
@@ -219,7 +227,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             s.resource_id,
                             {
                                 workspaceId: workspaceId,
-                                key: s.resource_id,
+                                key: idempotencePrefixes["collection"] + s.databox_id + "_" + s.story_id,
                                 title: s.title,
                                 parent: "/collections/" + storiesCollectionId
                             }
@@ -229,7 +237,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 s.story_id
                             }) from base "${collectionIndex[s.base_id]}" (#${
                                 s.base_id
-                            }) ==> collection ${storyCollId}`
+                            }) ==> collection (#${storyCollId})`
                         );
                         for (const r of s.children) {
                             if (recordStories[r.record_id] === undefined) {
@@ -251,7 +259,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 records = await client.searchRecords(searchParams, offset, dm.searchQuery ?? "");
                 for (const r of records) {
                     logger.info(
-                        `Phraseanet asset "${r.title}" (#${
+                        `Phraseanet record "${r.title}" (#${
                             r.record_id
                         }) from base "${collectionIndex[r.base_id]}" (#${
                             r.base_id
@@ -263,6 +271,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         r,
                         dm.recordsCollectionPath,
                         collectionKeyPrefix,
+                        idempotencePrefixes["asset"] + r.databox_id + "_" + r.record_id,
                         collectionIndex[r.base_id],
                         attrDefinitionIndex,
                         tagIndex,
