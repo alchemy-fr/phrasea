@@ -1,6 +1,6 @@
 import {Asset, Attribute} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import React, {ReactElement, ReactNode, useContext} from 'react';
+import React, {PropsWithChildren, ReactElement, ReactNode, useContext} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
 import {Box} from '@mui/material';
@@ -60,7 +60,10 @@ const Highlight = styled('em')(({theme}) => ({
     borderRadius: 3,
 }));
 
-export function replaceHighlight(value?: string): FreeNode {
+export function replaceHighlight(
+    value?: string,
+    Compoment: React.FunctionComponent<PropsWithChildren<any>> = Highlight
+): FreeNode {
     if (!value) {
         return [];
     }
@@ -69,7 +72,7 @@ export function replaceHighlight(value?: string): FreeNode {
         value,
         /\[hl](.*?)\[\/hl]/g,
         (m, index) => {
-            return <Highlight key={index}>{m}</Highlight>;
+            return <Compoment key={index}>{m}</Compoment>;
         }
     );
 

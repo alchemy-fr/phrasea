@@ -1,4 +1,4 @@
-import {FormEvent, MouseEventHandler, useContext, useEffect, useRef, useState} from 'react';
+import React, {FormEvent, MouseEventHandler, useContext, useEffect, useRef, useState} from 'react';
 import {styled} from '@mui/material/styles';
 import {alpha, Box, Button, InputBase} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -9,6 +9,9 @@ import {ResultContext} from './ResultContext';
 import SortBy from './Sorting/SortBy';
 import {zIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
+import AutoComplete from "./AutoComplete.tsx";
+import {getSearchSuggestions, SearchSuggestion} from "../../../api/asset.ts";
+import {GetSources} from "@algolia/autocomplete-core";
 
 type Props = {};
 
@@ -73,6 +76,22 @@ export default function SearchBar({}: Props) {
         search.setQuery(queryValue, true);
     };
 
+
+    const getSources = React.useCallback<GetSources<SearchSuggestion>>(() => {
+        return [
+            {
+                sourceId: 'items',
+                onSelect: ({item, setQuery}) => {
+                    setQuery(item.name);
+                    search.setQuery(item.name, true);
+                },
+                getItems({query}) {
+                    return getSearchSuggestions(query).then(r => r.result);
+                },
+            }
+        ];
+    }, [search]);
+
     return (
         <Box
             sx={{
@@ -92,17 +111,25 @@ export default function SearchBar({}: Props) {
                         <SearchIconWrapper>
                             <SearchIcon/>
                         </SearchIconWrapper>
-                        <StyledInputBase
-                            autoFocus={true}
-                            type={'search'}
-                            value={queryValue}
-                            onChange={e => setQueryValue(e.target.value)}
-                            inputRef={inputRef}
-                            onClick={onClick}
-                            placeholder="Search…"
-                            onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                            inputProps={{'aria-label': 'search'}}
-                        />
+                        <AutoComplete
+                            getSources={getSources}
+                        >
+                            {(props) => <StyledInputBase
+                                autoFocus={true}
+                                type={'search'}
+                                value={queryValue}
+                                onChange={e => setQueryValue(e.target.value)}
+                                inputRef={inputRef}
+                                onClick={onClick}
+                                placeholder="Search…"
+                                onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                inputProps={{
+                                    'aria-label': 'search',
+                                    ...props,
+                                }}
+                            />}
+                        </AutoComplete>
                         <Button
                             disabled={
                                 search.query === queryValue &&

@@ -22,11 +22,9 @@ class AssetSearch extends AbstractSearch
         private readonly PaginatedFinderInterface $finder,
         private readonly TagFilterManager $tagFilterManager,
         private readonly AttributeSearch $attributeSearch,
-        Security $security,
         private readonly QueryStringParser $queryStringParser,
-        private readonly FacetHandler $facetHandler
+        private readonly FacetHandler $facetHandler,
     ) {
-        $this->security = $security;
     }
 
     public function search(
@@ -137,7 +135,7 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setAllowOutOfRangePages(true);

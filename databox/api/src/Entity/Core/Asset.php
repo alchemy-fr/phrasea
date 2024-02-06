@@ -25,6 +25,7 @@ use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Controller\Core\MultipleAssetCreateAction;
@@ -50,6 +51,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'asset',
     operations: [
+        new GetCollection(
+            uriTemplate: '/assets/suggest',
+            name: 'suggestions',
+            provider: SearchSuggestionCollectionProvider::class,
+        ),
         new Get(
             normalizationContext: [
                 'groups' => [Asset::GROUP_READ],

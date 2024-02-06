@@ -21,6 +21,7 @@ services:
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
             ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
+            string $kernelEnv: '%kernel.environment%'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:
@@ -58,7 +59,12 @@ services:
 
     App\Elasticsearch\AssetSearch:
         arguments:
-            - '@fos_elastica.finder.asset'
+            $finder: '@fos_elastica.finder.asset'
+
+    App\Elasticsearch\SuggestionSearch:
+        arguments:
+            $collectionIndex: '@fos_elastica.index.collection'
+            $assetIndex: '@fos_elastica.index.asset'
 
     App\Elasticsearch\CollectionSearch:
         arguments:

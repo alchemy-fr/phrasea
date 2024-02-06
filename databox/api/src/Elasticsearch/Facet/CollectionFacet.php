@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use App\Attribute\Type\CollectionPathAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -13,8 +14,15 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 final class CollectionFacet extends AbstractFacet
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Security $security)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly Security $security,
+    ) {
+    }
+
+    public function getType(): string
     {
+        return CollectionPathAttributeType::getName();
     }
 
     public function normalizeBucket(array $bucket): ?array
@@ -34,10 +42,8 @@ final class CollectionFacet extends AbstractFacet
 
     /**
      * @param CollectionAsset $item
-     *
-     * @return Collection
      */
-    protected function resolveCollectionItem($item)
+    protected function resolveCollectionItem($item): Collection
     {
         return $item->getCollection();
     }
@@ -86,19 +92,18 @@ final class CollectionFacet extends AbstractFacet
     private function normalizeCollectionPath(string $path): ?string
     {
         $ids = explode('/', $path);
-        array_shift($ids);
+        $collection = $this->em->find(Collection::class, end($ids));
+        $levels = [];
+        $pColl = $collection;
+        while ($pColl) {
+            if (!$this->security->isGranted(AbstractVoter::READ, $pColl)) {
+                break;
+            }
 
-        /** @var Collection[] $collections */
-        $collections = array_filter(array_map(fn (string $id): ?Collection => $this->em->find(Collection::class, $id), $ids));
-
-        if (empty($collections) || count($collections) < count($ids)) {
-            return null;
+            $levels[] = $pColl->getTitle() ?? $pColl->getId();
+            $pColl = $pColl->getParent();
         }
 
-        if (!$this->security->isGranted(AbstractVoter::READ, $collections[count($collections) - 1])) {
-            return null;
-        }
-
-        return implode(' / ', array_map(fn (Collection $c): ?string => $c->getTitle() ?? $c->getId(), $collections));
+        return implode(' / ', array_reverse($levels));
     }
 }

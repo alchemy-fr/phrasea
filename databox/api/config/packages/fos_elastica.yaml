@@ -35,6 +35,9 @@ fos_elastica:
                                 catenate_words: true
                                 preserve_original: true
             properties:
+                autocomplete:
+                    property_path: title
+                    type: search_as_you_type
                 title:
                     type: text
                     analyzer: text
@@ -99,6 +102,9 @@ fos_elastica:
                                 type: path_hierarchy
                                 delimiter: /
             properties:
+                autocomplete:
+                    property_path: title
+                    type: search_as_you_type
                 title: ~
                 sortName:
                     type: keyword
@@ -132,6 +138,8 @@ fos_elastica:
                     type: keyword
                 privacyRoots:
                     type: keyword
+                createdAt:
+                    type: date
             persistence:
                 driver: orm
                 model: App\Entity\Core\Collection

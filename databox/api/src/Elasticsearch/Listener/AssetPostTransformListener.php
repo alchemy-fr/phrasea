@@ -67,6 +67,14 @@ class AssetPostTransformListener implements EventSubscriberInterface
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
             [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
+
+            if (in_array($cBestPrivacy, [
+                WorkspaceItemPrivacyInterface::PRIVATE,
+                WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+            ], true)) {
+                // Private collections does not expose its assets
+                $cBestPrivacy = WorkspaceItemPrivacyInterface::SECRET;
+            }
             $bestPrivacy = max($bestPrivacy, $cBestPrivacy);
 
             $collectionsPaths[] = $absolutePath;

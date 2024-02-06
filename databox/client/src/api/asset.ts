@@ -52,6 +52,41 @@ export async function getAssets(
     };
 }
 
+export type SearchSuggestion = {
+    id: string;
+    name: string;
+    hl: string;
+    t: string;
+}
+
+export async function getSearchSuggestions(
+    query: string,
+    requestConfig?: AxiosRequestConfig
+): Promise<
+    ApiCollectionResponse<
+        SearchSuggestion,
+        {
+            debug: ESDebug;
+        }
+    >
+> {
+    const res = await apiClient.get('/assets/suggest', {
+              params: {
+                  query,
+              },
+              ...requestConfig,
+          });
+
+    return {
+        ...getHydraCollection<SearchSuggestion>(res.data),
+        debug: {
+            query: res.data['debug:es'].query,
+            esQueryTime: res.data['debug:es'].time,
+            totalResponseTime: res.config.meta!.responseTime!,
+        },
+    };
+}
+
 export async function getAsset(id: string): Promise<Asset> {
     const res = await apiClient.get(`/assets/${id}`);
 

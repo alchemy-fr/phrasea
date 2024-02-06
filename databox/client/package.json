@@ -13,6 +13,8 @@
     "@alchemy/react-ps": "workspace:*",
     "@alchemy/theme-editor": "workspace:*",
     "@alchemy/visual-workflow": "workspace:*",
+    "@algolia/autocomplete-core": "^1.16.0",
+    "@algolia/autocomplete-theme-classic": "^1.16.0",
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
     "@dnd-kit/utilities": "^3.2.0",
