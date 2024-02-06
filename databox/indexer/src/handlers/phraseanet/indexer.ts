@@ -248,7 +248,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             let records: PhraseanetRecord[];
             let offset = 0;
             do {
-                records = await client.searchRecords(searchParams, offset, dm.searchQuery);
+                records = await client.searchRecords(searchParams, offset, dm.searchQuery ?? "");
                 for (const r of records) {
                     logger.info(
                         `Phraseanet asset "${r.title}" (#${

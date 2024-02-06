@@ -48,7 +48,7 @@ export function createAsset(
     )}`;
 
     const attributes: AttributeInput[] = [];
-    for(const c of record.caption) {
+    for(const c of record.caption ?? []) {
         const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
         if(ad != undefined) {
             const d = {

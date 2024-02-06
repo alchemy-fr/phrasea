@@ -44,7 +44,7 @@ export default class PhraseanetClient {
 
     async getInstanceId(): Promise<string> {
         // todo: replace by api call
-        return this.instanceId;
+        return this.instanceId ?? "";
 
         // todo: change api call to return instance_id
         // return (await this.client.get(`/api/v1/monitor/phraseanet`))

@@ -19,7 +19,7 @@ export type Asset = {
     sourcePath?: string;
     importFile?: boolean;
     attributes?: AttributeInput[];
-    tags: TagInput[];
+    tags?: TagInput[];
     renditions?: RenditionInput[];
     shortcutIntoCollections?: string[]
 };

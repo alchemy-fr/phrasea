@@ -19,7 +19,7 @@ export type AssetInput = {
     workspace?: string;
     workspaceId?: string;
     attributes?: AttributeInput[];
-    tags: TagInput[];
+    tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
 };
