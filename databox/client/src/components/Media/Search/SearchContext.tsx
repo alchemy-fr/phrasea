@@ -12,10 +12,7 @@ export type TSearchContext = {
     selectWorkspace: (
         id: string | undefined,
         title: string | undefined,
-        options?: {
-            forceReload?: boolean;
-            clearSearch?: boolean;
-        }
+        forceReload?: boolean,
     ) => void;
     collections: string[];
     workspaces: string[];
