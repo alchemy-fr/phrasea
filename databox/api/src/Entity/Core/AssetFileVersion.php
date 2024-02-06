@@ -41,7 +41,7 @@ class AssetFileVersion extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
     private ?string $versionName = null;
 
-    #[ORM\ManyToOne(targetEntity: Asset::class)]
+    #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'fileVersions')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups([AssetFileVersion::GROUP_LIST])]
     private ?Asset $asset = null;
