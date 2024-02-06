@@ -34,7 +34,6 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         // "nl" stands for Next Level and means permissions for sets which have access to a sub folder only (not the root one)
         $nlUsers = $users;
         $nlGroups = $groups;
-        $nlBestPrivacy = WorkspaceItemPrivacyInterface::SECRET; // TODO
 
         if (!in_array(null, $users, true)) {
             $parent = $collection->getParent();
@@ -59,10 +58,8 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));
-
         $document->set('nlUsers', array_values(array_unique($nlUsers)));
         $document->set('nlGroups', array_values(array_unique($nlGroups)));
-        $document->set('nlPrivacy', $nlBestPrivacy);
     }
 
     public static function getSubscribedEvents(): array

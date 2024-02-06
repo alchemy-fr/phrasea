@@ -242,6 +242,38 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         return null === $this->parent;
     }
 
+    /**
+     * Used by ES
+     */
+    public function getPrivacyRoots(): array
+    {
+        return array_keys(array_filter($this->computePrivacyRoots(), fn (bool $r): bool => $r));
+    }
+
+    private function computePrivacyRoots(): array
+    {
+        $roots = [];
+        for ($i = WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE; $i <= WorkspaceItemPrivacyInterface::PUBLIC; ++$i) {
+            $roots[$i] = $this->privacy === $i;
+        }
+
+        if (null !== $this->parent) {
+            $parentRoots = $this->parent->computePrivacyRoots();
+            foreach ($parentRoots as $i => $root) {
+                if ($root) {
+                    $roots[$i] = false;
+                }
+            }
+        }
+
+        return $roots;
+    }
+
+    public function getInheritedPrivacy(): ?int
+    {
+        return $this->parent?->getBestPrivacyInParentHierarchy();
+    }
+
     public function getBestPrivacyInParentHierarchy(): int
     {
         $bestPrivacy = $this->privacy;

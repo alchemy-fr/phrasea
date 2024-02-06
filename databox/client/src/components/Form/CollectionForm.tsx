@@ -9,6 +9,7 @@ import {FormProps} from './types';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({
     formId,
+    data,
     usedFormSubmit: {
         handleSubmit,
         submitting,
@@ -34,7 +35,11 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
                 <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
             <FormRow>
-                <PrivacyField control={control} name={'privacy'} />
+                <PrivacyField
+                    control={control}
+                    name={'privacy'}
+                    inheritedPrivacy={data?.inheritedPrivacy}
+                />
             </FormRow>
         </form>
     );

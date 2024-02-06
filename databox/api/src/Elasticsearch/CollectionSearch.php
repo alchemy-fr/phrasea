@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
@@ -122,17 +123,40 @@ class CollectionSearch extends AbstractSearch
 
             $boolQuery->addFilter($parentsBoolQuery);
         } else {
+            $rootLevelQuery = new Query\BoolQuery();
+            $rootLevelQuery->addShould(new Query\Term(['pathDepth' => 0]));
             if (null !== $userId) {
-                $rootLevelQuery = new Query\BoolQuery();
-                $rootLevelQuery->addShould(new Query\Term(['pathDepth' => 0]));
                 $rootLevelQuery->addShould(new Query\Term(['nlUsers' => $userId]));
                 if (!empty($groupIds)) {
                     $rootLevelQuery->addShould(new Query\Terms('nlGroups', $groupIds));
                 }
-                $boolQuery->addFilter($rootLevelQuery);
-            } else {
-                $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
             }
+
+            $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+            if (!empty($publicWorkspaceIds)) {
+                $b = new Query\BoolQuery();
+                $b->addMust(new Query\Terms('workspaceId', $publicWorkspaceIds));
+                $b->addMust(new Query\Term(['privacyRoots' => WorkspaceItemPrivacyInterface::PUBLIC]));
+                $rootLevelQuery->addShould($b);
+            }
+
+            if (null !== $userId) {
+                $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
+                if (!empty($allowedWorkspaceIds)) {
+                    $b = new Query\BoolQuery();
+                    $b->addMust(new Query\Terms('workspaceId', $allowedWorkspaceIds));
+                    $b->addMust(new Query\Terms('privacyRoots', [
+                        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                        WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+                        WorkspaceItemPrivacyInterface::PRIVATE,
+                        WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+                        WorkspaceItemPrivacyInterface::PUBLIC,
+                    ]));
+                    $rootLevelQuery->addShould($b);
+                }
+            }
+
+            $boolQuery->addFilter($rootLevelQuery);
         }
 
         if (isset($options['workspaces'])) {

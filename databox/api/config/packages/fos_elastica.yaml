@@ -130,6 +130,8 @@ fos_elastica:
                 nlGroups:
                     property_path: false
                     type: keyword
+                privacyRoots:
+                    type: keyword
             persistence:
                 driver: orm
                 model: App\Entity\Core\Collection

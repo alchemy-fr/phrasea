@@ -17,6 +17,9 @@ abstract class AbstractSearch
 
     protected EntityManagerInterface $em;
 
+    private ?array $allowedWorkspaces = null;
+    private ?array $publicWorkspaceIds = null;
+
     protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         if ($this->isSuperAdmin()) {
@@ -76,14 +79,22 @@ abstract class AbstractSearch
         return $aclBoolQuery;
     }
 
-    private function getAllowedWorkspaceIds(string $userId, array $groupIds): array
+    protected function getAllowedWorkspaceIds(string $userId, array $groupIds): array
     {
-        return $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
+        if (null !== $this->allowedWorkspaces) {
+            return $this->allowedWorkspaces;
+        }
+
+        return $this->allowedWorkspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($userId, $groupIds);
     }
 
-    private function getPublicWorkspaceIds(): array
+    protected function getPublicWorkspaceIds(): array
     {
-        return $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
+        if (null !== $this->publicWorkspaceIds) {
+            return $this->publicWorkspaceIds;
+        }
+
+        return $this->publicWorkspaceIds = $this->em->getRepository(Workspace::class)->getPublicWorkspaceIds();
     }
 
     protected function findEntityByIds(string $entityName, array $ids): array

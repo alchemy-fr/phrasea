@@ -33,6 +33,18 @@ function getValue(value: string, workspace: boolean, auth: boolean): number {
     }
 }
 
+function getKeyValue(value: string): number {
+    switch (value) {
+        default:
+        case 'secret':
+            return 0;
+        case 'private':
+            return 1;
+        case 'public':
+            return 2;
+    }
+}
+
 function getFields(value: number): [string, boolean, boolean] {
     switch (value) {
         default:
@@ -54,11 +66,13 @@ function getFields(value: number): [string, boolean, boolean] {
 type Props<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;
     name: FieldPath<TFieldValues>;
+    inheritedPrivacy?: number;
 };
 
 export default function PrivacyField<TFieldValues extends FieldValues>({
     control,
     name,
+    inheritedPrivacy,
 }: Props<TFieldValues>) {
     const {t} = useTranslation();
     const {
@@ -69,58 +83,73 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
         defaultValue: 0 as any,
     });
 
+    const firstValue = React.useMemo(() => value, []);
     const [p, w, a] = getFields(value);
-
     const [privacy, setPrivacy] = useState<string>(p);
     const [workspaceOnly, setWorkspaceOnly] = useState(w);
     const [auth, setAuth] = useState(a);
 
+    const ip = inheritedPrivacy ?? 0;
+    const inheritedKeyPrivacy = getKeyValue(getFields(ip)[0]);
+    const resolvedPrivacy = inheritedKeyPrivacy > 0 && getKeyValue(privacy) <= inheritedKeyPrivacy ? getFields(inheritedKeyPrivacy)[0] : privacy;
+    const workspaceOnlyLocked = getValue(resolvedPrivacy, false, true) === ip;
+    const resolvedWorkspaceOnly = workspaceOnlyLocked ? false : workspaceOnly;
+    const authLocked = getValue(resolvedPrivacy, resolvedWorkspaceOnly, false) === ip;
+    const resolveAuth = authLocked ? false : auth;
+
     React.useEffect(() => {
         const [p, w, a] = getFields(value);
         setPrivacy(p);
-        setWorkspaceOnly(w);
-        setAuth(a);
+        setWorkspaceOnly(w || (firstValue === value && getValue(resolvedPrivacy, true, resolveAuth) === ip));
+        setAuth(a || (firstValue === value && getValue(resolvedPrivacy, resolvedWorkspaceOnly, true) === ip));
     }, [value]);
 
     const handlePChange = (e: SelectChangeEvent): void => {
         const v = e.target.value;
         setPrivacy(v);
-        onChange(getValue(v, workspaceOnly, auth));
+        onChange(getValue(v, resolvedWorkspaceOnly, resolveAuth));
     };
     const handleWSOnlyChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
         setWorkspaceOnly(e.target.checked);
-        onChange(getValue(privacy, e.target.checked, auth));
+        onChange(getValue(resolvedPrivacy, e.target.checked, resolveAuth));
     };
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        console.log('e.target.checked', e.target.checked);
         setAuth(e.target.checked);
-        onChange(getValue(privacy, workspaceOnly, e.target.checked));
+        onChange(getValue(resolvedPrivacy, resolvedWorkspaceOnly, e.target.checked));
     };
 
     const label = t('form.privacy.label', 'Privacy');
+
     return (
         <FormControl>
             <InputLabel>{label}</InputLabel>
             <Select<string>
                 label={label}
-                value={privacy}
+                value={resolvedPrivacy}
                 onChange={handlePChange}
             >
-                {Object.keys(choices).map(k => (
-                    <MenuItem key={k} value={k}>
+                {Object.keys(choices).map(k => {
+                    return <MenuItem
+                        key={k}
+                        value={k}
+                        disabled={inheritedKeyPrivacy > 0 && getKeyValue(k) < inheritedKeyPrivacy}
+                    >
                         <ListItemText
                             primary={choices[k].label}
                             secondary={choices[k].helper}
                         />
                     </MenuItem>
-                ))}
+                })}
             </Select>
-            {['private', 'public'].includes(privacy) && (
+            {['private', 'public'].includes(resolvedPrivacy) && (
                 <FormControlLabel
+                    disabled={workspaceOnlyLocked}
                     control={
                         <Checkbox
-                            checked={workspaceOnly}
+                            checked={resolvedWorkspaceOnly}
                             onChange={handleWSOnlyChange}
                         />
                     }
@@ -128,10 +157,14 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                     labelPlacement="end"
                 />
             )}
-            {privacy === 'public' && !workspaceOnly && (
+            {resolvedPrivacy === 'public' && (
                 <FormControlLabel
+                    disabled={authLocked || resolvedWorkspaceOnly}
                     control={
-                        <Checkbox checked={auth} onChange={handleAuthChange} />
+                        <Checkbox
+                            checked={resolveAuth || resolvedWorkspaceOnly}
+                            onChange={handleAuthChange}
+                        />
                     }
                     label={`User must be authenticated`}
                     labelPlacement="end"

@@ -47,6 +47,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setTitle($data->getTitle());
         $output->setPrivacy($data->getPrivacy());
+        $output->inheritedPrivacy = $data->getInheritedPrivacy();
         $output->setWorkspace($data->getWorkspace());
 
         if ($this->hasGroup([
