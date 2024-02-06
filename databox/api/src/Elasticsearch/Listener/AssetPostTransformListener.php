@@ -11,6 +11,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -65,36 +66,8 @@ class AssetPostTransformListener implements EventSubscriberInterface
         $collectionsPaths = [];
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
-
-            [$absolutePath, $cUsers, $cGroups] = $this->cache->get($collection->getId().'-'.$bestPrivacy, function () use ($collection, &$bestPrivacy): array {
-                if (($hierarchyBestPrivacy = $collection->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
-                    $bestPrivacy = $hierarchyBestPrivacy;
-                }
-
-                $cUsers = [];
-                $cGroups = [];
-
-                if ($bestPrivacy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
-                    if (null !== $collection->getOwnerId()) {
-                        $cUsers[] = $collection->getOwnerId();
-                    }
-
-                    $pColl = $collection;
-                    while ($pColl) {
-                        $cUsers = array_merge($cUsers, $this->permissionManager->getAllowedUsers($pColl, PermissionInterface::VIEW));
-                        $cGroups = array_merge($cGroups, $this->permissionManager->getAllowedGroups($pColl, PermissionInterface::VIEW));
-                        $pColl = $pColl->getParent();
-                    }
-                }
-
-                $absPath = $collection->getAbsolutePath();
-
-                return [
-                    $absPath,
-                    $cUsers,
-                    $cGroups,
-                ];
-            });
+            [$cBestPrivacy, $absolutePath, $cUsers, $cGroups] = $this->getCollectionHierarchyInfo($collection);
+            $bestPrivacy = max($bestPrivacy, $cBestPrivacy);
 
             $collectionsPaths[] = $absolutePath;
             $users = array_merge($users, $cUsers);
@@ -107,6 +80,37 @@ class AssetPostTransformListener implements EventSubscriberInterface
         $document->set('collectionPaths', array_unique($collectionsPaths));
         $document->set('attributes', $this->compileAttributes($asset));
         $document->set('renditions', $this->compileRenditions($asset));
+    }
+
+    private function getCollectionHierarchyInfo(Collection $collection): array
+    {
+        return $this->cache->get($collection->getId(), function () use ($collection): array {
+            $bestPrivacyInParentHierarchy = $collection->getBestPrivacyInParentHierarchy();
+            $cUsers = [];
+            $cGroups = [];
+
+            if ($bestPrivacyInParentHierarchy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
+                if (null !== $collection->getOwnerId()) {
+                    $cUsers[] = $collection->getOwnerId();
+                }
+
+                $cUsers = array_merge($cUsers, $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW));
+                $cGroups = array_merge($cGroups, $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW));
+
+                if (null !== $parent = $collection->getParent()) {
+                    [, , $pUsers, $pGroups] = $this->getCollectionHierarchyInfo($parent);
+                    $cUsers = array_merge($cUsers, $pUsers);
+                    $cGroups = array_merge($cGroups, $pGroups);
+                }
+            }
+
+            return [
+                $bestPrivacyInParentHierarchy,
+                $collection->getAbsolutePath(),
+                array_values(array_unique($cUsers)),
+                array_values(array_unique($cGroups)),
+            ];
+        });
     }
 
     private function compileRenditions(Asset $asset): array
@@ -166,7 +170,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
         return [$data];
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PostTransformEvent::class => 'hydrateDocument',

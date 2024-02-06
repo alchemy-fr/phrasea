@@ -100,7 +100,7 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
     React.useEffect(() => {
         const [p, w, a] = getFields(value);
         setPrivacy(p);
-        setWorkspaceOnly(w || (firstValue === value && getValue(resolvedPrivacy, true, resolveAuth) === ip));
+        setWorkspaceOnly(w || (firstValue === value && getKeyValue(privacy) < inheritedKeyPrivacy  && getValue(resolvedPrivacy, true, resolveAuth) === ip));
         setAuth(a || (firstValue === value && getValue(resolvedPrivacy, resolvedWorkspaceOnly, true) === ip));
     }, [value]);
 

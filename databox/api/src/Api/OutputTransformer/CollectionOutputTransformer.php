@@ -90,7 +90,11 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $public = false;
             $pointer = $data;
             while (null !== $pointer) {
-                if ($pointer->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE) {
+                if (in_array($pointer->getPrivacy(), [
+                    WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+                    WorkspaceItemPrivacyInterface::PUBLIC,
+                    WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+                ], true)) {
                     $public = true;
                 }
 
