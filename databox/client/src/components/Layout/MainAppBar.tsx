@@ -39,11 +39,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         keycloakClient,
         autoConnectIdP: config.autoConnectIdP,
     });
-    const onTitleClick = () =>
-        searchContext.selectWorkspace(undefined, undefined, {
-            forceReload: true,
-            clearSearch: true,
-        });
+    const onTitleClick = () => searchContext.reset();
 
     return (
         <div

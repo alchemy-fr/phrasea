@@ -23,8 +23,12 @@ class AttributeSearch
 {
     final public const OPT_STRICT_PHRASE = 'strict';
 
-    public function __construct(private readonly FieldNameResolver $fieldNameResolver, private readonly EntityManagerInterface $em, private readonly AttributeTypeRegistry $typeRegistry, private readonly AssetTitleResolver $assetTitleResolver)
-    {
+    public function __construct(
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly AssetTitleResolver $assetTitleResolver,
+    ) {
     }
 
     public function buildAttributeQuery(
@@ -56,10 +60,6 @@ class AttributeSearch
             $wsSearchQuery = new Query\BoolQuery();
 
             $weights = [];
-            if (!$this->assetTitleResolver->hasTitleOverride($workspaceId)) {
-                $weights['title'] = 10;
-            }
-
             foreach ($attributeDefinitions as $definition) {
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);
                 $type = $this->typeRegistry->getStrictType($definition->getFieldType());
@@ -83,10 +83,10 @@ class AttributeSearch
             $matchBoolQuery = new Query\BoolQuery();
 
             $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
-            $multiMatch->setParam('boost', 50);
             $matchBoolQuery->addShould($multiMatch);
 
             if (!$strict) {
+                $multiMatch->setParam('boost', 5);
                 $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
             }
 

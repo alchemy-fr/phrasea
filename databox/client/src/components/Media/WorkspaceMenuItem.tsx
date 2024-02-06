@@ -63,9 +63,7 @@ export default function WorkspaceMenuItem({
     };
 
     const onClick = () => {
-        searchContext.selectWorkspace(id, name, {
-            forceReload: selected,
-        });
+        searchContext.selectWorkspace(id, name, selected);
         expand(true);
     };
 

@@ -143,14 +143,12 @@ class AssetSearch extends AbstractSearch
             $result->setAllowOutOfRangePages(true);
             $result->setCurrentPage((int) $options['page']);
         }
-        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
-
         $start = microtime(true);
-        $facets = $adapter->getAggregations();
-
-        $facets = $this->facetHandler->normalizeBuckets($facets);
-
+        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
         $searchTime = microtime(true) - $start;
+
+        $facets = $adapter->getAggregations();
+        $facets = $this->facetHandler->normalizeBuckets($facets);
 
         $esQuery = $query->toArray();
 

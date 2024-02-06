@@ -107,6 +107,13 @@ App\Entity\Core\AssetRendition:
           - file.workspace
           - definition.workspace
 
+App\Entity\Core\AssetTitleAttribute:
+  constraints:
+    - App\Validator\SameWorkspaceConstraint:
+        properties:
+          - workspace
+          - definition.workspace
+
 App\Entity\Core\RenditionRule:
   constraints:
     - App\Validator\SameWorkspaceConstraint:

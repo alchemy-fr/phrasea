@@ -44,8 +44,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [setHash, query, filters, sortBy, geolocation]
     );
 
+    const reset = useCallback((): boolean => {
+        return setHash('');
+    }, [setHash, query, filters, sortBy, geolocation]);
+
     const selectWorkspace = useCallback<TSearchContext['selectWorkspace']>(
-        (workspaceId, title, options = {}): void => {
+        (workspaceId, title, forceReload): void => {
             if (
                 !setAttrFilters(p => {
                     const next = p.filter(
@@ -73,8 +77,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                             ],
                         },
                     ]);
-                }, options.clearSearch ? '' : undefined) &&
-                options.forceReload
+                }) &&
+                forceReload
             ) {
                 setReloadInc(p => p + 1);
             }
@@ -281,6 +285,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 }),
                 reloadInc,
                 sortBy,
+                reset,
                 setSortBy,
                 geolocation,
                 setGeoLocation,
