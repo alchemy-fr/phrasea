@@ -3,6 +3,7 @@ import {getConfig, getStrict} from '../../configLoader';
 import {
     PhraseanetCollection,
     PhraseanetConfig,
+    PhraseanetDatabox,
     PhraseanetMetaStruct,
     PhraseanetRecord,
     PhraseanetStatusBitStruct,
@@ -42,6 +43,12 @@ export default class PhraseanetClient {
 
     getId(): string {
         return this.id;
+    }
+
+    async getDataboxes(): Promise<PhraseanetDatabox[]> {
+        const res = await this.client.get(`/api/v1/databoxes/list`);
+
+        return Object.values(res.data.response.databoxes    );
     }
 
     async getCollections(): Promise<PhraseanetCollection[]> {
@@ -100,7 +107,7 @@ export default class PhraseanetClient {
         return searchType == PhraseanetSearchType.Record ? res.data.response.results.records : res.data.response.results.stories;
     }
 
-    async getMetaStruct(databoxId: string): Promise<PhraseanetMetaStruct[]> {
+    async getMetaStruct(databoxId: number): Promise<PhraseanetMetaStruct[]> {
         const res = await this.client.get(
             `/api/v1/databoxes/${databoxId}/metadatas/`
         );
@@ -108,7 +115,7 @@ export default class PhraseanetClient {
         return res.data.response.document_metadatas;
     }
 
-    async getStatusBitsStruct(databoxId: string): Promise<PhraseanetStatusBitStruct[]> {
+    async getStatusBitsStruct(databoxId: number): Promise<PhraseanetStatusBitStruct[]> {
         const res = await this.client.get(
             `/api/v1/databoxes/${databoxId}/status/`
         );
@@ -116,7 +123,7 @@ export default class PhraseanetClient {
         return res.data.response.status;
     }
 
-    async getSubDefinitions(databoxId?: string): Promise<PhraseanetSubDef[]> {
+    async getSubDefinitions(databoxId?: number): Promise<PhraseanetSubDef[]> {
         const dbid = typeof databoxId !== 'undefined' ? '/' + databoxId : '';
         const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 

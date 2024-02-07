@@ -1,6 +1,6 @@
 export type ConfigDataboxMapping = {
-    sourceCollection: string;
-    databoxId: string;
+    databox: string;
+    collections?: string;
     searchQuery?: string;
     workspaceSlug: string;
     recordsCollectionPath: string;
@@ -67,6 +67,14 @@ export type PhraseanetSubDef = {
     devices: string[];
     labels: Record<string, string>;
     options: Record<string, any>;
+};
+
+export type PhraseanetDatabox = {
+    databox_id: number;
+    name: string;
+    viewname: string;
+    labels: Record<string, string>;
+    collections: Record<string, PhraseanetCollection>;
 };
 
 export type PhraseanetCollection = {
