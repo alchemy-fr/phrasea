@@ -26,6 +26,11 @@ class IpAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function supportsSuggest(): bool
+    {
+        return true;
+    }
+
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
         return new Query\Terms($field, $value);

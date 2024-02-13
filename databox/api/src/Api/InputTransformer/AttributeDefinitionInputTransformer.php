@@ -70,6 +70,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->searchable) {
             $object->setSearchable($data->searchable);
         }
+        if (null !== $data->suggest) {
+            $object->setSuggest($data->suggest);
+        }
         if (null !== $data->sortable) {
             $object->setSortable($data->sortable);
         }

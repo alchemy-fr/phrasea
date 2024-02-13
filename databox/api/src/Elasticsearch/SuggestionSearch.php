@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Attribute\AttributeTypeRegistry;
+use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Elasticsearch\Query\MatchBoolPrefix;
+use App\Entity\Core\AttributeDefinition;
+use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use Elastica\Aggregation\Filters;
+use Elastica\Aggregation\TopHits;
 use Elastica\Query;
 use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
@@ -18,6 +26,8 @@ class SuggestionSearch extends AbstractSearch
         private readonly Index $collectionIndex,
         private readonly Index $assetIndex,
         private readonly string $kernelEnv,
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly AttributeTypeRegistry $typeRegistry,
     ) {
     }
 
@@ -38,15 +48,33 @@ class SuggestionSearch extends AbstractSearch
         }
 
         $queryString = trim($options['query'] ?? '');
-        $multiMatch = new Query\MultiMatch();
-        $multiMatch->setType('bool_prefix');
-        $multiMatch->setQuery($queryString);
-        $multiMatch->setFields([
-            self::AUTOCOMPLETE_FIELD,
-            self::AUTOCOMPLETE_FIELD.'._2gram',
-            self::AUTOCOMPLETE_FIELD.'._3gram',
-        ]);
-        $filterQuery->addMust($multiMatch);
+        $queryString = preg_replace('#^"(.*)$#', '$1', $queryString);
+        $queryString = preg_replace('#(.*)"$#', '$1', $queryString);
+
+        /** @var AttributeDefinition[] $autocompleteAttributes */
+        $autocompleteAttributes = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributes($userId, $groupIds, [
+                AttributeDefinitionRepositoryInterface::OPT_SUGGEST_ENABLED => true,
+            ]);
+
+        $match = new Query\BoolQuery();
+        $addField = function (string $f) use ($match, $queryString): void {
+            $boolPrefix = new MatchBoolPrefix($f, $queryString);
+            $match->addShould($boolPrefix);
+        };
+
+        $addField(self::AUTOCOMPLETE_FIELD);
+
+        $language = $options['locale'] ?? '*';
+
+        foreach ($autocompleteAttributes as $definition) {
+            $fieldName = $this->fieldNameResolver->getFieldName($definition).'.autocomplete';
+            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
+            $addField(sprintf('attributes.%s.%s', $l, $fieldName));
+
+        }
+        $filterQuery->addMust($match);
 
         $query = new Query();
         $query->setTrackTotalHits(false);
@@ -58,6 +86,22 @@ class SuggestionSearch extends AbstractSearch
         ]);
 
         $query->setSize(15);
+
+        $query->setHighlight([
+            'pre_tags' => ['[hl]'],
+            'post_tags' => ['[/hl]'],
+            'fields' => [
+                'autocomplete' => [
+                    'fragment_size' => 255,
+                    'number_of_fragments' => 1,
+                ],
+                'attributes.*' => [
+                    'type' => 'unified',
+                ],
+            ],
+        ]);
+
+
         $start = microtime(true);
 
         $search = $this->collectionIndex->createSearch($query);
@@ -71,7 +115,10 @@ class SuggestionSearch extends AbstractSearch
             'collection_'.$this->kernelEnv => 'Collection',
         ];
 
-        $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use ($queryString, $indexTitles): array {
+        $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
+            $queryString,
+            $indexTitles
+        ): array {
             $value = $result->getSource()[self::AUTOCOMPLETE_FIELD] ?? '';
 
             return [
@@ -90,7 +137,12 @@ class SuggestionSearch extends AbstractSearch
     private function highlight(string $query, string $value): string
     {
         $query = trim(preg_replace('#\s+#', ' ', $query));
-        $words = array_map(fn (string $w): string => preg_quote($w, '#'), explode(' ', $query));
+        $words = array_map(function (string $w): string {
+            $w = preg_replace('#^"(.+)"$#', '$1', trim($w));
+
+            return preg_quote($w, '#');
+
+        }, explode(' ', $query));
 
         return preg_replace('/('.implode('|', $words).')/i', "[hl]$1[/hl]", $value);
     }

@@ -22,6 +22,11 @@ class DateTimeAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function supportsSuggest(): bool
+    {
+        return false;
+    }
+
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {

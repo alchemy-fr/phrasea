@@ -11,6 +11,7 @@ interface AttributeDefinitionRepositoryInterface extends ObjectRepository
 {
     public const OPT_TYPES = 'types';
     public const OPT_FACET_ENABLED = 'facet_enabled';
+    public const OPT_SUGGEST_ENABLED = 'suggest_enabled';
 
     /**
      * @return AttributeDefinition[]

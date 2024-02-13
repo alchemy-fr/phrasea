@@ -69,6 +69,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
                 ->setParameter('types', $options[self::OPT_TYPES]);
         }
 
+        if ($options[self::OPT_SUGGEST_ENABLED] ?? null) {
+            $queryBuilder
+                ->andWhere('t.suggest = :suggest')
+                ->setParameter('suggest', $options[self::OPT_SUGGEST_ENABLED]);
+        }
+
         if ($options[self::OPT_FACET_ENABLED] ?? null) {
             $queryBuilder
                 ->andWhere('t.facetEnabled = :fc')

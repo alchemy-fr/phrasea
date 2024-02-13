@@ -76,17 +76,23 @@ export default function SearchBar({}: Props) {
         search.setQuery(queryValue, true);
     };
 
-
     const getSources = React.useCallback<GetSources<SearchSuggestion>>(() => {
         return [
             {
                 sourceId: 'items',
                 onSelect: ({item, setQuery}) => {
-                    setQuery(item.name);
-                    search.setQuery(item.name, true);
+                    const newQuery = `"${item.name}"`;
+                    setQuery(newQuery);
+                    setQueryValue(newQuery);
+                    search.setQuery(newQuery, true);
                 },
                 getItems({query}) {
-                    return getSearchSuggestions(query).then(r => r.result);
+                    return getSearchSuggestions(query).then(r => {
+                        console.log('ES Debug', r.debug);
+                        console.log('ES Query', JSON.stringify(r.debug.query));
+
+                        return r.result;
+                    });
                 },
             }
         ];
@@ -127,6 +133,7 @@ export default function SearchBar({}: Props) {
                                 inputProps={{
                                     'aria-label': 'search',
                                     ...props,
+                                    value: queryValue,
                                 }}
                             />}
                         </AutoComplete>

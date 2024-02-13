@@ -58,7 +58,7 @@ class CollectionVoter extends AbstractVoter
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::EDIT => $isOwner()
-                || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
+                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
                 || ($subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             self::DELETE => $isOwner()
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)

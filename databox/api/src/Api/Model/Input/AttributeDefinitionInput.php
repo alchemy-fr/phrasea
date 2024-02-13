@@ -44,6 +44,11 @@ class AttributeDefinitionInput
     /**
      * @var bool
      */
+    public $suggest;
+
+    /**
+     * @var bool
+     */
     public $facetEnabled;
 
     /**

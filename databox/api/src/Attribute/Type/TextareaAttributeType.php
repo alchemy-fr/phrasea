@@ -15,4 +15,9 @@ class TextareaAttributeType extends TextAttributeType
     {
         return false;
     }
+
+    public function supportsSuggest(): bool
+    {
+        return false;
+    }
 }

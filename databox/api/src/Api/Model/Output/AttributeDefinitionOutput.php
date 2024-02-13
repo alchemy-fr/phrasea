@@ -43,6 +43,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public bool $searchable = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $suggest = false;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

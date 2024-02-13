@@ -39,6 +39,7 @@ class AttributeMappingListener implements EventSubscriber
                 'fieldType',
                 'name',
                 'searchable',
+                'suggest',
             ], $args->getObjectManager(), $entity)) {
                 $this->updateWorkspace($entity->getWorkspaceId());
             }

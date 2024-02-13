@@ -113,6 +113,18 @@ function Item({
             <FormRow>
                 <CheckboxWidget
                     label={t(
+                        'form.attribute_definition.suggest.label',
+                        'Display in search suggestions'
+                    )}
+                    control={control}
+                    name={'suggest'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'suggest'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
                         'form.attribute_definition.translatable.label',
                         'Translatable'
                     )}
@@ -178,6 +190,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         translatable: false,
         allowInvalid: false,
         searchable: true,
+        suggest: false,
         fieldType: 'text',
         class: null,
     };

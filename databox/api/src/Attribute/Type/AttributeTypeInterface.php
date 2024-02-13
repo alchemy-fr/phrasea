@@ -53,6 +53,8 @@ interface AttributeTypeInterface
 
     public function isLocaleAware(): bool;
 
+    public function supportsSuggest(): bool;
+
     public function validate($value, ExecutionContextInterface $context): void;
 
     public function getAggregationField(): ?string;

@@ -34,6 +34,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->fileType = $data->getFileType();
         $output->fieldType = $data->getFieldType();
         $output->searchable = $data->isSearchable();
+        $output->suggest = $data->isSuggest();
         $output->facetEnabled = $data->isFacetEnabled();
         $output->translatable = $data->isTranslatable();
         $output->multiple = $data->isMultiple();
