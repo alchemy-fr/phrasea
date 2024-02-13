@@ -149,7 +149,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
         load().then(r => {
             setState({
                 item: undefined,
-                list: r,
+                list: normalizeData ? r.map(normalizeData) : r,
                 loading: false,
             });
         });
@@ -194,7 +194,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     React.useEffect(() => {
         if (item && 'new' !== item) {
-            reset(item);
+            reset({
+                ...createNewItem(),
+                ...item,
+            });
         } else if ('new' === item) {
             reset(newItem as D);
         }

@@ -18,7 +18,7 @@ abstract class AbstractUuidEntity
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ApiProperty(identifier: true)]
-    private UuidInterface $id;
+    private UuidInterface|string $id;
 
     public function __construct(string|UuidInterface $id = null)
     {
@@ -35,6 +35,10 @@ abstract class AbstractUuidEntity
 
     public function getId(): string
     {
+        if (is_string($this->id)) {
+            return $this->id;
+        }
+
         return $this->id->toString();
     }
 

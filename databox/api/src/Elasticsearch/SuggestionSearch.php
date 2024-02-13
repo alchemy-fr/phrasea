@@ -10,8 +10,6 @@ use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Elasticsearch\Query\MatchBoolPrefix;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
-use Elastica\Aggregation\Filters;
-use Elastica\Aggregation\TopHits;
 use Elastica\Query;
 use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
@@ -20,7 +18,8 @@ use Pagerfanta\Pagerfanta;
 
 class SuggestionSearch extends AbstractSearch
 {
-    private const AUTOCOMPLETE_FIELD = 'autocomplete';
+    private const SUGGEST_FIELD = 'suggest';
+    final public const SUGGEST_SUB_FIELD = 'suggest';
 
     public function __construct(
         private readonly Index $collectionIndex,
@@ -51,8 +50,8 @@ class SuggestionSearch extends AbstractSearch
         $queryString = preg_replace('#^"(.*)$#', '$1', $queryString);
         $queryString = preg_replace('#(.*)"$#', '$1', $queryString);
 
-        /** @var AttributeDefinition[] $autocompleteAttributes */
-        $autocompleteAttributes = $this->em->getRepository(AttributeDefinition::class)
+        /** @var AttributeDefinition[] $suggestAttributes */
+        $suggestAttributes = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes($userId, $groupIds, [
                 AttributeDefinitionRepositoryInterface::OPT_SUGGEST_ENABLED => true,
             ]);
@@ -63,12 +62,12 @@ class SuggestionSearch extends AbstractSearch
             $match->addShould($boolPrefix);
         };
 
-        $addField(self::AUTOCOMPLETE_FIELD);
+        $addField(self::SUGGEST_FIELD);
 
         $language = $options['locale'] ?? '*';
 
-        foreach ($autocompleteAttributes as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition).'.autocomplete';
+        foreach ($suggestAttributes as $definition) {
+            $fieldName = $this->fieldNameResolver->getFieldName($definition).'.'.self::SUGGEST_SUB_FIELD;
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $addField(sprintf('attributes.%s.%s', $l, $fieldName));
@@ -91,7 +90,7 @@ class SuggestionSearch extends AbstractSearch
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
             'fields' => [
-                'autocomplete' => [
+                'suggest' => [
                     'fragment_size' => 255,
                     'number_of_fragments' => 1,
                 ],
@@ -119,7 +118,7 @@ class SuggestionSearch extends AbstractSearch
             $queryString,
             $indexTitles
         ): array {
-            $value = $result->getSource()[self::AUTOCOMPLETE_FIELD] ?? '';
+            $value = $result->getSource()[self::SUGGEST_FIELD] ?? '';
 
             return [
                 'id' => $result->getId(),

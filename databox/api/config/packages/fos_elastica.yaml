@@ -35,7 +35,7 @@ fos_elastica:
                                 catenate_words: true
                                 preserve_original: true
             properties:
-                autocomplete:
+                suggest:
                     property_path: title
                     type: search_as_you_type
                 title:
@@ -102,7 +102,7 @@ fos_elastica:
                                 type: path_hierarchy
                                 delimiter: /
             properties:
-                autocomplete:
+                suggest:
                     property_path: title
                     type: search_as_you_type
                 title: ~

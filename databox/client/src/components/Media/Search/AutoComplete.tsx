@@ -30,7 +30,10 @@ export default function AutoComplete({
     );
 
     return (
-        <div
+        <Box
+            sx={theme => ({
+                zIndex: theme.zIndex.modal - 1,
+            })}
             className={'aa-Autocomplete'}
             {...(autocomplete.getRootProps({}) as any)}
         >
@@ -92,6 +95,6 @@ export default function AutoComplete({
                         );
                     })}
             </Paper>
-        </div>
+        </Box>
     );
 }
