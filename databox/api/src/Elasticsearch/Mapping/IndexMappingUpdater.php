@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Elasticsearch\SuggestionSearch;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
@@ -57,7 +58,7 @@ final readonly class IndexMappingUpdater
 
         if ($type->supportsSuggest()) {
             $mapping['fields'] ??= [];
-            $mapping['fields']['suggest'] = [
+            $mapping['fields'][SuggestionSearch::SUGGEST_SUB_FIELD] = [
                 'type' => 'search_as_you_type',
                 'analyzer' => 'text',
             ];

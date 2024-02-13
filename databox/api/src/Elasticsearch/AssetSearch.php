@@ -120,12 +120,6 @@ class AssetSearch extends AbstractSearch
 
         $this->applySort($query, $options);
 
-        $completion = new Suggest\Completion('t', 'title');
-        $completion->setParam('skip_duplicates', true);
-        $suggest = new Suggest($completion);
-        $suggest->setGlobalText($queryString);
-        $query->setSuggest($suggest);
-
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
