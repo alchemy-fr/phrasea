@@ -10,6 +10,7 @@ use App\Entity\Core\Workspace;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
+use Elastica\Suggest;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
@@ -118,6 +119,12 @@ class AssetSearch extends AbstractSearch
         $query->setQuery($filterQuery);
 
         $this->applySort($query, $options);
+
+        $completion = new Suggest\Completion('t', 'title');
+        $completion->setParam('skip_duplicates', true);
+        $suggest = new Suggest($completion);
+        $suggest->setGlobalText($queryString);
+        $query->setSuggest($suggest);
 
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
