@@ -34,11 +34,6 @@ class NumberAttributeType extends AbstractAttributeType
         return 'long';
     }
 
-    public function supportsSuggest(): bool
-    {
-        return true;
-    }
-
     /**
      * @param int|float|string $value
      *
