@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
@@ -26,6 +27,7 @@ class AttributeSearch
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly AssetTitleResolver $assetTitleResolver,
     ) {
     }
 
@@ -58,6 +60,9 @@ class AttributeSearch
             $wsSearchQuery = new Query\BoolQuery();
 
             $weights = [];
+            if (!$this->assetTitleResolver->hasTitleOverride($workspaceId)) {
+                $weights['title'] = 1;
+            }
             foreach ($attributeDefinitions as $definition) {
                 $fieldName = $this->fieldNameResolver->getFieldName($definition);
                 $type = $this->typeRegistry->getStrictType($definition->getFieldType());

@@ -64,7 +64,6 @@ class IndexMappingUpdater
             $mapping['fields'] ??= [];
             $mapping['fields'][SuggestionSearch::SUGGEST_SUB_FIELD] = [
                 'type' => 'search_as_you_type',
-                'analyzer' => 'text',
             ];
         }
 

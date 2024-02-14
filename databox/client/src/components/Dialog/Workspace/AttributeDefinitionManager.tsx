@@ -65,7 +65,7 @@ function Item({
                         name={'fieldType'}
                         control={control}
                     />
-                    <FormFieldErrors field={'class'} errors={errors}/>
+                    <FormFieldErrors field={'fieldType'} errors={errors}/>
                 </FormGroup>
             </FormRow>
             <FormRow>

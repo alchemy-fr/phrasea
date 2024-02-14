@@ -15,7 +15,7 @@ class AttributeDefinitionInput
     public $workspace;
 
     /**
-     * @var AttributeClass
+     * @var AttributeClass|null
      */
     public $class;
 

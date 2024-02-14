@@ -24,10 +24,25 @@ fos_elastica:
                                     - lowercase
                                     - worddelimiter
                                     - asciifolding
+                            partial_words:
+                                type: custom
+                                tokenizer: edge_ngram
+                                filter:
+                                    - elision
+                                    - lowercase
+                                    - worddelimiter
+                                    - asciifolding
                         tokenizer:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
+                            edge_ngram:
+                                type: edge_ngram
+                                min_gram: 1
+                                max_gram: 10
+                                token_chars:
+                                    - letter
+                                    - digit
                         filter:
                             worddelimiter:
                                 type: word_delimiter_graph
@@ -35,12 +50,15 @@ fos_elastica:
                                 catenate_words: true
                                 preserve_original: true
             properties:
-                suggest:
-                    property_path: title
-                    type: search_as_you_type
                 title:
                     type: text
                     analyzer: text
+                    fields:
+                        suggest:
+                            type: text
+                            analyzer: partial_words
+                            search_analyzer: standard
+                            term_vector: with_positions_offsets
                 attributes:
                     type: object
                 referenceCollectionId:

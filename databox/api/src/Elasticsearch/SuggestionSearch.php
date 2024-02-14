@@ -7,7 +7,6 @@ namespace App\Elasticsearch;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
-use App\Elasticsearch\Query\MatchBoolPrefix;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
 use Elastica\Query;
@@ -18,7 +17,7 @@ use Pagerfanta\Pagerfanta;
 
 class SuggestionSearch extends AbstractSearch
 {
-    private const SUGGEST_FIELD = 'suggest';
+    private const SUGGEST_FIELD = 'title';
     final public const SUGGEST_SUB_FIELD = 'suggest';
 
     public function __construct(
@@ -56,10 +55,12 @@ class SuggestionSearch extends AbstractSearch
                 AttributeDefinitionRepositoryInterface::OPT_SUGGEST_ENABLED => true,
             ]);
 
-        $match = new Query\BoolQuery();
-        $addField = function (string $f) use ($match, $queryString): void {
-            $boolPrefix = new MatchBoolPrefix($f, $queryString);
-            $match->addShould($boolPrefix);
+        $multiMatch = new Query\MultiMatch();
+        $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+        $multiMatch->setQuery($queryString);
+        $fields = [];
+        $addField = function (string $f) use (&$fields, $queryString): void {
+            $fields[] = $f.'.'.self::SUGGEST_SUB_FIELD;
         };
 
         $addField(self::SUGGEST_FIELD);
@@ -67,13 +68,19 @@ class SuggestionSearch extends AbstractSearch
         $language = $options['locale'] ?? '*';
 
         foreach ($suggestAttributes as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition).'.'.self::SUGGEST_SUB_FIELD;
+            $fieldName = $this->fieldNameResolver->getFieldName($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-            $addField(sprintf('attributes.%s.%s', $l, $fieldName));
-
+            $fullName = sprintf('attributes.%s.%s', $l, $fieldName);
+            $addField($fullName);
         }
-        $filterQuery->addMust($match);
+        $multiMatch->setFields($fields);
+
+        $highlights = [];
+        foreach ($fields as $field) {
+            $highlights[$field] = new \stdClass();
+        }
+        $filterQuery->addMust($multiMatch);
 
         $query = new Query();
         $query->setTrackTotalHits(false);
@@ -89,17 +96,8 @@ class SuggestionSearch extends AbstractSearch
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
-            'fields' => [
-                'suggest' => [
-                    'fragment_size' => 255,
-                    'number_of_fragments' => 1,
-                ],
-                'attributes.*' => [
-                    'type' => 'unified',
-                ],
-            ],
+            'fields' => $highlights,
         ]);
-
 
         $start = microtime(true);
 
@@ -119,30 +117,18 @@ class SuggestionSearch extends AbstractSearch
             $indexTitles
         ): array {
             $value = $result->getSource()[self::SUGGEST_FIELD] ?? '';
+            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD] ?? $value;
 
             return [
                 'id' => $result->getId(),
                 'name' => $value,
-                'hl' => $this->highlight($queryString, $value),
-                't' => $indexTitles[$result->getIndex()],
+                'hl' => $hl,
+                't' => $indexTitles[preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex())],
             ];
         }, $result->getResults())));
 
         $esQuery = $query->toArray();
 
         return [$result, $esQuery, $searchTime];
-    }
-
-    private function highlight(string $query, string $value): string
-    {
-        $query = trim(preg_replace('#\s+#', ' ', $query));
-        $words = array_map(function (string $w): string {
-            $w = preg_replace('#^"(.+)"$#', '$1', trim($w));
-
-            return preg_quote($w, '#');
-
-        }, explode(' ', $query));
-
-        return preg_replace('/('.implode('|', $words).')/i', "[hl]$1[/hl]", $value);
     }
 }
