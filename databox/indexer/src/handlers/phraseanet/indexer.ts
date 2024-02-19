@@ -77,8 +77,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 `Start indexing databox "${databox.name}" (#${databox.databox_id}) to workspace "${dm.workspaceSlug}"`
             );
 
-            // phraseanet collections to import (by base_id or name, like "3, test")
-            const sourceCollections: string[] = [];     // empty: all collections
+            const sourceCollections: string[] = [];
             if(dm.collections !== undefined) {
                 for (const c of dm.collections.split(',')) {
                     const collection = databox.collections[c.trim()];
@@ -90,10 +89,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 }
             }
 
-            // prefix of the idempotence key for the __collections__
             const collectionKeyPrefix = idempotencePrefixes["collection"] + databox.databox_id.toString() + ":"
 
-            // create the collection(s) for __records__
             const branch = splitPath(dm.recordsCollectionPath ?? "");
             await databoxClient.createCollectionTreeBranch(
                 workspaceId,
@@ -105,7 +102,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
             logger.info(`Created records collection: "${branch.join('/')}"`)
 
-            // create the collection(s) for __stories__
             let storiesCollectionId: string | null = null;
             if (dm.storiesCollectionPath !== undefined) {
                 const branch = splitPath(dm.storiesCollectionPath);
@@ -169,24 +165,18 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
 
             logger.info(`Fetching status-bits`);
-            // fetch known tags
             const tagsIdByName: Record<string, string> = {};
-            for(const t of await databoxClient.getTags(workspaceId)) {
-                tagsIdByName[t.name] = t.id;
-            }
             for(const sb of await client.getStatusBitsStruct(databox.databox_id)) {
-                if(tagsIdByName[sb.label_on] === undefined) {
-                    logger.info(`Creating "${sb.label_on}" tag"`);
-                    const key = client.getId() + "_" + databox.databox_id.toString() + ".sb" + sb.bit;
-                    const tag: Tag = await databoxClient.createTag(
-                        key,
-                        {
-                            workspace: `/workspaces/${workspaceId}`,
-                            name: sb.label_on
-                        }
-                    );
-                    tagsIdByName[sb.label_on] = tag.id;
-                }
+                logger.info(`Creating "${sb.label_on}" tag`);
+                const key = client.getId() + "_" + databox.databox_id.toString() + ".sb" + sb.bit;
+                const tag: Tag = await databoxClient.createTag(
+                    key,
+                    {
+                        workspace: `/workspaces/${workspaceId}`,
+                        name: sb.label_on
+                    }
+                );
+                tagsIdByName[sb.label_on] = tag.id;
                 tagIndex[sb.bit] = "/tags/" + tagsIdByName[sb.label_on];
             }
 
@@ -230,12 +220,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
 
             const searchParams = {
-                bases: sourceCollections,
+                bases: sourceCollections,     // if empty (no collections on config) : search all collections
             };
 
-
-            // create stories as collections
-            //
             logger.info(`Fetching stories`);
             const recordStories: Record<string, string[]> = {};   // key: record_id ; values: story_id's
             if(storiesCollectionId !== null) {
@@ -272,8 +259,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 while (stories.length > 0);
             }
 
-            // create records as assets
-            //
             let records: PhraseanetRecord[];
             let offset = 0;
             do {
