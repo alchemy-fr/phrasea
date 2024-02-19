@@ -20,12 +20,7 @@ import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from '@mui/lab';
 import AssetContextMenu from '../Asset/AssetContextMenu';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
-import {
-    OnOpen,
-    OnPreviewToggle,
-    OnSelectAsset,
-    OnUnselectAsset,
-} from './Layout/Layout';
+import {OnOpen, OnPreviewToggle, OnSelectAsset, OnUnselectAsset,} from './Layout/Layout';
 import PreviewPopover from '../Asset/PreviewPopover';
 import {DisplayContext} from '../DisplayContext';
 import {zIndex} from '../../../themes/zIndex';
@@ -126,6 +121,11 @@ export default function AssetResults() {
 
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 'a') {
+                const activeElement = document.activeElement;
+                if (activeElement && ['input', 'select', 'button', 'textarea'].includes(activeElement.tagName.toLowerCase())) {
+                    return;
+                }
+
                 e.preventDefault();
                 e.stopPropagation();
                 assetSelection.selectAssets(

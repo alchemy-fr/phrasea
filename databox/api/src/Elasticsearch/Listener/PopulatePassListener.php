@@ -32,7 +32,11 @@ class PopulatePassListener implements EventSubscriberInterface
             'indexName' => $indexName,
         ]);
         if (null !== $currentPopulate) {
-            throw new \RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
+            if (php_sapi_name() == "cli") {
+                $this->em->remove($currentPopulate);
+            } else {
+                throw new \RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
+            }
         }
 
         $populatePass = new PopulatePass();

@@ -16,7 +16,7 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
-                            text:
+                            text: &text_analyzer
                                 type: custom
                                 tokenizer: standard
                                 filter:
@@ -24,7 +24,7 @@ fos_elastica:
                                     - lowercase
                                     - worddelimiter
                                     - asciifolding
-                            partial_words:
+                            partial_words: &partial_words_analyzer
                                 type: custom
                                 tokenizer: edge_ngram
                                 filter:
@@ -36,7 +36,7 @@ fos_elastica:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
-                            edge_ngram:
+                            edge_ngram: &edge_ngram_tokenizer
                                 type: edge_ngram
                                 min_gram: 1
                                 max_gram: 10
@@ -44,7 +44,7 @@ fos_elastica:
                                     - letter
                                     - digit
                         filter:
-                            worddelimiter:
+                            worddelimiter: &worddelimiter_filter
                                 type: word_delimiter_graph
                                 generate_word_parts: true
                                 catenate_words: true
@@ -54,10 +54,10 @@ fos_elastica:
                     type: text
                     analyzer: text
                     fields:
-                        suggest:
+                        suggest: &suggest_field
                             type: text
                             analyzer: partial_words
-                            search_analyzer: standard
+                            search_analyzer: text
                             term_vector: with_positions_offsets
                 attributes:
                     type: object
@@ -115,15 +115,21 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
+                            text: *text_analyzer
+                            partial_words: *partial_words_analyzer
                         tokenizer:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
+                            edge_ngram: *edge_ngram_tokenizer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
             properties:
-                suggest:
-                    property_path: title
-                    type: search_as_you_type
-                title: ~
+                title:
+                    type: text
+                    analyzer: text
+                    fields:
+                        suggest: *suggest_field
                 sortName:
                     type: keyword
                 absolutePath:
