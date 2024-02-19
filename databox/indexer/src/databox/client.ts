@@ -158,7 +158,6 @@ export class DataboxClient {
             ).data;
         });
 
-        // console.log(`created collection "${data.title}" with key="${key}" ; parent="${data.parent}"   returns ${r.id}`);
         return (collectionKeyMap[key] = r.id);
     }
 

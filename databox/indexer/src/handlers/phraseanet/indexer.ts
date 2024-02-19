@@ -103,7 +103,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     title: k,
                 }))
             );
-            logger.info(`Created records collection : "${branch.join('/')}"`)
+            logger.info(`Created records collection: "${branch.join('/')}"`)
 
             // create the collection(s) for __stories__
             let storiesCollectionId: string | null = null;
@@ -117,7 +117,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         title: k,
                     }))
                 );
-                logger.info(`Created stories collection : "${branch.join('/')}"`)
+                logger.info(`Created stories collection: "${branch.join('/')}"`)
             }
 
             const attrClassIndex: AttrClassIndex = {};

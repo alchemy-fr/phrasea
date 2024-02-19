@@ -28,8 +28,8 @@ export type AssetCopyInput = {
     destination: string;
     ids: string[];
     byReference: boolean;
-    withAttributes: boolean;
-    withTags: boolean;
+    withAttributes?: boolean;
+    withTags?: boolean;
 };
 
 export type CollectionInput = {

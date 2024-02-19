@@ -104,7 +104,8 @@ export default class PhraseanetClient {
             },
         });
 
-        return searchType == PhraseanetSearchType.Record ? res.data.response.results.records : res.data.response.results.stories;
+        return searchType === PhraseanetSearchType.Record ?
+            res.data.response.results.records : res.data.response.results.stories;
     }
 
     async getMetaStruct(databoxId: number): Promise<PhraseanetMetaStruct[]> {
