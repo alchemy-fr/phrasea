@@ -9,6 +9,7 @@ use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use Elastica\Collapse;
 use Elastica\Query;
 use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
@@ -66,12 +67,16 @@ class SuggestionSearch extends AbstractSearch
         $addField(self::SUGGEST_FIELD);
 
         $language = $options['locale'] ?? '*';
+        $sourceIncludes = [
+            'title',
+        ];
 
         foreach ($suggestAttributes as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $fullName = sprintf('attributes.%s.%s', $l, $fieldName);
+            $sourceIncludes[] = $fullName;
             $addField($fullName);
         }
         $multiMatch->setFields($fields);
@@ -86,6 +91,10 @@ class SuggestionSearch extends AbstractSearch
         $query->setTrackTotalHits(false);
         $query->setQuery($filterQuery);
 
+        $query->setSource([
+            'includes' => $sourceIncludes,
+        ]);
+
         $query->setSort([
             '_score' => 'DESC',
             'createdAt' => 'DESC',
@@ -98,6 +107,9 @@ class SuggestionSearch extends AbstractSearch
             'post_tags' => ['[/hl]'],
             'fields' => $highlights,
         ]);
+        $collapse = new Collapse();
+        $collapse->setFieldname('title.raw');
+        $query->setCollapse($collapse);
 
         $start = microtime(true);
 
@@ -116,8 +128,12 @@ class SuggestionSearch extends AbstractSearch
             $queryString,
             $indexTitles
         ): array {
-            $value = $result->getSource()[self::SUGGEST_FIELD] ?? '';
-            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD] ?? $value;
+            $highlights = $result->getHighlights();
+            $field = array_keys($highlights)[0];
+            $hl = $highlights[$field];
+
+            $sourceField = substr($field, 0, -(strlen(self::SUGGEST_SUB_FIELD) + 1));
+            $value = '';//$result->getSource()[$sourceField];
 
             return [
                 'id' => $result->getId(),

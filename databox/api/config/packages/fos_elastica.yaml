@@ -54,6 +54,8 @@ fos_elastica:
                     type: text
                     analyzer: text
                     fields:
+                        raw:
+                            type: keyword
                         suggest: &suggest_field
                             type: text
                             analyzer: partial_words
@@ -129,6 +131,8 @@ fos_elastica:
                     type: text
                     analyzer: text
                     fields:
+                        raw:
+                            type: keyword
                         suggest: *suggest_field
                 sortName:
                     type: keyword
