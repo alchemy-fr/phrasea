@@ -190,6 +190,8 @@ class AttributeSearch
             $weights = [];
 
             foreach ($cluster['fields'] as $fieldName => $conf) {
+                $fieldName = str_replace('{l}', $language, $fieldName);
+
                 if ($conf['st'] === self::FIELD_MATCH) {
                     $weights[$fieldName] = $conf['b'];
                 } else {
@@ -219,96 +221,12 @@ class AttributeSearch
             if (null !== $cluster['w']) {
                 $clusterQuery->addMust(new Query\Terms('workspaceId', $cluster['w']));
             }
+
             $boolQuery->addShould($clusterQuery);
         }
 
         return $boolQuery;
     }
-
-    // TODO remove
-    public function OLDbuildAttributeQuery(
-        string $queryString,
-        ?string $userId,
-        array $groupIds,
-        array $options = []
-    ): ?Query\AbstractQuery {
-        $language = $options['locale'] ?? '*';
-
-        $boolQuery = new Query\BoolQuery();
-        $boolQuery->setMinimumShouldMatch(1);
-        $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
-
-        $this->addIdQueryShould($boolQuery, $queryString);
-
-        /** @var AttributeDefinition[] $attributeDefinitions */
-        $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-            ->getSearchableAttributes($userId, $groupIds);
-
-        $wsIndexed = [];
-        foreach ($attributeDefinitions as $definition) {
-            $workspaceId = $definition->getWorkspaceId();
-            $wsIndexed[$workspaceId] ??= [];
-            $wsIndexed[$workspaceId][] = $definition;
-        }
-
-        foreach ($wsIndexed as $workspaceId => $attributeDefinitions) {
-            $wsSearchQuery = new Query\BoolQuery();
-
-            $weights = [];
-            if (!$this->assetTitleResolver->hasTitleOverride($workspaceId)) {
-                $weights['title'] = 1;
-            }
-            foreach ($attributeDefinitions as $definition) {
-                $fieldName = $this->fieldNameResolver->getFieldName($definition);
-                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-
-                if (!(
-                    $type instanceof TextAttributeType
-                    || $type instanceof DateTimeAttributeType
-                )) {
-                    continue;
-                }
-
-                $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-
-                $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                if ($type instanceof DateTimeAttributeType) {
-                    $field .= '.text';
-                }
-                $weights[$field] = $definition->getSearchBoost() ?? 1;
-            }
-
-            $matchBoolQuery = new Query\BoolQuery();
-
-            $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
-            $matchBoolQuery->addShould($multiMatch);
-
-            if (!$strict) {
-                $multiMatch->setParam('boost', 5);
-                $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
-            }
-
-            // Add should for terms
-            foreach ($attributeDefinitions as $definition) {
-                $fieldName = $this->fieldNameResolver->getFieldName($definition);
-                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-
-                if ($type instanceof KeywordAttributeType) {
-                    $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-                    $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                    $matchBoolQuery->addShould(new Query\Term([$field => $queryString]));
-                }
-            }
-
-            $wsSearchQuery->addMust($matchBoolQuery);
-            $wsSearchQuery->addMust(new Query\Term(['workspaceId' => $workspaceId]));
-
-            $boolQuery->addShould($wsSearchQuery);
-        }
-
-        return $boolQuery;
-    }
-
 
     protected function addIdQueryShould(Query\BoolQuery $parentQuery, string $queryString): void
     {

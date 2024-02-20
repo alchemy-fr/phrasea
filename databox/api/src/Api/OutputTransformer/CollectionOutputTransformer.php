@@ -84,7 +84,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        [$output->shared, $output->public] = $this->collectionCache->get(self::COLLECTION_CACHE_NS.':'.$data->getId(), function (ItemInterface $item) use ($data): array {
+        [$output->shared, $output->public] = $this->collectionCache->get(self::COLLECTION_CACHE_NS.'_'.$data->getId(), function (ItemInterface $item) use ($data): array {
             $item->tag(self::COLLECTION_CACHE_NS);
             $shared = false;
             $public = false;
