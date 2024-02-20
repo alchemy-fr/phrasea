@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Core\Asset;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Repository\Core\AttributeDefinitionRepositoryInterface;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
