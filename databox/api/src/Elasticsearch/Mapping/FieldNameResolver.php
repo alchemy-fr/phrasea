@@ -11,18 +11,25 @@ use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
-    public function __construct(private AttributeTypeRegistry $attributeTypeRegistry, private FacetRegistry $facetRegistry)
-    {
+    public function __construct(
+        private AttributeTypeRegistry $attributeTypeRegistry,
+        private FacetRegistry $facetRegistry
+    ) {
     }
 
-    public function getFieldName(AttributeDefinition $definition): string
+    public function getFieldNameFromDefinition(AttributeDefinition $definition): string
     {
-        $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+        return $this->getFieldName($definition->getSlug(), $definition->getFieldType(), $definition->isMultiple());
+    }
+
+    public function getFieldName(string $slug, string $fieldType, bool $isMultiple): string
+    {
+        $type = $this->attributeTypeRegistry->getStrictType($fieldType);
 
         return sprintf('%s_%s_%s',
-            $definition->getSlug(),
+            $slug,
             str_replace('_', '-', $type::getName()),
-            $definition->isMultiple() ? 'm' : 's'
+            $isMultiple ? 'm' : 's'
         );
     }
 

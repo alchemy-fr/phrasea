@@ -128,7 +128,7 @@ readonly class AttributesResolver
     {
         foreach ($attributes as $_attrs) {
             foreach ($_attrs as $locale => $attribute) {
-                $f = $this->fieldNameResolver->getFieldName($attribute->getDefinition());
+                $f = $this->fieldNameResolver->getFieldNameFromDefinition($attribute->getDefinition());
 
                 $fieldName = sprintf('attributes.%s.%s', $locale, $f);
 

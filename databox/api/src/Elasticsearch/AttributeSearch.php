@@ -22,6 +22,9 @@ use Elastica\Query;
 class AttributeSearch
 {
     final public const OPT_STRICT_PHRASE = 'strict';
+    final public const GROUP_ALL = '*';
+    final public const FIELD_MATCH = 'm';
+    final public const FIELD_KEYWORD = 'k';
 
     public function __construct(
         private readonly FieldNameResolver $fieldNameResolver,
@@ -31,7 +34,199 @@ class AttributeSearch
     ) {
     }
 
+    public function buildSearchableAttributeDefinitionsGroups(?string $userId, array $groupIds): array
+    {
+        $definitions = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributesWithPermission($userId, $groupIds);
+
+        return $this->createClustersFromDefinitions($definitions);
+    }
+
+    public function createClustersFromDefinitions(iterable $definitions): array
+    {
+        $groups = [];
+        foreach ($definitions as $d) {
+            $fieldName = $this->fieldNameResolver->getFieldName(
+                $d['slug'],
+                $d['fieldType'],
+                $d['multiple']
+            );
+
+            $type = $this->typeRegistry->getStrictType($d['fieldType']);
+            if (
+                $type instanceof TextAttributeType
+                || $type instanceof DateTimeAttributeType
+            ) {
+                $searchType = self::FIELD_MATCH;
+            } elseif ($type instanceof KeywordAttributeType) {
+                $searchType = self::FIELD_KEYWORD;
+            } else {
+                continue;
+            }
+
+            if ($type instanceof DateTimeAttributeType) {
+                $fieldName .= '.text';
+            }
+
+            $groups[$fieldName] ??= [
+                'w' => [],
+            ];
+
+            $boost = $d['searchBoost'] ?? 1;
+            $trIndex = $type->isLocaleAware() && $d['translatable'] ? 1 : 0;
+
+            if ($d['allowed']) {
+                $groups[$fieldName]['w'][$boost] ??= [
+                    $trIndex => [],
+                ];
+                $groups[$fieldName]['w'][$boost][$trIndex] ??= [
+                    $searchType => [],
+                ];
+                $groups[$fieldName]['w'][$boost][$trIndex][$searchType][] = $d['workspaceId'];
+            } else {
+                $groups[$fieldName]['f'] = true;
+            }
+        }
+
+        $clusters = [];
+
+        foreach ($groups as $f => $group) {
+            if (!$this->hasDiversity($group)) {
+                $firstBoost = array_keys($group['w'])[0];
+
+                $clusters[self::GROUP_ALL] ??= [
+                    'w' => null,
+                    'b' => 1,
+                    'fields' => [],
+                ];
+                $trKey = array_keys($group['w'][$firstBoost])[0];
+                $st = array_keys($group['w'][$firstBoost][$trKey])[0];
+                $fieldName = sprintf('attributes.%s.%s', $trKey ? '{l}' : '_', $f);
+
+                $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
+                    'st' => $st,
+                    'b' => $firstBoost,
+                ];
+            } else {
+                foreach ($group['w'] as $boost => $wsB) {
+                    foreach ($wsB as $tr => $wsTr) {
+                        foreach ($wsTr as $st => $wsSt) {
+                            sort($wsSt);
+                            $uk = $st.':'.$boost.':'.$tr.':'.implode(';', $wsSt);
+
+                            $clusters[$uk] ??= [
+                                'w' => $wsSt,
+                                'b' => $boost,
+                                'fields' => [],
+                            ];
+                            $fieldName = sprintf('attributes.%s.%s', $tr ? '{l}' : '_', $f);
+                            $clusters[$uk]['fields'][$fieldName] = [
+                                'st' => $st,
+                                'b' => $boost,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        $clusters[self::GROUP_ALL] ??= [
+            'w' => null,
+            'b' => 1,
+            'fields' => [],
+        ];
+        $clusters[self::GROUP_ALL]['fields']['title'] = [
+            'st' => self::FIELD_MATCH,
+            'b' => 1,
+        ];
+
+        return array_values($clusters);
+    }
+
+    private function hasDiversity(array $group): bool
+    {
+        if ($group['f'] ?? false) {
+            return true;
+        }
+
+        if (count($group['w']) > 1) {
+            return true;
+        }
+
+        foreach ($group['w'] as $boost => $wsTr) {
+            if (1 !== $boost || count($wsTr) > 1) {
+                return true;
+            }
+
+            foreach ($wsTr as $tr => $wsSt) {
+                if (count($wsSt) > 1) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param AttributeDefinition[] $attributeDefinitionClusters
+     */
     public function buildAttributeQuery(
+        array $attributeDefinitionClusters,
+        string $queryString,
+        array $options = []
+    ): ?Query\AbstractQuery {
+        $language = $options['locale'] ?? '*';
+
+        $boolQuery = new Query\BoolQuery();
+        $boolQuery->setMinimumShouldMatch(1);
+        $strict = $options[self::OPT_STRICT_PHRASE] ?? false;
+
+        $this->addIdQueryShould($boolQuery, $queryString);
+
+        foreach ($attributeDefinitionClusters as $cluster) {
+            $clusterQuery = new Query\BoolQuery();
+            $matchBoolQuery = new Query\BoolQuery();
+            $weights = [];
+
+            foreach ($cluster['fields'] as $fieldName => $conf) {
+                if ($conf['st'] === self::FIELD_MATCH) {
+                    $weights[$fieldName] = $conf['b'];
+                } else {
+                    $term = new Query\Term([$fieldName => $queryString]);
+                    if ($conf['b'] !== 1) {
+                        $term->setParam('boost', $conf['b']);
+                    }
+                    $matchBoolQuery->addShould($term);
+                }
+            }
+
+            if (!empty($weights)) {
+                $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
+                $matchBoolQuery->addShould($multiMatch);
+
+                if (!$strict) {
+                    $multiMatch->setParam('boost', 5);
+                    $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
+                }
+            }
+
+            $clusterQuery->addMust($matchBoolQuery);
+            if (1 !== $cluster['b']) {
+                $clusterQuery->setBoost($cluster['b']);
+            }
+
+            if (null !== $cluster['w']) {
+                $clusterQuery->addMust(new Query\Terms('workspaceId', $cluster['w']));
+            }
+            $boolQuery->addShould($clusterQuery);
+        }
+
+        return $boolQuery;
+    }
+
+    // TODO remove
+    public function OLDbuildAttributeQuery(
         string $queryString,
         ?string $userId,
         array $groupIds,
@@ -113,6 +308,7 @@ class AttributeSearch
 
         return $boolQuery;
     }
+
 
     protected function addIdQueryShould(Query\BoolQuery $parentQuery, string $queryString): void
     {
@@ -214,7 +410,7 @@ class AttributeSearch
 
         $facets = [];
         foreach ($attributeDefinitions as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $field = sprintf('attributes.%s.%s', $l, $fieldName);

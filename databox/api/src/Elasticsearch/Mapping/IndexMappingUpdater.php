@@ -26,7 +26,7 @@ class IndexMappingUpdater
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
-        $fieldName = $this->fieldNameResolver->getFieldName($definition);
+        $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
         if (!isset($mapping['properties']['attributes'])) {
             $mapping['properties']['attributes'] = [
                 'type' => 'object',
@@ -103,7 +103,7 @@ class IndexMappingUpdater
     public function assignAttributeDefinitionToMapping(array &$newMapping, AttributeDefinition $definition, array $existingAttributes = []): bool
     {
         $upsert = false;
-        $fieldName = $this->fieldNameResolver->getFieldName($definition);
+        $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
         $workspace = $definition->getWorkspace();

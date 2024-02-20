@@ -68,7 +68,7 @@ class SuggestionSearch extends AbstractSearch
         $language = $options['locale'] ?? '*';
 
         foreach ($suggestAttributes as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $fullName = sprintf('attributes.%s.%s', $l, $fieldName);

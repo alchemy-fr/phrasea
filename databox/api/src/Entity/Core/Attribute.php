@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AttributeInputTransformer;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
@@ -54,7 +53,6 @@ use Ramsey\Uuid\Doctrine\UuidType;
     input: AttributeInput::class,
     output: AttributeOutput::class,
     provider: AttributeCollectionProvider::class,
-    processor: AttributeInputTransformer::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]

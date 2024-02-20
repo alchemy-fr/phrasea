@@ -169,7 +169,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
                     null !== $v
                     && (!is_array($v) || !empty($v))
                 ) {
-                    $fieldName = $this->fieldNameResolver->getFieldName($definition);
+                    $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
                     $data[$l][$fieldName] = $v;
                 }
             }
