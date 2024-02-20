@@ -63,7 +63,10 @@ class IndexMappingUpdater
         if ($type->supportsSuggest()) {
             $mapping['fields'] ??= [];
             $mapping['fields'][SuggestionSearch::SUGGEST_SUB_FIELD] = [
-                'type' => 'search_as_you_type',
+                'type' => 'text',
+                'analyzer' => 'partial_words',
+                'search_analyzer' => 'text',
+                'term_vector' => 'with_positions_offsets',
             ];
         }
 

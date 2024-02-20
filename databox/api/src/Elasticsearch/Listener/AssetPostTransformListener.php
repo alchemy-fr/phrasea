@@ -175,7 +175,7 @@ class AssetPostTransformListener implements EventSubscriberInterface
             }
         }
 
-        return [$data];
+        return $data;
     }
 
     public static function getSubscribedEvents(): array

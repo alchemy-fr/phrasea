@@ -71,6 +71,7 @@ class SuggestionSearch extends AbstractSearch
             'title',
         ];
 
+        $definitionNames = [];
         foreach ($suggestAttributes as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
@@ -78,6 +79,8 @@ class SuggestionSearch extends AbstractSearch
             $fullName = sprintf('attributes.%s.%s', $l, $fieldName);
             $sourceIncludes[] = $fullName;
             $addField($fullName);
+
+            $definitionNames[$fullName] = $definition->getName();
         }
         $multiMatch->setFields($fields);
 
@@ -124,25 +127,33 @@ class SuggestionSearch extends AbstractSearch
             'collection_'.$this->kernelEnv => 'Collection',
         ];
 
-        $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
-            $queryString,
-            $indexTitles
-        ): array {
-            $highlights = $result->getHighlights();
-            $field = array_keys($highlights)[0];
-            $hl = $highlights[$field];
+        $items = [];
+        foreach ($result->getResults() as $result) {
+            foreach ($result->getHighlights() as $field => $hl) {
+                $sourceField = substr($field, 0, -(strlen(self::SUGGEST_SUB_FIELD) + 1));
 
-            $sourceField = substr($field, 0, -(strlen(self::SUGGEST_SUB_FIELD) + 1));
-            $value = '';//$result->getSource()[$sourceField];
+                $ptr = $result->getSource();
+                foreach (explode('.', $sourceField) as $p) {
+                    $ptr = $ptr[$p];
+                }
+                $value = $ptr;
 
-            return [
-                'id' => $result->getId(),
-                'name' => $value,
-                'hl' => $hl,
-                't' => $indexTitles[preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex())],
-            ];
-        }, $result->getResults())));
+                if ('title' === $sourceField) {
+                    $type = $indexTitles[preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex())];
+                } else {
+                    $type = $definitionNames[$sourceField];
+                }
 
+                $items[] = [
+                    'id' => $result->getId().$type,
+                    'name' => $value,
+                    'hl' => $hl,
+                    't' => $type,
+                ];
+            }
+        }
+
+        $result = new Pagerfanta(new ArrayAdapter($items));
         $esQuery = $query->toArray();
 
         return [$result, $esQuery, $searchTime];

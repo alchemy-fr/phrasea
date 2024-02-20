@@ -49,6 +49,10 @@ export default function AutoComplete({
             <Paper
                 elevation={5}
                 className={'aa-Panel'}
+                style={{
+                    marginTop: 0,
+                    marginLeft: 47,
+                }}
                 {...(autocomplete.getPanelProps({}) as any)}
             >
                 {autocompleteState.isOpen &&

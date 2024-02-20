@@ -43,6 +43,7 @@ fos_elastica:
                                 token_chars:
                                     - letter
                                     - digit
+                                    - symbol
                         filter:
                             worddelimiter: &worddelimiter_filter
                                 type: word_delimiter_graph
