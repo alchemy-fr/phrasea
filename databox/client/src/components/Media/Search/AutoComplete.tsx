@@ -1,4 +1,4 @@
-import {AutocompleteOptions, AutocompleteState, createAutocomplete} from '@algolia/autocomplete-core';
+import {AutocompleteApi, AutocompleteOptions, AutocompleteState, createAutocomplete} from '@algolia/autocomplete-core';
 import React, {ReactNode} from 'react';
 import {Paper} from "@mui/material";
 import '@algolia/autocomplete-theme-classic';
@@ -8,12 +8,14 @@ import Box from "@mui/material/Box";
 
 
 type Props = {
-    children: (props: any) => ReactNode;
+    children: (props: AutocompleteApi<SearchSuggestion>) => ReactNode;
     getSources: AutocompleteOptions<SearchSuggestion>['getSources'];
+    queryValue: string;
 };
 
 export default function AutoComplete({
     getSources,
+    queryValue,
     children,
 }: Props) {
     const [autocompleteState, setAutocompleteState] = React.useState<AutocompleteState<SearchSuggestion>>({} as AutocompleteState<SearchSuggestion>);
@@ -29,6 +31,10 @@ export default function AutoComplete({
         []
     );
 
+    React.useEffect(() => {
+        autocomplete.setQuery(queryValue);
+    }, [queryValue]);
+
     return (
         <Box
             sx={theme => ({
@@ -38,9 +44,7 @@ export default function AutoComplete({
             {...(autocomplete.getRootProps({}) as any)}
         >
             <div className={'aa-InputWrapper'}>
-                {children(autocomplete.getInputProps({
-                    inputElement: null
-                }))}
+                {children(autocomplete)}
             </div>
             <Paper
                 elevation={5}

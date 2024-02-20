@@ -54,7 +54,7 @@ export default function SearchBar({}: Props) {
     const search = useContext(SearchContext);
     const resultContext = useContext(ResultContext);
     const [queryValue, setQueryValue] = useState('');
-    const inputRef = useRef<HTMLInputElement>();
+    const inputRef = useRef<HTMLInputElement>(null);
     const {t} = useTranslation();
 
     useEffect(() => {
@@ -112,43 +112,57 @@ export default function SearchBar({}: Props) {
                     alignItems: 'center',
                 }}
             >
-                <form onSubmit={onSubmit}>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon/>
-                        </SearchIconWrapper>
-                        <AutoComplete
-                            getSources={getSources}
+                <AutoComplete
+                    getSources={getSources}
+                    queryValue={queryValue}
+                >
+                    {(autocomplete) => {
+                        return <form
+                            {...autocomplete.getFormProps({
+                                inputElement: inputRef.current,
+                            }) as any}
+                            onSubmit={(e: FormEvent<HTMLFormElement>) => {
+                                autocomplete.setIsOpen(false);
+                                onSubmit(e);
+                            }}
                         >
-                            {(props) => <StyledInputBase
-                                autoFocus={true}
-                                type={'search'}
-                                value={queryValue}
-                                onChange={e => setQueryValue(e.target.value)}
-                                inputRef={inputRef}
-                                onClick={onClick}
-                                placeholder="Search…"
-                                onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                                onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                                inputProps={{
-                                    'aria-label': 'search',
-                                    ...props,
-                                    value: queryValue,
-                                }}
-                            />}
-                        </AutoComplete>
-                        <Button
-                            disabled={
-                                search.query === queryValue &&
-                                resultContext.loading
-                            }
-                            type={'submit'}
-                            variant={'contained'}
-                        >
-                            {t('search.search_button', 'Search')}
-                        </Button>
-                    </Search>
-                </form>
+                            <Search>
+                                <SearchIconWrapper>
+                                    <SearchIcon/>
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    autoFocus={true}
+                                    type={'search'}
+                                    onChange={e => setQueryValue(e.target.value)}
+                                    inputRef={inputRef}
+                                    onClick={onClick}
+                                    placeholder="Search…"
+                                    onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                    onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                    inputProps={{
+                                        'aria-label': 'search',
+                                        ...autocomplete.getInputProps({
+                                            inputElement: null,
+                                            onBlur: () => {
+                                                autocomplete.setIsOpen(false);
+                                            },
+                                        }) as any,
+                                    }}
+                                />
+                                <Button
+                                    disabled={
+                                        search.query === queryValue &&
+                                        resultContext.loading
+                                    }
+                                    type={'submit'}
+                                    variant={'contained'}
+                                >
+                                    {t('search.search_button', 'Search')}
+                                </Button>
+                            </Search>
+                        </form>
+                    }}
+                </AutoComplete>
                 <GeoPointFilter/>
                 <SortBy/>
             </Box>
