@@ -174,6 +174,14 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         $this->definition = $definition;
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getDefinitionId(): string
+    {
+        return $this->definition->getId();
+    }
+
     public function getTranslationId(): ?string
     {
         return $this->translationId;

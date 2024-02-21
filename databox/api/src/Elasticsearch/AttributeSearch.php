@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -30,7 +30,6 @@ class AttributeSearch
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly EntityManagerInterface $em,
         private readonly AttributeTypeRegistry $typeRegistry,
-        private readonly AssetTitleResolver $assetTitleResolver,
     ) {
     }
 
@@ -64,7 +63,7 @@ class AttributeSearch
                 continue;
             }
 
-            if ($type instanceof DateTimeAttributeType) {
+            if ($type instanceof DateTimeAttributeType || $type instanceof NumberAttributeType) {
                 $fieldName .= '.text';
             }
 

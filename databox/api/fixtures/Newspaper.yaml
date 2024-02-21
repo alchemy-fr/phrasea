@@ -30,6 +30,7 @@ App\Entity\Core\AttributeDefinition:
     name: Keywords
     multiple: true
     facetEnabled: true
+    suggest: true
     class: '@n_ac_public'
     initialValuesAll: "{\"type\": \"metadata\", \"value\": \"IPTC:Keywords\"}"
     position: 1
@@ -105,6 +106,12 @@ App\Entity\Core\AttributeDefinition:
     name: Blurhash
     class: '@n_ac_public'
     position: 10
+  ad_ean (extends attribute_definition_n):
+      name: EAN
+      facetEnabled: true
+      suggest: true
+      class: '@n_ac_public'
+      position: 11
 
 App\Entity\Core\RenditionClass:
   rendition_class_n (template):
@@ -355,7 +362,22 @@ App\Entity\Core\Attribute:
   at_kw_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
-    value: '<word()>'
+    value: '50%? PDF : <word()>'
+
+  at_ean_{@a_*} (extends attribute_n):
+    definition: '@ad_ean'
+    asset: '@a_*'
+    value: '<ean()>'
+
+  at_city_{@a_*} (extends attribute_n):
+    definition: '@ad_city'
+    asset: '@a_*'
+    value: '<city()>'
+
+  at_country_{@a_*} (extends attribute_n):
+    definition: '@ad_country'
+    asset: '@a_*'
+    value: '<country()>'
 
   at_date_{@a_*} (extends attribute_n):
     __factory:

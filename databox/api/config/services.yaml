@@ -65,6 +65,7 @@ services:
         arguments:
             $collectionIndex: '@fos_elastica.index.collection'
             $assetIndex: '@fos_elastica.index.asset'
+            $attributeIndex: '@fos_elastica.index.attribute'
 
     App\Elasticsearch\CollectionSearch:
         arguments:

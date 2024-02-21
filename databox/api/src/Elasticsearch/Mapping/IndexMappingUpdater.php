@@ -52,25 +52,13 @@ class IndexMappingUpdater
     {
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
-        $mapping = array_merge([
+        return array_merge([
             'type' => $type->getElasticSearchType(),
             'meta' => [
                 'attribute_id' => $definition->getId(),
                 'attribute_name' => $definition->getName(),
             ],
         ], $type->getElasticSearchMapping($locale, $definition));
-
-        if ($type->supportsSuggest()) {
-            $mapping['fields'] ??= [];
-            $mapping['fields'][SuggestionSearch::SUGGEST_SUB_FIELD] = [
-                'type' => 'text',
-                'analyzer' => 'partial_words',
-                'search_analyzer' => 'text',
-                'term_vector' => 'with_positions_offsets',
-            ];
-        }
-
-        return $mapping;
     }
 
     public function synchronizeWorkspace(Workspace $workspace): void

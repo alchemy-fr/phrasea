@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepositoryInterface;
 use Elastica\Collapse;
@@ -15,18 +12,19 @@ use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use stdClass;
 
 class SuggestionSearch extends AbstractSearch
 {
-    private const SUGGEST_FIELD = 'title';
-    final public const SUGGEST_SUB_FIELD = 'suggest';
+    private const SUGGEST_FIELD = 'suggestion';
+    private const SUGGEST_SUB_FIELD = 'suggest';
+    private const DEFINITION_ID_FIELD = 'definitionId';
 
     public function __construct(
         private readonly Index $collectionIndex,
         private readonly Index $assetIndex,
+        private readonly Index $attributeIndex,
         private readonly string $kernelEnv,
-        private readonly FieldNameResolver $fieldNameResolver,
-        private readonly AttributeTypeRegistry $typeRegistry,
     ) {
     }
 
@@ -56,47 +54,24 @@ class SuggestionSearch extends AbstractSearch
                 AttributeDefinitionRepositoryInterface::OPT_SUGGEST_ENABLED => true,
             ]);
 
-        $multiMatch = new Query\MultiMatch();
-        $multiMatch->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
-        $multiMatch->setQuery($queryString);
-        $fields = [];
-        $addField = function (string $f) use (&$fields, $queryString): void {
-            $fields[] = $f.'.'.self::SUGGEST_SUB_FIELD;
-        };
-
-        $addField(self::SUGGEST_FIELD);
-
-        $language = $options['locale'] ?? '*';
-        $sourceIncludes = [
-            'title',
-        ];
-
         $definitionNames = [];
         foreach ($suggestAttributes as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-            $fullName = sprintf('attributes.%s.%s', $l, $fieldName);
-            $sourceIncludes[] = $fullName;
-            $addField($fullName);
-
-            $definitionNames[$fullName] = $definition->getName();
+            $definitionNames[$definition->getId()] = $definition->getName();
         }
-        $multiMatch->setFields($fields);
 
-        $highlights = [];
-        foreach ($fields as $field) {
-            $highlights[$field] = new \stdClass();
-        }
-        $filterQuery->addMust($multiMatch);
+        $match = new Query\MatchQuery('suggestion.suggest', $queryString);
+        $filterQuery->addMust($match);
+        $filterType = new Query\BoolQuery();
+        $filterType->addShould(new Query\Terms('definitionId', array_keys($definitionNames)));
+        $filterType->addShould(new Query\Terms('_index', [
+            $this->collectionIndex->getName(),
+            $this->assetIndex->getName(),
+        ]));
+        $filterQuery->addMust($filterType);
 
         $query = new Query();
         $query->setTrackTotalHits(false);
         $query->setQuery($filterQuery);
-
-        $query->setSource([
-            'includes' => $sourceIncludes,
-        ]);
 
         $query->setSort([
             '_score' => 'DESC',
@@ -108,16 +83,28 @@ class SuggestionSearch extends AbstractSearch
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
-            'fields' => $highlights,
+            'fields' => [
+                self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD => new stdClass(),
+            ],
         ]);
         $collapse = new Collapse();
-        $collapse->setFieldname('title.raw');
+        $collapse->setFieldname(self::SUGGEST_FIELD.'.raw');
         $query->setCollapse($collapse);
+        $query->setSource([
+            'includes' => [
+                self::DEFINITION_ID_FIELD,
+            ],
+        ]);
+        $query->setIndicesBoost([
+            $this->attributeIndex->getName() => 100,
+            $this->assetIndex->getName() => 2,
+        ]);
 
         $start = microtime(true);
 
         $search = $this->collectionIndex->createSearch($query);
         $search->addIndex($this->assetIndex);
+        $search->addIndex($this->attributeIndex);
         $result = $search->search();
 
         $searchTime = microtime(true) - $start;
@@ -127,33 +114,26 @@ class SuggestionSearch extends AbstractSearch
             'collection_'.$this->kernelEnv => 'Collection',
         ];
 
-        $items = [];
-        foreach ($result->getResults() as $result) {
-            foreach ($result->getHighlights() as $field => $hl) {
-                $sourceField = substr($field, 0, -(strlen(self::SUGGEST_SUB_FIELD) + 1));
+        $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
+            $indexTitles,
+            $definitionNames,
+        ): array {
+            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
+            $indexName = preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex());
 
-                $ptr = $result->getSource();
-                foreach (explode('.', $sourceField) as $p) {
-                    $ptr = $ptr[$p];
-                }
-                $value = $ptr;
-
-                if ('title' === $sourceField) {
-                    $type = $indexTitles[preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex())];
-                } else {
-                    $type = $definitionNames[$sourceField];
-                }
-
-                $items[] = [
-                    'id' => $result->getId().$type,
-                    'name' => $value,
-                    'hl' => $hl,
-                    't' => $type,
-                ];
+            if ('attribute_'.$this->kernelEnv === $indexName) {
+                $type = $definitionNames[$result->getSource()['definitionId']];
+            } else {
+                $type = $indexTitles[$indexName];
             }
-        }
 
-        $result = new Pagerfanta(new ArrayAdapter($items));
+            return [
+                'id' => $result->getId(),
+                'name' => preg_replace('#\[/?hl]#', '', $hl),
+                'hl' => $hl,
+                't' => $type,
+            ];
+        }, $result->getResults())));
         $esQuery = $query->toArray();
 
         return [$result, $esQuery, $searchTime];
