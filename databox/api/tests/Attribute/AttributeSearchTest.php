@@ -43,7 +43,7 @@ class AttributeSearchTest extends TestCase
             bool $allowed,
             string $wsId,
             string $slug,
-            ?int $boost = null,
+            int $boost = null,
             $fieldType = 'text',
             bool $multiple = false,
             bool $translatable = false,
