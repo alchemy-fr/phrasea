@@ -62,6 +62,8 @@ fos_elastica:
                         raw:
                             type: keyword
                         suggest: &suggest_field
+                            index_options: docs
+                            similarity: boolean
                             type: text
                             analyzer: partial_words
                             search_analyzer: text

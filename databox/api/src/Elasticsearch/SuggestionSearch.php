@@ -58,7 +58,7 @@ class SuggestionSearch extends AbstractSearch
             $definitionNames[$definition->getId()] = $definition->getName();
         }
 
-        $match = new Query\MatchQuery('suggestion.suggest', $queryString);
+        $match = new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString);
         $filterQuery->addMust($match);
         $filterType = new Query\BoolQuery();
         $filterType->addShould(new Query\Terms('definitionId', array_keys($definitionNames)));
@@ -66,7 +66,7 @@ class SuggestionSearch extends AbstractSearch
             $this->collectionIndex->getName(),
             $this->assetIndex->getName(),
         ]));
-        $filterQuery->addMust($filterType);
+        $filterQuery->addFilter($filterType);
 
         $query = new Query();
         $query->setTrackTotalHits(false);
@@ -95,8 +95,8 @@ class SuggestionSearch extends AbstractSearch
             ],
         ]);
         $query->setIndicesBoost([
-            $this->attributeIndex->getName() => 100,
-            $this->assetIndex->getName() => 2,
+            $this->attributeIndex->getName() => 1.2,
+            $this->assetIndex->getName() => 1.1,
         ]);
 
         $start = microtime(true);
