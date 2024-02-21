@@ -58,7 +58,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
 
         $renditions = [];
         foreach ($renditionsDefinitions as $row) {
-            $renditions[] = (string) $row['id'];
+            $renditions[] = (string)$row['id'];
         }
 
         return $renditions;
@@ -79,7 +79,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                 if ($definition->isMultiple()) {
                     $v = $a->getValues();
                     if (!empty($v)) {
-                        $v = array_map(fn (string $v): string => $type->normalizeElasticsearchValue($v), $v);
+                        $v = array_map(fn(string $v): string => $type->normalizeElasticsearchValue($v), $v);
                     }
                 } else {
                     $v = $a->getValue();
