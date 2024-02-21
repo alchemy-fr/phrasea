@@ -6,7 +6,7 @@ use Elastica\Query\AbstractQuery;
 
 class MatchBoolPrefix extends AbstractQuery
 {
-    public function __construct(?string $field = null, $value = null)
+    public function __construct(string $field = null, $value = null)
     {
         if (null !== $field && null !== $value) {
             $this->setParam($field, $value);
@@ -15,8 +15,6 @@ class MatchBoolPrefix extends AbstractQuery
 
     /**
      * Sets a param for the message array.
-     *
-     * @param mixed $values
      *
      * @return $this
      */

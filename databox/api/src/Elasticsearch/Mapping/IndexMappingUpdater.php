@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\SuggestionSearch;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;

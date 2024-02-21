@@ -18,11 +18,10 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class CollectionOutputTransformer implements OutputTransformerInterface
 {
-    final public const COLLECTION_CACHE_NS = 'coll_visibility';
-
     use GroupsHelperTrait;
     use UserOutputTransformerTrait;
     use SecurityAwareTrait;
+    final public const COLLECTION_CACHE_NS = 'coll_visibility';
 
     public function __construct(
         private readonly CollectionSearch $collectionSearch,

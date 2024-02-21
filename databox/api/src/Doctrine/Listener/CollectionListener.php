@@ -22,8 +22,7 @@ class CollectionListener implements EventSubscriber
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly TagAwareCacheInterface $collectionCache,
-    )
-    {
+    ) {
     }
 
     public function postUpdate(PostUpdateEventArgs $args): void

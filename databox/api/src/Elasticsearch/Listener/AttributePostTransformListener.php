@@ -11,7 +11,7 @@ use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-final  class AttributePostTransformListener implements EventSubscriberInterface
+final class AttributePostTransformListener implements EventSubscriberInterface
 {
     private CacheInterface $cache;
 

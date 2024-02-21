@@ -243,7 +243,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     }
 
     /**
-     * Used by ES
+     * Used by ES.
      */
     public function getPrivacyRoots(): array
     {

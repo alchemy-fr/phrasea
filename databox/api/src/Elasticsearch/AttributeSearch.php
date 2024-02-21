@@ -191,11 +191,11 @@ class AttributeSearch
             foreach ($cluster['fields'] as $fieldName => $conf) {
                 $fieldName = str_replace('{l}', $language, $fieldName);
 
-                if ($conf['st'] === self::FIELD_MATCH) {
+                if (self::FIELD_MATCH === $conf['st']) {
                     $weights[$fieldName] = $conf['b'];
                 } else {
                     $term = new Query\Term([$fieldName => $queryString]);
-                    if ($conf['b'] !== 1) {
+                    if (1 !== $conf['b']) {
                         $term->setParam('boost', $conf['b']);
                     }
                     $matchBoolQuery->addShould($term);

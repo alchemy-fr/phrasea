@@ -68,7 +68,6 @@ final class AssetPermissionComputer
         ];
     }
 
-
     private function getCollectionHierarchyInfo(Collection $collection): array
     {
         return $this->cache->get($collection->getId(), function () use ($collection): array {

@@ -9,8 +9,7 @@ final readonly class AttributeIndexable
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-    )
-    {
+    ) {
     }
 
     public function isAttributeIndexable(Attribute $attribute): bool

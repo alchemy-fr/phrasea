@@ -8,13 +8,10 @@ use Elastica\Exception\ExceptionInterface;
 use Elastica\Request;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Index\IndexManager;
-use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use function array_keys;
-use function sprintf;
 
 class ESRemoveIndexCommand extends Command
 {
@@ -82,7 +79,7 @@ class ESRemoveIndexCommand extends Command
             $path = $indexName;
             $this->client->request($path, Request::DELETE);
         } catch (ExceptionInterface $deleteOldIndexException) {
-            throw new RuntimeException(sprintf('Failed to delete index "%s" with message: "%s"', $indexName, $deleteOldIndexException->getMessage()), 0, $deleteOldIndexException);
+            throw new \RuntimeException(\sprintf('Failed to delete index "%s" with message: "%s"', $indexName, $deleteOldIndexException->getMessage()), 0, $deleteOldIndexException);
         }
     }
 }

@@ -12,7 +12,6 @@ use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
-use stdClass;
 
 class SuggestionSearch extends AbstractSearch
 {
@@ -84,7 +83,7 @@ class SuggestionSearch extends AbstractSearch
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
             'fields' => [
-                self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD => new stdClass(),
+                self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD => new \stdClass(),
             ],
         ]);
         $collapse = new Collapse();

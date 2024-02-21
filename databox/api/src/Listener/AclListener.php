@@ -17,7 +17,6 @@ use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsEventListener(event: AclUpsertEvent::NAME, method: 'onAclUpsert')]

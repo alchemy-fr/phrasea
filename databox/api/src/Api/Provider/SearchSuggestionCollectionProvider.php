@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
-use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\Pagination;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
-use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\SuggestionSearch;
 use App\Util\SecurityAwareTrait;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class SearchSuggestionCollectionProvider implements ProviderInterface
 {

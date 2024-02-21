@@ -17,8 +17,7 @@ class CollectionPathAttributeType extends AbstractAttributeType
 
     public function __construct(
         private readonly EntityManagerInterface $em
-    )
-    {
+    ) {
     }
 
     public static function getName(): string
