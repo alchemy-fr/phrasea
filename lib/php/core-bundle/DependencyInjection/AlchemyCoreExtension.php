@@ -4,6 +4,7 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
+use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Component\Config\FileLocator;
@@ -139,6 +140,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         UnsupportedFormatException::class,
                         ValidationException::class,
                         UnauthorizedHttpException::class,
+                        AccessDeniedException::class,
                     ],
                 ]
             ]);
