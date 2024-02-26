@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class AttributeRepository extends EntityRepository implements AttributeRepositoryInterface
+
+class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
 {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
+    )
+    {
+        parent::__construct($registry, Attribute::class);
+    }
+
     /**
      * @return string[]
      */
@@ -52,5 +65,25 @@ class AttributeRepository extends EntityRepository implements AttributeRepositor
             ->addOrderBy('a.position', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getESQueryBuilder(): QueryBuilder
+    {
+        $types = array_map(
+            fn (AttributeTypeInterface $type): string => $type::getName(),
+            array_filter(
+                $this->attributeTypeRegistry->getTypes(),
+                fn (AttributeTypeInterface $type): bool => $type->supportsSuggest()
+            )
+        );
+
+        return $this
+            ->createQueryBuilder('t')
+            ->addOrderBy('t.asset', 'ASC')
+            ->addOrderBy('t.id', 'ASC')
+            ->innerJoin('t.definition', 'd')
+            ->andWhere('d.fieldType IN (:types)')
+            ->setParameter('types', $types)
+        ;
     }
 }

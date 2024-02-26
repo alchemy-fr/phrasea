@@ -17,8 +17,7 @@ readonly class PopulateListener implements EventSubscriberInterface
 {
     public function __construct(
         private IndexManager $indexManager,
-        private CacheInterface $cache,
-        private AttributePostTransformListener $attributePostTransformListener,
+        private CacheInterface $fosPopulateCache,
         private AssetPermissionComputer $assetPermissionComputer,
     ) {
     }
@@ -31,12 +30,11 @@ readonly class PopulateListener implements EventSubscriberInterface
             $settings->setRefreshInterval('-1');
         }
 
-        if ($this->cache instanceof CacheItemPoolInterface) {
-            $this->cache->clear();
+        if ($this->fosPopulateCache instanceof CacheItemPoolInterface) {
+            $this->fosPopulateCache->clear();
         }
 
-        $this->attributePostTransformListener->setCache($this->cache);
-        $this->assetPermissionComputer->setCache($this->cache);
+        $this->assetPermissionComputer->setCache($this->fosPopulateCache);
     }
 
     public function postIndexPopulate(PostIndexPopulateEvent $event): void

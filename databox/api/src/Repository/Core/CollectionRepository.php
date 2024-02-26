@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class CollectionRepository extends EntityRepository
 {
@@ -29,5 +30,14 @@ class CollectionRepository extends EntityRepository
             ->setParameter('ws', $workspaceId)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    public function getESQueryBuilder(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder('t')
+            ->addOrderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'ASC')
+        ;
     }
 }
