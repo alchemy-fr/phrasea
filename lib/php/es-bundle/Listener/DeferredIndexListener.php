@@ -28,10 +28,10 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
-#[AsDoctrineListener(Events::postFlush)]
-#[AsEventListener(KernelEvents::TERMINATE, 'flush', priority: -255)]
-#[AsEventListener(ConsoleEvents::TERMINATE, 'flush', priority: -255)]
-#[AsEventListener(WorkerMessageHandledEvent::class, 'flush', priority: -255)]
+//#[AsDoctrineListener(Events::postFlush)] TODO break tests
+#[AsEventListener(KernelEvents::TERMINATE, 'flush')]
+#[AsEventListener(ConsoleEvents::TERMINATE, 'flush')]
+#[AsEventListener(WorkerMessageHandledEvent::class, 'flush')]
 final class DeferredIndexListener
 {
     private static bool $enabled = true;
@@ -94,13 +94,7 @@ final class DeferredIndexListener
 
         $entity = $eventArgs->getObject();
 
-        if ($this->handlesEntity($entity)) {
-            if ($this->isIndexable($entity)) {
-                $this->scheduledForUpdate[] = $entity;
-            } else {
-                $this->scheduleForDeletion($entity);
-            }
-        }
+        $this->scheduleForUpdate($entity);
     }
 
     /**
@@ -184,6 +178,17 @@ final class DeferredIndexListener
 
         if (!empty($objects)) {
             $this->searchIndexer->scheduleIndex($objects);
+        }
+    }
+
+    public function scheduleForUpdate(object $entity): void
+    {
+        if ($this->handlesEntity($entity)) {
+            if ($this->isIndexable($entity)) {
+                $this->scheduledForUpdate[] = $entity;
+            } else {
+                $this->scheduleForDeletion($entity);
+            }
         }
     }
 

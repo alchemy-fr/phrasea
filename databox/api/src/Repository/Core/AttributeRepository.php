@@ -11,12 +11,15 @@ use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
 {
     public function __construct(
         ManagerRegistry $registry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
+        #[Autowire(param: 'kernel.environment')]
+        private readonly string $kernelEnv,
     ) {
         parent::__construct($registry, Attribute::class);
     }
@@ -89,13 +92,20 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             )
         );
 
-        return $this
-            ->createQueryBuilder('t')
-            ->addOrderBy('t.asset', 'ASC')
+        $queryBuilder = $this
+            ->createQueryBuilder('t');
+
+        if ('test' !== $this->kernelEnv) {
+            // SQLite does not find asset_id in the wrapped query
+            $queryBuilder->addOrderBy('t.asset', 'ASC');
+        }
+
+        $queryBuilder
             ->addOrderBy('t.id', 'ASC')
             ->innerJoin('t.definition', 'd')
             ->andWhere('d.fieldType IN (:types)')
-            ->setParameter('types', $types)
-        ;
+            ->setParameter('types', $types);
+
+        return $queryBuilder;
     }
 }

@@ -78,6 +78,7 @@ class AssetSearchTest extends AbstractSearchTest
             'type' => DateTimeAttributeType::getName(),
             'no_flush' => true,
         ]);
+        $this->getEntityManager()->flush();
 
         $this->createAsset([
             'workspace' => $workspace,

@@ -14,6 +14,10 @@ final readonly class AttributeIndexable
 
     public function isAttributeIndexable(Attribute $attribute): bool
     {
+        if (strlen($attribute->getValue()) > 300) {
+            return false;
+        }
+
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
 
         return $type->supportsSuggest();

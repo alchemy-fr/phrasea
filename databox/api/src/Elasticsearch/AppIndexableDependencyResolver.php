@@ -32,7 +32,7 @@ class AppIndexableDependencyResolver implements IndexableDependenciesResolverInt
         } elseif ($object instanceof Attribute) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
         } elseif ($object instanceof Asset) {
-            $this->addToParents($object::class, $object);
+            $this->addToParents($object::class, $object->getId());
 
             $this->appendDependencyIterator(
                 Attribute::class,
