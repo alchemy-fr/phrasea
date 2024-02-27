@@ -49,12 +49,15 @@
         "token": "%env(PHRASEANET_APP_OAUTH_TOKEN)%",
         "verifySSL": "%env(bool:PHRASEANET_VERIFY_SSL)%",
         "importFiles": "%env(bool:IMPORT_FILES)%",
-        "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%",
         "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
         "databoxMapping": [
           {
-            "databoxId": "%env(PHRASEANET_DATABOX_ID)%",
-            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%"
+            "databox": "%env(PHRASEANET_DATABOX)%",
+            "collections": "%env(PHRASEANET_COLLECTIONS)%",
+            "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
+            "recordsCollectionPath": "%env(PHRASEANET_RECORDS_COLLECTION_PATH)%",
+            "storiesCollectionPath": "%env(PHRASEANET_STORIES_COLLECTION_PATH)%",
+            "searchQuery": "%env(PHRASEANET_SEARCH_QUERY)%"
           }
         ]
       }

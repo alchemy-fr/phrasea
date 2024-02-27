@@ -20,45 +20,69 @@ export type AttrDefinitionIndex = Record<
     }
 >;
 
+
+export type TagIndex = Record<
+    number,
+    string
+>;
+
 export type AttrClassIndex = Record<string, AttributeClass>;
 
 export function createAsset(
     workspaceId: string,
     importFiles: boolean,
     record: PhraseanetRecord,
+    rootCollectionPath: string,
+    collectionKeyPrefix: string,
+    key: string,
     collectionName: string,
-    attrDefinitionIndex: AttrDefinitionIndex
+    attrDefinitionIndex: AttrDefinitionIndex,
+    tagIndex: TagIndex,
+    storyCollectionIds: string[]
 ): Asset {
     const document: SubDef | undefined = record.subdefs.find(
         s => s.name === 'document'
     );
 
-    const path = `${escapeSlashes(collectionName)}/${escapeSlashes(
+    const path = `${rootCollectionPath}/${escapeSlashes(collectionName)}/${escapeSlashes(
         record.original_name
     )}`;
 
-    return {
-        workspaceId,
-        key: record.uuid,
-        path,
-        title: record.title,
-        importFile: importFiles,
-        publicUrl: document?.permalink.url,
-        isPrivate: false,
-        attributes: record.caption?.map(c => {
-            const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
-
+    const attributes: AttributeInput[] = [];
+    for(const c of record.caption ?? []) {
+        const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
+        if(ad !== undefined) {
             const d = {
                 definitionId: ad.id,
                 origin: 'machine',
                 originVendor: 'indexer-import',
             } as Partial<AttributeInput>;
 
-            return {
+            attributes.push({
                 ...d,
                 value: ad.multiple ? c.value.split(' ; ') : c.value,
-            } as AttributeInput;
-        }),
+            } as AttributeInput);
+        }
+    }
+
+    const tags: string[] = [];
+    for(const sb of record.status) {
+        if(sb.state && tagIndex[sb.bit] !== undefined) {
+            tags.push(tagIndex[sb.bit]);
+        }
+    }
+
+    return {
+        workspaceId: workspaceId,
+        key: key,
+        path: path,
+        collectionKeyPrefix: collectionKeyPrefix,
+        title: record.title,
+        importFile: importFiles,
+        publicUrl: document?.permalink.url,
+        isPrivate: false,
+        attributes: attributes,
+        tags: tags,
         generateRenditions: false,
         renditions: record.subdefs
             .map(s => {
@@ -79,9 +103,15 @@ export function createAsset(
                 };
             })
             .filter(s => Boolean(s)) as RenditionInput[],
+        shortcutIntoCollections: storyCollectionIds
     };
 }
 
 export const attributeTypesEquivalence: Record<string, string> = {
     string: 'text',
 };
+
+export enum PhraseanetSearchType {
+    Record = 0,
+    Story = 1,
+}

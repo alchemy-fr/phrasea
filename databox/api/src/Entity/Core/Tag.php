@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -36,7 +37,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         '_',
         Tag::GROUP_LIST,
     ]],
-    output: TagOutput::class
+    input: TagInput::class,
+    output: TagOutput::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]

@@ -1,11 +1,21 @@
 export type ConfigDataboxMapping = {
-    databoxId: string;
+    databox: string;
+    collections?: string;
+    searchQuery?: string;
     workspaceSlug: string;
+    recordsCollectionPath: string;
+    storiesCollectionPath: string;
 };
 
 export type PhraseanetConfig = {
     url: string;
-    searchQuery?: string;
+    instanceId?: string;
+    idempotencePrefixes?: {
+        asset?: string;
+        collection?: string;
+        attributeDefinition?: string;
+        renditionDefinition?: string;
+    };
     searchOrder?: string;
     token: string;
     verifySSL?: boolean;
@@ -36,6 +46,17 @@ export type PhraseanetMetaStruct = {
     required: boolean;
 };
 
+export type PhraseanetStatusBitStruct = {
+    bit: number;
+    label_on: string;
+    label_off: string;
+};
+
+export type PhraseanetStatusBit = {
+    bit: number;
+    state: boolean;
+};
+
 export type PhraseanetSubDef = {
     type: string; // image | video | audio | document
     name: string; // thumbnail, thumbnail_gif, preview, preview_webm ...
@@ -46,6 +67,14 @@ export type PhraseanetSubDef = {
     devices: string[];
     labels: Record<string, string>;
     options: Record<string, any>;
+};
+
+export type PhraseanetDatabox = {
+    databox_id: number;
+    name: string;
+    viewname: string;
+    labels: Record<string, string>;
+    collections: Record<string, PhraseanetCollection>;
 };
 
 export type PhraseanetCollection = {
@@ -62,6 +91,7 @@ type PhraseanetCaption = {
 };
 
 export type PhraseanetRecord = {
+    resource_id: string;
     databox_id: string;
     base_id: string;
     record_id: string;
@@ -71,4 +101,21 @@ export type PhraseanetRecord = {
     original_name: string;
     subdefs: SubDef[];
     caption?: PhraseanetCaption[];
+    status: PhraseanetStatusBit[];
 };
+
+export type PhraseanetStory = {
+    resource_id: string;
+    databox_id: string;
+    base_id: string;
+    story_id: string;
+    collection_id: string;
+    uuid: string;
+    title: string;
+    original_name: string;
+    subdefs: SubDef[];
+    caption?: PhraseanetCaption[];
+    status: PhraseanetStatusBit[];
+    children: PhraseanetRecord[];
+};
+

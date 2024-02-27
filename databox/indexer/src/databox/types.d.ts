@@ -19,8 +19,17 @@ export type AssetInput = {
     workspace?: string;
     workspaceId?: string;
     attributes?: AttributeInput[];
+    tags?: TagInput[];
     renditions?: RenditionInput[];
     generateRenditions?: boolean;
+};
+
+export type AssetCopyInput = {
+    destination: string;
+    ids: string[];
+    byReference: boolean;
+    withAttributes?: boolean;
+    withTags?: boolean;
 };
 
 export type CollectionInput = {
@@ -66,6 +75,15 @@ export type AttributeDefinition = {
     class: string;
     labels?: Labels | undefined;
 };
+
+export type Tag = {
+    workspace: string;
+    id: string;
+    name: string;
+    color?: string | undefined;
+};
+
+export type TagInput = string;
 
 export type AttributeClass = {
     ['@id']: string;

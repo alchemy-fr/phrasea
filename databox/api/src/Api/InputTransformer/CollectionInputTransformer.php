@@ -64,10 +64,11 @@ class CollectionInputTransformer extends AbstractInputTransformer
         }
 
         if (null !== $data->parent) {
-            if (!$isNew) {
+            if ($isNew) {
+                $object->setParent($data->parent);
+            } elseif (!$data->key) {
                 throw new BadRequestHttpException(sprintf('Cannot change parent. Use POST /collections/%s/move', $object->getId()));
             }
-            $object->setParent($data->parent);
         }
 
         if (null !== $data->key) {
