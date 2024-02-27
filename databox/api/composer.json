@@ -121,6 +121,8 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
+        "alchemy/es-bundle": "@dev",
+        "alchemy/messenger-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
