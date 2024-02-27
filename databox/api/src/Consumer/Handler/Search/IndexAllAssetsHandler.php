@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Consumer\Handler\AbstractBatchHandler;
-use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Asset;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
@@ -13,7 +13,7 @@ class IndexAllAssetsHandler extends AbstractBatchHandler
 {
     final public const EVENT = 'index_all_assets';
 
-    public function __construct(private readonly ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly SearchIndexer $searchIndexer)
     {
     }
 
@@ -29,7 +29,7 @@ class IndexAllAssetsHandler extends AbstractBatchHandler
 
     protected function flushIndexStack(array $stack): void
     {
-        $this->searchIndexer->scheduleObjectsIndex(Asset::class, $stack, ESSearchIndexer::ACTION_UPSERT);
+        $this->searchIndexer->scheduleObjectsIndex(Asset::class, $stack, SearchIndexer::ACTION_UPSERT);
     }
 
     public static function getHandledEvents(): array

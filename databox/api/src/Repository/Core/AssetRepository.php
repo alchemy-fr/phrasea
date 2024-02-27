@@ -27,6 +27,20 @@ class AssetRepository extends EntityRepository
     /**
      * @return Asset[]
      */
+    public function getCollectionAssetsIterator(string $collectionId): iterable
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->innerJoin('a.collections', 'ac')
+            ->andWhere('ac.collection = :c')
+            ->setParameter('c', $collectionId)
+            ->getQuery()
+            ->toIterable();
+    }
+
+    /**
+     * @return Asset[]
+     */
     public function findByKeys(array $keys, string $workspaceId): array
     {
         return $this->createQueryBuilder('t')

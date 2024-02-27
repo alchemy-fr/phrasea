@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch;
+namespace Alchemy\ESBundle\Indexer;
 
-use App\Consumer\Handler\Search\SearchIndexHandler;
-use App\Entity\AbstractUuidEntity;
-use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
-use App\Entity\Core\Collection;
-use App\Entity\Core\CollectionAsset;
-use App\Entity\SearchDependencyInterface;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Alchemy\ESBundle\Message\ESIndex;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
-use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class ESSearchIndexer
+#[AsEventListener(KernelEvents::TERMINATE, method: 'flush', priority: -255)]
+#[AsEventListener(ConsoleEvents::TERMINATE, method: 'flush', priority: -255)]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'flush', priority: -255)]
+final class SearchIndexer
 {
     private const MAX_DEPTH = 10;
     private const BATCH_SIZE = 100;
@@ -28,47 +28,36 @@ class ESSearchIndexer
     final public const ACTION_UPSERT = 'u';
     final public const ACTION_DELETE = 'd';
 
-    /**
-     * @var ObjectPersisterInterface[][]
-     */
-    protected array $objectPersisters = [];
-
     private array $dependenciesStack = [];
+    private array $dependenciesParents = [];
     private int $dependenciesCount = 0;
 
     public function __construct(
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $messageBus,
         private readonly EntityManagerInterface $em,
-        private readonly LoggerInterface $logger,
-        private readonly bool $direct = false
+        private LoggerInterface $logger,
+        private readonly IndexPersister $indexPersister,
+        /** @var SearchDependenciesResolverInterface[] $dependenciesResolvers */
+        #[TaggedIterator(SearchDependenciesResolverInterface::TAG)]
+        private readonly iterable $dependenciesResolvers,
+        private readonly bool $direct,
     ) {
-    }
-
-    public function addObjectPersister(string $class, ObjectPersisterInterface $objectPersister): void
-    {
-        if (!isset($this->objectPersisters[$class])) {
-            $this->objectPersisters[$class] = [];
-        }
-        $this->objectPersisters[$class][] = $objectPersister;
     }
 
     public function hasObjectPersisterFor(string $class): bool
     {
-        return !empty($this->objectPersisters[$class]);
+        return $this->indexPersister->hasObjectPersisterFor($class);
     }
 
-    public function scheduleIndex(array $objects, int $depth = 1): void
+    public function scheduleIndex(array $objects, int $depth = 1, array $parents = []): void
     {
         if (!$this->direct) {
-            $this->eventProducer->publish(new EventMessage(SearchIndexHandler::EVENT, [
-                'objects' => $objects,
-                'depth' => $depth,
-            ]));
+            $this->messageBus->dispatch(new ESIndex($objects, $depth, $parents));
 
             return;
         }
 
-        $this->index($objects, $depth);
+        $this->index($objects, $depth, $parents);
     }
 
     public function scheduleObjectsIndex(string $class, array $ids, string $operation): void
@@ -85,7 +74,7 @@ class ESSearchIndexer
     /**
      * @internal used by consumer only
      */
-    public function index(array $objects, int $depth): void
+    public function index(array $objects, int $depth, array $parents): void
     {
         if ($depth > self::MAX_DEPTH) {
             $this->logger->emergency(sprintf('%s: Max depth reached', self::class));
@@ -97,7 +86,7 @@ class ESSearchIndexer
             foreach ($entities as $operation => $ids) {
                 $chunks = array_chunk($ids, self::BATCH_SIZE);
                 foreach ($chunks as $chunk) {
-                    $this->indexClass($class, $chunk, $operation, $depth, $objects);
+                    $this->indexClass($class, $chunk, $operation, $depth, $objects, $parents);
                     if (!$this->direct) {
                         $this->em->clear();
                     }
@@ -106,20 +95,16 @@ class ESSearchIndexer
         }
     }
 
-    private function indexClass(string $class, array $ids, string $operation, int $depth, array $currentBatch): void
+    private function indexClass(string $class, array $ids, string $operation, int $depth, array $currentBatch, array $parents): void
     {
         $class = ClassUtils::getRealClass($class);
-        $persisters = $this->objectPersisters[$class] ?? [];
-
         $ids = array_unique($ids);
 
-        $this->logger->debug(sprintf('ES index %s %d: ("%s")', $class, $operation, implode('", "', $ids)));
+        $this->logger->debug(sprintf('ES index %s %s: ("%s")', $class, $operation, implode('", "', $ids)));
 
         switch ($operation) {
             case self::ACTION_DELETE:
-                foreach ($persisters as $persister) {
-                    $persister->deleteManyByIdentifiers($ids);
-                }
+                $this->indexPersister->deleteManyByIdentifiers($class, $ids);
                 break;
             case self::ACTION_INSERT:
             case self::ACTION_UPSERT:
@@ -133,26 +118,29 @@ class ESSearchIndexer
                     ->getResult();
 
                 if (empty($objects)) {
-                    $this->logger->alert(sprintf('No %s document found for index', $class));
+                    $this->logger->alert(sprintf('No %s document found for index (ids: %s)', $class, implode(', ', $ids)));
 
                     return;
                 }
 
-                if ((is_countable($objects) ? count($objects) : 0) !== count($ids)) {
+                if (count($objects) !== count($ids)) {
                     $this->logger->alert(sprintf('Some %s documents were not found for index', $class));
                 }
 
-                foreach ($persisters as $persister) {
-                    if (self::ACTION_INSERT === $operation) {
-                        $persister->insertMany($objects);
-                    } else {
-                        $persister->replaceMany($objects);
-                    }
+                $objects = $this->filterObjects($class, $objects); // TODO rely on is_indexable_callback
+                if (empty($objects)) {
+                    return;
+                }
+
+                if (self::ACTION_INSERT === $operation) {
+                    $this->indexPersister->insertMany($class, $objects);
+                } else {
+                    $this->indexPersister->replaceMany($class, $objects);
                 }
 
                 foreach ($objects as $object) {
                     if ($object instanceof SearchDependencyInterface) {
-                        $this->updateDependencies($object, $depth, $currentBatch);
+                        $this->updateDependencies($object, $depth, $currentBatch, $parents);
                     }
                 }
 
@@ -160,23 +148,21 @@ class ESSearchIndexer
         }
     }
 
-    private function updateDependencies(SearchDependencyInterface $object, int $depth, array $currentBatch): void
+    private function filterObjects(string $class, array $objects): array
     {
-        if ($object instanceof Collection) {
-            $this->appendDependencyEntities(
-                Asset::class,
-                $this->em->getRepository(Asset::class)
-                    ->getCollectionAssets($object->getId()),
-                $depth,
-                $currentBatch
+        return $objects;
+    }
+
+    private function updateDependencies(SearchDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
+    {
+        /** @var SearchDependenciesResolverInterface $resolver */
+        foreach ($this->dependenciesResolvers as $resolver) {
+            $resolver->setAddToParentsClosure(fn (string $class, string $id) => $this->addToParents($class, $id));
+            $resolver->setAddDependencyClosure(
+                fn (string $class, string $id) => $this->addDependency($class, $id, $depth, $currentBatch, $parents)
             );
-            if ($object->getParent()) {
-                $this->addDependency(Collection::class, $object->getParent()->getId(), $depth, $currentBatch);
-            }
-        } elseif ($object instanceof CollectionAsset) {
-            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth, $currentBatch);
-        } elseif ($object instanceof Attribute) {
-            $this->addDependency(Asset::class, $object->getAsset()->getId(), $depth, $currentBatch);
+
+            $resolver->updateDependencies($object);
         }
     }
 
@@ -194,7 +180,7 @@ class ESSearchIndexer
     }
 
     /**
-     * @param AbstractUuidEntity[]|array[] $entities
+     * @param ESIndexableInterface[]|array $entities
      */
     public static function computeObjects(array &$objects, array $entities, string $operation): void
     {
@@ -218,24 +204,6 @@ class ESSearchIndexer
         }
     }
 
-    /**
-     * @param AbstractUuidEntity[] $entities
-     */
-    private function appendDependencyEntities(string $class, array $entities, int $depth, array $currentBatch): void
-    {
-        foreach ($entities as $entity) {
-            $this->addDependency($class, $entity->getId(), $depth, $currentBatch);
-        }
-    }
-
-    private function appendDependencyIterator(string $class, iterable $iterator, int $depth, array $currentBatch): void
-    {
-        foreach ($iterator as $row) {
-            $item = reset($row);
-            $this->addDependency($class, $item['id'], $depth, $currentBatch);
-        }
-    }
-
     private function isInBatch(string $class, string $id, array $currentBatch): bool
     {
         if (!isset($currentBatch[$class])) {
@@ -247,9 +215,13 @@ class ESSearchIndexer
         return in_array($id, $b[self::ACTION_UPSERT] ?? $b[self::ACTION_INSERT] ?? [], true);
     }
 
-    private function addDependency(string $class, string $id, int $depth, array $currentBatch): void
+    public function addDependency(string $class, string $id, int $depth, array $currentBatch, array $parents): void
     {
         if ($this->isInBatch($class, $id, $currentBatch)) {
+            return;
+        }
+
+        if (isset($parents[$class]) && in_array($id, $parents[$class], true)) {
             return;
         }
 
@@ -270,13 +242,25 @@ class ESSearchIndexer
         }
     }
 
-    private function flushDependenciesStack(int $depth): void
+    private function addToParents(string $class, string $id): void
+    {
+        $this->dependenciesParents[$class][$id] = true;
+    }
+
+    public function flushDependenciesStack(int $depth): void
     {
         if (!empty($this->dependenciesStack)) {
+            $parents = array_map(fn (array $list): array => array_keys($list), $this->dependenciesParents);
             $objects = $this->dependenciesStack;
             $this->dependenciesStack = [];
+            $this->dependenciesParents = [];
             $this->dependenciesCount = 0;
-            $this->scheduleIndex($objects, $depth + 1);
+            $this->scheduleIndex($objects, $depth + 1, $parents);
         }
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 }

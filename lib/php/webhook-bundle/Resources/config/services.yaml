@@ -37,9 +37,3 @@ services:
     class: Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilder
 
   Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface: '@alchemy_webhook.normalizer.context_builder'
-
-  Alchemy\WebhookBundle\Listener\TerminateStackListener:
-    tags:
-      - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
-      - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
-      - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }

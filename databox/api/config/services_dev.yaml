@@ -4,11 +4,3 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    App\Elasticsearch\ESSearchIndexer:
-        arguments:
-            $direct: true
-        tags:
-            - { name: kernel.event_listener, event: kernel.terminate, method: flush, priority: -255 }
-            - { name: kernel.event_listener, event: console.terminate, method: flush, priority: -255 }
-            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: flush, priority: -255 }

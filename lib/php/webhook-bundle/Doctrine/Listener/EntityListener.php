@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Doctrine\Listener;
 
+use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\WebhookBundle\Config\EntityRegistry;
 use Alchemy\WebhookBundle\Consumer\SerializeObjectHandler;
 use Alchemy\WebhookBundle\Consumer\WebhookHandler;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
-use Alchemy\WebhookBundle\Listener\TerminateStackListener;
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Collections\Collection;
@@ -36,8 +36,12 @@ class EntityListener implements EventSubscriber
         self::$enabled = false;
     }
 
-    public function __construct(private readonly EntitySerializer $entitySerializer, private readonly EntityRegistry $entityRegistry, private readonly TerminateStackListener $terminateStackListener, private readonly WebhookTrigger $webhookTrigger)
-    {
+    public function __construct(
+        private readonly EntitySerializer $entitySerializer,
+        private readonly EntityRegistry $entityRegistry,
+        private readonly TerminateStackListener $terminateStackListener,
+        private readonly WebhookTrigger $webhookTrigger,
+    ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
@@ -47,7 +51,7 @@ class EntityListener implements EventSubscriber
         }
 
         $this->changes = [];
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
         foreach ($uow->getScheduledEntityInsertions() as $insertedEntity) {
             $configNode = $this->entityRegistry->getConfigNodeForEvent($insertedEntity::class, self::EVENT_CREATE);

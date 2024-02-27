@@ -7,11 +7,11 @@ namespace App\Listener;
 use Alchemy\AclBundle\Event\AclDeleteEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
 use App\Consumer\Handler\Search\IndexAllAssetsHandler;
 use App\Consumer\Handler\Search\IndexAllCollectionsHandler;
 use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
-use App\Elasticsearch\ESSearchIndexer;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -24,7 +24,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 readonly class AclListener
 {
     public function __construct(
-        private ESSearchIndexer $searchIndexer,
+        private SearchIndexer $searchIndexer,
         private ObjectMapping $objectMapping,
         private EventProducer $eventProducer,
         private TagAwareCacheInterface $collectionCache,
@@ -65,7 +65,7 @@ readonly class AclListener
                 'id' => $objectId,
             ]));
         } else {
-            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], ESSearchIndexer::ACTION_UPSERT);
+            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], SearchIndexer::ACTION_UPSERT);
         }
     }
 }

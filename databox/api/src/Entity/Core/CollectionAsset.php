@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use App\Entity\AbstractUuidEntity;
-use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;

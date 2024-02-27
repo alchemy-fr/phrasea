@@ -1,0 +1,10 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\MessengerBundle\Controller\MessengerMessageCrudController:
+        public: true
+
+    Alchemy\MessengerBundle\Listener\PostFlushStack: ~
+    Alchemy\MessengerBundle\Listener\TerminateStackListener: ~

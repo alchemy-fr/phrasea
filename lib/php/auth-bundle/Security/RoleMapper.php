@@ -13,6 +13,7 @@ final readonly class RoleMapper
         private array $mapping = [
             'super-admin' => SuperAdminVoter::ROLE,
             'admin' => JwtUser::ROLE_ADMIN,
+            'tech' => JwtUser::ROLE_TECH,
         ],
     )
     {

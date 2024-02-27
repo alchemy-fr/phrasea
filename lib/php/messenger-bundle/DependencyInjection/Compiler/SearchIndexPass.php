@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\DependencyInjection\Compiler;
+namespace Alchemy\MessengerBundle\DependencyInjection\Compiler;
 
-use App\Elasticsearch\ESSearchIndexer;
+use Alchemy\MessengerBundle\Indexer\IndexPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,20 +14,26 @@ class SearchIndexPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition(ESSearchIndexer::class)) {
+        if (!$container->hasDefinition(IndexPersister::class)) {
             return;
         }
 
-        $service = $container->getDefinition(ESSearchIndexer::class);
+        $service = $container->getDefinition(IndexPersister::class);
         $taggedServices = $container->findTaggedServiceIds('fos_elastica.persister');
 
+        $persisters = [];
         /** @var string|ObjectPersisterInterface $id */
         foreach ($taggedServices as $id => $tags) {
             $def = $container->getDefinition($id);
             if ($def->isAbstract()) {
                 continue;
             }
-            $service->addMethodCall('addObjectPersister', [$def->getArgument('index_2'), new Reference($id)]);
+
+            $class = $def->getArgument('index_2');
+            $persisters[$class] ??= [];
+            $persisters[$class][] = new Reference($id);
         }
+
+        $service->setArgument('$persisters', $persisters);
     }
 }

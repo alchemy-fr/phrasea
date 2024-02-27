@@ -125,6 +125,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         'enabled' => false,
                     ],
                 ],
+                'messenger' => [
+                    'capture_soft_fails' =>  false,
+                ],
                 'options' => [
                     'environment' => '%env(SENTRY_ENVIRONMENT)%',
                     'release' => '%env(SENTRY_RELEASE)%',

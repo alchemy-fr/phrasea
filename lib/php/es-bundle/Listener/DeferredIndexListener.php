@@ -2,28 +2,37 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\Listener;
+namespace Alchemy\ESBundle\Listener;
 
-use App\Elasticsearch\ESSearchIndexer;
-use App\Entity\ESIndexableInterface;
-use App\Entity\SearchableEntityInterface;
-use App\Entity\SearchDeleteDependencyInterface;
-use App\Entity\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableInterface;
+use Alchemy\ESBundle\Indexer\SearchDeleteDependencyInterface;
+use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
 #[AsDoctrineListener(Events::preRemove)]
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
-class DeferredIndexListener implements EventSubscriber
+#[AsDoctrineListener(Events::postFlush)]
+#[AsEventListener(KernelEvents::TERMINATE, 'flush', priority: -255)]
+#[AsEventListener(ConsoleEvents::TERMINATE, 'flush', priority: -255)]
+#[AsEventListener(WorkerMessageHandledEvent::class, 'flush', priority: -255)]
+final class DeferredIndexListener
 {
     private static bool $enabled = true;
 
@@ -42,24 +51,17 @@ class DeferredIndexListener implements EventSubscriber
      */
     private array $scheduledForDeletion = [];
 
-    public function __construct(private readonly ESSearchIndexer $searchIndexer)
-    {
-    }
-
-    public function scheduleForUpdate(object $entity): void
-    {
-        $this->scheduledForUpdate[] = $entity;
-    }
-
-    public function flush(): void
-    {
-        $this->persistScheduled();
+    public function __construct(
+        private readonly SearchIndexer $searchIndexer,
+        private readonly Connection $connection,
+    ) {
+        $this->connection->getEventManager()->addEventListener(\Doctrine\DBAL\Events::onTransactionRollBack, $this);
     }
 
     private function handlesEntity(object $entity): bool
     {
         return $entity instanceof SearchDependencyInterface
-            || $entity instanceof SearchableEntityInterface
+            || $entity instanceof ESIndexableInterface
             || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass($entity::class));
     }
 
@@ -117,6 +119,28 @@ class DeferredIndexListener implements EventSubscriber
         }
     }
 
+    public function onTransactionRollBack(TransactionRollBackEventArgs $args): void
+    {
+        $this->scheduledForDeletion = [];
+        $this->scheduledForInsertion = [];
+        $this->scheduledForUpdate = [];
+    }
+
+    public function postFlush(PostFlushEventArgs $args): void
+    {
+        $em = $args->getObjectManager();
+        if ($em->getConnection()->getTransactionNestingLevel() > 0) {
+            return;
+        }
+
+        $this->flush();
+    }
+
+    public function flush(): void
+    {
+        $this->persistScheduled();
+    }
+
     public function onFlush(OnFlushEventArgs $args): void
     {
         $uow = $args->getObjectManager()->getUnitOfWork();
@@ -141,11 +165,11 @@ class DeferredIndexListener implements EventSubscriber
         $objects = [];
 
         if (!empty($this->scheduledForInsertion)) {
-            ESSearchIndexer::computeObjects($objects, $this->scheduledForInsertion, ESSearchIndexer::ACTION_INSERT);
+            SearchIndexer::computeObjects($objects, $this->scheduledForInsertion, SearchIndexer::ACTION_INSERT);
             $this->scheduledForInsertion = [];
         }
         if (!empty($this->scheduledForUpdate)) {
-            ESSearchIndexer::computeObjects($objects, $this->scheduledForUpdate, ESSearchIndexer::ACTION_UPSERT);
+            SearchIndexer::computeObjects($objects, $this->scheduledForUpdate, SearchIndexer::ACTION_UPSERT);
             $this->scheduledForUpdate = [];
         }
         if (!empty($this->scheduledForDeletion)) {
@@ -153,7 +177,7 @@ class DeferredIndexListener implements EventSubscriber
                 if (!isset($objects[$class])) {
                     $objects[$class] = [];
                 }
-                $objects[$class][ESSearchIndexer::ACTION_DELETE] = $ids;
+                $objects[$class][SearchIndexer::ACTION_DELETE] = $ids;
             }
             $this->scheduledForDeletion = [];
         }
@@ -197,16 +221,6 @@ class DeferredIndexListener implements EventSubscriber
         }
 
         return true;
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::preRemove,
-            Events::postUpdate,
-            Events::postPersist,
-            Events::onFlush,
-        ];
     }
 
     public static function disable(): void

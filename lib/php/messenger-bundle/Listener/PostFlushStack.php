@@ -2,24 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Doctrine\Listener;
+namespace Alchemy\MessengerBundle\Listener;
 
-use App\Listener\TerminateStackListener;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
 #[AsDoctrineListener(Events::postFlush)]
-class PostFlushStackListener implements EventSubscriber
+final class PostFlushStack
 {
     private array $callbacks = [];
+    private array $messages = [];
     private array $events = [];
+
     private EventProducer $eventProducer;
-    private TerminateStackListener $terminateStackListener;
+
+    public function __construct(
+        private readonly MessageBusInterface $bus,
+        private readonly TerminateStackListener $terminateStackListener,
+    ) {
+    }
 
     #[Required]
     public function setEventProducer(EventProducer $eventProducer)
@@ -27,43 +33,46 @@ class PostFlushStackListener implements EventSubscriber
         $this->eventProducer = $eventProducer;
     }
 
-    #[Required]
-    public function setTerminateStackListener(TerminateStackListener $terminateStackListener)
-    {
-        $this->terminateStackListener = $terminateStackListener;
-    }
-
     public function addCallback(callable $callback): void
     {
         $this->callbacks[] = $callback;
     }
 
+    public function addBusMessage(object $message): void
+    {
+        $this->messages[] = $message;
+    }
+
+    /**
+     * @deprecated Use addBusMessage instead.
+     */
     public function addEvent(EventMessage $eventMessage): void
     {
         $this->events[] = $eventMessage;
     }
 
-    public function clearEvents(): void
+    public function rollback(): void
     {
-        $this->events = [];
+        $this->callbacks = [];
+        $this->messages = [];
+        $this->terminateStackListener->rollback();
     }
 
     public function postFlush(PostFlushEventArgs $args): void
     {
         $callbacks = $this->callbacks;
-        $events = $this->events;
-
         $this->callbacks = [];
-        $this->events = [];
+        $messages = $this->messages;
+        $this->messages = [];
 
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
         if ($em->getConnection()->getTransactionNestingLevel() > 0) {
             while ($callback = array_shift($callbacks)) {
                 $this->terminateStackListener->addCallback($callback);
             }
 
-            while ($event = array_shift($events)) {
-                $this->terminateStackListener->addEvent($event);
+            while ($message = array_shift($messages)) {
+                $this->terminateStackListener->addBusMessage($message);
             }
 
             return;
@@ -73,15 +82,8 @@ class PostFlushStackListener implements EventSubscriber
             $callback();
         }
 
-        while ($event = array_shift($events)) {
-            $this->eventProducer->publish($event);
+        while ($message = array_shift($messages)) {
+            $this->bus->dispatch($message);
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postFlush,
-        ];
     }
 }

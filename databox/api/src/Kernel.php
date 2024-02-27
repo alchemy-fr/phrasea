@@ -3,7 +3,6 @@
 namespace App;
 
 use App\DependencyInjection\Compiler\RemoveUnwantedAutoWiredServicesPass;
-use App\DependencyInjection\Compiler\SearchIndexPass;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -29,7 +28,6 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         parent::build($container);
-        $container->addCompilerPass(new SearchIndexPass());
         $container->addCompilerPass(new RemoveUnwantedAutoWiredServicesPass());
     }
 }

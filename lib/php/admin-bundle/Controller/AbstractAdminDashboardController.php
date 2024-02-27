@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\AdminConfigRegistry;
+use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\MessengerBundle\Entity\MessengerMessage;
+use App\Configurator\Vendor\Keycloak\KeycloakInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;
@@ -52,11 +55,14 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     protected function createDevMenu(string $failedEventClass): SubMenuItem
     {
         $submenu2 = [
-            MenuItem::linkToCrud('FailedEvent', '', $failedEventClass)->setPermission('ROLE_TECH'),
-            MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo')->setPermission('ROLE_TECH'),
+            MenuItem::linkToCrud('FailedEvent', '', $failedEventClass)->setPermission(JwtUser::ROLE_TECH),
         ];
+        if (class_exists(MessengerMessage::class)) {
+            $submenu2[] = MenuItem::linkToCrud('Messenger Failed Events', null, MessengerMessage::class);
+        }
+        $submenu2[] = MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
 
-        return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission('ROLE_TECH');
+        return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission(JwtUser::ROLE_TECH);
     }
 
     #[Required]

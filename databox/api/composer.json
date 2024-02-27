@@ -56,6 +56,20 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/es-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/messenger-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
@@ -107,6 +121,8 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
+        "alchemy/es-bundle": "@dev",
+        "alchemy/messenger-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/storage-bundle": "*",

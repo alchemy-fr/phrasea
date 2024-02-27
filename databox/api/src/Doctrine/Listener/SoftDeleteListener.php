@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\Collection\DeleteCollectionHandler;
 use App\Consumer\Handler\Workspace\DeleteWorkspaceHandler;
 use App\Entity\Core\Collection;

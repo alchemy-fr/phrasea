@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
 use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
 use App\Entity\Core\Collection;

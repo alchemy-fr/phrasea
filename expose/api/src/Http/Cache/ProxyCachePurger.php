@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Cache;
 
-use App\Listener\TerminateStackListener;
+use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use GuzzleHttp\Client;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
