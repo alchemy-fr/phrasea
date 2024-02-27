@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;

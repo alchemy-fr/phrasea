@@ -91,5 +91,9 @@ final class PostFlushStack
         while ($message = array_shift($messages)) {
             $this->bus->dispatch($message);
         }
+
+        while ($event = array_shift($events)) {
+            $this->eventProducer->publish($event);
+        }
     }
 }
