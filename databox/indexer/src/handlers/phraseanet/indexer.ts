@@ -28,11 +28,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         logger.info(`Fetching databoxes and collections`);
         for(const db of await client.getDataboxes()) {
             db.collections = {};
+            db.baseIds = [];
             databoxIndex[db.name] = databoxIndex[db.databox_id.toString()] = db;
         }
         for(const c of await client.getCollections()) {
             databoxIndex[c.databox_id.toString()].collections[c.base_id.toString()] =
-                databoxIndex[c.databox_id.toString()].collections[c.name] = c
+                databoxIndex[c.databox_id.toString()].collections[c.name] = c;
+            databoxIndex[c.databox_id.toString()].baseIds.push(c.base_id.toString());
         }
 
         const databoxMapping: ConfigDataboxMapping[] = getStrict(
@@ -86,6 +88,11 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         continue;
                     }
                     sourceCollections.push(collection.base_id.toString());
+                }
+            }
+            if(sourceCollections.length === 0) {
+                for(const baseId of databox.baseIds) {
+                    sourceCollections.push(baseId);
                 }
             }
 
@@ -231,6 +238,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 do {
                     stories = await client.searchStories(searchParams, offset, "");
                     for (const s of stories) {
+
                         const storyCollId = await databoxClient.createCollection(
                             s.resource_id,
                             {
