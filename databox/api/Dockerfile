@@ -61,11 +61,17 @@ ENV PHP_MEMORY_LIMIT=1G
 
 RUN apk add --no-cache \
         supervisor \
-        perl \
     && mkdir -p /var/log/supervisor \
     && chown -R app: /var/log/supervisor \
-    && docker-php-ext-install pcntl
+    && docker-php-ext-configure pcntl --enable-pcntl \
+    && docker-php-ext-install \
+      pcntl
 
 COPY ./databox/api/docker/supervisor/* /etc/supervisor.d/
 
-CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]
+ENTRYPOINT ["/srv/app/docker/worker/docker-entrypoint.sh"]
+
+ENV WORKER_TIME_LIMIT=3600 \
+	WORKER_LIMIT=200
+
+CMD ["/usr/bin/supervisord", "-n"]

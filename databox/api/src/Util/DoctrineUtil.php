@@ -6,6 +6,7 @@ namespace App\Util;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class DoctrineUtil
 {
@@ -16,11 +17,15 @@ class DoctrineUtil
      *
      * @return T
      */
-    public static function findStrict(EntityManagerInterface $entityManager, string $class, string $id): object
-    {
+    public static function findStrict(
+        EntityManagerInterface $entityManager,
+        string $class,
+        string $id,
+        bool $throw404 = false,
+    ): object {
         $object = $entityManager->find($class, $id);
 
-        return $object ?? throw new \InvalidArgumentException(sprintf('%s %s not found', $class, $id));
+        return $object ?? self::throwNotFound($class, $id, $throw404);
     }
 
     /**
@@ -30,10 +35,20 @@ class DoctrineUtil
      *
      * @return T
      */
-    public static function findStrictByRepo(EntityRepository $repo, string $id): object
+    public static function findStrictByRepo(EntityRepository $repo, string $id, bool $throw404 = false): object
     {
         $object = $repo->find($id);
 
-        return $object ?? throw new \InvalidArgumentException(sprintf('%s %s not found', $repo->getClassName(), $id));
+        return $object ?? self::throwNotFound($repo->getClassName(), $id, $throw404);
+    }
+
+    private static function throwNotFound(string $class, string $id, bool $throw404): never
+    {
+        $error = sprintf('%s %s not found', $class, $id);
+        if ($throw404) {
+            throw new NotFoundHttpException($error);
+        }
+
+        throw new \InvalidArgumentException($error);
     }
 }

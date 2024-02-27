@@ -2,6 +2,6 @@
 
 namespace Alchemy\ESBundle\Indexer;
 
-interface SearchDependencyInterface
+interface ESIndexableDependencyInterface
 {
 }

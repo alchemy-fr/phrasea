@@ -4,7 +4,7 @@ parameters:
         read_timeout: 3
         write_timeout: 3
         heartbeat: 0
-    messenger_transport_dsn: 'amqp://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%%env(RABBITMQ_VHOST)%'
+    messenger_transport_dsn: 'amqp://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%/%env(RABBITMQ_VHOST)%'
 
 framework:
     messenger:
@@ -19,16 +19,10 @@ framework:
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             p1:
-                dsn: '%messenger_transport_dsn%%2f/p1'
+                dsn: '%messenger_transport_dsn%/p1'
                 options: '%rabbitmq_connect_options%'
             p2:
-                dsn: '%messenger_transport_dsn%%2f/p2'
-                options: '%rabbitmq_connect_options%'
-            p3:
-                dsn: '%messenger_transport_dsn%%2f/p3'
-                options: '%rabbitmq_connect_options%'
-            p4:
-                dsn: '%messenger_transport_dsn%%2f/p4'
+                dsn: '%messenger_transport_dsn%/p2'
                 options: '%rabbitmq_connect_options%'
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
@@ -46,7 +40,5 @@ when@dev: &dev
             transports:
                 p1: 'sync://'
                 p2: 'sync://'
-                p3: 'sync://'
-                p4: 'sync://'
 
 when@test: *dev

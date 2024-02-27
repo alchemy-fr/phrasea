@@ -6,10 +6,14 @@ namespace Alchemy\CoreBundle\Health\Checker;
 
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Predis\Client;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class PredisConnectionChecker implements HealthCheckerInterface
 {
-    public function __construct(private Client $client)
+    public function __construct(
+        #[Autowire(service: 'alchemy_core.redis')]
+        private Client $client
+    )
     {
     }
 

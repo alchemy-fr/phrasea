@@ -6,8 +6,8 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
-use Alchemy\ESBundle\Indexer\SearchDeleteDependencyInterface;
-use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -93,7 +93,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -340,7 +340,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         $this->hasChildren = $hasChildren;
     }
 
-    public function getSearchDeleteDependencies(): array
+    public function getIndexableDeleteDependencies(): array
     {
         if ($this->parent) {
             return [$this->parent];

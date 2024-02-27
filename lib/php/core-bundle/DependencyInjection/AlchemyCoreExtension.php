@@ -4,6 +4,7 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
+use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -75,6 +76,10 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         if (!isset($bundles['OldSoundRabbitMqBundle'])) {
             $container->removeDefinition(RabbitMQConnectionChecker::class);
         }
+
+        $container->registerForAutoconfiguration(HealthCheckerInterface::class)
+            ->addTag(HealthCheckerInterface::TAG)
+        ;
     }
 
     private function loadSentry(ContainerBuilder $container): void

@@ -64,6 +64,8 @@ final class PostFlushStack
         $this->callbacks = [];
         $messages = $this->messages;
         $this->messages = [];
+        $events = $this->events;
+        $this->events = [];
 
         $em = $args->getObjectManager();
         if ($em->getConnection()->getTransactionNestingLevel() > 0) {
@@ -84,6 +86,10 @@ final class PostFlushStack
 
         while ($message = array_shift($messages)) {
             $this->bus->dispatch($message);
+        }
+
+        while ($event = array_shift($events)) {
+            $this->eventProducer->publish($event);
         }
     }
 }

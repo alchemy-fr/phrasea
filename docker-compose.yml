@@ -311,6 +311,8 @@ services:
     image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
     build:
       target: worker
+    environment:
+      - WORKER_PRIORITIES=p1
 
   expose-api-nginx:
     profiles:
@@ -696,6 +698,7 @@ services:
       target: worker
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
+      - WORKER_PRIORITIES=p1 p2
 
   databox-api-nginx:
     profiles:

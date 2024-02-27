@@ -65,6 +65,20 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->getResult();
     }
 
+    /**
+     * @return Attribute[]
+     */
+    public function getAssetAttributeIdsIterator(string $assetId): iterable
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->select('a.id')
+            ->andWhere('a.asset = :asset')
+            ->setParameter('asset', $assetId)
+            ->getQuery()
+            ->toIterable();
+    }
+
     public function getESQueryBuilder(): QueryBuilder
     {
         $types = array_map(

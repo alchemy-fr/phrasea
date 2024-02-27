@@ -27,10 +27,12 @@ class AssetRepository extends EntityRepository
     /**
      * @return Asset[]
      */
-    public function getCollectionAssetsIterator(string $collectionId): iterable
+    public function getCollectionAssetIdsIterator(string $collectionId): iterable
     {
         return $this
             ->createQueryBuilder('a')
+            ->distinct()
+            ->select('a.id')
             ->innerJoin('a.collections', 'ac')
             ->andWhere('ac.collection = :c')
             ->setParameter('c', $collectionId)

@@ -19,12 +19,14 @@ trait SearchDependencyResolverTrait
 
     public function addToParents(string $class, string $id): void
     {
-        $this->addToParentsClosure->call($this, $class, $id);
+        $closure = $this->addToParentsClosure;
+        $closure($class, $id);
     }
 
     public function addDependency(string $class, string $id): void
     {
-        $this->addDependencyClosure->call($this, $class, $id);
+        $closure = $this->addDependencyClosure;
+        $closure($class, $id);
     }
 
     protected function appendDependencyIterator(string $class, iterable $iterator): void

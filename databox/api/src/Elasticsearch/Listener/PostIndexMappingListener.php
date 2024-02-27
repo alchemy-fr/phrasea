@@ -11,10 +11,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostIndexMappingBuildEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class PostIndexMappingListener implements EventSubscriberInterface
+readonly class PostIndexMappingListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly IndexMappingUpdater $indexMappingUpdater)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private IndexMappingUpdater $indexMappingUpdater,
+    ) {
     }
 
     public function configureIndex(PostIndexMappingBuildEvent $event): void

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Health;
 
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(self::TAG)]

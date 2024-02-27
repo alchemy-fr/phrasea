@@ -5,7 +5,7 @@ namespace Alchemy\ESBundle\Indexer;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 #[AutoconfigureTag(self::TAG)]
-interface SearchDependenciesResolverInterface
+interface IndexableDependenciesResolverInterface
 {
     final public const TAG = 'alchemy_es.dependency_resolver';
 
@@ -13,5 +13,5 @@ interface SearchDependenciesResolverInterface
 
     public function setAddDependencyClosure(\Closure $closure): void;
 
-    public function updateDependencies(SearchDependencyInterface $object): void;
+    public function updateDependencies(ESIndexableDependencyInterface $object): void;
 }

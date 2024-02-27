@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_coll_asset', columns: ['collection_id', 'asset_id'])]
 #[ORM\Entity(repositoryClass: CollectionAssetRepository::class)]
-class CollectionAsset extends AbstractUuidEntity implements SearchDependencyInterface, \Stringable
+class CollectionAsset extends AbstractUuidEntity implements ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
 

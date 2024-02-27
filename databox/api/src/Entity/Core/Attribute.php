@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use Alchemy\ESBundle\Indexer\SearchDeleteDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -57,7 +57,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
-class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
+class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {
     final public const GROUP_READ = 'attr:read';
     final public const GROUP_LIST = 'attr:index';
@@ -277,7 +277,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         $this->confidence = $confidence;
     }
 
-    public function getSearchDeleteDependencies(): array
+    public function getIndexableDeleteDependencies(): array
     {
         return [
             $this->getAsset(),

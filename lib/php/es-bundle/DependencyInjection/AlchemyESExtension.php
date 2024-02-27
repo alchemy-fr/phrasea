@@ -2,6 +2,7 @@
 
 namespace Alchemy\ESBundle\DependencyInjection;
 
+use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -25,5 +26,9 @@ class AlchemyESExtension extends Extension
 
         $def = $container->getDefinition(SearchIndexer::class);
         $def->setArgument('$direct', !$config['async']);
+
+        $container->registerForAutoconfiguration(IndexableDependenciesResolverInterface::class)
+            ->addTag(IndexableDependenciesResolverInterface::TAG)
+        ;
     }
 }

@@ -32,7 +32,6 @@ class AttributeSearchTest extends TestCase
             $fieldNameResolver,
             $this->createMock(EntityManagerInterface::class),
             $attributeTypeRegistry,
-            $this->createMock(AssetTitleResolver::class)
         );
 
         $clusters = $as->createClustersFromDefinitions($definitions);

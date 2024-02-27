@@ -2,8 +2,8 @@
 
 namespace App\Elasticsearch;
 
-use Alchemy\ESBundle\Indexer\SearchDependenciesResolverInterface;
-use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\SearchDependencyResolverTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -11,7 +11,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AppSearchDependencyResolver implements SearchDependenciesResolverInterface
+class AppIndexableDependencyResolver implements IndexableDependenciesResolverInterface
 {
     use SearchDependencyResolverTrait;
 
@@ -19,18 +19,26 @@ class AppSearchDependencyResolver implements SearchDependenciesResolverInterface
     {
     }
 
-    public function updateDependencies(SearchDependencyInterface $object): void
+    public function updateDependencies(ESIndexableDependencyInterface $object): void
     {
         if ($object instanceof Collection) {
             $this->appendDependencyIterator(
                 Asset::class,
                 $this->em->getRepository(Asset::class)
-                    ->getCollectionAssetsIterator($object->getId())
+                    ->getCollectionAssetIdsIterator($object->getId())
             );
         } elseif ($object instanceof CollectionAsset) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
         } elseif ($object instanceof Attribute) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
+        } elseif ($object instanceof Asset) {
+            $this->addToParents($object::class, $object);
+
+            $this->appendDependencyIterator(
+                Attribute::class,
+                $this->em->getRepository(Attribute::class)
+                    ->getAssetAttributeIdsIterator($object->getId())
+            );
         }
     }
 }

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\ESBundle\Listener;
 
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
-use Alchemy\ESBundle\Indexer\SearchDeleteDependencyInterface;
-use Alchemy\ESBundle\Indexer\SearchDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Util\ClassUtils;
@@ -60,7 +60,7 @@ final class DeferredIndexListener
 
     private function handlesEntity(object $entity): bool
     {
-        return $entity instanceof SearchDependencyInterface
+        return $entity instanceof ESIndexableDependencyInterface
             || $entity instanceof ESIndexableInterface
             || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass($entity::class));
     }
@@ -205,8 +205,8 @@ final class DeferredIndexListener
 
         $this->scheduledForDeletion[$class][] = $entity->getId();
 
-        if ($entity instanceof SearchDeleteDependencyInterface) {
-            foreach ($entity->getSearchDeleteDependencies() as $dep) {
+        if ($entity instanceof ESIndexableDeleteDependencyInterface) {
+            foreach ($entity->getIndexableDeleteDependencies() as $dep) {
                 if (!in_array($dep, $this->scheduledForUpdate, true)) {
                     $this->scheduledForUpdate[] = $dep;
                 }

@@ -32,13 +32,15 @@ final class SearchIndexer
     private array $dependenciesParents = [];
     private int $dependenciesCount = 0;
 
+    /**
+     * @param IndexableDependenciesResolverInterface[] $dependenciesResolvers
+     */
     public function __construct(
         private readonly MessageBusInterface $messageBus,
         private readonly EntityManagerInterface $em,
         private LoggerInterface $logger,
         private readonly IndexPersister $indexPersister,
-        /** @var SearchDependenciesResolverInterface[] $dependenciesResolvers */
-        #[TaggedIterator(SearchDependenciesResolverInterface::TAG)]
+        #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
     ) {
@@ -87,9 +89,6 @@ final class SearchIndexer
                 $chunks = array_chunk($ids, self::BATCH_SIZE);
                 foreach ($chunks as $chunk) {
                     $this->indexClass($class, $chunk, $operation, $depth, $objects, $parents);
-                    if (!$this->direct) {
-                        $this->em->clear();
-                    }
                 }
             }
         }
@@ -134,7 +133,7 @@ final class SearchIndexer
                 }
 
                 foreach ($objects as $object) {
-                    if ($object instanceof SearchDependencyInterface) {
+                    if ($object instanceof ESIndexableDependencyInterface) {
                         $this->updateDependencies($object, $depth, $currentBatch, $parents);
                     }
                 }
@@ -143,11 +142,13 @@ final class SearchIndexer
         }
     }
 
-    private function updateDependencies(SearchDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
+    private function updateDependencies(ESIndexableDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
     {
-        /** @var SearchDependenciesResolverInterface $resolver */
+        /** @var IndexableDependenciesResolverInterface $resolver */
         foreach ($this->dependenciesResolvers as $resolver) {
-            $resolver->setAddToParentsClosure(fn (string $class, string $id) => $this->addToParents($class, $id));
+            $resolver->setAddToParentsClosure(function (string $class, string $id): void {
+                $this->addToParents($class, $id);
+            });
             $resolver->setAddDependencyClosure(
                 fn (string $class, string $id) => $this->addDependency($class, $id, $depth, $currentBatch, $parents)
             );
@@ -161,6 +162,8 @@ final class SearchIndexer
         $i = 0;
         while (!empty($this->dependenciesStack)) {
             $this->flushDependenciesStack(0);
+            $this->dependenciesParents = [];
+
             ++$i;
 
             if ($i++ > 100) {
@@ -215,12 +218,8 @@ final class SearchIndexer
             return;
         }
 
-        if (!isset($this->dependenciesStack[$class])) {
-            $this->dependenciesStack[$class] = [];
-        }
-        if (!isset($this->dependenciesStack[$class][self::ACTION_UPSERT])) {
-            $this->dependenciesStack[$class][self::ACTION_UPSERT] = [];
-        }
+        $this->dependenciesStack[$class] ??= [];
+        $this->dependenciesStack[$class][self::ACTION_UPSERT] ??= [];
 
         if (!in_array($id, $this->dependenciesStack[$class][self::ACTION_UPSERT], true)) {
             $this->dependenciesStack[$class][self::ACTION_UPSERT][] = $id;
@@ -237,7 +236,7 @@ final class SearchIndexer
         $this->dependenciesParents[$class][$id] = true;
     }
 
-    public function flushDependenciesStack(int $depth): void
+    private function flushDependenciesStack(int $depth): void
     {
         if (!empty($this->dependenciesStack)) {
             $parents = array_map(fn (array $list): array => array_keys($list), $this->dependenciesParents);
