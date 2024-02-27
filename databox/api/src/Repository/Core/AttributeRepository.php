@@ -8,18 +8,16 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-
 
 class AttributeRepository extends ServiceEntityRepository implements AttributeRepositoryInterface
 {
     public function __construct(
         ManagerRegistry $registry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
-    )
-    {
+    ) {
         parent::__construct($registry, Attribute::class);
     }
 

@@ -29,7 +29,7 @@ class WebhookCrudController extends AbstractAdminCrudController
     {
         $id = IdField::new();
         $url = TextField::new('url', 'URL');
-        $events = eventsChoiceField::new('events');
+        $events = EventsChoiceField::new('events');
         $verifySSL = Field::new('verifySSL', 'Verify SSL');
         $secret = TextField::new('secret');
         $timeout = Field::new('timeout');

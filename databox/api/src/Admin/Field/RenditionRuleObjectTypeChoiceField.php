@@ -9,7 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class RenditionRuleObjectTypeChoiceField
 {
-    public static function new(string $propertyName, string $label = null): ChoiceField
+    public static function new(string $propertyName, ?string $label = null): ChoiceField
     {
         $choices = [];
         foreach ([

@@ -28,7 +28,7 @@ readonly class AssetManager
         Asset $asset,
         File $file,
         ?array $formData = [],
-        string $locale = null
+        ?string $locale = null
     ): void {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
             throw new \InvalidArgumentException('Asset and File are not in the same workspace');

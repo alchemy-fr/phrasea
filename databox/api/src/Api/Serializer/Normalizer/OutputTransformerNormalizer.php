@@ -30,13 +30,13 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         private readonly NormalizerInterface $decorated,
         #[TaggedIterator('api.output_transformer')]
         iterable $transformers,
-        ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
+        ?ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
     ) {
         $this->transformers = $transformers;
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
-    public function normalize(mixed $object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         if (is_object($object) && !is_iterable($object)) {
             if (null !== $outputClass = $this->getOutputClass($object)) {
@@ -107,7 +107,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 
-    public function denormalize($data, string $type, string $format = null, array $context = [])
+    public function denormalize($data, string $type, ?string $format = null, array $context = [])
     {
         return $this->decorated->denormalize($data, $type, $format, $context);
     }

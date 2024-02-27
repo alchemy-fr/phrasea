@@ -41,7 +41,7 @@ readonly class AclListener
         $this->reIndexAsset($event->getObjectType(), $event->getObjectId());
     }
 
-    private function reIndexAsset(string $objectType, string $objectId = null): void
+    private function reIndexAsset(string $objectType, ?string $objectId = null): void
     {
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 

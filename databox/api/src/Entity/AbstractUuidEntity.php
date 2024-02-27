@@ -20,7 +20,7 @@ abstract class AbstractUuidEntity
     #[ApiProperty(identifier: true)]
     private UuidInterface|string $id;
 
-    public function __construct(string|UuidInterface $id = null)
+    public function __construct(string|UuidInterface|null $id = null)
     {
         if (null !== $id) {
             if ($id instanceof UuidInterface) {

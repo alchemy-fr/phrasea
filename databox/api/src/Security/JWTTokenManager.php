@@ -18,7 +18,7 @@ class JWTTokenManager
     {
     }
 
-    public function createToken(string $string, int $ttl = null): string
+    public function createToken(string $string, ?int $ttl = null): string
     {
         $config = $this->getConfig();
         $token = $config->builder()

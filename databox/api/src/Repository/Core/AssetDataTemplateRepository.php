@@ -9,13 +9,11 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
-
 class AssetDataTemplateRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
-    )
-    {
+    ) {
         parent::__construct($registry, AssetDataTemplate::class);
     }
 

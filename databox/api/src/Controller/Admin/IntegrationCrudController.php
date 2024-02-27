@@ -45,7 +45,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
 <br/>asset.getCreatedAt() > date(\'2000-01-01\')
 ');
         $integration = $this->integrationChoiceField->create('integration');
-        $optionsYaml = TextAreaField::new('optionsYaml');
+        $optionsYaml = TextareaField::new('optionsYaml');
         $enabled = Field::new('enabled');
         $id = IdField::new();
         $config = JsonField::new('config');
