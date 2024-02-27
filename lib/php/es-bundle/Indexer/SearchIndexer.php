@@ -127,11 +127,6 @@ final class SearchIndexer
                     $this->logger->alert(sprintf('Some %s documents were not found for index', $class));
                 }
 
-                $objects = $this->filterObjects($class, $objects); // TODO rely on is_indexable_callback
-                if (empty($objects)) {
-                    return;
-                }
-
                 if (self::ACTION_INSERT === $operation) {
                     $this->indexPersister->insertMany($class, $objects);
                 } else {
@@ -146,11 +141,6 @@ final class SearchIndexer
 
                 break;
         }
-    }
-
-    private function filterObjects(string $class, array $objects): array
-    {
-        return $objects;
     }
 
     private function updateDependencies(SearchDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
