@@ -229,7 +229,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const searchParams = {
                 bases: sourceCollections,     // if empty (no collections on config) : search all collections
             };
-            console.log("-------------------------- ", searchParams);
 
             logger.info(`Fetching stories`);
             const recordStories: Record<string, string[]> = {};   // key: record_id ; values: story_id's
@@ -239,13 +238,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 do {
                     stories = await client.searchStories(searchParams, offset, "");
                     for (const s of stories) {
-
-                        if(databox.collections[s.base_id] === undefined) {
-                            logger.info(`=================== ${s.base_id} ==================`);
-                            console.log(s);
-                        //    continue;
-                            // console.log(databox.collections);
-                        }
 
                         const storyCollId = await databoxClient.createCollection(
                             s.resource_id,
