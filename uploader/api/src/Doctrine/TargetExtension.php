@@ -18,7 +18,7 @@ final class TargetExtension implements QueryCollectionExtensionInterface, QueryI
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null
+        ?string $operationName = null
     ): void {
         $this->apply($queryBuilder, $resourceClass);
     }
@@ -28,7 +28,7 @@ final class TargetExtension implements QueryCollectionExtensionInterface, QueryI
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         array $identifiers,
-        string $operationName = null,
+        ?string $operationName = null,
         array $context = []
     ) {
         $this->apply($queryBuilder, $resourceClass);

@@ -81,12 +81,12 @@ class PublicationConfig implements MergeableValueObjectInterface
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?\DateTimeImmutable $expiresAt = null;
 
-    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $terms;
 
-    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $downloadTerms;

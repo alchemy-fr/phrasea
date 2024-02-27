@@ -286,10 +286,9 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
-                "reference": "8905b5ba829df5585d87d96dc34623e01410cebd"
+                "reference": "4f248b6a6151ea54dbbd8a9272744998a85b27c4"
             },
             "require": {
-                "friendsofsymfony/elastica-bundle": "^6.3",
                 "php": "^8.2",
                 "symfony/framework-bundle": "^6.4",
                 "symfony/messenger": "^6.4"
@@ -322,10 +321,10 @@
             "license": [
                 "MIT"
             ],
-            "description": "Symfony ElasticSearch bundle",
+            "description": "Symfony Messenger bundle",
             "homepage": "https://www.alchemy.fr/",
             "keywords": [
-                "ElasticSearch"
+                "Messenger"
             ],
             "transport-options": {
                 "symlink": true,

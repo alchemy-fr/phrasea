@@ -18,7 +18,7 @@ final readonly class TargetDataProvider implements ProviderInterface
     ) {
     }
 
-    public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
+    public function supports(string $resourceClass, ?string $operationName = null, array $context = []): bool
     {
         return Target::class === $resourceClass && 'get' === $operationName;
     }

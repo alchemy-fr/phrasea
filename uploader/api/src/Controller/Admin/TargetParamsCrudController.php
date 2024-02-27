@@ -29,7 +29,7 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         $target = AssociationField::new('target');
-        $jsonData = TextAreaField::new('jsonData');
+        $jsonData = TextareaField::new('jsonData');
         $id = IdField::new();
         $data = JsonField::new('data');
         $createdAt = DateTimeField::new('createdAt');

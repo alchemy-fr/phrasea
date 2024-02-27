@@ -66,7 +66,7 @@ abstract class AbstractRouterNormalizer implements EntityNormalizerInterface
         return $this->assetUrlGenerator->generateSubDefinitionUrl($subDefinition, $download);
     }
 
-    protected function getDownloadViaEmailUrl(Asset $asset, string $subDefId = null): string
+    protected function getDownloadViaEmailUrl(Asset $asset, ?string $subDefId = null): string
     {
         if (null !== $subDefId) {
             $uri = $this->urlGenerator->generate('download_subdef_request_create', [

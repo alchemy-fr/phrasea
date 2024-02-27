@@ -56,7 +56,7 @@ class ClientLogAction
         );
     }
 
-    private function pushLog(Request $request, string $action, string $item = null, array $payload = []): Response
+    private function pushLog(Request $request, string $action, ?string $item = null, array $payload = []): Response
     {
         $this->terminateStackListener->addCallback(function () use ($request, $action, $item, $payload): void {
             $this->reportClient->pushHttpRequestLog(

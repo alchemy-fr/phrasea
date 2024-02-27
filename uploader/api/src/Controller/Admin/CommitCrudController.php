@@ -58,8 +58,8 @@ class CommitCrudController extends AbstractAdminCrudController
         $user = $this->userChoiceField->create('userId', 'User');
         $token = TextField::new('token');
         $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
-        $formDataJson = TextAreaField::new('formDataJson');
-        $optionsJson = TextAreaField::new('optionsJson');
+        $formDataJson = TextareaField::new('formDataJson');
+        $optionsJson = TextareaField::new('optionsJson');
         $notifyEmail = TextField::new('notifyEmail');
         $id = IdField::new();
         $totalSize = IntegerField::new('totalSize')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
