@@ -75,6 +75,7 @@ export type PhraseanetDatabox = {
     viewname: string;
     labels: Record<string, string>;
     collections: Record<string, PhraseanetCollection>;
+    baseIds: string[];
 };
 
 export type PhraseanetCollection = {
