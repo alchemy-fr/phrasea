@@ -52,7 +52,7 @@ class AppElasticaToModelTransformer extends ElasticaToModelTransformer
         if ($objectsCnt < $elasticaObjectsCnt) {
             $missingIds = array_diff($ids, array_map(fn ($object) => $propertyAccessor->getValue($object, $identifier), $objects));
 
-            $this->logger->error('Cannot find %d corresponding Doctrine objects for all Elastica results', [
+            $this->logger->error('Cannot find corresponding Doctrine objects for all Elastica results', [
                 'found_count' => $objectsCnt,
                 'expected_count' => $elasticaObjectsCnt,
                 'missing_ids' => implode(', ', $missingIds),

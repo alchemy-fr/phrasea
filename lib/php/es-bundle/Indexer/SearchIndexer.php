@@ -117,13 +117,18 @@ final class SearchIndexer
                     ->getResult();
 
                 if (empty($objects)) {
-                    $this->logger->alert(sprintf('No %s document found for index (ids: %s)', $class, implode(', ', $ids)));
+                    $this->logger->alert('No document found for index', [
+                        'class' => $class,
+                        'ids' => implode(', ', $ids)
+                    ]);
 
                     return;
                 }
 
                 if (count($objects) !== count($ids)) {
-                    $this->logger->alert(sprintf('Some %s documents were not found for index', $class));
+                    $this->logger->alert('Some documents were not found for index', [
+                        'class' => $class,
+                    ]);
                 }
 
                 if (self::ACTION_INSERT === $operation) {
