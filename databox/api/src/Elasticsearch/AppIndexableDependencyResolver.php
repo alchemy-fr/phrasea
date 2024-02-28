@@ -2,8 +2,8 @@
 
 namespace App\Elasticsearch;
 
-use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
+use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
 use Alchemy\ESBundle\Indexer\SearchDependencyResolverTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;

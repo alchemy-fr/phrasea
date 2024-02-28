@@ -1,0 +1,6 @@
+exercise_html_purifier:
+    default_cache_serializer_path: '%kernel.cache_dir%/htmlpurifier'
+    html_profiles:
+        custom:
+            config:
+                Core.Encoding: 'ISO-8859-1'

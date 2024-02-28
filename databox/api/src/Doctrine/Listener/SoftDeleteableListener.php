@@ -9,6 +9,7 @@ use Gedmo\SoftDeleteable\SoftDeleteableListener as BaseSoftDeleteableListener;
 
 /**
  * See https://github.com/doctrine-extensions/DoctrineExtensions/issues/1175#issuecomment-149493409.
+ *
  * @phpstan-ignore-next-line
  */
 class SoftDeleteableListener extends BaseSoftDeleteableListener

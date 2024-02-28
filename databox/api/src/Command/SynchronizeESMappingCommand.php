@@ -42,7 +42,6 @@ class SynchronizeESMappingCommand extends Command
 
         throw new \InvalidArgumentException(sprintf('OK'));
 
-
         $workspaceId = $input->getArgument('workspace');
         $workspace = $this->em->find(Workspace::class, $workspaceId);
 

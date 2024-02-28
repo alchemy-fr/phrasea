@@ -7,7 +7,7 @@ namespace App\Consumer\Handler;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use League\Flysystem\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DeleteAssetFileHandler extends AbstractEntityManagerHandler
 {

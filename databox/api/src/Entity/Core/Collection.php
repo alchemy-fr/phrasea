@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;

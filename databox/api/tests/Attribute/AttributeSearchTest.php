@@ -2,7 +2,6 @@
 
 namespace App\Tests\Attribute;
 
-use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AttributeSearch;
