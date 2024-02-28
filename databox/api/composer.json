@@ -232,7 +232,7 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
             "rm -f var/cache/test/data*.db",
