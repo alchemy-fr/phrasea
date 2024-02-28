@@ -36,7 +36,10 @@ CMD ["nginx", "-g", "daemon off;"]
 
 FROM api-php as worker
 
-ENV PHP_MEMORY_LIMIT=1G
+ENV PHP_MEMORY_LIMIT=1G \
+    WORKER_PRIORITIES=p1 \
+    WORKER_TIME_LIMIT=3600 \
+    WORKER_LIMIT=200
 
 RUN apk add --no-cache \
         supervisor \
@@ -49,8 +52,5 @@ RUN apk add --no-cache \
 COPY ./expose/api/docker/supervisor/* /etc/supervisor.d/
 
 ENTRYPOINT ["/srv/app/docker/worker/docker-entrypoint.sh"]
-
-ENV WORKER_TIME_LIMIT=3600 \
-	WORKER_LIMIT=200
 
 CMD ["/usr/bin/supervisord", "-n"]
