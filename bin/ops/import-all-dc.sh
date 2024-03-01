@@ -48,7 +48,7 @@ for d in ${DATABASES}; do
     echo "File ${DUMP_FILE} does not exist"
     exit 2
   fi
-  exec_container db "psql -v ON_ERROR_STOP=1 -U ${POSTGRES_USER} -d ${d}" < ${DUMP_FILE}
+  exec_container db "psql -U ${POSTGRES_USER} -d ${d}" < ${DUMP_FILE}
 
   echo "[✓] ${d} database imported"
 done
