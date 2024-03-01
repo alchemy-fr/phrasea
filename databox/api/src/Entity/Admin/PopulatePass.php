@@ -20,10 +20,10 @@ class PopulatePass extends AbstractUuidEntity
     protected ?\DateTimeImmutable $endedAt = null;
 
     #[ORM\Column(type: Types::BIGINT, nullable: false)]
-    private int $documentCount;
+    private string $documentCount;
 
     #[ORM\Column(type: Types::BIGINT, nullable: true)]
-    private ?int $progress = null;
+    private ?string $progress = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private string $indexName;
@@ -60,12 +60,12 @@ class PopulatePass extends AbstractUuidEntity
 
     public function getDocumentCount(): int
     {
-        return $this->documentCount;
+        return (int) $this->documentCount;
     }
 
-    public function setDocumentCount(int $documentCount): void
+    public function setDocumentCount(int|string $documentCount): void
     {
-        $this->documentCount = $documentCount;
+        $this->documentCount = (string) $documentCount;
     }
 
     public function getMapping(): array
@@ -100,18 +100,22 @@ class PopulatePass extends AbstractUuidEntity
 
     public function getProgress(): ?int
     {
-        return $this->progress;
+        if (null === $this->progress) {
+            return null;
+        }
+
+        return (int) $this->progress;
     }
 
     public function setProgress(int $progress): void
     {
-        $this->progress = $progress;
+        $this->progress = (string) $progress;
     }
 
     public function getProgressString(): ?string
     {
         if (null !== $this->progress && $this->documentCount > 0) {
-            return sprintf('%d/%d (%d%%)', $this->progress, $this->documentCount, round($this->progress / $this->documentCount * 100));
+            return sprintf('%d/%d (%d%%)', $this->getProgress(), $this->getDocumentCount(), round($this->getProgress() / $this->getDocumentCount() * 100));
         }
 
         return null;

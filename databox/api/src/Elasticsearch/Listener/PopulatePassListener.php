@@ -47,9 +47,11 @@ class PopulatePassListener implements EventSubscriberInterface
         $entityName = $mapping['mappings']['_meta']['model'];
         $populatePass->setMapping($mapping);
 
-        $count = $this->em->getRepository($entityName)
-            ->createQueryBuilder('t')
+        $count = $this->em
+            ->getRepository($entityName)
+            ->getESQueryBuilder('t')
             ->select('COUNT(t) as total')
+            ->resetDQLPart('orderBy')
             ->getQuery()
             ->getSingleScalarResult();
         $populatePass->setDocumentCount((int) $count);
