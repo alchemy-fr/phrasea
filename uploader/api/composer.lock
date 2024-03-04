@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +175,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -230,7 +230,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -285,7 +285,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
@@ -338,7 +338,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
@@ -391,7 +391,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -4764,16 +4764,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.34",
+            "version": "3.0.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "56c79f16a6ae17e42089c06a2144467acc35348a"
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/56c79f16a6ae17e42089c06a2144467acc35348a",
-                "reference": "56c79f16a6ae17e42089c06a2144467acc35348a",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
                 "shasum": ""
             },
             "require": {
@@ -4854,7 +4854,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.34"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.37"
             },
             "funding": [
                 {
@@ -4870,7 +4870,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-27T11:13:31+00:00"
+            "time": "2024-03-03T02:14:58+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -11465,7 +11465,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -14806,5 +14806,5 @@
     "platform-dev": {
         "ext-json": "*"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
