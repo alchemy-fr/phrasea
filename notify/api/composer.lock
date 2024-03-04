@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -66,7 +66,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -123,7 +123,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-606-fixes",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -3333,16 +3333,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.23",
+            "version": "3.0.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50"
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/866cc78fbd82462ffd880e3f65692afe928bed50",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
                 "shasum": ""
             },
             "require": {
@@ -3423,7 +3423,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.23"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.37"
             },
             "funding": [
                 {
@@ -3439,7 +3439,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-18T17:22:01+00:00"
+            "time": "2024-03-03T02:14:58+00:00"
         },
         {
             "name": "predis/predis",
@@ -12232,5 +12232,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
