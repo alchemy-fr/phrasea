@@ -2,9 +2,13 @@
 
 namespace Alchemy\MessengerBundle\Rector;
 
+use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use Rector\Core\Configuration\RenamedClassesDataCollector;
 use Rector\Core\Rector\AbstractRector;
+use Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer;
+use Rector\Renaming\NodeManipulator\ClassRenamer;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Expr\MethodCall;
@@ -12,6 +16,14 @@ use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
 
 final class ArthemToMessengerRector extends AbstractRector
 {
+    public function __construct(
+        private readonly FamilyRelationsAnalyzer $familyRelationsAnalyzer,
+        private readonly ClassRenamer $classRenamer,
+        private readonly RenamedClassesDataCollector $renamedClassesDataCollector,
+    )
+    {
+    }
+
     /**
      * @return array<class-string<Node>>
      */
@@ -32,26 +44,42 @@ final class ArthemToMessengerRector extends AbstractRector
     {
         $className = $this->getName($node->name);
 
-        dump($className);
 
         if ($className === null) {
             return null;
         }
 
-        // we only care about "set*" method names
-        if (! str_starts_with($className, 'set')) {
-            // return null to skip it
+        if (!str_ends_with($className, 'Handler')) {
             return null;
         }
 
-        $newMethodCallName = preg_replace(
-            '#^set#', 'change', $className
-        );
+        if ($this->isHandler($node)) {
+            $oldName = $node->namespacedName->toString();
+            $newName = preg_replace('#\\\Consumer(\\\Handler)?(?=\\\)#', '\\Message', $oldName);
+            $this->renamedClassesDataCollector->addOldToNewClasses([
+                $oldName => $newName,
+            ]);
 
-        $node->name = new Identifier($newMethodCallName);
+            $this->classRenamer->renameNode($node, [$oldName => $newName], null);
+        }
 
         // return $node if you modified it
         return $node;
+    }
+
+    private function isHandler(Class_ $class, int $depth = 0): bool
+    {
+        if ($depth > 20) {
+            return false;
+        }
+
+        $ancestors = $this->familyRelationsAnalyzer->getClassLikeAncestorNames($class);
+
+        if (in_array(EventMessageHandlerInterface::class, $ancestors, true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
