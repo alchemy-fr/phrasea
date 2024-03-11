@@ -5,7 +5,8 @@ import {Control} from 'react-hook-form';
 import {FieldPath} from 'react-hook-form';
 import {
     CollectionsTreeView,
-    CollectionTreeViewProps, IsSelectable,
+    CollectionTreeViewProps,
+    IsSelectable,
 } from '../Media/Collection/CollectionsTreeView';
 import {FormControl, FormLabel} from '@mui/material';
 import {RegisterOptions} from 'react-hook-form';

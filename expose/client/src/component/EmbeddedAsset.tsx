@@ -38,9 +38,7 @@ export default function EmbeddedAsset({id}: Props) {
     }
 
     if (!data) {
-        return <FullPageLoader
-            backdrop={false}
-        />;
+        return <FullPageLoader backdrop={false} />;
     }
 
     const {publication} = data;

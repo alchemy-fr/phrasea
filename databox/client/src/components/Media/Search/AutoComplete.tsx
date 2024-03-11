@@ -1,11 +1,15 @@
-import {AutocompleteApi, AutocompleteOptions, AutocompleteState, createAutocomplete} from '@algolia/autocomplete-core';
+import {
+    AutocompleteApi,
+    AutocompleteOptions,
+    AutocompleteState,
+    createAutocomplete,
+} from '@algolia/autocomplete-core';
 import React, {ReactNode} from 'react';
-import {Paper} from "@mui/material";
+import {Paper} from '@mui/material';
 import '@algolia/autocomplete-theme-classic';
-import {replaceHighlight} from "../Asset/Attribute/Attributes.tsx";
-import {SearchSuggestion} from "../../../api/asset.ts";
-import Box from "@mui/material/Box";
-
+import {replaceHighlight} from '../Asset/Attribute/Attributes.tsx';
+import {SearchSuggestion} from '../../../api/asset.ts';
+import Box from '@mui/material/Box';
 
 type Props = {
     children: (props: AutocompleteApi<SearchSuggestion>) => ReactNode;
@@ -18,7 +22,9 @@ export default function AutoComplete({
     queryValue,
     children,
 }: Props) {
-    const [autocompleteState, setAutocompleteState] = React.useState<AutocompleteState<SearchSuggestion>>({} as AutocompleteState<SearchSuggestion>);
+    const [autocompleteState, setAutocompleteState] = React.useState<
+        AutocompleteState<SearchSuggestion>
+    >({} as AutocompleteState<SearchSuggestion>);
 
     const autocomplete = React.useMemo(
         () =>
@@ -43,9 +49,7 @@ export default function AutoComplete({
             className={'aa-Autocomplete'}
             {...(autocomplete.getRootProps({}) as any)}
         >
-            <div className={'aa-InputWrapper'}>
-                {children(autocomplete)}
-            </div>
+            <div className={'aa-InputWrapper'}>{children(autocomplete)}</div>
             <Paper
                 elevation={5}
                 className={'aa-Panel'}
@@ -66,13 +70,13 @@ export default function AutoComplete({
                                 sx={{
                                     '.aa-Item': {
                                         p: 1,
-                                        'small': {
+                                        small: {
                                             color: 'secondary.main',
                                             ml: 1,
                                             mt: 1,
                                             display: 'block',
-                                        }
-                                    }
+                                        },
+                                    },
                                 }}
                             >
                                 {items.length > 0 && (
@@ -80,7 +84,7 @@ export default function AutoComplete({
                                         className="aa-List"
                                         {...autocomplete.getListProps()}
                                     >
-                                        {items.map((item) => (
+                                        {items.map(item => (
                                             <li
                                                 key={item.id}
                                                 className="aa-Item"
@@ -91,7 +95,10 @@ export default function AutoComplete({
                                             >
                                                 <div>
                                                     <div>
-                                                        {replaceHighlight(item.hl, 'b' as any)}
+                                                        {replaceHighlight(
+                                                            item.hl,
+                                                            'b' as any
+                                                        )}
                                                     </div>
                                                     <small>{item.t}</small>
                                                 </div>

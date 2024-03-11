@@ -199,7 +199,7 @@ export default function CopyAssetsDialog({
                 </div>
                 <FormRow>
                     <CollectionTreeWidget
-                        isSelectable={(coll) => coll.capabilities.canEdit}
+                        isSelectable={coll => coll.capabilities.canEdit}
                         onChange={(_nodeId, workspaceId) => {
                             setWorkspaceDest(workspaceId);
                         }}

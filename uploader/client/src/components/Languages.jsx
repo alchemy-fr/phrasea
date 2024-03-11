@@ -19,10 +19,7 @@ export default class Languages extends Component {
                 {locales.map(l => (
                     <React.Fragment key={l}>
                         {' '}
-                        <a
-                            href={'#'}
-                            onClick={() => this.changeLanguage(l)}
-                        >
+                        <a href={'#'} onClick={() => this.changeLanguage(l)}>
                             {l.toUpperCase()}
                         </a>
                     </React.Fragment>

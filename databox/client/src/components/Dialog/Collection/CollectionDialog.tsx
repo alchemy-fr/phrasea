@@ -11,7 +11,7 @@ import TagRulesTab from './TagRulesTab';
 import Operations from './Operations';
 import InfoCollection from './InfoCollection';
 import {modalRoutes} from '../../../routes.ts';
-import {useCloseModal} from "../../Routing/ModalLink.tsx";
+import {useCloseModal} from '../../Routing/ModalLink.tsx';
 
 type Props = {};
 
@@ -30,7 +30,7 @@ export default function CollectionDialog({}: Props) {
     }, [id]);
 
     if (!data) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     return (

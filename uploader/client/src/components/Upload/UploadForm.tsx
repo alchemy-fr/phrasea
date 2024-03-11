@@ -1,5 +1,5 @@
-import AssetForm from "../AssetForm";
-import {FormData, Target, UploadedFile} from "../../types.ts";
+import AssetForm from '../AssetForm';
+import {FormData, Target, UploadedFile} from '../../types.ts';
 
 type Props = {
     target: Target;
@@ -8,21 +8,17 @@ type Props = {
     onCancel: () => void;
 };
 
-export default function UploadForm({
-    target,
-    files,
-    onSubmit,
-    onCancel,
-}: Props) {
+export default function UploadForm({target, files, onSubmit, onCancel}: Props) {
+    return (
+        <>
+            <p>{files.length} selected files.</p>
 
-    return <>
-        <p>{files.length} selected files.</p>
-
-        <AssetForm
-            targetId={target.id}
-            submitPath={'/form/validate'}
-            onComplete={onSubmit}
-            onCancel={onCancel}
-        />
-    </>
+            <AssetForm
+                targetId={target.id}
+                submitPath={'/form/validate'}
+                onComplete={onSubmit}
+                onCancel={onCancel}
+            />
+        </>
+    );
 }

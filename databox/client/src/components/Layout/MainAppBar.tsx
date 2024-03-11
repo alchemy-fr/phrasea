@@ -160,7 +160,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                         forwardedContexts: [
                                                             {
                                                                 context:
-                                                                ThemeEditorContext,
+                                                                    ThemeEditorContext,
                                                                 value: themeEditorContext,
                                                             },
                                                         ],
@@ -178,7 +178,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                     'Theme Editor'
                                                 )}
                                             />
-                                        </MenuItem>
+                                        </MenuItem>,
                                     ]}
                                 />
                             )}

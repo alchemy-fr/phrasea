@@ -72,7 +72,7 @@ export default function MoveAssetsDialog({
             </Typography>
             <form id={formId} onSubmit={handleSubmit}>
                 <CollectionTreeWidget
-                    isSelectable={(coll) => coll.capabilities.canEdit}
+                    isSelectable={coll => coll.capabilities.canEdit}
                     workspaceId={workspaceId}
                     control={control}
                     name={'destination'}

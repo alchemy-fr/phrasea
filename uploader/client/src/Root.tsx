@@ -1,5 +1,9 @@
 import {ModalStack} from '@alchemy/navigation';
-import {AuthenticationProvider, MatomoUser, SessionExpireContainer} from '@alchemy/react-auth';
+import {
+    AuthenticationProvider,
+    MatomoUser,
+    SessionExpireContainer,
+} from '@alchemy/react-auth';
 import UploaderUserProvider from './context/UploaderUserProvider';
 import App from './App';
 import {oauthClient} from './lib/apiClient';
@@ -13,7 +17,7 @@ export default function Root({}: Props) {
         <>
             <ToastContainer position={'bottom-left'} />
             <AuthenticationProvider oauthClient={oauthClient}>
-                <SessionExpireContainer/>
+                <SessionExpireContainer />
                 <MatomoUser />
                 <UploaderUserProvider>
                     <ModalStack>

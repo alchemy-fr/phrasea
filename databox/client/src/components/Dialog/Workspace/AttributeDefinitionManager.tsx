@@ -6,9 +6,19 @@ import {
     postAttributeDefinition,
     putAttributeDefinition,
 } from '../../../api/attributes';
-import {FormGroup, FormLabel, ListItemIcon, ListItemText, TextField,} from '@mui/material';
+import {
+    FormGroup,
+    FormLabel,
+    ListItemIcon,
+    ListItemText,
+    TextField,
+} from '@mui/material';
 import FormRow from '../../Form/FormRow';
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps, OnSort,} from './DefinitionManager';
+import DefinitionManager, {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+    OnSort,
+} from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
 import FormFieldErrors from '../../Form/FormFieldErrors';
 import CheckboxWidget from '../../Form/CheckboxWidget';
@@ -39,7 +49,7 @@ function Item({
                     {...register('name')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'name'} errors={errors}/>
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <TextField
@@ -50,7 +60,7 @@ function Item({
                         readOnly: true,
                     }}
                 />
-                <FormFieldErrors field={'slug'} errors={errors}/>
+                <FormFieldErrors field={'slug'} errors={errors} />
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -65,7 +75,7 @@ function Item({
                         name={'fieldType'}
                         control={control}
                     />
-                    <FormFieldErrors field={'fieldType'} errors={errors}/>
+                    <FormFieldErrors field={'fieldType'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -79,7 +89,7 @@ function Item({
                         control={control}
                         workspaceId={workspaceId}
                     />
-                    <FormFieldErrors field={'class'} errors={errors}/>
+                    <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -92,7 +102,7 @@ function Item({
                     name={'searchable'}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'searchable'} errors={errors}/>
+                <FormFieldErrors field={'searchable'} errors={errors} />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -104,7 +114,7 @@ function Item({
                     name={'suggest'}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'suggest'} errors={errors}/>
+                <FormFieldErrors field={'suggest'} errors={errors} />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -116,7 +126,7 @@ function Item({
                     name={'translatable'}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'translatable'} errors={errors}/>
+                <FormFieldErrors field={'translatable'} errors={errors} />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -128,7 +138,7 @@ function Item({
                     name={'multiple'}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'multiple'} errors={errors}/>
+                <FormFieldErrors field={'multiple'} errors={errors} />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -140,7 +150,7 @@ function Item({
                     name={'allowInvalid'}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'allowInvalid'} errors={errors}/>
+                <FormFieldErrors field={'allowInvalid'} errors={errors} />
             </FormRow>
         </>
     );
@@ -152,10 +162,10 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
             <ListItemIcon>
                 {React.createElement(
                     fieldTypesIcons[data.fieldType || 'text'] ??
-                    fieldTypesIcons.text
+                        fieldTypesIcons.text
                 )}
             </ListItemIcon>
-            <ListItemText primary={data.name} secondary={data.fieldType}/>
+            <ListItemText primary={data.name} secondary={data.fieldType} />
         </>
     );
 }

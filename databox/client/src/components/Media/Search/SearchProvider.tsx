@@ -38,7 +38,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const setAttrFilters = useCallback(
         (handler: (prev: Filters) => Filters, newQuery?: string): boolean => {
             return setHash(
-                queryToHash(newQuery ?? query, handler(filters), sortBy, geolocation)
+                queryToHash(
+                    newQuery ?? query,
+                    handler(filters),
+                    sortBy,
+                    geolocation
+                )
             );
         },
         [setHash, query, filters, sortBy, geolocation]

@@ -28,9 +28,12 @@ import {useModals} from '@alchemy/navigation';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
-import {CollectionPager, useCollectionStore} from "../../store/collectionStore.ts";
+import {
+    CollectionPager,
+    useCollectionStore,
+} from '../../store/collectionStore.ts';
 import {deleteCollection} from '../../api/collection';
-import LoadMoreCollections from "./Collection/LoadMoreCollections.tsx";
+import LoadMoreCollections from './Collection/LoadMoreCollections.tsx';
 
 type Props = {
     level: number;
@@ -55,18 +58,18 @@ export default function CollectionMenuItem({
     const [childrenLoaded, setChildrenLoaded] = React.useState(false);
     const childCount = data.children?.length ?? 0;
 
-    const loadChildren = useCollectionStore((state) => state.loadChildren);
-    const addCollection = useCollectionStore((state) => state.addCollection);
-    const loadMore = useCollectionStore((state) => state.loadMore);
-    useCollectionStore((state) => state.collections); // Subscribe to collection updates
+    const loadChildren = useCollectionStore(state => state.loadChildren);
+    const addCollection = useCollectionStore(state => state.addCollection);
+    const loadMore = useCollectionStore(state => state.loadMore);
+    useCollectionStore(state => state.collections); // Subscribe to collection updates
 
     const pager =
-        useCollectionStore((state) => state.tree)[data.id]
-        ?? {
+        useCollectionStore(state => state.tree)[data.id] ??
+        ({
             items: data.children,
             expanding: false,
             loadingMore: false,
-        } as CollectionPager;
+        } as CollectionPager);
 
     const {workspace} = data;
 
@@ -74,7 +77,7 @@ export default function CollectionMenuItem({
         if (expanded && !childrenLoaded && childCount > 0) {
             loadChildren(workspaceId, data.id).then(() => {
                 setChildrenLoaded(true);
-            })
+            });
         }
     }, [expanded, childrenLoaded]);
 
@@ -85,7 +88,8 @@ export default function CollectionMenuItem({
         e.stopPropagation();
         expand();
 
-        if (e.detail > 1) { // is double click
+        if (e.detail > 1) {
+            // is double click
             loadChildren(workspaceId, data.id);
         }
     };
@@ -160,7 +164,7 @@ export default function CollectionMenuItem({
                                     }
                                     aria-label="create-asset"
                                 >
-                                    <AddPhotoAlternateIcon/>
+                                    <AddPhotoAlternateIcon />
                                 </IconButton>
                             )}
                             {data.capabilities.canEdit && (
@@ -176,15 +180,19 @@ export default function CollectionMenuItem({
                                             titlePath: (titlePath ?? []).concat(
                                                 data.title
                                             ),
-                                            onCreate: (coll) => {
-                                                addCollection(coll, workspaceId, data.id);
+                                            onCreate: coll => {
+                                                addCollection(
+                                                    coll,
+                                                    workspaceId,
+                                                    data.id
+                                                );
                                                 expand(true);
                                             },
                                         })
                                     }
                                     aria-label="add-child"
                                 >
-                                    <CreateNewFolderIcon/>
+                                    <CreateNewFolderIcon />
                                 </IconButton>
                             )}
                             {data.capabilities.canEdit && (
@@ -203,7 +211,7 @@ export default function CollectionMenuItem({
                                     )}
                                     aria-label="edit"
                                 >
-                                    <EditIcon/>
+                                    <EditIcon />
                                 </IconButton>
                             )}
                             {data.capabilities.canDelete && (
@@ -211,7 +219,7 @@ export default function CollectionMenuItem({
                                     onClick={onDelete}
                                     aria-label="delete"
                                 >
-                                    <DeleteIcon/>
+                                    <DeleteIcon />
                                 </IconButton>
                             )}
                         </span>
@@ -224,11 +232,11 @@ export default function CollectionMenuItem({
                             aria-label="expand-toggle"
                         >
                             {pager.expanding ? (
-                                <CircularProgress size={24}/>
+                                <CircularProgress size={24} />
                             ) : !expanded ? (
-                                <ExpandLessIcon/>
+                                <ExpandLessIcon />
                             ) : (
-                                <ExpandMoreIcon/>
+                                <ExpandMoreIcon />
                             )}
                         </IconButton>
                     </>
@@ -246,9 +254,15 @@ export default function CollectionMenuItem({
                             minWidth: 35,
                         }}
                     >
-                        {data.public ? <FolderOutlinedIcon/> : (data.shared ? <FolderSharedIcon/> : <FolderIcon/>)}
+                        {data.public ? (
+                            <FolderOutlinedIcon />
+                        ) : data.shared ? (
+                            <FolderSharedIcon />
+                        ) : (
+                            <FolderIcon />
+                        )}
                     </ListItemIcon>
-                    <ListItemText primary={data.title}/>
+                    <ListItemText primary={data.title} />
                 </ListItemButton>
             </ListItem>
 
@@ -266,14 +280,18 @@ export default function CollectionMenuItem({
                                     workspaceId={workspaceId}
                                     key={`${c.id}-${c.children ? 'c' : ''}`}
                                     absolutePath={`${absolutePath}/${c.id}`}
-                                    titlePath={(titlePath ?? []).concat(data.title)}
+                                    titlePath={(titlePath ?? []).concat(
+                                        data.title
+                                    )}
                                     level={level + 1}
                                 />
                             );
                         })}
-                        {(pager && pager.items.length < (pager.total ?? 0)) && (
+                        {pager && pager.items.length < (pager.total ?? 0) && (
                             <LoadMoreCollections
-                                onLoadMore={() => loadMore(workspaceId, data.id)}
+                                onLoadMore={() =>
+                                    loadMore(workspaceId, data.id)
+                                }
                                 loading={pager.loadingMore}
                             />
                         )}

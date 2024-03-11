@@ -1,28 +1,23 @@
 import React from 'react';
-import Dropzone from "react-dropzone";
-import filesize from "filesize";
-import {Alert} from "@mui/material";
-import {routes} from "../../routes.ts";
-import config from "../../config.ts";
-import {toast} from "react-toastify";
-import {StateSetter, Target, UploadedFile} from "../../types.ts";
+import Dropzone from 'react-dropzone';
+import filesize from 'filesize';
+import {Alert} from '@mui/material';
+import {routes} from '../../routes.ts';
+import config from '../../config.ts';
+import {toast} from 'react-toastify';
+import {StateSetter, Target, UploadedFile} from '../../types.ts';
 import {getPath, Link} from '@alchemy/navigation';
-import AssetUpload from "../AssetUpload";
-import {Button} from "@mui/material";
+import AssetUpload from '../AssetUpload';
+import {Button} from '@mui/material';
 
 type Props = {
-    target: Target,
+    target: Target;
     files: UploadedFile[];
     setFiles: StateSetter<UploadedFile[]>;
     onSubmit: () => void;
 };
 
-export default function FilePicker({
-    target,
-    files,
-    setFiles,
-    onSubmit,
-}: Props) {
+export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
     const allowedTypes = config.allowedTypes;
     const {maxFileSize, maxFileCount, maxCommitSize} = config;
 
@@ -59,121 +54,123 @@ export default function FilePicker({
         setFiles(p => p.filter((_file, i) => i !== index));
     }, []);
 
-    const onDrop = React.useCallback((acceptedFiles: File[]) => {
-        setFiles(p => {
-            const newFiles = acceptedFiles
-                .map((f): UploadedFile | undefined => {
-                    if (maxFileSize && f.size > maxFileSize) {
-                        toast.error(
-                            `Size of ${f.name} is higher than ${filesize(
-                                maxFileSize
-                            )} (${filesize(f.size)})`
-                        );
+    const onDrop = React.useCallback(
+        (acceptedFiles: File[]) => {
+            setFiles(p => {
+                const newFiles = acceptedFiles
+                    .map((f): UploadedFile | undefined => {
+                        if (maxFileSize && f.size > maxFileSize) {
+                            toast.error(
+                                `Size of ${f.name} is higher than ${filesize(
+                                    maxFileSize
+                                )} (${filesize(f.size)})`
+                            );
 
-                        return;
-                    }
+                            return;
+                        }
 
-                    (f as UploadedFile).id = '_' + Math.random().toString(36).substr(2, 9);
+                        (f as UploadedFile).id =
+                            '_' + Math.random().toString(36).substr(2, 9);
 
-                    return f as UploadedFile;
-                })
-                .filter(f => !!f) as UploadedFile[];
+                        return f as UploadedFile;
+                    })
+                    .filter(f => !!f) as UploadedFile[];
 
+                if (maxFileCount === 1) {
+                    return newFiles;
+                }
 
-            if (maxFileCount === 1) {
-                return newFiles;
-            }
+                return p.concat(newFiles);
+            });
+        },
+        [setFiles]
+    );
 
-            return p.concat(newFiles);
-        });
-    }, [setFiles]);
-
-
-    return <>
-        <div className="upload-container">
-            <Dropzone
-                onDrop={onDrop}
-                multiple={maxFileCount !== 1}
-                accept={allowedTypes || undefined}
-            >
-                {({getRootProps, getInputProps, isDragActive}) => {
-                    let classes = ['Upload'];
-                    if (isDragActive) {
-                        classes.push('drag-over');
-                    }
-                    return (
-                        <div
-                            {...getRootProps()}
-                            className={classes.join(' ')}
-                        >
-                            <input {...getInputProps()} />
-                            {files.length > 0 ? (
-                                <div className="file-collection">
-                                    {files.map((file, index) => {
-                                        return (
-                                            <AssetUpload
-                                                key={file.id}
-                                                onRemove={() => removeFile(index)}
-                                                file={file}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <p>
-                                    Drag 'n' drop some files here,
-                                    or click to select files
-                                </p>
-                            )}
-                        </div>
-                    );
-                }}
-            </Dropzone>
-
-            <ul className="specs">
-                <li>
-                    {`Files: ${files.length}`}
-                    {maxFileCount ? ` / ${maxFileCount}` : ''}
-                </li>
-                <li>
-                    {`Total size: ${filesize(totalSize)}`}
-                    {maxCommitSize
-                        ? ` / ${filesize(maxCommitSize)}`
-                        : ''}
-                </li>
-                {maxFileSize ? (
-                    <li>{`Max file size: ${filesize(
-                        maxFileSize
-                    )}`}</li>
-                ) : (
-                    ''
-                )}
-            </ul>
-
-            {errors.map(err => <Alert>
-                {err}
-            </Alert>)}
-            <Button
-                size="large"
-                onClick={onSubmit}
-                disabled={!canSubmit}
-                variant={'contained'}
-            >
-                Next
-            </Button>
-
-            <hr/>
-            <p>
-                or just{' '}
-                <Link
-                    to={getPath(routes.download, {
-                        id: target.id,
-                    })}
+    return (
+        <>
+            <div className="upload-container">
+                <Dropzone
+                    onDrop={onDrop}
+                    multiple={maxFileCount !== 1}
+                    accept={allowedTypes || undefined}
                 >
-                    download
-                </Link>{' '}
-                URLs.
-            </p>
-        </div>
-    </>
+                    {({getRootProps, getInputProps, isDragActive}) => {
+                        const classes = ['Upload'];
+                        if (isDragActive) {
+                            classes.push('drag-over');
+                        }
+                        return (
+                            <div
+                                {...getRootProps()}
+                                className={classes.join(' ')}
+                            >
+                                <input {...getInputProps()} />
+                                {files.length > 0 ? (
+                                    <div className="file-collection">
+                                        {files.map((file, index) => {
+                                            return (
+                                                <AssetUpload
+                                                    key={file.id}
+                                                    onRemove={() =>
+                                                        removeFile(index)
+                                                    }
+                                                    file={file}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p>
+                                        Drag 'n' drop some files here, or click
+                                        to select files
+                                    </p>
+                                )}
+                            </div>
+                        );
+                    }}
+                </Dropzone>
+
+                <ul className="specs">
+                    <li>
+                        {`Files: ${files.length}`}
+                        {maxFileCount ? ` / ${maxFileCount}` : ''}
+                    </li>
+                    <li>
+                        {`Total size: ${filesize(totalSize)}`}
+                        {maxCommitSize ? ` / ${filesize(maxCommitSize)}` : ''}
+                    </li>
+                    {maxFileSize ? (
+                        <li>{`Max file size: ${filesize(maxFileSize)}`}</li>
+                    ) : (
+                        ''
+                    )}
+                </ul>
+
+                {errors.map(err => (
+                    <Alert>{err}</Alert>
+                ))}
+                <Button
+                    size="large"
+                    onClick={onSubmit}
+                    disabled={!canSubmit}
+                    variant={'contained'}
+                >
+                    Next
+                </Button>
+
+                <hr />
+                <p>
+                    or just{' '}
+                    <Link
+                        to={getPath(routes.download, {
+                            id: target.id,
+                        })}
+                    >
+                        download
+                    </Link>{' '}
+                    URLs.
+                </p>
+            </div>
+        </>
+    );
 }

@@ -15,7 +15,7 @@ export async function getTarget(id) {
         return targetCache[id];
     }
 
-    return targetCache[id] = (await apiClient.get(`/targets/${id}`)).data;
+    return (targetCache[id] = (await apiClient.get(`/targets/${id}`)).data);
 }
 
 export async function getTargetParams(targetId) {

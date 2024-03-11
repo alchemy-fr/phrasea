@@ -6,7 +6,7 @@ import {
     PermissionObjectType,
 } from '../Permissions/permissions';
 import {Ace, UserType} from '../../types';
-import {useCollectionStore} from "../../store/collectionStore.ts";
+import {useCollectionStore} from '../../store/collectionStore.ts';
 
 type Props = {
     objectType: PermissionObjectType;
@@ -37,11 +37,16 @@ export default function AclForm({
         [objectType, objectId]
     );
 
-    const onListChanged = objectType === 'collection' ? (permissions: Ace[]) => {
-        useCollectionStore.getState().partialUpdateCollection(objectId, {
-            shared: permissions.length > 0
-        });
-    } : undefined;
+    const onListChanged =
+        objectType === 'collection'
+            ? (permissions: Ace[]) => {
+                  useCollectionStore
+                      .getState()
+                      .partialUpdateCollection(objectId, {
+                          shared: permissions.length > 0,
+                      });
+              }
+            : undefined;
 
     return (
         <PermissionList

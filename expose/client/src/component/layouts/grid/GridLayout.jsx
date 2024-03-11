@@ -117,9 +117,7 @@ class GridLayout extends React.Component {
 
     renderGallery() {
         if (!this.state.thumbsLoaded) {
-            return <FullPageLoader
-                backdrop={false}
-            />;
+            return <FullPageLoader backdrop={false} />;
         }
 
         const {downloadEnabled} = this.props.data;

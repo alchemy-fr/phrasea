@@ -28,7 +28,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
             },
             onConfirmed: () => {
                 onClose();
-            }
+            },
         });
     };
     return (

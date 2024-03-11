@@ -57,7 +57,7 @@ export type SearchSuggestion = {
     name: string;
     hl: string;
     t: string;
-}
+};
 
 export async function getSearchSuggestions(
     query: string,
@@ -71,11 +71,11 @@ export async function getSearchSuggestions(
     >
 > {
     const res = await apiClient.get('/assets/suggest', {
-              params: {
-                  query,
-              },
-              ...requestConfig,
-          });
+        params: {
+            query,
+        },
+        ...requestConfig,
+    });
 
     return {
         ...getHydraCollection<SearchSuggestion>(res.data),

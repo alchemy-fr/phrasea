@@ -11,7 +11,7 @@ export type UploaderUser = {
 export type Target = {
     id: string;
     name: string;
-}
+};
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 

@@ -23,7 +23,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            path: "url",
+            path: 'url',
         },
     },
 });

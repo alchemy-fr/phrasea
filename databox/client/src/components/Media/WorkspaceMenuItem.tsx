@@ -22,22 +22,16 @@ import ModalLink from '../Routing/ModalLink';
 import {useTranslation} from 'react-i18next';
 import {useModals} from '@alchemy/navigation';
 import {modalRoutes} from '../../routes.ts';
-import {useCollectionStore} from "../../store/collectionStore.ts";
-import {useShallow} from 'zustand/react/shallow'
-import LoadMoreCollections from "./Collection/LoadMoreCollections.tsx";
+import {useCollectionStore} from '../../store/collectionStore.ts';
+import {useShallow} from 'zustand/react/shallow';
+import LoadMoreCollections from './Collection/LoadMoreCollections.tsx';
 
 export type WorkspaceMenuItemProps = {
     data: Workspace;
 };
 
-export default function WorkspaceMenuItem({
-    data,
-}: WorkspaceMenuItemProps) {
-    const {
-        id,
-        name,
-        capabilities,
-    } = data;
+export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
+    const {id, name, capabilities} = data;
 
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
@@ -45,10 +39,10 @@ export default function WorkspaceMenuItem({
     const selected = searchContext.workspaces.includes(id);
     const [expanded, setExpanded] = React.useState(false);
 
-    const addCollection = useCollectionStore((state) => state.addCollection);
-    const loadMore = useCollectionStore((state) => state.loadMore);
-    const loadRoot = useCollectionStore((state) => state.loadRoot);
-    const pager = useCollectionStore(useShallow((state) => state.tree))[id];
+    const addCollection = useCollectionStore(state => state.addCollection);
+    const loadMore = useCollectionStore(state => state.loadMore);
+    const loadRoot = useCollectionStore(state => state.loadRoot);
+    const pager = useCollectionStore(useShallow(state => state.tree))[id];
 
     const expand = (force?: boolean) => {
         setExpanded(p => !p || true === force);
@@ -57,7 +51,8 @@ export default function WorkspaceMenuItem({
         e.stopPropagation();
         expand();
 
-        if (e.detail > 1) { // is double click
+        if (e.detail > 1) {
+            // is double click
             loadRoot(id);
         }
     };
@@ -101,13 +96,14 @@ export default function WorkspaceMenuItem({
                                         openModal(CreateCollection, {
                                             workspaceId: id,
                                             workspaceTitle: name,
-                                            onCreate: (coll) => addCollection(coll, id),
+                                            onCreate: coll =>
+                                                addCollection(coll, id),
                                         })
                                     }
                                     className={'c-action'}
                                     aria-label="add-child"
                                 >
-                                    <CreateNewFolderIcon/>
+                                    <CreateNewFolderIcon />
                                 </IconButton>
                             )}
                             {capabilities.canEdit && (
@@ -126,7 +122,7 @@ export default function WorkspaceMenuItem({
                                     className={'c-action'}
                                     aria-label="edit"
                                 >
-                                    <EditIcon/>
+                                    <EditIcon />
                                 </IconButton>
                             )}
                             <IconButton
@@ -135,11 +131,11 @@ export default function WorkspaceMenuItem({
                                 aria-label="expand-toggle"
                             >
                                 {pager.expanding ? (
-                                    <CircularProgress size={24}/>
+                                    <CircularProgress size={24} />
                                 ) : !expanded ? (
-                                    <ExpandLessIcon/>
+                                    <ExpandLessIcon />
                                 ) : (
-                                    <ExpandMoreIcon/>
+                                    <ExpandMoreIcon />
                                 )}
                             </IconButton>
                         </>
@@ -156,9 +152,9 @@ export default function WorkspaceMenuItem({
                         selected={selected}
                     >
                         <ListItemIcon sx={{color: 'inherit'}}>
-                            <BusinessIcon/>
+                            <BusinessIcon />
                         </ListItemIcon>
-                        <ListItemText primary={name}/>
+                        <ListItemText primary={name} />
                     </ListItemButton>
                 </ListItem>
             </ListSubheader>
@@ -177,7 +173,7 @@ export default function WorkspaceMenuItem({
                             level={0}
                         />
                     ))}
-                {(pager && pager.items.length < (pager.total ?? 0)) && (
+                {pager && pager.items.length < (pager.total ?? 0) && (
                     <LoadMoreCollections
                         onLoadMore={() => loadMore(id)}
                         loading={pager.loadingMore}

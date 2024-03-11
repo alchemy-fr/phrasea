@@ -5,7 +5,7 @@ import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import {routes} from '../routes.ts';
 import RouteProxy from './RouteProxy.tsx';
-import React from "react";
+import React from 'react';
 
 type Props = {};
 

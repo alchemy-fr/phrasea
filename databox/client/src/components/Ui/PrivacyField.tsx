@@ -91,17 +91,31 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
 
     const ip = inheritedPrivacy ?? 0;
     const inheritedKeyPrivacy = getKeyValue(getFields(ip)[0]);
-    const resolvedPrivacy = inheritedKeyPrivacy > 0 && getKeyValue(privacy) <= inheritedKeyPrivacy ? getFields(inheritedKeyPrivacy)[0] : privacy;
+    const resolvedPrivacy =
+        inheritedKeyPrivacy > 0 && getKeyValue(privacy) <= inheritedKeyPrivacy
+            ? getFields(inheritedKeyPrivacy)[0]
+            : privacy;
     const workspaceOnlyLocked = getValue(resolvedPrivacy, false, true) === ip;
     const resolvedWorkspaceOnly = workspaceOnlyLocked ? false : workspaceOnly;
-    const authLocked = getValue(resolvedPrivacy, resolvedWorkspaceOnly, false) === ip;
+    const authLocked =
+        getValue(resolvedPrivacy, resolvedWorkspaceOnly, false) === ip;
     const resolveAuth = authLocked ? false : auth;
 
     React.useEffect(() => {
         const [p, w, a] = getFields(value);
         setPrivacy(p);
-        setWorkspaceOnly(w || (firstValue === value && getKeyValue(privacy) < inheritedKeyPrivacy  && getValue(resolvedPrivacy, true, resolveAuth) === ip));
-        setAuth(a || (firstValue === value && getValue(resolvedPrivacy, resolvedWorkspaceOnly, true) === ip));
+        setWorkspaceOnly(
+            w ||
+                (firstValue === value &&
+                    getKeyValue(privacy) < inheritedKeyPrivacy &&
+                    getValue(resolvedPrivacy, true, resolveAuth) === ip)
+        );
+        setAuth(
+            a ||
+                (firstValue === value &&
+                    getValue(resolvedPrivacy, resolvedWorkspaceOnly, true) ===
+                        ip)
+        );
     }, [value]);
 
     const handlePChange = (e: SelectChangeEvent): void => {
@@ -118,7 +132,9 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         console.log('e.target.checked', e.target.checked);
         setAuth(e.target.checked);
-        onChange(getValue(resolvedPrivacy, resolvedWorkspaceOnly, e.target.checked));
+        onChange(
+            getValue(resolvedPrivacy, resolvedWorkspaceOnly, e.target.checked)
+        );
     };
 
     const label = t('form.privacy.label', 'Privacy');
@@ -132,16 +148,21 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                 onChange={handlePChange}
             >
                 {Object.keys(choices).map(k => {
-                    return <MenuItem
-                        key={k}
-                        value={k}
-                        disabled={inheritedKeyPrivacy > 0 && getKeyValue(k) < inheritedKeyPrivacy}
-                    >
-                        <ListItemText
-                            primary={choices[k].label}
-                            secondary={choices[k].helper}
-                        />
-                    </MenuItem>
+                    return (
+                        <MenuItem
+                            key={k}
+                            value={k}
+                            disabled={
+                                inheritedKeyPrivacy > 0 &&
+                                getKeyValue(k) < inheritedKeyPrivacy
+                            }
+                        >
+                            <ListItemText
+                                primary={choices[k].label}
+                                secondary={choices[k].helper}
+                            />
+                        </MenuItem>
+                    );
                 })}
             </Select>
             {['private', 'public'].includes(resolvedPrivacy) && (

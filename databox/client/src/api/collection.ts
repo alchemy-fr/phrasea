@@ -2,7 +2,7 @@ import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
-import {useCollectionStore} from "../store/collectionStore.ts";
+import {useCollectionStore} from '../store/collectionStore.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -81,10 +81,7 @@ export async function moveCollection(
     id: string,
     parentId: string | undefined
 ): Promise<void> {
-    await apiClient.put(
-        `/collections/${id}/move/${parentId || 'root'}`,
-        {}
-    );
+    await apiClient.put(`/collections/${id}/move/${parentId || 'root'}`, {});
     useCollectionStore.getState().moveCollection(id, parentId);
 }
 

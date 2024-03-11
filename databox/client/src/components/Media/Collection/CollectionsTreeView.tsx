@@ -3,10 +3,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {TreeItem, TreeView} from '@mui/x-tree-view';
 import {CollectionOptionalWorkspace, Workspace} from '../../../types';
+import {getWorkspaces} from '../../../api/collection';
 import {
-    getWorkspaces
-} from '../../../api/collection';
-import {CollectionPager, useCollectionStore} from "../../../store/collectionStore.ts";
+    CollectionPager,
+    useCollectionStore,
+} from '../../../store/collectionStore.ts';
 import {
     Box,
     CircularProgress,
@@ -74,12 +75,12 @@ function CollectionTree({
     const [loaded, setLoaded] = React.useState(false);
 
     const pager =
-        useCollectionStore((state) => state.tree)[collection.id]
-        ?? {
+        useCollectionStore(state => state.tree)[collection.id] ??
+        ({
             items: collection.children,
             expanding: false,
             loadingMore: false,
-        } as CollectionPager;
+        } as CollectionPager);
 
     async function load() {
         if (!collection.children || collection.children.length === 0) {
@@ -88,7 +89,10 @@ function CollectionTree({
 
         if (!loaded) {
             setLoaded(true);
-            const loadChildren = useCollectionStore((state) => state.loadChildren);
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const loadChildren = useCollectionStore(
+                state => state.loadChildren
+            );
             await loadChildren(workspaceId, collection.id);
         }
     }
@@ -123,8 +127,8 @@ function CollectionTree({
         <TreeItem
             disabled={
                 (disabledBranches &&
-                disabledBranches.some(b => nodeId.startsWith(b)))
-                || (isSelectable && !isSelectable(collection))
+                    disabledBranches.some(b => nodeId.startsWith(b))) ||
+                (isSelectable && !isSelectable(collection))
             }
             onClick={load}
             nodeId={nodeId}

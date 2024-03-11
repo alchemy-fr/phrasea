@@ -2,9 +2,9 @@ import {Group} from '../../types';
 import {getGroups} from '../../api/user';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {FieldValues} from 'react-hook-form';
-import React from "react";
-import {isAxiosError} from "axios";
-import {NotAllowSelect} from "./UserSelect.tsx";
+import React from 'react';
+import {isAxiosError} from 'axios';
+import {NotAllowSelect} from './UserSelect.tsx';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<Group[]> | undefined;
@@ -28,7 +28,9 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
                     label: t.name,
                 }))
                 .filter((i: SelectOption) =>
-                    i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+                    i.label
+                        .toLowerCase()
+                        .includes((inputValue || '').toLowerCase())
                 );
         } catch (e) {
             if (isAxiosError(e) && e.response?.status === 403) {
@@ -40,9 +42,7 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
     };
 
     if (notAllowed) {
-        return <NotAllowSelect
-            {...props}
-        />;
+        return <NotAllowSelect {...props} />;
     }
 
     return <RSelectWidget cacheId={'groups'} loadOptions={load} {...props} />;

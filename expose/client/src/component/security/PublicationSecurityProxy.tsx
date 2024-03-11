@@ -28,9 +28,7 @@ export default function PublicationSecurityProxy({
     };
 
     if (!publication) {
-        return <FullPageLoader
-            backdrop={false}
-        />;
+        return <FullPageLoader backdrop={false} />;
     }
 
     const {

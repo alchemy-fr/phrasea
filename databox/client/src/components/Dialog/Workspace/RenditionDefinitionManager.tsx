@@ -202,7 +202,6 @@ export default function RenditionDefinitionManager({
     );
 }
 
-
 function normalizeData(data: RenditionDefinition) {
     return {
         ...data,

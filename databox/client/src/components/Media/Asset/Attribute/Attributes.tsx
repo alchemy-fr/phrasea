@@ -1,6 +1,11 @@
 import {Asset, Attribute} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode, useContext} from 'react';
+import React, {
+    PropsWithChildren,
+    ReactElement,
+    ReactNode,
+    useContext,
+} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
 import {Box} from '@mui/material';
@@ -15,7 +20,7 @@ function replaceText(
     func: (text: string) => FreeNode,
     options: {
         props?: {};
-        depth?: number
+        depth?: number;
         stopTags?: string[];
     } = {}
 ): FreeNode {

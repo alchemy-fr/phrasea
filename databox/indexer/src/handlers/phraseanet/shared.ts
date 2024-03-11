@@ -20,11 +20,7 @@ export type AttrDefinitionIndex = Record<
     }
 >;
 
-
-export type TagIndex = Record<
-    number,
-    string
->;
+export type TagIndex = Record<number, string>;
 
 export type AttrClassIndex = Record<string, AttributeClass>;
 
@@ -44,14 +40,14 @@ export function createAsset(
         s => s.name === 'document'
     );
 
-    const path = `${rootCollectionPath}/${escapeSlashes(collectionName)}/${escapeSlashes(
-        record.original_name
-    )}`;
+    const path = `${rootCollectionPath}/${escapeSlashes(
+        collectionName
+    )}/${escapeSlashes(record.original_name)}`;
 
     const attributes: AttributeInput[] = [];
-    for(const c of record.caption ?? []) {
+    for (const c of record.caption ?? []) {
         const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
-        if(ad !== undefined) {
+        if (ad !== undefined) {
             const d = {
                 definitionId: ad.id,
                 origin: 'machine',
@@ -66,8 +62,8 @@ export function createAsset(
     }
 
     const tags: string[] = [];
-    for(const sb of record.status) {
-        if(sb.state && tagIndex[sb.bit] !== undefined) {
+    for (const sb of record.status) {
+        if (sb.state && tagIndex[sb.bit] !== undefined) {
             tags.push(tagIndex[sb.bit]);
         }
     }
@@ -103,7 +99,7 @@ export function createAsset(
                 };
             })
             .filter(s => Boolean(s)) as RenditionInput[],
-        shortcutIntoCollections: storyCollectionIds
+        shortcutIntoCollections: storyCollectionIds,
     };
 }
 

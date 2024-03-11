@@ -12,7 +12,11 @@ import {lockPromise} from '../lib/promise';
 import {getConfig, getStrict} from '../configLoader';
 import {Logger} from 'winston';
 import {createHttpClient} from '../lib/axios';
-import {configureClientCredentialsGrantType, KeycloakUserInfoResponse, OAuthClient} from '@alchemy/auth';
+import {
+    configureClientCredentialsGrantType,
+    KeycloakUserInfoResponse,
+    OAuthClient,
+} from '@alchemy/auth';
 import {MemoryStorage} from '@alchemy/storage';
 
 function createApiClient(
@@ -102,10 +106,10 @@ export class DataboxClient {
             );
         }
 
-        const a = (await this.client.post(`/assets`, {
+        const a = await this.client.post(`/assets`, {
             ownerId: this.ownerId,
             ...data,
-        }));
+        });
 
         return a.data.id;
     }
@@ -161,10 +165,14 @@ export class DataboxClient {
         return (collectionKeyMap[key] = r.id);
     }
 
-    async createCollectionTreeBranch(workspaceId: string, keyPrefix: string, data: CollectionInput[]): Promise<string> {
+    async createCollectionTreeBranch(
+        workspaceId: string,
+        keyPrefix: string,
+        data: CollectionInput[]
+    ): Promise<string> {
         let parentId: string | undefined = undefined;
         let key = keyPrefix;
-        let id = "";
+        let id = '';
         for (let i = 0; i < data.length; ++i) {
             key += '/' + data[i].key;
             id = await this.createCollection(key, {
@@ -184,14 +192,12 @@ export class DataboxClient {
         data: Partial<AttributeDefinition>
     ): Promise<AttributeDefinition> {
         return await lockPromise(`attr-def-${key}`, async () => {
-            return (await this.client.post(`/attribute-definitions`, data)).data;
+            return (await this.client.post(`/attribute-definitions`, data))
+                .data;
         });
     }
 
-    async createTag(
-        key: string,
-        data: Partial<Tag>
-    ): Promise<Tag> {
+    async createTag(key: string, data: Partial<Tag>): Promise<Tag> {
         return await lockPromise(`tag-${key}`, async () => {
             return (await this.client.post(`/tags`, data)).data;
         });
@@ -204,7 +210,7 @@ export class DataboxClient {
             },
         });
 
-        return res.data["hydra:member"];
+        return res.data['hydra:member'];
     }
 
     async createAttributeClass(
@@ -247,19 +253,17 @@ export class DataboxClient {
 
     async getOrCreateWorkspaceIdWithSlug(slug: string): Promise<string> {
         try {
-            return (await this.client.post(
-                `/workspaces`,
-                {
+            return (
+                await this.client.post(`/workspaces`, {
                     name: slug,
                     slug: slug,
                     public: false,
                     enabledLocales: [],
                     localeFallbacks: [],
-                    ownerId: getStrict('databox.ownerId')
-                }
-            )).data.id;
-        }
-        catch (e) {
+                    ownerId: getStrict('databox.ownerId'),
+                })
+            ).data.id;
+        } catch (e) {
             return this.getWorkspaceIdFromSlug(slug);
         }
     }

@@ -4,8 +4,8 @@ import {runServer} from '../server';
 import {IndexLocation} from '../types/config';
 import {getConfig} from '../configLoader';
 import {watchers} from '../watchers';
-import {CommandCommonOptions} from "../types";
-import {applyCommonOptions} from "./commandUtil";
+import {CommandCommonOptions} from '../types';
+import {applyCommonOptions} from './commandUtil';
 
 export type WatchOptions = {} & CommandCommonOptions;
 

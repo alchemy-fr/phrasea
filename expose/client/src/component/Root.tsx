@@ -1,6 +1,10 @@
 import {ModalStack} from '@alchemy/navigation';
 import {oauthClient} from '../lib/api-client';
-import {AuthenticationProvider, MatomoUser, SessionExpireContainer} from '@alchemy/react-auth';
+import {
+    AuthenticationProvider,
+    MatomoUser,
+    SessionExpireContainer,
+} from '@alchemy/react-auth';
 import App from './App.tsx';
 import {ToastContainer} from 'react-toastify';
 
@@ -11,7 +15,7 @@ export default function Root({}: Props) {
         <>
             <ToastContainer position={'bottom-left'} />
             <AuthenticationProvider oauthClient={oauthClient}>
-                <SessionExpireContainer/>
+                <SessionExpireContainer />
                 <MatomoUser />
                 <ModalStack>
                     <App />

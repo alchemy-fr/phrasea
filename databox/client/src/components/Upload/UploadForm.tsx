@@ -176,14 +176,17 @@ export const UploadForm: FC<{
                 {!noDestination && (
                     <FormRow>
                         <CollectionTreeWidget
-                            isSelectable={(coll) => coll.capabilities.canEdit}
+                            isSelectable={coll => coll.capabilities.canEdit}
                             control={control}
                             rules={{
                                 required: true,
                             }}
                             name={'destination'}
                             onChange={(s: string | undefined, wsId) => {
-                                if (typeof s === 'string' && s.startsWith('/collections/')) {
+                                if (
+                                    typeof s === 'string' &&
+                                    s.startsWith('/collections/')
+                                ) {
                                     onChangeCollection(
                                         s.replace('/collections/', '')
                                     );

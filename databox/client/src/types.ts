@@ -239,13 +239,16 @@ export enum CollectionOrWorkspace {
     Workspace = 'workspace',
 }
 
-export type Ace = ({
-    userType: UserType.Group;
-    group?: Group | null;
-} | {
-    userType: UserType.User;
-    user?: User | null;
-}) & {
+export type Ace = (
+    | {
+          userType: UserType.Group;
+          group?: Group | null;
+      }
+    | {
+          userType: UserType.User;
+          user?: User | null;
+      }
+) & {
     id: string;
     mask: number;
     userId: string | null;

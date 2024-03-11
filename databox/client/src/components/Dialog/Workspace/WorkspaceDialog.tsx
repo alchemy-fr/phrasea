@@ -15,7 +15,7 @@ import RenditionClassManager from './RenditionClassManager';
 import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes.ts';
-import {useCloseModal} from "../../Routing/ModalLink.tsx";
+import {useCloseModal} from '../../Routing/ModalLink.tsx';
 
 type Props = {};
 

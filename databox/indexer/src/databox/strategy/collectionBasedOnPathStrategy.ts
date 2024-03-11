@@ -18,14 +18,16 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     let collIRI: string;
     try {
-        collIRI = "/collections/" + await databoxClient.createCollectionTreeBranch(
-            asset.workspaceId,
-            asset.collectionKeyPrefix ?? "",
-            branch.map(k => ({
-                key: k,
-                title: k,
-            }))
-        );
+        collIRI =
+            '/collections/' +
+            (await databoxClient.createCollectionTreeBranch(
+                asset.workspaceId,
+                asset.collectionKeyPrefix ?? '',
+                branch.map(k => ({
+                    key: k,
+                    title: k,
+                }))
+            ));
     } catch (e: any) {
         logger.error(
             `Failed to create collection branch "${branch.join(
@@ -55,16 +57,15 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             renditions: asset.renditions,
         });
         // also create links into collections
-        for(const c of asset.shortcutIntoCollections ?? []) {
+        for (const c of asset.shortcutIntoCollections ?? []) {
             await databoxClient.copyAsset({
-                destination: "/collections/" + c,
+                destination: '/collections/' + c,
                 ids: [assetId],
                 byReference: true,
                 withAttributes: false,
                 withTags: false,
-            })
+            });
         }
-
     } catch (e: any) {
         logger.error(`Failed to create asset "${path}": ${e.toString()}`);
         throw e;

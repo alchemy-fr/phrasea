@@ -103,10 +103,7 @@ export default function AttributeRowUI({
                     </IconButton>
                 )}
             </div>
-            <div
-                className={'attr-val'}
-                 lang={locale}
-            >
+            <div className={'attr-val'} lang={locale}>
                 {multiple && !formatter.supportsMultiple() ? (
                     <ul>
                         {value

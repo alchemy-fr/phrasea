@@ -2,14 +2,13 @@ import {Command, Option} from 'commander';
 import indexCommand from './command/index.js';
 import listCommand from './command/list';
 import watchCommand from './command/watch';
-import indexAllCommand from "./command/indexAll";
+import indexAllCommand from './command/indexAll';
 
 const program = new Command();
 
 program.name('console').description('Databox Indexer').version('1.0.0');
 
-const debugOption = new Option('--debug', 'Debug mode')
-    .default(false);
+const debugOption = new Option('--debug', 'Debug mode').default(false);
 
 program
     .command('index')
