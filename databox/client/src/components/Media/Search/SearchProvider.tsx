@@ -36,13 +36,22 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const resolvedSortBy = getResolvedSortBy(sortBy);
 
     const setAttrFilters = useCallback(
-        (handler: (prev: Filters) => Filters): boolean => {
+        (handler: (prev: Filters) => Filters, newQuery?: string): boolean => {
             return setHash(
-                queryToHash(query, handler(filters), sortBy, geolocation)
+                queryToHash(
+                    newQuery ?? query,
+                    handler(filters),
+                    sortBy,
+                    geolocation
+                )
             );
         },
         [setHash, query, filters, sortBy, geolocation]
     );
+
+    const reset = useCallback((): boolean => {
+        return setHash('');
+    }, [setHash, query, filters, sortBy, geolocation]);
 
     const selectWorkspace = useCallback<TSearchContext['selectWorkspace']>(
         (workspaceId, title, forceReload): void => {
@@ -281,6 +290,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 }),
                 reloadInc,
                 sortBy,
+                reset,
                 setSortBy,
                 geolocation,
                 setGeoLocation,

@@ -101,6 +101,11 @@ class TextAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function supportsSuggest(): bool
+    {
+        return true;
+    }
+
     public function validate($value, ExecutionContextInterface $context): void
     {
         if (null === $value) {

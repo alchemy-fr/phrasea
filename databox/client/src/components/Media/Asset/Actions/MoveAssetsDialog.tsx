@@ -8,7 +8,7 @@ import FormFieldErrors from '../../../Form/FormFieldErrors';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import RemoteErrors from '../../../Form/RemoteErrors';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 
 type Props = {
@@ -48,7 +48,7 @@ export default function MoveAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPromptOutsideRouter(forbidNavigation);
 
     const formId = 'move-assets';
 
@@ -72,6 +72,7 @@ export default function MoveAssetsDialog({
             </Typography>
             <form id={formId} onSubmit={handleSubmit}>
                 <CollectionTreeWidget
+                    isSelectable={coll => coll.capabilities.canEdit}
                     workspaceId={workspaceId}
                     control={control}
                     name={'destination'}

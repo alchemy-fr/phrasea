@@ -1,10 +1,10 @@
 import React from 'react';
-import {Target} from "../../types.ts";
-import Container from "../Container";
+import {Target} from '../../types.ts';
+import Container from '../Container';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
-import {getTarget} from "../../requests";
+import {getTarget} from '../../requests';
 import {useParams} from '@alchemy/navigation';
-import UploadStepper from "../Upload/UploadStepper.tsx";
+import UploadStepper from '../Upload/UploadStepper.tsx';
 
 type Props = {};
 
@@ -17,14 +17,12 @@ export default function UploadPage({}: Props) {
     }, []);
 
     if (!target) {
-        return <FullPageLoader
-            backdrop={false}
-        />;
+        return <FullPageLoader backdrop={false} />;
     }
 
-    return <Container>
-        <UploadStepper
-            target={target}
-        />
-    </Container>
+    return (
+        <Container>
+            <UploadStepper target={target} />
+        </Container>
+    );
 }

@@ -1,0 +1,38 @@
+{
+    "name": "alchemy/messenger-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony Messenger bundle",
+    "keywords": [
+        "Messenger"
+    ],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "symfony/framework-bundle": "^6.4",
+        "symfony/messenger": "^6.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\MessengerBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\MessengerBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^v3.50"
+    }
+}

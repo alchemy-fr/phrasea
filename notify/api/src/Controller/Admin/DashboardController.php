@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Contact;
 use App\Entity\FailedEvent;
 use App\Entity\TopicSubscriber;
@@ -30,6 +31,6 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::linkToCrud('Contact', 'fas fa-folder-open', Contact::class);
         yield MenuItem::linkToCrud('TopicSubscriber', 'fas fa-folder-open', TopicSubscriber::class);
-        yield MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu1)->setPermission('ROLE_TECH');
+        yield MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu1)->setPermission(JwtUser::ROLE_TECH);
     }
 }

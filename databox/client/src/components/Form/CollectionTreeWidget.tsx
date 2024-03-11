@@ -6,6 +6,7 @@ import {FieldPath} from 'react-hook-form';
 import {
     CollectionsTreeView,
     CollectionTreeViewProps,
+    IsSelectable,
 } from '../Media/Collection/CollectionsTreeView';
 import {FormControl, FormLabel} from '@mui/material';
 import {RegisterOptions} from 'react-hook-form';
@@ -24,6 +25,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     allowNew?: boolean | undefined;
     disabled?: boolean | undefined;
+    isSelectable?: IsSelectable;
 };
 
 export default function CollectionTreeWidget<
@@ -38,6 +40,7 @@ export default function CollectionTreeWidget<
     onChange: extOnChange,
     workspaceId,
     required,
+    isSelectable,
     allowNew,
     disabled,
 }: Props<TFieldValues, IsMulti>) {
@@ -66,6 +69,7 @@ export default function CollectionTreeWidget<
                             value={value}
                             multiple={multiple}
                             allowNew={allowNew}
+                            isSelectable={isSelectable}
                             onChange={(collections, ws) => {
                                 onChange(collections);
                                 extOnChange && extOnChange(collections, ws);

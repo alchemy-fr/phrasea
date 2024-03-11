@@ -24,8 +24,8 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-            ->remove(Crud::PAGE_INDEX, ACTION::EDIT)
-            ->remove(Crud::PAGE_INDEX, ACTION::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
     }
 

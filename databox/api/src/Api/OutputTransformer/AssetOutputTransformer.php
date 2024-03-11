@@ -104,7 +104,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 foreach ($preferredLocales as $l) {
                     if (isset($_attrs[$l]) && null !== $_attrs[$l]->getValue()) {
                         $preferredAttributes[] = $_attrs[$l];
-                        $key = $this->fieldNameResolver->getFieldName($_attrs[$l]->getDefinition());
+                        $key = $this->fieldNameResolver->getFieldNameFromDefinition($_attrs[$l]->getDefinition());
                         $indexByAttrName[$key] = $_attrs[$l]->getValue();
                         continue 2;
                     }

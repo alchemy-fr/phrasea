@@ -83,6 +83,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+
     final public const GROUP_READ = 'renddef:read';
     final public const GROUP_LIST = 'renddef:index';
     final public const GROUP_WRITE = 'renddef:w';

@@ -34,7 +34,7 @@ class PublicationFilter extends AbstractFilter
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        ?Operation $operation = null,
         array $context = []
     ): void {
 
@@ -44,7 +44,7 @@ class PublicationFilter extends AbstractFilter
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        ?Operation $operation = null,
         array $context = []
     ): void {
         parent::apply($queryBuilder, $queryNameGenerator, $resourceClass, $operation, $context);

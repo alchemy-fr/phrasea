@@ -6,17 +6,17 @@ namespace App\Api\Filter\Group;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 
-class GroupValue
+readonly class GroupValue
 {
     public function __construct(
         #[Groups(['_'])]
-        private readonly string $name,
+        private string $name,
         #[Groups(['_'])]
-        private readonly string $type,
+        private string $type,
         #[Groups(['_'])]
-        private readonly ?string $key,
+        private ?string $key,
         #[Groups(['_'])]
-        private readonly array $values
+        private array $values
     ) {
     }
 

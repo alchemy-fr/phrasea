@@ -7,10 +7,13 @@ uploader/api
 notify/api
 "
 
-JS_PROJECTS="
+CLIENT_PROJECTS="
 databox/client
 expose/client
 uploader/client
+"
+
+NODE_PROJECTS="
 databox/indexer
 "
 

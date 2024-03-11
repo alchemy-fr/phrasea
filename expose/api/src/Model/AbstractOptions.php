@@ -8,7 +8,7 @@ use App\Entity\MergeableValueObjectInterface;
 
 abstract class AbstractOptions implements \JsonSerializable, MergeableValueObjectInterface
 {
-    public function __construct(array $options = null)
+    final public function __construct(?array $options = null)
     {
         if (null !== $options) {
             $this->fromJson($options);

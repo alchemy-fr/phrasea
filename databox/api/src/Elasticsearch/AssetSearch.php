@@ -13,7 +13,6 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetSearch extends AbstractSearch
@@ -22,11 +21,9 @@ class AssetSearch extends AbstractSearch
         private readonly PaginatedFinderInterface $finder,
         private readonly TagFilterManager $tagFilterManager,
         private readonly AttributeSearch $attributeSearch,
-        Security $security,
         private readonly QueryStringParser $queryStringParser,
-        private readonly FacetHandler $facetHandler
+        private readonly FacetHandler $facetHandler,
     ) {
-        $this->security = $security;
     }
 
     public function search(
@@ -101,12 +98,14 @@ class AssetSearch extends AbstractSearch
         $queryString = trim($options['query'] ?? '');
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
+        $attributeDefinitionGroups = $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds);
+
         if (!empty($parsed['should'])) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery($parsed['should'], $userId, $groupIds, $options);
+            $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $parsed['should'], $options);
             $filterQuery->addMust($multiMatch);
         }
         foreach ($parsed['must'] as $must) {
-            $multiMatch = $this->attributeSearch->buildAttributeQuery($must, $userId, $groupIds, array_merge($options, [
+            $multiMatch = $this->attributeSearch->buildAttributeQuery($attributeDefinitionGroups, $must, array_merge($options, [
                 AttributeSearch::OPT_STRICT_PHRASE => true,
             ]));
             $filterQuery->addMust($multiMatch);
@@ -137,18 +136,18 @@ class AssetSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->security->isGranted(AbstractVoter::READ, $asset), $adapter));
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
         $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
+            $result->setAllowOutOfRangePages(true);
             $result->setCurrentPage((int) $options['page']);
         }
-
         $start = microtime(true);
-        $facets = $adapter->getAggregations();
-
-        $facets = $this->facetHandler->normalizeBuckets($facets);
-
+        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
         $searchTime = microtime(true) - $start;
+
+        $facets = $adapter->getAggregations();
+        $facets = $this->facetHandler->normalizeBuckets($facets);
 
         $esQuery = $query->toArray();
 

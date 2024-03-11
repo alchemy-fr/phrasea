@@ -6,19 +6,16 @@ namespace Alchemy\CoreBundle\Health;
 
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
-class HealthChecker
+readonly class HealthChecker
 {
     /**
-     * @var HealthCheckerInterface[]
+     * @param HealthCheckerInterface[] $checkers
      */
-    private iterable $checkers;
-
     public function __construct(
         #[TaggedIterator(HealthCheckerInterface::TAG)]
-        iterable $checkers,
+        private iterable $checkers,
     )
     {
-        $this->checkers = $checkers;
     }
 
     public function getChecks(): array

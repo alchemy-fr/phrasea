@@ -13,7 +13,7 @@ import SwitchWidget from '../../../Form/SwitchWidget';
 import {Asset} from '../../../../types';
 import AssetSelection from '../AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 
 type Props = {
@@ -118,7 +118,7 @@ export default function CopyAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPromptOutsideRouter(forbidNavigation);
     const byRef = watch('byReference');
 
     const nonLinkablePerm: Asset[] = useMemo(
@@ -199,6 +199,7 @@ export default function CopyAssetsDialog({
                 </div>
                 <FormRow>
                     <CollectionTreeWidget
+                        isSelectable={coll => coll.capabilities.canEdit}
                         onChange={(_nodeId, workspaceId) => {
                             setWorkspaceDest(workspaceId);
                         }}

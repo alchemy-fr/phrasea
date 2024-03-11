@@ -37,6 +37,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/messenger-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/report-sdk",
             "options": {
                 "symlink": true
@@ -74,6 +81,7 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/messenger-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
@@ -93,6 +101,7 @@
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.5",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",
         "symfony/dotenv": "^6.3",
@@ -114,6 +123,7 @@
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
         "rector/rector": "^0.17.1",
+        "phpstan/phpstan": "^1.10",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
         "symfony/debug-bundle": "^6.3",
@@ -121,7 +131,8 @@
         "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "^6.3",
         "symfony/var-dumper": "^6.3",
-        "symfony/web-profiler-bundle": "^6.3"
+        "symfony/web-profiler-bundle": "^6.3",
+        "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
         "preferred-install": {
@@ -152,19 +163,34 @@
         "symfony/polyfill-php56": "*"
     },
     "scripts": {
+        "cache-clear": "php -d memory_limit=-1 bin/console cache:clear",
         "auto-scripts": {
-            "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "post-update-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
+        "pre-phpunit": [
+            "rm -f var/cache/test/data*.db",
+            "bin/console -e test doctrine:schema:create"
+        ],
+        "phpunit": [
+            "@pre-phpunit",
+            "php -d memory_limit=512M ./bin/phpunit"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src",
+            "@phpstan",
+            "@phpunit"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

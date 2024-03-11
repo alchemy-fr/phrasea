@@ -29,7 +29,7 @@ class RenditionRuleVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $object = match($subject->getObjectType()) {
+        $object = match ($subject->getObjectType()) {
             RenditionRule::TYPE_WORKSPACE => DoctrineUtil::findStrict($this->em, Workspace::class, $subject->getObjectId()),
             RenditionRule::TYPE_COLLECTION => DoctrineUtil::findStrict($this->em, Collection::class, $subject->getObjectId()),
         };

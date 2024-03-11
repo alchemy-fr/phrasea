@@ -77,6 +77,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     output: WorkspaceOutput::class,
 )]
 #[ORM\Entity(repositoryClass: WorkspaceRepository::class)]
+#[ORM\Index(fields: ['public'], name: 'public_idx')]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
 #[UniqueEntity(fields: [
     'slug',

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Asset\Attribute\AssetTitleResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -22,15 +22,157 @@ use Elastica\Query;
 class AttributeSearch
 {
     final public const OPT_STRICT_PHRASE = 'strict';
+    final public const GROUP_ALL = '*';
+    final public const FIELD_MATCH = 'm';
+    final public const FIELD_KEYWORD = 'k';
 
-    public function __construct(private readonly FieldNameResolver $fieldNameResolver, private readonly EntityManagerInterface $em, private readonly AttributeTypeRegistry $typeRegistry, private readonly AssetTitleResolver $assetTitleResolver)
-    {
+    public function __construct(
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly EntityManagerInterface $em,
+        private readonly AttributeTypeRegistry $typeRegistry,
+    ) {
     }
 
+    public function buildSearchableAttributeDefinitionsGroups(?string $userId, array $groupIds): array
+    {
+        $definitions = $this->em->getRepository(AttributeDefinition::class)
+            ->getSearchableAttributesWithPermission($userId, $groupIds);
+
+        return $this->createClustersFromDefinitions($definitions);
+    }
+
+    public function createClustersFromDefinitions(iterable $definitions): array
+    {
+        $groups = [];
+        foreach ($definitions as $d) {
+            $fieldName = $this->fieldNameResolver->getFieldName(
+                $d['slug'],
+                $d['fieldType'],
+                $d['multiple']
+            );
+
+            $type = $this->typeRegistry->getStrictType($d['fieldType']);
+            if (
+                $type instanceof TextAttributeType
+                || $type instanceof DateTimeAttributeType
+            ) {
+                $searchType = self::FIELD_MATCH;
+            } elseif ($type instanceof KeywordAttributeType) {
+                $searchType = self::FIELD_KEYWORD;
+            } else {
+                continue;
+            }
+
+            if ($type instanceof DateTimeAttributeType || $type instanceof NumberAttributeType) {
+                $fieldName .= '.text';
+            }
+
+            $groups[$fieldName] ??= [
+                'w' => [],
+            ];
+
+            $boost = $d['searchBoost'] ?? 1;
+            $trIndex = $type->isLocaleAware() && $d['translatable'] ? 1 : 0;
+
+            if ($d['allowed']) {
+                $groups[$fieldName]['w'][$boost] ??= [
+                    $trIndex => [],
+                ];
+                $groups[$fieldName]['w'][$boost][$trIndex] ??= [
+                    $searchType => [],
+                ];
+                $groups[$fieldName]['w'][$boost][$trIndex][$searchType][] = $d['workspaceId'];
+            } else {
+                $groups[$fieldName]['f'] = true;
+            }
+        }
+
+        $clusters = [];
+
+        foreach ($groups as $f => $group) {
+            if (!$this->hasDiversity($group)) {
+                $firstBoost = array_keys($group['w'])[0];
+
+                $clusters[self::GROUP_ALL] ??= [
+                    'w' => null,
+                    'b' => 1,
+                    'fields' => [],
+                ];
+                $trKey = array_keys($group['w'][$firstBoost])[0];
+                $st = array_keys($group['w'][$firstBoost][$trKey])[0];
+                $fieldName = sprintf('attributes.%s.%s', $trKey ? '{l}' : '_', $f);
+
+                $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
+                    'st' => $st,
+                    'b' => $firstBoost,
+                ];
+            } else {
+                foreach ($group['w'] as $boost => $wsB) {
+                    foreach ($wsB as $tr => $wsTr) {
+                        foreach ($wsTr as $st => $wsSt) {
+                            sort($wsSt);
+                            $uk = $st.':'.$boost.':'.$tr.':'.implode(';', $wsSt);
+
+                            $clusters[$uk] ??= [
+                                'w' => $wsSt,
+                                'b' => $boost,
+                                'fields' => [],
+                            ];
+                            $fieldName = sprintf('attributes.%s.%s', $tr ? '{l}' : '_', $f);
+                            $clusters[$uk]['fields'][$fieldName] = [
+                                'st' => $st,
+                                'b' => $boost,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        $clusters[self::GROUP_ALL] ??= [
+            'w' => null,
+            'b' => 1,
+            'fields' => [],
+        ];
+        $clusters[self::GROUP_ALL]['fields']['title'] = [
+            'st' => self::FIELD_MATCH,
+            'b' => 1,
+        ];
+
+        return array_values($clusters);
+    }
+
+    private function hasDiversity(array $group): bool
+    {
+        if ($group['f'] ?? false) {
+            return true;
+        }
+
+        if (count($group['w']) > 1) {
+            return true;
+        }
+
+        foreach ($group['w'] as $boost => $wsTr) {
+            if (1 !== $boost || count($wsTr) > 1) {
+                return true;
+            }
+
+            foreach ($wsTr as $tr => $wsSt) {
+                if (count($wsSt) > 1) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param AttributeDefinition[] $attributeDefinitionClusters
+     */
     public function buildAttributeQuery(
+        array $attributeDefinitionClusters,
         string $queryString,
-        ?string $userId,
-        array $groupIds,
         array $options = []
     ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
@@ -41,71 +183,45 @@ class AttributeSearch
 
         $this->addIdQueryShould($boolQuery, $queryString);
 
-        /** @var AttributeDefinition[] $attributeDefinitions */
-        $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-            ->getSearchableAttributes($userId, $groupIds);
-
-        $wsIndexed = [];
-        foreach ($attributeDefinitions as $definition) {
-            $workspaceId = $definition->getWorkspaceId();
-            $wsIndexed[$workspaceId] ??= [];
-            $wsIndexed[$workspaceId][] = $definition;
-        }
-
-        foreach ($wsIndexed as $workspaceId => $attributeDefinitions) {
-            $wsSearchQuery = new Query\BoolQuery();
-
-            $weights = [];
-            if (!$this->assetTitleResolver->hasTitleOverride($workspaceId)) {
-                $weights['title'] = 10;
-            }
-
-            foreach ($attributeDefinitions as $definition) {
-                $fieldName = $this->fieldNameResolver->getFieldName($definition);
-                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-
-                if (!(
-                    $type instanceof TextAttributeType
-                    || $type instanceof DateTimeAttributeType
-                )) {
-                    continue;
-                }
-
-                $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-
-                $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                if ($type instanceof DateTimeAttributeType) {
-                    $field .= '.text';
-                }
-                $weights[$field] = $definition->getSearchBoost() ?? 1;
-            }
-
+        foreach ($attributeDefinitionClusters as $cluster) {
+            $clusterQuery = new Query\BoolQuery();
             $matchBoolQuery = new Query\BoolQuery();
+            $weights = [];
 
-            $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
-            $multiMatch->setParam('boost', 50);
-            $matchBoolQuery->addShould($multiMatch);
+            foreach ($cluster['fields'] as $fieldName => $conf) {
+                $fieldName = str_replace('{l}', $language, $fieldName);
 
-            if (!$strict) {
-                $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
-            }
-
-            // Add should for terms
-            foreach ($attributeDefinitions as $definition) {
-                $fieldName = $this->fieldNameResolver->getFieldName($definition);
-                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-
-                if ($type instanceof KeywordAttributeType) {
-                    $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-                    $field = sprintf('attributes.%s.%s', $l, $fieldName);
-                    $matchBoolQuery->addShould(new Query\Term([$field => $queryString]));
+                if (self::FIELD_MATCH === $conf['st']) {
+                    $weights[$fieldName] = $conf['b'];
+                } else {
+                    $term = new Query\Term([$fieldName => $queryString]);
+                    if (1 !== $conf['b']) {
+                        $term->setParam('boost', $conf['b']);
+                    }
+                    $matchBoolQuery->addShould($term);
                 }
             }
 
-            $wsSearchQuery->addMust($matchBoolQuery);
-            $wsSearchQuery->addMust(new Query\Term(['workspaceId' => $workspaceId]));
+            if (!empty($weights)) {
+                $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
+                $matchBoolQuery->addShould($multiMatch);
 
-            $boolQuery->addShould($wsSearchQuery);
+                if (!$strict) {
+                    $multiMatch->setParam('boost', 5);
+                    $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
+                }
+            }
+
+            $clusterQuery->addMust($matchBoolQuery);
+            if (1 !== $cluster['b']) {
+                $clusterQuery->setBoost($cluster['b']);
+            }
+
+            if (null !== $cluster['w']) {
+                $clusterQuery->addMust(new Query\Terms('workspaceId', $cluster['w']));
+            }
+
+            $boolQuery->addShould($clusterQuery);
         }
 
         return $boolQuery;
@@ -211,7 +327,7 @@ class AttributeSearch
 
         $facets = [];
         foreach ($attributeDefinitions as $definition) {
-            $fieldName = $this->fieldNameResolver->getFieldName($definition);
+            $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
             $field = sprintf('attributes.%s.%s', $l, $fieldName);

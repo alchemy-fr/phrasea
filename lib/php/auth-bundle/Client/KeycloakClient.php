@@ -6,6 +6,7 @@ namespace Alchemy\AuthBundle\Client;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -180,7 +181,10 @@ final readonly class KeycloakClient
             return $response->toArray();
         } catch (ClientException $e) {
             if (null !== $statusCode = $e->getResponse()?->getStatusCode()) {
-                throw new HttpException($statusCode, $e->getResponse()->getContent(false), $e);
+                throw match ($statusCode) {
+                    403 => new AccessDeniedHttpException($e->getResponse()->getContent(false), $e),
+                    default => new HttpException($statusCode, $e->getResponse()->getContent(false), $e),
+                };
             }
 
             throw $e;

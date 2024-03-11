@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\tests\Attribute\Type;
+namespace App\Tests\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;

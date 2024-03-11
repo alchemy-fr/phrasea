@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 trait WithOwnerIdProcessorTrait
 {
     /**
-     * @template T
+     * @template T of WithOwnerIdInterface
      *
      * @param T $data
      *

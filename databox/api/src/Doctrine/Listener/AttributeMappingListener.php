@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\Search\Mapping\UpdateAttributesMappingHandler;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
@@ -39,6 +40,7 @@ class AttributeMappingListener implements EventSubscriber
                 'fieldType',
                 'name',
                 'searchable',
+                'suggest',
             ], $args->getObjectManager(), $entity)) {
                 $this->updateWorkspace($entity->getWorkspaceId());
             }

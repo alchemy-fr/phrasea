@@ -77,7 +77,7 @@ class AssetCopyHandler extends AbstractEntityManagerHandler
         return [self::EVENT];
     }
 
-    public static function createEvent(string $userId, array $groupsId, string $id, string $destination, bool $link = null, array $options = []): EventMessage
+    public static function createEvent(string $userId, array $groupsId, string $id, string $destination, ?bool $link = null, array $options = []): EventMessage
     {
         return new EventMessage(self::EVENT, [
             'id' => $id,

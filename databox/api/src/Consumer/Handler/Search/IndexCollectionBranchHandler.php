@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use App\Elasticsearch\ESSearchIndexer;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
@@ -13,7 +13,7 @@ class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'index_collection_branch';
 
-    public function __construct(private readonly ESSearchIndexer $searchIndexer)
+    public function __construct(private readonly SearchIndexer $searchIndexer)
     {
     }
 
@@ -44,7 +44,7 @@ class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
 
     private function indexCollection(Collection $collection): void
     {
-        $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], ESSearchIndexer::ACTION_UPSERT);
+        $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], SearchIndexer::ACTION_UPSERT);
     }
 
     public static function getHandledEvents(): array

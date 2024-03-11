@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Target;
@@ -45,8 +46,7 @@ class TargetCrudController extends AbstractAdminCrudController
         $enabled = Field::new('enabled');
         $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
-        $pullModeUrl = TextareaField::new('pullModeUrl', 'Pull mode URL')
-            ->setTemplatePath('@AlchemyAdmin/list/code.html.twig');
+        $pullModeUrl = CodeField::new('pullModeUrl', 'Pull mode URL');
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [$id, $slug, $name, $pullModeUrl, $targetUrl, $enabled, $createdAt];

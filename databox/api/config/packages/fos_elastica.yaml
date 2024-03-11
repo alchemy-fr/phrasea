@@ -16,9 +16,17 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
-                            text:
+                            text: &text_analyzer
                                 type: custom
                                 tokenizer: standard
+                                filter:
+                                    - elision
+                                    - lowercase
+                                    - worddelimiter
+                                    - asciifolding
+                            partial_words: &partial_words_analyzer
+                                type: custom
+                                tokenizer: edge_ngram
                                 filter:
                                     - elision
                                     - lowercase
@@ -28,8 +36,16 @@ fos_elastica:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
+                            edge_ngram: &edge_ngram_tokenizer
+                                type: edge_ngram
+                                min_gram: 1
+                                max_gram: 10
+                                token_chars:
+                                    - letter
+                                    - digit
+                                    - symbol
                         filter:
-                            worddelimiter:
+                            worddelimiter: &worddelimiter_filter
                                 type: word_delimiter_graph
                                 generate_word_parts: true
                                 catenate_words: true
@@ -38,6 +54,20 @@ fos_elastica:
                 title:
                     type: text
                     analyzer: text
+                suggestion:
+                    property_path: title
+                    type: text
+                    analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
+                        suggest: &suggest_field
+                            index_options: docs
+                            similarity: boolean
+                            type: text
+                            analyzer: partial_words
+                            search_analyzer: text
+                            term_vector: with_positions_offsets
                 attributes:
                     type: object
                 referenceCollectionId:
@@ -84,6 +114,8 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Core\Asset
                 listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
 
         collection:
             use_alias: '%elastica.use_alias%'
@@ -94,12 +126,27 @@ fos_elastica:
                         analyzer:
                             collection_path:
                                 tokenizer: collection_path
+                            text: *text_analyzer
+                            partial_words: *partial_words_analyzer
                         tokenizer:
                             collection_path:
                                 type: path_hierarchy
                                 delimiter: /
+                            edge_ngram: *edge_ngram_tokenizer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
             properties:
-                title: ~
+                title:
+                    type: text
+                    analyzer: text
+                suggestion:
+                    property_path: title
+                    type: text
+                    analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
+                        suggest: *suggest_field
                 sortName:
                     type: keyword
                 absolutePath:
@@ -124,10 +171,78 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
+                nlUsers:
+                    property_path: false
+                    type: keyword
+                nlGroups:
+                    property_path: false
+                    type: keyword
+                privacyRoots:
+                    type: keyword
+                createdAt:
+                    type: date
             persistence:
                 driver: orm
                 model: App\Entity\Core\Collection
                 listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
+        attribute:
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%attribute_%kernel.environment%"
+            indexable_callback: [ '@App\Elasticsearch\AttributeIndexable', 'isAttributeIndexable' ]
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            text: *text_analyzer
+                            partial_words: *partial_words_analyzer
+                        tokenizer:
+                            edge_ngram: *edge_ngram_tokenizer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
+            properties:
+                suggestion:
+                    property_path: value
+                    type: text
+                    analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
+                            ignore_above: 200
+                        suggest: *suggest_field
+                privacy:
+                    property_path: false
+                    type: byte
+                definitionId:
+                    type: keyword
+                workspaceId:
+                    type: keyword
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+                nlUsers:
+                    property_path: false
+                    type: keyword
+                nlGroups:
+                    property_path: false
+                    type: keyword
+                privacyRoots:
+                    type: keyword
+                createdAt:
+                    type: date
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Attribute
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
 
         asset_data_template:
             use_alias: '%elastica.use_alias%'
@@ -160,6 +275,8 @@ fos_elastica:
                 driver: orm
                 model: App\Entity\Template\AssetDataTemplate
                 listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
 
 when@dev:
     parameters:

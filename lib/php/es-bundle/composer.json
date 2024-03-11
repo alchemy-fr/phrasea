@@ -1,0 +1,39 @@
+{
+    "name": "alchemy/es-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony ElasticSearch bundle",
+    "keywords": [
+        "ElasticSearch"
+    ],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "symfony/framework-bundle": "^6.4",
+        "friendsofsymfony/elastica-bundle": "^6.3",
+        "symfony/messenger": "^6.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\ESBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\ESBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^v3.50"
+    }
+}

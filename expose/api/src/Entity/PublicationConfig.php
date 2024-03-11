@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
@@ -23,12 +23,10 @@ class PublicationConfig implements MergeableValueObjectInterface
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?bool $enabled = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?bool $downloadViaEmail = null;
 
     /**
@@ -36,7 +34,6 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?bool $includeDownloadTermsInZippy = null;
 
     /**
@@ -44,17 +41,14 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private array $urls = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?string $copyrightText = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?string $css = null;
 
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
@@ -81,12 +75,12 @@ class PublicationConfig implements MergeableValueObjectInterface
     #[Groups(['profile:read', 'publication:admin:read'])]
     private ?\DateTimeImmutable $expiresAt = null;
 
-    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $terms;
 
-    #[ORM\Embedded(class: \App\Entity\TermsConfig::class)]
+    #[ORM\Embedded(class: TermsConfig::class)]
     #[Groups(['profile:read', 'publication:admin:read'])]
     #[ApiProperty(readableLink: true)]
     private TermsConfig $downloadTerms;
@@ -96,7 +90,6 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private ?string $securityMethod = null;
 
     /**
@@ -105,7 +98,6 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['profile:read', 'publication:admin:read'])]
-    #[ApiProperty]
     private array $securityOptions = [];
 
     /**

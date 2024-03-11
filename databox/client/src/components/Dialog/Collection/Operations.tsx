@@ -25,6 +25,8 @@ export default function Operations({data, onClose, minHeight}: Props) {
             ),
             onConfirm: async () => {
                 await deleteCollection(data.id);
+            },
+            onConfirmed: () => {
                 onClose();
             },
         });

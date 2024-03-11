@@ -175,6 +175,9 @@ export default class UploadBatch {
     }
 
     onFileError(err, index) {
+        if (!this.files[index]) {
+            return;
+        }
         this.files[index].error = err;
 
         this.errorListeners.forEach(func => {

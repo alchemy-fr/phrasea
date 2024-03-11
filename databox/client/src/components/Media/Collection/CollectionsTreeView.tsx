@@ -3,12 +3,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {TreeItem, TreeView} from '@mui/x-tree-view';
 import {CollectionOptionalWorkspace, Workspace} from '../../../types';
+import {getWorkspaces} from '../../../api/collection';
 import {
-    collectionChildrenLimit,
-    collectionSecondLimit,
-    getCollections,
-    getWorkspaces
-} from '../../../api/collection';
+    CollectionPager,
+    useCollectionStore,
+} from '../../../store/collectionStore.ts';
 import {
     Box,
     CircularProgress,
@@ -30,18 +29,6 @@ export type SetExpanded = (
     nodeIds: string[] | ((prevNodeIds: string[]) => string[])
 ) => void;
 
-type CollectionTreeProps = {
-    newCollectionPath: NewCollectionPathState | undefined;
-    collection: CollectionOptionalWorkspace;
-    workspaceId: string;
-    depth?: number;
-    disabledBranches?: string[];
-    setNewCollectionPath: SetNewCollectionPath;
-    updateCollectionPath: UpdateCollectionPath;
-    setExpanded: SetExpanded;
-    allowNew: boolean | undefined;
-};
-
 export type UpdateCollectionPath = (
     index: number,
     id: string | null,
@@ -58,6 +45,21 @@ export type CollectionId = string;
 
 export type Collection = CollectionId | NewCollectionPath;
 
+export type IsSelectable = (collection: CollectionOptionalWorkspace) => boolean;
+
+type CollectionTreeProps = {
+    newCollectionPath: NewCollectionPathState | undefined;
+    collection: CollectionOptionalWorkspace;
+    workspaceId: string;
+    depth?: number;
+    disabledBranches?: string[];
+    setNewCollectionPath: SetNewCollectionPath;
+    updateCollectionPath: UpdateCollectionPath;
+    setExpanded: SetExpanded;
+    allowNew: boolean | undefined;
+    isSelectable?: IsSelectable;
+};
+
 function CollectionTree({
     updateCollectionPath,
     newCollectionPath,
@@ -67,12 +69,18 @@ function CollectionTree({
     disabledBranches,
     setExpanded,
     allowNew,
+    isSelectable,
     depth = 0,
 }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
-    const [tree, setTree] = React.useState<
-        CollectionOptionalWorkspace[] | undefined
-    >(collection.children);
+
+    const pager =
+        useCollectionStore(state => state.tree)[collection.id] ??
+        ({
+            items: collection.children,
+            expanding: false,
+            loadingMore: false,
+        } as CollectionPager);
 
     async function load() {
         if (!collection.children || collection.children.length === 0) {
@@ -81,20 +89,17 @@ function CollectionTree({
 
         if (!loaded) {
             setLoaded(true);
-
-            const data = await getCollections({
-                parent: collection.id,
-                limit: collectionSecondLimit,
-                childrenLimit: collectionChildrenLimit,
-            });
-
-            setTree(data.result);
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            const loadChildren = useCollectionStore(
+                state => state.loadChildren
+            );
+            await loadChildren(workspaceId, collection.id);
         }
     }
 
     const collectionIRI = collection['@id'];
     const nodeId = workspaceId + nodeSeparator + collectionIRI;
-    const hasTree = tree && tree.length > 0;
+    const hasTree = pager.items && pager.items.length > 0;
     const hasNewCollectionPath =
         newCollectionPath && newCollectionPath.rootNode === nodeId;
 
@@ -121,8 +126,9 @@ function CollectionTree({
     return (
         <TreeItem
             disabled={
-                disabledBranches &&
-                disabledBranches.some(b => nodeId.startsWith(b))
+                (disabledBranches &&
+                    disabledBranches.some(b => nodeId.startsWith(b))) ||
+                (isSelectable && !isSelectable(collection))
             }
             onClick={load}
             nodeId={nodeId}
@@ -152,7 +158,7 @@ function CollectionTree({
                         />
                     ) : null}
                     {hasTree &&
-                        tree!.map(c => (
+                        pager.items!.map(c => (
                             <CollectionTree
                                 key={c.id}
                                 workspaceId={workspaceId}
@@ -222,6 +228,7 @@ type Props<IsMulti extends boolean = false> = {
     disabledBranches?: string[];
     allowNew?: boolean;
     disabled?: boolean | undefined;
+    isSelectable?: IsSelectable;
 };
 
 export type {Props as CollectionTreeViewProps};
@@ -234,8 +241,10 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     disabledBranches,
     allowNew,
     disabled,
+    isSelectable,
 }: Props<IsMulti>) {
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
+
     const [newCollectionPath, setNewCollectionPath] =
         useState<NewCollectionPathState>();
     const [expanded, setExpanded] = React.useState<string[]>([]);
@@ -400,6 +409,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                         {w.collections.map(c => (
                             <CollectionTree
                                 key={c.id}
+                                isSelectable={isSelectable}
                                 workspaceId={w.id}
                                 collection={c}
                                 disabledBranches={disabledBranches}

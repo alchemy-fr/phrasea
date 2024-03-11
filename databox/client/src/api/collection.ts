@@ -2,11 +2,12 @@ import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
+import {useCollectionStore} from '../store/collectionStore.ts';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
 
-type CollectionOptions = {
+export type CollectionOptions = {
     limit?: number;
     childrenLimit?: number;
     page?: number;
@@ -42,7 +43,7 @@ export async function getWorkspaces(): Promise<Workspace[]> {
 
     const collections = await getCollections({
         groupByWorkspace: true,
-        limit: collectionChildrenLimit + 1,
+        limit: collectionChildrenLimit,
     });
 
     const workspaces: {[key: string]: Workspace} = {};
@@ -54,24 +55,14 @@ export async function getWorkspaces(): Promise<Workspace[]> {
                 collections: [],
             };
         }
-        const list = workspaces[c.workspace.id].collections;
-
-        if (list.length === collectionChildrenLimit) {
-            return;
-        }
-
-        list.push(c);
+        workspaces[c.workspace.id].collections.push(c);
     });
 
-    return (cache.ws = (Object.keys(workspaces) as Array<string>).map(
-        i => workspaces[i]
-    ));
+    return (cache.ws = Object.keys(workspaces).map(i => workspaces[i]));
 }
 
 export async function getCollection(id: string): Promise<Collection> {
-    const res = await apiClient.get(`/collections/${id}`);
-
-    return res.data;
+    return (await apiClient.get(`/collections/${id}`)).data;
 }
 
 export async function putCollection(
@@ -90,10 +81,8 @@ export async function moveCollection(
     id: string,
     parentId: string | undefined
 ): Promise<void> {
-    await apiClient.put(
-        `/collections/${id}/move/${parentId ? parentId : 'root'}`,
-        {}
-    );
+    await apiClient.put(`/collections/${id}/move/${parentId || 'root'}`, {});
+    useCollectionStore.getState().moveCollection(id, parentId);
 }
 
 type CollectionPostType = {
@@ -126,6 +115,8 @@ export async function putWorkspace(
 
 export async function deleteCollection(id: string): Promise<void> {
     await apiClient.delete(`/collections/${id}`);
+
+    useCollectionStore.getState().deleteCollection(id);
 }
 
 export async function addAssetToCollection(

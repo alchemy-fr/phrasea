@@ -22,20 +22,20 @@ return static function (RectorConfig $rectorConfig): void {
     // define sets of rules
     $rectorConfig->sets([
         LevelSetList::UP_TO_PHP_82,
-        \Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        \Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        \Rector\Symfony\Set\SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
+        Rector\Symfony\Set\SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
     ]);
     $rectorConfig->ruleWithConfiguration(AnnotationToAttributeRector::class, [
-        new AnnotationToAttribute(\ApiPlatform\Core\Annotation\ApiFilter::class),
-        new AnnotationToAttribute(\Gedmo\Mapping\Annotation\Slug::class),
-        new AnnotationToAttribute(\ApiPlatform\Core\Annotation\ApiProperty::class),
-        new AnnotationToAttribute(\ApiPlatform\Core\Annotation\ApiResource::class),
-        new AnnotationToAttribute(\Gedmo\Mapping\Annotation\SoftDeleteable::class),
-        new AnnotationToAttribute(\Gedmo\Mapping\Annotation\Timestampable::class),
+        new AnnotationToAttribute(ApiPlatform\Core\Annotation\ApiFilter::class),
+        new AnnotationToAttribute(Gedmo\Mapping\Annotation\Slug::class),
+        new AnnotationToAttribute(ApiPlatform\Core\Annotation\ApiProperty::class),
+        new AnnotationToAttribute(ApiPlatform\Core\Annotation\ApiResource::class),
+        new AnnotationToAttribute(Gedmo\Mapping\Annotation\SoftDeleteable::class),
+        new AnnotationToAttribute(Gedmo\Mapping\Annotation\Timestampable::class),
     ]);
 
     $rectorConfig->skip([
-        \Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
+        Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
     ]);
 };

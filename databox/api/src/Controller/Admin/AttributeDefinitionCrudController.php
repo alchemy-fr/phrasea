@@ -86,6 +86,9 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield BooleanField::new('searchable')
             ->hideOnIndex()
             ->renderAsSwitch(false);
+        yield BooleanField::new('suggest')
+            ->hideOnIndex()
+            ->renderAsSwitch(false);
         yield IntegerField::new('searchBoost')
             ->hideOnIndex();
         yield TextareaField::new('initialValuesAll')

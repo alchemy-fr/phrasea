@@ -12,6 +12,7 @@ import {deleteTag, getTags, postTag, putTag} from '../../../api/tag';
 import ColorPicker from '../../Form/ColorPicker';
 
 function Item({
+    data,
     usedFormSubmit: {
         register,
         control,
@@ -20,6 +21,7 @@ function Item({
     },
 }: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
+    console.log('data', data);
 
     return (
         <>
@@ -35,6 +37,7 @@ function Item({
                 <Controller
                     control={control}
                     render={({field: {onChange, value}}) => {
+                        console.log('value', value);
                         return (
                             <ColorPicker
                                 color={value || undefined}
@@ -80,6 +83,7 @@ type Props = {
 function createNewItem(): Partial<Tag> {
     return {
         name: '',
+        color: null,
     };
 }
 

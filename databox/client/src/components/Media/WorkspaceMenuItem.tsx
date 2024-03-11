@@ -1,13 +1,9 @@
-import {MouseEvent, useContext, useState} from 'react';
-import {Collection, Workspace} from '../../types';
+import React, {MouseEvent, useContext} from 'react';
+import {Workspace} from '../../types';
 import CollectionMenuItem from './CollectionMenuItem';
-import {
-    collectionChildrenLimit,
-    collectionSecondLimit,
-    getCollections,
-} from '../../api/collection';
 import {SearchContext} from './Search/SearchContext';
 import {
+    CircularProgress,
     Collapse,
     IconButton,
     ListItem,
@@ -20,36 +16,33 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import BusinessIcon from '@mui/icons-material/Business';
 import CreateCollection from './Collection/CreateCollection';
 import ModalLink from '../Routing/ModalLink';
 import {useTranslation} from 'react-i18next';
 import {useModals} from '@alchemy/navigation';
-import {OnCollectionEdit} from '../Dialog/Collection/EditCollection';
 import {modalRoutes} from '../../routes.ts';
+import {useCollectionStore} from '../../store/collectionStore.ts';
+import {useShallow} from 'zustand/react/shallow';
+import LoadMoreCollections from './Collection/LoadMoreCollections.tsx';
 
-export type WorkspaceMenuItemProps = {} & Workspace;
+export type WorkspaceMenuItemProps = {
+    data: Workspace;
+};
 
-export default function WorkspaceMenuItem({
-    id,
-    name,
-    collections,
-    capabilities,
-}: WorkspaceMenuItemProps) {
+export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
+    const {id, name, capabilities} = data;
+
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext);
     const {openModal} = useModals();
     const selected = searchContext.workspaces.includes(id);
-    const [expanded, setExpanded] = useState(false);
-    const [nextCollections, setNextCollections] = useState<{
-        loadingMore: boolean;
-        items: Collection[];
-        total?: number;
-    }>({
-        loadingMore: false,
-        items: collections,
-    });
+    const [expanded, setExpanded] = React.useState(false);
+
+    const addCollection = useCollectionStore(state => state.addCollection);
+    const loadMore = useCollectionStore(state => state.loadMore);
+    const loadRoot = useCollectionStore(state => state.loadRoot);
+    const pager = useCollectionStore(useShallow(state => state.tree))[id];
 
     const expand = (force?: boolean) => {
         setExpanded(p => !p || true === force);
@@ -57,77 +50,16 @@ export default function WorkspaceMenuItem({
     const expandClick = (e: MouseEvent) => {
         e.stopPropagation();
         expand();
-    };
 
-    function getNextPage(): number | undefined {
-        if (collections.length >= collectionChildrenLimit) {
-            if (nextCollections.total) {
-                if (nextCollections.items.length < nextCollections.total) {
-                    return (
-                        Math.floor(
-                            nextCollections.items.length / collectionSecondLimit
-                        ) + 1
-                    );
-                }
-            } else {
-                return 1;
-            }
+        if (e.detail > 1) {
+            // is double click
+            loadRoot(id);
         }
-    }
-
-    const nextPage = getNextPage();
+    };
 
     const onClick = () => {
         searchContext.selectWorkspace(id, name, selected);
         expand(true);
-    };
-
-    const loadMore = async (): Promise<void> => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            loadingMore: true,
-        }));
-        const page = getNextPage();
-
-        const items = await getCollections({
-            workspaces: [id],
-            page,
-            limit: collectionSecondLimit,
-            childrenLimit: collectionChildrenLimit,
-        });
-
-        setNextCollections(prevState => ({
-            loadingMore: false,
-            total: items.total,
-            items:
-                (page ?? 0) > 1
-                    ? (prevState.items || []).concat(items.result)
-                    : items.result,
-        }));
-    };
-
-    const onSubCollEdit: OnCollectionEdit = item => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            items: prevState.items?.map(i => (i.id === item.id ? item : i)),
-        }));
-    };
-
-    const onSubCollDelete = (id: string) => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            total: (prevState.total ?? 1) - 1,
-            items: prevState.items?.filter(i => i.id !== id),
-        }));
-    };
-
-    const onCollectionCreate: OnCollectionEdit = item => {
-        setNextCollections(prevState => ({
-            ...prevState,
-            total: (prevState.total ?? 0) + 1,
-            items: (prevState.items || []).concat(item),
-        }));
-        setExpanded(true);
     };
 
     return (
@@ -164,7 +96,8 @@ export default function WorkspaceMenuItem({
                                         openModal(CreateCollection, {
                                             workspaceId: id,
                                             workspaceTitle: name,
-                                            onCreate: onCollectionCreate,
+                                            onCreate: coll =>
+                                                addCollection(coll, id),
                                         })
                                     }
                                     className={'c-action'}
@@ -197,7 +130,9 @@ export default function WorkspaceMenuItem({
                                 onClick={expandClick}
                                 aria-label="expand-toggle"
                             >
-                                {!expanded ? (
+                                {pager.expanding ? (
+                                    <CircularProgress size={24} />
+                                ) : !expanded ? (
                                     <ExpandLessIcon />
                                 ) : (
                                     <ExpandMoreIcon />
@@ -224,29 +159,25 @@ export default function WorkspaceMenuItem({
                 </ListItem>
             </ListSubheader>
             <Collapse
-                in={expanded && nextCollections.items.length > 0}
+                in={expanded && pager && pager.items.length > 0}
                 timeout="auto"
                 unmountOnExit
             >
-                {nextCollections.items &&
-                    nextCollections.items.map(c => (
+                {pager?.items &&
+                    pager!.items.map(c => (
                         <CollectionMenuItem
-                            {...c}
-                            onCollectionEdit={onSubCollEdit}
-                            onCollectionDelete={() => onSubCollDelete(c.id)}
+                            data={c}
+                            workspaceId={id}
                             key={c.id}
                             absolutePath={c.id}
                             level={0}
                         />
                     ))}
-                {expanded && Boolean(nextPage) && (
-                    <ListItemButton
-                        onClick={loadMore}
-                        disabled={nextCollections.loadingMore}
-                    >
-                        <MoreHorizIcon />
-                        Load more collections
-                    </ListItemButton>
+                {pager && pager.items.length < (pager.total ?? 0) && (
+                    <LoadMoreCollections
+                        onLoadMore={() => loadMore(id)}
+                        loading={pager.loadingMore}
+                    />
                 )}
             </Collapse>
         </>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
+use App\Elasticsearch\AssetPermissionComputer;
 use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
@@ -12,13 +13,16 @@ use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
-class PopulateListener implements EventSubscriberInterface
+readonly class PopulateListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly IndexManager $indexManager, private readonly CacheInterface $cache, private readonly AssetPostTransformListener $assetPostTransformListener)
-    {
+    public function __construct(
+        private IndexManager $indexManager,
+        private CacheInterface $fosPopulateCache,
+        private AssetPermissionComputer $assetPermissionComputer,
+    ) {
     }
 
-    public function preIndexPopulate(PreIndexPopulateEvent $event)
+    public function preIndexPopulate(PreIndexPopulateEvent $event): void
     {
         $index = $this->indexManager->getIndex($event->getIndex());
         $settings = $index->getSettings();
@@ -26,23 +30,23 @@ class PopulateListener implements EventSubscriberInterface
             $settings->setRefreshInterval('-1');
         }
 
-        if ($this->cache instanceof CacheItemPoolInterface) {
-            $this->cache->clear();
+        if ($this->fosPopulateCache instanceof CacheItemPoolInterface) {
+            $this->fosPopulateCache->clear();
         }
 
-        $this->assetPostTransformListener->setCache($this->cache);
+        $this->assetPermissionComputer->setCache($this->fosPopulateCache);
     }
 
-    public function postIndexPopulate(PostIndexPopulateEvent $event)
+    public function postIndexPopulate(PostIndexPopulateEvent $event): void
     {
-        $this->assetPostTransformListener->disableCache();
+        $this->assetPermissionComputer->disableCache();
 
         $index = $this->indexManager->getIndex($event->getIndex());
         $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');
         $index->getSettings()->setRefreshInterval(Settings::DEFAULT_REFRESH_INTERVAL);
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PreIndexPopulateEvent::class => 'preIndexPopulate',

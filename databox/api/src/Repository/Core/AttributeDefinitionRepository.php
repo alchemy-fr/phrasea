@@ -23,6 +23,70 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
     /**
      * @return AttributeDefinition[]
      */
+    public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('t')
+            ->select('t.fieldType')
+            ->addSelect('t.slug')
+            ->addSelect('t.multiple')
+            ->addSelect('t.searchBoost')
+            ->addSelect('t.translatable')
+            ->addSelect('w.public AS wPublic')
+            ->addSelect('c.public AS cPublic')
+            ->addSelect('w.id AS workspaceId')
+            ->andWhere('t.searchable = true')
+            ->innerJoin('t.class', 'c')
+            ->innerJoin('t.workspace', 'w')
+        ;
+
+        if (null !== $userId) {
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $userId,
+                $groupIds,
+                'attribute_class',
+                'c',
+                PermissionInterface::VIEW,
+                false,
+                'ac_ace'
+            );
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $userId,
+                $groupIds,
+                'workspace',
+                'w',
+                PermissionInterface::VIEW,
+                false,
+                'w_ace'
+            );
+            $queryBuilder->addSelect('w.ownerId AS w_ownerId');
+            $queryBuilder->addSelect('w_ace.id AS w_aceId');
+            $queryBuilder->addSelect('ac_ace.id AS ac_aceId');
+            $queryBuilder->setParameter('uid', $userId);
+        }
+
+        foreach ($queryBuilder
+                     ->getQuery()
+                     ->toIterable() as $row) {
+            if (null !== $userId) {
+                $row['allowed'] = ($row['wPublic'] || $row['w_ownerId'] === $userId || $row['w_aceId'])
+                    && ($row['cPublic'] || $row['ac_aceId']);
+                unset($row['w_ownerId'], $row['w_aceId'], $row['ac_aceId']);
+            } else {
+                $row['allowed'] = $row['wPublic'] && $row['cPublic'];
+            }
+
+            unset($row['wPublic'], $row['cPublic']);
+
+            yield $row;
+        }
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array
     {
         $queryBuilder = $this
@@ -67,6 +131,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             $queryBuilder
                 ->andWhere('t.fieldType IN (:types)')
                 ->setParameter('types', $options[self::OPT_TYPES]);
+        }
+
+        if ($options[self::OPT_SUGGEST_ENABLED] ?? null) {
+            $queryBuilder
+                ->andWhere('t.suggest = :suggest')
+                ->setParameter('suggest', $options[self::OPT_SUGGEST_ENABLED]);
         }
 
         if ($options[self::OPT_FACET_ENABLED] ?? null) {

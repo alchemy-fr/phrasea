@@ -2,13 +2,16 @@ framework:
     cache:
         pools:
             fos_populate.cache:
-                adapter: cache.adapter.array
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'
             memory.cache:
                 adapter: cache.adapter.array
+            collection.cache:
+                adapter: cache.adapter.redis
+                provider: '%env(REDIS_URL)%'
             doctrine.cache:
                 adapter: cache.adapter.redis
                 provider: '%env(REDIS_URL)%'
-
             budget_limit.cache:
                 adapter: cache.adapter.doctrine_dbal
 

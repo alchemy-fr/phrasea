@@ -12,7 +12,7 @@ export function getEnv(
     name: string,
     defaultValue?: string
 ): string | undefined {
-    if (process.env.hasOwnProperty(name)) {
+    if (Object.prototype.hasOwnProperty.call(process.env, name)) {
         return process.env[name] || defaultValue;
     }
 

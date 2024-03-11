@@ -5,7 +5,7 @@ import Download from './components/page/Download';
 import FormEditor from './components/page/FormEditor.jsx';
 import TargetDataEditor from './components/page/TargetDataEditor.jsx';
 import React from 'react';
-import UploadPage from "./components/page/UploadPage.tsx";
+import UploadPage from './components/page/UploadPage.tsx';
 
 const routes = {
     index: {

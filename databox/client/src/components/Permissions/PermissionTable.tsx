@@ -1,4 +1,8 @@
-import {DisplayedPermissions, OnMaskChange, OnPermissionDelete} from './permissions';
+import {
+    DisplayedPermissions,
+    OnMaskChange,
+    OnPermissionDelete,
+} from './permissions';
 import {Ace, UserType} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {AclPermission, aclPermissions} from '../Acl/acl';

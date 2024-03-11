@@ -41,11 +41,13 @@ for d in ${DATABASES}; do
   DUMP_FILE="${DIR}/${d}.sql"
 
   if [ ! -f "${DUMP_FILE}" ]; then
+    if [ "${d}" == "auth" ]; then
+      continue
+    fi
+
     echo "File ${DUMP_FILE} does not exist"
     exit 2
   fi
-  exec_container db "dropdb -U ${POSTGRES_USER} ${d}"
-  exec_container db "createdb -U ${POSTGRES_USER} ${d}"
   exec_container db "psql -U ${POSTGRES_USER} -d ${d}" < ${DUMP_FILE}
 
   echo "[✓] ${d} database imported"

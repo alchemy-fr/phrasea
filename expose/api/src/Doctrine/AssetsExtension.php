@@ -17,7 +17,7 @@ class AssetsExtension implements QueryCollectionExtensionInterface
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        Operation $operation = null,
+        ?Operation $operation = null,
         array $context = []
     ): void {
         if (Asset::class !== $resourceClass || !($context['operation'] instanceof CollectionOperationInterface)) {

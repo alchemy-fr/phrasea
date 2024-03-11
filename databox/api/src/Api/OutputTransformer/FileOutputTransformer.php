@@ -37,7 +37,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->setType($data->getType());
-        $output->setSize($data->getSize());
+        $output->setSize((int) $data->getSize());
 
         if ($data->isPathPublic()) {
             $output->setUrl($this->fileUrlResolver->resolveUrl($data));

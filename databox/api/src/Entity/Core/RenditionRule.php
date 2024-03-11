@@ -14,7 +14,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\RenditionRuleInputTransformer;
 use App\Api\Model\Input\RenditionRuleInput;
 use App\Api\Model\Output\RenditionRuleOutput;
 use App\Entity\AbstractUuidEntity;

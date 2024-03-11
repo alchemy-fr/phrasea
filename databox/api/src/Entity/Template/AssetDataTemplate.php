@@ -23,6 +23,7 @@ use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Repository\Core\AssetDataTemplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -30,7 +31,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Table]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AssetDataTemplateRepository::class)]
 #[ApiResource(
     shortName: 'asset-data-template',
     operations: [

@@ -16,8 +16,8 @@ final class CrudTest extends AbstractDataboxTestCase
     public function testCrud(
         string $method,
         string $uri,
-        string $userId = null,
-        array $data = null,
+        ?string $userId = null,
+        ?array $data = null,
         array $expectations = [],
         array $options = []
     ): void {
@@ -32,8 +32,8 @@ final class CrudTest extends AbstractDataboxTestCase
     private function testCase(
         string $method,
         string $uri,
-        string $userId = null,
-        array $data = null,
+        ?string $userId = null,
+        ?array $data = null,
         array $expectations = [],
         array $options = []
     ): ResponseInterface {

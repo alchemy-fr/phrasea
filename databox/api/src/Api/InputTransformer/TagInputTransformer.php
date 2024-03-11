@@ -31,7 +31,7 @@ class TagInputTransformer extends AbstractInputTransformer
             if ($data->name) {
                 $tag = $this->em->getRepository(Tag::class)->findOneBy([
                     'name' => $data->name,
-                    'workspace' => $data->workspace->getId()
+                    'workspace' => $data->workspace->getId(),
                 ]);
 
                 if ($tag) {

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -19,10 +22,6 @@ use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
-use App\Entity\ESIndexableInterface;
-use App\Entity\SearchableEntityInterface;
-use App\Entity\SearchDeleteDependencyInterface;
-use App\Entity\SearchDependencyInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -94,7 +93,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, SearchDependencyInterface, SearchDeleteDependencyInterface, ESIndexableInterface, \Stringable
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -242,6 +241,38 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         return null === $this->parent;
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getPrivacyRoots(): array
+    {
+        return array_keys(array_filter($this->computePrivacyRoots(), fn (bool $r): bool => $r));
+    }
+
+    private function computePrivacyRoots(): array
+    {
+        $roots = [];
+        for ($i = WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE; $i <= WorkspaceItemPrivacyInterface::PUBLIC; ++$i) {
+            $roots[$i] = $this->privacy === $i;
+        }
+
+        if (null !== $this->parent) {
+            $parentRoots = $this->parent->computePrivacyRoots();
+            foreach ($parentRoots as $i => $root) {
+                if ($root) {
+                    $roots[$i] = false;
+                }
+            }
+        }
+
+        return $roots;
+    }
+
+    public function getInheritedPrivacy(): ?int
+    {
+        return $this->parent?->getBestPrivacyInParentHierarchy();
+    }
+
     public function getBestPrivacyInParentHierarchy(): int
     {
         $bestPrivacy = $this->privacy;
@@ -256,27 +287,6 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
             && ($better = $this->parent->getBestPrivacyInParentHierarchy()) > $bestPrivacy
         ) {
             return $better;
-        }
-
-        return $bestPrivacy;
-    }
-
-    public function getBestPrivacyInDescendantHierarchy(): int
-    {
-        $bestPrivacy = $this->privacy;
-        // Early return if best
-        if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
-            return $this->privacy;
-        }
-
-        foreach ($this->children as $child) {
-            if (($better = $child->getBestPrivacyInParentHierarchy()) > $bestPrivacy) {
-                // Early return if best
-                if (WorkspaceItemPrivacyInterface::PUBLIC === $bestPrivacy) {
-                    return $this->privacy;
-                }
-                $bestPrivacy = $better;
-            }
         }
 
         return $bestPrivacy;
@@ -330,7 +340,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         $this->hasChildren = $hasChildren;
     }
 
-    public function getSearchDeleteDependencies(): array
+    public function getIndexableDeleteDependencies(): array
     {
         if ($this->parent) {
             return [$this->parent];

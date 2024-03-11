@@ -35,6 +35,7 @@ export type TSearchContext = {
     ) => void;
     removeAttrFilter: (key: number) => void;
     invertAttrFilter: (key: number) => void;
+    reset: () => void;
     attrFilters: Filters;
     sortBy: SortBy[];
     setSortBy: (newSortBy: SortBy[]) => void;
@@ -56,6 +57,7 @@ export const SearchContext = React.createContext<TSearchContext>({
     removeAttrFilter: () => {},
     invertAttrFilter: () => {},
     setSortBy: () => {},
+    reset: () => {},
     setGeoLocation: () => {},
     reloadInc: 0,
 });

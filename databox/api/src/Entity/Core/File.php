@@ -54,7 +54,7 @@ class File extends AbstractUuidEntity implements \Stringable
     private ?string $type = null;
 
     #[ORM\Column(type: Types::BIGINT, nullable: true)]
-    private ?int $size = null;
+    private string|int|null $size = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $checksum = null;
@@ -110,12 +110,12 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->type = $type;
     }
 
-    public function getSize(): ?int
+    public function getSize(): string|int|null
     {
         return $this->size;
     }
 
-    public function setSize(?int $size): void
+    public function setSize(string|int|null $size): void
     {
         $this->size = $size;
     }

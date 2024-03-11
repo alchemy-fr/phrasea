@@ -18,9 +18,9 @@ class EventProducerMock extends EventProducer
 
     public function publish(
         EventMessage $message,
-        string $deprecatedRoutingKey = null,
+        ?string $deprecatedRoutingKey = null,
         array $deprecatedProperties = [],
-        array $deprecatedHeaders = null
+        ?array $deprecatedHeaders = null
     ): void {
         $this->events[] = $message;
 

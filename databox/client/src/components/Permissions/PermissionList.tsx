@@ -5,10 +5,7 @@ import GroupSelect from '../Form/GroupSelect';
 import {Grid} from '@mui/material';
 import FormRow from '../Form/FormRow';
 import {useTranslation} from 'react-i18next';
-import {
-    DisplayedPermissions,
-    OnPermissionDelete,
-} from './permissions';
+import {DisplayedPermissions, OnPermissionDelete} from './permissions';
 import PermissionTable from './PermissionTable';
 
 type Props = {
@@ -23,6 +20,7 @@ type Props = {
         userType: UserType,
         userId: string | null
     ) => Promise<void>;
+    onListChanged?: (permissions: Ace[]) => void;
 };
 
 export default function PermissionList({
@@ -30,6 +28,7 @@ export default function PermissionList({
     loadPermissions,
     updatePermission,
     deletePermission,
+    onListChanged,
 }: Props) {
     const [permissions, setPermissions] = React.useState<Ace[]>();
     const {t} = useTranslation();
@@ -38,33 +37,44 @@ export default function PermissionList({
         loadPermissions().then(p => setPermissions(p));
     }, []);
 
+    useEffect(() => {
+        if (permissions) {
+            onListChanged && onListChanged(permissions);
+        }
+    }, [permissions]);
+
     const addEntry = async (
         entry: {id: string; type: UserType},
         mask: number
     ): Promise<void> => {
-        setPermissions(p => p!.concat([{
-            mask: mask,
-            userId: entry.id,
-            userType: entry.type,
-            resolving: true,
-        } as Ace]));
+        setPermissions(p =>
+            p!.concat([
+                {
+                    mask: mask,
+                    userId: entry.id,
+                    userType: entry.type,
+                    resolving: true,
+                } as Ace,
+            ])
+        );
 
         const ace = await updatePermission(entry.type, entry.id, mask);
 
-        setPermissions(p => p!.map(p => p.resolving && p.userId === entry.id ? ace : p));
+        setPermissions(p =>
+            p!.map(p => (p.resolving && p.userId === entry.id ? ace : p))
+        );
     };
 
     const onDelete: OnPermissionDelete = useCallback(
         async (userType: UserType, userId: string | null) => {
             deletePermission(userType, userId);
 
-            setPermissions(p => p!.filter(
-                (ace: Ace) =>
-                    !(
-                        ace.userType === userType &&
-                        ace.userId === userId
-                    )
-            ));
+            setPermissions(p =>
+                p!.filter(
+                    (ace: Ace) =>
+                        !(ace.userType === userType && ace.userId === userId)
+                )
+            );
         },
         [deletePermission]
     );
@@ -110,7 +120,8 @@ export default function PermissionList({
                             onChange={option => {
                                 option && onSelectGroup(option.value);
                             }}
-                            disabledValues={permissions?.filter(
+                            disabledValues={permissions
+                                ?.filter(
                                     ace =>
                                         ace.userType === 'group' && ace.userId
                                 )
@@ -129,7 +140,8 @@ export default function PermissionList({
                             onChange={option => {
                                 option && onSelectUser(option.value);
                             }}
-                            disabledValues={permissions?.filter(
+                            disabledValues={permissions
+                                ?.filter(
                                     ace => ace.userType === 'user' && ace.userId
                                 )
                                 .map(ace => ace.userId!)}

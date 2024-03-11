@@ -16,8 +16,7 @@ readonly class RenditionRuleOutputProcessor implements OutputTransformerInterfac
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private GroupRepositoryInterface $groupRepository,
-    )
-    {
+    ) {
     }
 
     public function supports(string $outputClass, object $data): bool

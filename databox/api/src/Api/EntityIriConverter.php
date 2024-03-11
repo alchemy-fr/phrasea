@@ -17,7 +17,7 @@ readonly class EntityIriConverter
     /**
      * @template T
      *
-     * @param T $class
+     * @param class-string<T> $class
      *
      * @return T
      */

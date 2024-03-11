@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use App\Entity\Document;
-use App\Elasticsearch\Listener\DeferredIndexListener;
+use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Doctrine\DBAL\Schema\Schema;
 
 /**

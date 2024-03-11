@@ -6,10 +6,15 @@ namespace Alchemy\CoreBundle\Health\Checker;
 
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Doctrine\Persistence\ConnectionRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class DoctrineConnectionChecker implements HealthCheckerInterface
 {
-    public function __construct(private ConnectionRegistry $connectionRegistry, private ?string $connectionName = null)
+    public function __construct(
+        #[Autowire(service: 'doctrine')]
+        private ConnectionRegistry $connectionRegistry,
+        private ?string $connectionName = null,
+    )
     {
     }
 

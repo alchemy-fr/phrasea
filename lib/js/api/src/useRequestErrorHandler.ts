@@ -38,7 +38,10 @@ export default function useRequestErrorHandler({
                     t(
                         'api:error.session_expired',
                         'Your session has expired'
-                    ) as string
+                    ) as string,
+                    {
+                        toastId: 'session_expired',
+                    }
                 );
                 logout && logout(window.location.href.replace(window.location.origin, ''));
                 break;

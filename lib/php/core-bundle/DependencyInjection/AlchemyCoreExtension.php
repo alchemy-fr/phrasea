@@ -4,6 +4,8 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
+use Alchemy\CoreBundle\Health\HealthCheckerInterface;
+use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Component\Config\FileLocator;
@@ -74,6 +76,10 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         if (!isset($bundles['OldSoundRabbitMqBundle'])) {
             $container->removeDefinition(RabbitMQConnectionChecker::class);
         }
+
+        $container->registerForAutoconfiguration(HealthCheckerInterface::class)
+            ->addTag(HealthCheckerInterface::TAG)
+        ;
     }
 
     private function loadSentry(ContainerBuilder $container): void
@@ -124,6 +130,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         'enabled' => false,
                     ],
                 ],
+                'messenger' => [
+                    'capture_soft_fails' =>  false,
+                ],
                 'options' => [
                     'environment' => '%env(SENTRY_ENVIRONMENT)%',
                     'release' => '%env(SENTRY_RELEASE)%',
@@ -139,6 +148,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         UnsupportedFormatException::class,
                         ValidationException::class,
                         UnauthorizedHttpException::class,
+                        AccessDeniedException::class,
                     ],
                 ]
             ]);

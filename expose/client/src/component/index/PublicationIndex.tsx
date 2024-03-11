@@ -113,9 +113,7 @@ export default function PublicationIndex({}: Props) {
                             </div>
                         ))
                     ) : (
-                        <FullPageLoader
-                            backdrop={false}
-                        />
+                        <FullPageLoader backdrop={false} />
                     )}
                 </div>
             </div>

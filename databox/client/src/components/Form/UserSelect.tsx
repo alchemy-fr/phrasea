@@ -2,8 +2,8 @@ import {User} from '../../types';
 import {getUsers} from '../../api/user';
 import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {FieldValues} from 'react-hook-form';
-import {isAxiosError} from "axios";
-import React from "react";
+import {isAxiosError} from 'axios';
+import React from 'react';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<User[]> | undefined;
@@ -27,7 +27,9 @@ export default function UserSelect<TFieldValues extends FieldValues>({
                     label: t.username,
                 }))
                 .filter(i =>
-                    i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+                    i.label
+                        .toLowerCase()
+                        .includes((inputValue || '').toLowerCase())
                 );
         } catch (e) {
             if (isAxiosError(e) && e.response?.status === 403) {
@@ -39,22 +41,22 @@ export default function UserSelect<TFieldValues extends FieldValues>({
     };
 
     if (notAllowed) {
-        return <NotAllowSelect
-            {...props}
-        />;
+        return <NotAllowSelect {...props} />;
     }
 
-    return <RSelectWidget
-        cacheId={'users'}
-        loadOptions={load}
-        {...props}
-    />;
+    return <RSelectWidget cacheId={'users'} loadOptions={load} {...props} />;
 }
 
-export function NotAllowSelect<TFieldValues extends FieldValues>(props: RSelectProps<TFieldValues, false>) {
-    return <RSelectWidget
-        {...props}
-        placeholder={`${props.placeholder ? `${props.placeholder} ` : ''}: 🚫 Not allowed`}
-        isDisabled={true}
-    />;
+export function NotAllowSelect<TFieldValues extends FieldValues>(
+    props: RSelectProps<TFieldValues, false>
+) {
+    return (
+        <RSelectWidget
+            {...props}
+            placeholder={`${
+                props.placeholder ? `${props.placeholder} ` : ''
+            }: 🚫 Not allowed`}
+            isDisabled={true}
+        />
+    );
 }

@@ -127,7 +127,7 @@ export default function AttributeRowUI({
                                       </li>
                                   );
                               })
-                            : ''}
+                            : null}
                     </ul>
                 ) : (
                     <>{formatter.formatValue(valueFormatterProps)}</>

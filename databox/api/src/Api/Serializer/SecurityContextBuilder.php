@@ -19,7 +19,7 @@ readonly class SecurityContextBuilder implements SerializerContextBuilderInterfa
     ) {
     }
 
-    public function createFromRequest(Request $request, bool $normalization, array $extractedAttributes = null): array
+    public function createFromRequest(Request $request, bool $normalization, ?array $extractedAttributes = null): array
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 

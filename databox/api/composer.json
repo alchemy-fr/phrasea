@@ -56,6 +56,20 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/es-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/messenger-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
@@ -108,6 +122,8 @@
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/core-bundle": "@dev",
+        "alchemy/es-bundle": "@dev",
+        "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
@@ -136,6 +152,7 @@
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.6,<1.7",
         "stof/doctrine-extensions-bundle": "^1.7",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",
         "symfony/dotenv": "^6.3",
@@ -169,7 +186,8 @@
         "symfony/http-client": "^6.3",
         "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "^6.3",
-        "symfony/web-profiler-bundle": "^6.3"
+        "symfony/web-profiler-bundle": "^6.3",
+        "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
         "preferred-install": {
@@ -214,9 +232,22 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
+        "pre-phpunit": [
+            "rm -f var/cache/test/data*.db",
+            "bin/console -e test doctrine:schema:create",
+            "bin/console -e test fos:elastica:reset"
+        ],
+        "phpunit": [
+            "@pre-phpunit",
+            "php -d memory_limit=512M ./bin/phpunit"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src",
+            "@phpstan",
+            "@phpunit"
+        ]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

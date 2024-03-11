@@ -19,7 +19,7 @@ class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         return $data instanceof ApiMetaWrapperOutput;
     }
 
-    public function normalize($object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
+    public function normalize($object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         $normalized = $this->normalizer->normalize($object->getResult(), $format, $context);
 

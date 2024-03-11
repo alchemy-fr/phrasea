@@ -24,7 +24,7 @@ export type AssetServerFactory<T extends ConfigOptions> = (
 const servers: Record<string, AssetServerHandler> = {};
 
 function getOrCreateServer(location: IndexLocation<any>): AssetServerHandler {
-    if (servers.hasOwnProperty(location.name)) {
+    if (Object.prototype.hasOwnProperty.call(servers, location.name)) {
         return servers[location.name];
     }
 

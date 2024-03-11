@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Delete;
 
+use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
-use App\Elasticsearch\Listener\DeferredIndexListener;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;

@@ -87,6 +87,7 @@ export interface AttributeDefinition extends IPermissions {
     fieldType: string;
     multiple: boolean;
     searchable: boolean;
+    suggest: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
@@ -193,7 +194,10 @@ export interface Collection extends IPermissions {
     title: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
+    public: boolean;
+    shared: boolean;
     privacy: number;
+    inheritedPrivacy: number;
     createdAt: string;
     updatedAt: string;
     owner?: User;
@@ -235,13 +239,16 @@ export enum CollectionOrWorkspace {
     Workspace = 'workspace',
 }
 
-export type Ace = ({
-    userType: UserType.Group;
-    group?: Group | null;
-} | {
-    userType: UserType.User;
-    user?: User | null;
-}) & {
+export type Ace = (
+    | {
+          userType: UserType.Group;
+          group?: Group | null;
+      }
+    | {
+          userType: UserType.User;
+          user?: User | null;
+      }
+) & {
     id: string;
     mask: number;
     userId: string | null;

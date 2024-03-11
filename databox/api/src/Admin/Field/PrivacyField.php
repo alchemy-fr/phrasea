@@ -9,7 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
 class PrivacyField
 {
-    public static function new(string $propertyName, string $label = null): ChoiceField
+    public static function new(string $propertyName, ?string $label = null): ChoiceField
     {
         $choices = [];
         foreach (WorkspaceItemPrivacyInterface::LABELS as $value => $l) {

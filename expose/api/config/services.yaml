@@ -126,12 +126,6 @@ services:
             $client: '@app.proxy_purge_client'
             $clientBaseUrl: '%env(EXPOSE_CLIENT_URL)%'
 
-    App\Listener\TerminateStackListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.terminate, method: onTerminate }
-            - { name: kernel.event_listener, event: console.terminate, method: onTerminate }
-            - { name: kernel.event_listener, event: rabbit_handler.terminate, method: onTerminate }
-
     Aws\CloudFront\CloudFrontClient:
         arguments:
             -

@@ -40,7 +40,7 @@ abstract class AbstractInputTransformer implements InputTransformerInterface
     /**
      * @template T
      *
-     * @param T $class
+     * @param class-string<T> $class
      *
      * @return T
      */

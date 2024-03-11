@@ -15,7 +15,7 @@ class AttributeDefinitionInput
     public $workspace;
 
     /**
-     * @var AttributeClass
+     * @var AttributeClass|null
      */
     public $class;
 
@@ -40,6 +40,11 @@ class AttributeDefinitionInput
      * @var bool
      */
     public $searchable;
+
+    /**
+     * @var bool
+     */
+    public $suggest;
 
     /**
      * @var bool

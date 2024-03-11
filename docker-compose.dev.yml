@@ -73,7 +73,6 @@ services:
     volumes:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
-      - ./expose/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-php:
     environment:
@@ -89,7 +88,6 @@ services:
     volumes:
       - ./uploader/api:/srv/app
       - ./lib/php:/lib/php
-      - ./uploader/api/docker/supervisor:/etc/supervisor.d
 
   uploader-api-nginx:
     volumes:
@@ -113,7 +111,6 @@ services:
     volumes:
       - ./notify/api:/srv/app
       - ./lib/php:/lib/php
-      - ./notify/api/docker/supervisor:/etc/supervisor.d
 
   databox-api-php:
     environment:
@@ -134,7 +131,6 @@ services:
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php
-      - ./databox/api/docker/supervisor:/etc/supervisor.d
 
   elasticsearch:
     ports:

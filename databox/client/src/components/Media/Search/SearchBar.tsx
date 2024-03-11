@@ -1,4 +1,11 @@
-import {FormEvent, useContext, useEffect, useRef, useState} from 'react';
+import React, {
+    FormEvent,
+    MouseEventHandler,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
 import {styled} from '@mui/material/styles';
 import {alpha, Box, Button, InputBase} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -9,6 +16,9 @@ import {ResultContext} from './ResultContext';
 import SortBy from './Sorting/SortBy';
 import {zIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
+import AutoComplete from './AutoComplete.tsx';
+import {getSearchSuggestions, SearchSuggestion} from '../../../api/asset.ts';
+import {GetSources} from '@algolia/autocomplete-core';
 
 type Props = {};
 
@@ -51,17 +61,49 @@ export default function SearchBar({}: Props) {
     const search = useContext(SearchContext);
     const resultContext = useContext(ResultContext);
     const [queryValue, setQueryValue] = useState('');
-    const inputRef = useRef<HTMLInputElement>();
+    const inputRef = useRef<HTMLInputElement>(null);
     const {t} = useTranslation();
 
     useEffect(() => {
         setQueryValue(search.query);
     }, [search.query]);
 
+    const onClick: MouseEventHandler<HTMLInputElement> = () => {
+        if (search.query) {
+            setTimeout(() => {
+                if (inputRef.current?.value === '') {
+                    search.setQuery('', true);
+                }
+            }, 10);
+        }
+    };
+
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
         search.setQuery(queryValue, true);
     };
+
+    const getSources = React.useCallback<GetSources<SearchSuggestion>>(() => {
+        return [
+            {
+                sourceId: 'items',
+                onSelect: ({item, setQuery}) => {
+                    const newQuery = `"${item.name}"`;
+                    setQuery(newQuery);
+                    setQueryValue(newQuery);
+                    search.setQuery(newQuery, true);
+                },
+                getItems({query}) {
+                    return getSearchSuggestions(query).then(r => {
+                        console.log('ES Debug', r.debug);
+                        console.log('ES Query', JSON.stringify(r.debug.query));
+
+                        return r.result;
+                    });
+                },
+            },
+        ];
+    }, [search]);
 
     return (
         <Box
@@ -77,31 +119,60 @@ export default function SearchBar({}: Props) {
                     alignItems: 'center',
                 }}
             >
-                <form onSubmit={onSubmit}>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <StyledInputBase
-                            autoFocus={true}
-                            value={queryValue}
-                            onChange={e => setQueryValue(e.target.value)}
-                            inputRef={inputRef}
-                            placeholder="Search…"
-                            inputProps={{'aria-label': 'search'}}
-                        />
-                        <Button
-                            disabled={
-                                search.query === queryValue &&
-                                resultContext.loading
-                            }
-                            type={'submit'}
-                            variant={'contained'}
-                        >
-                            {t('search.search_button', 'Search')}
-                        </Button>
-                    </Search>
-                </form>
+                <AutoComplete getSources={getSources} queryValue={queryValue}>
+                    {autocomplete => {
+                        return (
+                            <form
+                                {...(autocomplete.getFormProps({
+                                    inputElement: inputRef.current,
+                                }) as any)}
+                                onSubmit={(e: FormEvent<HTMLFormElement>) => {
+                                    autocomplete.setIsOpen(false);
+                                    onSubmit(e);
+                                }}
+                            >
+                                <Search>
+                                    <SearchIconWrapper>
+                                        <SearchIcon />
+                                    </SearchIconWrapper>
+                                    <StyledInputBase
+                                        autoFocus={true}
+                                        type={'search'}
+                                        onChange={e =>
+                                            setQueryValue(e.target.value)
+                                        }
+                                        inputRef={inputRef}
+                                        onClick={onClick}
+                                        placeholder="Search…"
+                                        onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                        onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                        inputProps={{
+                                            'aria-label': 'search',
+                                            ...(autocomplete.getInputProps({
+                                                inputElement: null,
+                                                onBlur: () => {
+                                                    autocomplete.setIsOpen(
+                                                        false
+                                                    );
+                                                },
+                                            }) as any),
+                                        }}
+                                    />
+                                    <Button
+                                        disabled={
+                                            search.query === queryValue &&
+                                            resultContext.loading
+                                        }
+                                        type={'submit'}
+                                        variant={'contained'}
+                                    >
+                                        {t('search.search_button', 'Search')}
+                                    </Button>
+                                </Search>
+                            </form>
+                        );
+                    }}
+                </AutoComplete>
                 <GeoPointFilter />
                 <SortBy />
             </Box>

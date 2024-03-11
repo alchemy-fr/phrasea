@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Asset;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class AssetRepository extends EntityRepository
 {
@@ -21,6 +22,22 @@ class AssetRepository extends EntityRepository
             ->setParameter('c', $collectionId)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @return Asset[]
+     */
+    public function getCollectionAssetIdsIterator(string $collectionId): iterable
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->distinct()
+            ->select('a.id')
+            ->innerJoin('a.collections', 'ac')
+            ->andWhere('ac.collection = :c')
+            ->setParameter('c', $collectionId)
+            ->getQuery()
+            ->toIterable();
     }
 
     /**
@@ -47,5 +64,14 @@ class AssetRepository extends EntityRepository
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
+    }
+
+    public function getESQueryBuilder(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder('t')
+            ->addOrderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'ASC')
+        ;
     }
 }

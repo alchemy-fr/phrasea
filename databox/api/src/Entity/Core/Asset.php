@@ -6,6 +6,8 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -25,12 +27,11 @@ use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Controller\Core\MultipleAssetCreateAction;
 use App\Entity\AbstractUuidEntity;
-use App\Entity\ESIndexableInterface;
-use App\Entity\SearchableEntityInterface;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -50,6 +51,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'asset',
     operations: [
+        new GetCollection(
+            uriTemplate: '/assets/suggest',
+            name: 'suggestions',
+            provider: SearchSuggestionCollectionProvider::class,
+        ),
         new Get(
             normalizationContext: [
                 'groups' => [Asset::GROUP_READ],
@@ -117,7 +123,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, SearchableEntityInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, \Stringable
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -204,7 +210,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     /**
      * @param float $now got from microtime(true)
      */
-    public function __construct(float $now = null, int $sequence = null)
+    public function __construct(?float $now = null, ?int $sequence = null)
     {
         parent::__construct();
         $this->collections = new ArrayCollection();

@@ -22,19 +22,21 @@ export async function postRenditionRule(
     userType: UserType,
     userId: string | null
 ): Promise<RenditionRule> {
-    return (await apiClient.post(`/rendition-rules`, {
-        workspaceId:
-            objectType === CollectionOrWorkspace.Workspace
-                ? objectId
-                : undefined,
-        collectionId:
-            objectType === CollectionOrWorkspace.Collection
-                ? objectId
-                : undefined,
-        userId: userType === UserType.User ? userId : undefined,
-        groupId: userType === UserType.Group ? userId : undefined,
-        allowed: [`/rendition-classes/${classId}`],
-    })).data;
+    return (
+        await apiClient.post(`/rendition-rules`, {
+            workspaceId:
+                objectType === CollectionOrWorkspace.Workspace
+                    ? objectId
+                    : undefined,
+            collectionId:
+                objectType === CollectionOrWorkspace.Collection
+                    ? objectId
+                    : undefined,
+            userId: userType === UserType.User ? userId : undefined,
+            groupId: userType === UserType.Group ? userId : undefined,
+            allowed: [`/rendition-classes/${classId}`],
+        })
+    ).data;
 }
 
 export async function deleteRenditionRule(id: string): Promise<void> {

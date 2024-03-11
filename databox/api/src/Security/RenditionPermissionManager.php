@@ -17,7 +17,7 @@ class RenditionPermissionManager
     private const ANONYMOUS = '~';
 
     /**
-     * @var array{string, boolean}
+     * @var array{string, bool}
      */
     private array $cache = [];
 

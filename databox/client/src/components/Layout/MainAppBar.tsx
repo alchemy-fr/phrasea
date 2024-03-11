@@ -39,8 +39,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         keycloakClient,
         autoConnectIdP: config.autoConnectIdP,
     });
-    const onTitleClick = () =>
-        searchContext.selectWorkspace(undefined, undefined, true);
+    const onTitleClick = () => searchContext.reset();
 
     return (
         <div
@@ -161,7 +160,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                         forwardedContexts: [
                                                             {
                                                                 context:
-                                                                ThemeEditorContext,
+                                                                    ThemeEditorContext,
                                                                 value: themeEditorContext,
                                                             },
                                                         ],
@@ -179,7 +178,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                     'Theme Editor'
                                                 )}
                                             />
-                                        </MenuItem>
+                                        </MenuItem>,
                                     ]}
                                 />
                             )}

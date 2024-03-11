@@ -32,7 +32,11 @@ class PopulatePassListener implements EventSubscriberInterface
             'indexName' => $indexName,
         ]);
         if (null !== $currentPopulate) {
-            throw new \RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
+            if ('cli' == php_sapi_name()) {
+                $this->em->remove($currentPopulate);
+            } else {
+                throw new \RuntimeException(sprintf('There is a current populate command running. If this last has failed, consider removing the %s row', PopulatePass::class));
+            }
         }
 
         $populatePass = new PopulatePass();
@@ -43,9 +47,11 @@ class PopulatePassListener implements EventSubscriberInterface
         $entityName = $mapping['mappings']['_meta']['model'];
         $populatePass->setMapping($mapping);
 
-        $count = $this->em->getRepository($entityName)
-            ->createQueryBuilder('t')
+        $count = $this->em
+            ->getRepository($entityName)
+            ->getESQueryBuilder('t')
             ->select('COUNT(t) as total')
+            ->resetDQLPart('orderBy')
             ->getQuery()
             ->getSingleScalarResult();
         $populatePass->setDocumentCount((int) $count);

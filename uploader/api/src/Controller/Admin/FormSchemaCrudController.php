@@ -31,7 +31,7 @@ class FormSchemaCrudController extends AbstractAclAdminCrudController
     {
         $target = AssociationField::new('target');
         $locale = TextField::new('locale');
-        $jsonData = TextAreaField::new('jsonData');
+        $jsonData = TextareaField::new('jsonData');
         $id = IdField::new();
         $data = JsonField::new('data');
         $createdAt = DateTimeField::new('createdAt');

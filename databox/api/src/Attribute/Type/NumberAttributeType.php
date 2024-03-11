@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -17,9 +18,25 @@ class NumberAttributeType extends AbstractAttributeType
         return self::NAME;
     }
 
+    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    {
+        return [
+            'fields' => [
+                'raw' => [
+                    'type' => 'keyword',
+                ],
+            ],
+        ];
+    }
+
     public function getElasticSearchType(): string
     {
         return 'long';
+    }
+
+    public function supportsSuggest(): bool
+    {
+        return true;
     }
 
     /**

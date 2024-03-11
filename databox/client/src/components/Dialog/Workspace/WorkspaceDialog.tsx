@@ -15,17 +15,22 @@ import RenditionClassManager from './RenditionClassManager';
 import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes.ts';
+import {useCloseModal} from '../../Routing/ModalLink.tsx';
 
 type Props = {};
 
 export default function WorkspaceDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
-
     const [data, setData] = useState<Workspace>();
+    const closeModal = useCloseModal();
 
     useEffect(() => {
-        getWorkspace(id!).then(c => setData(c));
+        getWorkspace(id!)
+            .then(c => setData(c))
+            .catch(() => {
+                closeModal();
+            });
     }, [id]);
 
     if (!data) {

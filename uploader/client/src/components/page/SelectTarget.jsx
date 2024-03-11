@@ -7,7 +7,6 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Translation} from 'react-i18next';
 import {routes} from '../../routes';
 
-
 export default function SelectTarget() {
     const [targets, setTargets] = useState();
     const navigate = useNavigate();
@@ -23,9 +22,7 @@ export default function SelectTarget() {
     }, [targets]);
 
     if (!targets || targets?.length === 1) {
-        return <FullPageLoader
-            backdrop={false}
-        />;
+        return <FullPageLoader backdrop={false} />;
     }
 
     return (

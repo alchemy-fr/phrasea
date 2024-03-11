@@ -69,7 +69,7 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
     #[Gedmo\Timestampable(on: 'update')]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    public function __construct(string $id = null)
+    public function __construct(?string $id = null)
     {
         parent::__construct($id);
     }

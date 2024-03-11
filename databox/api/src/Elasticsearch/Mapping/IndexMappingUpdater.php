@@ -10,37 +10,33 @@ use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Elastica\Index;
 
-class IndexMappingUpdater
+final readonly class IndexMappingUpdater
 {
     final public const NO_LOCALE = '_';
 
     public function __construct(
-        private readonly ElasticsearchClient $client,
-        private readonly Index $index,
-        private readonly EntityManagerInterface $em,
-        private readonly AttributeTypeRegistry $attributeTypeRegistry,
-        private readonly FieldNameResolver $fieldNameResolver,
+        private ElasticsearchClient $client,
+        private Index $index,
+        private EntityManagerInterface $em,
+        private AttributeTypeRegistry $attributeTypeRegistry,
+        private FieldNameResolver $fieldNameResolver,
     ) {
     }
 
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
-        $fieldName = $this->fieldNameResolver->getFieldName($definition);
-        if (!isset($mapping['properties']['attributes'])) {
-            $mapping['properties']['attributes'] = [
-                'type' => 'object',
-                'properties' => [],
-            ];
-        }
+        $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
+        $mapping['properties']['attributes'] ??= [
+            'type' => 'object',
+            'properties' => [],
+        ];
 
         $properties = &$mapping['properties']['attributes']['properties'];
 
-        if (!isset($properties[$locale])) {
-            $properties[$locale] = [
-                'type' => 'object',
-                'properties' => [],
-            ];
-        }
+        $properties[$locale] ??= [
+            'type' => 'object',
+            'properties' => [],
+        ];
 
         $lProps = &$properties[$locale]['properties'];
 
@@ -93,7 +89,7 @@ class IndexMappingUpdater
     public function assignAttributeDefinitionToMapping(array &$newMapping, AttributeDefinition $definition, array $existingAttributes = []): bool
     {
         $upsert = false;
-        $fieldName = $this->fieldNameResolver->getFieldName($definition);
+        $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
         $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
         $workspace = $definition->getWorkspace();

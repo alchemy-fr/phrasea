@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {AttributeClass, AttributeDefinition, Workspace} from '../../../types';
 import {
     deleteAttributeDefinition,
@@ -29,7 +29,6 @@ import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 
 function Item({
-    data,
     usedFormSubmit,
     workspaceId,
 }: DefinitionItemFormProps<AttributeDefinition>) {
@@ -39,13 +38,8 @@ function Item({
         register,
         submitting,
         control,
-        reset,
         formState: {errors},
     } = usedFormSubmit;
-
-    useEffect(() => {
-        reset(normalizeData(data));
-    }, [data]);
 
     return (
         <>
@@ -81,7 +75,7 @@ function Item({
                         name={'fieldType'}
                         control={control}
                     />
-                    <FormFieldErrors field={'class'} errors={errors} />
+                    <FormFieldErrors field={'fieldType'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -109,6 +103,18 @@ function Item({
                     disabled={submitting}
                 />
                 <FormFieldErrors field={'searchable'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.suggest.label',
+                        'Display in search suggestions'
+                    )}
+                    control={control}
+                    name={'suggest'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'suggest'} errors={errors} />
             </FormRow>
             <FormRow>
                 <CheckboxWidget
@@ -178,6 +184,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         translatable: false,
         allowInvalid: false,
         searchable: true,
+        suggest: false,
         fieldType: 'text',
         class: null,
     };

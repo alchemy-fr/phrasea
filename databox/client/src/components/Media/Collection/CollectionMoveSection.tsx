@@ -25,9 +25,10 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
         setLoading(true);
         try {
             const d = dest.startsWith('/workspaces/')
-                ? 'root'
+                ? undefined
                 : dest.replace(/^\/collections\//, '');
             await moveCollection(collection.id, d);
+
             clearWorkspaceCache();
             toast.success(
                 t('form.collection_move.success', 'Collection moved!') as string

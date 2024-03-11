@@ -14,6 +14,12 @@
     "alchemy/core-bundle": {
         "version": "dev-ps-248-databox"
     },
+    "alchemy/es-bundle": {
+        "version": "dev-PS-585-new-perms"
+    },
+    "alchemy/messenger-bundle": {
+        "version": "dev-PS-585-new-perms"
+    },
     "alchemy/metadata-manipulator-bundle": {
         "version": "dev-PS-478-3_attribute-initializers"
     },
@@ -662,6 +668,18 @@
         },
         "files": [
             "config/packages/lock.yaml"
+        ]
+    },
+    "symfony/messenger": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "ba1ac4e919baba5644d31b57a3284d6ba12d52ee"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
         ]
     },
     "symfony/mime": {

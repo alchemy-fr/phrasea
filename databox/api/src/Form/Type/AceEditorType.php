@@ -128,6 +128,6 @@ class AceEditorType extends AbstractType
 
     public function getParent(): ?string
     {
-        return TextAreaType::class;
+        return TextareaType::class;
     }
 }

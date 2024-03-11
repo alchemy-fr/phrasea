@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -13,14 +14,12 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\AttributeInputTransformer;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
 use App\Controller\Core\AttributeBatchUpdateAction;
-use App\Entity\SearchDeleteDependencyInterface;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -54,12 +53,11 @@ use Ramsey\Uuid\Doctrine\UuidType;
     input: AttributeInput::class,
     output: AttributeOutput::class,
     provider: AttributeCollectionProvider::class,
-    processor: AttributeInputTransformer::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
-class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyInterface
+class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {
     final public const GROUP_READ = 'attr:read';
     final public const GROUP_LIST = 'attr:index';
@@ -176,6 +174,14 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         $this->definition = $definition;
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getDefinitionId(): string
+    {
+        return $this->definition->getId();
+    }
+
     public function getTranslationId(): ?string
     {
         return $this->translationId;
@@ -271,7 +277,7 @@ class Attribute extends AbstractBaseAttribute implements SearchDeleteDependencyI
         $this->confidence = $confidence;
     }
 
-    public function getSearchDeleteDependencies(): array
+    public function getIndexableDeleteDependencies(): array
     {
         return [
             $this->getAsset(),

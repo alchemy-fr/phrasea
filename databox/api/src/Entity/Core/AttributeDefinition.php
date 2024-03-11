@@ -152,6 +152,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     private bool $allowInvalid = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $suggest = false;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
@@ -410,5 +414,15 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function isSuggest(): bool
+    {
+        return $this->suggest;
+    }
+
+    public function setSuggest(bool $suggest): void
+    {
+        $this->suggest = $suggest;
     }
 }

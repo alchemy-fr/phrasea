@@ -126,6 +126,16 @@ export default function AssetResults() {
 
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 'a') {
+                const activeElement = document.activeElement;
+                if (
+                    activeElement &&
+                    ['input', 'select', 'button', 'textarea'].includes(
+                        activeElement.tagName.toLowerCase()
+                    )
+                ) {
+                    return;
+                }
+
                 e.preventDefault();
                 e.stopPropagation();
                 assetSelection.selectAssets(

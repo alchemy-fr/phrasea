@@ -631,7 +631,7 @@ class Publication implements AclObjectInterface, \Stringable
         $this->cover = $cover;
     }
 
-    public function isVisible(\DateTimeImmutable $now = null): bool
+    public function isVisible(?\DateTimeImmutable $now = null): bool
     {
         $now ??= new \DateTimeImmutable();
 

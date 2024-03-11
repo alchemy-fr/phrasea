@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Entity\AbstractUuidEntity;
 use App\Repository\Cache\CacheRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;

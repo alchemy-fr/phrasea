@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataExporter;
-use App\Doctrine\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Workflow\WorkflowState;
@@ -28,7 +28,7 @@ readonly class AssetManager
         Asset $asset,
         File $file,
         ?array $formData = [],
-        string $locale = null
+        ?string $locale = null
     ): void {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
             throw new \InvalidArgumentException('Asset and File are not in the same workspace');

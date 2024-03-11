@@ -31,7 +31,7 @@ import SortableList, {
     SortableItemProps,
 } from '../../Ui/Sortable/SortableList';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab.tsx';
-import {DefaultValues} from "react-hook-form";
+import {DefaultValues} from 'react-hook-form';
 
 type DefinitionBase = ApiHydraObjectResponse & {id: string};
 
@@ -149,7 +149,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
         load().then(r => {
             setState({
                 item: undefined,
-                list: r,
+                list: normalizeData ? r.map(normalizeData) : r,
                 loading: false,
             });
         });
@@ -194,7 +194,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     React.useEffect(() => {
         if (item && 'new' !== item) {
-            reset(item);
+            reset({
+                ...createNewItem(),
+                ...item,
+            });
         } else if ('new' === item) {
             reset(newItem as D);
         }
@@ -361,10 +364,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             onSubmit={usedFormSubmit.handleSubmit}
                         >
                             {React.createElement(itemComponent, {
-                                data:
-                                    item === 'new'
-                                        ? (newItem as D)
-                                        : item!,
+                                data: item === 'new' ? (newItem as D) : item!,
                                 key: item === 'new' ? 'new' : item!.id,
                                 usedFormSubmit,
                                 workspaceId,

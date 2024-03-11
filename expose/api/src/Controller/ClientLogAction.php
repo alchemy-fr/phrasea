@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\ReportBundle\ReportUserService;
 use App\Entity\Asset;
 use App\Entity\Publication;
-use App\Listener\TerminateStackListener;
 use App\Report\ExposeLogActionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -56,7 +56,7 @@ class ClientLogAction
         );
     }
 
-    private function pushLog(Request $request, string $action, string $item = null, array $payload = []): Response
+    private function pushLog(Request $request, string $action, ?string $item = null, array $payload = []): Response
     {
         $this->terminateStackListener->addCallback(function () use ($request, $action, $item, $payload): void {
             $this->reportClient->pushHttpRequestLog(

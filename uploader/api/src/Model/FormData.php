@@ -17,7 +17,7 @@ final class FormData
     private ?array $data = null;
 
     #[Assert\NotNull]
-    private ?\App\Entity\Target $target = null;
+    private ?Target $target = null;
 
     public function getData(): array
     {

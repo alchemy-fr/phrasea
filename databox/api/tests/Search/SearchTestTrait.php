@@ -25,6 +25,8 @@ trait SearchTestTrait
         $indexes = [
             'asset',
             'collection',
+            'attribute',
+            'asset_data_template',
         ];
         self::$documentIndices = [];
         foreach ($indexes as $indexName) {
@@ -35,6 +37,7 @@ trait SearchTestTrait
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
         $application->run(new ArrayInput([
             'command' => 'fos:elastica:populate',
         ]), new NullOutput());

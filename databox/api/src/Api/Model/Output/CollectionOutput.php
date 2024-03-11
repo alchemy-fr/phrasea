@@ -43,6 +43,15 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     private int $privacy;
 
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    public ?int $inheritedPrivacy = null;
+
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    public bool $shared;
+
+    #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
+    public bool $public;
+
     #[Groups(['collection:parent'])]
     private ?self $parent = null;
 

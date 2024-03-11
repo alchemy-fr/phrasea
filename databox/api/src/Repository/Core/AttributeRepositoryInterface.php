@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ObjectRepository;
 
 interface AttributeRepositoryInterface extends ObjectRepository
@@ -18,4 +19,6 @@ interface AttributeRepositoryInterface extends ObjectRepository
     public function getDuplicates(Attribute $attribute): array;
 
     public function getAssetAttributes(Asset $asset): array;
+
+    public function getESQueryBuilder(): QueryBuilder;
 }

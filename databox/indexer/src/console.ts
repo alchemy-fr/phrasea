@@ -2,13 +2,13 @@ import {Command, Option} from 'commander';
 import indexCommand from './command/index.js';
 import listCommand from './command/list';
 import watchCommand from './command/watch';
+import indexAllCommand from './command/indexAll';
 
 const program = new Command();
 
 program.name('console').description('Databox Indexer').version('1.0.0');
 
-const debugOption = new Option('--debug', 'Debug mode')
-    .default(false);
+const debugOption = new Option('--debug', 'Debug mode').default(false);
 
 program
     .command('index')
@@ -21,6 +21,17 @@ program
     )
     .addOption(debugOption)
     .action(indexCommand);
+
+program
+    .command('index-all')
+    .description('Index all locations')
+    .option(
+        '-n, --create-new-workspace',
+        'Remove existing workspace and create a new empty one',
+        false
+    )
+    .addOption(debugOption)
+    .action(indexAllCommand);
 
 program
     .command('watch')

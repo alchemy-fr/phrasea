@@ -12,13 +12,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class RenditionDefinitionInput
 {
     /**
-     * @var Workspace
+     * @var Workspace|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public $workspace;
 
     /**
-     * @var RenditionClass
+     * @var RenditionClass|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]
     public $class;

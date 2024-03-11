@@ -22,6 +22,11 @@ class DateTimeAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function supportsSuggest(): bool
+    {
+        return false;
+    }
+
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -79,9 +84,18 @@ class DateTimeAttributeType extends AbstractAttributeType
             }
 
             foreach ([
-                         ['p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#', 'f' => '%04d-%02d-%02dT00:00:00Z', 'm' => [1, 2, 3]],
-                         ['p' => '#^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$#', 'f' => '%04d-%02d-%02dT%02d:%02d:%02dZ', 'm' => [1, 2, 3, 4, 5, 6]],
-                         ['p' => '#^(\d{4})\D(\d{2})\D(\d{2})T(\d{2})\D(\d{2})$#', 'f' => '%04d-%02d-%02dT%02d:%02d:00Z', 'r' => [1, 2, 3, 4, 5]],
+                         [
+                             'p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#',
+                             'f' => '%04d-%02d-%02dT00:00:00Z',
+                             'm' => [1, 2, 3]],
+                         [
+                             'p' => '#^(\d{4})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})\D(\d{2})$#',
+                             'f' => '%04d-%02d-%02dT%02d:%02d:%02dZ',
+                             'm' => [1, 2, 3, 4, 5, 6]],
+                         [
+                             'p' => '#^(\d{4})\D(\d{2})\D(\d{2})T(\d{2})\D(\d{2})$#',
+                             'f' => '%04d-%02d-%02dT%02d:%02d:00Z',
+                             'm' => [1, 2, 3, 4, 5]],
                      ] as $tryout) {
                 $matches = [];
                 if (1 === preg_match($tryout['p'], $value, $matches)) {

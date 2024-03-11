@@ -12,6 +12,7 @@ class JwtUser implements JwtInterface, JwtUserInterface
     final public const ROLE_USER = 'ROLE_USER';
     final public const IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
     final public const ROLE_ADMIN = 'ROLE_ADMIN';
+    final public const ROLE_TECH = 'ROLE_TECH';
 
     private ?string $refreshToken = null;
 
