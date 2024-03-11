@@ -2,26 +2,34 @@
 
 namespace Alchemy\MessengerBundle\Rector;
 
+require_once __DIR__.'/MessageCollector.php';
+
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use Rector\Core\Configuration\RenamedClassesDataCollector;
 use Rector\Core\Rector\AbstractRector;
+use Rector\Core\Rector\AbstractScopeAwareRector;
 use Rector\FamilyTree\Reflection\FamilyRelationsAnalyzer;
+use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\Renaming\NodeManipulator\ClassRenamer;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Expr\MethodCall;
 use Symplify\RuleDocGenerator\ValueObject\CodeSample\CodeSample;
+use PHPStan\Analyser\Scope;
 
-final class ArthemToMessengerRector extends AbstractRector
+final class ArthemToMessengerRector extends AbstractScopeAwareRector
 {
+    private readonly MessageCollector $messageCollector;
+
     public function __construct(
         private readonly FamilyRelationsAnalyzer $familyRelationsAnalyzer,
         private readonly ClassRenamer $classRenamer,
         private readonly RenamedClassesDataCollector $renamedClassesDataCollector,
     )
     {
+        $this->messageCollector = MessageCollector::get();
     }
 
     /**
@@ -40,11 +48,9 @@ final class ArthemToMessengerRector extends AbstractRector
     /**
      * @param Class_ $node
      */
-    public function refactor(Node $node): ?Node
+    public function refactorWithScope(Node $node, Scope $scope): ?Node
     {
         $className = $this->getName($node->name);
-
-
         if ($className === null) {
             return null;
         }
@@ -52,16 +58,23 @@ final class ArthemToMessengerRector extends AbstractRector
         if (!str_ends_with($className, 'Handler')) {
             return null;
         }
-
-        if ($this->isHandler($node)) {
-            $oldName = $node->namespacedName->toString();
-            $newName = preg_replace('#\\\Consumer(\\\Handler)?(?=\\\)#', '\\Message', $oldName);
-            $this->renamedClassesDataCollector->addOldToNewClasses([
-                $oldName => $newName,
-            ]);
-
-            $this->classRenamer->renameNode($node, [$oldName => $newName], null);
+        if (!$this->isHandler($node)) {
+            return null;
         }
+
+        $oldName = $node->namespacedName->toString();
+        $newName = preg_replace('#\\\Consumer(\\\Handler)?(?=\\\)#', '\\Message', $oldName);
+        $this->renamedClassesDataCollector->addOldToNewClasses([
+            $oldName => $newName,
+        ]);
+        $scope = $node->getAttribute(AttributeKey::SCOPE);
+        $this->classRenamer->renameNode($node, [$oldName => $newName], $scope);
+
+        $node->implements = [];
+
+        $this->messageCollector->addMessage($newName, [
+            'foo' => 'bar',
+        ]);
 
         // return $node if you modified it
         return $node;
