@@ -22,7 +22,7 @@
     "@types/react": "^18.2.37",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "react-i18next": "^13.5.0",
-    "i18next": "^23.7.7",
+    "i18next": "^23.10.1",
     "@alchemy/phrasea-ui": "workspace:*"
   }
 }

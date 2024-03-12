@@ -27,7 +27,6 @@
     "react-nl2br": "^1.0.4"
   },
   "devDependencies": {
-    "@types/i18next": "^13.0.0",
     "@types/node": "^10.17.60",
     "@types/react": "^18.2.38",
     "typescript": "^5.3.2",
