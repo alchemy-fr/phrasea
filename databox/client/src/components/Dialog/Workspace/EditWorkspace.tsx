@@ -3,13 +3,9 @@ import {putWorkspace} from '../../../api/collection';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import {WorkspaceForm, WorkspaceFormData} from '../../Form/WorkspaceForm';
+import {WorkspaceForm} from '../../Form/WorkspaceForm';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import {
-    extendSortableList,
-    flattenSortableList,
-} from '../../Form/SortableCollectionWidget.tsx';
 
 type Props = {
     id: string;
@@ -19,10 +15,10 @@ type Props = {
 export default function EditWorkspace({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
 
-    const usedFormSubmit = useFormSubmit<WorkspaceFormData, Workspace>({
-        defaultValues: normalizeFormData(data),
-        onSubmit: async (data: WorkspaceFormData) => {
-            return await putWorkspace(data.id, denormalizeFormData(data));
+    const usedFormSubmit = useFormSubmit<Workspace>({
+        defaultValues: data,
+        onSubmit: async (data) => {
+            return await putWorkspace(data.id, data);
         },
         onSuccess: () => {
             toast.success(
@@ -47,20 +43,4 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
             <WorkspaceForm usedFormSubmit={usedFormSubmit} formId={formId} />
         </FormTab>
     );
-}
-
-function denormalizeFormData(data: WorkspaceFormData): Workspace {
-    return {
-        ...data,
-        enabledLocales: flattenSortableList(data.enabledLocales || undefined),
-        localeFallbacks: flattenSortableList(data.localeFallbacks || undefined),
-    };
-}
-
-function normalizeFormData(data: Workspace): WorkspaceFormData {
-    return {
-        ...data,
-        enabledLocales: extendSortableList(data.enabledLocales || undefined),
-        localeFallbacks: extendSortableList(data.localeFallbacks || undefined),
-    };
 }

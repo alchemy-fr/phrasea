@@ -17,11 +17,13 @@ class TagInputTransformer extends AbstractInputTransformer
         return Tag::class === $resourceClass && $data instanceof TagInput;
     }
 
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    /**
+     * @param TagInput $data
+     */
+    public function transform(object $data, string $resourceClass, array $context = []): Tag
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Tag();
-        $object->setName($data->name);
 
         if ($isNew) {
             if (!$data->workspace instanceof Workspace) {
@@ -34,7 +36,7 @@ class TagInputTransformer extends AbstractInputTransformer
                     'workspace' => $data->workspace->getId(),
                 ]);
 
-                if ($tag) {
+                if ($tag instanceof Tag) {
                     $isNew = false;
                     $object = $tag;
                 }
@@ -43,6 +45,16 @@ class TagInputTransformer extends AbstractInputTransformer
 
         if ($isNew) {
             $object->setWorkspace($data->workspace);
+        }
+
+        if (null !== $data->name) {
+            $object->setName($data->name);
+        }
+        if (null !== $data->color) {
+            $object->setColor($data->color);
+        }
+        if (null !== $data->translations) {
+            $object->setTranslations($data->translations);
         }
 
         return $object;

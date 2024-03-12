@@ -2,7 +2,7 @@ import {Collection} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import CollectionMoveSection from '../../Media/Collection/CollectionMoveSection';
-import FormSection from '../../Form/FormSection';
+import {FormSection} from '@alchemy/react-form';
 import {Alert, Button, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {deleteCollection} from '../../../api/collection';

@@ -13,14 +13,14 @@ import {
     ListItemText,
     TextField,
 } from '@mui/material';
-import FormRow from '../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import FormFieldErrors from '../../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AttributeClassSelect from '../../Form/AttributeClassSelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
@@ -234,6 +234,6 @@ export default function AttributeDefinitionManager({
 function normalizeData(data: AttributeDefinition) {
     return {
         ...data,
-        class: data?.class && (data?.class as AttributeClass)['@id'],
+        class: data.class ? (data.class as AttributeClass)['@id'] : null,
     };
 }

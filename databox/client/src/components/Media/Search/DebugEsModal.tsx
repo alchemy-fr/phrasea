@@ -1,6 +1,6 @@
 import {ESDebug} from '../../../api/asset';
 import {Box, Button, Chip} from '@mui/material';
-import AppDialog from '../../Layout/AppDialog';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import CopyToClipboard from '../../../lib/CopyToClipboard.tsx';

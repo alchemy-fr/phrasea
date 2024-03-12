@@ -16,7 +16,7 @@ export default function AssetTagList({tags}: Props) {
     }
 
     const r = (c: Tag) => (
-        <TagNode size={'small'} key={c.id} name={c.name} color={c.color} />
+        <TagNode size={'small'} key={c.id} name={c.nameTranslated} color={c.color} />
     );
 
     const rest = tags.length - (tagsLimit - 1);

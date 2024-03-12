@@ -3,7 +3,7 @@ import {Ace, UserType} from '../../types';
 import UserSelect from '../Form/UserSelect';
 import GroupSelect from '../Form/GroupSelect';
 import {Grid} from '@mui/material';
-import FormRow from '../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {DisplayedPermissions, OnPermissionDelete} from './permissions';
 import PermissionTable from './PermissionTable';

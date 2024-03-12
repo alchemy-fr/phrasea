@@ -21,7 +21,7 @@
     "scripts": {
         "rector": "vendor/bin/rector",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "echo 'This project has no test...'"
+        "test": "./vendor/bin/phpunit"
     },
     "autoload": {
         "psr-4": {

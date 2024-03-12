@@ -178,11 +178,11 @@ services:
   uploader-worker:
     extends:
       service: uploader-api-php
-    profiles:
-      - uploader-worker
     image: ${REGISTRY_NAMESPACE}uploader-worker:${DOCKER_TAG}
     build:
       target: worker
+    deploy:
+      replicas: $UPLOADER_WORKER_REPLICAS
 
   uploader-api-nginx:
     profiles:
@@ -306,11 +306,11 @@ services:
   expose-worker:
     extends:
       service: expose-api-php
-    profiles:
-      - expose-worker
     image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
     build:
       target: worker
+    deploy:
+      replicas: $EXPOSE_WORKER_REPLICAS
     environment:
       - WORKER_PRIORITIES=p1
 
@@ -360,11 +360,11 @@ services:
   notify-worker:
     extends:
       service: notify-api-php
-    profiles:
-      - notify-worker
     image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
     build:
       target: worker
+    deploy:
+      replicas: $NOTIFY_WORKER_REPLICAS
 
   notify-api-nginx:
     profiles:
@@ -691,11 +691,11 @@ services:
   databox-worker:
     extends:
       service: databox-api-php
-    profiles:
-      - databox-worker
     image: ${REGISTRY_NAMESPACE}databox-worker:${DOCKER_TAG}
     build:
       target: worker
+    deploy:
+      replicas: $DATABOX_WORKER_REPLICAS
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
       - WORKER_PRIORITIES=p1 p2

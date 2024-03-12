@@ -7,7 +7,8 @@
     "react": "^18.2.0",
     "@mui/material":  "^5.15.1",
     "@mui/icons-material":  "^5.15.1",
-    "react-i18next": "^13.5.0"
+    "react-i18next": "^13.5.0",
+    "@alchemy/navigation": "workspace:*"
   },
   "dependencies": {
     "styled-components": "^6.1.1"
@@ -17,6 +18,7 @@
     "react": "^18.2.0",
     "@mui/material":  "^5.15.1",
     "@mui/icons-material":  "^5.15.1",
-    "react-i18next": "^13.5.0"
+    "react-i18next": "^13.5.0",
+    "@alchemy/navigation": "workspace:*"
   }
 }

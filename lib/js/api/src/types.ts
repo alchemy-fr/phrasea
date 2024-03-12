@@ -25,7 +25,7 @@ export type SetOnSubmit<T extends FieldValues, R = T> = (fn: OnSubmit<T, R>) => 
 export type RemoteErrors = string[];
 
 
-export type UseFormSubmitReturn<T extends FieldValues, R = T> = {
+export type UseFormSubmitReturn<T extends FieldValues, R = T, FormData extends FieldValues = T> = {
     handleSubmit: ((e?: React.BaseSyntheticEvent) => Promise<void>),
     setOnSubmit: SetOnSubmit<T, R>,
     remoteErrors: RemoteErrors,
@@ -33,4 +33,4 @@ export type UseFormSubmitReturn<T extends FieldValues, R = T> = {
     submitted: boolean,
     isDirty: boolean,
     forbidNavigation: boolean,
-} & Omit<UseFormReturn<T>, "handleSubmit">;
+} & Omit<UseFormReturn<FormData>, "handleSubmit">;

@@ -2,7 +2,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {Button} from '@mui/material';
 import AttributeWidget from './AttributeWidget';
 import {AttrValue, createNewValue} from './AttributesEditor';
-import FormRow from '../../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';

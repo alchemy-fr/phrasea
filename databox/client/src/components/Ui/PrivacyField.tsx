@@ -130,7 +130,6 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
         onChange(getValue(resolvedPrivacy, e.target.checked, resolveAuth));
     };
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        console.log('e.target.checked', e.target.checked);
         setAuth(e.target.checked);
         onChange(
             getValue(resolvedPrivacy, resolvedWorkspaceOnly, e.target.checked)

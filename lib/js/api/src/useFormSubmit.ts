@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import axios from 'axios';
-import {UseFormProps} from 'react-hook-form';
+import {DefaultValues, UseFormProps} from 'react-hook-form';
 import {
     ApiErrorMapping,
     mapApiErrors,
@@ -13,37 +13,46 @@ import {toast} from 'react-toastify';
 import {hydraDescriptionKey} from "./utils";
 import {OnBeforeSubmit, OnSubmit, RemoteErrors, SetOnSubmit, UseFormSubmitReturn} from "./types";
 
-type Props<T extends FieldValues, R> = {
+type Props<T extends FieldValues, R, FormData extends FieldValues> = {
+    normalize?: (data: T) => DefaultValues<FormData>;
+    denormalize?: (data: FormData) => T;
     toastSuccess?: string;
-    onBeforeSubmit?: OnBeforeSubmit<T>;
+    onBeforeSubmit?: OnBeforeSubmit<FormData>;
     onSubmit: OnSubmit<T, R>;
     onSuccess?: (res: R) => void;
     apiErrors?: {
-        mapping?: ApiErrorMapping<T>;
+        mapping?: ApiErrorMapping<FormData>;
         normalizePath?: NormalizePath;
     };
-} & UseFormProps<T>;
+} & UseFormProps<FormData>;
 
-export default function useFormSubmit<T extends FieldValues, R = T>({
+export default function useFormSubmit<T extends FieldValues, R = T, FormData extends FieldValues = T>({
     onBeforeSubmit,
     onSubmit,
     onSuccess,
     apiErrors,
     toastSuccess,
+    normalize,
+    denormalize,
     ...useFormProps
-}: Props<T, R>): UseFormSubmitReturn<T, R> {
+}: Props<T, R, FormData>): UseFormSubmitReturn<T, R, FormData> {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [remoteErrors, setRemoteErrors] = useState<RemoteErrors>([]);
 
-    const useFormResponse = useForm<T>(useFormProps);
+    if (normalize) {
+        useFormProps.defaultValues = normalize(useFormProps.defaultValues as T);
+    }
+
+    const useFormResponse = useForm<FormData>(useFormProps);
 
     const {handleSubmit, setError, getValues} = useFormResponse;
 
-    const doSubmit = async (data: T): Promise<void> => {
+    const doSubmit = async (data: FormData): Promise<void> => {
         try {
             setRemoteErrors([]);
-            const res: R = await onSubmit(data);
+            const denormalizedData: T = denormalize ? denormalize(data) : (data as unknown as T);
+            const res: R = await onSubmit(denormalizedData);
             setSubmitted(true);
             setSubmitting(false);
             if (toastSuccess) {
@@ -77,8 +86,9 @@ export default function useFormSubmit<T extends FieldValues, R = T>({
         }
     };
 
-    const submitHandler = async (data: T): Promise<void> => {
+    const submitHandler = async (data: FormData): Promise<void> => {
         setSubmitting(true);
+
         if (onBeforeSubmit) {
             onBeforeSubmit(
                 data,

@@ -129,3 +129,13 @@ App\Entity\Core\RenditionDefinition:
     name: thumbnailActive
     class: '@t_rc_public'
     useAsThumbnailActive: true
+
+App\Entity\Core\Tag:
+    tag_foo:
+        name: foo
+        color: '#FF0000'
+        workspace: '@w_test'
+
+    tag_bar:
+        name: bar
+        workspace: '@w_test'

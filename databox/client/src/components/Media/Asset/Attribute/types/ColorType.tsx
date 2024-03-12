@@ -4,7 +4,7 @@ import {
     AvailableFormat,
 } from './types';
 import TextType from './TextType';
-import ColorPicker, {ColorBox} from '../../../../Form/ColorPicker';
+import {ColorBox, ColorPicker} from '@alchemy/react-form'
 import {replaceHighlight} from '../Attributes';
 import React from 'react';
 

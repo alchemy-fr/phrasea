@@ -1,5 +1,5 @@
 import {PropsWithChildren, ReactNode, useState} from 'react';
-import AppDialog from '../Layout/AppDialog';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import {Button, TextField} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import CheckIcon from '@mui/icons-material/Check';

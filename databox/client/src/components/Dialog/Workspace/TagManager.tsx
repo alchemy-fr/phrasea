@@ -1,43 +1,78 @@
 import {Tag, Workspace} from '../../../types';
 import {Box, ListItemText, TextField} from '@mui/material';
-import FormRow from '../../Form/FormRow';
+import {FormRow, TranslatedField} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
 import {Controller} from 'react-hook-form';
-import FormFieldErrors from '../../Form/FormFieldErrors';
-import {deleteTag, getTags, postTag, putTag} from '../../../api/tag';
-import ColorPicker from '../../Form/ColorPicker';
+import {FormFieldErrors} from '@alchemy/react-form';
+import {deleteTag, getTag, getTags, postTag, putTag} from '../../../api/tag';
+import {ColorPicker} from '@alchemy/react-form';
+import React from "react";
 
 function Item({
     data,
     usedFormSubmit: {
+        getValues,
         register,
         control,
+        setValue,
         submitting,
         formState: {errors},
     },
 }: DefinitionItemFormProps<Tag>) {
     const {t} = useTranslation();
-    console.log('data', data);
+
+    const createSaveTranslations = React.useCallback(
+        (field: keyof Tag) => {
+            if (data?.id) {
+                return async (d: Partial<Tag>) => {
+                    const r = await putTag(data!.id, d);
+                    setValue(field, r[field]);
+                    setValue('translations', r.translations);
+
+                    return r;
+                };
+            }
+
+            return async (d: Partial<Tag>) => {
+                setValue(field, d[field]!);
+                setValue('translations', d.translations!);
+
+                return d as Tag;
+            };
+        },
+        [data?.id, setValue],
+    );
 
     return (
         <>
             <FormRow>
-                <TextField
-                    label={t('form.tag.name.label', 'Name')}
-                    {...register('name')}
-                    disabled={submitting}
-                />
+                <TranslatedField<Tag>
+                    noToast={!data?.id}
+                    field={'name'}
+                    getData={getValues}
+                    title={t(
+                        'form.profile.firstName.translate.title',
+                        'Translate Tag',
+                    )}
+                    onUpdate={createSaveTranslations('name')}
+                >
+                    <TextField
+                        label={t('form.tag.name.label', 'Name')}
+                        {...register('name')}
+                        disabled={submitting}
+                    />
+                </TranslatedField>
+
                 <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <Controller
                     control={control}
                     render={({field: {onChange, value}}) => {
-                        console.log('value', value);
                         return (
                             <ColorPicker
                                 color={value || undefined}
@@ -111,9 +146,10 @@ export default function TagManager({
             listComponent={ListItem}
             load={() =>
                 getTags({
-                    workspace: workspace['@id'],
+                    workspace: workspace['@id']!,
                 }).then(r => r.result)
             }
+            loadItem={(id) => getTag(id)}
             workspaceId={workspace.id}
             minHeight={minHeight}
             onClose={onClose}

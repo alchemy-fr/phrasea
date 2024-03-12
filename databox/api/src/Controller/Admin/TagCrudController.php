@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\Tag;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
@@ -36,23 +37,18 @@ class TagCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $workspace = AssociationField::new('workspace');
-        $name = TextField::new('name');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $locale = TextField::new('locale');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $name, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $createdAt, $updatedAt, $locale, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $name];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('workspace');
+        yield TextField::new('locale');
+        yield TextField::new('name');
+        yield JsonField::new('translations')
+            ->hideOnIndex()
+        ;
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm()
+        ;
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm()
+        ;
     }
 }

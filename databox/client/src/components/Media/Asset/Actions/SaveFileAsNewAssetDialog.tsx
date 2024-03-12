@@ -10,8 +10,8 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
-import FormFieldErrors from '../../../Form/FormFieldErrors';
-import FormRow from '../../../Form/FormRow';
+import {FormFieldErrors} from '@alchemy/react-form';
+import {FormRow} from '@alchemy/react-form';
 import {postAsset} from '../../../../api/asset';
 
 type FormData = {

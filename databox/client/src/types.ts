@@ -1,5 +1,6 @@
 import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
+import type {WithTranslations} from '@alchemy/react-form'
 
 type AlternateUrl = {
     type: string;
@@ -172,9 +173,10 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
     exclude: Tag[];
 }
 
-export interface Tag extends ApiHydraObjectResponse {
+export interface Tag extends ApiHydraObjectResponse, WithTranslations {
     id: string;
     name: string;
+    nameTranslated: string;
     color: string | null;
     workspace: Workspace | string;
 }

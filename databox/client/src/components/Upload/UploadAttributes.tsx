@@ -1,7 +1,7 @@
 import {FormLabel, Skeleton} from '@mui/material';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import AttributesEditor from '../Media/Asset/Attribute/AttributesEditor';
-import FormRow from '../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import React from 'react';
 
 type Props = {

@@ -1,0 +1,40 @@
+{
+  "name": "@alchemy/react-form",
+  "version": "0.0.1",
+  "public": true,
+  "description": "React Form library",
+  "keywords": [],
+  "main": "index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@mui/material": "^5.15.1",
+    "@mui/lab": "^5.0.0-alpha.167",
+    "@mui/icons-material": "^5.15.12",
+    "react-hook-form": "^7.51.0",
+    "react-i18next": "^13.5.0",
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
+    "@dnd-kit/utilities": "^3.2.0",
+    "react-toastify": "^9.1.3",
+    "@alchemy/navigation": "workspace:*",
+    "@alchemy/api": "workspace:*",
+    "@alchemy/phrasea-ui": "workspace:*"
+  },
+  "dependencies": {
+    "react-select": "^5.8.0",
+    "react-colorful": "^5.6.1",
+    "react-nl2br": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/i18next": "^13.0.0",
+    "@types/node": "^10.17.60",
+    "@types/react": "^18.2.38",
+    "typescript": "^5.3.2",
+    "@mui/material": "^5.15.1",
+    "react-toastify": "^9.1.3",
+    "@alchemy/navigation": "workspace:*",
+    "@alchemy/api": "workspace:*",
+    "@alchemy/phrasea-ui": "workspace:*"
+  }
+}

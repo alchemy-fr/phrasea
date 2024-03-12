@@ -2,28 +2,23 @@ import {Hidden, TextField} from '@mui/material';
 import {FC} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
 import {Workspace} from '../../types';
-import FormFieldErrors from './FormFieldErrors';
-import FormRow from './FormRow';
+import {FormFieldErrors} from '@alchemy/react-form';
+import {FormRow} from '@alchemy/react-form';
 import {FormProps} from './types';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconFormLabel from './IconFormLabel';
-import SortableCollectionWidget, {
-    SortableValue,
-} from './SortableCollectionWidget';
+import {
+    SortableCollectionWidget,
+} from '@alchemy/react-form';
+
+
 import Flag from '../Ui/Flag';
 import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 import CheckboxWidget from './CheckboxWidget';
 
-const emptyLocaleItem = {
-    value: '',
-};
+const emptyLocaleItem = '';
 
-export type WorkspaceFormData = {
-    enabledLocales: SortableValue[] | undefined;
-    localeFallbacks: SortableValue[] | undefined;
-} & Omit<Workspace, 'enabledLocales' | 'localeFallbacks'>;
-
-export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
+export const WorkspaceForm: FC<FormProps<Workspace>> =
     function ({
         formId,
         usedFormSubmit: {
@@ -68,6 +63,7 @@ export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
                     </FormRow>
                     <FormRow>
                         <SortableCollectionWidget
+                            errors={errors}
                             emptyItem={emptyLocaleItem}
                             control={control}
                             label={
@@ -103,8 +99,7 @@ export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
                                                             mr: 1,
                                                         }}
                                                         locale={
-                                                            locales![index]
-                                                                .value
+                                                            locales![index] || ''
                                                         }
                                                     />
                                                 ),
@@ -118,7 +113,7 @@ export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
                                                 'e.g. fr or fr-FR'
                                             )}
                                             {...register(
-                                                `${path}.${index}.value` as any
+                                                `${path}.${index}` as any
                                             )}
                                             required={true}
                                         />
@@ -129,6 +124,7 @@ export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
                     </FormRow>
                     <FormRow>
                         <SortableCollectionWidget
+                            errors={errors}
                             emptyItem={emptyLocaleItem}
                             control={control}
                             label={
@@ -162,7 +158,7 @@ export const WorkspaceForm: FC<FormProps<WorkspaceFormData, Workspace>> =
                                                 'Locale'
                                             )}
                                             {...register(
-                                                `${path}.${index}.value` as any
+                                                `${path}.${index}` as any
                                             )}
                                             required={true}
                                         />

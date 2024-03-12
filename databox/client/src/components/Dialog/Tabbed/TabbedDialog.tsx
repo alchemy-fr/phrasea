@@ -1,10 +1,10 @@
 import React, {FunctionComponent, ReactNode} from 'react';
 import {Breakpoint, Tab, Tabs} from '@mui/material';
-import {AppDialogTitle, BootstrapDialog} from '../../Layout/AppDialog';
 import {useParams} from '@alchemy/navigation';
 import RouteDialog from '../RouteDialog';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
+import {AppDialogTitle, BootstrapDialog} from '@alchemy/phrasea-ui';
 
 type TabItem<P extends {} = {}, P2 extends {} = any> = {
     title: ReactNode;

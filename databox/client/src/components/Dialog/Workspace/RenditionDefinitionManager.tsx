@@ -1,13 +1,13 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
 import {FormGroup, FormLabel, ListItemText, TextField} from '@mui/material';
-import FormRow from '../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import FormFieldErrors from '../../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import {
     deleteRenditionDefinition,
     getWorkspaceRenditionDefinitions,
@@ -205,6 +205,6 @@ export default function RenditionDefinitionManager({
 function normalizeData(data: RenditionDefinition) {
     return {
         ...data,
-        class: data?.class && (data?.class as RenditionClass)['@id'],
+        class: data.class ? (data.class as RenditionClass)['@id'] : null,
     };
 }

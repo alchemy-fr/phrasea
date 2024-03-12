@@ -21,7 +21,7 @@ export default function TagSelect<TFieldValues extends FieldValues>({
         return data
             .map((t: Tag) => ({
                 value: `${tagNS}/${t.id}`,
-                label: t.name,
+                label: t.nameTranslated,
             }))
             .filter(i =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())
