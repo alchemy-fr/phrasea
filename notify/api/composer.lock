@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-585-new-perms",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -66,7 +66,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-585-new-perms",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -123,7 +123,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-585-new-perms",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -182,12 +182,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/rabbit-bundle.git",
-                "reference": "5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349"
+                "reference": "a63fe229adcc8f76ffa5d45c13e19a15d8c1c77c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349",
-                "reference": "5a2a58e83a9ae56c31e38c4f8639bd00fdf0d349",
+                "url": "https://api.github.com/repos/4rthem/rabbit-bundle/zipball/a63fe229adcc8f76ffa5d45c13e19a15d8c1c77c",
+                "reference": "a63fe229adcc8f76ffa5d45c13e19a15d8c1c77c",
                 "shasum": ""
             },
             "require": {
@@ -225,7 +225,7 @@
                 "issues": "https://github.com/4rthem/rabbit-bundle/issues",
                 "source": "https://github.com/4rthem/rabbit-bundle/tree/master"
             },
-            "time": "2023-07-25T15:46:00+00:00"
+            "time": "2024-03-12T20:18:30+00:00"
         },
         {
             "name": "async-aws/core",
