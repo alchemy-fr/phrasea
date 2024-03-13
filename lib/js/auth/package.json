@@ -11,17 +11,17 @@
     "react": "^18.2.0"
   },
   "dependencies": {
-    "jwt-decode": "^4.0.0",
-    "js-cookie": "^3.0.5",
     "@alchemy/api": "workspace:*",
-    "@alchemy/storage": "workspace:*"
+    "@alchemy/storage": "workspace:*",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.14",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^10.17.60",
-    "axios": "^1.6.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.3.2"
+    "axios": "^1.6.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   }
 }

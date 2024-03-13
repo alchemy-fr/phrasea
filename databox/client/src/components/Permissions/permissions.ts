@@ -11,10 +11,12 @@ export type OnPermissionDelete = (
     userId: string | null
 ) => Promise<void>;
 
-export type PermissionObjectType =
-    | 'collection'
-    | 'asset'
-    | 'workspace'
-    | 'attribute_class';
+export enum PermissionObject {
+    Collection = 'collection',
+    Asset = 'asset',
+    Workspace = 'workspace',
+    Basket = 'basket',
+    AttributeClass = 'attribute_class',
+}
 
 export type DisplayedPermissions = string[] | undefined;

@@ -9,20 +9,21 @@ use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\BasketSearch;
+use App\Util\SecurityAwareTrait;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class BasketCollectionProvider extends AbstractCollectionProvider
 {
-    public function __construct(private readonly BasketSearch $basketSearch, private readonly Security $security)
+    use SecurityAwareTrait;
+
+    public function __construct(private readonly BasketSearch $basketSearch)
     {
     }
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $user = $this->security->getUser();
-        $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
+        $user = $this->getStrictUser();
 
-        return $this->basketSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        return $this->basketSearch->search($user->getId(), $user->getGroups(), $context['filters'] ?? []);
     }
 }

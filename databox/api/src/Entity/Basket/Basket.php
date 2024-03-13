@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Basket;
 
 use Alchemy\AclBundle\AclObjectInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'basket',
     operations: [
+        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
@@ -41,7 +43,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
-        new GetCollection(security: 'is_granted("IS_AUTHENTICATED_FULLY", object)'),
         new Post(securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'),
     ],
     normalizationContext: [

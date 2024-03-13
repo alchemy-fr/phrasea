@@ -208,6 +208,7 @@ export interface Collection extends IPermissions {
 export interface Basket extends IPermissions {
     id: string;
     title: string;
+    titleHighlight: string;
     createdAt: string;
     updatedAt: string;
     owner?: User;

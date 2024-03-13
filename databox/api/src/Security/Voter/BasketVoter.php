@@ -45,6 +45,9 @@ class BasketVoter extends AbstractVoter
             self::DELETE => $isOwner
                 || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
+            self::EDIT_PERMISSIONS => $isOwner
+                || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,
         };
     }

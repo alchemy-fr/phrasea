@@ -7,9 +7,8 @@ namespace App\Api\OutputTransformer;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Basket\Basket;
-use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetVoter;
+use App\Security\Voter\BasketVoter;
 use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -45,15 +44,15 @@ class BasketOutputTransformer implements OutputTransformerInterface
         $output->setTitleHighlight($highlights['title'] ?? $data->getTitle());
 
         if ($this->hasGroup([
-            Asset::GROUP_READ,
+            Basket::GROUP_READ,
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
         }
 
-        if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {
+        if ($this->hasGroup([Basket::GROUP_LIST, Basket::GROUP_READ], $context)) {
             $output->setCapabilities([
                 'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
+                'canShare' => $this->isGranted(BasketVoter::SHARE, $data),
                 'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);

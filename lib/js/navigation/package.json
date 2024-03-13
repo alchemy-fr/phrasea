@@ -7,22 +7,22 @@
     "src/proxy/MatomoRouteWrapper.tsx"
   ],
   "dependencies": {
+    "@alchemy/core": "workspace:*",
     "@remix-run/router": "1.11.0",
-    "react-router-dom": "6.18.0",
-    "@alchemy/core": "workspace:*"
+    "react-router-dom": "6.18.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
+    "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "react-i18next": "^13.5.0",
-    "@alchemy/phrasea-ui": "workspace:*"
+    "react": "^18.2.0",
+    "react-i18next": "^13.5.0"
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "@types/react": "^18.2.37",
+    "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "react-i18next": "^13.5.0",
+    "@types/react": "^18.2.65",
     "i18next": "^23.10.1",
-    "@alchemy/phrasea-ui": "workspace:*"
+    "react": "^18.2.0",
+    "react-i18next": "^13.5.0"
   }
 }

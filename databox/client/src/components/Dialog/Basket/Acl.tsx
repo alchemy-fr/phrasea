@@ -1,11 +1,11 @@
-import {Workspace} from '../../../types';
+import {Basket} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from "../../Permissions/permissions";
 
 type Props = {
-    data: Workspace;
+    data: Basket;
 } & DialogTabProps;
 
 export default function Acl({data, onClose, minHeight}: Props) {
@@ -15,7 +15,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
             disableGutters={true}
         >
-            <AclForm objectId={data.id} objectType={PermissionObject.Workspace} />
+            <AclForm objectId={data.id} objectType={PermissionObject.Basket} />
         </ContentTab>
     );
 }
