@@ -12,6 +12,7 @@ use Elastica\Result;
 use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class SuggestionSearch extends AbstractSearch
 {
@@ -20,8 +21,11 @@ class SuggestionSearch extends AbstractSearch
     private const DEFINITION_ID_FIELD = 'definitionId';
 
     public function __construct(
+        #[Autowire(service: 'fos_elastica.finder.collection')]
         private readonly Index $collectionIndex,
+        #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly Index $assetIndex,
+        #[Autowire(service: 'fos_elastica.finder.attribute')]
         private readonly Index $attributeIndex,
         private readonly string $kernelEnv,
     ) {

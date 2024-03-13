@@ -25,6 +25,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -99,6 +100,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use UpdatedAtTrait;
     use DeletedAtTrait;
     use WorkspaceTrait;
+    use OwnerIdTrait;
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
@@ -109,9 +111,6 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
-
-    #[ORM\Column(type: Types::STRING, length: 36)]
-    private ?string $ownerId = null;
 
     #[ORM\ManyToOne(targetEntity: Collection::class, inversedBy: 'children')]
     #[ORM\JoinColumn(nullable: true)]
@@ -195,16 +194,6 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     public function getChildren(): DoctrineCollection
     {
         return $this->children;
-    }
-
-    public function getOwnerId(): ?string
-    {
-        return $this->ownerId;
-    }
-
-    public function setOwnerId(?string $ownerId): void
-    {
-        $this->ownerId = $ownerId;
     }
 
     /**

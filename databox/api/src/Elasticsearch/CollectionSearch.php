@@ -10,10 +10,14 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class CollectionSearch extends AbstractSearch
 {
-    public function __construct(private readonly PaginatedFinderInterface $finder)
+    public function __construct(
+        #[Autowire(service: 'fos_elastica.finder.collection')]
+        private readonly PaginatedFinderInterface $finder
+    )
     {
     }
 

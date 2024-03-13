@@ -57,24 +57,6 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
 
-    App\Elasticsearch\AssetSearch:
-        arguments:
-            $finder: '@fos_elastica.finder.asset'
-
-    App\Elasticsearch\SuggestionSearch:
-        arguments:
-            $collectionIndex: '@fos_elastica.index.collection'
-            $assetIndex: '@fos_elastica.index.asset'
-            $attributeIndex: '@fos_elastica.index.attribute'
-
-    App\Elasticsearch\CollectionSearch:
-        arguments:
-            - '@fos_elastica.finder.collection'
-
-    App\Elasticsearch\AssetDataTemplateSearch:
-        arguments:
-            - '@fos_elastica.finder.asset_data_template'
-
     App\Api\Serializer\SecurityContextBuilder:
         decorates: 'api_platform.serializer.context_builder'
         arguments: [ '@App\Api\Serializer\SecurityContextBuilder.inner' ]

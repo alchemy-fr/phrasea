@@ -205,6 +205,14 @@ export interface Collection extends IPermissions {
     owner?: User;
 }
 
+export interface Basket extends IPermissions {
+    id: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: User;
+}
+
 export interface Workspace extends IPermissions {
     id: string;
     name: string;

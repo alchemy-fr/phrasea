@@ -4,10 +4,12 @@ import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
 import {styled} from '@mui/material/styles';
 import {TabPanelProps} from '@mui/lab';
+import BasketsPanel from "../Basket/BasketsPanel.tsx";
 
 enum TabEnum {
     facets = 'facets',
     tree = 'tree',
+    baskets = 'baskets',
 }
 
 function a11yProps(name: TabEnum) {
@@ -71,12 +73,16 @@ export default function LeftPanel() {
             <AntTabs value={t} onChange={handleChange} aria-label="Views">
                 <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
                 <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
+                <AntTab label="Baskets" {...a11yProps(TabEnum.baskets)} />
             </AntTabs>
             <TabPanel value={t} index={TabEnum.tree}>
                 <CollectionsPanel />
             </TabPanel>
             <TabPanel value={t} index={TabEnum.facets}>
                 <Facets />
+            </TabPanel>
+            <TabPanel value={t} index={TabEnum.baskets}>
+                <BasketsPanel />
             </TabPanel>
         </>
     );
