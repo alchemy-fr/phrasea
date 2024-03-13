@@ -2,9 +2,9 @@
 
 namespace Alchemy\AdminBundle\Field;
 
+use Alchemy\AdminBundle\Form\JsonType;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 final class JsonField implements FieldInterface
 {
@@ -19,6 +19,6 @@ final class JsonField implements FieldInterface
             ->setProperty($propertyName)
             ->setLabel($label)
             ->setTemplatePath('@AlchemyAdmin/list/json.html.twig')
-            ->setFormType(TextareaType::class);
+            ->setFormType(JsonType::class);
     }
 }

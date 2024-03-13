@@ -1,4 +1,4 @@
-import {Asset} from '../../../types';
+import {Asset, Tag} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
@@ -6,9 +6,9 @@ import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
 import {Privacy} from '../../../api/privacy.ts';
-import FormRow from '../../Form/FormRow.tsx';
+import {FormRow} from '@alchemy/react-form';
 import {FormGroup, InputLabel, TextField} from '@mui/material';
-import FormFieldErrors from '../../Form/FormFieldErrors.tsx';
+import {FormFieldErrors} from '@alchemy/react-form';
 import TagSelect from '../../Form/TagSelect.tsx';
 import PrivacyField from '../../Ui/PrivacyField.tsx';
 
@@ -30,20 +30,20 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
         handleSubmit,
         remoteErrors,
         forbidNavigation,
-    } = useFormSubmit({
+    } = useFormSubmit<Asset>({
         defaultValues: data
             ? {
                   title: data.title,
                   privacy: data.privacy,
-                  tags: data?.tags?.map(t => t['@id']) ?? [],
+                  tags: (data?.tags?.map(t => t['@id']) ?? []) as unknown as Tag[],
               }
             : {
                   title: '',
                   privacy: Privacy.Secret,
-                  tags: [],
+                  tags: [] as Tag[],
               },
-        onSubmit: async (d: AssetApiInput) => {
-            return await putAsset(data.id, d);
+        onSubmit: async (d) => {
+            return await putAsset(data.id, d as unknown as AssetApiInput);
         },
         onSuccess: () => {
             toast.success(
@@ -86,7 +86,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                             control={control}
                             name={'tags'}
                         />
-                        <FormFieldErrors field={'tags'} errors={errors} />
+                        <FormFieldErrors<Asset> field={'tags'} errors={errors} />
                     </FormGroup>
                 </FormRow>
                 <FormRow>

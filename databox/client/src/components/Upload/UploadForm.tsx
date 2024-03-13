@@ -1,7 +1,7 @@
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import FormRow from '../Form/FormRow';
-import FormFieldErrors from '../Form/FormFieldErrors';
+import {FormRow} from '@alchemy/react-form';
+import {FormFieldErrors} from '@alchemy/react-form';
 import CollectionTreeWidget from '../Form/CollectionTreeWidget';
 import PrivacyField from '../Ui/PrivacyField';
 import {Privacy} from '../../api/privacy';
@@ -28,8 +28,12 @@ import {UseFormSubmitReturn} from '@alchemy/api';
 export type UploadData = {
     destination: Collection;
     privacy: Privacy;
-    tags: string[];
+    tags: Tag[];
 };
+
+export type FormUploadData = {
+    tags: string[];
+} & Omit<UploadData, "tags">;
 
 export const UploadForm: FC<{
     workspaceId?: string | undefined;
@@ -41,7 +45,7 @@ export const UploadForm: FC<{
     >;
     onChangeWorkspace: (wsId: string | undefined) => void;
     onChangeCollection: (colId: string | undefined) => void;
-    usedFormSubmit: UseFormSubmitReturn<UploadData, Asset[]>;
+    usedFormSubmit: UseFormSubmitReturn<UploadData, Asset[], FormUploadData>;
     resetForms: () => void;
     formId: string;
 }> = function ({
@@ -112,7 +116,7 @@ export const UploadForm: FC<{
                 if (t.tags && t.tags.length > 0) {
                     setValue(
                         'tags',
-                        (t.tags as Tag[])!.map(t => t['@id']) as any
+                        t.tags.map(t => t['@id'])
                     );
                 }
                 if (undefined !== t.privacy && null !== t.privacy) {
@@ -238,7 +242,7 @@ export const UploadForm: FC<{
                                 control={control}
                                 name={'tags'}
                             />
-                            <FormFieldErrors field={'tags'} errors={errors} />
+                            <FormFieldErrors<FormUploadData> field={'tags'} errors={errors} />
                         </FormGroup>
                     </FormRow>
                 )}

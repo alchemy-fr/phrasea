@@ -1,5 +1,5 @@
 import {Button, InputLabel} from '@mui/material';
-import {FieldArrayWithId, useFieldArray} from 'react-hook-form';
+import {FieldArrayWithId, FieldValues, useFieldArray} from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
@@ -14,105 +14,21 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    useSortable,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
-import {
-    CollectionItem,
-    CollectionItemProps,
-    CollectionWidgetProps,
-} from './CollectionWidget';
-import {FieldValues} from 'react-hook-form';
+import {SortableContext, verticalListSortingStrategy,} from '@dnd-kit/sortable';
+import {CollectionWidgetProps} from './CollectionWidget';
+import SortableCollectionItem from "./SortableCollectionItem";
+import {CollectionItem} from "./CollectionItem";
 
-export type SortableItem = {
-    id: string;
-    position: number;
-};
-
-function SortableCollectionItem<TFieldValues extends FieldValues>({
-    id,
-    ...props
-}: {id: string} & CollectionItemProps<TFieldValues>) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id});
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        touchAction: 'manipulation',
-        opacity: isDragging ? 0.5 : 1,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} {...attributes}>
-            <CollectionItem
-                {...props}
-                dragListeners={listeners}
-                sortable={true}
-            />
-        </div>
-    );
-}
-
-function getNextPosition<TFieldValues extends FieldValues>(
-    fields: (FieldArrayWithId<TFieldValues> & SortableItem)[]
-): number {
-    if (fields.length === 0) {
-        return 0;
-    }
-
-    return Math.max(...fields.map(f => f.position)) + 1;
-}
-
-export type SortableValue<T = string> = {
-    value: T;
-    position: number;
-};
-
-export function flattenSortableList<T extends SortableValue<R>, R = any>(
-    data: T[] | undefined
-): R[] | undefined {
-    if (undefined === data) {
-        return;
-    }
-
-    const d = [...data];
-    d.sort((a, b) => (a.position > b.position ? 1 : -1));
-
-    return d.map(i => i.value);
-}
-
-export function extendSortableList<R = any>(
-    list: R[] | undefined
-): SortableValue<R>[] | undefined {
-    if (undefined === list) {
-        return;
-    }
-
-    let pos = 0;
-
-    return list.map(i => ({
-        value: i,
-        position: pos++,
-    }));
-}
+type Sortable = {};
 
 export default function SortableCollectionWidget<
-    TFieldValues extends FieldValues
+    TFieldValues extends FieldValues,
 >({
     path,
     emptyItem,
     renderForm,
+    max,
+    errors,
     control,
     register,
     label,
@@ -124,26 +40,26 @@ export default function SortableCollectionWidget<
         remove,
         append,
         move,
+        update,
     } = useFieldArray<TFieldValues>({
         control,
         name: path as unknown as any,
     });
     const fields = _fields as unknown as (FieldArrayWithId<TFieldValues> &
-        SortableItem)[];
+        Sortable)[];
 
     const [activeId, setActiveId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
-        useSensor(TouchSensor)
+        useSensor(TouchSensor),
     );
 
-    const {t} = useTranslation();
+    const {t} = useTranslation('admin');
 
     const appendItem = () => {
-        append({
+        append(typeof emptyItem === 'string' ? emptyItem : {
             ...emptyItem,
-            position: getNextPosition(fields),
         } as any);
     };
 
@@ -154,14 +70,6 @@ export default function SortableCollectionWidget<
             const indexA = fields.findIndex(f => f.id === active.id);
             const indexB = fields.findIndex(f => f.id === over.id);
 
-            const current = control._getWatch(path);
-
-            let pos = 0;
-            (arrayMove(current, indexA, indexB) as SortableItem[]).forEach(
-                item => {
-                    item.position = pos++;
-                }
-            );
             move(indexA, indexB);
         }
         setActiveId(null);
@@ -197,10 +105,13 @@ export default function SortableCollectionWidget<
                                 id={field.id}
                                 renderForm={renderForm}
                                 remove={remove}
+                                errors={errors}
                                 removeLabel={rLabel}
                                 register={register}
                                 path={path}
                                 index={index}
+                                data={field}
+                                update={update}
                             />
                         );
                     })}
@@ -218,14 +129,22 @@ export default function SortableCollectionWidget<
                                 removeLabel={rLabel}
                                 register={register}
                                 path={path}
+                                errors={errors}
                                 sortable={true}
                                 index={activeFieldIndex!}
+                                data={undefined}
+                                update={update}
                             />
                         </div>
                     )}
                 </DragOverlay>
             </DndContext>
-            <Button onClick={appendItem} startIcon={<AddIcon />}>
+
+            <Button
+                onClick={appendItem}
+                disabled={Boolean(max) && fields.length >= max!}
+                startIcon={<AddIcon/>}
+            >
                 {addLabel || t('form.collection.add', 'Add')}
             </Button>
         </div>

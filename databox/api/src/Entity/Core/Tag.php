@@ -20,6 +20,7 @@ use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -27,11 +28,30 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'tag',
     operations: [
-        new Get(),
+        new Get(
+            normalizationContext: ['groups' => [
+                '_',
+                Tag::GROUP_READ,
+            ]],
+        ),
         new GetCollection(),
-        new Post(),
-        new Put(),
-        new Delete(),
+        new Post(
+            normalizationContext: ['groups' => [
+                '_',
+                Tag::GROUP_READ,
+            ]],
+            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+        ),
+        new Put(
+            normalizationContext: ['groups' => [
+                '_',
+                Tag::GROUP_READ,
+            ]],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+        ),
+        new Delete(
+            security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
+        ),
     ],
     normalizationContext: ['groups' => [
         '_',
@@ -55,6 +75,9 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private string $name;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $translations = null;
 
     #[ORM\Column(type: Types::STRING, length: 6, nullable: true)]
     private ?string $color = null;
@@ -98,5 +121,15 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
         }
 
         $this->color = $color;
+    }
+
+    public function getTranslations(): ?array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?array $translations): void
+    {
+        $this->translations = $translations;
     }
 }

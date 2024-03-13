@@ -7,7 +7,7 @@ import {
     OnChangeHandler,
 } from './AttributesEditor';
 import MultiAttributeRow from './MultiAttributeRow';
-import FormRow from '../../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import {FormLabel} from '@mui/material';
 import TranslatableAttributeTabs from './TranslatableAttributeTabs';
 import React from 'react';

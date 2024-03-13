@@ -7,6 +7,7 @@ type Props = {
 };
 
 function getLocaleCountryFlag(locale: string): FunctionComponent | undefined {
+    console.trace('locale', locale);
     const matches = locale.match(
         /^([a-z]{2})[-_]?([a-z]{2})?([-_][a-z0-9]+)?$/i
     );

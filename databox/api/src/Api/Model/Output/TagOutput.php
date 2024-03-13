@@ -14,6 +14,12 @@ class TagOutput extends AbstractUuidOutput
     private string $name;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
+    private string $nameTranslated;
+
+    #[Groups([Tag::GROUP_READ])]
+    private ?array $translations = null;
+
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Tag::GROUP_LIST, Tag::GROUP_READ])]
     private ?string $color = null;
 
     public function getName(): string
@@ -34,5 +40,25 @@ class TagOutput extends AbstractUuidOutput
     public function setColor(?string $color): void
     {
         $this->color = $color;
+    }
+
+    public function getTranslations(): ?array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?array $translations): void
+    {
+        $this->translations = $translations;
+    }
+
+    public function getNameTranslated(): string
+    {
+        return $this->nameTranslated;
+    }
+
+    public function setNameTranslated(string $nameTranslated): void
+    {
+        $this->nameTranslated = $nameTranslated;
     }
 }

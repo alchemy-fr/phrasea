@@ -1,12 +1,12 @@
 import {RenditionClass, Workspace} from '../../../types';
 import {InputLabel, ListItemText, TextField} from '@mui/material';
-import FormRow from '../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import FormFieldErrors from '../../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import {
     deleteRenditionClass,
     getRenditionClasses,

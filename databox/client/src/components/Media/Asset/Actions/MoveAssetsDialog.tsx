@@ -4,7 +4,7 @@ import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {moveAssets} from '../../../../api/collection';
-import FormFieldErrors from '../../../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import RemoteErrors from '../../../Form/RemoteErrors';
 import {StackedModalProps, useModals} from '@alchemy/navigation';

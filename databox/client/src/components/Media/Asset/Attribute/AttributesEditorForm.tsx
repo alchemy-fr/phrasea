@@ -5,7 +5,7 @@ import {toast} from 'react-toastify';
 import FormTab from '../../../Dialog/Tabbed/FormTab';
 import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
-import FormRow from '../../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import React from 'react';
 
 type Props = {

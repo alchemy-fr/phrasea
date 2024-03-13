@@ -1,4 +1,4 @@
-import AppDialog from '../Layout/AppDialog';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import {Button} from '@mui/material';
 import {PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';

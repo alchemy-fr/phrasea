@@ -7,13 +7,13 @@ import {
     putAttributeClass,
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
-import FormRow from '../../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import FormFieldErrors from '../../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';

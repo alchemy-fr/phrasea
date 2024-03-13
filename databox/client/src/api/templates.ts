@@ -12,7 +12,7 @@ export type AssetDataTemplate = {
     attributes: Attribute[] | AttributeBatchAction[] | undefined;
     privacy?: number | undefined | null;
     public: boolean;
-    tags?: Tag[] | string[] | undefined;
+    tags?: Tag[] | undefined;
     title?: string | undefined;
 };
 

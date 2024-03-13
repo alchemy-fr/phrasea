@@ -31,7 +31,7 @@ export default function CreateCollection({
     const {closeModal} = useModals();
     const {t} = useTranslation();
 
-    const usedFormSubmit = useFormSubmit({
+    const usedFormSubmit = useFormSubmit<Collection>({
         defaultValues: {
             title: '',
             privacy: 0,

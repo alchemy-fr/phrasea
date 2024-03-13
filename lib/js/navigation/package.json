@@ -9,19 +9,20 @@
   "dependencies": {
     "@remix-run/router": "1.11.0",
     "react-router-dom": "6.18.0",
-    "@alchemy/core": "workspace:*",
-    "@alchemy/phrasea-ui": "workspace:*"
+    "@alchemy/core": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "react-i18next": "^13.5.0"
+    "react-i18next": "^13.5.0",
+    "@alchemy/phrasea-ui": "workspace:*"
   },
   "devDependencies": {
     "react": "^18.2.0",
     "@types/react": "^18.2.37",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "react-i18next": "^13.5.0",
-    "i18next": "^23.7.7"
+    "i18next": "^23.10.1",
+    "@alchemy/phrasea-ui": "workspace:*"
   }
 }

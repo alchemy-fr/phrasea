@@ -1,6 +1,6 @@
 import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
-import AppDialog from '../../Layout/AppDialog';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
 import {StackedModalProps} from '@alchemy/navigation';

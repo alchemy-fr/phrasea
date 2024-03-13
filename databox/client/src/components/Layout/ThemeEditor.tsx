@@ -1,4 +1,4 @@
-import AppDialog from './AppDialog.tsx';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {MuiThemeEditor} from '@alchemy/theme-editor';
 

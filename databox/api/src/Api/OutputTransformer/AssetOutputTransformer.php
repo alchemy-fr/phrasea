@@ -7,12 +7,12 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
+use App\Api\Traits\UserLocaleTrait;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -23,12 +23,12 @@ use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssetOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use UserOutputTransformerTrait;
+    use UserLocaleTrait;
     use GroupsHelperTrait;
 
     private ?string $lastGroupKey = null;
@@ -38,21 +38,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetTitleResolver $assetTitleResolver,
-        private readonly RequestStack $requestStack,
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly FacetRegistry $facetRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry
     ) {
-    }
-
-    private function getUserLocales(): array
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (null !== $request) {
-            return $request->getLanguages();
-        }
-
-        return [];
     }
 
     public function supports(string $outputClass, object $data): bool
@@ -65,8 +54,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
      */
     public function transform(object $data, string $outputClass, array &$context = []): object
     {
-        $userLocales = $this->getUserLocales();
-        $preferredLocales = array_unique(array_filter(array_merge($userLocales, $data->getWorkspace()->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
+        $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;

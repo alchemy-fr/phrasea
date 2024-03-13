@@ -9,7 +9,7 @@ import {
     WorkflowPlayground,
 } from '@alchemy/visual-workflow';
 import RouteDialog from '../Dialog/RouteDialog';
-import AppDialog from '../Layout/AppDialog';
+import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
 
 type Props = {} & StackedModalProps;

@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
 import {useFormSubmit} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
-import {UploadData, UploadForm} from './UploadForm';
+import {FormUploadData, UploadData, UploadForm} from './UploadForm';
 import {createCollection, submitFiles} from '../../lib/upload/uploader';
 import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
@@ -75,14 +75,20 @@ export default function UploadModal({
 
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
-    const defaultValues: UploadData = {
+    const defaultValues: FormUploadData = {
         destination: '',
         privacy: Privacy.Secret,
         tags: [],
     };
 
-    const usedFormSubmit = useFormSubmit<UploadData, Asset[]>({
+    const usedFormSubmit = useFormSubmit<UploadData, Asset[], FormUploadData>({
         defaultValues,
+        normalize: (data) => {
+            return {
+                ...data,
+                tags: data.tags.map(t => t['@id']),
+            };
+        },
         onSubmit: async (data: UploadData) => {
             if (typeof data.destination === 'object') {
                 data.destination = await createCollection(data.destination);
@@ -132,7 +138,7 @@ export default function UploadModal({
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
-                    tags: data.tags,
+                    tags: data.tags.map(t => t['@id']),
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle()

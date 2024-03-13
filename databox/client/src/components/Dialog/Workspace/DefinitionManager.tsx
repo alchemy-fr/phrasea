@@ -1,13 +1,8 @@
-import React, {
-    FunctionComponent,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import React, {FunctionComponent, useCallback, useEffect, useMemo, useState,} from 'react';
 import {
     Box,
     Button,
+    CircularProgress,
     DialogContent,
     Divider,
     List,
@@ -25,15 +20,11 @@ import {useFormSubmit, UseFormSubmitReturn} from '@alchemy/api';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import RemoteErrors from '../../Form/RemoteErrors';
-import SortableList, {
-    OrderChangeHandler,
-    SortableItem,
-    SortableItemProps,
-} from '../../Ui/Sortable/SortableList';
+import SortableList, {OrderChangeHandler, SortableItem, SortableItemProps,} from '../../Ui/Sortable/SortableList';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab.tsx';
 import {DefaultValues} from 'react-hook-form';
 
-type DefinitionBase = ApiHydraObjectResponse & {id: string};
+type DefinitionBase = ApiHydraObjectResponse & { id: string };
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
@@ -44,9 +35,13 @@ export type DefinitionItemFormProps<D extends DefinitionBase> = {
     workspaceId: string;
 } & DefinitionItemProps<D>;
 
-type State<D extends DefinitionBase> = {
-    item: D | 'new' | undefined;
+type ListState<D extends DefinitionBase> = {
     list: D[] | undefined;
+    loading: boolean;
+};
+
+type ItemState<D extends DefinitionBase> = {
+    item: D | 'new' | undefined;
     loading: boolean;
 };
 
@@ -85,6 +80,7 @@ export type OnSort = (ids: string[]) => void;
 
 type Props<D extends DefinitionBase> = {
     load: () => Promise<D[]>;
+    loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionItemProps<D>>;
     itemComponent: FunctionComponent<DefinitionItemFormProps<D>>;
     createNewItem: () => Partial<D>;
@@ -103,6 +99,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     handleDelete,
     itemComponent,
     listComponent,
+    loadItem,
     onClose,
     createNewItem,
     minHeight,
@@ -112,43 +109,68 @@ export default function DefinitionManager<D extends DefinitionBase>({
     onSort,
     normalizeData,
 }: Props<D>) {
-    const [state, setState] = useState<State<D>>({
+    const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
+        loading: false,
+    });
+    const [itemState, setItemState] = React.useState<ItemState<D>>({
         item: undefined,
         loading: false,
     });
-    const {loading, list, item} = state;
+
+    const {loading, list} = listState;
+    const {loading: loadingItem, item} = itemState;
     const {t} = useTranslation();
 
     const newItem = React.useMemo(() => createNewItem(), [item, createNewItem]);
 
     const handleItemClick = useCallback(
         (data: D) => () => {
-            setState(p => ({
-                ...p,
-                item: data,
-            }));
+            if (loadItem) {
+                if (item && item !== 'new' && item.id === data.id) {
+                    return;
+                }
+
+                setItemState({
+                    item: undefined,
+                    loading: true,
+                });
+                loadItem(data.id).then(d => {
+                    setItemState({
+                        item: d,
+                        loading: false,
+                    });
+                }).catch(() => {
+                    setItemState(p => ({
+                        ...p,
+                        loading: false,
+                    }));
+                });
+            } else {
+                setItemState({
+                    item: data,
+                    loading: false,
+                });
+            }
         },
-        [setState]
+        [setItemState, loadItem, item]
     );
 
     const createAttribute = () => {
-        setState(p => ({
-            ...p,
+        setItemState({
             item: 'new',
-        }));
+            loading: false,
+        });
     };
 
     useEffect(() => {
-        setState({
-            item: undefined,
+        setListState({
             list: undefined,
             loading: true,
         });
 
         load().then(r => {
-            setState({
-                item: undefined,
+            setListState({
                 list: normalizeData ? r.map(normalizeData) : r,
                 loading: false,
             });
@@ -159,8 +181,14 @@ export default function DefinitionManager<D extends DefinitionBase>({
         defaultValues: newItem as DefaultValues<D>,
         onSubmit: async (data: D) => {
             const newData = await handleSave(data);
+            const newNormData = normalizeData ? normalizeData(newData) : newData;
 
-            setState(p => {
+            setItemState({
+                item: newNormData,
+                loading: false,
+            });
+
+            setListState(p => {
                 let newList = p.list!;
                 if (newList.find(i => i.id === newData.id)) {
                     newList = newList.map(i => {
@@ -177,7 +205,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
                 return {
                     ...p,
                     list: newList,
-                    item: normalizeData ? normalizeData(newData) : newData,
                 };
             });
 
@@ -213,7 +240,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     )
                 )
             ) {
-                setState(p => ({
+                setListState(p => ({
                     ...p,
                     item: undefined,
                     list: (p.list || []).filter(i => i.id !== item.id),
@@ -227,13 +254,13 @@ export default function DefinitionManager<D extends DefinitionBase>({
 
     const onOrderChange = useCallback<OrderChangeHandler<D & SortableItem>>(
         list => {
-            setState(p => ({
+            setListState(p => ({
                 ...p,
                 list,
             }));
             onSort!(list.map(i => i.id));
         },
-        [setState]
+        [setListState]
     );
 
     const itemProps = useMemo(() => {
@@ -287,12 +314,12 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 disabled={!list}
                             >
                                 <ListItemIcon>
-                                    <AddBoxIcon />
+                                    <AddBoxIcon/>
                                 </ListItemIcon>
-                                <ListItemText primary={newLabel} />
+                                <ListItemText primary={newLabel}/>
                             </ListItemButton>
                         </ListItem>
-                        <Divider />
+                        <Divider/>
 
                         {onSort && list && (
                             <SortableList<D & SortableItem, any>
@@ -313,7 +340,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 return (
                                     <ListItem disablePadding key={i.id}>
                                         <ListItemButton
-                                            selected={i === item}
+                                            selected={item !== 'new' && i.id === item?.id}
                                             onClick={handleItemClick(i)}
                                         >
                                             {React.createElement(
@@ -339,7 +366,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                         />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={<Skeleton variant="text" />}
+                                        primary={<Skeleton variant="text"/>}
                                         secondary={
                                             <Skeleton
                                                 variant="text"
@@ -358,6 +385,14 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         flexGrow: 1,
                     }}
                 >
+                    {loadingItem && <Box sx={{
+                        p: 3,
+                    }}>
+                        <CircularProgress
+                            color="inherit"
+                            size={50}
+                        />
+                    </Box>}
                     {item && (
                         <form
                             id={formId}
@@ -371,10 +406,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             })}
                         </form>
                     )}
-                    <RemoteErrors errors={remoteErrors} />
+                    <RemoteErrors errors={remoteErrors}/>
                     {item && item !== 'new' && handleDelete && (
                         <>
-                            <hr />
+                            <hr/>
                             <Button color={'error'} onClick={onDelete}>
                                 {t('common.delete', 'Delete')}
                             </Button>

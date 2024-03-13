@@ -2,9 +2,9 @@ import {TextField} from '@mui/material';
 import {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Collection} from '../../types';
-import FormFieldErrors from './FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import PrivacyField from '../Ui/PrivacyField';
-import FormRow from './FormRow';
+import {FormRow} from '@alchemy/react-form';
 import {FormProps} from './types';
 
 export const CollectionForm: FC<FormProps<Collection>> = function ({

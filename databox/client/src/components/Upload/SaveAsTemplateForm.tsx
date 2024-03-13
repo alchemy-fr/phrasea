@@ -7,10 +7,10 @@ import {
     Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FormRow from '../Form/FormRow';
+import {FormRow} from '@alchemy/react-form';
 import SwitchWidget from '../Form/SwitchWidget';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
-import FormFieldErrors from '../Form/FormFieldErrors';
+import {FormFieldErrors} from '@alchemy/react-form';
 import React from 'react';
 
 type Props = {

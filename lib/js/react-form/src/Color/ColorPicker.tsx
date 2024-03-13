@@ -1,39 +1,7 @@
-import React, {PropsWithChildren} from 'react';
+import React from 'react';
 import {HexColorPicker} from 'react-colorful';
 import {Stack, TextField, TextFieldProps} from '@mui/material';
-
-type ColorBoxProps = PropsWithChildren<{
-    color: string;
-    width?: number;
-    height?: number;
-    borderWidth?: number;
-}> &
-    React.HTMLProps<HTMLDivElement>;
-
-export function ColorBox({
-    color,
-    width = 30,
-    height = 22,
-    borderWidth = 2,
-    children,
-    style,
-    ...divProps
-}: ColorBoxProps) {
-    return (
-        <div
-            style={{
-                width,
-                height,
-                backgroundColor: color,
-                border: `${borderWidth}px solid #000`,
-                ...(style || {}),
-            }}
-            {...divProps}
-        >
-            {children}
-        </div>
-    );
-}
+import {ColorBox} from "./ColorBox";
 
 type Props = {
     color: string | undefined;

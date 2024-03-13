@@ -201,7 +201,7 @@ export default class TagRules extends PureComponent<Props, State> {
                                 <Chip
                                     color={'success'}
                                     key={t.id}
-                                    label={t.name}
+                                    label={t.nameTranslated}
                                 />
                             ))}
                         </span>
@@ -210,7 +210,7 @@ export default class TagRules extends PureComponent<Props, State> {
                                 <Chip
                                     color={'error'}
                                     key={t.id}
-                                    label={t.name}
+                                    label={t.nameTranslated}
                                 />
                             ))}
                         </span>
