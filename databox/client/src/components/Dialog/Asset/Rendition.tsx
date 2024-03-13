@@ -61,8 +61,8 @@ export function Rendition({
             info={
                 file && (
                     <div>
-                        {file.size && <>{byteSize(file.size).toString()} • </>}
-                        {file.type}
+                        {file.size ? <>{byteSize(file.size).toString()} • </> : ''}
+                        {file.type ? file.type : ''}
                     </div>
                 )
             }
@@ -115,7 +115,7 @@ function RenditionStructure({
                     backgroundColor: theme.palette.grey['100'],
                 })}
             >
-                {media || ''}
+                {media ? media : ''}
             </CardMedia>
             <CardContent sx={cardContentSx}>
                 <Typography component="div" variant="h5">

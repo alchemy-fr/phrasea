@@ -4,6 +4,7 @@ import React, {useEffect} from 'react';
 import {Asset} from '../../../types';
 import {Box} from '@mui/material';
 import {
+    OnAddToBasket,
     OnOpen,
     OnPreviewToggle,
     OnSelectAsset,
@@ -24,6 +25,7 @@ type Props = {
     selectedAssets: string[];
     onOpen?: OnOpen;
     onSelect: OnSelectAsset;
+    onAddToBasket?: OnAddToBasket;
     onUnselect: OnUnselectAsset;
     onPreviewToggle?: OnPreviewToggle;
     onContextMenuOpen?: TOnContextMenuOpen;
@@ -33,6 +35,7 @@ export default React.memo<Props>(function Pager({
     pages,
     layout,
     selectedAssets,
+    onAddToBasket,
     onSelect,
     onUnselect,
     onOpen,
@@ -83,6 +86,7 @@ export default React.memo<Props>(function Pager({
                                 assets,
                                 onSelect,
                                 onUnselect,
+                                onAddToBasket,
                                 onOpen,
                                 selectedAssets,
                                 onContextMenuOpen,

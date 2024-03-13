@@ -28,13 +28,6 @@ class BasketAssetCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
-    public function configureFilters(Filters $filters): Filters
-    {
-        return $filters
-            ->add(EntityFilter::new('workspace'))
-        ;
-    }
-
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

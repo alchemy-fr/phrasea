@@ -7,6 +7,7 @@ namespace App\Api\OutputTransformer;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Basket\Basket;
+use App\Entity\Basket\BasketAsset;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\BasketVoter;
 use App\Util\SecurityAwareTrait;
@@ -47,6 +48,14 @@ class BasketOutputTransformer implements OutputTransformerInterface
             Basket::GROUP_READ,
         ], $context)) {
             $output->owner = $this->transformUser($data->getOwnerId());
+            $output->assetCount = (int) $this->em->getRepository(BasketAsset::class)
+                ->createQueryBuilder('t')
+                ->select('COUNT(t.id) as total')
+                ->andWhere('t.basket = :b')
+                ->setParameter('b', $data->getId())
+                ->getQuery()
+                ->getSingleScalarResult()
+            ;
         }
 
         if ($this->hasGroup([Basket::GROUP_LIST, Basket::GROUP_READ], $context)) {

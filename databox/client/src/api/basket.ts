@@ -46,3 +46,9 @@ export async function getBasket(id: string): Promise<Basket> {
 export async function deleteBasket(id: string): Promise<void> {
     await apiClient.delete(`/baskets/${id}`);
 }
+
+export async function addToBasket(basketId: string, assets: string[]): Promise<Basket> {
+    return await apiClient.post(`/baskets/${basketId}/assets`, {
+        assets,
+    });
+}

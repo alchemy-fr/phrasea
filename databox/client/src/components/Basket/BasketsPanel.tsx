@@ -17,7 +17,6 @@ export default function BasketsPanel({}: Props) {
     const loading = useBasketStore(state => state.loading);
     const load = useBasketStore(state => state.load);
     const deleteBasket = useBasketStore(state => state.deleteBasket);
-
     const {openModal} = useModals();
     const {t} = useTranslation();
 

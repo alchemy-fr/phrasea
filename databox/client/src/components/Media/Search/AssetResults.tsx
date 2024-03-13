@@ -21,6 +21,7 @@ import {LoadingButton} from '@mui/lab';
 import AssetContextMenu from '../Asset/AssetContextMenu';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
 import {
+    OnAddToBasket,
     OnOpen,
     OnPreviewToggle,
     OnSelectAsset,
@@ -35,6 +36,7 @@ import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
+import {useBasketStore} from "../../../store/basketStore.ts";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -159,6 +161,17 @@ export default function AssetResults() {
             // eslint-disable-next-line
         },
         [pages]
+    );
+
+    const addToCurrent = useBasketStore(state => state.addToCurrent);
+
+    const onAddToBasket = useCallback<OnAddToBasket>(
+        (id, e): void => {
+            e?.stopPropagation();
+            addToCurrent([id]);
+            // eslint-disable-next-line
+        },
+        [addToCurrent]
     );
 
     const openUpload = useCallback<
@@ -288,6 +301,7 @@ export default function AssetResults() {
                     <Pager
                         pages={pages}
                         layout={layout}
+                        onAddToBasket={onAddToBasket}
                         selectedAssets={assetSelection.selectedAssets}
                         onSelect={onSelect}
                         onOpen={onOpen}

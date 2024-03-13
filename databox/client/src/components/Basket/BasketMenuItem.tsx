@@ -8,12 +8,16 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Basket;
-    onDelete: (data: Basket) => void;
+    onDelete?: (data: Basket) => void;
+    noEdit?: boolean;
+    onClick?: () => void;
 };
 
 export default function BasketMenuItem({
     data,
     onDelete,
+    noEdit,
+    onClick,
 }: Props) {
     const {t} = useTranslation();
 
@@ -22,7 +26,7 @@ export default function BasketMenuItem({
             secondaryAction={
                 <>
                         <span className="c-action">
-                            {data.capabilities.canEdit && (
+                            {!noEdit && data.capabilities.canEdit ? (
                                 <IconButton
                                     component={ModalLink}
                                     route={
@@ -40,8 +44,8 @@ export default function BasketMenuItem({
                                 >
                                     <EditIcon />
                                 </IconButton>
-                            )}
-                            {data.capabilities.canDelete && (
+                            ) : null}
+                            {onDelete && data.capabilities.canDelete ? (
                                 <IconButton
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -51,7 +55,7 @@ export default function BasketMenuItem({
                                 >
                                     <DeleteIcon />
                                 </IconButton>
-                            )}
+                            ) : null}
                         </span>
                 </>
             }
@@ -59,7 +63,7 @@ export default function BasketMenuItem({
         >
             <ListItemButton
                 role={undefined}
-                // onClick={onClick}
+                onClick={onClick}
             >
                 <ListItemText primary={data.titleHighlight} />
             </ListItemButton>

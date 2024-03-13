@@ -2,6 +2,7 @@ import {Asset} from '../../../../types';
 import {MouseEvent} from 'react';
 
 export type OnSelectAsset = (id: string, e?: MouseEvent) => void;
+export type OnAddToBasket = (id: string, e?: MouseEvent) => void;
 export type OnOpen = (assetId: string, renditionId: string) => void;
 export type OnUnselectAsset = (id: string, e?: MouseEvent) => void;
 export type OnPreviewToggle = (
@@ -22,6 +23,7 @@ export type LayoutProps = {
     searchMenuHeight: number;
     assets: Asset[];
     onSelect: OnSelectAsset;
+    onAddToBasket?: OnAddToBasket | undefined;
     onOpen?: OnOpen;
     onUnselect: OnUnselectAsset;
     onPreviewToggle?: OnPreviewToggle;

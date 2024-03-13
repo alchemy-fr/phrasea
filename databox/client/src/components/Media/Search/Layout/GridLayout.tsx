@@ -1,7 +1,7 @@
 import React, {MouseEvent, useContext} from 'react';
 import {alpha, Checkbox, Grid, IconButton, useTheme} from '@mui/material';
 import {
-    LayoutProps,
+    LayoutProps, OnAddToBasket,
     OnPreviewToggle,
     OnSelectAsset,
     OnUnselectAsset,
@@ -21,6 +21,7 @@ import {replaceHighlight} from '../../Asset/Attribute/Attributes';
 import {hasContextMenu} from '../../Asset/AssetContextMenu';
 import GroupRow from './GroupRow';
 import {sectionDividerClassname} from './SectionDivider';
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 const lineHeight = 26;
 const collLineHeight = 32;
@@ -35,8 +36,10 @@ const AssetItem = React.memo(
         onContextMenuOpen,
         thumbSize,
         onPreviewToggle,
+        onAddToBasket,
     }: {
         asset: Asset;
+        onAddToBasket?: OnAddToBasket;
         onSelect: OnSelectAsset;
         onUnselect: OnUnselectAsset;
         onPreviewToggle?: OnPreviewToggle;
@@ -78,6 +81,13 @@ const AssetItem = React.memo(
                         }}
                         privacy={asset.privacy}
                     />
+                    {onAddToBasket ? <IconButton
+                        className={assetClasses.cartBtn}
+                        onMouseDown={stopPropagation}
+                        onClick={(e) => onAddToBasket(asset.id, e)}
+                    >
+                        <ShoppingCartIcon fontSize={'small'} />
+                    </IconButton> : null}
                     {onContextMenuOpen && (
                         <IconButton
                             className={assetClasses.settingBtn}
@@ -147,6 +157,7 @@ export default function GridLayout({
     onUnselect,
     onPreviewToggle,
     onContextMenuOpen,
+    onAddToBasket,
     onOpen,
 }: LayoutProps) {
     const theme = useTheme();
@@ -198,7 +209,12 @@ export default function GridLayout({
                     [`.${assetClasses.settingBtn}`]: {
                         position: 'absolute',
                         right: 1,
-                        top: 1,
+                        top: 5,
+                    },
+                    [`.${assetClasses.cartBtn}`]: {
+                        position: 'absolute',
+                        right: 40,
+                        top: 5,
                     },
                     ...createThumbActiveStyle(),
                     '&:hover, &.selected': {
@@ -271,6 +287,7 @@ export default function GridLayout({
                         >
                             <AssetItem
                                 asset={a}
+                                onAddToBasket={onAddToBasket}
                                 selected={selectedAssets.includes(a.id)}
                                 onContextMenuOpen={
                                     contextMenu ? onContextMenuOpen : undefined

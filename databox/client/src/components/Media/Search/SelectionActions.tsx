@@ -39,6 +39,7 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
+import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -300,6 +301,8 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                         </Button>
                     </span>
                 </Tooltip>
+
+                <BasketSwitcher/>
                 <LoadingButton
                     disabled={!canDownload}
                     variant={'contained'}

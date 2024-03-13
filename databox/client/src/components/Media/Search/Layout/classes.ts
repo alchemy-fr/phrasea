@@ -3,6 +3,7 @@ const assetClasses = {
     controls: 'actrl',
     checkBtb: 'ac',
     settingBtn: 'as',
+    cartBtn: 'acart',
     title: 't',
     legend: 'l',
     attributes: 'aa',
