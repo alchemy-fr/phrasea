@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {Basket} from '../types.ts';
-import {addToBasket, deleteBasket, getBasket, GetBasketOptions, getBaskets} from '../api/basket.ts';
+import {addToBasket, BasketAssetInput, deleteBasket, getBasket, GetBasketOptions, getBaskets} from '../api/basket.ts';
 
 type State = {
     baskets: Basket[];
@@ -14,8 +14,9 @@ type State = {
     addBasket: (basket: Basket) => void;
     updateBasket: (data: Basket) => void;
     deleteBasket: (id: string) => void;
-    addToCurrent: (ids: string[]) => void;
+    addToCurrent: (assets: BasketAssetInput[]) => void;
     setCurrent: (data: Basket | undefined) => Promise<void>;
+    shouldSelectBasket: () => boolean;
 };
 
 export const useBasketStore = create<State>((set, getState) => ({
@@ -34,11 +35,12 @@ export const useBasketStore = create<State>((set, getState) => ({
             const data = await getBaskets(params);
             console.log('data.next', data.next);
 
-            set({
+            set(state => ({
                 baskets: data.result,
                 total: data.total,
                 loading: false,
-            });
+                current: data.total === 1 ? data.result[0] : state.current,
+            }));
         } catch (e: any) {
             set({loadingMore: true});
             throw e;
@@ -73,6 +75,20 @@ export const useBasketStore = create<State>((set, getState) => ({
         }
     },
 
+    shouldSelectBasket: () => {
+        const {current, loading, baskets} = getState();
+
+        if (current) {
+            return false;
+        }
+
+        if (loading) {
+            return true;
+        }
+
+        return baskets.length > 1;
+    },
+
     updateBasket: data => {
         set(state => ({
             baskets: state.baskets.map(b => {
@@ -84,7 +100,8 @@ export const useBasketStore = create<State>((set, getState) => ({
                 }
 
                 return b;
-            })
+            }),
+            current: state.current?.id === data.id ? data : state.current,
         }))
     },
 
@@ -121,44 +138,50 @@ export const useBasketStore = create<State>((set, getState) => ({
 
         set(state => ({
             baskets: state.baskets.filter(b => b.id !== id),
+            current: state.current?.id === id ? undefined : state.current,
         }));
     },
 
-    addToCurrent: async (ids) => {
+    addToCurrent: async (assets) => {
         const current = getState().current;
-        if (!current) {
-            alert('No Basket selected');
-            return;
+
+        const currentId = current?.id;
+        const count = assets.length;
+
+        if (current && current.assetCount !== undefined) {
+            set({
+                current: {
+                    ...current,
+                    assetCount: current.assetCount + count,
+                },
+            });
         }
 
-        const currentId = current.id;
-        const c = ids.length;
-
-        set({
-            current: {
-                ...current,
-                assetCount: current.assetCount! + c,
-            },
-        });
-
         try {
-            const basket = await addToBasket(currentId, ids);
-            set({
+            const basket = await addToBasket(currentId, {
+                assets,
+            });
+            set(state => ({
                 current: basket,
-            });
+                baskets: state.baskets.some(b => b.id === basket.id) ? state.baskets : state.baskets.concat([basket]),
+            }));
         } catch (e: any) {
-            set(state => {
-                if (state.current!.id === currentId) {
-                    return {
-                        current: {
-                            ...state.current!,
-                            assetCount: state.current!.assetCount! - c,
-                        },
-                    };
-                }
+            if (current) {
+                set(state => {
+                    if (state.current?.id === current.id) {
+                        const curr = state.current!;
 
-                return state;
-            });
+                        return {
+                            current: {
+                                ...curr,
+                                assetCount: curr.assetCount !== undefined ? Math.max(0, curr.assetCount! - count) : undefined,
+                            },
+                        };
+                    }
+
+                    return state;
+                });
+            }
         }
     }
 }));

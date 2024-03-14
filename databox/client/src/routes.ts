@@ -7,6 +7,7 @@ import WorkflowView from './components/Workflow/WorkflowView';
 import AppAuthorizationCodePage from './components/AppAuthorizationCodePage.tsx';
 import {compileRoutes} from '@alchemy/navigation';
 import BasketDialog from "./components/Dialog/Basket/BasketDialog.tsx";
+import BasketViewDialog from "./components/Basket/BasketViewDialog.tsx";
 
 const modalRoutes = {
     workspaces: {
@@ -36,6 +37,10 @@ const modalRoutes = {
             manage: {
                 path: 'manage/:tab',
                 component: BasketDialog,
+            },
+            view: {
+                path: 'view',
+                component: BasketViewDialog,
             },
         },
     },

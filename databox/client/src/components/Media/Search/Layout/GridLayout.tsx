@@ -84,6 +84,7 @@ const AssetItem = React.memo(
                     {onAddToBasket ? <IconButton
                         className={assetClasses.cartBtn}
                         onMouseDown={stopPropagation}
+                        onDoubleClick={stopPropagation}
                         onClick={(e) => onAddToBasket(asset.id, e)}
                     >
                         <ShoppingCartIcon fontSize={'small'} />
@@ -92,6 +93,7 @@ const AssetItem = React.memo(
                         <IconButton
                             className={assetClasses.settingBtn}
                             onMouseDown={stopPropagation}
+                            onDoubleClick={stopPropagation}
                             onClick={function (e) {
                                 onContextMenuOpen(e, asset, e.currentTarget);
                             }}

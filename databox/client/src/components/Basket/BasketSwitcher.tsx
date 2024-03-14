@@ -1,12 +1,11 @@
 import {useBasketStore} from "../../store/basketStore.ts";
-import {Badge, BadgeProps, Button, ButtonGroup} from "@mui/material";
+import {Button, ButtonGroup, Chip} from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {useModals} from '@alchemy/navigation';
 import BasketListDialog from "./BasketListDialog.tsx";
 import {useTranslation} from 'react-i18next';
 import {LoadingButton} from "@alchemy/react-form";
-import {styled} from "@mui/material/styles";
 
 type Props = {};
 
@@ -31,14 +30,12 @@ export default function BasketSwitcher({}: Props) {
             // onClick={onClick}
             loading={loadingCurrent}
             loadingPosition={'start'}
-            startIcon={<StyledBadge
-                badgeContent={current?.assetCount}
-                color="secondary"
-            >
-                <ShoppingCartIcon/>
-            </StyledBadge>}
+            startIcon={<ShoppingCartIcon/>}
         >
-            {current ? current.title : t('basket.default.title', 'Basket')}
+            {current?.title || t('basket.default.title', 'Basket')}
+            {current?.assetCount ? <>{' '}<Chip
+                size={'small'}
+                label={current!.assetCount}/></> : ''}
         </LoadingButton>
         <Button
             size="small"
@@ -49,16 +46,7 @@ export default function BasketSwitcher({}: Props) {
             aria-haspopup="menu"
             onClick={() => openList()}
         >
-            <ArrowDropDownIcon />
+            <ArrowDropDownIcon/>
         </Button>
     </ButtonGroup>
 }
-
-const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
-    '& .MuiBadge-badge': {
-        marginLeft: -50,
-        top: 13,
-        border: `2px solid ${theme.palette.background.paper}`,
-        padding: '0 4px',
-    },
-}));

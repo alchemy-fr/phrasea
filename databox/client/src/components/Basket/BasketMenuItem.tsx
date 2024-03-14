@@ -65,7 +65,7 @@ export default function BasketMenuItem({
                 role={undefined}
                 onClick={onClick}
             >
-                <ListItemText primary={data.titleHighlight} />
+                <ListItemText primary={data.titleHighlight || data.title || t('basket.default.title', 'Basket')} />
             </ListItemButton>
         </ListItem>
     </>

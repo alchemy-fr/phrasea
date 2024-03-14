@@ -215,6 +215,20 @@ export interface Basket extends IPermissions {
     owner?: User;
 }
 
+export interface BasketAsset {
+    id: string;
+    asset: Asset;
+    context?: {
+        clip?: {
+            start?: number;
+            end?: number;
+        };
+    } | undefined;
+    titleHighlight: string;
+    createdAt: string;
+    owner?: User;
+}
+
 export interface Workspace extends IPermissions {
     id: string;
     name: string;

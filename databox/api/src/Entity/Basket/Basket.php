@@ -13,8 +13,11 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\BasketInput;
 use App\Api\Model\Output\BasketOutput;
+use App\Api\Processor\AddToBasketProcessor;
+use App\Api\Provider\BasketAssetsProvider;
 use App\Api\Provider\BasketCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Asset;
@@ -42,8 +45,37 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
-        new Post(securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'),
+        new Put(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+        ),
+        new Post(
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+        ),
+        new Post(
+            uriTemplate: '/baskets/default/assets',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            input: AddToBasketInput::class,
+            name: 'add_to_default_basket',
+            processor: AddToBasketProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/baskets/{id}/assets',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: AddToBasketInput::class,
+            name: 'add_to_basket',
+            processor: AddToBasketProcessor::class,
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_LIST],
@@ -68,7 +100,7 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\ManyToMany(targetEntity: BasketAsset::class)]
+    #[ORM\OneToMany(mappedBy: 'basket', targetEntity: BasketAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $assets = null;
 

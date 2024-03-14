@@ -37,6 +37,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
 import {useBasketStore} from "../../../store/basketStore.ts";
+import BasketListDialog from "../../Basket/BasketListDialog.tsx";
 
 const gridStyle: CSSProperties = {
     width: '100%',
@@ -164,14 +165,22 @@ export default function AssetResults() {
     );
 
     const addToCurrent = useBasketStore(state => state.addToCurrent);
+    const shouldSelectBasket = useBasketStore(state => state.shouldSelectBasket);
 
     const onAddToBasket = useCallback<OnAddToBasket>(
         (id, e): void => {
             e?.stopPropagation();
-            addToCurrent([id]);
+
+            if (shouldSelectBasket()) {
+                openModal(BasketListDialog, {});
+            } else {
+                addToCurrent([{
+                    id,
+                }]);
+            }
             // eslint-disable-next-line
         },
-        [addToCurrent]
+        [addToCurrent, shouldSelectBasket]
     );
 
     const openUpload = useCallback<

@@ -5,6 +5,8 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {Basket} from "../../types.ts";
 import {useTranslation} from 'react-i18next';
 import BasketMenuItem from "./BasketMenuItem.tsx";
+import CreateBasket from "./CreateBasket.tsx";
+import AddIcon from "@mui/icons-material/Add";
 
 type Props = {} & StackedModalProps;
 
@@ -13,7 +15,7 @@ export default function BasketListDialog({
     open,
 }: Props) {
     const {t} = useTranslation();
-    const {closeModal} = useModals();
+    const {openModal, closeModal} = useModals();
 
     const setCurrent = useBasketStore(state => state.setCurrent);
     const loading = useBasketStore(state => state.loading);
@@ -22,6 +24,14 @@ export default function BasketListDialog({
     const onSelect = (data: Basket): void => {
         setCurrent(data);
         closeModal();
+    }
+
+    const createBasket = () => {
+        openModal(CreateBasket, {
+            onCreate: (data) => {
+                onSelect(data);
+            }
+        });
     }
 
     return <AppDialog
@@ -33,6 +43,13 @@ export default function BasketListDialog({
         title={t('basket.choose_modal.title', 'Select current Basket')}
         actions={({onClose}) => (
             <>
+                <Button
+                    variant={'contained'}
+                    onClick={createBasket}
+                    startIcon={<AddIcon/>}
+                >
+                    {t('basket.create_button.label', 'Create new Basket')}
+                </Button>
                 <Button
                     onClick={onClose}
                     color={'warning'}

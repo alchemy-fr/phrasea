@@ -9,11 +9,14 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
 import {useBasketStore} from "../../store/basketStore.ts";
 
-type Props = {} & StackedModalProps;
+type Props = {
+    onCreate?: (data: Basket) => void;
+} & StackedModalProps;
 
 export default function CreateBasket({
     modalIndex,
     open,
+    onCreate,
 }: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
@@ -35,6 +38,8 @@ export default function CreateBasket({
             );
             addBasket(data);
             closeModal();
+
+            onCreate && onCreate(data);
         },
     });
 

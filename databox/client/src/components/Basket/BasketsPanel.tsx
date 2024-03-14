@@ -9,6 +9,8 @@ import {Basket} from "../../types.ts";
 import {useTranslation} from 'react-i18next';
 import CreateBasket from "./CreateBasket.tsx";
 import AddIcon from "@mui/icons-material/Add";
+import {useNavigateToModal} from "../Routing/ModalLink.tsx";
+import {modalRoutes} from "../../routes.ts";
 
 type Props = {};
 
@@ -19,6 +21,7 @@ export default function BasketsPanel({}: Props) {
     const deleteBasket = useBasketStore(state => state.deleteBasket);
     const {openModal} = useModals();
     const {t} = useTranslation();
+    const navigateToModal = useNavigateToModal();
 
     React.useEffect(() => {
         load();
@@ -26,7 +29,7 @@ export default function BasketsPanel({}: Props) {
 
     const onDelete = (data: Basket): void => {
         openModal(ConfirmDialog, {
-            textToType: data.title,
+            textToType: data.assetCount && data.assetCount > 1 ? (data.title || t('dialog.confirm_text_type.default', 'Confirm')) : undefined,
             title: t(
                 'basket_delete.title.confirm',
                 'Are you sure you want to delete this basket?'
@@ -80,6 +83,7 @@ export default function BasketsPanel({}: Props) {
                     key={b.id}
                     data={b}
                     onDelete={onDelete}
+                    onClick={() => navigateToModal(modalRoutes.baskets.routes.view, {id: b.id})}
                 />) : <>
                     <ListItem>
                         <Skeleton variant={'text'} width={'100%'}/>
