@@ -264,7 +264,11 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     public function __toString(): string
     {
-        return $this->getName() ?? $this->getId();
+        if (null !== $name = $this->getName()) {
+            return sprintf('%s (%s)', $name, $this->getWorkspace()->getName());
+        }
+
+        return $this->getId();
     }
 
     public function isSearchable(): bool

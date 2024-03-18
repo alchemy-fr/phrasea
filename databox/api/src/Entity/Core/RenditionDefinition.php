@@ -250,7 +250,11 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     public function __toString(): string
     {
-        return $this->getName();
+        if (null !== $name = $this->getName()) {
+            return sprintf('%s (%s)', $name, $this->getWorkspace()->getName());
+        }
+
+        return $this->getId();
     }
 
     public function isDownload(): bool
