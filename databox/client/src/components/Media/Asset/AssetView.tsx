@@ -17,7 +17,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
 
 export type IntegrationOverlayCommonProps = {
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
 };
 
 type IntegrationOverlay<P extends {} = any> = {
@@ -66,7 +66,7 @@ export default function AssetView({modalIndex}: Props) {
         [setIntegrationOverlay]
     );
 
-    const maxDimensions = useMemo<Dimensions>(() => {
+    const dimensions = useMemo<Dimensions>(() => {
         return {
             width: winSize.innerWidth - menuWidth - scrollBarDelta,
             height: winSize.innerHeight - headerHeight - 2,
@@ -124,7 +124,7 @@ export default function AssetView({modalIndex}: Props) {
                 >
                     <Box
                         sx={{
-                            height: maxDimensions.height,
+                            height: dimensions.height,
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'space-between',
@@ -133,9 +133,9 @@ export default function AssetView({modalIndex}: Props) {
                         <Box
                             sx={{
                                 overflowY: 'auto',
-                                height: maxDimensions.height,
-                                width: maxDimensions.width + scrollBarDelta,
-                                maxWidth: maxDimensions.width + scrollBarDelta,
+                                height: dimensions.height,
+                                width: dimensions.width + scrollBarDelta,
+                                maxWidth: dimensions.width + scrollBarDelta,
                             }}
                         >
                             <div
@@ -150,7 +150,7 @@ export default function AssetView({modalIndex}: Props) {
                                         <FilePlayer
                                             file={rendition.file}
                                             title={data.title}
-                                            maxDimensions={maxDimensions}
+                                            dimensions={dimensions}
                                             autoPlayable={false}
                                             controls={true}
                                         />
@@ -159,7 +159,7 @@ export default function AssetView({modalIndex}: Props) {
                                     React.createElement(
                                         integrationOverlay.component,
                                         {
-                                            maxDimensions,
+                                            dimensions,
                                             ...(integrationOverlay.props || {}),
                                         }
                                     )}
@@ -171,17 +171,17 @@ export default function AssetView({modalIndex}: Props) {
                                 maxWidth: menuWidth,
                                 borderLeft: `1px solid ${theme.palette.divider}`,
                                 overflowY: 'auto',
-                                height: maxDimensions.height,
+                                height: dimensions.height,
                             })}
                         >
-                            {rendition?.file && (
+                            {rendition?.file ? (
                                 <FileIntegrations
                                     key={rendition.file.id}
                                     asset={data}
                                     file={rendition.file}
                                     setIntegrationOverlay={setProxy}
                                 />
-                            )}
+                            ) : ''}
                         </Box>
                     </Box>
                 </AppDialog>

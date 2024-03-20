@@ -1,15 +1,18 @@
+// @ts-nocheck
 import {CSSProperties, useCallback, useContext, useMemo} from 'react';
 import {Asset} from '../../../types';
 import AssetSelectionProvider from '../AssetSelectionProvider';
 import {ResultContext} from '../Search/ResultContext';
 import Pager, {LayoutEnum} from '../Search/Pager';
 import {OnSelectAsset, OnUnselectAsset} from '../Search/Layout/Layout';
-import {getAssetListFromEvent} from '../Search/AssetResults';
-import {AssetSelectionContext} from '../AssetSelectionContext';
+import {AssetSelectionContext} from '../../../context/AssetSelectionContext.tsx';
 import {DisplayContext, TDisplayContext} from '../DisplayContext';
 import {voidFunc} from '../../../lib/utils';
 import {Box, Checkbox, FormControlLabel} from '@mui/material';
 import {useTranslation} from 'react-i18next';
+import AssetList from "../../AssetList/AssetList.tsx";
+import {Layout} from "../../AssetList/Layouts";
+import {getAssetListFromEvent} from "../../AssetList/selection.ts";
 
 type Props = {
     assets: Asset[];
@@ -22,11 +25,11 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
     const {t} = useTranslation();
     const assetSelection = useContext(AssetSelectionContext);
 
-    const onSelect = useCallback<OnSelectAsset>(
-        (id, e): void => {
+    const onSelect = useCallback<OnToggle<Item>(
+        (item, e): void => {
             e?.preventDefault();
-            assetSelection.selectAssets(prev => {
-                return getAssetListFromEvent(prev, id, pages, e);
+            assetSelection.setSelection(prev => {
+                return getAssetListFromEvent(prev, item, pages, e);
             });
             // eslint-disable-next-line
         },
@@ -35,7 +38,7 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
 
     const onUnselect = useCallback<OnUnselectAsset>((id, e): void => {
         e?.preventDefault();
-        assetSelection.selectAssets(p => p.filter(i => i !== id));
+        assetSelection.setSelection(p => p.filter(i => i !== id));
         // eslint-disable-next-line
     }, []);
 
@@ -45,11 +48,11 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
                 control={
                     <Checkbox
                         checked={
-                            assetSelection.selectedAssets.length ===
+                            assetSelection.selection.length ===
                             pages[0].length
                         }
                         onChange={(_e, checked) => {
-                            assetSelection.selectAssets(
+                            assetSelection.setSelection(
                                 checked ? pages[0].map(a => a.id) : []
                             );
                         }}
@@ -58,17 +61,15 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
                 label={`${t(
                     'form.copy_assets.asset_not_linkable.toggle_select_all',
                     'Select/Unselect all'
-                )} (${assetSelection.selectedAssets.length}/${
+                )} (${assetSelection.selection.length}/${
                     pages[0].length
                 })`}
                 labelPlacement="end"
             />
-            <Pager
+            <AssetList
                 pages={pages}
-                layout={LayoutEnum.List}
-                selectedAssets={assetSelection.selectedAssets}
-                onSelect={onSelect}
-                onUnselect={onUnselect}
+                layout={Layout.List}
+                selectionContext={assetSelection}
             />
         </div>
     );

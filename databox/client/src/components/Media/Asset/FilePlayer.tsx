@@ -9,22 +9,20 @@ type Props = {
     file: File;
     controls?: boolean | undefined;
     title: string | undefined;
-    minDimensions?: Dimensions;
-    maxDimensions: Dimensions;
     onLoad?: () => void;
     noInteraction?: boolean;
     autoPlayable: boolean;
+    dimensions?: Dimensions;
 };
 
 export default function FilePlayer({
     file,
     title,
-    minDimensions,
-    maxDimensions,
     onLoad,
     controls,
     noInteraction,
     autoPlayable,
+    dimensions,
 }: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
@@ -37,8 +35,8 @@ export default function FilePlayer({
             return (
                 <img
                     style={{
-                        maxWidth: maxDimensions.width,
-                        maxHeight: maxDimensions.height,
+                        maxWidth: '100%',
+                        maxHeight: '100%',
                         display: 'block',
                     }}
                     crossOrigin="anonymous"
@@ -51,9 +49,8 @@ export default function FilePlayer({
         case FileTypeEnum.Video:
             return (
                 <VideoPlayer
+                    dimensions={dimensions}
                     file={file as FileWithUrl}
-                    minDimensions={minDimensions}
-                    maxDimensions={maxDimensions}
                     controls={controls}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
@@ -63,9 +60,8 @@ export default function FilePlayer({
         case FileTypeEnum.Document:
             return (
                 <PDFPlayer
+                    dimensions={dimensions}
                     file={file as FileWithUrl}
-                    minDimensions={minDimensions}
-                    maxDimensions={maxDimensions}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
                 />

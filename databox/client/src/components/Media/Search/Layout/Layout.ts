@@ -17,16 +17,3 @@ export type TOnContextMenuOpen = (
     asset: Asset,
     anchorEl?: HTMLElement
 ) => void;
-
-export type LayoutProps = {
-    page: number;
-    searchMenuHeight: number;
-    assets: Asset[];
-    onSelect: OnSelectAsset;
-    onAddToBasket?: OnAddToBasket | undefined;
-    onOpen?: OnOpen;
-    onUnselect: OnUnselectAsset;
-    onPreviewToggle?: OnPreviewToggle;
-    selectedAssets: SelectedAssets;
-    onContextMenuOpen?: TOnContextMenuOpen;
-};

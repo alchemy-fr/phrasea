@@ -15,7 +15,7 @@ export function createSizeTransition(theme: Theme) {
     return theme.transitions.create(['height', 'width'], {duration: 300});
 }
 
-const assetSx = (thumbSize: number) => (theme: Theme) => ({
+export const thumbSx = (thumbSize: number) => (theme: Theme) => ({
     display: 'flex',
     overflow: 'hidden',
     alignItems: 'center',
@@ -34,14 +34,12 @@ const assetSx = (thumbSize: number) => (theme: Theme) => ({
 export default function Thumb({
     selected,
     children,
-    size,
     onMouseOver,
     onMouseLeave,
     className,
 }: Props) {
     return (
         <Box
-            sx={assetSx(size)}
             onMouseOver={onMouseOver}
             onMouseLeave={onMouseLeave}
             className={className}

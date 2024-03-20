@@ -76,7 +76,7 @@ export default function PreviewPopover({
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}
-                                maxDimensions={createDimensions(
+                                dimensions={createDimensions(
                                     width / 2,
                                     height
                                 )}

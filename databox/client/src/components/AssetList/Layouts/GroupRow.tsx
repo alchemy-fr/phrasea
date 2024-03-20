@@ -1,13 +1,13 @@
 import React, {PropsWithChildren, ReactNode} from 'react';
-import {Asset} from '../../../../types';
-import SectionDivider from './SectionDivider';
-import {AttributeFormatContext} from '../../Asset/Attribute/Format/AttributeFormatContext';
+import {Asset} from '../../../types.ts';
+import SectionDivider from '../../Media/Search/Layout/SectionDivider.tsx';
+import {AttributeFormatContext} from '../../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {IconButton} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import {AttributeType} from '../../../../api/attributes';
-import {AttributeFormat} from '../../Asset/Attribute/types/types';
-import {getAttributeType} from '../../Asset/Attribute/types';
-import {groupValueTypes} from './GroupValue/types';
+import {AttributeType} from '../../../api/attributes.ts';
+import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
+import {getAttributeType} from '../../Media/Asset/Attribute/types';
+import {groupValueTypes} from '../../Media/Search/Layout/GroupValue/types.tsx';
 
 type Props = PropsWithChildren<{
     asset: Asset;

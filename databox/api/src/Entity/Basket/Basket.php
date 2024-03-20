@@ -153,4 +153,9 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
     {
         return $this->highlights;
     }
+
+    public function __toString(): string
+    {
+        return $this->getTitle() ?? 'Basket - '.$this->getId();
+    }
 }

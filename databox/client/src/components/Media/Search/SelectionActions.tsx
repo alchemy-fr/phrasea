@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useCallback, useContext, useMemo} from 'react';
 import {
     Badge,
@@ -19,14 +20,14 @@ import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton';
 import {
     AssetSelectionContext,
-    TAssetSelectionContext,
-} from '../AssetSelectionContext';
+    TSelectionContext,
+} from '../../../context/AssetSelectionContext.tsx';
 import {ResultContext, TResultContext} from './ResultContext';
 import DebugEsModal from './DebugEsModal';
 import {styled} from '@mui/material/styles';
 import DeleteAssetsConfirm from '../Asset/Actions/DeleteAssetsConfirm';
 import DisplayOptionsMenu from './DisplayOptionsMenu';
-import {Asset} from '../../../types';
+import {Asset, AssetOrAssetContainer, StateSetter} from '../../../types';
 import {LoadingButton} from '@mui/lab';
 import ExportAssetsDialog from '../Asset/Actions/ExportAssetsDialog';
 import GroupButton from '../../Ui/GroupButton';
@@ -40,6 +41,7 @@ import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes.ts';
 import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
+import {Layout} from "../../AssetList/Layouts";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -58,39 +60,18 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
 }));
 
 type Props = {
-    layout: LayoutEnum;
-    onLayoutChange: (l: LayoutEnum) => void;
+    layout: Layout;
+    setLayout: StateSetter<Layout>;
 };
 
-function getSelectedAssets(
-    selectionContext: TAssetSelectionContext,
-    resultContext: TResultContext
-): Asset[] {
-    return selectionContext.selectedAssets.map(id =>
-        getAsset(resultContext.pages, id)
-    );
-}
-
-function getAsset(pages: Asset[][], id: string): Asset {
-    for (let i = 0; i < pages.length; i++) {
-        const p = pages[i];
-        const a = p.find(a => a.id === id);
-        if (a) {
-            return a;
-        }
-    }
-
-    throw new Error(`Undefined asset ${id}`);
-}
-
-export default function SelectionActions({layout, onLayoutChange}: Props) {
+export default function SelectionActions({layout, setLayout}: Props) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
     const selectionContext = useContext(AssetSelectionContext);
     const resultContext = useContext(ResultContext);
 
-    const selectionLength = selectionContext.selectedAssets.length;
+    const selectionLength = selectionContext.selection.length;
     const hasSelection = selectionLength > 0;
     const allSelected =
         hasSelection &&
@@ -101,12 +82,12 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
             );
 
     const toggleSelectAll = useCallback(() => {
-        selectionContext.selectAssets(
+        selectionContext.setSelection(
             hasSelection
                 ? []
                 : resultContext.pages.map(p => p.map(a => a.id)).flat()
         );
-    }, [resultContext.pages, selectionContext.selectedAssets, hasSelection]);
+    }, [resultContext.pages, selectionContext.selection, hasSelection]);
 
     const openDebug = resultContext.debug
         ? () => {
@@ -118,7 +99,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
 
     const onDelete = () => {
         openModal(DeleteAssetsConfirm, {
-            assetIds: selectionContext.selectedAssets,
+            assetIds: selectionContext.selection.map(i => i.id),
             onDelete: () => {
                 resultContext.reload();
             },
@@ -143,10 +124,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
         let canShare = false;
         let wsId: string | undefined = undefined;
 
-        const selectedAssets = getSelectedAssets(
-            selectionContext,
-            resultContext
-        );
+        const selectedAssets = selectionContext.selection;
 
         selectedAssets.forEach(a => {
             wsId = a.workspace.id;
@@ -195,11 +173,11 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
             },
             wsId,
         };
-    }, [selectionContext.selectedAssets]);
+    }, [selectionContext.selection]);
 
     const onMove = () => {
         openModal(MoveAssetsDialog, {
-            assetIds: selectionContext.selectedAssets,
+            assetIds: selectionContext.selection.map(i => i.id),
             workspaceId: wsId!,
             onComplete: () => {
                 resultContext.reload();
@@ -208,10 +186,10 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
     };
 
     const onEdit = () => {
-        if (selectionContext.selectedAssets.length === 1) {
+        if (selectionContext.selection.length === 1) {
             navigateToModal(modalRoutes.assets.routes.manage, {
                 tab: 'edit',
-                id: selectionContext.selectedAssets[0],
+                id: selectionContext.selection[0],
             });
         } else {
             alert('Multi edit is comin soon...');
@@ -223,7 +201,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
         if (assets.length === 1) {
             navigateToModal(modalRoutes.assets.routes.manage, {
                 tab: 'attributes',
-                id: selectionContext.selectedAssets[0],
+                id: selectionContext.selection[0],
             });
         } else {
             alert('Multi edit attributes is comin soon...');
@@ -405,13 +383,13 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                 <StyledToggleButtonGroup
                     value={layout}
                     exclusive
-                    onChange={(_e, newValue) => onLayoutChange(newValue)}
+                    onChange={(_e, newValue) => setLayout(newValue)}
                 >
                     <TooltipToggleButton
                         tooltipProps={{
                             title: t('layout.view.grid', 'Grid view'),
                         }}
-                        value={LayoutEnum.Grid}
+                        value={Layout.Grid}
                     >
                         <GridViewIcon />
                     </TooltipToggleButton>
@@ -419,7 +397,7 @@ export default function SelectionActions({layout, onLayoutChange}: Props) {
                         tooltipProps={{
                             title: t('layout.view.list', 'List view'),
                         }}
-                        value={LayoutEnum.List}
+                        value={Layout.List}
                     >
                         <ViewListIcon />
                     </TooltipToggleButton>

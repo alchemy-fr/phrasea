@@ -1,30 +1,28 @@
-// @ts-nocheck
 import {useContext} from 'react';
 import {alpha, Grid, useTheme} from '@mui/material';
-import {LayoutProps,} from './Layout';
-import {createThumbActiveStyle} from '../../Asset/AssetThumb';
-import {DisplayContext} from '../../DisplayContext';
-import {createSizeTransition} from '../../Asset/Thumb';
-import assetClasses from './classes';
-import GroupRow from '../../../AssetList/Layouts/GroupRow.tsx';
-import {sectionDividerClassname} from './SectionDivider';
-import {AssetItem} from "./Grid/AssetItem.tsx";
+import {LayoutProps} from "../../types.ts";
+import {AssetOrAssetContainer} from "../../../../types.ts";
+import {DisplayContext} from "../../../Media/DisplayContext.tsx";
+import {sectionDividerClassname} from "../../../Media/Search/Layout/SectionDivider";
+import assetClasses from "../../../Media/Search/Layout/classes";
+import {createSizeTransition} from "../../../Media/Asset/Thumb";
+import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb";
+import GridPage from "./GridPage.tsx";
 
 const lineHeight = 26;
 const collLineHeight = 32;
 const tagLineHeight = 32;
 
-export default function GridLayout({
+export default function GridLayout<Item extends AssetOrAssetContainer>({
     searchMenuHeight,
-    assets,
-    selectedAssets,
-    onSelect,
-    onUnselect,
+    pages,
+    onToggle,
     onPreviewToggle,
     onContextMenuOpen,
     onAddToBasket,
     onOpen,
-}: LayoutProps) {
+    selection,
+}: LayoutProps<Item>) {
     const theme = useTheme();
     const d = useContext(DisplayContext)!;
     const spacing = Number(theme.spacing(1).slice(0, -2));
@@ -121,51 +119,18 @@ export default function GridLayout({
                 },
             })}
         >
-            {assets.map(a => {
-                const contextMenu = onContextMenuOpen;
-
-                return (
-                    <GroupRow
-                        key={a.id}
-                        asset={a}
-                        searchMenuHeight={searchMenuHeight}
-                    >
-                        <Grid
-                            item
-                            key={a.id}
-                            onDoubleClick={
-                                onOpen && a.original
-                                    ? () => onOpen(a.id, a.original!.id)
-                                    : undefined
-                            }
-                            onContextMenu={
-                                onContextMenuOpen
-                                    ? e => {
-                                        if (!contextMenu) {
-                                            e.preventDefault();
-                                            return;
-                                        }
-                                        onContextMenuOpen!(e, a);
-                                    }
-                                    : undefined
-                            }
-                        >
-                            <AssetItem
-                                asset={a}
-                                onAddToBasket={onAddToBasket}
-                                selected={selectedAssets.includes(a.id)}
-                                onContextMenuOpen={
-                                    contextMenu ? onContextMenuOpen : undefined
-                                }
-                                onSelect={onSelect}
-                                onPreviewToggle={onPreviewToggle}
-                                onUnselect={onUnselect}
-                                thumbSize={d.thumbSize}
-                            />
-                        </Grid>
-                    </GroupRow>
-                );
-            })}
+            {pages.map((page, i) => <GridPage
+                key={i}
+                page={i + 1}
+                searchMenuHeight={searchMenuHeight}
+                items={page}
+                onToggle={onToggle}
+                onPreviewToggle={onPreviewToggle}
+                onContextMenuOpen={onContextMenuOpen}
+                onAddToBasket={onAddToBasket}
+                onOpen={onOpen}
+                selection={selection}
+            />)}
         </Grid>
     );
 }

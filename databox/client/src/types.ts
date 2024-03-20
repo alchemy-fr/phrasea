@@ -281,3 +281,11 @@ export type Ace = (
     userType: UserType;
     resolving?: boolean;
 };
+
+export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
+
+
+export type AssetOrAssetContainer = {
+    id: string;
+}
+

@@ -1,5 +1,5 @@
 import {MouseEvent, useContext, useState} from 'react';
-import {Dimensions, PlayerProps} from './index';
+import {createDimensions, Dimensions, PlayerProps} from './index';
 import ReactPlayer from 'react-player';
 import {Box, IconButton, LinearProgress} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
@@ -15,24 +15,24 @@ type Progress = {
 
 const playerActionsClass = 'pa';
 
-export function getMaxVideoDimensions(
-    maxDimensions: Dimensions,
+export function getVideoDimensions(
+    dimensions: Dimensions,
     ratio: number | undefined
 ): Dimensions {
     if (!ratio) {
-        return maxDimensions;
+        return dimensions;
     }
 
-    if (maxDimensions.width * ratio > maxDimensions.height) {
+    if (dimensions.width * ratio > dimensions.height) {
         return {
-            width: maxDimensions.height / ratio,
-            height: maxDimensions.height,
+            width: dimensions.height / ratio,
+            height: dimensions.height,
         };
     }
 
     return {
-        width: maxDimensions.width,
-        height: maxDimensions.width * ratio,
+        width: dimensions.width,
+        height: dimensions.width * ratio,
     };
 }
 
@@ -49,12 +49,11 @@ type Props = {
 
 export default function VideoPlayer({
     file,
-    minDimensions,
-    maxDimensions,
     onLoad,
     autoPlayable,
     noInteraction,
     controls,
+    dimensions: forcedDimensions,
 }: Props) {
     const [progress, setProgress] = useState<Progress>();
     const [duration, setDuration] = useState<number>();
@@ -63,7 +62,8 @@ export default function VideoPlayer({
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-    const videoDimensions = getMaxVideoDimensions(maxDimensions, ratio);
+    const dimensions = forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const videoDimensions = getVideoDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && displayContext?.playVideos;
 
     const onPlay = (e: MouseEvent) => {
@@ -92,8 +92,8 @@ export default function VideoPlayer({
                 'display': 'flex',
                 'justifyContent': 'center',
                 'alignItems': 'center',
-                'minWidth': minDimensions?.width,
-                'minHeight': minDimensions?.height,
+                'minWidth': dimensions.width,
+                'minHeight': dimensions.height,
                 'pointerEvents': hasControls ? 'auto' : undefined,
                 [`.${playerActionsClass}`]: {
                     'pointerEvents': 'none',
@@ -136,8 +136,8 @@ export default function VideoPlayer({
                         <PlayComponent
                             fontSize={getSizeCase(
                                 Math.min(
-                                    maxDimensions.width,
-                                    maxDimensions.height
+                                    dimensions.width,
+                                    dimensions.height
                                 ),
                                 {
                                     0: 'small',

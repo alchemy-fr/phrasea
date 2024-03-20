@@ -32,26 +32,26 @@ const cardContentSx = {
 type Props = {
     asset: Asset;
     version: AssetFileVersion;
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
 };
 
 export function AssetFileVersionCard({
     version: {file, name, createdAt},
     asset,
-    maxDimensions,
+    dimensions,
 }: Props) {
     const {t} = useTranslation();
 
     return (
         <AssetFileVersionStructure
             name={name}
-            maxDimensions={maxDimensions}
+            dimensions={dimensions}
             media={
                 file ? (
                     <FilePlayer
                         file={file}
                         title={name}
-                        maxDimensions={maxDimensions}
+                        dimensions={dimensions}
                         autoPlayable={false}
                         controls={true}
                     />
@@ -104,19 +104,19 @@ function AssetFileVersionStructure({
     info,
     media,
     actions,
-    maxDimensions,
+    dimensions,
 }: {
     name: ReactNode;
     media: ReactNode | undefined;
     actions: ReactNode;
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
     info: ReactNode;
 }) {
     return (
         <Card {...cardProps}>
             <CardMedia
                 sx={theme => ({
-                    ...maxDimensions,
+                    ...dimensions,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -140,16 +140,16 @@ function AssetFileVersionStructure({
 }
 
 export function AssetFileVersionSkeleton({
-    maxDimensions,
+    dimensions,
 }: {
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
 }) {
     return (
         <AssetFileVersionStructure
             name={<Skeleton variant={'text'} />}
             info={<Skeleton variant={'text'} width={'50%'} />}
-            maxDimensions={maxDimensions}
-            media={<Skeleton {...maxDimensions} variant={'rectangular'} />}
+            dimensions={dimensions}
+            media={<Skeleton {...dimensions} variant={'rectangular'} />}
             actions={
                 <Skeleton width={150} height={60} variant={'rectangular'} />
             }

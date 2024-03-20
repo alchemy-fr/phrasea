@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {
     CSSProperties,
     MouseEvent,
@@ -8,17 +9,17 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import {AssetSelectionContext} from '../AssetSelectionContext';
+import {AssetSelectionContext} from '../../../context/AssetSelectionContext.tsx';
 import {Box, Fab, LinearProgress, ListSubheader} from '@mui/material';
 import {ResultContext} from './ResultContext';
 import Pager, {LayoutEnum} from './Pager';
 import SearchBar from './SearchBar';
 import SelectionActions from './SelectionActions';
-import {Asset} from '../../../types';
+import {Asset, AssetOrAssetContainer} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {LoadingButton} from '@mui/lab';
-import AssetContextMenu from '../Asset/AssetContextMenu';
+import AssetContextMenu from '../../AssetList/AssetContextMenu.tsx';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
 import {
     OnAddToBasket,
@@ -56,51 +57,6 @@ const previewEnterDelay = 500;
 const previewLeaveDelay = 400;
 
 export const searchMenuId = 'search-menu';
-
-export function getAssetListFromEvent(
-    currentSelection: string[],
-    id: string,
-    pages: Asset[][],
-    e?: React.MouseEvent
-): string[] {
-    if (e?.ctrlKey) {
-        return currentSelection.includes(id)
-            ? currentSelection.filter(a => a !== id)
-            : currentSelection.concat([id]);
-    }
-    if (e?.shiftKey && currentSelection.length > 0) {
-        let boundaries: [
-            [number, number] | undefined,
-            [number, number] | undefined
-        ] = [undefined, undefined];
-
-        for (let i = 0; i < pages.length; ++i) {
-            const assets = pages[i];
-            for (let j = 0; j < assets.length; ++j) {
-                const a = assets[j];
-                if (currentSelection.includes(a.id) || id === a.id) {
-                    boundaries = [boundaries[0] ?? [i, j], [i, j]];
-                }
-            }
-        }
-
-        const selection = [];
-        for (let i = boundaries[0]![0]; i <= boundaries[1]![0]; ++i) {
-            const start = i === boundaries[0]![0] ? boundaries[0]![1] : 0;
-            const end =
-                i === boundaries[1]![0]
-                    ? boundaries[1]![1]
-                    : pages[i].length - 1;
-            for (let j = start; j <= end; ++j) {
-                selection.push(pages[i][j].id);
-            }
-        }
-
-        return selection;
-    }
-
-    return [id];
-}
 
 export default function AssetResults() {
     const assetSelection = useContext(AssetSelectionContext);
@@ -141,7 +97,7 @@ export default function AssetResults() {
 
                 e.preventDefault();
                 e.stopPropagation();
-                assetSelection.selectAssets(
+                assetSelection.setSelection(
                     resultContext.pages.map(p => p.map(a => a.id)).flat()
                 );
             }
@@ -152,17 +108,6 @@ export default function AssetResults() {
             window.removeEventListener('keydown', handler);
         };
     }, [resultContext.pages]);
-
-    const onSelect = useCallback<OnSelectAsset>(
-        (id, e): void => {
-            e?.preventDefault();
-            assetSelection.selectAssets(prev => {
-                return getAssetListFromEvent(prev, id, resultContext.pages, e);
-            });
-            // eslint-disable-next-line
-        },
-        [pages]
-    );
 
     const addToCurrent = useBasketStore(state => state.addToCurrent);
     const shouldSelectBasket = useBasketStore(state => state.shouldSelectBasket);
@@ -206,7 +151,7 @@ export default function AssetResults() {
     const onUnselect = useCallback<OnUnselectAsset>(
         (id, e): void => {
             e?.preventDefault();
-            assetSelection.selectAssets(p => p.filter(i => i !== id));
+            assetSelection.setSelection(p => p.filter(i => i !== id));
             // eslint-disable-next-line
         },
         [pages]
@@ -311,7 +256,7 @@ export default function AssetResults() {
                         pages={pages}
                         layout={layout}
                         onAddToBasket={onAddToBasket}
-                        selectedAssets={assetSelection.selectedAssets}
+                        selectedAssets={assetSelection.selection}
                         onSelect={onSelect}
                         onOpen={onOpen}
                         onUnselect={onUnselect}

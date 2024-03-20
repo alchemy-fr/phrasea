@@ -1,18 +1,20 @@
-import {useCallback, useState} from 'react';
-import {PlayerProps} from './index';
+import {useCallback, useContext, useState} from 'react';
+import {createDimensions, PlayerProps} from './index';
 import {Document, Page} from 'react-pdf';
-import {getMaxVideoDimensions} from './VideoPlayer';
+import {getVideoDimensions} from './VideoPlayer';
+import {DisplayContext} from "../../DisplayContext.tsx";
 
 type Props = {} & PlayerProps;
 
 export default function PDFPlayer({
     file,
-    minDimensions,
-    maxDimensions,
+    dimensions: forcedDimensions,
     onLoad,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
-    const pdfDimensions = getMaxVideoDimensions(maxDimensions, ratio);
+    const displayContext = useContext(DisplayContext);
+    const dimensions = forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const pdfDimensions = getVideoDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
             pdf.getPage(1).then((page: any) => {
@@ -27,10 +29,8 @@ export default function PDFPlayer({
     return (
         <div
             style={{
-                maxWidth: maxDimensions.width,
-                maxHeight: maxDimensions.height,
-                minWidth: minDimensions?.width,
-                minHeight: minDimensions?.height,
+                maxWidth: dimensions.width,
+                maxHeight: dimensions.height,
                 position: 'relative',
                 backgroundColor: '#FFF',
             }}

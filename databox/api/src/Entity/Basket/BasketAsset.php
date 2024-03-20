@@ -87,4 +87,9 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     {
         return $this->context;
     }
+
+    public function setContext(?array $context): void
+    {
+        $this->context = $context;
+    }
 }

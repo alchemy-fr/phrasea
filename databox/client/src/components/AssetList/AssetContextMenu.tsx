@@ -7,21 +7,21 @@ import {
     Menu,
     MenuItem,
 } from '@mui/material';
-import {Asset} from '../../../types';
+import {Asset} from '../../types.ts';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
-import DeleteAssetsConfirm from './Actions/DeleteAssetsConfirm';
-import {ResultContext} from '../Search/ResultContext';
-import ExportAssetsDialog from './Actions/ExportAssetsDialog';
+import DeleteAssetsConfirm from '../Media/Asset/Actions/DeleteAssetsConfirm.tsx';
+import {ResultContext} from '../Media/Search/ResultContext.tsx';
+import ExportAssetsDialog from '../Media/Asset/Actions/ExportAssetsDialog.tsx';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {useModals} from '@alchemy/navigation';
-import SaveAsButton from './Actions/SaveAsButton';
-import {useNavigateToModal} from '../../Routing/ModalLink';
+import SaveAsButton from '../Media/Asset/Actions/SaveAsButton.tsx';
+import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import SaveIcon from '@mui/icons-material/Save';
-import {modalRoutes} from '../../../routes.ts';
+import {modalRoutes} from '../../routes.ts';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 type Props = {
@@ -30,14 +30,6 @@ type Props = {
     asset: Asset;
     onClose: () => void;
 };
-
-export function hasContextMenu({capabilities}: Asset): boolean {
-    return (
-        capabilities.canEdit ||
-        capabilities.canEditPermissions ||
-        capabilities.canEditAttributes
-    );
-}
 
 export default function AssetContextMenu({
     asset,

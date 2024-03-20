@@ -40,7 +40,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                         name: 'Current',
                         createdAt: '',
                     }}
-                    maxDimensions={maxDimensions}
+                    dimensions={maxDimensions}
                 />
             )}
             {versions &&
@@ -50,7 +50,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                             key={v.id}
                             asset={data}
                             version={v}
-                            maxDimensions={maxDimensions}
+                            dimensions={maxDimensions}
                         />
                     );
                 })}
@@ -58,7 +58,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                 [0, 1, 2].map(i => (
                     <AssetFileVersionSkeleton
                         key={i}
-                        maxDimensions={maxDimensions}
+                        dimensions={maxDimensions}
                     />
                 ))}
         </ContentTab>

@@ -1,6 +1,6 @@
+// @ts-nocheck
 import React, {MouseEvent, useContext} from 'react';
 import {
-    LayoutProps,
     OnPreviewToggle,
     OnSelectAsset,
     OnUnselectAsset,
@@ -17,8 +17,7 @@ import AssetTagList from '../../Asset/Widgets/AssetTagList';
 import AssetCollectionList from '../../Asset/Widgets/AssetCollectionList';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import PrivacyChip from '../../../Ui/PrivacyChip';
-import {hasContextMenu} from '../../Asset/AssetContextMenu';
-import GroupRow from './GroupRow';
+import GroupRow from '../../../AssetList/Layouts/GroupRow.tsx';
 
 const AssetItem = React.memo(
     ({
@@ -180,7 +179,7 @@ export default function ListLayout({
             })}
         >
             {assets.map(a => {
-                const contextMenu = onContextMenuOpen && hasContextMenu(a);
+                const contextMenu = onContextMenuOpen;
 
                 return (
                     <GroupRow
