@@ -21,11 +21,11 @@ class SuggestionSearch extends AbstractSearch
     private const DEFINITION_ID_FIELD = 'definitionId';
 
     public function __construct(
-        #[Autowire(service: 'fos_elastica.finder.collection')]
+        #[Autowire(service: 'fos_elastica.index.collection')]
         private readonly Index $collectionIndex,
-        #[Autowire(service: 'fos_elastica.finder.asset')]
+        #[Autowire(service: 'fos_elastica.index.asset')]
         private readonly Index $assetIndex,
-        #[Autowire(service: 'fos_elastica.finder.attribute')]
+        #[Autowire(service: 'fos_elastica.index.attribute')]
         private readonly Index $attributeIndex,
         private readonly string $kernelEnv,
     ) {

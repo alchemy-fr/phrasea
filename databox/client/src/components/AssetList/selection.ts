@@ -1,7 +1,7 @@
 import {AssetOrAssetContainer} from "../../types.ts";
 import React from "react";
 
-export function getAssetListFromEvent<Item extends AssetOrAssetContainer>(
+export function getItemListFromEvent<Item extends AssetOrAssetContainer>(
     currentSelection: Item[],
     item: Item,
     pages: Item[][],

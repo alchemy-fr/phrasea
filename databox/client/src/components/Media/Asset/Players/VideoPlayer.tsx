@@ -1,6 +1,6 @@
 import {MouseEvent, useContext, useState} from 'react';
 import {createDimensions, Dimensions, PlayerProps} from './index';
-import ReactPlayer from 'react-player';
+import ReactPlayer from 'react-player/lazy';
 import {Box, IconButton, LinearProgress} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';

@@ -1,47 +1,33 @@
 // @ts-nocheck
-import {useCallback, useContext, useMemo} from 'react';
-import {
-    Badge,
-    Box,
-    Button,
-    Checkbox,
-    Divider,
-    Paper,
-    ToggleButtonGroup,
-    Tooltip,
-} from '@mui/material';
+import {Context, useCallback, useContext, useMemo} from 'react';
+import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import {LayoutEnum} from './Pager';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
-import TooltipToggleButton from '../../Ui/TooltipToggleButton';
-import {
-    AssetSelectionContext,
-    TSelectionContext,
-} from '../../../context/AssetSelectionContext.tsx';
-import {ResultContext, TResultContext} from './ResultContext';
-import DebugEsModal from './DebugEsModal';
+import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
+import {AssetSelectionContext, TSelectionContext,} from '../../../context/AssetSelectionContext.tsx';
 import {styled} from '@mui/material/styles';
-import DeleteAssetsConfirm from '../Asset/Actions/DeleteAssetsConfirm';
-import DisplayOptionsMenu from './DisplayOptionsMenu';
-import {Asset, AssetOrAssetContainer, StateSetter} from '../../../types';
+import DeleteAssetsConfirm from '../../Media/Asset/Actions/DeleteAssetsConfirm.tsx';
+import DisplayOptionsMenu from './DisplayOptionsMenu.tsx';
+import {Asset, AssetOrAssetContainer, StateSetter} from '../../../types.ts';
 import {LoadingButton} from '@mui/lab';
-import ExportAssetsDialog from '../Asset/Actions/ExportAssetsDialog';
-import GroupButton from '../../Ui/GroupButton';
+import ExportAssetsDialog from '../../Media/Asset/Actions/ExportAssetsDialog.tsx';
+import GroupButton from '../../Ui/GroupButton.tsx';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import EditIcon from '@mui/icons-material/Edit';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import MoveAssetsDialog from '../Asset/Actions/MoveAssetsDialog';
-import CopyAssetsDialog from '../Asset/Actions/CopyAssetsDialog';
+import MoveAssetsDialog from '../../Media/Asset/Actions/MoveAssetsDialog.tsx';
+import CopyAssetsDialog from '../../Media/Asset/Actions/CopyAssetsDialog.tsx';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useModals} from '@alchemy/navigation';
-import {useNavigateToModal} from '../../Routing/ModalLink';
+import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../../routes.ts';
 import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
-import {Layout} from "../../AssetList/Layouts";
+import {Layout} from "../Layouts";
+import {ItemToAssetFunc} from "../types.ts";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -59,49 +45,51 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     },
 }));
 
-type Props = {
+export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     layout: Layout;
     setLayout: StateSetter<Layout>;
+    loading: boolean;
+    total?: number;
+    pages: Item[][];
+    reload: () => void;
+    onOpenDebug?: VoidFunction;
+    selectionContext: Context<TSelectionContext<Item>>;
 };
 
-export default function SelectionActions({layout, setLayout}: Props) {
+export default function SelectionActions<Item extends AssetOrAssetContainer>({
+    layout,
+    setLayout,
+    loading,
+    total,
+    pages,
+    reload,
+    onOpenDebug,
+    selectionContext,
+}: SelectionActionsProps<Item>) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
-    const selectionContext = useContext(AssetSelectionContext);
-    const resultContext = useContext(ResultContext);
+    const {selection, setSelection, itemToAsset} = useContext(selectionContext);
 
-    const selectionLength = selectionContext.selection.length;
+    const selectionLength = selection.length;
     const hasSelection = selectionLength > 0;
     const allSelected =
         hasSelection &&
         selectionLength ===
-            resultContext.pages.reduce(
-                (currentCount, row) => currentCount + row.length,
-                0
-            );
+        pages.reduce(
+            (currentCount, row) => currentCount + row.length,
+            0
+        );
 
     const toggleSelectAll = useCallback(() => {
-        selectionContext.setSelection(
-            hasSelection
-                ? []
-                : resultContext.pages.map(p => p.map(a => a.id)).flat()
-        );
-    }, [resultContext.pages, selectionContext.selection, hasSelection]);
-
-    const openDebug = resultContext.debug
-        ? () => {
-              openModal(DebugEsModal, {
-                  debug: resultContext.debug!,
-              });
-          }
-        : undefined;
+        setSelection(previous => previous.length > 0 ? [] : pages.flat());
+    }, [pages]);
 
     const onDelete = () => {
         openModal(DeleteAssetsConfirm, {
-            assetIds: selectionContext.selection.map(i => i.id),
+            assetIds: selection.map(i => i.id),
             onDelete: () => {
-                resultContext.reload();
+                reload();
             },
         });
     };
@@ -124,9 +112,9 @@ export default function SelectionActions({layout, setLayout}: Props) {
         let canShare = false;
         let wsId: string | undefined = undefined;
 
-        const selectedAssets = selectionContext.selection;
+        const selectedAssets = itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset);
 
-        selectedAssets.forEach(a => {
+        selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace.id;
             if (a.original?.file?.url) {
                 canDownload = true;
@@ -167,29 +155,29 @@ export default function SelectionActions({layout, setLayout}: Props) {
                 openModal(CopyAssetsDialog, {
                     assets: selectedAssets,
                     onComplete: () => {
-                        resultContext.reload();
+                        reload();
                     },
                 });
             },
             wsId,
         };
-    }, [selectionContext.selection]);
+    }, [selection]);
 
     const onMove = () => {
         openModal(MoveAssetsDialog, {
-            assetIds: selectionContext.selection.map(i => i.id),
+            assetIds: selection.map(i => i.id),
             workspaceId: wsId!,
             onComplete: () => {
-                resultContext.reload();
+                reload();
             },
         });
     };
 
     const onEdit = () => {
-        if (selectionContext.selection.length === 1) {
+        if (selection.length === 1) {
             navigateToModal(modalRoutes.assets.routes.manage, {
                 tab: 'edit',
-                id: selectionContext.selection[0],
+                id: selection[0].id,
             });
         } else {
             alert('Multi edit is comin soon...');
@@ -197,11 +185,10 @@ export default function SelectionActions({layout, setLayout}: Props) {
     };
 
     const onEditAttributes = () => {
-        const assets = getSelectedAssets(selectionContext, resultContext);
-        if (assets.length === 1) {
+        if (selection.length === 1) {
             navigateToModal(modalRoutes.assets.routes.manage, {
                 tab: 'attributes',
-                id: selectionContext.selection[0],
+                id: selection[0].id,
             });
         } else {
             alert('Multi edit attributes is comin soon...');
@@ -210,13 +197,13 @@ export default function SelectionActions({layout, setLayout}: Props) {
 
     const download = canDownload
         ? () => {
-              openModal(ExportAssetsDialog, {
-                  assets: getSelectedAssets(selectionContext, resultContext),
-              });
-          }
+            openModal(ExportAssetsDialog, {
+                assets: selection.map(itemToAsset),
+            });
+        }
         : undefined;
 
-    const selectAllDisabled = (resultContext.total ?? 0) === 0;
+    const selectAllDisabled = (total ?? 0) === 0;
 
     return (
         <Box
@@ -285,14 +272,14 @@ export default function SelectionActions({layout, setLayout}: Props) {
                     disabled={!canDownload}
                     variant={'contained'}
                     onClick={download}
-                    startIcon={<FileDownloadIcon />}
+                    startIcon={<FileDownloadIcon/>}
                 >
                     {t('asset_actions.export', 'Export')}
                 </LoadingButton>
                 <GroupButton
                     id={'edit'}
                     onClick={onEdit}
-                    startIcon={<EditIcon />}
+                    startIcon={<EditIcon/>}
                     disabled={!canEdit}
                     actions={[
                         {
@@ -300,7 +287,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                             label: t('asset_actions.move', 'Move'),
                             onClick: onMove,
                             disabled: !canMove,
-                            startIcon: <DriveFileMoveIcon />,
+                            startIcon: <DriveFileMoveIcon/>,
                         },
                         {
                             id: 'edit_attrs',
@@ -310,14 +297,14 @@ export default function SelectionActions({layout, setLayout}: Props) {
                             ),
                             onClick: onEditAttributes,
                             disabled: !canEditAttributes,
-                            startIcon: <TextSnippetIcon />,
+                            startIcon: <TextSnippetIcon/>,
                         },
                         {
                             id: 'copy',
                             label: t('asset_actions.copy', 'Copy'),
                             onClick: onCopy,
                             disabled: !canShare,
-                            startIcon: <FileCopyIcon />,
+                            startIcon: <FileCopyIcon/>,
                         },
                     ]}
                 >
@@ -326,7 +313,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                 <Button
                     disabled={!canShare}
                     variant={'contained'}
-                    startIcon={<ShareIcon />}
+                    startIcon={<ShareIcon/>}
                 >
                     {t('asset_actions.share', 'Share')}
                 </Button>
@@ -335,7 +322,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                     color={'error'}
                     onClick={onDelete}
                     variant={'contained'}
-                    startIcon={<DeleteIcon />}
+                    startIcon={<DeleteIcon/>}
                 >
                     {t('asset_actions.delete', 'Delete')}
                 </Button>
@@ -356,23 +343,23 @@ export default function SelectionActions({layout, setLayout}: Props) {
                         px: 2,
                     }}
                 >
-                    {!resultContext.loading &&
-                    resultContext.total !== undefined ? (
+                    {!loading &&
+                    total !== undefined ? (
                         <>
                             <b>
                                 {new Intl.NumberFormat('fr-FR', {}).format(
-                                    resultContext.total
+                                    total
                                 )}
                             </b>
                             <span
                                 style={{cursor: 'pointer'}}
-                                onClick={openDebug}
+                                onClick={onOpenDebug}
                             >
-                                {` result${resultContext.total > 1 ? 's' : ''}`}
+                                {` result${total > 1 ? 's' : ''}`}
                             </span>
                         </>
                     ) : (
-                        'Loading...'
+                        t('common.loading', 'Loading...')
                     )}
                 </Box>
                 <Divider
@@ -391,7 +378,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                         }}
                         value={Layout.Grid}
                     >
-                        <GridViewIcon />
+                        <GridViewIcon/>
                     </TooltipToggleButton>
                     <TooltipToggleButton
                         tooltipProps={{
@@ -399,7 +386,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                         }}
                         value={Layout.List}
                     >
-                        <ViewListIcon />
+                        <ViewListIcon/>
                     </TooltipToggleButton>
                 </StyledToggleButtonGroup>
                 <Divider
@@ -407,7 +394,7 @@ export default function SelectionActions({layout, setLayout}: Props) {
                     orientation="vertical"
                     sx={{mx: 0.5, my: 1}}
                 />
-                <DisplayOptionsMenu />
+                <DisplayOptionsMenu/>
             </Paper>
         </Box>
     );

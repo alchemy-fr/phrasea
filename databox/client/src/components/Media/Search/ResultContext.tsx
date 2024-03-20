@@ -9,7 +9,7 @@ export type TResultContext = {
     total?: number;
     facets?: TFacets;
     debug?: ESDebug;
-    loadMore?: () => Promise<void> | undefined;
+    loadMore?: (() => Promise<void>) | undefined;
     reload: () => void;
 };
 

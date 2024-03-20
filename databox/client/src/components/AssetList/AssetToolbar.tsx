@@ -1,22 +1,25 @@
 import {LinearProgress, ListSubheader} from "@mui/material";
 import {zIndex} from "../../themes/zIndex.ts";
 import SearchBar from "../Media/Search/SearchBar.tsx";
-import SelectionActions from "../Media/Search/SelectionActions.tsx";
+import SelectionActions, {SelectionActionsProps} from "./Toolbar/SelectionActions.tsx";
 import {searchMenuId} from "../Media/Search/AssetResults.tsx";
-import {Layout} from "./Layouts";
-import {StateSetter} from "../../types.ts";
+import {AssetOrAssetContainer} from "../../types.ts";
 
-type Props = {
-    loading?: boolean;
-    layout: Layout;
-    setLayout: StateSetter<Layout>;
-};
+type Props<Item extends AssetOrAssetContainer> = {
+    searchBar?: boolean;
+} & SelectionActionsProps<Item>;
 
-export default function AssetToolbar({
+export default function AssetToolbar<Item extends AssetOrAssetContainer>({
     loading,
+    total,
     layout,
     setLayout,
-}: Props) {
+    reload,
+    pages,
+    onOpenDebug,
+    selectionContext,
+    searchBar = true,
+}: Props<Item>) {
     return <>
         {loading && (
             <div style={{
@@ -28,7 +31,6 @@ export default function AssetToolbar({
                 <LinearProgress/>
             </div>
         )}
-        <div>
             <ListSubheader
                 id={searchMenuId}
                 component="div"
@@ -37,12 +39,17 @@ export default function AssetToolbar({
                     zIndex: zIndex.toolbar,
                 })}
             >
-                <SearchBar/>
+                {searchBar ? <SearchBar/> : ''}
                 <SelectionActions
+                    reload={reload}
+                    pages={pages}
                     layout={layout}
                     setLayout={setLayout}
+                    loading={loading}
+                    total={total}
+                    onOpenDebug={onOpenDebug}
+                    selectionContext={selectionContext}
                 />
             </ListSubheader>
-        </div>
     </>
 }

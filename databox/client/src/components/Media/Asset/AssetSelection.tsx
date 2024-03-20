@@ -12,7 +12,7 @@ import {Box, Checkbox, FormControlLabel} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import AssetList from "../../AssetList/AssetList.tsx";
 import {Layout} from "../../AssetList/Layouts";
-import {getAssetListFromEvent} from "../../AssetList/selection.ts";
+import {getItemListFromEvent} from "../../AssetList/selection.ts";
 
 type Props = {
     assets: Asset[];
@@ -29,7 +29,7 @@ function SelectionProxy({pages}: {pages: Asset[][]}) {
         (item, e): void => {
             e?.preventDefault();
             assetSelection.setSelection(prev => {
-                return getAssetListFromEvent(prev, item, pages, e);
+                return getItemListFromEvent(prev, item, pages, e);
             });
             // eslint-disable-next-line
         },

@@ -3,8 +3,12 @@ import {Asset, AssetOrAssetContainer} from "../../../../types.ts";
 import GroupRow from "../GroupRow.tsx";
 import {Grid} from "@mui/material";
 import AssetItem from "./AssetItem.tsx";
-import {LayoutPageProps} from "../../types.ts";
+import {LayoutPageProps, OnPreviewToggle} from "../../types.ts";
 import SectionDivider from "../../../Media/Search/Layout/SectionDivider.tsx";
+
+type Props<Item extends AssetOrAssetContainer> = {
+    onPreviewToggle?: OnPreviewToggle;
+} & LayoutPageProps<Item>;
 
 function GridPage<Item extends AssetOrAssetContainer>({
     items,
@@ -17,27 +21,27 @@ function GridPage<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     searchMenuHeight,
     page,
-}: LayoutPageProps<Item>) {
+}: Props<Item>) {
     return <>
+        {page > 1 && (
+            <SectionDivider
+                top={searchMenuHeight}
+                textStyle={() => ({
+                    fontWeight: 700,
+                    fontSize: 15,
+                })}
+            >
+                # {page}
+            </SectionDivider>
+        )}
         {items.map(item => {
             const asset: Asset = itemToAsset ? itemToAsset(item) : (item as unknown as Asset);
-            const contextMenu = onContextMenuOpen;
 
             return (
-                <>
-                    {page > 1 && (
-                        <SectionDivider
-                            top={searchMenuHeight}
-                            textStyle={() => ({
-                                fontWeight: 700,
-                                fontSize: 15,
-                            })}
-                        >
-                            # {page}
-                        </SectionDivider>
-                    )}
+                <React.Fragment
+                    key={item.id}
+                >
                     <GroupRow
-                        key={item.id}
                         asset={asset}
                         searchMenuHeight={searchMenuHeight}
                     >
@@ -51,10 +55,6 @@ function GridPage<Item extends AssetOrAssetContainer>({
                             onContextMenu={
                                 onContextMenuOpen
                                     ? e => {
-                                        if (!contextMenu) {
-                                            e.preventDefault();
-                                            return;
-                                        }
                                         onContextMenuOpen!(e, item);
                                     }
                                     : undefined
@@ -65,16 +65,14 @@ function GridPage<Item extends AssetOrAssetContainer>({
                                 asset={asset}
                                 onAddToBasket={onAddToBasket}
                                 selected={selection.includes(item)}
-                                onContextMenuOpen={
-                                    contextMenu ? onContextMenuOpen : undefined
-                                }
+                                onContextMenuOpen={onContextMenuOpen}
                                 onOpen={onOpen}
                                 onToggle={onToggle}
                                 onPreviewToggle={onPreviewToggle}
                             />
                         </Grid>
                     </GroupRow>
-                </>
+                </React.Fragment>
             );
         })}</>
 }

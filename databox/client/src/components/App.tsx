@@ -16,7 +16,7 @@ import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFor
 import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
-import AssetList from "./AssetList/AssetList.tsx";
+import AssetSearch from "./AssetSearch/AssetSearch.tsx";
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
@@ -69,10 +69,7 @@ const AppProxy = React.memo(() => {
                                             flexGrow: 1,
                                         }}
                                     >
-                                        <AssetList
-                                            pages={[]}
-                                            loading={false}
-                                        />
+                                        <AssetSearch/>
                                     </div>
                                 </div>
                             </DisplayProvider>

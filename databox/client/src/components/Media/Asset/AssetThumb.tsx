@@ -1,4 +1,4 @@
-import {DOMAttributes} from 'react';
+import React, {DOMAttributes} from 'react';
 import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
 import assetClasses from '../Search/Layout/classes';
@@ -7,11 +7,10 @@ import {CircularProgress, SxProps} from '@mui/material';
 import classNames from 'classnames';
 
 type Props = {
-    selected?: boolean;
     asset: Asset;
 } & DOMAttributes<HTMLDivElement>;
 
-export default function AssetThumb({
+function AssetThumb({
     asset: {
         resolvedTitle,
         pendingSourceFile,
@@ -19,7 +18,6 @@ export default function AssetThumb({
         thumbnailActive,
         original,
     },
-    selected,
     ...domAttrs
 }: Props) {
     return (
@@ -27,9 +25,7 @@ export default function AssetThumb({
             {...domAttrs}
             className={classNames({
                 [assetClasses.thumbWrapper]: true,
-                selected,
             })}
-
         >
             <div
                 className={
@@ -78,3 +74,5 @@ export function createThumbActiveStyle(): SxProps {
         },
     };
 }
+
+export default React.memo(AssetThumb);

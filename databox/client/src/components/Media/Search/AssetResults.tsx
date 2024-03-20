@@ -14,7 +14,7 @@ import {Box, Fab, LinearProgress, ListSubheader} from '@mui/material';
 import {ResultContext} from './ResultContext';
 import Pager, {LayoutEnum} from './Pager';
 import SearchBar from './SearchBar';
-import SelectionActions from './SelectionActions';
+import SelectionActions from '../../AssetList/Toolbar/SelectionActions.tsx';
 import {Asset, AssetOrAssetContainer} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';

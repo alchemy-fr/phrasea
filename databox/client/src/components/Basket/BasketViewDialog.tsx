@@ -1,12 +1,13 @@
 import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {BasketAsset} from "../../types.ts";
+import {Basket, BasketAsset} from "../../types.ts";
 import {useTranslation} from 'react-i18next';
 import React from "react";
-import {getBasketAssets} from "../../api/basket.ts";
-import {ApiCollectionResponse} from "../../api/hydra.ts";
-import AssetSelection from "../Media/Asset/AssetSelection.tsx";
+import {getBasket, getBasketAssets} from "../../api/basket.ts";
 import {useCloseModal} from "../Routing/ModalLink.tsx";
+import AssetList from "../AssetList/AssetList.tsx";
+import {BasketSelectionContext} from "../../context/BasketSelectionContext.ts";
+import DisplayProvider from "../Media/DisplayProvider.tsx";
 
 type Props = {} & StackedModalProps;
 
@@ -18,25 +19,38 @@ export default function BasketViewDialog({
     const {id} = useParams();
     const closeModal = useCloseModal();
 
-    const [assets, setAssets] = React.useState<ApiCollectionResponse<BasketAsset>>();
+    const [pages, setPages] = React.useState<BasketAsset[][]>();
+    const [total, setTotal] = React.useState<number>();
+    const [data, setData] = React.useState<Basket>();
 
-    React.useEffect(() => {
-        getBasketAssets(id!).then(setAssets);
+    const loadItems = React.useCallback(async () => {
+        const r = await getBasketAssets(id!);
+        setPages([r.result]);
+        setTotal(r.total);
     }, []);
 
+    React.useEffect(() => {
+        getBasket(id!).then(setData);
+        loadItems();
+    }, [loadItems]);
+
     return <AppDialog
-        maxWidth={'sm'}
+        maxWidth={'xl'}
         modalIndex={modalIndex}
         open={open}
         onClose={closeModal}
-        title={t('basket.view.title', 'Basket')}
+        title={data?.title || t('basket.default.title', 'Basket')}
     >
-        {assets ? <AssetSelection
-            assets={assets.result.map(a => a.asset)}
-            onSelectionChange={() => {
-            }}
-        /> : ''}
-
-
+        <DisplayProvider>
+            <AssetList
+                searchBar={false}
+                pages={pages ?? []}
+                reload={loadItems}
+                loading={!pages}
+                itemToAsset={(item: BasketAsset) => item.asset}
+                selectionContext={BasketSelectionContext}
+                total={total}
+            />
+        </DisplayProvider>
     </AppDialog>
 }

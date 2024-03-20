@@ -42,7 +42,7 @@ export default function BasketMenuItem({
                                     )}
                                     aria-label="edit"
                                 >
-                                    <EditIcon />
+                                    <EditIcon/>
                                 </IconButton>
                             ) : null}
                             {onDelete && data.capabilities.canDelete ? (
@@ -53,7 +53,7 @@ export default function BasketMenuItem({
                                     }}
                                     aria-label="delete"
                                 >
-                                    <DeleteIcon />
+                                    <DeleteIcon/>
                                 </IconButton>
                             ) : null}
                         </span>
@@ -65,7 +65,7 @@ export default function BasketMenuItem({
                 role={undefined}
                 onClick={onClick}
             >
-                <ListItemText primary={data.titleHighlight || data.title || t('basket.default.title', 'Basket')} />
+                <ListItemText primary={data.titleHighlight || data.title || t('basket.default.title', 'Basket')}/>
             </ListItemButton>
         </ListItem>
     </>

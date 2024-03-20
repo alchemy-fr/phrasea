@@ -5,8 +5,8 @@ export type ItemToAssetFunc<Item extends AssetOrAssetContainer> = (item: Item) =
 export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
 export type OnOpen = (asset: Asset, renditionId: string) => void;
 export type OnToggle<Item extends AssetOrAssetContainer> = (item: Item, e?: MouseEvent) => void;
-export type OnPreviewToggle<Item extends AssetOrAssetContainer> = (
-    item: Item,
+export type OnPreviewToggle = (
+    asset: Asset,
     display: boolean,
     anchorEl: HTMLElement
 ) => void;
@@ -21,7 +21,6 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
     onAddToBasket?: OnAddToBasket;
     onOpen?: OnOpen;
     onToggle: OnToggle<Item>;
-    onPreviewToggle?: OnPreviewToggle<Item>;
     onContextMenuOpen?: TOnContextMenuOpen<Item>;
 }
 

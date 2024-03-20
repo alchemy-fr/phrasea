@@ -1,23 +1,11 @@
 import React, {useContext} from 'react';
-import {
-    Box,
-    FormControlLabel,
-    FormGroup,
-    Grid,
-    IconButton,
-    Menu,
-    Slider,
-    Switch,
-    Tooltip,
-    Typography,
-} from '@mui/material';
+import {Box, FormControlLabel, FormGroup, IconButton, Menu, Switch, Tooltip, Typography,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {DisplayContext} from '../DisplayContext';
-import {debounce} from '../../../lib/debounce';
-import PhotoSizeSelectLargeIcon from '@mui/icons-material/PhotoSizeSelectLarge';
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual';
-import ToggleWithLimit from './ToggleWithLimit';
+import {DisplayContext} from '../../Media/DisplayContext.tsx';
+import {debounce} from '../../../lib/debounce.ts';
+import ToggleWithLimit from '../../Media/Search/ToggleWithLimit.tsx';
+import ThumbSizeWidget from "./ThumbSizeWidget.tsx";
 
 type Props = {};
 
@@ -53,10 +41,7 @@ export default function DisplayOptionsMenu({}: Props) {
         setAnchorEl(null);
     };
 
-    const onChange = debounce((_e, v) => setThumbSize(v as number), 10);
-
-    const max = 400;
-    const min = 60;
+    const onThumbSizeChange = debounce((v: number) => setThumbSize(v), 0);
 
     const sliderId = 'thumb_size-slider';
     const moreBtnId = 'more-button';
@@ -71,7 +56,7 @@ export default function DisplayOptionsMenu({}: Props) {
                     aria-expanded={menuOpen ? 'true' : undefined}
                     onClick={handleMoreClick}
                 >
-                    <ArrowDropDownIcon />
+                    <ArrowDropDownIcon/>
                 </IconButton>
             </Tooltip>
             <Menu
@@ -94,24 +79,11 @@ export default function DisplayOptionsMenu({}: Props) {
                     <Typography id={sliderId} gutterBottom>
                         {t('layout.options.thumb_size.label', 'Thumbnail size')}
                     </Typography>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item>
-                            <PhotoSizeSelectLargeIcon />
-                        </Grid>
-                        <Grid item xs>
-                            <Slider
-                                max={max}
-                                min={min}
-                                defaultValue={thumbSize}
-                                aria-labelledby={sliderId}
-                                valueLabelDisplay="auto"
-                                onChange={onChange}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <PhotoSizeSelectActualIcon />
-                        </Grid>
-                    </Grid>
+                    <ThumbSizeWidget
+                        sliderId={sliderId}
+                        onChange={onThumbSizeChange}
+                        defaultValue={thumbSize}
+                    />
 
                     <ToggleWithLimit
                         label={t(

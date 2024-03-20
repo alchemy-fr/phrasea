@@ -33,7 +33,6 @@ export const useBasketStore = create<State>((set, getState) => ({
 
         try {
             const data = await getBaskets(params);
-            console.log('data.next', data.next);
 
             set(state => ({
                 baskets: data.result,

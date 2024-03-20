@@ -9,9 +9,13 @@ import AssetThumb from "../../../Media/Asset/AssetThumb.tsx";
 import {replaceHighlight} from "../../../Media/Asset/Attribute/Attributes.tsx";
 import AssetTagList from "../../../Media/Asset/Widgets/AssetTagList.tsx";
 import AssetCollectionList from "../../../Media/Asset/Widgets/AssetCollectionList.tsx";
-import {AssetItemProps} from "../../types.ts";
+import {AssetItemProps, OnPreviewToggle} from "../../types.ts";
 import {Checkbox} from "@mui/material";
 import {stopPropagation} from "../../../../lib/stdFuncs.ts";
+
+type Props<Item extends AssetOrAssetContainer> = {
+    onPreviewToggle?: OnPreviewToggle;
+} & AssetItemProps<Item>;
 
 export default function AssetItem<Item extends AssetOrAssetContainer>({
     item,
@@ -21,7 +25,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onContextMenuOpen,
     onPreviewToggle,
     onAddToBasket,
-}: AssetItemProps<Item>) {
+}: Props<Item>) {
     return (
         <div
             onMouseDown={e => onToggle(item, e)}
@@ -79,7 +83,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     onPreviewToggle
                         ? e =>
                             onPreviewToggle(
-                                item,
+                                asset,
                                 true,
                                 e.currentTarget as HTMLElement
                             )
@@ -89,13 +93,12 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     onPreviewToggle
                         ? e =>
                             onPreviewToggle(
-                                item,
+                                asset,
                                 false,
                                 e.currentTarget as HTMLElement
                             )
                         : undefined
                 }
-                selected={selected}
             />
             <div className={assetClasses.legend}>
                 <div className={assetClasses.title}>
