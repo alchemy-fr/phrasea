@@ -1,14 +1,12 @@
-// @ts-nocheck
 import {Context, useCallback, useContext, useMemo} from 'react';
 import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip,} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import DeleteIcon from '@mui/icons-material/Delete';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
-import {AssetSelectionContext, TSelectionContext,} from '../../../context/AssetSelectionContext.tsx';
+import {TSelectionContext,} from '../../../context/AssetSelectionContext.tsx';
 import {styled} from '@mui/material/styles';
 import DeleteAssetsConfirm from '../../Media/Asset/Actions/DeleteAssetsConfirm.tsx';
 import DisplayOptionsMenu from './DisplayOptionsMenu.tsx';
@@ -27,7 +25,8 @@ import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../../routes.ts';
 import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
 import {Layout} from "../Layouts";
-import {ItemToAssetFunc} from "../types.ts";
+import {CustomItemAction} from "../types.ts";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -54,6 +53,7 @@ export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     reload: () => void;
     onOpenDebug?: VoidFunction;
     selectionContext: Context<TSelectionContext<Item>>;
+    actions?: CustomItemAction<Item>[];
 };
 
 export default function SelectionActions<Item extends AssetOrAssetContainer>({
@@ -64,6 +64,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     pages,
     reload,
     onOpenDebug,
+    actions,
     selectionContext,
 }: SelectionActionsProps<Item>) {
     const {t} = useTranslation();
@@ -112,7 +113,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         let canShare = false;
         let wsId: string | undefined = undefined;
 
-        const selectedAssets = itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset);
+        const selectedAssets = itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset[]);
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace.id;
@@ -198,7 +199,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const download = canDownload
         ? () => {
             openModal(ExportAssetsDialog, {
-                assets: selection.map(itemToAsset),
+                assets: itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset[]),
             });
         }
         : undefined;
@@ -267,7 +268,9 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     </span>
                 </Tooltip>
 
-                <BasketSwitcher/>
+                <BasketSwitcher
+                    selectionContext={selectionContext}
+                />
                 <LoadingButton
                     disabled={!canDownload}
                     variant={'contained'}
@@ -322,10 +325,28 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     color={'error'}
                     onClick={onDelete}
                     variant={'contained'}
-                    startIcon={<DeleteIcon/>}
+                    startIcon={<DeleteForeverIcon/>}
                 >
                     {t('asset_actions.delete', 'Delete')}
                 </Button>
+                {actions?.map(a => {
+                    return <Button
+                        key={a.name}
+                        {...a.buttonProps ?? {}}
+                        disabled={selection.length === 0}
+                        onClick={async () => {
+                            await a.apply(selection);
+                            if (a.reload) {
+                                reload();
+                            }
+                            if (a.resetSelection) {
+                                setSelection([]);
+                            }
+                        }}
+                    >
+                        {a.labels.multi}
+                    </Button>
+                })}
             </Box>
             <Paper
                 elevation={0}

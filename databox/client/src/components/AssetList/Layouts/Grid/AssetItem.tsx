@@ -1,6 +1,6 @@
 import React from "react";
 import {AssetOrAssetContainer} from "../../../../types.ts";
-import assetClasses from "../../../Media/Search/Layout/classes.ts";
+import assetClasses from "../../classes.ts";
 import {PrivacyTooltip} from "../../../Ui/PrivacyChip.tsx";
 import IconButton from "@mui/material/IconButton";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";

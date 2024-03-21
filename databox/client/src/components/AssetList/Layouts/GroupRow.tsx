@@ -7,17 +7,18 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import {AttributeType} from '../../../api/attributes.ts';
 import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
-import {groupValueTypes} from '../../Media/Search/Layout/GroupValue/types.tsx';
+import {groupValueTypes} from '../GroupValue/types.tsx';
+import assetClasses from "../classes.ts";
 
 type Props = PropsWithChildren<{
     asset: Asset;
-    searchMenuHeight: number;
+    toolbarHeight: number;
 }>;
 
 export default function GroupRow({
     asset: {groupValue},
     children,
-    searchMenuHeight,
+    toolbarHeight,
 }: Props) {
     const formatContext = React.useContext(AttributeFormatContext);
 
@@ -27,13 +28,11 @@ export default function GroupRow({
 
     const {values, type, name} = groupValue;
 
-    const toggleFormatClass = 'toggle-format';
-
     return (
         <>
             <SectionDivider
                 dividerSx={{
-                    [`.${toggleFormatClass}`]: {
+                    [`.${assetClasses.toggleFormat}`]: {
                         display: 'none',
                         position: 'absolute',
                         left: 0,
@@ -41,7 +40,7 @@ export default function GroupRow({
                         ml: 1,
                     },
                     ':hover': {
-                        [`.${toggleFormatClass}`]: {
+                        [`.${assetClasses.toggleFormat}`]: {
                             display: 'flex',
                         },
                     },
@@ -52,11 +51,11 @@ export default function GroupRow({
                         my: -1,
                     },
                 }}
-                top={searchMenuHeight}
+                top={toolbarHeight}
             >
                 {formatContext.hasFormats(type) && (
                     <IconButton
-                        className={toggleFormatClass}
+                        className={assetClasses.toggleFormat}
                         onClick={() => formatContext.toggleFormat(type)}
                         sx={{
                             mr: 1,

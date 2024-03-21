@@ -15,12 +15,12 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\BasketInput;
+use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
-use App\Api\Provider\BasketAssetsProvider;
+use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
 use App\Entity\AbstractUuidEntity;
-use App\Entity\Core\Asset;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -75,6 +75,16 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: AddToBasketInput::class,
             name: 'add_to_basket',
             processor: AddToBasketProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/baskets/{id}/remove',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: RemoveFromBasketInput::class,
+            name: 'remove_from_basket',
+            processor: RemoveFromBasketProcessor::class,
         ),
     ],
     normalizationContext: [

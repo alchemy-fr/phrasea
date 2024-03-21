@@ -19,13 +19,13 @@ function GridPage<Item extends AssetOrAssetContainer>({
     onToggle,
     selection,
     onAddToBasket,
-    searchMenuHeight,
+    toolbarHeight,
     page,
 }: Props<Item>) {
     return <>
         {page > 1 && (
             <SectionDivider
-                top={searchMenuHeight}
+                top={toolbarHeight}
                 textStyle={() => ({
                     fontWeight: 700,
                     fontSize: 15,
@@ -43,7 +43,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                 >
                     <GroupRow
                         asset={asset}
-                        searchMenuHeight={searchMenuHeight}
+                        toolbarHeight={toolbarHeight}
                     >
                         <Grid
                             item

@@ -1,18 +1,18 @@
-import React, {useContext, useRef} from 'react';
+import React, {useContext} from 'react';
 import {alpha, Grid, Theme} from '@mui/material';
 import {LayoutProps} from "../../types.ts";
-import {Asset, AssetOrAssetContainer} from "../../../../types.ts";
+import {AssetOrAssetContainer} from "../../../../types.ts";
 import {DisplayContext} from "../../../Media/DisplayContext.tsx";
 import {sectionDividerClassname} from "../../../Media/Search/Layout/SectionDivider";
-import assetClasses from "../../../Media/Search/Layout/classes";
+import assetClasses from "../../classes.ts";
 import {createSizeTransition, thumbSx} from "../../../Media/Asset/Thumb";
 import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb";
 import GridPage from "./GridPage.tsx";
 import PreviewPopover from "../../../Media/Asset/PreviewPopover.tsx";
-import {OnPreviewToggle} from "../../../Media/Search/Layout/Layout.ts";
+import {usePreview} from "../../usePreview.ts";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
-    searchMenuHeight,
+    toolbarHeight,
     pages,
     onToggle,
     onContextMenuOpen,
@@ -25,13 +25,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     const collLineHeight = 32;
     const tagLineHeight = 32;
     const d = useContext(DisplayContext)!;
-    const previewTimer = useRef<ReturnType<typeof setTimeout>>();
-    const [previewAnchorEl, setPreviewAnchorEl] = React.useState<null | {
-        asset: Asset;
-        anchorEl: HTMLElement;
-    }>(null);
-    const previewEnterDelay = 500;
-    const previewLeaveDelay = 400;
 
     const gridSx = React.useCallback((theme: Theme) => {
         const spacing = Number(theme.spacing(1).slice(0, -2));
@@ -139,53 +132,10 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
         };
     }, [d]);
 
-
-    const onPreviewToggle = React.useCallback<OnPreviewToggle>(
-        (asset, display, anchorEl): void => {
-            if (!asset.preview?.file || !d.displayPreview) {
-                return;
-            }
-            if (previewTimer.current) {
-                clearTimeout(previewTimer.current);
-            }
-            if (!display) {
-                if (!d.previewLocked) {
-                    previewTimer.current = setTimeout(() => {
-                        setPreviewAnchorEl(null);
-                    }, previewLeaveDelay);
-                }
-                return;
-            }
-
-            setPreviewAnchorEl(p => {
-                const deferred = !p || d.previewLocked;
-
-                if (!deferred) {
-                    return {
-                        asset,
-                        anchorEl,
-                    };
-                }
-
-                previewTimer.current = setTimeout(() => {
-                    setPreviewAnchorEl({
-                        asset,
-                        anchorEl,
-                    });
-                }, previewEnterDelay);
-
-                return p;
-            });
-            // eslint-disable-next-line
-        },
-        [setPreviewAnchorEl, d]
-    );
-
+    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
 
     return (
-        <div style={{
-            overflow: "auto",
-        }}>
+        <>
             <Grid
                 container
                 spacing={1}
@@ -194,7 +144,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 {pages.map((page, i) => <GridPage
                     key={i}
                     page={i + 1}
-                    searchMenuHeight={searchMenuHeight}
+                    toolbarHeight={toolbarHeight}
                     items={page}
                     itemToAsset={itemToAsset}
                     onToggle={onToggle}
@@ -213,6 +163,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={true}
             />
-        </div>
+        </>
     );
 }

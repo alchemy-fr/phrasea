@@ -10,6 +10,9 @@ const assetClasses = {
     thumbActive: 'tha',
     thumbInactive: 'thia',
     thumbWrapper: 'tw',
+    toggleFormat: 'toggle-format',
+    sectionDivider: 'section-div',
+    assetToolbar: 'asset-toolbar',
 };
 
 export default assetClasses;

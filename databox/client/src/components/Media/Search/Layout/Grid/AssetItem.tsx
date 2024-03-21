@@ -2,7 +2,7 @@
 import React, {MouseEvent} from "react";
 import {Asset} from "../../../../../types.ts";
 import {OnAddToBasket, OnPreviewToggle, OnSelectAsset, OnUnselectAsset, TOnContextMenuOpen} from "../Layout.ts";
-import assetClasses from "../classes.ts";
+import assetClasses from "../../../../AssetList/classes.ts";
 import {Checkbox, IconButton} from "@mui/material";
 import {stopPropagation} from "../../../../../lib/stdFuncs.ts";
 import {PrivacyTooltip} from "../../../../Ui/PrivacyChip.tsx";

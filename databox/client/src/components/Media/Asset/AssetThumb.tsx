@@ -1,7 +1,7 @@
 import React, {DOMAttributes} from 'react';
 import {Asset} from '../../../types';
 import AssetFileIcon from './AssetFileIcon';
-import assetClasses from '../Search/Layout/classes';
+import assetClasses from '../../AssetList/classes.ts';
 import FilePlayer from './FilePlayer';
 import {CircularProgress, SxProps} from '@mui/material';
 import classNames from 'classnames';

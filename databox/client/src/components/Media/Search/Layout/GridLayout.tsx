@@ -5,7 +5,7 @@ import {LayoutProps,} from './Layout';
 import {createThumbActiveStyle} from '../../Asset/AssetThumb';
 import {DisplayContext} from '../../DisplayContext';
 import {createSizeTransition} from '../../Asset/Thumb';
-import assetClasses from './classes';
+import assetClasses from '../../../AssetList/classes.ts';
 import GroupRow from '../../../AssetList/Layouts/GroupRow.tsx';
 import {sectionDividerClassname} from './SectionDivider';
 import {AssetItem} from "./Grid/AssetItem.tsx";
@@ -128,7 +128,7 @@ export default function GridLayout({
                     <GroupRow
                         key={a.id}
                         asset={a}
-                        searchMenuHeight={searchMenuHeight}
+                        toolbarHeight={searchMenuHeight}
                     >
                         <Grid
                             item

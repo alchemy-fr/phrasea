@@ -12,7 +12,7 @@ import {DisplayContext} from '../../DisplayContext';
 import {Asset} from '../../../../types';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Attributes, {replaceHighlight} from '../../Asset/Attribute/Attributes';
-import assetClasses from './classes';
+import assetClasses from '../../../AssetList/classes.ts';
 import AssetTagList from '../../Asset/Widgets/AssetTagList';
 import AssetCollectionList from '../../Asset/Widgets/AssetCollectionList';
 import {stopPropagation} from '../../../../lib/stdFuncs';
@@ -185,7 +185,7 @@ export default function ListLayout({
                     <GroupRow
                         key={a.id}
                         asset={a}
-                        searchMenuHeight={searchMenuHeight}
+                        toolbarHeight={searchMenuHeight}
                     >
                         <div
                             key={a.id}

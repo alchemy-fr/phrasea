@@ -66,3 +66,9 @@ type AddToBasketInput = {
 export async function addToBasket(basketId: string | undefined, data: AddToBasketInput): Promise<Basket> {
     return (await apiClient.post(`/baskets/${basketId ?? 'default'}/assets`, data)).data;
 }
+
+export async function removeFromBasket(basketId: string, itemIds: string[]): Promise<Basket> {
+    return (await apiClient.post(`/baskets/${basketId}/remove`, {
+        items: itemIds,
+    })).data;
+}

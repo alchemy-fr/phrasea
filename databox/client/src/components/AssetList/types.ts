@@ -1,5 +1,6 @@
 import {MouseEvent} from "react";
 import {Asset, AssetOrAssetContainer} from "../../types.ts";
+import {ButtonProps} from "@mui/material/Button";
 
 export type ItemToAssetFunc<Item extends AssetOrAssetContainer> = (item: Item) => Asset;
 export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
@@ -11,7 +12,7 @@ export type OnPreviewToggle = (
     anchorEl: HTMLElement
 ) => void;
 
-export type TOnContextMenuOpen<Item extends AssetOrAssetContainer> = (
+export type OnContextMenuOpen<Item extends AssetOrAssetContainer> = (
     e: MouseEvent<HTMLElement>,
     item: Item,
     anchorEl?: HTMLElement
@@ -21,7 +22,7 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
     onAddToBasket?: OnAddToBasket;
     onOpen?: OnOpen;
     onToggle: OnToggle<Item>;
-    onContextMenuOpen?: TOnContextMenuOpen<Item>;
+    onContextMenuOpen?: OnContextMenuOpen<Item>;
 }
 
 export type AssetItemProps<Item extends AssetOrAssetContainer> = {
@@ -30,10 +31,10 @@ export type AssetItemProps<Item extends AssetOrAssetContainer> = {
     selected: boolean;
 } & AssetActions<Item>;
 
-type LayoutCommonProps<Item extends AssetOrAssetContainer>  = {
+type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
     itemToAsset?: ItemToAssetFunc<Item> | undefined;
     selection: Item[];
-    searchMenuHeight: number;
+    toolbarHeight: number;
 }
 
 export type LayoutProps<Item extends AssetOrAssetContainer> = {
@@ -44,3 +45,15 @@ export type LayoutPageProps<Item extends AssetOrAssetContainer> = {
     items: Item[];
     page: number;
 } & LayoutCommonProps<Item> & AssetActions<Item>;
+
+export type CustomItemAction<Item extends AssetOrAssetContainer> = {
+    name: string;
+    buttonProps?: ButtonProps;
+    labels: {
+        single: string;
+        multi: string;
+    },
+    apply: (items: Item[]) => Promise<void>;
+    reload?: boolean;
+    resetSelection?: boolean;
+}

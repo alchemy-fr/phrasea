@@ -1,6 +1,14 @@
 import {create} from 'zustand';
 import {Basket} from '../types.ts';
-import {addToBasket, BasketAssetInput, deleteBasket, getBasket, GetBasketOptions, getBaskets} from '../api/basket.ts';
+import {
+    addToBasket,
+    BasketAssetInput,
+    deleteBasket,
+    getBasket,
+    GetBasketOptions,
+    getBaskets,
+    removeFromBasket
+} from '../api/basket.ts';
 
 type State = {
     baskets: Basket[];
@@ -15,6 +23,7 @@ type State = {
     updateBasket: (data: Basket) => void;
     deleteBasket: (id: string) => void;
     addToCurrent: (assets: BasketAssetInput[]) => void;
+    removeFromBasket: (basketId: string, itemIds: string[]) => void;
     setCurrent: (data: Basket | undefined) => Promise<void>;
     shouldSelectBasket: () => boolean;
 };
@@ -174,6 +183,47 @@ export const useBasketStore = create<State>((set, getState) => ({
                             current: {
                                 ...curr,
                                 assetCount: curr.assetCount !== undefined ? Math.max(0, curr.assetCount! - count) : undefined,
+                            },
+                        };
+                    }
+
+                    return state;
+                });
+            }
+        }
+    },
+
+    removeFromBasket: async (basketId, itemIds) => {
+        let current: Basket | undefined = getState().current;
+        if (current && current.id !== basketId) {
+            current = undefined;
+        }
+        const count = itemIds.length;
+
+        if (current && current.assetCount !== undefined) {
+            set({
+                current: {
+                    ...current,
+                    assetCount: Math.max(0, current.assetCount - count),
+                },
+            });
+        }
+
+        try {
+            const basket = await removeFromBasket(basketId, itemIds);
+            set(state => ({
+                baskets: state.baskets.some(b => b.id === basket.id) ? state.baskets : state.baskets.concat([basket]),
+            }));
+        } catch (e: any) {
+            if (current) {
+                set(state => {
+                    if (state.current?.id === current!.id) {
+                        const curr = state.current!;
+
+                        return {
+                            current: {
+                                ...curr,
+                                assetCount: curr.assetCount !== undefined ? curr.assetCount! + count : undefined,
                             },
                         };
                     }
