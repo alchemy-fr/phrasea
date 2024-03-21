@@ -27,7 +27,6 @@ class BasketInputTransformer extends AbstractFileInputTransformer
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var Basket $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Basket();
 

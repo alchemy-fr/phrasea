@@ -27,6 +27,7 @@ import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
 import {Layout} from "../Layouts";
 import {CustomItemAction} from "../types.ts";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import {useAuth} from '@alchemy/react-auth';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -70,8 +71,8 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
     const {openModal} = useModals();
+    const {isAuthenticated} = useAuth();
     const {selection, setSelection, itemToAsset} = useContext(selectionContext);
-
     const selectionLength = selection.length;
     const hasSelection = selectionLength > 0;
     const allSelected =
@@ -268,9 +269,9 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     </span>
                 </Tooltip>
 
-                <BasketSwitcher
+                {isAuthenticated() ? <BasketSwitcher
                     selectionContext={selectionContext}
-                />
+                /> : ''}
                 <LoadingButton
                     disabled={!canDownload}
                     variant={'contained'}
