@@ -6,14 +6,10 @@ namespace App\Api\Model\Output;
 
 use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use ApiPlatform\Metadata\ApiProperty;
-use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Basket\Basket;
-use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
-use App\Entity\Core\File;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class BasketOutput extends AbstractUuidOutput

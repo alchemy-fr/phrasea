@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
-use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
-use App\Api\Model\Output\ApiMetaWrapperOutput;
-use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\BasketSearch;
 use App\Util\SecurityAwareTrait;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class BasketCollectionProvider extends AbstractCollectionProvider
 {

@@ -97,13 +97,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
 class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, ESIndexableInterface, HighlightableModelInterface
 {
-    final public const GROUP_READ = 'basket:read';
-    final public const GROUP_LIST = 'basket:index';
-    final public const GROUP_WRITE = 'basket:w';
-
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    final public const GROUP_READ = 'basket:read';
+    final public const GROUP_LIST = 'basket:index';
+    final public const GROUP_WRITE = 'basket:w';
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]

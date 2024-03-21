@@ -14,7 +14,7 @@ import {modalRoutes} from "../../routes.ts";
 
 type Props = {};
 
-export default function BasketsPanel({}: Props) {
+function BasketsPanel({}: Props) {
     const baskets = useBasketStore(state => state.baskets);
     const loading = useBasketStore(state => state.loading);
     const load = useBasketStore(state => state.load);
@@ -96,3 +96,5 @@ export default function BasketsPanel({}: Props) {
         </>
     );
 }
+
+export default React.memo(BasketsPanel);

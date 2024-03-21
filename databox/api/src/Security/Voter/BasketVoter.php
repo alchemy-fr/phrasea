@@ -31,7 +31,7 @@ class BasketVoter extends AbstractVoter
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = fn(): bool => $userId && $subject->getOwnerId() === $userId;
+        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),

@@ -6,7 +6,7 @@ import {Workspace} from '../../types.ts';
 
 type Props = {};
 
-export default function CollectionsPanel({}: Props) {
+function CollectionsPanel({}: Props) {
     const [workspaces, setWorkspaces] = React.useState<Workspace[]>([]);
 
     const setRootCollections = useCollectionStore(
@@ -28,3 +28,5 @@ export default function CollectionsPanel({}: Props) {
         </>
     );
 }
+
+export default React.memo(CollectionsPanel);

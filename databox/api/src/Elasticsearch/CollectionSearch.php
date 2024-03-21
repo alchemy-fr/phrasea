@@ -17,8 +17,7 @@ class CollectionSearch extends AbstractSearch
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.collection')]
         private readonly PaginatedFinderInterface $finder
-    )
-    {
+    ) {
     }
 
     public function search(

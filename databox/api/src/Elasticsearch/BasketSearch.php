@@ -72,12 +72,12 @@ class BasketSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn(Basket $basket
+        $result = new Pagerfanta(new FilteredPager(fn (Basket $basket
         ): bool => $this->isGranted(AbstractVoter::READ, $basket), $adapter));
-        $result->setMaxPerPage((int)$limit);
+        $result->setMaxPerPage((int) $limit);
         if ($options['page'] ?? false) {
             $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int)$options['page']);
+            $result->setCurrentPage((int) $options['page']);
         }
 
         return $result;

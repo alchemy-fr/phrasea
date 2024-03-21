@@ -157,7 +157,7 @@ function FacetGroup({facet, name}: FacetGroupProps) {
     );
 }
 
-export default function Facets() {
+function Facets() {
     const {facets} = useContext(ResultContext);
 
     if (!facets) {
@@ -188,3 +188,5 @@ export default function Facets() {
         </List>
     );
 }
+
+export default React.memo(Facets);

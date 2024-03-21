@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity\Basket;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use App\Entity\AbstractUuidEntity;
@@ -21,24 +20,23 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     uriTemplate: '/baskets/{id}/assets',
     operations: [
-        new GetCollection()
+        new GetCollection(),
     ],
     uriVariables: [
-        'id' => new Link(toProperty: 'basket', fromClass: Basket::class)
+        'id' => new Link(toProperty: 'basket', fromClass: Basket::class),
     ],
     normalizationContext: [
         'groups' => [
             Asset::GROUP_LIST,
             self::GROUP_LIST,
-        ]
+        ],
     ]
 )]
 class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
 {
-    private const GROUP_LIST = 'basket-asset:list';
-
     use OwnerIdTrait;
     use CreatedAtTrait;
+    private const GROUP_LIST = 'basket-asset:list';
 
     #[ORM\ManyToOne(targetEntity: Basket::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false)]
