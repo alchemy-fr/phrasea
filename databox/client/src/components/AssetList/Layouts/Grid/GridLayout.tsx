@@ -3,12 +3,12 @@ import {alpha, Grid, Theme} from '@mui/material';
 import {LayoutProps} from "../../types.ts";
 import {AssetOrAssetContainer} from "../../../../types.ts";
 import {DisplayContext} from "../../../Media/DisplayContext.tsx";
-import {sectionDividerClassname} from "../../../Media/Search/Layout/SectionDivider";
+import {sectionDividerClassname} from "../../SectionDivider.tsx";
 import assetClasses from "../../classes.ts";
 import {createSizeTransition, thumbSx} from "../../../Media/Asset/Thumb";
 import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb";
 import GridPage from "./GridPage.tsx";
-import PreviewPopover from "../../../Media/Asset/PreviewPopover.tsx";
+import PreviewPopover from "../../PreviewPopover.tsx";
 import {usePreview} from "../../usePreview.ts";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
@@ -157,7 +157,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
             </Grid>
 
             <PreviewPopover
-                previewLocked={d.previewLocked}
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}

@@ -6,6 +6,7 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
 import React from 'react';
+import {attributesClasses} from "./Attributes.tsx";
 
 type Props = {
     type: string;
@@ -65,35 +66,29 @@ export default function AttributeRowUI({
                     : undefined
             }
         >
-            <div className={'attr-name'}>
+            <div className={attributesClasses.name}>
                 {attributeName}
-                {controls && formatContext.hasFormats(type) && (
-                    <IconButton
-                        onClick={toggleFormat}
-                        sx={{
-                            ml: 1,
-                        }}
-                    >
-                        <VisibilityIcon fontSize={'small'} />
-                    </IconButton>
-                )}
+                {controls ? <div className={attributesClasses.controls}>
+                    {formatContext.hasFormats(type) && (
+                        <IconButton
+                            onClick={toggleFormat}
+                        >
+                            <VisibilityIcon fontSize={'small'} />
+                        </IconButton>
+                    )}
 
-                {controls && (
                     <CopyAttribute
-                        sx={{
-                            ml: 1,
-                        }}
                         value={formatter.formatValueAsString(
                             valueFormatterProps
                         )}
                     />
-                )}
 
-                {controls && (
                     <IconButton
                         onClick={() => togglePin(definitionId)}
                         sx={{
-                            ml: 1,
+                            '& svg': {
+                                fontSize: 13
+                            }
                         }}
                     >
                         <PushPinIcon
@@ -101,11 +96,11 @@ export default function AttributeRowUI({
                             color={pinned ? 'success' : undefined}
                         />
                     </IconButton>
-                )}
+                </div> : ''}
             </div>
-            <div className={'attr-val'} lang={locale}>
+            <div className={attributesClasses.val} lang={locale}>
                 {multiple && !formatter.supportsMultiple() ? (
-                    <ul>
+                    <ul className={attributesClasses.list}>
                         {value
                             ? value.map((v: any, i: number) => {
                                   const formatProps = {

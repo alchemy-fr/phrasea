@@ -13,6 +13,7 @@ const assetClasses = {
     toggleFormat: 'toggle-format',
     sectionDivider: 'section-div',
     assetToolbar: 'asset-toolbar',
+    assetsActions: 'asset-actions',
 };
 
 export default assetClasses;

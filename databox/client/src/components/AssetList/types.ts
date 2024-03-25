@@ -4,6 +4,7 @@ import {ButtonProps} from "@mui/material/Button";
 
 export type ItemToAssetFunc<Item extends AssetOrAssetContainer> = (item: Item) => Asset;
 export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
+export type OnSelectionChange<Item extends AssetOrAssetContainer> = (items: Item[]) => void;
 export type OnOpen = (asset: Asset, renditionId: string) => void;
 export type OnToggle<Item extends AssetOrAssetContainer> = (item: Item, e?: MouseEvent) => void;
 export type OnPreviewToggle = (
@@ -11,6 +12,8 @@ export type OnPreviewToggle = (
     display: boolean,
     anchorEl: HTMLElement
 ) => void;
+
+export type ReloadFunc = () => Promise<void>;
 
 export type OnContextMenuOpen<Item extends AssetOrAssetContainer> = (
     e: MouseEvent<HTMLElement>,

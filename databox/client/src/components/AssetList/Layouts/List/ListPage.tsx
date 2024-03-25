@@ -1,25 +1,26 @@
 import React from 'react';
 import {Asset, AssetOrAssetContainer} from "../../../../types.ts";
-import GroupRow from "../GroupRow.tsx";
-import {Grid} from "@mui/material";
-import AssetItem from "./AssetItem.tsx";
+import GroupRow from "../GroupRow";
+import AssetItem from "./AssetItem";
 import {LayoutPageProps, OnPreviewToggle} from "../../types.ts";
 import SectionDivider from "../../SectionDivider.tsx";
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;
+    displayAttributes: boolean;
 } & LayoutPageProps<Item>;
 
-function GridPage<Item extends AssetOrAssetContainer>({
+function ListPage<Item extends AssetOrAssetContainer>({
     items,
     itemToAsset,
     onContextMenuOpen,
     onOpen,
     onPreviewToggle,
     onToggle,
-    selection,
     onAddToBasket,
+    selection,
     toolbarHeight,
+    displayAttributes,
     page,
 }: Props<Item>) {
     return <>
@@ -43,8 +44,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                     asset={asset}
                     toolbarHeight={toolbarHeight}
                 >
-                    <Grid
-                        item
+                    <div
                         onDoubleClick={
                             onOpen && asset.original
                                 ? () => onOpen(asset, asset.original!.id)
@@ -52,26 +52,25 @@ function GridPage<Item extends AssetOrAssetContainer>({
                         }
                         onContextMenu={
                             onContextMenuOpen
-                                ? e => {
-                                    onContextMenuOpen!(e, item);
-                                }
+                                ? e => onContextMenuOpen!(e, item)
                                 : undefined
                         }
                     >
                         <AssetItem
-                            item={item}
                             asset={asset}
-                            onAddToBasket={onAddToBasket}
-                            selected={selection.includes(item)}
-                            onContextMenuOpen={onContextMenuOpen}
-                            onOpen={onOpen}
+                            item={item}
                             onToggle={onToggle}
+                            selected={selection.includes(item)}
+                            onAddToBasket={onAddToBasket}
+                            onContextMenuOpen={onContextMenuOpen}
+                            displayAttributes={displayAttributes}
                             onPreviewToggle={onPreviewToggle}
+
                         />
-                    </Grid>
+                    </div>
                 </GroupRow>
             );
         })}</>
 }
 
-export default React.memo(GridPage) as typeof GridPage;
+export default React.memo(ListPage) as typeof ListPage;

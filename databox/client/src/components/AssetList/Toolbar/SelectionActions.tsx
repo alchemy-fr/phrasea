@@ -25,7 +25,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../../routes.ts';
 import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
 import {Layout} from "../Layouts";
-import {CustomItemAction} from "../types.ts";
+import {CustomItemAction, ReloadFunc} from "../types.ts";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
 
@@ -51,7 +51,7 @@ export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     loading: boolean;
     total?: number;
     pages: Item[][];
-    reload: () => void;
+    reload?: ReloadFunc;
     onOpenDebug?: VoidFunction;
     selectionContext: Context<TSelectionContext<Item>>;
     actions?: CustomItemAction<Item>[];
@@ -91,7 +91,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         openModal(DeleteAssetsConfirm, {
             assetIds: selection.map(i => i.id),
             onDelete: () => {
-                reload();
+                reload && reload();
             },
         });
     };
@@ -157,7 +157,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 openModal(CopyAssetsDialog, {
                     assets: selectedAssets,
                     onComplete: () => {
-                        reload();
+                        reload && reload();
                     },
                 });
             },
@@ -170,7 +170,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             assetIds: selection.map(i => i.id),
             workspaceId: wsId!,
             onComplete: () => {
-                reload();
+                reload && reload();
             },
         });
     };
@@ -182,7 +182,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 id: selection[0].id,
             });
         } else {
-            alert('Multi edit is comin soon...');
+            alert('Multi edit is coming soon...');
         }
     };
 
@@ -193,7 +193,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 id: selection[0].id,
             });
         } else {
-            alert('Multi edit attributes is comin soon...');
+            alert('Multi edit attributes is coming soon...');
         }
     };
 
@@ -337,7 +337,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         disabled={selection.length === 0}
                         onClick={async () => {
                             await a.apply(selection);
-                            if (a.reload) {
+                            if (a.reload && reload) {
                                 reload();
                             }
                             if (a.resetSelection) {
@@ -392,7 +392,11 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 <StyledToggleButtonGroup
                     value={layout}
                     exclusive
-                    onChange={(_e, newValue) => setLayout(newValue)}
+                    onChange={(_e, newValue) => {
+                        if (newValue) {
+                            setLayout(newValue)
+                        }
+                    }}
                 >
                     <TooltipToggleButton
                         tooltipProps={{

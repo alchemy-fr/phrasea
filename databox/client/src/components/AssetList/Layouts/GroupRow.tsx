@@ -1,6 +1,6 @@
 import React, {PropsWithChildren, ReactNode} from 'react';
 import {Asset} from '../../../types.ts';
-import SectionDivider from '../../Media/Search/Layout/SectionDivider.tsx';
+import SectionDivider from '../SectionDivider.tsx';
 import {AttributeFormatContext} from '../../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {IconButton} from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';

@@ -7,13 +7,15 @@ export type NavigateToOverlayFunction = (route: RouteDefinition, params?: RouteP
 export type CloseOverlayFunction = () => void;
 
 export function useNavigateToOverlay(queryParam: string): NavigateToOverlayFunction {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     return React.useCallback<NavigateToOverlayFunction>((route, params) => {
-        navigate({
-            search: `${queryParam}=${getPath(route, params)}`,
-        });
-    }, [navigate]);
+        history.pushState({}, "", `${queryParam}=${getPath(route, params)}`);
+
+        // navigate({
+        //     search: `${queryParam}=${getPath(route, params)}`,
+        // });
+    }, []);
 }
 
 export function useCloseOverlay(queryParam: string): CloseOverlayFunction {

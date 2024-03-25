@@ -1,14 +1,9 @@
 import {Asset, Attribute} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import React, {
-    PropsWithChildren,
-    ReactElement,
-    ReactNode,
-    useContext,
-} from 'react';
+import React, {PropsWithChildren, ReactElement, ReactNode, useContext,} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
-import {Box} from '@mui/material';
+import {SxProps} from '@mui/material';
 import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
@@ -90,7 +85,7 @@ type Props = {
     pinnedOnly?: boolean;
 };
 
-export default function Attributes({asset, controls, pinnedOnly}: Props) {
+function Attributes({asset, controls, pinnedOnly}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
 
     const togglePin = React.useCallback((definitionId: string) => {
@@ -136,20 +131,7 @@ export default function Attributes({asset, controls, pinnedOnly}: Props) {
     }
 
     return (
-        <Box
-            sx={{
-                '.attr-name': {
-                    fontWeight: 100,
-                    fontSize: 13,
-                },
-                '.attr-val': {
-                    mb: 2,
-                },
-                'ul': {
-                    m: 0,
-                    pl: 2,
-                },
-            }}
+        <div
             onDoubleClick={stopPropagation}
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
@@ -169,6 +151,45 @@ export default function Attributes({asset, controls, pinnedOnly}: Props) {
                     togglePin={togglePin}
                 />
             ))}
-        </Box>
+        </div>
     );
+}
+
+export default React.memo(Attributes) as typeof Attributes;
+
+export const attributesClasses = {
+    controls: 'attr-ctls',
+    name: 'attr-name',
+    val: 'attr-val',
+    list: 'attr-ul',
+}
+
+export function attributesSx(): SxProps {
+    return {
+        [`.${attributesClasses.name}`]: {
+            fontWeight: 100,
+            fontSize: 13,
+        },
+        [`.${attributesClasses.controls}`]: {
+            display: 'inline-block',
+            ml: 1,
+            '.MuiSvgIcon-fontSizeSmall': {
+                fontSize: 13,
+            },
+            '.MuiButtonBase-root + .MuiButtonBase-root': {
+                ml: 1,
+            }
+        },
+        [`.${attributesClasses.val}`]: {
+            mb: 1,
+            fontSize: 14,
+            '.MuiSvgIcon-fontSizeSmall': {
+                fontSize: 13,
+            },
+        },
+        [`.${attributesClasses.list}`]: {
+            m: 0,
+            pl: 1,
+        },
+    };
 }

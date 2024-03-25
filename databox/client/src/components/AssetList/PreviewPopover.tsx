@@ -1,23 +1,22 @@
-import {useCallback, useState} from 'react';
-import {Asset} from '../../../types';
+import {useCallback, useContext, useState} from 'react';
+import {Asset} from '../../types.ts';
 import {Paper, Popper, Stack} from '@mui/material';
-import FilePlayer from './FilePlayer';
-import {getRelativeViewHeight, getRelativeViewWidth} from '../../../lib/style';
-import {createDimensions} from './Players';
-import {zIndex} from '../../../themes/zIndex';
-import Attributes from './Attribute/Attributes';
+import FilePlayer from '../Media/Asset/FilePlayer.tsx';
+import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style.ts';
+import {createDimensions} from '../Media/Asset/Players';
+import {zIndex} from '../../themes/zIndex.ts';
+import Attributes from '../Media/Asset/Attribute/Attributes.tsx';
+import {DisplayContext} from "../Media/DisplayContext.tsx";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
-    previewLocked: boolean;
     displayAttributes: boolean;
 };
 
 const relativeSize = 50;
 
 export default function PreviewPopover({
-    previewLocked,
     asset,
     anchorEl,
     displayAttributes,
@@ -25,6 +24,7 @@ export default function PreviewPopover({
     const [anchor, setAnchor] = useState<HTMLElement>();
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
+    const {previewLocked} = useContext(DisplayContext)!;
 
     const onLoad = useCallback(() => {
         setAnchor(anchorEl);

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "public": true,
   "files": [
+    "src/createStateSetterProxy.ts",
     "src/useDebounceLoader.ts",
     "src/useDebounceScroll.ts",
     "src/useEffectOnce.ts",

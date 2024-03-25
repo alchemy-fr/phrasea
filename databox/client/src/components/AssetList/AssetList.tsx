@@ -1,11 +1,21 @@
 import React, {Context, MouseEvent, useEffect} from 'react';
-import {Asset, AssetOrAssetContainer} from "../../types.ts";
+import {Asset, AssetOrAssetContainer, StateSetter} from "../../types.ts";
 import AssetToolbar from "./AssetToolbar.tsx";
 import LoadMoreButton from "./LoadMoreButton.tsx";
 import {AssetSelectionContext, TSelectionContext} from "../../context/AssetSelectionContext.tsx";
 import {Layout, layouts} from "./Layouts";
-import {CustomItemAction, LayoutProps, OnAddToBasket, OnContextMenuOpen, OnOpen, OnToggle} from "./types.ts";
+import {
+    CustomItemAction,
+    LayoutProps,
+    OnAddToBasket,
+    OnContextMenuOpen,
+    OnOpen,
+    OnSelectionChange,
+    OnToggle,
+    ReloadFunc
+} from "./types.ts";
 import {getItemListFromEvent} from "./selection.ts";
+import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy'
 import {useBasketStore} from "../../store/basketStore.ts";
 import assetClasses from "./classes.ts";
 import AssetContextMenu from "./AssetContextMenu.tsx";
@@ -20,10 +30,11 @@ type Props<Item extends AssetOrAssetContainer> = {
     selectionContext?: React.Context<TSelectionContext<Item>>;
     layout?: Layout;
     onOpen?: OnOpen;
-    reload: () => void;
+    reload?: ReloadFunc;
     onOpenDebug?: VoidFunction;
     searchBar?: boolean;
     actions?: CustomItemAction<Item>[];
+    onSelectionChange?: OnSelectionChange<Item>;
 };
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
@@ -36,11 +47,12 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     reload,
     searchBar,
     onOpenDebug,
+    onSelectionChange,
     actions,
     layout: defaultLayout,
     selectionContext: SelectionContext = AssetSelectionContext as unknown as Context<TSelectionContext<Item>>,
 }: Props<Item>) {
-    const [selection, setSelection] = React.useState<Item[]>([]);
+    const [selection, setSelectionPrivate] = React.useState<Item[]>([]);
     const [loadingMore, setLoadingMore] = React.useState(false);
     const [layout, setLayout] = React.useState<Layout>(defaultLayout ?? Layout.Grid);
     const listRef = React.useRef<HTMLDivElement | null>(null);
@@ -51,6 +63,22 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         pos: PopoverPosition;
         anchorEl: HTMLElement | undefined;
     }>(null);
+
+    const setSelection = React.useMemo<StateSetter<Item[]>>(() => {
+        if (!onSelectionChange) {
+            return setSelectionPrivate;
+        }
+
+        return handler => {
+            setSelectionPrivate(
+                createStateSetterProxy(handler, n => {
+                    onSelectionChange(n);
+
+                    return n;
+                }),
+            );
+        };
+    }, [onSelectionChange, setSelectionPrivate]);
 
     useEffect(() => {
         if (!listRef.current) {
@@ -77,6 +105,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     ['input', 'select', 'button', 'textarea'].includes(
                         activeElement.tagName.toLowerCase()
                     )
+                    && (activeElement as HTMLInputElement).type !== 'checkbox'
                 ) {
                     return;
                 }
@@ -122,7 +151,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
             setSelection(prev => {
                 return getItemListFromEvent(prev, item, pages, e);
             });
-            // eslint-disable-next-line
         },
         [pages]
     );
@@ -185,7 +213,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     onClick={() => {
                         setLoadingMore(true);
                         loadMore().finally(() => {
-                            console.log('finally');
                             setLoadingMore(false);
                         });
                     }}
