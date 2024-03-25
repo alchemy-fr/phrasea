@@ -5,7 +5,7 @@ import FilePlayer from '../Media/Asset/FilePlayer.tsx';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style.ts';
 import {createDimensions} from '../Media/Asset/Players';
 import {zIndex} from '../../themes/zIndex.ts';
-import Attributes from '../Media/Asset/Attribute/Attributes.tsx';
+import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes.tsx';
 import {DisplayContext} from "../Media/DisplayContext.tsx";
 
 type Props = {
@@ -69,6 +69,7 @@ export default function PreviewPopover({
                     sx={{
                         padding: 1,
                         maxWidth: width,
+                        ...attributesSx(),
                     }}
                 >
                     <Stack direction={'row'} spacing={1}>

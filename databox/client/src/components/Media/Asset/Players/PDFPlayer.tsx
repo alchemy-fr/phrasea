@@ -1,8 +1,10 @@
 import {useCallback, useContext, useState} from 'react';
 import {createDimensions, PlayerProps} from './index';
-import {Document, Page} from 'react-pdf';
+import {Document, Page, pdfjs} from 'react-pdf';
 import {getVideoDimensions} from './VideoPlayer';
 import {DisplayContext} from "../../DisplayContext.tsx";
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
 type Props = {} & PlayerProps;
 
@@ -47,3 +49,5 @@ export default function PDFPlayer({
         </div>
     );
 }
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;

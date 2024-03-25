@@ -1,5 +1,4 @@
-import {isRtlLocale} from '../../../../lib/lang';
-import {AttributeFormatContext} from './Format/AttributeFormatContext';
+import {TAttributeFormatContext} from './Format/AttributeFormatContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from '@mui/material';
 import {getAttributeType} from './types';
@@ -7,6 +6,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
 import React from 'react';
 import {attributesClasses} from "./Attributes.tsx";
+import {isRtlLocale} from "../../../../lib/lang.ts";
 
 type Props = {
     type: string;
@@ -18,7 +18,8 @@ type Props = {
     controls: boolean;
     multiple: boolean;
     togglePin: (definitionId: string) => void;
-    pinnedAttributes: string[];
+    pinned: boolean;
+    formatContext: TAttributeFormatContext;
 };
 
 export default function AttributeRowUI({
@@ -30,13 +31,12 @@ export default function AttributeRowUI({
     highlight,
     multiple,
     togglePin,
-    pinnedAttributes,
+    pinned,
     controls,
+    formatContext,
 }: Props) {
     const isRtl = isRtlLocale(locale);
-    const formatContext = React.useContext(AttributeFormatContext);
     const formatter = getAttributeType(type);
-    const pinned = pinnedAttributes.includes(definitionId);
 
     const toggleFormat = React.useCallback<
         React.MouseEventHandler<HTMLButtonElement>
@@ -61,8 +61,8 @@ export default function AttributeRowUI({
             style={
                 isRtl
                     ? {
-                          direction: 'rtl',
-                      }
+                        direction: 'rtl',
+                    }
                     : undefined
             }
         >
@@ -73,7 +73,7 @@ export default function AttributeRowUI({
                         <IconButton
                             onClick={toggleFormat}
                         >
-                            <VisibilityIcon fontSize={'small'} />
+                            <VisibilityIcon/>
                         </IconButton>
                     )}
 
@@ -85,14 +85,8 @@ export default function AttributeRowUI({
 
                     <IconButton
                         onClick={() => togglePin(definitionId)}
-                        sx={{
-                            '& svg': {
-                                fontSize: 13
-                            }
-                        }}
                     >
                         <PushPinIcon
-                            fontSize={'small'}
                             color={pinned ? 'success' : undefined}
                         />
                     </IconButton>
@@ -103,25 +97,25 @@ export default function AttributeRowUI({
                     <ul className={attributesClasses.list}>
                         {value
                             ? value.map((v: any, i: number) => {
-                                  const formatProps = {
-                                      value: v,
-                                      highlight,
-                                      locale,
-                                      multiple,
-                                      format: formatContext.formats[type],
-                                  };
+                                const formatProps = {
+                                    value: v,
+                                    highlight,
+                                    locale,
+                                    multiple,
+                                    format: formatContext.formats[type],
+                                };
 
-                                  return (
-                                      <li key={i}>
-                                          {formatter.formatValue(formatProps)}
-                                          <CopyAttribute
-                                              value={formatter.formatValueAsString(
-                                                  formatProps
-                                              )}
-                                          />
-                                      </li>
-                                  );
-                              })
+                                return (
+                                    <li key={i}>
+                                        {formatter.formatValue(formatProps)}
+                                        <CopyAttribute
+                                            value={formatter.formatValueAsString(
+                                                formatProps
+                                            )}
+                                        />
+                                    </li>
+                                );
+                            })
                             : null}
                     </ul>
                 ) : (

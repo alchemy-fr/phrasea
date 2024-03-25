@@ -7,6 +7,7 @@ import {SxProps} from '@mui/material';
 import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
+import {AttributeFormatContext} from "./Format/AttributeFormatContext.ts";
 
 type FreeNode = string | ReactNode | ReactNode[];
 
@@ -87,6 +88,7 @@ type Props = {
 
 function Attributes({asset, controls, pinnedOnly}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
+    const formatContext = useContext(AttributeFormatContext);
 
     const togglePin = React.useCallback((definitionId: string) => {
         updatePreference('pinnedAttrs', prev => {
@@ -139,6 +141,7 @@ function Attributes({asset, controls, pinnedOnly}: Props) {
             {sortedAttributes.map(a => (
                 <AttributeRowUI
                     key={a.id}
+                    formatContext={formatContext}
                     definitionId={a.definition.id}
                     value={a.value}
                     attributeName={a.definition.name}
@@ -147,7 +150,7 @@ function Attributes({asset, controls, pinnedOnly}: Props) {
                     highlight={a.highlight}
                     multiple={a.multiple}
                     controls={controls}
-                    pinnedAttributes={pinnedAttributes}
+                    pinned={pinnedAttributes.includes(a.definition.id)}
                     togglePin={togglePin}
                 />
             ))}
@@ -173,7 +176,7 @@ export function attributesSx(): SxProps {
         [`.${attributesClasses.controls}`]: {
             display: 'inline-block',
             ml: 1,
-            '.MuiSvgIcon-fontSizeSmall': {
+            '.MuiSvgIcon-root': {
                 fontSize: 13,
             },
             '.MuiButtonBase-root + .MuiButtonBase-root': {
@@ -183,7 +186,7 @@ export function attributesSx(): SxProps {
         [`.${attributesClasses.val}`]: {
             mb: 1,
             fontSize: 14,
-            '.MuiSvgIcon-fontSizeSmall': {
+            '.MuiSvgIcon-root': {
                 fontSize: 13,
             },
         },
