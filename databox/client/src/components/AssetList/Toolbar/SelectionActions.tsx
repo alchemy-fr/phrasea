@@ -45,6 +45,11 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     },
 }));
 
+export type SelectionActionConfigProps = {
+    noActions?: boolean;
+    itemLabel?: string;
+};
+
 export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     layout: Layout;
     setLayout: StateSetter<Layout>;
@@ -55,7 +60,7 @@ export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     onOpenDebug?: VoidFunction;
     selectionContext: Context<TSelectionContext<Item>>;
     actions?: CustomItemAction<Item>[];
-};
+} & SelectionActionConfigProps;
 
 export default function SelectionActions<Item extends AssetOrAssetContainer>({
     layout,
@@ -66,7 +71,9 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     reload,
     onOpenDebug,
     actions,
+    noActions,
     selectionContext,
+    itemLabel = 'result',
 }: SelectionActionsProps<Item>) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
@@ -269,85 +276,87 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     </span>
                 </Tooltip>
 
-                {isAuthenticated() ? <BasketSwitcher
-                    selectionContext={selectionContext}
-                /> : ''}
-                <LoadingButton
-                    disabled={!canDownload}
-                    variant={'contained'}
-                    onClick={download}
-                    startIcon={<FileDownloadIcon/>}
-                >
-                    {t('asset_actions.export', 'Export')}
-                </LoadingButton>
-                <GroupButton
-                    id={'edit'}
-                    onClick={onEdit}
-                    startIcon={<EditIcon/>}
-                    disabled={!canEdit}
-                    actions={[
-                        {
-                            id: 'move',
-                            label: t('asset_actions.move', 'Move'),
-                            onClick: onMove,
-                            disabled: !canMove,
-                            startIcon: <DriveFileMoveIcon/>,
-                        },
-                        {
-                            id: 'edit_attrs',
-                            label: t(
-                                'asset_actions.edit_attributes',
-                                'Edit attributes'
-                            ),
-                            onClick: onEditAttributes,
-                            disabled: !canEditAttributes,
-                            startIcon: <TextSnippetIcon/>,
-                        },
-                        {
-                            id: 'copy',
-                            label: t('asset_actions.copy', 'Copy'),
-                            onClick: onCopy,
-                            disabled: !canShare,
-                            startIcon: <FileCopyIcon/>,
-                        },
-                    ]}
-                >
-                    {t('asset_actions.edit', 'Edit')}
-                </GroupButton>
-                <Button
-                    disabled={!canShare}
-                    variant={'contained'}
-                    startIcon={<ShareIcon/>}
-                >
-                    {t('asset_actions.share', 'Share')}
-                </Button>
-                <Button
-                    disabled={!canDelete}
-                    color={'error'}
-                    onClick={onDelete}
-                    variant={'contained'}
-                    startIcon={<DeleteForeverIcon/>}
-                >
-                    {t('asset_actions.delete', 'Delete')}
-                </Button>
-                {actions?.map(a => {
-                    return <Button
-                        key={a.name}
-                        {...a.buttonProps ?? {}}
-                        disabled={selection.length === 0}
-                        onClick={async () => {
-                            await a.apply(selection);
-                            if (a.reload && reload) {
-                                reload();
-                            }
-                            if (a.resetSelection) {
-                                setSelection([]);
-                            }
-                        }}
+                {!noActions ? <>
+                    {isAuthenticated() ? <BasketSwitcher
+                        selectionContext={selectionContext}
+                    /> : ''}
+                    <LoadingButton
+                        disabled={!canDownload}
+                        variant={'contained'}
+                        onClick={download}
+                        startIcon={<FileDownloadIcon/>}
                     >
-                        {a.labels.multi}
+                        {t('asset_actions.export', 'Export')}
+                    </LoadingButton>
+                    <GroupButton
+                        id={'edit'}
+                        onClick={onEdit}
+                        startIcon={<EditIcon/>}
+                        disabled={!canEdit}
+                        actions={[
+                            {
+                                id: 'move',
+                                label: t('asset_actions.move', 'Move'),
+                                onClick: onMove,
+                                disabled: !canMove,
+                                startIcon: <DriveFileMoveIcon/>,
+                            },
+                            {
+                                id: 'edit_attrs',
+                                label: t(
+                                    'asset_actions.edit_attributes',
+                                    'Edit attributes'
+                                ),
+                                onClick: onEditAttributes,
+                                disabled: !canEditAttributes,
+                                startIcon: <TextSnippetIcon/>,
+                            },
+                            {
+                                id: 'copy',
+                                label: t('asset_actions.copy', 'Copy'),
+                                onClick: onCopy,
+                                disabled: !canShare,
+                                startIcon: <FileCopyIcon/>,
+                            },
+                        ]}
+                    >
+                        {t('asset_actions.edit', 'Edit')}
+                    </GroupButton>
+                    <Button
+                        disabled={!canShare}
+                        variant={'contained'}
+                        startIcon={<ShareIcon/>}
+                    >
+                        {t('asset_actions.share', 'Share')}
                     </Button>
-                })}
+                    <Button
+                        disabled={!canDelete}
+                        color={'error'}
+                        onClick={onDelete}
+                        variant={'contained'}
+                        startIcon={<DeleteForeverIcon/>}
+                    >
+                        {t('asset_actions.delete', 'Delete')}
+                    </Button>
+                    {actions?.map(a => {
+                        return <Button
+                            key={a.name}
+                            {...a.buttonProps ?? {}}
+                            disabled={selection.length === 0}
+                            onClick={async () => {
+                                await a.apply(selection);
+                                if (a.reload && reload) {
+                                    reload();
+                                }
+                                if (a.resetSelection) {
+                                    setSelection([]);
+                                }
+                            }}
+                        >
+                            {a.labels.multi}
+                        </Button>
+                    })}
+                </> : ''}
             </Box>
             <Paper
                 elevation={0}
@@ -369,6 +378,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     total !== undefined ? (
                         <>
                             <b>
+                                {selection.length > 0 ? `${selection.length} / ` : ''}
                                 {new Intl.NumberFormat('fr-FR', {}).format(
                                     total
                                 )}
@@ -377,7 +387,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 style={{cursor: 'pointer'}}
                                 onClick={onOpenDebug}
                             >
-                                {` result${total > 1 ? 's' : ''}`}
+                                {` ${itemLabel}${total > 1 ? 's' : ''}`}
                             </span>
                         </>
                     ) : (

@@ -11,15 +11,8 @@ type Props<Item extends AssetOrAssetContainer> = {
 
 export default function AssetToolbar<Item extends AssetOrAssetContainer>({
     loading,
-    total,
-    layout,
-    setLayout,
-    reload,
-    pages,
-    onOpenDebug,
-    selectionContext,
-    actions,
     searchBar = true,
+    ...selectionActionsProps
 }: Props<Item>) {
     return <>
         <ListSubheader
@@ -32,15 +25,8 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
         >
             {searchBar ? <SearchBar/> : ''}
             <SelectionActions
-                actions={actions}
-                reload={reload}
-                pages={pages}
-                layout={layout}
-                setLayout={setLayout}
                 loading={loading}
-                total={total}
-                onOpenDebug={onOpenDebug}
-                selectionContext={selectionContext}
+                {...selectionActionsProps}
             />
         </ListSubheader>
         {loading && (

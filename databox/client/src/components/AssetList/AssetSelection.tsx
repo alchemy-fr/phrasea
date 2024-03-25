@@ -73,6 +73,7 @@ export default function AssetSelection({
 
     return <DisplayProvider
         thumbSize={100}
+        displayAttributes={false}
     >
         <AssetList
             pages={pages}
@@ -80,6 +81,8 @@ export default function AssetSelection({
             searchBar={false}
             onSelectionChange={onSelectionChange}
             layout={Layout.List}
+            noActions={true}
+            itemLabel={'item'}
         />
     </DisplayProvider>
 }

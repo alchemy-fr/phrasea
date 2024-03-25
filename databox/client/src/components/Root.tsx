@@ -22,26 +22,27 @@ export default function Root({}: Props) {
         <AuthenticationProvider oauthClient={oauthClient}>
             <MatomoUser />
             <UserPreferencesProvider>
-                <ModalStack>
-                    <SessionExpireContainer />
-                    <RouterProvider
-                        routes={routes}
-                        options={{
-                            RouteProxyComponent: RouteProxy,
-                            WrapperComponent: WrapperComponent,
-                        }}
-                    />
-                </ModalStack>
+                <RouterProvider
+                    routes={routes}
+                    options={{
+                        RouteProxyComponent: RouteProxy,
+                        WrapperComponent: WrapperComponent,
+                    }}
+                />
             </UserPreferencesProvider>
         </AuthenticationProvider>
     );
 }
 
 function WrapperComponent({children}: RouteWrapperProps) {
+    console.log('renderKayout');
     return (
         <>
-            <OverlayOutlet routes={modalRoutes} queryParam={'_m'} />
-            <MatomoRouteWrapper>{children}</MatomoRouteWrapper>
+            <ModalStack>
+                <SessionExpireContainer />
+                <OverlayOutlet routes={modalRoutes} queryParam={'_m'} />
+                <MatomoRouteWrapper>{children}</MatomoRouteWrapper>
+            </ModalStack>
         </>
     );
 }

@@ -20,6 +20,7 @@ import {useBasketStore} from "../../store/basketStore.ts";
 import assetClasses from "./classes.ts";
 import AssetContextMenu from "./AssetContextMenu.tsx";
 import {PopoverPosition} from "@mui/material/Popover/Popover";
+import {SelectionActionConfigProps} from "./Toolbar/SelectionActions.tsx";
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -35,7 +36,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     searchBar?: boolean;
     actions?: CustomItemAction<Item>[];
     onSelectionChange?: OnSelectionChange<Item>;
-};
+} & SelectionActionConfigProps;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
     pages,
@@ -51,6 +52,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     actions,
     layout: defaultLayout,
     selectionContext: SelectionContext = AssetSelectionContext as unknown as Context<TSelectionContext<Item>>,
+    ...selectionActionsProps
 }: Props<Item>) {
     const [selection, setSelectionPrivate] = React.useState<Item[]>([]);
     const [loadingMore, setLoadingMore] = React.useState(false);
@@ -195,6 +197,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     selectionContext={SelectionContext}
                     searchBar={searchBar}
                     actions={actions}
+                    {...selectionActionsProps}
                 />
 
                 {React.createElement(layouts[layout], {
