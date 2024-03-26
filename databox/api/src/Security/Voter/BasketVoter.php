@@ -31,21 +31,23 @@ class BasketVoter extends AbstractVoter
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
-        $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
+        $isOwner = fn (): bool => ($userId && $subject->getOwnerId() === $userId);
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
-            self::READ => $isOwner
+            self::READ => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'READ')
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
-            self::EDIT, self::SHARE => $isOwner
+            self::EDIT => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
-                || $this->security->isGranted(self::SCOPE_PREFIX.'SHARE')
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
-            self::DELETE => $isOwner
+            self::SHARE => $isOwner()
+                || $this->security->isGranted(self::SCOPE_PREFIX.'SHARE')
+                || $this->hasAcl(PermissionInterface::SHARE, $subject, $token),
+            self::DELETE => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
                 || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::EDIT_PERMISSIONS => $isOwner
+            self::EDIT_PERMISSIONS => $isOwner()
                 || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             default => false,

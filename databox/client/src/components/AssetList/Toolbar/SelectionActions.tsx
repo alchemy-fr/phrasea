@@ -124,7 +124,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         const selectedAssets = itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset[]);
 
         selectedAssets.forEach((a: Asset) => {
-            wsId = a.workspace.id;
+            wsId = a.workspace?.id;
             if (a.original?.file?.url) {
                 canDownload = true;
             }
@@ -147,7 +147,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         });
 
         for (const a of selectedAssets) {
-            if (a.workspace.id !== wsId!) {
+            if (wsId && a.workspace?.id !== wsId) {
                 canEditAttributes = canMove = false;
                 break;
             }
@@ -342,7 +342,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         return <Button
                             key={a.name}
                             {...a.buttonProps ?? {}}
-                            disabled={selection.length === 0}
+                            disabled={selection.length === 0 || a.disabled}
                             onClick={async () => {
                                 await a.apply(selection);
                                 if (a.reload && reload) {

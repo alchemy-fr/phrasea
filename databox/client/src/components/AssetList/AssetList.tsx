@@ -6,7 +6,7 @@ import {AssetSelectionContext, TSelectionContext} from "../../context/AssetSelec
 import {Layout, layouts} from "./Layouts";
 import {
     CustomItemAction,
-    LayoutProps,
+    LayoutProps, LoadMoreFunc,
     OnAddToBasket,
     OnContextMenuOpen,
     OnOpen,
@@ -27,7 +27,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     total?: number;
     loading?: boolean;
     itemToAsset?: (item: Item) => Asset;
-    loadMore?: () => Promise<void>;
+    loadMore?: LoadMoreFunc | undefined;
     selectionContext?: React.Context<TSelectionContext<Item>>;
     layout?: Layout;
     onOpen?: OnOpen;

@@ -42,6 +42,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
 
         return {
             p: 2,
+            backgroundColor: theme.palette.common.white,
             [`.${sectionDividerClassname}`]: {
                 margin: `0 -${theme.spacing(1)}`,
                 width: `calc(100% + ${theme.spacing(2)})`,

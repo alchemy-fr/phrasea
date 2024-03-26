@@ -19,7 +19,7 @@ services:
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
-            ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
+            ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
 

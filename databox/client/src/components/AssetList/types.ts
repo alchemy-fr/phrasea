@@ -13,7 +13,8 @@ export type OnPreviewToggle = (
     anchorEl: HTMLElement
 ) => void;
 
-export type ReloadFunc = () => Promise<void>;
+export type ReloadFunc = () => Promise<any>;
+export type LoadMoreFunc = () => Promise<any>;
 
 export type OnContextMenuOpen<Item extends AssetOrAssetContainer> = (
     e: MouseEvent<HTMLElement>,
@@ -59,4 +60,5 @@ export type CustomItemAction<Item extends AssetOrAssetContainer> = {
     apply: (items: Item[]) => Promise<void>;
     reload?: boolean;
     resetSelection?: boolean;
+    disabled?: boolean;
 }

@@ -16,8 +16,8 @@ export async function getBaskets(params: GetBasketOptions = {}): Promise<ApiColl
     return getHydraCollection(res.data);
 }
 
-export async function getBasketAssets(id: string, params: GetBasketOptions = {}): Promise<ApiCollectionResponse<BasketAsset>> {
-    const res = await apiClient.get(`/baskets/${id}/assets`, {
+export async function getBasketAssets(id: string, next?: string, params: GetBasketOptions = {}): Promise<ApiCollectionResponse<BasketAsset>> {
+    const res = await apiClient.get(next || `/baskets/${id}/assets`, {
         params,
     });
 

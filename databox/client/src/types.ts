@@ -39,11 +39,11 @@ export interface Asset
     titleHighlight: string | null;
     description?: string;
     privacy: number;
-    tags: Tag[];
+    tags: Tag[] | undefined;
     owner?: User;
     workspace: Workspace;
     attributes: Attribute[];
-    collections: Collection[];
+    collections: Collection[] | undefined;
     original: AssetRendition | null;
     preview: AssetRendition | null;
     source: File | undefined;

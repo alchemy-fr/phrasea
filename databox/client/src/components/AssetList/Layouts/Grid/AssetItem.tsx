@@ -26,6 +26,8 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onPreviewToggle,
     onAddToBasket,
 }: Props<Item>) {
+    const disabled = !asset.workspace;
+
     return (
         <div
             onMouseDown={e => onToggle(item, e)}
@@ -55,8 +57,10 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         },
                     }}
                     privacy={asset.privacy}
+                    noAccess={disabled}
                 />
-                {onAddToBasket ? <IconButton
+                {!disabled ? <>
+                    {onAddToBasket ? <IconButton
                     className={assetClasses.cartBtn}
                     onMouseDown={stopPropagation}
                     onDoubleClick={stopPropagation}
@@ -76,6 +80,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         <SettingsIcon fontSize={'small'}/>
                     </IconButton>
                 )}
+                </> : ''}
             </div>
             <AssetThumb
                 asset={asset}
@@ -106,15 +111,15 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         ? replaceHighlight(asset.titleHighlight)
                         : asset.resolvedTitle ?? asset.title}
                 </div>
-                {asset.tags.length > 0 && (
+                {asset.tags && asset.tags.length > 0 && (
                     <div>
-                        <AssetTagList tags={asset.tags}/>
+                        <AssetTagList tags={asset.tags!}/>
                     </div>
                 )}
-                {asset.collections.length > 0 && (
+                {asset.collections && asset.collections.length > 0 && (
                     <div>
                         <AssetCollectionList
-                            collections={asset.collections}
+                            collections={asset.collections!}
                         />
                     </div>
                 )}

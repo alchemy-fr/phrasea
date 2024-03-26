@@ -28,6 +28,8 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     displayAttributes,
     onAddToBasket,
 }: Props<Item>) {
+    const disabled = !asset.workspace;
+
     return (
         <div
             onMouseDown={e => onToggle(item, e)}
@@ -48,7 +50,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
             />
             <Grid container spacing={2} wrap={'nowrap'}>
                 <Grid item>
-                    <div className={assetClasses.controls}>
+                    {!disabled ? <div className={assetClasses.controls}>
                         {onAddToBasket ? <IconButton
                             className={assetClasses.cartBtn}
                             onMouseDown={stopPropagation}
@@ -70,7 +72,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                                 />
                             </IconButton>
                         )}
-                    </div>
+                    </div> : ''}
                     <AssetThumb
                         onMouseOver={
                             onPreviewToggle
@@ -101,18 +103,22 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                             ? replaceHighlight(asset.titleHighlight)
                             : asset.resolvedTitle ?? asset.title}
                     </div>
-                    {asset.tags.length > 0 && (
+                    {asset.tags && asset.tags.length > 0 && (
                         <div>
                             <AssetTagList tags={asset.tags}/>
                         </div>
                     )}
-                    <PrivacyChip privacy={asset.privacy} size={'small'}/>
-                    <div>
+                    <PrivacyChip
+                        privacy={asset.privacy}
+                        size={'small'}
+                        noAccess={disabled}
+                    />
+                    {asset.collections && asset.collections.length > 0 ? <div>
                         <AssetCollectionList
                             workspace={asset.workspace}
                             collections={asset.collections}
                         />
-                    </div>
+                    </div> : ''}
                     {displayAttributes && (
                         <Attributes asset={asset} controls={true}/>
                     )}

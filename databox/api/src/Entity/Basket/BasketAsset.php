@@ -7,11 +7,13 @@ namespace App\Entity\Basket;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use App\Api\Provider\BasketAssetCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Asset;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -30,13 +32,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
             Asset::GROUP_LIST,
             self::GROUP_LIST,
         ],
-    ]
+    ],
+    provider: BasketAssetCollectionProvider::class,
 )]
 class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
-    private const GROUP_LIST = 'basket-asset:list';
+    public const GROUP_LIST = 'basket-asset:list';
 
     #[ORM\ManyToOne(targetEntity: Basket::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false)]
