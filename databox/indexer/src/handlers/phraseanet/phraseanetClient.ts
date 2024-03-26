@@ -5,13 +5,20 @@ import {
     PhraseanetConfig,
     PhraseanetDatabox,
     PhraseanetMetaStruct,
-    PhraseanetRecord,
     PhraseanetStatusBitStruct,
-    PhraseanetStory,
     PhraseanetSubDef,
+    PhraseanetRecord,
+    PhraseanetStory
 } from './types';
+import {
+    CPhraseanetRecord,
+    CPhraseanetStory
+} from './CPhraseanetRecord';
 import {createHttpClient} from '../../lib/axios';
-import {PhraseanetSearchType} from './shared';
+import {
+    PhraseanetSearchType,
+} from "./shared";
+import * as winston from "winston";
 
 export function createPhraseanetClient(options: PhraseanetConfig) {
     const baseURL = getStrict('url', options);
@@ -31,12 +38,39 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
     private readonly searchOrder?: string;
-    private readonly id: string; // not the phraseanet conf.instanceId
+    private readonly id: string;    // not the phraseanet conf.instanceId
+    private readonly logger: winston.Logger;
+    private _databoxIndexSet: boolean = false;
+    private databoxIndex: Record<string, PhraseanetDatabox>;
 
-    constructor(options: PhraseanetConfig) {
+    constructor(options: PhraseanetConfig, logger: winston.Logger) {
         this.client = createPhraseanetClient(options);
         this.searchOrder = options.searchOrder;
         this.id = btoa(options.url);
+        this.logger = logger;
+        this.databoxIndex = {};
+    }
+
+
+    async getDatabox(nameOrId: string) {
+        if(!this._databoxIndexSet) {
+            const dbi: Record<string, PhraseanetDatabox> = {};
+            this.logger.info(`Fetching databoxes and collections`);
+            for(const db of await this.getDataboxes() as PhraseanetDatabox[]) {
+                db.collections = {};
+                db.baseIds = [];
+                db.metaStruct = {};
+                dbi[db.name] = dbi[db.databox_id.toString()] = db;
+            }
+            for(const c of await this.getCollections()) {
+                dbi[c.databox_id.toString()].collections[c.base_id.toString()] =
+                    dbi[c.databox_id.toString()].collections[c.name] = c;
+                dbi[c.databox_id.toString()].baseIds.push(c.base_id.toString());
+            }
+            this.databoxIndex = dbi;
+            this._databoxIndexSet = true;
+        }
+        return this.databoxIndex[nameOrId];
     }
 
     getId(): string {
@@ -59,26 +93,26 @@ export default class PhraseanetClient {
         params: Record<string, any>,
         offset: number = 0,
         searchQuery: string
-    ): Promise<PhraseanetRecord[]> {
+    ): Promise<CPhraseanetRecord[]> {
         return this.search(
             params,
             offset,
             PhraseanetSearchType.Record,
             searchQuery
-        ) as unknown as Promise<PhraseanetRecord[]>;
+        ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
     searchStories(
         params: Record<string, any>,
         offset: number = 0,
         searchQuery: string
-    ): Promise<PhraseanetStory[]> {
+    ): Promise<CPhraseanetStory[]> {
         return this.search(
             params,
             offset,
             PhraseanetSearchType.Story,
             searchQuery
-        ) as unknown as Promise<PhraseanetStory[]>;
+        ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
     async search(
@@ -86,7 +120,7 @@ export default class PhraseanetClient {
         offset: number = 0,
         searchType: PhraseanetSearchType,
         searchQuery: string
-    ): Promise<PhraseanetRecord[] | PhraseanetStory[]> {
+    ): Promise<(CPhraseanetRecord|CPhraseanetStory)[]> {
         if (this.searchOrder) {
             const [col, way] = this.searchOrder.split(',');
             params.sort = col;
@@ -102,7 +136,7 @@ export default class PhraseanetClient {
                 story_children_limit: 1000,
                 include: [
                     'results.records.subdefs',
-                    'results.records.caption',
+                    'results.records.metadata',
                     'results.records.status',
                     'results.stories.caption',
                     'results.stories.status',
@@ -112,22 +146,42 @@ export default class PhraseanetClient {
             },
         });
 
-        return searchType === PhraseanetSearchType.Record
-            ? res.data.response.results.records
-            : res.data.response.results.stories;
+        const recs: (CPhraseanetRecord|CPhraseanetStory)[] = [];
+        if(searchType === PhraseanetSearchType.Record) {
+            res.data.response.results.records.map(
+                (r:PhraseanetRecord) => {
+                    recs.push(new CPhraseanetRecord(r, this));
+                }
+            )
+        }
+        else {
+            res.data.response.results.stories.map(
+                (s:PhraseanetStory) => {
+                    recs.push(new CPhraseanetStory(s, this));
+                }
+            )
+        }
+
+        return recs;
     }
 
-    async getMetaStruct(databoxId: number): Promise<PhraseanetMetaStruct[]> {
-        const res = await this.client.get(
-            `/api/v1/databoxes/${databoxId}/metadatas/`
-        );
+    async getMetaStruct(databoxId: string): Promise<Record<string, PhraseanetMetaStruct>> {
+        if(!this.databoxIndex[databoxId]._metaStructSet) {
+            const res = await this.client.get(
+                `/api/v1/databoxes/${databoxId}/metadatas/`
+            );
 
-        return res.data.response.document_metadatas;
+            for(const k in res.data.response.document_metadatas) {
+                // allow to access field struct by name
+                this.databoxIndex[databoxId].metaStruct[res.data.response.document_metadatas[k].name] = res.data.response.document_metadatas[k];
+            }
+            this.databoxIndex[databoxId]._metaStructSet = true;
+        }
+
+        return this.databoxIndex[databoxId].metaStruct;
     }
 
-    async getStatusBitsStruct(
-        databoxId: number
-    ): Promise<PhraseanetStatusBitStruct[]> {
+    async getStatusBitsStruct(databoxId: string): Promise<PhraseanetStatusBitStruct[]> {
         const res = await this.client.get(
             `/api/v1/databoxes/${databoxId}/status/`
         );
@@ -135,7 +189,7 @@ export default class PhraseanetClient {
         return res.data.response.status;
     }
 
-    async getSubDefinitions(databoxId?: number): Promise<PhraseanetSubDef[]> {
+    async getSubDefinitions(databoxId?: string): Promise<PhraseanetSubDef[]> {
         const dbid = typeof databoxId !== 'undefined' ? '/' + databoxId : '';
         const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 
