@@ -30,6 +30,16 @@ export const BasketForm: FC<FormProps<Basket>> = function ({
                 />
                 <FormFieldErrors field={'title'} errors={errors}/>
             </FormRow>
+            <FormRow>
+                <TextField
+                    rows={5}
+                    multiline={true}
+                    label={t('form.basket.description.label', 'Description')}
+                    disabled={submitting}
+                    {...register('description')}
+                />
+                <FormFieldErrors field={'description'} errors={errors}/>
+            </FormRow>
         </form>
     );
 };

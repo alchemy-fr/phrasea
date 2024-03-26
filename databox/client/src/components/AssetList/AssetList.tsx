@@ -5,6 +5,7 @@ import LoadMoreButton from "./LoadMoreButton.tsx";
 import {AssetSelectionContext, TSelectionContext} from "../../context/AssetSelectionContext.tsx";
 import {Layout, layouts} from "./Layouts";
 import {
+    AssetItemComponent,
     CustomItemAction,
     LayoutProps, LoadMoreFunc,
     OnAddToBasket,
@@ -36,6 +37,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     searchBar?: boolean;
     actions?: CustomItemAction<Item>[];
     onSelectionChange?: OnSelectionChange<Item>;
+    itemComponent?: AssetItemComponent<Item>;
 } & SelectionActionConfigProps;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
@@ -49,6 +51,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     searchBar,
     onOpenDebug,
     onSelectionChange,
+    itemComponent,
     actions,
     layout: defaultLayout,
     selectionContext: SelectionContext = AssetSelectionContext as unknown as Context<TSelectionContext<Item>>,
@@ -209,6 +212,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     onToggle,
                     pages,
                     toolbarHeight,
+                    itemComponent,
                 } as LayoutProps<Item>)}
 
                 {loadMore ? <LoadMoreButton

@@ -12,9 +12,13 @@ import AddIcon from "@mui/icons-material/Add";
 import {useNavigateToModal} from "../Routing/ModalLink.tsx";
 import {modalRoutes} from "../../routes.ts";
 
-type Props = {};
+type Props = {
+    selected?: string;
+};
 
-function BasketsPanel({}: Props) {
+function BasketsPanel({
+    selected,
+}: Props) {
     const baskets = useBasketStore(state => state.baskets);
     const loading = useBasketStore(state => state.loading);
     const load = useBasketStore(state => state.load);
@@ -82,6 +86,7 @@ function BasketsPanel({}: Props) {
                 {!loading ? baskets.map(b => <BasketMenuItem
                     key={b.id}
                     data={b}
+                    selected={selected === b.id}
                     onDelete={onDelete}
                     onClick={() => navigateToModal(modalRoutes.baskets.routes.view, {id: b.id})}
                 />) : <>

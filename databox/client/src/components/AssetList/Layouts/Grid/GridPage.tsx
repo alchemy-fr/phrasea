@@ -21,6 +21,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     toolbarHeight,
     page,
+    itemComponent,
 }: Props<Item>) {
     return <>
         {page > 1 && (
@@ -60,6 +61,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                     >
                         <AssetItem
                             item={item}
+                            itemComponent={itemComponent}
                             asset={asset}
                             onAddToBasket={onAddToBasket}
                             selected={selection.includes(item)}

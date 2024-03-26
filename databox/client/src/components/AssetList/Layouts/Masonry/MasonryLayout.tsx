@@ -1,61 +1,44 @@
-import React, {useContext} from 'react';
-import {alpha, Grid, Theme} from '@mui/material';
 import {LayoutProps} from "../../types.ts";
-import {AssetOrAssetContainer} from "../../../../types.ts";
-import {DisplayContext} from "../../../Media/DisplayContext.tsx";
-import {sectionDividerClassname} from "../../SectionDivider.tsx";
-import assetClasses from "../../classes.ts";
-import {createSizeTransition, thumbSx} from "../../../Media/Asset/Thumb";
-import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb";
-import GridPage from "./GridPage.tsx";
+import {Asset, AssetOrAssetContainer} from "../../../../types.ts";
 import PreviewPopover from "../../PreviewPopover.tsx";
 import {usePreview} from "../../usePreview.ts";
+import Masonry from '@mui/lab/Masonry';
+import AssetItem from "./AssetItem.tsx";
+import React, {useContext} from "react";
+import {alpha, Theme} from "@mui/material";
+import assetClasses from "../../classes.ts";
+import {createSizeTransition, thumbSx} from "../../../Media/Asset/Thumb.tsx";
+import {DisplayContext} from "../../../Media/DisplayContext.tsx";
+import Box from "@mui/material/Box";
 
-export default function GridLayout<Item extends AssetOrAssetContainer>({
-    toolbarHeight,
+export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     pages,
     onToggle,
     onContextMenuOpen,
-    onAddToBasket,
     onOpen,
-    itemComponent,
+    onAddToBasket,
     selection,
     itemToAsset,
+    itemComponent,
 }: LayoutProps<Item>) {
-    const lineHeight = 26;
-    const collLineHeight = 32;
-    const tagLineHeight = 32;
+    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
     const d = useContext(DisplayContext)!;
 
-    const gridSx = React.useCallback((theme: Theme) => {
-        const spacing = Number(theme.spacing(1).slice(0, -2));
-
-        const titleHeight = d.displayTitle
-            ? spacing * 1.8 + lineHeight * d.titleRows
-            : 0;
-        let totalHeight = d.thumbSize + titleHeight;
-        if (d.displayCollections) {
-            totalHeight += collLineHeight * d.collectionsLimit;
-        }
-        if (d.displayTags) {
-            totalHeight += tagLineHeight * d.tagsLimit;
-        }
-
+    const layoutSx = React.useCallback((theme: Theme) => {
         return {
-            p: 2,
             backgroundColor: theme.palette.common.white,
-            [`.${sectionDividerClassname}`]: {
-                margin: `0 -${theme.spacing(1)}`,
-                width: `calc(100% + ${theme.spacing(2)})`,
-            },
             [`.${assetClasses.thumbWrapper}`]: {
                 ...thumbSx(d.thumbSize)(theme),
-                ...createThumbActiveStyle(),
+                height: 'auto',
+                img: {
+                    width: d.thumbSize,
+                    maxWidth: 'unset',
+                },
             },
             [`.${assetClasses.item}`]: {
                 'width': d.thumbSize,
-                'height': totalHeight,
                 'transition': createSizeTransition(theme),
+
                 'position': 'relative',
                 [`.${assetClasses.controls}`]: {
                     position: 'absolute',
@@ -111,60 +94,43 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
             [`.${assetClasses.thumbActive}`]: {
                 display: 'none',
             },
-            [`.${assetClasses.title}`]: {
-                fontSize: 14,
-                p: 1,
-                height: titleHeight,
-                lineHeight: `${lineHeight}px`,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                ...(d.titleRows > 1
-                    ? {
-                        'display': d.displayTitle
-                            ? '-webkit-box'
-                            : 'none',
-                        '-webkit-line-clamp': `${d.titleRows}`,
-                        '-webkit-box-orient': 'vertical',
-                    }
-                    : {
-                        display: d.displayTitle ? 'block' : 'none',
-                        whiteSpace: 'nowrap',
-                    }),
-            },
         };
     }, [d]);
 
-    const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
 
     return (
-        <>
-            <Grid
-                container
-                spacing={1}
-                sx={gridSx}
+        <Box
+            sx={layoutSx}
+             key={d.thumbSize.toString()}
+        >
+            <Masonry
+                spacing={0}
             >
-                {pages.map((page, i) => <GridPage
-                    key={i}
-                    page={i + 1}
-                    toolbarHeight={toolbarHeight}
-                    items={page}
-                    itemToAsset={itemToAsset}
-                    itemComponent={itemComponent}
-                    onToggle={onToggle}
-                    onPreviewToggle={onPreviewToggle}
-                    onContextMenuOpen={onContextMenuOpen}
-                    onAddToBasket={onAddToBasket}
-                    onOpen={onOpen}
-                    selection={selection}
-                />)}
-            </Grid>
+                {pages.map((page) => {
+                    return page.map(item => {
+                        const asset: Asset = itemToAsset ? itemToAsset(item) : (item as unknown as Asset);
 
+                        return <AssetItem
+                            key={item.id}
+                            itemComponent={itemComponent}
+                            item={item}
+                            asset={asset}
+                            onAddToBasket={onAddToBasket}
+                            selected={selection.includes(item)}
+                            onContextMenuOpen={onContextMenuOpen}
+                            onOpen={onOpen}
+                            onToggle={onToggle}
+                            onPreviewToggle={onPreviewToggle}
+                        />
+                    });
+                })}
+            </Masonry>
             <PreviewPopover
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={true}
             />
-        </>
+        </Box>
     );
 }

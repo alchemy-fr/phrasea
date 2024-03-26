@@ -1,4 +1,4 @@
-import {MouseEvent} from "react";
+import React, {MouseEvent, PropsWithChildren} from "react";
 import {Asset, AssetOrAssetContainer} from "../../types.ts";
 import {ButtonProps} from "@mui/material/Button";
 
@@ -30,13 +30,20 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
 }
 
 export type AssetItemProps<Item extends AssetOrAssetContainer> = {
+    itemComponent: AssetItemComponent<Item> | undefined;
     item: Item;
     asset: Asset;
     selected: boolean;
 } & AssetActions<Item>;
 
+export type AssetItemCustomComponentProps<Item extends AssetOrAssetContainer> = PropsWithChildren<{
+    item: Item,
+}>;
+export type AssetItemComponent<Item extends AssetOrAssetContainer> = React.FC<AssetItemCustomComponentProps<Item>>;
+
 type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
     itemToAsset?: ItemToAssetFunc<Item> | undefined;
+    itemComponent: AssetItemComponent<Item> | undefined;
     selection: Item[];
     toolbarHeight: number;
 }

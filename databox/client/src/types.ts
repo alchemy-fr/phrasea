@@ -208,6 +208,7 @@ export interface Collection extends IPermissions {
 export interface Basket extends IPermissions {
     id: string;
     title: string;
+    description?: string | undefined;
     assetCount?: number;
     titleHighlight: string;
     createdAt: string;
@@ -225,6 +226,7 @@ export interface BasketAsset {
         };
     } | undefined;
     titleHighlight: string;
+    position: number;
     createdAt: string;
     owner?: User;
 }

@@ -34,6 +34,10 @@ class BasketInputTransformer extends AbstractFileInputTransformer
             $object->setTitle($data->title);
         }
 
+        if (null !== $data->description) {
+            $object->setDescription($data->description);
+        }
+
         return $this->processOwnerId($object);
     }
 }

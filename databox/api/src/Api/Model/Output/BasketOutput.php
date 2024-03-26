@@ -40,6 +40,9 @@ class BasketOutput extends AbstractUuidOutput
     private ?string $title = null;
 
     #[Groups([Basket::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    public ?string $description = null;
+
+    #[Groups([Basket::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?int $assetCount = null;
 
     #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]

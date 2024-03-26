@@ -17,6 +17,7 @@ import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from "./AssetSearch/AssetSearch.tsx";
+import {leftPanelWidth} from "../themes/base.ts";
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
@@ -52,7 +53,7 @@ const AppProxy = React.memo(() => {
                                     {leftPanelOpen && (
                                         <Box
                                             sx={theme => ({
-                                                width: 360,
+                                                width: leftPanelWidth,
                                                 flexGrow: 0,
                                                 flexShrink: 0,
                                                 height: `calc(100vh - ${menuHeight}px)`,

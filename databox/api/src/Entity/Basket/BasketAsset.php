@@ -39,6 +39,7 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
+
     public const GROUP_LIST = 'basket-asset:list';
 
     #[ORM\ManyToOne(targetEntity: Basket::class, inversedBy: 'assets')]
@@ -53,6 +54,10 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([self::GROUP_LIST])]
     private ?array $context = [];
+
+    #[ORM\Column(type: Types::BIGINT, nullable: false)]
+    #[Groups([self::GROUP_LIST])]
+    private string|null $position = '0';
 
     public function getBasket(): Basket
     {
@@ -92,5 +97,19 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     public function setContext(?array $context): void
     {
         $this->context = $context;
+    }
+
+    public function getPosition(): ?int
+    {
+        if (null === $this->position) {
+            return null;
+        }
+
+        return (int) $this->position;
+    }
+
+    public function setPosition(int|string $position): void
+    {
+        $this->position = (string) $position;
     }
 }

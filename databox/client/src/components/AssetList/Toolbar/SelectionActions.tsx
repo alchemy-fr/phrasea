@@ -28,6 +28,7 @@ import {Layout} from "../Layouts";
 import {CustomItemAction, ReloadFunc} from "../types.ts";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
+import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -410,7 +411,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 >
                     <TooltipToggleButton
                         tooltipProps={{
-                            title: t('layout.view.grid', 'Grid view'),
+                            title: t('layout.view.grid', 'Grid View'),
                         }}
                         value={Layout.Grid}
                     >
@@ -418,11 +419,19 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     </TooltipToggleButton>
                     <TooltipToggleButton
                         tooltipProps={{
-                            title: t('layout.view.list', 'List view'),
+                            title: t('layout.view.list', 'List View'),
                         }}
                         value={Layout.List}
                     >
                         <ViewListIcon/>
+                    </TooltipToggleButton>
+                    <TooltipToggleButton
+                        tooltipProps={{
+                            title: t('layout.view.masonry', 'Masonry View'),
+                        }}
+                        value={Layout.Masonry}
+                    >
+                        <ViewQuiltIcon/>
                     </TooltipToggleButton>
                 </StyledToggleButtonGroup>
                 <Divider

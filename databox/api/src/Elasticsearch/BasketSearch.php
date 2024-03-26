@@ -48,10 +48,15 @@ class BasketSearch extends AbstractSearch
         $parsed = $this->queryStringParser->parseQuery($queryString);
 
         if (!empty($parsed['should'])) {
-            $rootQuery->addMust(new Query\MatchQuery('title', $parsed['should']));
+            $multiMatch = new Query\MultiMatch();
+            $multiMatch->setFields(['title', 'description']);
+            $multiMatch->setQuery($parsed['should']);
+            $rootQuery->addShould($multiMatch);
         }
         foreach ($parsed['must'] as $must) {
-            $multiMatch = new Query\MatchQuery('title', $must);
+            $multiMatch = new Query\MultiMatch();
+            $multiMatch->setFields(['title', 'description']);
+            $multiMatch->setQuery($must);
             $rootQuery->addMust($multiMatch);
         }
 
@@ -64,6 +69,10 @@ class BasketSearch extends AbstractSearch
             'post_tags' => ['[/hl]'],
             'fields' => [
                 'title' => [
+                    'fragment_size' => 255,
+                    'number_of_fragments' => 1,
+                ],
+                'description' => [
                     'fragment_size' => 255,
                     'number_of_fragments' => 1,
                 ],

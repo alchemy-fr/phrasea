@@ -292,6 +292,9 @@ fos_elastica:
                 title:
                     type: text
                     analyzer: text
+                description:
+                    type: text
+                    analyzer: text
                 ownerId:
                     type: keyword
                 users:

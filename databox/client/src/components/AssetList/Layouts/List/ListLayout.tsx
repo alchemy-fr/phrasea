@@ -18,6 +18,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     onToggle,
     onContextMenuOpen,
     onAddToBasket,
+    itemComponent,
     onOpen,
     selection,
     itemToAsset,
@@ -84,6 +85,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 onPreviewToggle={onPreviewToggle}
                 onContextMenuOpen={onContextMenuOpen}
                 onAddToBasket={onAddToBasket}
+                itemComponent={itemComponent}
                 onOpen={onOpen}
                 selection={selection}
                 displayAttributes={d.displayAttributes}

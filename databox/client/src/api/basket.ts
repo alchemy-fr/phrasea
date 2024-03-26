@@ -21,7 +21,15 @@ export async function getBasketAssets(id: string, next?: string, params: GetBask
         params,
     });
 
-    return getHydraCollection(res.data);
+    const collection = getHydraCollection<BasketAsset>(res.data);
+
+    let p = 1;
+    collection.result = collection.result.map(r => ({
+        ...r,
+        position: p++,
+    }))
+
+    return collection;
 }
 
 export async function putBasket(

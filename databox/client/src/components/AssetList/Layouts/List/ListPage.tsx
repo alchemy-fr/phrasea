@@ -20,6 +20,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
     onAddToBasket,
     selection,
     toolbarHeight,
+    itemComponent,
     displayAttributes,
     page,
 }: Props<Item>) {
@@ -58,6 +59,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
                     >
                         <AssetItem
                             asset={asset}
+                            itemComponent={itemComponent}
                             item={item}
                             onToggle={onToggle}
                             selected={selection.includes(item)}

@@ -12,6 +12,7 @@ import AssetCollectionList from "../../../Media/Asset/Widgets/AssetCollectionLis
 import {AssetItemProps, OnPreviewToggle} from "../../types.ts";
 import {Checkbox, Grid} from "@mui/material";
 import {stopPropagation} from "../../../../lib/stdFuncs.ts";
+import AssetItemWrapper from "../AssetItemWrapper.tsx";
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;
@@ -27,13 +28,16 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onPreviewToggle,
     displayAttributes,
     onAddToBasket,
+    itemComponent,
 }: Props<Item>) {
     const disabled = !asset.workspace;
 
     return (
-        <div
-            onMouseDown={e => onToggle(item, e)}
-            className={`${assetClasses.item} ${selected ? 'selected' : ''}`}
+        <AssetItemWrapper
+            item={item}
+            itemComponent={itemComponent}
+            onToggle={onToggle}
+            selected={selected}
         >
             <Checkbox
                 className={assetClasses.checkBtb}
@@ -124,6 +128,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     )}
                 </Grid>
             </Grid>
-        </div>
+        </AssetItemWrapper>
     );
 }

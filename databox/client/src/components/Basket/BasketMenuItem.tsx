@@ -10,6 +10,7 @@ type Props = {
     data: Basket;
     onDelete?: (data: Basket) => void;
     noEdit?: boolean;
+    selected?: boolean;
     onClick?: () => void;
 };
 
@@ -18,6 +19,7 @@ export default function BasketMenuItem({
     onDelete,
     noEdit,
     onClick,
+    selected,
 }: Props) {
     const {t} = useTranslation();
 
@@ -62,6 +64,7 @@ export default function BasketMenuItem({
             disablePadding
         >
             <ListItemButton
+                selected={selected}
                 role={undefined}
                 onClick={onClick}
             >
