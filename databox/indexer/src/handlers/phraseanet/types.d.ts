@@ -1,10 +1,28 @@
+import {AttributeDefinition} from "../../databox/types";
+import Twig from "twig";
+
+export type FieldMap = {
+    name: string;
+    locale: string;
+    id: string;
+    value: string;
+    type: string;
+    multivalue: boolean;
+    readonly: boolean;
+    labels: Record<string, string>;
+    attributeDefinition: AttributeDefinition;
+    twig?: Twig.template;
+};
+
 export type ConfigDataboxMapping = {
     databox: string;
     collections?: string;
     searchQuery?: string;
     workspaceSlug: string;
     recordsCollectionPath: string;
+    copyTo: string;
     storiesCollectionPath: string;
+    fieldMap: Record<string, FieldMap>;
 };
 
 export type PhraseanetConfig = {
@@ -32,7 +50,7 @@ export type SubDef = {
 };
 
 export type PhraseanetMetaStruct = {
-    id: number;
+    id: string;
     namespace: string;
     source: string;
     tagname: string;
@@ -44,6 +62,7 @@ export type PhraseanetMetaStruct = {
     multivalue: boolean;
     readonly: boolean;
     required: boolean;
+    labels: Record<string, string>;
 };
 
 export type PhraseanetStatusBitStruct = {
@@ -70,26 +89,28 @@ export type PhraseanetSubDef = {
 };
 
 export type PhraseanetDatabox = {
-    databox_id: number;
+    databox_id: string;
     name: string;
     viewname: string;
     labels: Record<string, string>;
     collections: Record<string, PhraseanetCollection>;
     baseIds: string[];
+    _metaStructSet: boolean;
+    metaStruct: Record<string, PhraseanetMetaStruct>;
 };
 
 export type PhraseanetCollection = {
-    databox_id: number;
-    base_id: number;
+    databox_id: string;
+    base_id: string;
     collection_id: number;
     name: string;
 };
 
-type PhraseanetCaption = {
-    meta_structure_id: number;
+type PhraseanetMetadata = {
+    meta_structure_id: string;
     name: string;
     value: string;
-};
+}
 
 export type PhraseanetRecord = {
     resource_id: string;
@@ -101,8 +122,8 @@ export type PhraseanetRecord = {
     title: string;
     original_name: string;
     subdefs: SubDef[];
-    caption?: PhraseanetCaption[];
     status: PhraseanetStatusBit[];
+    metadata: PhraseanetMetadata[];
 };
 
 export type PhraseanetStory = {
@@ -115,7 +136,7 @@ export type PhraseanetStory = {
     title: string;
     original_name: string;
     subdefs: SubDef[];
-    caption?: PhraseanetCaption[];
     status: PhraseanetStatusBit[];
+    metadata: PhraseanetMetadata[];
     children: PhraseanetRecord[];
 };

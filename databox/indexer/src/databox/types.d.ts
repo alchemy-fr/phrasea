@@ -49,6 +49,7 @@ export type AttributeInput = ({value: any} | {values: any[]}) & {
     coordinates?: string;
     status?: string;
     confidence?: number;
+    locale: string;
 };
 
 export type RenditionInput = {

@@ -1,6 +1,7 @@
 import {Asset} from '../../indexers';
-import {PhraseanetRecord, SubDef} from './types';
-import {escapeSlashes} from '../../lib/pathUtils';
+import {FieldMap, SubDef} from './types';
+import { CPhraseanetRecord } from './CPhraseanetRecord.ts';
+
 import {
     AttributeClass,
     AttributeInput,
@@ -24,41 +25,42 @@ export type TagIndex = Record<number, string>;
 
 export type AttrClassIndex = Record<string, AttributeClass>;
 
-export function createAsset(
+export async function createAsset(
     workspaceId: string,
     importFiles: boolean,
-    record: PhraseanetRecord,
-    rootCollectionPath: string,
+    record: CPhraseanetRecord,
+    path: string,
     collectionKeyPrefix: string,
     key: string,
-    collectionName: string,
-    attrDefinitionIndex: AttrDefinitionIndex,
+    fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
-    storyCollectionIds: string[]
-): Asset {
+    shortcutIntoCollections: string[]
+): Promise<Asset> {
     const document: SubDef | undefined = record.subdefs.find(
         s => s.name === 'document'
     );
 
-    const path = `${rootCollectionPath}/${escapeSlashes(
-        collectionName
-    )}/${escapeSlashes(record.original_name)}`;
-
     const attributes: AttributeInput[] = [];
-    for (const c of record.caption ?? []) {
-        const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
-        if (ad !== undefined) {
-            const d = {
-                definitionId: ad.id,
-                origin: 'machine',
-                originVendor: 'indexer-import',
-            } as Partial<AttributeInput>;
 
-            attributes.push({
-                ...d,
-                value: ad.multiple ? c.value.split(' ; ') : c.value,
-            } as AttributeInput);
-        }
+    let k: string, fm: FieldMap;
+    for([k, fm] of fieldMap) {
+        const ad = fm.attributeDefinition;
+
+        const values = (await fm.twig.renderAsync({record: record}))
+            .split("\n").map((p: string) => p.trim())
+            .filter((p: string) => p);
+
+        const d = {
+            definitionId: ad.id,
+            origin: 'machine',
+            originVendor: 'indexer-import',
+            locale: fm.locale,
+        } as Partial<AttributeInput>;
+
+        attributes.push({
+            ...d,
+            value: ad.multiple ? values : values.join(' ; '),
+        } as AttributeInput);
     }
 
     const tags: string[] = [];
@@ -99,7 +101,7 @@ export function createAsset(
                 };
             })
             .filter(s => Boolean(s)) as RenditionInput[],
-        shortcutIntoCollections: storyCollectionIds,
+        shortcutIntoCollections: shortcutIntoCollections
     };
 }
 
