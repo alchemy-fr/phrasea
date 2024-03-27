@@ -71,11 +71,20 @@ export default function PreviewPopover({
                     sx={{
                         padding: 1,
                         maxWidth: width,
+                        maxHeight: height,
                         ...attributesSx(),
                     }}
                 >
-                    <Stack direction={'row'} spacing={1}>
-                        <div>
+                    <Stack
+                        direction={'row'}
+                        spacing={1}
+                        sx={theme => ({
+                            maxHeight: `calc(${height}px - ${theme.spacing(2)})`,
+                        })}
+                    >
+                        <div style={{
+                            maxHeight: height,
+                        }}>
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}

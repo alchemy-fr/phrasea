@@ -4,15 +4,6 @@ import {alpha, Theme} from '@mui/material/styles';
 import assetClasses from '../../AssetList/classes';
 import {createThumbActiveStyle} from './AssetThumb';
 
-type Props = PropsWithChildren<
-    {
-        size: number;
-        selected?: boolean;
-        onMouseOver?: MouseEventHandler | undefined;
-        className?: string | undefined;
-    } & DOMAttributes<HTMLElement>
->;
-
 export function createSizeTransition(theme: Theme) {
     return theme.transitions.create(['height', 'width'], {duration: 300});
 }
@@ -44,18 +35,25 @@ export const thumbSx = (
     },
 });
 
+type Props = PropsWithChildren<
+    {
+        size: number;
+        selected?: boolean;
+        onMouseOver?: MouseEventHandler | undefined;
+    } & DOMAttributes<HTMLElement>
+>;
+
 export default function Thumb({
     selected,
     children,
     onMouseOver,
     onMouseLeave,
-    className,
 }: Props) {
     return (
-        <Box
+        <div
             onMouseOver={onMouseOver}
             onMouseLeave={onMouseLeave}
-            className={className}
+            className={assetClasses.thumbWrapper}
         >
             {selected && (
                 <Box
@@ -71,6 +69,6 @@ export default function Thumb({
                 />
             )}
             {children}
-        </Box>
+        </div>
     );
 }

@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import {FileBlobThumb} from '../../lib/upload/fileBlob';
 import {Grid, Paper} from '@mui/material';
 import byteSize from 'byte-size';
+import {thumbSx} from "../Media/Asset/Thumb.tsx";
 
 const size = 100;
 
@@ -17,6 +18,7 @@ export default function FileCard({file, onRemove}: Props) {
             sx={theme => ({
                 padding: theme.spacing(2),
                 margin: 'auto',
+                ...thumbSx(size, theme),
             })}
         >
             <Grid
