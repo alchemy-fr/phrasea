@@ -107,7 +107,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
 
     return (
         <Box sx={layoutSx} key={d.thumbSize.toString()}>
-            <Masonry spacing={0}>
+            <Masonry spacing={0.5}>
                 {pages.map(page => {
                     return page.map(item => {
                         const asset: Asset = itemToAsset

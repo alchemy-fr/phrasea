@@ -18,6 +18,7 @@ const assetClasses = {
     collectionList: 'asset-collection-list',
     privacy: 'asset-privacy',
     fileIcon: 'asset-file-icon',
+    scrollable: 'asset-scrollable',
 };
 
 export default assetClasses;

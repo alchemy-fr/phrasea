@@ -76,7 +76,7 @@ export default function BasketMenuItem({
                         primary={
                             data.titleHighlight ||
                             data.title ||
-                            t('basket.default.title', 'Basket')
+                            t('basket.default.title', 'My Basket')
                         }
                     />
                 </ListItemButton>

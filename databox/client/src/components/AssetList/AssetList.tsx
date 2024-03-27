@@ -65,7 +65,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     ...selectionActionsProps
 }: Props<Item>) {
     const [selection, setSelectionPrivate] = React.useState<Item[]>([]);
-    const [loadingMore, setLoadingMore] = React.useState(false);
     const [layout, setLayout] = React.useState<Layout>(
         defaultLayout ?? Layout.Grid
     );
@@ -192,6 +191,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
             }}
         >
             <div
+                className={assetClasses.scrollable}
                 style={{
                     width: '100%',
                     height: '100%',
@@ -233,13 +233,8 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
 
                     {loadMore ? (
                         <LoadMoreButton
-                            loading={loadingMore}
-                            onClick={() => {
-                                setLoadingMore(true);
-                                loadMore().finally(() => {
-                                    setLoadingMore(false);
-                                });
-                            }}
+                            onClick={loadMore}
+                            pages={pages}
                         />
                     ) : (
                         ''
