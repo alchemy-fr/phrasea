@@ -181,7 +181,9 @@ export default function AssetView({modalIndex}: Props) {
                                     file={rendition.file}
                                     setIntegrationOverlay={setProxy}
                                 />
-                            ) : ''}
+                            ) : (
+                                ''
+                            )}
                         </Box>
                     </Box>
                 </AppDialog>

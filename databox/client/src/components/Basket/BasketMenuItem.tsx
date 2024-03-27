@@ -1,9 +1,14 @@
-import {IconButton, ListItem, ListItemButton, ListItemText} from "@mui/material";
-import ModalLink from "../Routing/ModalLink.tsx";
-import {modalRoutes} from "../../routes.ts";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {Basket} from "../../types.ts";
+import {
+    IconButton,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+} from '@mui/material';
+import ModalLink from '../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../routes.ts';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {Basket} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 
 type Props = {
@@ -23,17 +28,16 @@ export default function BasketMenuItem({
 }: Props) {
     const {t} = useTranslation();
 
-    return <>
-        <ListItem
-            secondaryAction={
-                <>
+    return (
+        <>
+            <ListItem
+                secondaryAction={
+                    <>
                         <span className="c-action">
                             {!noEdit && data.capabilities.canEdit ? (
                                 <IconButton
                                     component={ModalLink}
-                                    route={
-                                        modalRoutes.baskets.routes.manage
-                                    }
+                                    route={modalRoutes.baskets.routes.manage}
                                     params={{
                                         id: data.id,
                                         tab: 'edit',
@@ -44,32 +48,39 @@ export default function BasketMenuItem({
                                     )}
                                     aria-label="edit"
                                 >
-                                    <EditIcon/>
+                                    <EditIcon />
                                 </IconButton>
                             ) : null}
                             {onDelete && data.capabilities.canDelete ? (
                                 <IconButton
-                                    onClick={(e) => {
+                                    onClick={e => {
                                         e.stopPropagation();
-                                        onDelete(data)
+                                        onDelete(data);
                                     }}
                                     aria-label="delete"
                                 >
-                                    <DeleteIcon/>
+                                    <DeleteIcon />
                                 </IconButton>
                             ) : null}
                         </span>
-                </>
-            }
-            disablePadding
-        >
-            <ListItemButton
-                selected={selected}
-                role={undefined}
-                onClick={onClick}
+                    </>
+                }
+                disablePadding
             >
-                <ListItemText primary={data.titleHighlight || data.title || t('basket.default.title', 'Basket')}/>
-            </ListItemButton>
-        </ListItem>
-    </>
+                <ListItemButton
+                    selected={selected}
+                    role={undefined}
+                    onClick={onClick}
+                >
+                    <ListItemText
+                        primary={
+                            data.titleHighlight ||
+                            data.title ||
+                            t('basket.default.title', 'Basket')
+                        }
+                    />
+                </ListItemButton>
+            </ListItem>
+        </>
+    );
 }

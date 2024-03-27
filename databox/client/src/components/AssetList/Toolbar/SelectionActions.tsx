@@ -1,12 +1,21 @@
 import {Context, useCallback, useContext, useMemo} from 'react';
-import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip,} from '@mui/material';
+import {
+    Badge,
+    Box,
+    Button,
+    Checkbox,
+    Divider,
+    Paper,
+    ToggleButtonGroup,
+    Tooltip,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ShareIcon from '@mui/icons-material/Share';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
-import {TSelectionContext,} from '../../../context/AssetSelectionContext.tsx';
+import {TSelectionContext} from '../../../context/AssetSelectionContext.tsx';
 import {styled} from '@mui/material/styles';
 import DeleteAssetsConfirm from '../../Media/Asset/Actions/DeleteAssetsConfirm.tsx';
 import DisplayOptionsMenu from './DisplayOptionsMenu.tsx';
@@ -23,9 +32,9 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import {useModals} from '@alchemy/navigation';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../../routes.ts';
-import BasketSwitcher from "../../Basket/BasketSwitcher.tsx";
-import {Layout} from "../Layouts";
-import {CustomItemAction, ReloadFunc} from "../types.ts";
+import BasketSwitcher from '../../Basket/BasketSwitcher.tsx';
+import {Layout} from '../Layouts';
+import {CustomItemAction, ReloadFunc} from '../types.ts';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
@@ -86,13 +95,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const allSelected =
         hasSelection &&
         selectionLength ===
-        pages.reduce(
-            (currentCount, row) => currentCount + row.length,
-            0
-        );
+            pages.reduce((currentCount, row) => currentCount + row.length, 0);
 
     const toggleSelectAll = useCallback(() => {
-        setSelection(previous => previous.length > 0 ? [] : pages.flat());
+        setSelection(previous => (previous.length > 0 ? [] : pages.flat()));
     }, [pages]);
 
     const {
@@ -114,7 +120,9 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         let canShare = false;
         let wsId: string | undefined = undefined;
 
-        const selectedAssets = itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset[]);
+        const selectedAssets = itemToAsset
+            ? selection.map(itemToAsset)
+            : (selection as unknown as Asset[]);
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace?.id;
@@ -207,10 +215,12 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
     const download = canDownload
         ? () => {
-            openModal(ExportAssetsDialog, {
-                assets: itemToAsset ? selection.map(itemToAsset) : (selection as unknown as Asset[]),
-            });
-        }
+              openModal(ExportAssetsDialog, {
+                  assets: itemToAsset
+                      ? selection.map(itemToAsset)
+                      : (selection as unknown as Asset[]),
+              });
+          }
         : undefined;
 
     const selectAllDisabled = (total ?? 0) === 0;
@@ -277,87 +287,99 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     </span>
                 </Tooltip>
 
-                {!noActions ? <>
-                    {isAuthenticated() ? <BasketSwitcher
-                        selectionContext={selectionContext}
-                    /> : ''}
-                    <LoadingButton
-                        disabled={!canDownload}
-                        variant={'contained'}
-                        onClick={download}
-                        startIcon={<FileDownloadIcon/>}
-                    >
-                        {t('asset_actions.export', 'Export')}
-                    </LoadingButton>
-                    <GroupButton
-                        id={'edit'}
-                        onClick={onEdit}
-                        startIcon={<EditIcon/>}
-                        disabled={!canEdit}
-                        actions={[
-                            {
-                                id: 'move',
-                                label: t('asset_actions.move', 'Move'),
-                                onClick: onMove,
-                                disabled: !canMove,
-                                startIcon: <DriveFileMoveIcon/>,
-                            },
-                            {
-                                id: 'edit_attrs',
-                                label: t(
-                                    'asset_actions.edit_attributes',
-                                    'Edit attributes'
-                                ),
-                                onClick: onEditAttributes,
-                                disabled: !canEditAttributes,
-                                startIcon: <TextSnippetIcon/>,
-                            },
-                            {
-                                id: 'copy',
-                                label: t('asset_actions.copy', 'Copy'),
-                                onClick: onCopy,
-                                disabled: !canShare,
-                                startIcon: <FileCopyIcon/>,
-                            },
-                        ]}
-                    >
-                        {t('asset_actions.edit', 'Edit')}
-                    </GroupButton>
-                    <Button
-                        disabled={!canShare}
-                        variant={'contained'}
-                        startIcon={<ShareIcon/>}
-                    >
-                        {t('asset_actions.share', 'Share')}
-                    </Button>
-                    <Button
-                        disabled={!canDelete}
-                        color={'error'}
-                        onClick={onDelete}
-                        variant={'contained'}
-                        startIcon={<DeleteForeverIcon/>}
-                    >
-                        {t('asset_actions.delete', 'Delete')}
-                    </Button>
-                    {actions?.map(a => {
-                        return <Button
-                            key={a.name}
-                            {...a.buttonProps ?? {}}
-                            disabled={selection.length === 0 || a.disabled}
-                            onClick={async () => {
-                                await a.apply(selection);
-                                if (a.reload && reload) {
-                                    reload();
-                                }
-                                if (a.resetSelection) {
-                                    setSelection([]);
-                                }
-                            }}
+                {!noActions ? (
+                    <>
+                        {isAuthenticated() ? (
+                            <BasketSwitcher
+                                selectionContext={selectionContext}
+                            />
+                        ) : (
+                            ''
+                        )}
+                        <LoadingButton
+                            disabled={!canDownload}
+                            variant={'contained'}
+                            onClick={download}
+                            startIcon={<FileDownloadIcon />}
                         >
-                            {a.labels.multi}
+                            {t('asset_actions.export', 'Export')}
+                        </LoadingButton>
+                        <GroupButton
+                            id={'edit'}
+                            onClick={onEdit}
+                            startIcon={<EditIcon />}
+                            disabled={!canEdit}
+                            actions={[
+                                {
+                                    id: 'move',
+                                    label: t('asset_actions.move', 'Move'),
+                                    onClick: onMove,
+                                    disabled: !canMove,
+                                    startIcon: <DriveFileMoveIcon />,
+                                },
+                                {
+                                    id: 'edit_attrs',
+                                    label: t(
+                                        'asset_actions.edit_attributes',
+                                        'Edit attributes'
+                                    ),
+                                    onClick: onEditAttributes,
+                                    disabled: !canEditAttributes,
+                                    startIcon: <TextSnippetIcon />,
+                                },
+                                {
+                                    id: 'copy',
+                                    label: t('asset_actions.copy', 'Copy'),
+                                    onClick: onCopy,
+                                    disabled: !canShare,
+                                    startIcon: <FileCopyIcon />,
+                                },
+                            ]}
+                        >
+                            {t('asset_actions.edit', 'Edit')}
+                        </GroupButton>
+                        <Button
+                            disabled={!canShare}
+                            variant={'contained'}
+                            startIcon={<ShareIcon />}
+                        >
+                            {t('asset_actions.share', 'Share')}
                         </Button>
-                    })}
-                </> : ''}
+                        <Button
+                            disabled={!canDelete}
+                            color={'error'}
+                            onClick={onDelete}
+                            variant={'contained'}
+                            startIcon={<DeleteForeverIcon />}
+                        >
+                            {t('asset_actions.delete', 'Delete')}
+                        </Button>
+                        {actions?.map(a => {
+                            return (
+                                <Button
+                                    key={a.name}
+                                    {...(a.buttonProps ?? {})}
+                                    disabled={
+                                        selection.length === 0 || a.disabled
+                                    }
+                                    onClick={async () => {
+                                        await a.apply(selection);
+                                        if (a.reload && reload) {
+                                            reload();
+                                        }
+                                        if (a.resetSelection) {
+                                            setSelection([]);
+                                        }
+                                    }}
+                                >
+                                    {a.labels.multi}
+                                </Button>
+                            );
+                        })}
+                    </>
+                ) : (
+                    ''
+                )}
             </Box>
             <Paper
                 elevation={0}
@@ -375,11 +397,12 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         px: 2,
                     }}
                 >
-                    {!loading &&
-                    total !== undefined ? (
+                    {!loading && total !== undefined ? (
                         <>
                             <b>
-                                {selection.length > 0 ? `${selection.length} / ` : ''}
+                                {selection.length > 0
+                                    ? `${selection.length} / `
+                                    : ''}
                                 {new Intl.NumberFormat('fr-FR', {}).format(
                                     total
                                 )}
@@ -405,7 +428,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     exclusive
                     onChange={(_e, newValue) => {
                         if (newValue) {
-                            setLayout(newValue)
+                            setLayout(newValue);
                         }
                     }}
                 >
@@ -415,7 +438,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         }}
                         value={Layout.Grid}
                     >
-                        <GridViewIcon/>
+                        <GridViewIcon />
                     </TooltipToggleButton>
                     <TooltipToggleButton
                         tooltipProps={{
@@ -423,7 +446,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         }}
                         value={Layout.List}
                     >
-                        <ViewListIcon/>
+                        <ViewListIcon />
                     </TooltipToggleButton>
                     <TooltipToggleButton
                         tooltipProps={{
@@ -431,7 +454,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                         }}
                         value={Layout.Masonry}
                     >
-                        <ViewQuiltIcon/>
+                        <ViewQuiltIcon />
                     </TooltipToggleButton>
                 </StyledToggleButtonGroup>
                 <Divider
@@ -439,7 +462,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     orientation="vertical"
                     sx={{mx: 0.5, my: 1}}
                 />
-                <DisplayOptionsMenu/>
+                <DisplayOptionsMenu />
             </Paper>
         </Box>
     );

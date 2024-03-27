@@ -28,7 +28,7 @@ export const BasketForm: FC<FormProps<Basket>> = function ({
                         required: true,
                     })}
                 />
-                <FormFieldErrors field={'title'} errors={errors}/>
+                <FormFieldErrors field={'title'} errors={errors} />
             </FormRow>
             <FormRow>
                 <TextField
@@ -38,7 +38,7 @@ export const BasketForm: FC<FormProps<Basket>> = function ({
                     disabled={submitting}
                     {...register('description')}
                 />
-                <FormFieldErrors field={'description'} errors={errors}/>
+                <FormFieldErrors field={'description'} errors={errors} />
             </FormRow>
         </form>
     );

@@ -5,8 +5,10 @@ import FilePlayer from '../Media/Asset/FilePlayer.tsx';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style.ts';
 import {createDimensions} from '../Media/Asset/Players';
 import {zIndex} from '../../themes/zIndex.ts';
-import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes.tsx';
-import {DisplayContext} from "../Media/DisplayContext.tsx";
+import Attributes, {
+    attributesSx,
+} from '../Media/Asset/Attribute/Attributes.tsx';
+import {DisplayContext} from '../Media/DisplayContext.tsx';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -77,10 +79,7 @@ export default function PreviewPopover({
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}
-                                dimensions={createDimensions(
-                                    width / 2,
-                                    height
-                                )}
+                                dimensions={createDimensions(width / 2, height)}
                                 title={asset.resolvedTitle}
                                 onLoad={onLoad}
                                 noInteraction={!previewLocked}

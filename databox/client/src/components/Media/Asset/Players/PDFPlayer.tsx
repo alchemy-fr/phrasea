@@ -2,7 +2,7 @@ import {useCallback, useContext, useState} from 'react';
 import {createDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getVideoDimensions} from './VideoPlayer';
-import {DisplayContext} from "../../DisplayContext.tsx";
+import {DisplayContext} from '../../DisplayContext.tsx';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
@@ -15,7 +15,8 @@ export default function PDFPlayer({
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const displayContext = useContext(DisplayContext);
-    const dimensions = forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const dimensions =
+        forcedDimensions ?? createDimensions(displayContext!.thumbSize);
     const pdfDimensions = getVideoDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {

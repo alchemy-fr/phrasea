@@ -1,27 +1,31 @@
 import React, {Context, MouseEvent, useEffect} from 'react';
-import {Asset, AssetOrAssetContainer, StateSetter} from "../../types.ts";
-import AssetToolbar from "./AssetToolbar.tsx";
-import LoadMoreButton from "./LoadMoreButton.tsx";
-import {AssetSelectionContext, TSelectionContext} from "../../context/AssetSelectionContext.tsx";
-import {Layout, layouts} from "./Layouts";
+import {Asset, AssetOrAssetContainer, StateSetter} from '../../types.ts';
+import AssetToolbar from './AssetToolbar.tsx';
+import LoadMoreButton from './LoadMoreButton.tsx';
+import {
+    AssetSelectionContext,
+    TSelectionContext,
+} from '../../context/AssetSelectionContext.tsx';
+import {Layout, layouts} from './Layouts';
 import {
     AssetItemComponent,
     CustomItemAction,
-    LayoutProps, LoadMoreFunc,
+    LayoutProps,
+    LoadMoreFunc,
     OnAddToBasket,
     OnContextMenuOpen,
     OnOpen,
     OnSelectionChange,
     OnToggle,
-    ReloadFunc
-} from "./types.ts";
-import {getItemListFromEvent} from "./selection.ts";
-import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy'
-import {useBasketStore} from "../../store/basketStore.ts";
-import assetClasses from "./classes.ts";
-import AssetContextMenu from "./AssetContextMenu.tsx";
-import {PopoverPosition} from "@mui/material/Popover/Popover";
-import {SelectionActionConfigProps} from "./Toolbar/SelectionActions.tsx";
+    ReloadFunc,
+} from './types.ts';
+import {getItemListFromEvent} from './selection.ts';
+import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy';
+import {useBasketStore} from '../../store/basketStore.ts';
+import assetClasses from './classes.ts';
+import AssetContextMenu from './AssetContextMenu.tsx';
+import {PopoverPosition} from '@mui/material/Popover/Popover';
+import {SelectionActionConfigProps} from './Toolbar/SelectionActions.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -54,12 +58,17 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     itemComponent,
     actions,
     layout: defaultLayout,
-    selectionContext: SelectionContext = AssetSelectionContext as unknown as Context<TSelectionContext<Item>>,
+    selectionContext:
+        SelectionContext = AssetSelectionContext as unknown as Context<
+            TSelectionContext<Item>
+        >,
     ...selectionActionsProps
 }: Props<Item>) {
     const [selection, setSelectionPrivate] = React.useState<Item[]>([]);
     const [loadingMore, setLoadingMore] = React.useState(false);
-    const [layout, setLayout] = React.useState<Layout>(defaultLayout ?? Layout.Grid);
+    const [layout, setLayout] = React.useState<Layout>(
+        defaultLayout ?? Layout.Grid
+    );
     const listRef = React.useRef<HTMLDivElement | null>(null);
     const [toolbarHeight, setToolbarHeight] = React.useState(0);
     const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
@@ -80,7 +89,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     onSelectionChange(n);
 
                     return n;
-                }),
+                })
             );
         };
     }, [onSelectionChange, setSelectionPrivate]);
@@ -94,7 +103,9 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
             setToolbarHeight(entries[0].target.clientHeight);
         });
 
-        resizeObserver.observe(listRef.current!.querySelector(`.${assetClasses.assetToolbar}`)!);
+        resizeObserver.observe(
+            listRef.current!.querySelector(`.${assetClasses.assetToolbar}`)!
+        );
 
         return () => {
             resizeObserver.disconnect();
@@ -109,8 +120,8 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                     activeElement &&
                     ['input', 'select', 'button', 'textarea'].includes(
                         activeElement.tagName.toLowerCase()
-                    )
-                    && (activeElement as HTMLInputElement).type !== 'checkbox'
+                    ) &&
+                    (activeElement as HTMLInputElement).type !== 'checkbox'
                 ) {
                     return;
                 }
@@ -138,7 +149,9 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
 
                 return {
                     item,
-                    asset: itemToAsset ? itemToAsset(item) : (item as unknown as Asset),
+                    asset: itemToAsset
+                        ? itemToAsset(item)
+                        : (item as unknown as Asset),
                     pos: {
                         left: e.clientX + 2,
                         top: e.clientY,
@@ -170,73 +183,81 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         [addToCurrent]
     );
 
-    return <div
-        ref={listRef}
-        style={{
-            position: 'relative',
-            height: '100%',
-        }}
-    >
+    return (
         <div
+            ref={listRef}
             style={{
-                width: '100%',
+                position: 'relative',
                 height: '100%',
-                overflow: 'auto',
             }}
         >
-            <SelectionContext.Provider value={{
-                selection,
-                setSelection,
-                itemToAsset,
-            }}>
-                <AssetToolbar
-                    total={total}
-                    loading={loading ?? false}
-                    layout={layout}
-                    setLayout={setLayout}
-                    pages={pages}
-                    reload={reload}
-                    onOpenDebug={onOpenDebug}
-                    selectionContext={SelectionContext}
-                    searchBar={searchBar}
-                    actions={actions}
-                    {...selectionActionsProps}
-                />
-
-                {React.createElement(layouts[layout], {
-                    selection,
-                    onOpen,
-                    onAddToBasket,
-                    itemToAsset,
-                    onContextMenuOpen,
-                    onToggle,
-                    pages,
-                    toolbarHeight,
-                    itemComponent,
-                } as LayoutProps<Item>)}
-
-                {loadMore ? <LoadMoreButton
-                    loading={loadingMore}
-                    onClick={() => {
-                        setLoadingMore(true);
-                        loadMore().finally(() => {
-                            setLoadingMore(false);
-                        });
+            <div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'auto',
+                }}
+            >
+                <SelectionContext.Provider
+                    value={{
+                        selection,
+                        setSelection,
+                        itemToAsset,
                     }}
-                /> : (
-                    ''
-                )}
-
-                {anchorElMenu ? (
-                    <AssetContextMenu
-                        item={anchorElMenu.item}
-                        asset={anchorElMenu.asset}
-                        anchorPosition={anchorElMenu.pos}
-                        anchorEl={anchorElMenu.anchorEl}
-                        onClose={() => setAnchorElMenu(null)}
+                >
+                    <AssetToolbar
+                        total={total}
+                        loading={loading ?? false}
+                        layout={layout}
+                        setLayout={setLayout}
+                        pages={pages}
+                        reload={reload}
+                        onOpenDebug={onOpenDebug}
+                        selectionContext={SelectionContext}
+                        searchBar={searchBar}
+                        actions={actions}
+                        {...selectionActionsProps}
                     />
-                ) : ''}
-            </SelectionContext.Provider>
+
+                    {React.createElement(layouts[layout], {
+                        selection,
+                        onOpen,
+                        onAddToBasket,
+                        itemToAsset,
+                        onContextMenuOpen,
+                        onToggle,
+                        pages,
+                        toolbarHeight,
+                        itemComponent,
+                    } as LayoutProps<Item>)}
+
+                    {loadMore ? (
+                        <LoadMoreButton
+                            loading={loadingMore}
+                            onClick={() => {
+                                setLoadingMore(true);
+                                loadMore().finally(() => {
+                                    setLoadingMore(false);
+                                });
+                            }}
+                        />
+                    ) : (
+                        ''
+                    )}
+
+                    {anchorElMenu ? (
+                        <AssetContextMenu
+                            item={anchorElMenu.item}
+                            asset={anchorElMenu.asset}
+                            anchorPosition={anchorElMenu.pos}
+                            anchorEl={anchorElMenu.anchorEl}
+                            onClose={() => setAnchorElMenu(null)}
+                        />
+                    ) : (
+                        ''
+                    )}
+                </SelectionContext.Provider>
+            </div>
         </div>
-    </div>
+    );
 }

@@ -1,6 +1,6 @@
 import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
-import type {WithTranslations} from '@alchemy/react-form'
+import type {WithTranslations} from '@alchemy/react-form';
 
 type AlternateUrl = {
     type: string;
@@ -219,12 +219,14 @@ export interface Basket extends IPermissions {
 export interface BasketAsset {
     id: string;
     asset: Asset;
-    context?: {
-        clip?: {
-            start?: number;
-            end?: number;
-        };
-    } | undefined;
+    context?:
+        | {
+              clip?: {
+                  start?: number;
+                  end?: number;
+              };
+          }
+        | undefined;
     titleHighlight: string;
     position: number;
     createdAt: string;
@@ -286,8 +288,6 @@ export type Ace = (
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
-
 export type AssetOrAssetContainer = {
     id: string;
-}
-
+};

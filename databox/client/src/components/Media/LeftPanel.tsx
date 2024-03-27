@@ -4,7 +4,7 @@ import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
 import {styled} from '@mui/material/styles';
 import {TabPanelProps} from '@mui/lab';
-import BasketsPanel from "../Basket/BasketsPanel.tsx";
+import BasketsPanel from '../Basket/BasketsPanel.tsx';
 import {useAuth} from '@alchemy/react-auth';
 
 enum TabEnum {
@@ -75,7 +75,9 @@ export default function LeftPanel() {
             <AntTabs value={t} onChange={handleChange} aria-label="Views">
                 <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
                 <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
-                {isAuthenticated() ? <AntTab label="Baskets" {...a11yProps(TabEnum.baskets)} /> : null}
+                {isAuthenticated() ? (
+                    <AntTab label="Baskets" {...a11yProps(TabEnum.baskets)} />
+                ) : null}
             </AntTabs>
             <TabPanel value={t} index={TabEnum.tree}>
                 <CollectionsPanel />
@@ -83,9 +85,11 @@ export default function LeftPanel() {
             <TabPanel value={t} index={TabEnum.facets}>
                 <Facets />
             </TabPanel>
-            {isAuthenticated() ? <TabPanel value={t} index={TabEnum.baskets}>
-                <BasketsPanel />
-            </TabPanel> : null}
+            {isAuthenticated() ? (
+                <TabPanel value={t} index={TabEnum.baskets}>
+                    <BasketsPanel />
+                </TabPanel>
+            ) : null}
         </>
     );
 }

@@ -7,7 +7,7 @@ import {
     getBasket,
     GetBasketOptions,
     getBaskets,
-    removeFromBasket
+    removeFromBasket,
 } from '../api/basket.ts';
 
 type State = {
@@ -35,7 +35,7 @@ export const useBasketStore = create<State>((set, getState) => ({
     current: undefined,
     baskets: [],
 
-    load: async (params) => {
+    load: async params => {
         set({
             loading: false,
         });
@@ -55,7 +55,7 @@ export const useBasketStore = create<State>((set, getState) => ({
         }
     },
 
-    setCurrent: async (data) => {
+    setCurrent: async data => {
         if (!data) {
             set({
                 current: undefined,
@@ -110,7 +110,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                 return b;
             }),
             current: state.current?.id === data.id ? data : state.current,
-        }))
+        }));
     },
 
     loadMore: async () => {
@@ -141,7 +141,7 @@ export const useBasketStore = create<State>((set, getState) => ({
         }));
     },
 
-    deleteBasket: async (id) => {
+    deleteBasket: async id => {
         await deleteBasket(id);
 
         set(state => ({
@@ -150,7 +150,7 @@ export const useBasketStore = create<State>((set, getState) => ({
         }));
     },
 
-    addToCurrent: async (assets) => {
+    addToCurrent: async assets => {
         const current = getState().current;
 
         const currentId = current?.id;
@@ -171,7 +171,9 @@ export const useBasketStore = create<State>((set, getState) => ({
             });
             set(state => ({
                 current: basket,
-                baskets: state.baskets.some(b => b.id === basket.id) ? state.baskets : state.baskets.concat([basket]),
+                baskets: state.baskets.some(b => b.id === basket.id)
+                    ? state.baskets
+                    : state.baskets.concat([basket]),
             }));
         } catch (e: any) {
             if (current) {
@@ -182,7 +184,10 @@ export const useBasketStore = create<State>((set, getState) => ({
                         return {
                             current: {
                                 ...curr,
-                                assetCount: curr.assetCount !== undefined ? Math.max(0, curr.assetCount! - count) : undefined,
+                                assetCount:
+                                    curr.assetCount !== undefined
+                                        ? Math.max(0, curr.assetCount! - count)
+                                        : undefined,
                             },
                         };
                     }
@@ -212,7 +217,9 @@ export const useBasketStore = create<State>((set, getState) => ({
         try {
             const basket = await removeFromBasket(basketId, itemIds);
             set(state => ({
-                baskets: state.baskets.some(b => b.id === basket.id) ? state.baskets : state.baskets.concat([basket]),
+                baskets: state.baskets.some(b => b.id === basket.id)
+                    ? state.baskets
+                    : state.baskets.concat([basket]),
             }));
         } catch (e: any) {
             if (current) {
@@ -223,7 +230,10 @@ export const useBasketStore = create<State>((set, getState) => ({
                         return {
                             current: {
                                 ...curr,
-                                assetCount: curr.assetCount !== undefined ? curr.assetCount! + count : undefined,
+                                assetCount:
+                                    curr.assetCount !== undefined
+                                        ? curr.assetCount! + count
+                                        : undefined,
                             },
                         };
                     }
@@ -232,5 +242,5 @@ export const useBasketStore = create<State>((set, getState) => ({
                 });
             }
         }
-    }
+    },
 }));

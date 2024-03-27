@@ -35,17 +35,29 @@ export default function DisplayProvider({
     previewLocked: defaultPreviewLocked = false,
 }: Props) {
     const [thumbSize, setThumbSize] = useState<number>(defaultThumbSize);
-    const [displayTitle, setDisplayTitle] = useState<boolean>(defaultDisplayTitle);
+    const [displayTitle, setDisplayTitle] =
+        useState<boolean>(defaultDisplayTitle);
     const [displayTags, setDisplayTags] = useState<boolean>(defaultDisplayTags);
-    const [displayPreview, setDisplayPreview] = useState<boolean>(defaultDisplayPreview);
+    const [displayPreview, setDisplayPreview] = useState<boolean>(
+        defaultDisplayPreview
+    );
     const [titleRows, setTitleRows] = useState<number>(defaultTitleRows);
-    const [displayCollections, setDisplayCollections] = useState<boolean>(defaultDisplayCollections);
-    const [displayAttributes, setDisplayAttributes] = useState<boolean>(defaultDisplayAttributes);
+    const [displayCollections, setDisplayCollections] = useState<boolean>(
+        defaultDisplayCollections
+    );
+    const [displayAttributes, setDisplayAttributes] = useState<boolean>(
+        defaultDisplayAttributes
+    );
     const [playVideos, setPlayVideos] = useState<boolean>(defaultPlayVideos);
-    const [collectionsLimit, setCollectionsLimit] = useState<number>(defaultCollectionsLimit);
+    const [collectionsLimit, setCollectionsLimit] = useState<number>(
+        defaultCollectionsLimit
+    );
     const [tagsLimit, setTagsLimit] = useState<number>(defaultTagsLimit);
-    const [playingContext, setPlayingContext] = useState<PlayingContext | undefined>(defaultPlayingContext);
-    const [previewLocked, setPreviewLocked] = useState<boolean>(defaultPreviewLocked);
+    const [playingContext, setPlayingContext] = useState<
+        PlayingContext | undefined
+    >(defaultPlayingContext);
+    const [previewLocked, setPreviewLocked] =
+        useState<boolean>(defaultPreviewLocked);
 
     const {t} = useTranslation();
 

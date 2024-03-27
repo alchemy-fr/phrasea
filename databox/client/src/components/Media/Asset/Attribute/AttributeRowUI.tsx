@@ -5,8 +5,8 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
 import React from 'react';
-import {attributesClasses} from "./Attributes.tsx";
-import {isRtlLocale} from "../../../../lib/lang.ts";
+import {attributesClasses} from './Attributes.tsx';
+import {isRtlLocale} from '../../../../lib/lang.ts';
 
 type Props = {
     type: string;
@@ -62,8 +62,8 @@ export default function AttributeRowUI({
             style={
                 isRtl
                     ? {
-                        direction: 'rtl',
-                    }
+                          direction: 'rtl',
+                      }
                     : undefined
             }
             onMouseEnter={() => setOverControls(true)}
@@ -71,56 +71,66 @@ export default function AttributeRowUI({
         >
             <div className={attributesClasses.name}>
                 {attributeName}
-                {displayControls ? <div className={attributesClasses.controls}>
-                    {overControls ? <>
-                        {formatContext.hasFormats(type) && (
-                            <IconButton
-                                onClick={toggleFormat}
-                            >
-                                <VisibilityIcon/>
-                            </IconButton>
+                {displayControls ? (
+                    <div className={attributesClasses.controls}>
+                        {overControls ? (
+                            <>
+                                {formatContext.hasFormats(type) && (
+                                    <IconButton onClick={toggleFormat}>
+                                        <VisibilityIcon />
+                                    </IconButton>
+                                )}
+
+                                <CopyAttribute
+                                    value={formatter.formatValueAsString(
+                                        valueFormatterProps
+                                    )}
+                                />
+
+                                <IconButton
+                                    onClick={() => togglePin(definitionId)}
+                                >
+                                    <PushPinIcon
+                                        color={pinned ? 'success' : undefined}
+                                    />
+                                </IconButton>
+                            </>
+                        ) : (
+                            ''
                         )}
-
-                        <CopyAttribute
-                            value={formatter.formatValueAsString(
-                                valueFormatterProps
-                            )}
-                        />
-
-                        <IconButton
-                            onClick={() => togglePin(definitionId)}
-                        >
-                            <PushPinIcon
-                                color={pinned ? 'success' : undefined}
-                            />
-                        </IconButton>
-                    </> : ''}
-                </div> : ''}
+                    </div>
+                ) : (
+                    ''
+                )}
             </div>
             <div className={attributesClasses.val} lang={locale}>
                 {multiple && !formatter.supportsMultiple() ? (
                     <ul className={attributesClasses.list}>
                         {value
                             ? value.map((v: any, i: number) => {
-                                const formatProps = {
-                                    value: v,
-                                    highlight,
-                                    locale,
-                                    multiple,
-                                    format: formatContext.formats[type],
-                                };
+                                  const formatProps = {
+                                      value: v,
+                                      highlight,
+                                      locale,
+                                      multiple,
+                                      format: formatContext.formats[type],
+                                  };
 
-                                return (
-                                    <li key={i}>
-                                        {formatter.formatValue(formatProps)}
-                                        {displayControls && overControls ? <CopyAttribute
-                                            value={formatter.formatValueAsString(
-                                                formatProps
-                                            )}
-                                        /> : ''}
-                                    </li>
-                                );
-                            })
+                                  return (
+                                      <li key={i}>
+                                          {formatter.formatValue(formatProps)}
+                                          {displayControls && overControls ? (
+                                              <CopyAttribute
+                                                  value={formatter.formatValueAsString(
+                                                      formatProps
+                                                  )}
+                                              />
+                                          ) : (
+                                              ''
+                                          )}
+                                      </li>
+                                  );
+                              })
                             : null}
                     </ul>
                 ) : (

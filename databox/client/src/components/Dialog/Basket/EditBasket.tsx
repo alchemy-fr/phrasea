@@ -5,9 +5,9 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {useBasketStore} from "../../../store/basketStore.ts";
-import {putBasket} from "../../../api/basket.ts";
-import {BasketForm} from "../../Form/BasketForm.tsx";
+import {useBasketStore} from '../../../store/basketStore.ts';
+import {putBasket} from '../../../api/basket.ts';
+import {BasketForm} from '../../Form/BasketForm.tsx';
 
 type Props = {
     id: string;
@@ -28,10 +28,7 @@ export default function EditBasket({data, onClose, minHeight}: Props) {
             updateBasket(data);
 
             toast.success(
-                t(
-                    'form.basket_edit.success',
-                    'Basket edited!'
-                ) as string
+                t('form.basket_edit.success', 'Basket edited!') as string
             );
             onClose();
         },

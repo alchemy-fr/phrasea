@@ -1,6 +1,6 @@
-import {StateSetter} from "../types.ts";
-import {ApiCollectionResponse} from "./hydra.ts";
-import {LoadMoreFunc} from "../components/AssetList/types.ts";
+import {StateSetter} from '../types.ts';
+import {ApiCollectionResponse} from './hydra.ts';
+import {LoadMoreFunc} from '../components/AssetList/types.ts';
 
 export type Pagination<T> = {
     loading: boolean;
@@ -8,7 +8,7 @@ export type Pagination<T> = {
     total?: number;
     next?: string | null;
     pages: T[][];
-}
+};
 
 export function createDefaultPagination<T>(): Pagination<T> {
     return {
@@ -18,7 +18,9 @@ export function createDefaultPagination<T>(): Pagination<T> {
     };
 }
 
-type Loader<T> = (next?: string | undefined) => Promise<ApiCollectionResponse<T>>;
+type Loader<T> = (
+    next?: string | undefined
+) => Promise<ApiCollectionResponse<T>>;
 type PaginatedLoader<T> = (next?: string) => Promise<ApiCollectionResponse<T>>;
 
 export function createLoadMore<T>(
@@ -69,5 +71,5 @@ export function createPaginatedLoader<T>(
 
             throw e;
         }
-    }
+    };
 }

@@ -1,9 +1,9 @@
 import {useMemo} from 'react';
 import {Asset} from '../../types.ts';
-import AssetList from "./AssetList.tsx";
-import DisplayProvider from "../Media/DisplayProvider.tsx";
-import {Layout} from "./Layouts";
-import {OnSelectionChange} from "./types.ts";
+import AssetList from './AssetList.tsx';
+import DisplayProvider from '../Media/DisplayProvider.tsx';
+import {Layout} from './Layouts';
+import {OnSelectionChange} from './types.ts';
 
 // function SelectionProxy({pages}: {pages: Asset[][]}) {
 //     const {t} = useTranslation();
@@ -65,24 +65,20 @@ type Props = {
     onSelectionChange: OnSelectionChange<Asset>;
 };
 
-export default function AssetSelection({
-    assets,
-    onSelectionChange,
-}: Props) {
+export default function AssetSelection({assets, onSelectionChange}: Props) {
     const pages = useMemo(() => [assets], [assets]);
 
-    return <DisplayProvider
-        thumbSize={100}
-        displayAttributes={false}
-    >
-        <AssetList
-            pages={pages}
-            total={assets.length}
-            searchBar={false}
-            onSelectionChange={onSelectionChange}
-            layout={Layout.List}
-            noActions={true}
-            itemLabel={'item'}
-        />
-    </DisplayProvider>
+    return (
+        <DisplayProvider thumbSize={100} displayAttributes={false}>
+            <AssetList
+                pages={pages}
+                total={assets.length}
+                searchBar={false}
+                onSelectionChange={onSelectionChange}
+                layout={Layout.List}
+                noActions={true}
+                itemLabel={'item'}
+            />
+        </DisplayProvider>
+    );
 }

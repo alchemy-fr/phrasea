@@ -1,5 +1,12 @@
 import {useContext} from 'react';
-import {ClickAwayListener, Divider, ListItemIcon, ListItemText, Menu, MenuItem,} from '@mui/material';
+import {
+    ClickAwayListener,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+} from '@mui/material';
 import {Asset, AssetOrAssetContainer} from '../../types.ts';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
@@ -107,9 +114,9 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                 {original && (
                     <MenuItem onClick={() => onOpen(original.id)}>
                         <ListItemIcon>
-                            <FileOpenIcon fontSize="small"/>
+                            <FileOpenIcon fontSize="small" />
                         </ListItemIcon>
-                        <ListItemText primary="Open"/>
+                        <ListItemText primary="Open" />
                     </MenuItem>
                 )}
                 {asset.source && (
@@ -120,12 +127,12 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         variant={'text'}
                     >
                         <ListItemIcon>
-                            <SaveIcon/>
+                            <SaveIcon />
                         </ListItemIcon>
-                        <ListItemText primary={'Save as'}/>
+                        <ListItemText primary={'Save as'} />
 
                         <ListItemIcon>
-                            <ArrowDropDownIcon/>
+                            <ArrowDropDownIcon />
                         </ListItemIcon>
                     </SaveAsButton>
                 )}
@@ -133,18 +140,17 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     original.file.alternateUrls.map(a => (
                         <MenuItem key={a.type} onClick={() => openUrl(a.url)}>
                             <ListItemIcon>
-                                <LinkIcon fontSize="small"/>
+                                <LinkIcon fontSize="small" />
                             </ListItemIcon>
-                            <ListItemText primary={a.label || a.type}/>
+                            <ListItemText primary={a.label || a.type} />
                         </MenuItem>
                     ))}
                 {original?.file?.url && (
-                    <MenuItem
-                        onClick={onDownload}>
+                    <MenuItem onClick={onDownload}>
                         <ListItemIcon>
-                            <CloudDownloadIcon fontSize="small"/>
+                            <CloudDownloadIcon fontSize="small" />
                         </ListItemIcon>
-                        <ListItemText primary="Download"/>
+                        <ListItemText primary="Download" />
                     </MenuItem>
                 )}
                 <MenuItem
@@ -152,28 +158,30 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     onClick={capabilities.canEdit ? onEdit : undefined}
                 >
                     <ListItemIcon>
-                        <EditIcon fontSize="small"/>
+                        <EditIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText primary="Edit"/>
+                    <ListItemText primary="Edit" />
                 </MenuItem>
                 <MenuItem
                     disabled={!capabilities.canEditAttributes}
-                    onClick={capabilities.canEditAttributes ? onEditAttr : undefined}
+                    onClick={
+                        capabilities.canEditAttributes ? onEditAttr : undefined
+                    }
                 >
                     <ListItemIcon>
-                        <EditIcon fontSize="small"/>
+                        <EditIcon fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText primary="Edit attributes"/>
+                    <ListItemText primary="Edit attributes" />
                 </MenuItem>
-                <Divider key={'d'}/>
+                <Divider key={'d'} />
                 <MenuItem
                     disabled={!capabilities.canDelete}
                     onClick={capabilities.canDelete ? onDelete : undefined}
                 >
                     <ListItemIcon>
-                        <DeleteIcon fontSize="small" color={'error'}/>
+                        <DeleteIcon fontSize="small" color={'error'} />
                     </ListItemIcon>
-                    <ListItemText primary="Delete"/>
+                    <ListItemText primary="Delete" />
                 </MenuItem>
             </Menu>
         </ClickAwayListener>

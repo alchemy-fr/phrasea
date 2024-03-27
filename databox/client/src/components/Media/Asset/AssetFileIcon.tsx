@@ -8,7 +8,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import {SvgIcon, SvgIconProps} from '@mui/material';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../lib/file';
 import React from 'react';
-import assetClasses from "../../AssetList/classes.ts";
+import assetClasses from '../../AssetList/classes.ts';
 
 function getIconFromType(type: string | undefined): typeof SvgIcon {
     switch (getFileTypeFromMIMEType(type)) {

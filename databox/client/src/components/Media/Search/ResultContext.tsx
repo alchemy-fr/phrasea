@@ -2,7 +2,7 @@ import {Asset} from '../../../types';
 import {TFacets} from '../Asset/Facets';
 import {ESDebug} from '../../../api/asset';
 import React from 'react';
-import {ReloadFunc} from "../../AssetList/types.ts";
+import {ReloadFunc} from '../../AssetList/types.ts';
 
 export type TResultContext = {
     loading: boolean;

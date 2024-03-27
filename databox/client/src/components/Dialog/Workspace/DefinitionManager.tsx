@@ -1,4 +1,10 @@
-import React, {FunctionComponent, useCallback, useEffect, useMemo, useState,} from 'react';
+import React, {
+    FunctionComponent,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import {
     Box,
     Button,
@@ -20,11 +26,15 @@ import {useFormSubmit, UseFormSubmitReturn} from '@alchemy/api';
 import {LoadingButton} from '@mui/lab';
 import {toast} from 'react-toastify';
 import RemoteErrors from '../../Form/RemoteErrors';
-import SortableList, {OrderChangeHandler, SortableItem, SortableItemProps,} from '../../Ui/Sortable/SortableList';
+import SortableList, {
+    OrderChangeHandler,
+    SortableItem,
+    SortableItemProps,
+} from '../../Ui/Sortable/SortableList';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab.tsx';
 import {DefaultValues} from 'react-hook-form';
 
-type DefinitionBase = ApiHydraObjectResponse & { id: string };
+type DefinitionBase = ApiHydraObjectResponse & {id: string};
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
@@ -135,17 +145,19 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     item: undefined,
                     loading: true,
                 });
-                loadItem(data.id).then(d => {
-                    setItemState({
-                        item: d,
-                        loading: false,
+                loadItem(data.id)
+                    .then(d => {
+                        setItemState({
+                            item: d,
+                            loading: false,
+                        });
+                    })
+                    .catch(() => {
+                        setItemState(p => ({
+                            ...p,
+                            loading: false,
+                        }));
                     });
-                }).catch(() => {
-                    setItemState(p => ({
-                        ...p,
-                        loading: false,
-                    }));
-                });
             } else {
                 setItemState({
                     item: data,
@@ -181,7 +193,9 @@ export default function DefinitionManager<D extends DefinitionBase>({
         defaultValues: newItem as DefaultValues<D>,
         onSubmit: async (data: D) => {
             const newData = await handleSave(data);
-            const newNormData = normalizeData ? normalizeData(newData) : newData;
+            const newNormData = normalizeData
+                ? normalizeData(newData)
+                : newData;
 
             setItemState({
                 item: newNormData,
@@ -314,12 +328,12 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 disabled={!list}
                             >
                                 <ListItemIcon>
-                                    <AddBoxIcon/>
+                                    <AddBoxIcon />
                                 </ListItemIcon>
-                                <ListItemText primary={newLabel}/>
+                                <ListItemText primary={newLabel} />
                             </ListItemButton>
                         </ListItem>
-                        <Divider/>
+                        <Divider />
 
                         {onSort && list && (
                             <SortableList<D & SortableItem, any>
@@ -340,7 +354,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 return (
                                     <ListItem disablePadding key={i.id}>
                                         <ListItemButton
-                                            selected={item !== 'new' && i.id === item?.id}
+                                            selected={
+                                                item !== 'new' &&
+                                                i.id === item?.id
+                                            }
                                             onClick={handleItemClick(i)}
                                         >
                                             {React.createElement(
@@ -366,7 +383,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                         />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={<Skeleton variant="text"/>}
+                                        primary={<Skeleton variant="text" />}
                                         secondary={
                                             <Skeleton
                                                 variant="text"
@@ -385,14 +402,15 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         flexGrow: 1,
                     }}
                 >
-                    {loadingItem && <Box sx={{
-                        p: 3,
-                    }}>
-                        <CircularProgress
-                            color="inherit"
-                            size={50}
-                        />
-                    </Box>}
+                    {loadingItem && (
+                        <Box
+                            sx={{
+                                p: 3,
+                            }}
+                        >
+                            <CircularProgress color="inherit" size={50} />
+                        </Box>
+                    )}
                     {item && (
                         <form
                             id={formId}
@@ -406,10 +424,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
                             })}
                         </form>
                     )}
-                    <RemoteErrors errors={remoteErrors}/>
+                    <RemoteErrors errors={remoteErrors} />
                     {item && item !== 'new' && handleDelete && (
                         <>
-                            <hr/>
+                            <hr />
                             <Button color={'error'} onClick={onDelete}>
                                 {t('common.delete', 'Delete')}
                             </Button>

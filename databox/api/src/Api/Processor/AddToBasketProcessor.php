@@ -56,7 +56,6 @@ class AddToBasketProcessor implements ProcessorInterface
             $position = $this->basketRepository->getBasketMaxPosition($basket->getId()) + 1;
         }
 
-
         $mapping = [];
         $ids = array_map(function (AssetToBasketInput $input) use (&$mapping): string {
             $mapping[$input->id] = $input;

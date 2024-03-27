@@ -1,8 +1,8 @@
 import {DOMAttributes, MouseEventHandler, PropsWithChildren} from 'react';
 import {Box, SxProps} from '@mui/material';
 import {alpha, Theme} from '@mui/material/styles';
-import assetClasses from "../../AssetList/classes.ts";
-import {createThumbActiveStyle} from "./AssetThumb.tsx";
+import assetClasses from '../../AssetList/classes.ts';
+import {createThumbActiveStyle} from './AssetThumb.tsx';
 
 type Props = PropsWithChildren<
     {
@@ -17,21 +17,25 @@ export function createSizeTransition(theme: Theme) {
     return theme.transitions.create(['height', 'width'], {duration: 300});
 }
 
-export const thumbSx = (thumbSize: number, theme: Theme, overridden: SxProps = {}) => ({
+export const thumbSx = (
+    thumbSize: number,
+    theme: Theme,
+    overridden: SxProps = {}
+) => ({
     [`.${assetClasses.thumbWrapper}`]: {
-        display: 'flex',
-        overflow: 'hidden',
-        alignItems: 'center',
-        position: 'relative',
-        justifyContent: 'center',
-        backgroundColor: theme.palette.grey[100],
-        img: {
+        'display': 'flex',
+        'overflow': 'hidden',
+        'alignItems': 'center',
+        'position': 'relative',
+        'justifyContent': 'center',
+        'backgroundColor': theme.palette.grey[100],
+        'img': {
             maxWidth: '100%',
             maxHeight: '100%',
         },
-        width: thumbSize,
-        height: thumbSize,
-        transition: createSizeTransition(theme),
+        'width': thumbSize,
+        'height': thumbSize,
+        'transition': createSizeTransition(theme),
         '> div': {
             display: 'contents',
         },

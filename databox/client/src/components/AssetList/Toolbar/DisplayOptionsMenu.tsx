@@ -1,11 +1,20 @@
 import React, {useContext} from 'react';
-import {Box, FormControlLabel, FormGroup, IconButton, Menu, Switch, Tooltip, Typography,} from '@mui/material';
+import {
+    Box,
+    FormControlLabel,
+    FormGroup,
+    IconButton,
+    Menu,
+    Switch,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {DisplayContext} from '../../Media/DisplayContext.tsx';
 import {debounce} from '../../../lib/debounce.ts';
 import ToggleWithLimit from '../../Media/Search/ToggleWithLimit.tsx';
-import ThumbSizeWidget from "./ThumbSizeWidget.tsx";
+import ThumbSizeWidget from './ThumbSizeWidget.tsx';
 
 type Props = {};
 
@@ -56,7 +65,7 @@ export default function DisplayOptionsMenu({}: Props) {
                     aria-expanded={menuOpen ? 'true' : undefined}
                     onClick={handleMoreClick}
                 >
-                    <ArrowDropDownIcon/>
+                    <ArrowDropDownIcon />
                 </IconButton>
             </Tooltip>
             <Menu

@@ -1,5 +1,5 @@
 import {TFacets} from '../components/Media/Asset/Facets';
-import {Asset} from "../types.ts";
+import {Asset} from '../types.ts';
 
 export type ApiCollectionResponse<T, E extends {} = {}> = {
     total: number;
@@ -50,9 +50,14 @@ export function getHydraCollection<T, E extends {} = {}>(
     return res;
 }
 
-export function getAssetsHydraCollection(response: HydraCollectionResponse<Asset, {
-    facets: TFacets;
-}>) {
+export function getAssetsHydraCollection(
+    response: HydraCollectionResponse<
+        Asset,
+        {
+            facets: TFacets;
+        }
+    >
+) {
     return {
         ...getHydraCollection(response),
         facets: response.facets,

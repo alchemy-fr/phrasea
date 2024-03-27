@@ -2,7 +2,7 @@ import {Basket} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Acl/AclForm';
 import ContentTab from '../Tabbed/ContentTab';
-import {PermissionObject} from "../../Permissions/permissions";
+import {PermissionObject} from '../../Permissions/permissions';
 
 type Props = {
     data: Basket;

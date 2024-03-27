@@ -1,6 +1,6 @@
 import {ThemeName} from '../../../lib/theme';
 import React from 'react';
-import {Layout} from "../../AssetList/Layouts";
+import {Layout} from '../../AssetList/Layouts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;

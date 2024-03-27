@@ -35,14 +35,15 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             ? {
                   title: data.title,
                   privacy: data.privacy,
-                  tags: (data?.tags?.map(t => t['@id']) ?? []) as unknown as Tag[],
+                  tags: (data?.tags?.map(t => t['@id']) ??
+                      []) as unknown as Tag[],
               }
             : {
                   title: '',
                   privacy: Privacy.Secret,
                   tags: [] as Tag[],
               },
-        onSubmit: async (d) => {
+        onSubmit: async d => {
             return await putAsset(data.id, d as unknown as AssetApiInput);
         },
         onSuccess: () => {
@@ -86,7 +87,10 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                             control={control}
                             name={'tags'}
                         />
-                        <FormFieldErrors<Asset> field={'tags'} errors={errors} />
+                        <FormFieldErrors<Asset>
+                            field={'tags'}
+                            errors={errors}
+                        />
                     </FormGroup>
                 </FormRow>
                 <FormRow>

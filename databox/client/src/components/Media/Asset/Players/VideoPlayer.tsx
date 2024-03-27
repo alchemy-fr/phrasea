@@ -62,7 +62,8 @@ export default function VideoPlayer({
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-    const dimensions = forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const dimensions =
+        forcedDimensions ?? createDimensions(displayContext!.thumbSize);
     const videoDimensions = getVideoDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && displayContext?.playVideos;
 
@@ -135,10 +136,7 @@ export default function VideoPlayer({
                     >
                         <PlayComponent
                             fontSize={getSizeCase(
-                                Math.min(
-                                    dimensions.width,
-                                    dimensions.height
-                                ),
+                                Math.min(dimensions.width, dimensions.height),
                                 {
                                     0: 'small',
                                     100: 'medium',

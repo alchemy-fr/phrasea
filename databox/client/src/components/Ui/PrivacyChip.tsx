@@ -3,8 +3,8 @@ import {useTranslation} from 'react-i18next';
 import {grey} from '@mui/material/colors';
 import LockIcon from '@mui/icons-material/Lock';
 import {Privacy} from '../../api/privacy';
-import FastTooltip from "./FastTooltip.tsx";
-import assetClasses from "../AssetList/classes.ts";
+import FastTooltip from './FastTooltip.tsx';
+import assetClasses from '../AssetList/classes.ts';
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
@@ -39,13 +39,17 @@ type Props = {
     noAccess: boolean | undefined;
 };
 
-export default function PrivacyChip({privacy, noAccess, ...props}: Props & ChipProps) {
+export default function PrivacyChip({
+    privacy,
+    noAccess,
+    ...props
+}: Props & ChipProps) {
     const privacyLabel = usePrivacyLabel(privacy, noAccess);
 
     return (
         <Chip
             {...props}
-            icon={<LockIcon color={'inherit'} fontSize={props.size}/>}
+            icon={<LockIcon color={'inherit'} fontSize={props.size} />}
             label={privacyLabel}
             sx={() => ({
                 ml: 1,

@@ -1,13 +1,18 @@
 import {Asset, Attribute} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode, useContext,} from 'react';
+import React, {
+    PropsWithChildren,
+    ReactElement,
+    ReactNode,
+    useContext,
+} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
-import {AttributeFormatContext} from "./Format/AttributeFormatContext.ts";
+import {AttributeFormatContext} from './Format/AttributeFormatContext.ts';
 
 type FreeNode = string | ReactNode | ReactNode[];
 
@@ -165,29 +170,29 @@ export const attributesClasses = {
     name: 'attr-name',
     val: 'attr-val',
     list: 'attr-ul',
-}
+};
 
 export function attributesSx(): SxProps {
     return {
         [`.${attributesClasses.name}`]: {
             fontWeight: 100,
             fontSize: 13,
-            my: .5,
+            my: 0.5,
         },
         [`.${attributesClasses.controls}`]: {
-            display: 'inline-block',
-            ml: 1,
-            my: -1,
+            'display': 'inline-block',
+            'ml': 1,
+            'my': -1,
             '.MuiSvgIcon-root': {
                 fontSize: 13,
             },
             '.MuiButtonBase-root + .MuiButtonBase-root': {
                 ml: 1,
-            }
+            },
         },
         [`.${attributesClasses.val}`]: {
-            mb: 1,
-            fontSize: 14,
+            'mb': 1,
+            'fontSize': 14,
             '.MuiSvgIcon-root': {
                 fontSize: 13,
             },

@@ -61,7 +61,11 @@ export function Rendition({
             info={
                 file && (
                     <div>
-                        {file.size ? <>{byteSize(file.size).toString()} • </> : ''}
+                        {file.size ? (
+                            <>{byteSize(file.size).toString()} • </>
+                        ) : (
+                            ''
+                        )}
                         {file.type ? file.type : ''}
                     </div>
                 )
@@ -131,11 +135,7 @@ function RenditionStructure({
     );
 }
 
-export function RenditionSkeleton({
-    dimensions,
-}: {
-    dimensions: Dimensions;
-}) {
+export function RenditionSkeleton({dimensions}: {dimensions: Dimensions}) {
     return (
         <RenditionStructure
             title={<Skeleton variant={'text'} />}

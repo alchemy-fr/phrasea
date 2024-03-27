@@ -8,12 +8,15 @@ import {
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps,} from './DefinitionManager';
+import DefinitionManager, {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
-import {PermissionObject} from "../../Permissions/permissions.ts";
+import {PermissionObject} from '../../Permissions/permissions.ts';
 
 function Item({
     data,

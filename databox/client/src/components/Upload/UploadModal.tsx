@@ -83,7 +83,7 @@ export default function UploadModal({
 
     const usedFormSubmit = useFormSubmit<UploadData, Asset[], FormUploadData>({
         defaultValues,
-        normalize: (data) => {
+        normalize: data => {
             return {
                 ...data,
                 tags: data.tags.map(t => t['@id']),

@@ -22,7 +22,7 @@ export default function CopyAttribute({value}: Props) {
                         }
                     }}
                 >
-                    <ContentCopyIcon fontSize={'small'}/>
+                    <ContentCopyIcon fontSize={'small'} />
                 </IconButton>
             )}
         </CopyToClipboard>

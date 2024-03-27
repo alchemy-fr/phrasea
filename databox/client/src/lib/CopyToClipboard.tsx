@@ -14,14 +14,11 @@ type Props = {
     children: (props: ChildProps) => React.ReactElement;
 };
 
-export default function CopyToClipboard({
-    children,
-    tooltipProps = {},
-}: Props) {
+export default function CopyToClipboard({children, tooltipProps = {}}: Props) {
     const [show, setShow] = React.useState(false);
     const {t} = useTranslation();
 
-    const onCopy: CopyFunc = (content) => {
+    const onCopy: CopyFunc = content => {
         if (content) {
             copy(content);
             setShow(true);
@@ -36,11 +33,15 @@ export default function CopyToClipboard({
         copy: onCopy,
     });
 
-    return show ? <Tooltip
-        open={true}
-        title={t('copy_toclipboard.copied', 'Copied to clipboard!')}
-        {...tooltipProps}
-    >
-        {child}
-    </Tooltip> : child;
+    return show ? (
+        <Tooltip
+            open={true}
+            title={t('copy_toclipboard.copied', 'Copied to clipboard!')}
+            {...tooltipProps}
+        >
+            {child}
+        </Tooltip>
+    ) : (
+        child
+    );
 }

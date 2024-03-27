@@ -15,7 +15,7 @@ import AssetSelection from '../../../AssetList/AssetSelection.tsx';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
-import {OnSelectionChange} from "../../../AssetList/types.ts";
+import {OnSelectionChange} from '../../../AssetList/types.ts';
 
 type FormData = {
     destination: string;
@@ -46,9 +46,11 @@ function AssetList({
                     `You can select the asset you want to duplicate to the destination (hard copy):`
                 )}
             </Typography>
-            <div style={{
-                height: '50vh',
-            }}>
+            <div
+                style={{
+                    height: '50vh',
+                }}
+            >
                 <AssetSelection
                     assets={assets}
                     onSelectionChange={onSelectionChange}

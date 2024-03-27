@@ -1,8 +1,12 @@
 import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute} from '../types';
-import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection} from './hydra';
+import {
+    ApiCollectionResponse,
+    getAssetsHydraCollection,
+    getHydraCollection,
+} from './hydra';
 import {AxiosRequestConfig} from 'axios';
-import {TFacets} from "../components/Media/Asset/Facets.tsx";
+import {TFacets} from '../components/Media/Asset/Facets.tsx';
 
 export interface GetAssetOptions {
     url?: string;

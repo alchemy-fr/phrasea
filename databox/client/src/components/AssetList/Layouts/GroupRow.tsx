@@ -8,7 +8,7 @@ import {AttributeType} from '../../../api/attributes.ts';
 import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import {groupValueTypes} from '../GroupValue/types.tsx';
-import assetClasses from "../classes.ts";
+import assetClasses from '../classes.ts';
 
 type Props = PropsWithChildren<{
     asset: Asset;

@@ -8,8 +8,8 @@ import Acl from './Acl.tsx';
 import InfoBasket from './InfoBasket';
 import {modalRoutes} from '../../../routes.ts';
 import {useCloseModal} from '../../Routing/ModalLink.tsx';
-import {getBasket} from "../../../api/basket.ts";
-import EditBasket from "./EditBasket.tsx";
+import {getBasket} from '../../../api/basket.ts';
+import EditBasket from './EditBasket.tsx';
 
 type Props = {};
 

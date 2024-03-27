@@ -7,17 +7,13 @@ import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
-import {useBasketStore} from "../../store/basketStore.ts";
+import {useBasketStore} from '../../store/basketStore.ts';
 
 type Props = {
     onCreate?: (data: Basket) => void;
 } & StackedModalProps;
 
-export default function CreateBasket({
-    modalIndex,
-    open,
-    onCreate,
-}: Props) {
+export default function CreateBasket({modalIndex, open, onCreate}: Props) {
     const {closeModal} = useModals();
     const {t} = useTranslation();
     const addBasket = useBasketStore(state => state.addBasket);
@@ -29,12 +25,9 @@ export default function CreateBasket({
         onSubmit: async (data: Basket) => {
             return await postBasket(data);
         },
-        onSuccess: (data) => {
+        onSuccess: data => {
             toast.success(
-                t(
-                    'form.basket_create.success',
-                    'Basket created!'
-                ) as string
+                t('form.basket_create.success', 'Basket created!') as string
             );
             addBasket(data);
             closeModal();
@@ -56,7 +49,7 @@ export default function CreateBasket({
             errors={remoteErrors}
             open={open}
         >
-            <BasketForm formId={formId} usedFormSubmit={usedFormSubmit}/>
+            <BasketForm formId={formId} usedFormSubmit={usedFormSubmit} />
         </FormDialog>
     );
 }
