@@ -5,8 +5,8 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
 import React from 'react';
-import {attributesClasses} from './Attributes.tsx';
-import {isRtlLocale} from '../../../../lib/lang.ts';
+import {attributesClasses} from './Attributes';
+import {isRtlLocale} from '../../../../lib/lang';
 
 type Props = {
     type: string;

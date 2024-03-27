@@ -11,10 +11,10 @@ import {
 } from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import {DisplayContext} from '../../Media/DisplayContext.tsx';
-import {debounce} from '../../../lib/debounce.ts';
-import ToggleWithLimit from '../../Media/Search/ToggleWithLimit.tsx';
-import ThumbSizeWidget from './ThumbSizeWidget.tsx';
+import {DisplayContext} from '../../Media/DisplayContext';
+import {debounce} from '../../../lib/debounce';
+import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
+import ThumbSizeWidget from './ThumbSizeWidget';
 
 type Props = {};
 

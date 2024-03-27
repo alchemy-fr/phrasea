@@ -1,9 +1,9 @@
 import {useMemo} from 'react';
-import {Asset} from '../../types.ts';
-import AssetList from './AssetList.tsx';
-import DisplayProvider from '../Media/DisplayProvider.tsx';
+import {Asset} from '../../types';
+import AssetList from './AssetList';
+import DisplayProvider from '../Media/DisplayProvider';
 import {Layout} from './Layouts';
-import {OnSelectionChange} from './types.ts';
+import {OnSelectionChange} from './types';
 
 // function SelectionProxy({pages}: {pages: Asset[][]}) {
 //     const {t} = useTranslation();

@@ -10,8 +10,8 @@ import {getCollection} from '../../../api/collection';
 import TagRulesTab from './TagRulesTab';
 import Operations from './Operations';
 import InfoCollection from './InfoCollection';
-import {modalRoutes} from '../../../routes.ts';
-import {useCloseModal} from '../../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../../routes';
+import {useCloseModal} from '../../Routing/ModalLink';
 
 type Props = {};
 

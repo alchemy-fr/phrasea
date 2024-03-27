@@ -11,11 +11,11 @@ import RemoteErrors from '../../../Form/RemoteErrors';
 import {FormRow} from '@alchemy/react-form';
 import SwitchWidget from '../../../Form/SwitchWidget';
 import {Asset} from '../../../../types';
-import AssetSelection from '../../../AssetList/AssetSelection.tsx';
+import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
-import {OnSelectionChange} from '../../../AssetList/types.ts';
+import {OnSelectionChange} from '../../../AssetList/types';
 
 type FormData = {
     destination: string;

@@ -26,7 +26,7 @@ import {
     useModals,
     useOutsideRouterDirtyFormPrompt,
 } from '@alchemy/navigation';
-import {Privacy} from '../../api/privacy.ts';
+import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types.ts';
 
 type FileWrapper = {

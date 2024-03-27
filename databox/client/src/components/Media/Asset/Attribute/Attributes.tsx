@@ -12,7 +12,7 @@ import {SxProps} from '@mui/material';
 import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
-import {AttributeFormatContext} from './Format/AttributeFormatContext.ts';
+import {AttributeFormatContext} from './Format/AttributeFormatContext';
 
 type FreeNode = string | ReactNode | ReactNode[];
 

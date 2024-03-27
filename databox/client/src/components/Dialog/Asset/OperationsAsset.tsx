@@ -10,7 +10,7 @@ import ModalLink from '../../Routing/ModalLink';
 import moment from 'moment';
 import {jobStatuses, Workflow} from '@alchemy/visual-workflow';
 import React from 'react';
-import {modalRoutes} from '../../../routes.ts';
+import {modalRoutes} from '../../../routes';
 
 type Props = {
     data: Asset;

@@ -1,14 +1,14 @@
 import {useCallback, useContext, useState} from 'react';
-import {Asset} from '../../types.ts';
+import {Asset} from '../../types';
 import {Paper, Popper, Stack} from '@mui/material';
-import FilePlayer from '../Media/Asset/FilePlayer.tsx';
-import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style.ts';
+import FilePlayer from '../Media/Asset/FilePlayer';
+import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import {createDimensions} from '../Media/Asset/Players';
-import {zIndex} from '../../themes/zIndex.ts';
+import {zIndex} from '../../themes/zIndex';
 import Attributes, {
     attributesSx,
-} from '../Media/Asset/Attribute/Attributes.tsx';
-import {DisplayContext} from '../Media/DisplayContext.tsx';
+} from '../Media/Asset/Attribute/Attributes';
+import {DisplayContext} from '../Media/DisplayContext';
 
 type Props = {
     anchorEl: HTMLElement | undefined;

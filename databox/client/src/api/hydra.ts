@@ -1,5 +1,5 @@
 import {TFacets} from '../components/Media/Asset/Facets';
-import {Asset} from '../types.ts';
+import {Asset} from '../types';
 
 export type ApiCollectionResponse<T, E extends {} = {}> = {
     total: number;

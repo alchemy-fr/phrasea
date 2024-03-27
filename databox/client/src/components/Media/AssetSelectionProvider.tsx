@@ -7,7 +7,7 @@ import {
     useRef,
     useState,
 } from 'react';
-import {AssetSelectionContext} from '../../context/AssetSelectionContext.tsx';
+import {AssetSelectionContext} from '../../context/AssetSelectionContext';
 import {ResultContext} from './Search/ResultContext';
 import {StateSetterArg} from '../../types/react';
 

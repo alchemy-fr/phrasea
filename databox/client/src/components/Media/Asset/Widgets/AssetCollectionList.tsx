@@ -2,7 +2,7 @@ import {useContext} from 'react';
 import {Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import {CollectionChip, WorkspaceChip} from '../../../Ui/Chips';
-import assetClasses from '../../../AssetList/classes.ts';
+import assetClasses from '../../../AssetList/classes';
 
 type Props = {
     workspace?: Workspace;

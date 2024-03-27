@@ -1,8 +1,8 @@
 import React from 'react';
-import {useCollectionStore} from '../../store/collectionStore.ts';
-import WorkspaceMenuItem from './WorkspaceMenuItem.tsx';
-import {getWorkspaces} from '../../api/collection.ts';
-import {Workspace} from '../../types.ts';
+import {useCollectionStore} from '../../store/collectionStore';
+import WorkspaceMenuItem from './WorkspaceMenuItem';
+import {getWorkspaces} from '../../api/collection';
+import {Workspace} from '../../types';
 
 type Props = {};
 

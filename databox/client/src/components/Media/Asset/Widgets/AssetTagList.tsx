@@ -2,7 +2,7 @@ import {useContext} from 'react';
 import {Tag} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import TagNode, {tagClassName} from '../../../Ui/TagNode';
-import assetClasses from '../../../AssetList/classes.ts';
+import assetClasses from '../../../AssetList/classes';
 
 type Props = {
     tags: Tag[];

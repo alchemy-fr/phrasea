@@ -6,7 +6,7 @@ import './config';
 import './i18n';
 import './lib/leaflet';
 import {initSentry} from '@alchemy/core';
-import config from './config.ts';
+import config from './config';
 
 initSentry(config);
 

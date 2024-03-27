@@ -3,7 +3,7 @@ import PermissionList from '../Permissions/PermissionList';
 import {deleteAce, getAces, putAce} from '../../api/acl';
 import {OnPermissionDelete, PermissionObject} from '../Permissions/permissions';
 import {Ace, UserType} from '../../types';
-import {useCollectionStore} from '../../store/collectionStore.ts';
+import {useCollectionStore} from '../../store/collectionStore';
 
 type Props = {
     objectType: PermissionObject;

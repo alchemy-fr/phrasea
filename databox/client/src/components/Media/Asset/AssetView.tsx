@@ -14,7 +14,7 @@ import RouteDialog from '../../Dialog/RouteDialog';
 import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
 import {useNavigateToModal} from '../../Routing/ModalLink';
-import {modalRoutes} from '../../../routes.ts';
+import {modalRoutes} from '../../../routes';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;

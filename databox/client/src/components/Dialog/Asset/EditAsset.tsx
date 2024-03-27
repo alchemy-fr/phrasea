@@ -5,12 +5,12 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
-import {Privacy} from '../../../api/privacy.ts';
+import {Privacy} from '../../../api/privacy';
 import {FormRow} from '@alchemy/react-form';
 import {FormGroup, InputLabel, TextField} from '@mui/material';
 import {FormFieldErrors} from '@alchemy/react-form';
-import TagSelect from '../../Form/TagSelect.tsx';
-import PrivacyField from '../../Ui/PrivacyField.tsx';
+import TagSelect from '../../Form/TagSelect';
+import PrivacyField from '../../Ui/PrivacyField';
 
 type Props = {
     id: string;

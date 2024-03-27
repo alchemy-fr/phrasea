@@ -1,8 +1,8 @@
 import {DOMAttributes, MouseEventHandler, PropsWithChildren} from 'react';
 import {Box, SxProps} from '@mui/material';
 import {alpha, Theme} from '@mui/material/styles';
-import assetClasses from '../../AssetList/classes.ts';
-import {createThumbActiveStyle} from './AssetThumb.tsx';
+import assetClasses from '../../AssetList/classes';
+import {createThumbActiveStyle} from './AssetThumb';
 
 type Props = PropsWithChildren<
     {

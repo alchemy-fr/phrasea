@@ -1,6 +1,6 @@
 import React from 'react';
-import {Asset, AssetOrAssetContainer, StateSetter} from '../types.ts';
-import {ItemToAssetFunc} from '../components/AssetList/types.ts';
+import {Asset, AssetOrAssetContainer, StateSetter} from '../types';
+import {ItemToAssetFunc} from '../components/AssetList/types';
 
 export type TSelectionContext<T extends AssetOrAssetContainer> = {
     selection: T[];

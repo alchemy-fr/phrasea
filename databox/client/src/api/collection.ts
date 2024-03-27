@@ -2,7 +2,7 @@ import apiClient from './api-client';
 import {Collection, CollectionOptionalWorkspace, Workspace} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
-import {useCollectionStore} from '../store/collectionStore.ts';
+import {useCollectionStore} from '../store/collectionStore';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;

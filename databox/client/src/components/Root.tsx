@@ -12,8 +12,8 @@ import {
     MatomoUser,
     SessionExpireContainer,
 } from '@alchemy/react-auth';
-import {modalRoutes, routes} from '../routes.ts';
-import RouteProxy from './Routing/RouteProxy.tsx';
+import {modalRoutes, routes} from '../routes';
+import RouteProxy from './Routing/RouteProxy';
 
 type Props = {};
 

@@ -16,7 +16,7 @@ import {useTranslation} from 'react-i18next';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
-import {PermissionObject} from '../../Permissions/permissions.ts';
+import {PermissionObject} from '../../Permissions/permissions';
 
 function Item({
     data,

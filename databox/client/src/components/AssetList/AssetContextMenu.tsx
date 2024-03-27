@@ -7,21 +7,21 @@ import {
     Menu,
     MenuItem,
 } from '@mui/material';
-import {Asset, AssetOrAssetContainer} from '../../types.ts';
+import {Asset, AssetOrAssetContainer} from '../../types';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
-import DeleteAssetsConfirm from '../Media/Asset/Actions/DeleteAssetsConfirm.tsx';
-import {ResultContext} from '../Media/Search/ResultContext.tsx';
-import ExportAssetsDialog from '../Media/Asset/Actions/ExportAssetsDialog.tsx';
+import DeleteAssetsConfirm from '../Media/Asset/Actions/DeleteAssetsConfirm';
+import {ResultContext} from '../Media/Search/ResultContext';
+import ExportAssetsDialog from '../Media/Asset/Actions/ExportAssetsDialog';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {useModals} from '@alchemy/navigation';
-import SaveAsButton from '../Media/Asset/Actions/SaveAsButton.tsx';
-import {useNavigateToModal} from '../Routing/ModalLink.tsx';
+import SaveAsButton from '../Media/Asset/Actions/SaveAsButton';
+import {useNavigateToModal} from '../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
-import {modalRoutes} from '../../routes.ts';
+import {modalRoutes} from '../../routes';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 type Props<Item extends AssetOrAssetContainer> = {

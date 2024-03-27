@@ -16,8 +16,8 @@ import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFor
 import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
-import AssetSearch from './AssetSearch/AssetSearch.tsx';
-import {leftPanelWidth} from '../themes/base.ts';
+import AssetSearch from './AssetSearch/AssetSearch';
+import {leftPanelWidth} from '../themes/base';
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>

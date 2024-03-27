@@ -3,8 +3,8 @@ import {useTranslation} from 'react-i18next';
 import {grey} from '@mui/material/colors';
 import LockIcon from '@mui/icons-material/Lock';
 import {Privacy} from '../../api/privacy';
-import FastTooltip from './FastTooltip.tsx';
-import assetClasses from '../AssetList/classes.ts';
+import FastTooltip from './FastTooltip';
+import assetClasses from '../AssetList/classes';
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
