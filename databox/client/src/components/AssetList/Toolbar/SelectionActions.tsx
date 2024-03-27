@@ -95,15 +95,6 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         setSelection(previous => previous.length > 0 ? [] : pages.flat());
     }, [pages]);
 
-    const onDelete = () => {
-        openModal(DeleteAssetsConfirm, {
-            assetIds: selection.map(i => i.id),
-            onDelete: () => {
-                reload && reload();
-            },
-        });
-    };
-
     const {
         canDelete,
         canDownload,
@@ -111,6 +102,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         canEditAttributes,
         canMove,
         canShare,
+        onDelete,
         onCopy,
         wsId,
     } = useMemo(() => {
@@ -161,6 +153,14 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             canEditAttributes,
             canMove,
             canShare,
+            onDelete: () => {
+                openModal(DeleteAssetsConfirm, {
+                    assetIds: selectedAssets.map(i => i.id),
+                    onDelete: () => {
+                        reload && reload();
+                    },
+                });
+            },
             onCopy: () => {
                 openModal(CopyAssetsDialog, {
                     assets: selectedAssets,

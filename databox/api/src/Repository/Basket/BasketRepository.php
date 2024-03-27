@@ -23,8 +23,7 @@ class BasketRepository extends ServiceEntityRepository
         return $this
             ->createQueryBuilder('t')
             ->addOrderBy('t.createdAt', 'DESC')
-            ->addOrderBy('t.id', 'ASC')
-        ;
+            ->addOrderBy('t.id', 'ASC');
     }
 
     public function removeFromBasket(string $basketId, array $itemIds): void
@@ -39,7 +38,17 @@ class BasketRepository extends ServiceEntityRepository
                 'ids' => $itemIds,
             ])
             ->getQuery()
-            ->execute()
-        ;
+            ->execute();
+    }
+
+    public function getBasketMaxPosition(string $basketId): int
+    {
+        return $this->_em->createQueryBuilder()
+            ->select('MAX(t.position) as m')
+            ->from(BasketAsset::class, 't')
+            ->andWhere('t.basket = :b')
+            ->setParameter('b', $basketId)
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
     }
 }

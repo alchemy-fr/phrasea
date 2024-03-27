@@ -45,13 +45,17 @@ class AddToBasketProcessor implements ProcessorInterface
             ], [
                 'createdAt' => 'ASC',
             ]);
-
-            if (null === $basket) {
-                $basket = new Basket();
-                $basket->setOwnerId($user->getId());
-                $this->em->persist($basket);
-            }
         }
+
+        if (null === $basket) {
+            $basket = new Basket();
+            $basket->setOwnerId($user->getId());
+            $this->em->persist($basket);
+            $position = 0;
+        } else {
+            $position = $this->basketRepository->getBasketMaxPosition($basket->getId()) + 1;
+        }
+
 
         $mapping = [];
         $ids = array_map(function (AssetToBasketInput $input) use (&$mapping): string {
@@ -69,6 +73,7 @@ class AddToBasketProcessor implements ProcessorInterface
             $basketItem->setBasket($basket);
             $basketItem->setOwnerId($user->getId());
             $basketItem->setAsset($asset);
+            $basketItem->setPosition($position++);
             $this->em->persist($basketItem);
         }
 

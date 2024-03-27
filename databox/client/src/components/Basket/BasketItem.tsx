@@ -22,6 +22,7 @@ const Number = styled('div')(({theme}) => ({
     top: 0,
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
-    fontSize: 28,
-    padding: theme.spacing(1),
+    fontSize: 15,
+    padding: `${theme.spacing(0.5)} ${theme.spacing(1)}`,
+    borderBottomRightRadius: theme.shape.borderRadius,
 }));

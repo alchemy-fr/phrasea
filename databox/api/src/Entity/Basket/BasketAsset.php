@@ -33,6 +33,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             self::GROUP_LIST,
         ],
     ],
+    order: ['position' => 'ASC'],
     provider: BasketAssetCollectionProvider::class,
 )]
 class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
@@ -43,11 +44,11 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     public const GROUP_LIST = 'basket-asset:list';
 
     #[ORM\ManyToOne(targetEntity: Basket::class, inversedBy: 'assets')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Basket $basket = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups([self::GROUP_LIST])]
     private ?Asset $asset = null;
 

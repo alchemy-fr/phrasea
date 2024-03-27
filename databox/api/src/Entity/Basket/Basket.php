@@ -112,7 +112,7 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\OneToMany(mappedBy: 'basket', targetEntity: BasketAsset::class, cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'basket', targetEntity: BasketAsset::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Collection $assets = null;
 
