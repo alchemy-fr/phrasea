@@ -17,7 +17,6 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onCl
     const [loading, setLoading] = React.useState(false);
     const ref = React.useRef<HTMLDivElement>();
     const loadingRef = React.useRef(false);
-    const scrollableNode = ref.current?.closest(`.${assetClasses.scrollable}`);
 
     const doLoad = React.useCallback(() => {
         if (loadingRef.current) {
@@ -35,11 +34,13 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onCl
 
     React.useLayoutEffect(() => {
         if (pages[0]) {
+            const scrollableNode = ref.current?.closest(`.${assetClasses.scrollable}`);
             scrollableNode?.scrollTo({top: 0, left: 0});
         }
-    }, [pages[0], scrollableNode]);
+    }, [pages[0], ref]);
 
     React.useEffect(() => {
+        const scrollableNode = ref.current?.closest(`.${assetClasses.scrollable}`);
         if (scrollableNode) {
             const onScrollEnd = (e: HTMLElementEventMap['scroll']) => {
                 const {scrollTop, scrollHeight, clientHeight} = e.currentTarget as HTMLDivElement;
@@ -53,7 +54,7 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onCl
                 scrollableNode.removeEventListener('scroll', onScrollEnd);
             }
         }
-    }, [doLoad, scrollableNode]);
+    }, [doLoad, ref]);
 
     return (
         <Box
