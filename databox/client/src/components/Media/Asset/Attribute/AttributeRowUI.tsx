@@ -15,7 +15,7 @@ type Props = {
     attributeName: string;
     value: any;
     highlight?: any;
-    controls: boolean;
+    displayControls: boolean;
     multiple: boolean;
     togglePin: (definitionId: string) => void;
     pinned: boolean;
@@ -32,11 +32,12 @@ export default function AttributeRowUI({
     multiple,
     togglePin,
     pinned,
-    controls,
+    displayControls,
     formatContext,
 }: Props) {
     const isRtl = isRtlLocale(locale);
     const formatter = getAttributeType(type);
+    const [overControls, setOverControls] = React.useState(false);
 
     const toggleFormat = React.useCallback<
         React.MouseEventHandler<HTMLButtonElement>
@@ -65,31 +66,35 @@ export default function AttributeRowUI({
                     }
                     : undefined
             }
+            onMouseEnter={() => setOverControls(true)}
+            onMouseLeave={() => setOverControls(false)}
         >
             <div className={attributesClasses.name}>
                 {attributeName}
-                {controls ? <div className={attributesClasses.controls}>
-                    {formatContext.hasFormats(type) && (
-                        <IconButton
-                            onClick={toggleFormat}
-                        >
-                            <VisibilityIcon/>
-                        </IconButton>
-                    )}
-
-                    <CopyAttribute
-                        value={formatter.formatValueAsString(
-                            valueFormatterProps
+                {displayControls ? <div className={attributesClasses.controls}>
+                    {overControls ? <>
+                        {formatContext.hasFormats(type) && (
+                            <IconButton
+                                onClick={toggleFormat}
+                            >
+                                <VisibilityIcon/>
+                            </IconButton>
                         )}
-                    />
 
-                    <IconButton
-                        onClick={() => togglePin(definitionId)}
-                    >
-                        <PushPinIcon
-                            color={pinned ? 'success' : undefined}
+                        <CopyAttribute
+                            value={formatter.formatValueAsString(
+                                valueFormatterProps
+                            )}
                         />
-                    </IconButton>
+
+                        <IconButton
+                            onClick={() => togglePin(definitionId)}
+                        >
+                            <PushPinIcon
+                                color={pinned ? 'success' : undefined}
+                            />
+                        </IconButton>
+                    </> : ''}
                 </div> : ''}
             </div>
             <div className={attributesClasses.val} lang={locale}>
@@ -108,11 +113,11 @@ export default function AttributeRowUI({
                                 return (
                                     <li key={i}>
                                         {formatter.formatValue(formatProps)}
-                                        <CopyAttribute
+                                        {displayControls && overControls ? <CopyAttribute
                                             value={formatter.formatValueAsString(
                                                 formatProps
                                             )}
-                                        />
+                                        /> : ''}
                                     </li>
                                 );
                             })

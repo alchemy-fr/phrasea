@@ -124,7 +124,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         />
                     </div> : ''}
                     {displayAttributes && (
-                        <Attributes asset={asset} controls={true}/>
+                        <Attributes asset={asset} displayControls={true}/>
                     )}
                 </Grid>
             </Grid>

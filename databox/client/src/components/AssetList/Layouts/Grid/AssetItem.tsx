@@ -49,42 +49,37 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         },
                     } as React.MouseEvent)}
                 />
-                <PrivacyTooltip
-                    iconProps={{
-                        fontSize: 'small',
-                    }}
-                    tooltipProps={{
-                        sx: {
-                            display: 'inline-block',
-                            verticalAlign: 'middle',
-                            mr: 1,
-                        },
-                    }}
-                    privacy={asset.privacy}
-                    noAccess={disabled}
-                />
-                {!disabled ? <>
-                    {onAddToBasket ? <IconButton
-                        className={assetClasses.cartBtn}
-                        onMouseDown={stopPropagation}
-                        onDoubleClick={stopPropagation}
-                        onClick={(e) => onAddToBasket(asset, e)}
-                    >
-                        <ShoppingCartIcon fontSize={'small'}/>
-                    </IconButton> : null}
-                    {onContextMenuOpen && (
-                        <IconButton
-                            className={assetClasses.settingBtn}
+                <div>
+                    <PrivacyTooltip
+                        iconProps={{
+                            fontSize: 'small',
+                        }}
+                        privacy={asset.privacy}
+                        noAccess={disabled}
+                    />
+                    {!disabled ? <>
+                        {onAddToBasket ? <IconButton
+                            className={assetClasses.cartBtn}
                             onMouseDown={stopPropagation}
                             onDoubleClick={stopPropagation}
-                            onClick={function (e) {
-                                onContextMenuOpen(e, item, e.currentTarget);
-                            }}
+                            onClick={(e) => onAddToBasket(asset, e)}
                         >
-                            <SettingsIcon fontSize={'small'}/>
-                        </IconButton>
-                    )}
-                </> : ''}
+                            <ShoppingCartIcon fontSize={'small'}/>
+                        </IconButton> : null}
+                        {onContextMenuOpen && (
+                            <IconButton
+                                className={assetClasses.settingBtn}
+                                onMouseDown={stopPropagation}
+                                onDoubleClick={stopPropagation}
+                                onClick={function (e) {
+                                    onContextMenuOpen(e, item, e.currentTarget);
+                                }}
+                            >
+                                <SettingsIcon fontSize={'small'}/>
+                            </IconButton>
+                        )}
+                    </> : ''}
+                </div>
             </div>
             <AssetThumb
                 asset={asset}

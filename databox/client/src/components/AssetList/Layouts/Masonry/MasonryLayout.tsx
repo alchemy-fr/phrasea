@@ -27,13 +27,15 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     const layoutSx = React.useCallback((theme: Theme) => {
         return {
             backgroundColor: theme.palette.common.white,
-            [`.${assetClasses.thumbWrapper}`]: {
-                ...thumbSx(d.thumbSize)(theme),
+            ...thumbSx(d.thumbSize, theme, {
                 height: 'auto',
                 img: {
                     width: d.thumbSize,
                     maxWidth: 'unset',
                 },
+            }),
+            [`.${assetClasses.fileIcon}`]: {
+                m: 5,
             },
             [`.${assetClasses.item}`]: {
                 'width': d.thumbSize,

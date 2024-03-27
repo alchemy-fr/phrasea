@@ -14,6 +14,10 @@ const assetClasses = {
     sectionDivider: 'section-div',
     assetToolbar: 'asset-toolbar',
     assetsActions: 'asset-actions',
+    tagList: 'asset-tag-list',
+    collectionList: 'asset-collection-list',
+    privacy: 'asset-privacy',
+    fileIcon: 'asset-file-icon',
 };
 
 export default assetClasses;

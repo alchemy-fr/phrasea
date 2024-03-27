@@ -6,10 +6,11 @@ import {DisplayContext} from "../../../Media/DisplayContext.tsx";
 import {sectionDividerClassname} from "../../SectionDivider.tsx";
 import assetClasses from "../../classes.ts";
 import {createSizeTransition, thumbSx} from "../../../Media/Asset/Thumb";
-import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb";
 import GridPage from "./GridPage.tsx";
 import PreviewPopover from "../../PreviewPopover.tsx";
 import {usePreview} from "../../usePreview.ts";
+import {tagListSx} from "../../../Media/Asset/Widgets/AssetTagList.tsx";
+import {collectionListSx} from "../../../Media/Asset/Widgets/AssetCollectionList.tsx";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -42,15 +43,14 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
         }
 
         return {
+            ...tagListSx(),
+            ...collectionListSx(),
+            ...thumbSx(d.thumbSize, theme),
             p: 2,
             backgroundColor: theme.palette.common.white,
             [`.${sectionDividerClassname}`]: {
                 margin: `0 -${theme.spacing(1)}`,
                 width: `calc(100% + ${theme.spacing(2)})`,
-            },
-            [`.${assetClasses.thumbWrapper}`]: {
-                ...thumbSx(d.thumbSize)(theme),
-                ...createThumbActiveStyle(),
             },
             [`.${assetClasses.item}`]: {
                 'width': d.thumbSize,
@@ -70,24 +70,23 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         ['opacity', 'transform'],
                         {duration: 300}
                     ),
+                    '> div': {
+                        float: 'right',
+                    },
                     background:
                         'linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%)',
-                },
-                [`.${assetClasses.settingBtn}`]: {
-                    position: 'absolute',
-                    right: 1,
-                    top: 5,
-                },
-                [`.${assetClasses.cartBtn}`]: {
-                    position: 'absolute',
-                    right: 40,
-                    top: 5,
                 },
                 '&:hover, &.selected': {
                     [`.${assetClasses.controls}`]: {
                         opacity: 1,
                         transform: `translateY(0)`,
                     },
+                },
+                [`.${assetClasses.privacy}`]: {
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                    mt: 0.5,
+                    mr: 1,
                 },
                 '&.selected': {
                     backgroundColor: alpha(theme.palette.primary.main, 0.8),

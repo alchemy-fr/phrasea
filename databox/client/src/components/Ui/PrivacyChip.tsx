@@ -1,9 +1,10 @@
-import {Chip, ChipProps, SvgIconProps, Tooltip} from '@mui/material';
+import {Chip, ChipProps, SvgIconProps} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {grey} from '@mui/material/colors';
 import LockIcon from '@mui/icons-material/Lock';
-import {TooltipProps} from '@mui/material/Tooltip';
 import {Privacy} from '../../api/privacy';
+import FastTooltip from "./FastTooltip.tsx";
+import assetClasses from "../AssetList/classes.ts";
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
@@ -44,7 +45,7 @@ export default function PrivacyChip({privacy, noAccess, ...props}: Props & ChipP
     return (
         <Chip
             {...props}
-            icon={<LockIcon color={'inherit'} fontSize={props.size} />}
+            icon={<LockIcon color={'inherit'} fontSize={props.size}/>}
             label={privacyLabel}
             sx={() => ({
                 ml: 1,
@@ -58,19 +59,19 @@ export default function PrivacyChip({privacy, noAccess, ...props}: Props & ChipP
 export function PrivacyTooltip({
     privacy,
     iconProps = {},
-    tooltipProps = {},
     noAccess,
 }: {
     privacy: Privacy;
     iconProps?: SvgIconProps;
-    tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;
     noAccess?: boolean;
 }) {
     const privacyLabel = usePrivacyLabel(privacy, noAccess);
 
     return (
-        <Tooltip title={privacyLabel} {...tooltipProps}>
-            <LockIcon color={'inherit'} {...iconProps} />
-        </Tooltip>
+        <div className={assetClasses.privacy}>
+            <FastTooltip title={privacyLabel}>
+                <LockIcon color={'inherit'} {...iconProps} />
+            </FastTooltip>
+        </div>
     );
 }

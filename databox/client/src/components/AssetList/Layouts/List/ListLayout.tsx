@@ -6,11 +6,12 @@ import {usePreview} from "../../usePreview.ts";
 import {DisplayContext} from "../../../Media/DisplayContext.tsx";
 import React from "react";
 import assetClasses from "../../classes.ts";
-import {createThumbActiveStyle} from "../../../Media/Asset/AssetThumb.tsx";
 import {thumbSx} from "../../../Media/Asset/Thumb.tsx";
 import Box from "@mui/material/Box";
 import {Theme} from "@mui/material";
 import {attributesSx} from "../../../Media/Asset/Attribute/Attributes.tsx";
+import {tagListSx} from "../../../Media/Asset/Widgets/AssetTagList.tsx";
+import {collectionListSx} from "../../../Media/Asset/Widgets/AssetCollectionList.tsx";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -28,13 +29,12 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
 
     const layoutSx = React.useCallback((theme: Theme) => {
         return {
+            ...tagListSx(),
+            ...collectionListSx(),
+            ...attributesSx(),
+            ...thumbSx(d.thumbSize, theme),
             [`.${assetClasses.item}`]: {
                 'p': 2,
-                [`.${assetClasses.thumbWrapper}`]: {
-                    ...thumbSx(d.thumbSize)(theme),
-                    ...createThumbActiveStyle(),
-                },
-                ...attributesSx(),
                 'position': 'relative',
                 [`.${assetClasses.checkBtb}, .${assetClasses.controls}`]:
                     {
@@ -66,6 +66,11 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 },
                 '&.selected': {
                     boxShadow: theme.shadows[2],
+                },
+                [`.${assetClasses.attributes}`]: {
+                    '> div + div': {
+                        mt: 1,
+                    }
                 },
             },
         };

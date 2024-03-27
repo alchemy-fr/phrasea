@@ -82,11 +82,11 @@ export function replaceHighlight(
 
 type Props = {
     asset: Asset;
-    controls: boolean;
+    displayControls: boolean;
     pinnedOnly?: boolean;
 };
 
-function Attributes({asset, controls, pinnedOnly}: Props) {
+function Attributes({asset, displayControls, pinnedOnly}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
 
@@ -149,7 +149,7 @@ function Attributes({asset, controls, pinnedOnly}: Props) {
                     locale={a.locale}
                     highlight={a.highlight}
                     multiple={a.multiple}
-                    controls={controls}
+                    displayControls={displayControls}
                     pinned={pinnedAttributes.includes(a.definition.id)}
                     togglePin={togglePin}
                 />
@@ -172,10 +172,12 @@ export function attributesSx(): SxProps {
         [`.${attributesClasses.name}`]: {
             fontWeight: 100,
             fontSize: 13,
+            my: .5,
         },
         [`.${attributesClasses.controls}`]: {
             display: 'inline-block',
             ml: 1,
+            my: -1,
             '.MuiSvgIcon-root': {
                 fontSize: 13,
             },

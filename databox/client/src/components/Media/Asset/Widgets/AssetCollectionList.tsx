@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {Collection, Workspace} from '../../../../types';
-import {Box} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import {CollectionChip, WorkspaceChip} from '../../../Ui/Chips';
+import assetClasses from "../../../AssetList/classes.ts";
 
 type Props = {
     workspace?: Workspace;
@@ -17,7 +17,7 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     }
 
     const r = (c: Collection) => (
-        <CollectionChip size={'small'} key={c.id} label={c.title} />
+        <CollectionChip size={'small'} key={c.id} label={c.title}/>
     );
 
     const rest = collections.length - (collectionsLimit - 1);
@@ -30,39 +30,43 @@ export default function AssetCollectionList({workspace, collections}: Props) {
         collections.length <= collectionsLimit
             ? collections.slice(0, collectionsLimit).map(r)
             : [
-                  collections.slice(0, collectionsLimit - 1).map(r),
-                  [
-                      <CollectionChip
-                          key={'o'}
-                          size={'small'}
-                          label={others}
-                          title={collections
-                              .slice(collectionsLimit - 1)
-                              .map(c => c.title)
-                              .join('\n')}
-                      />,
-                  ],
-              ].flat();
+                collections.slice(0, collectionsLimit - 1).map(r),
+                [
+                    <CollectionChip
+                        key={'o'}
+                        size={'small'}
+                        label={others}
+                        title={collections
+                            .slice(collectionsLimit - 1)
+                            .map(c => c.title)
+                            .join('\n')}
+                    />,
+                ],
+            ].flat();
 
     return (
-        <Box
-            sx={{
-                'px': 1,
-                'display': 'flex',
-                'alignItems': 'center',
-                'flexWrap': 'wrap',
-                '.MuiChip-root': {
-                    my: 0.5,
-                },
-                '.MuiChip-root+.MuiChip-root': {
-                    ml: 0.5,
-                },
-            }}
-        >
+        <div className={assetClasses.collectionList}>
             {workspace && (
-                <WorkspaceChip size={'small'} label={workspace.name} />
+                <WorkspaceChip size={'small'} label={workspace.name}/>
             )}
             {chips}
-        </Box>
+        </div>
     );
+}
+
+export function collectionListSx() {
+    return {
+        [`.${assetClasses.collectionList}`]: {
+            'px': 1,
+            'display': 'flex',
+            'alignItems': 'center',
+            'flexWrap': 'wrap',
+            '.MuiChip-root': {
+                my: 0.5,
+            },
+            '.MuiChip-root+.MuiChip-root': {
+                ml: 0.5,
+            },
+        }
+    }
 }
