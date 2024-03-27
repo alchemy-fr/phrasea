@@ -236,6 +236,7 @@ jobs:
             docker compose pull
 
       - name: Setup
+        if: "!contains(github.event.head_commit.message, '[skip test]')"
         run: |
           docker compose down --volumes
           bin/dev/make-cert.sh
@@ -243,10 +244,11 @@ jobs:
           bin/setup.sh test
 
       - name: Test
+        if: "!contains(github.event.head_commit.message, '[skip test]')"
         run: bin/test.sh
 
       - name: Run Cypress tests
-        if: "!contains(github.event.head_commit.message, '[skip cypress]')"
+        if: "!contains(github.event.head_commit.message, '[skip cypress]') && !contains(github.event.head_commit.message, '[skip test]')"
         run: |
           docker compose up -d
           docker compose run --rm cypress
