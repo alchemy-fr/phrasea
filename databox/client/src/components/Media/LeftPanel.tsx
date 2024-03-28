@@ -4,7 +4,7 @@ import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
 import {styled} from '@mui/material/styles';
 import {TabPanelProps} from '@mui/lab';
-import BasketsPanel from '../Basket/BasketsPanel.tsx';
+import BasketsPanel from '../Basket/BasketsPanel';
 import {useAuth} from '@alchemy/react-auth';
 
 enum TabEnum {

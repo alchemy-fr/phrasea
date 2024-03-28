@@ -1,6 +1,6 @@
 import React from 'react';
-import {BasketAsset} from '../types.ts';
-import {TSelectionContext} from './AssetSelectionContext.tsx';
+import {BasketAsset} from '../types';
+import {TSelectionContext} from './AssetSelectionContext';
 
 export const BasketSelectionContext = React.createContext<
     TSelectionContext<BasketAsset>

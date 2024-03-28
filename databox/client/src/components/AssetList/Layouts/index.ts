@@ -1,8 +1,8 @@
-import GridLayout from './Grid/GridLayout.tsx';
+import GridLayout from './Grid/GridLayout';
 import React from 'react';
-import {LayoutProps} from '../types.ts';
-import ListLayout from './List/ListLayout.tsx';
-import MasonryLayout from './Masonry/MasonryLayout.tsx';
+import {LayoutProps} from '../types';
+import ListLayout from './List/ListLayout';
+import MasonryLayout from './Masonry/MasonryLayout';
 
 export enum Layout {
     List = 'l',

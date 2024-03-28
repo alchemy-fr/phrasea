@@ -31,7 +31,7 @@ import SortableList, {
     SortableItem,
     SortableItemProps,
 } from '../../Ui/Sortable/SortableList';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DefaultValues} from 'react-hook-form';
 
 type DefinitionBase = ApiHydraObjectResponse & {id: string};

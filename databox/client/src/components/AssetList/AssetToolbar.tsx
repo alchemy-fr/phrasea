@@ -1,11 +1,11 @@
 import {LinearProgress, ListSubheader} from '@mui/material';
-import {zIndex} from '../../themes/zIndex.ts';
-import SearchBar from '../Media/Search/SearchBar.tsx';
+import {zIndex} from '../../themes/zIndex';
+import SearchBar from '../Media/Search/SearchBar';
 import SelectionActions, {
     SelectionActionsProps,
-} from './Toolbar/SelectionActions.tsx';
-import {AssetOrAssetContainer} from '../../types.ts';
-import assetClasses from './classes.ts';
+} from './Toolbar/SelectionActions';
+import {AssetOrAssetContainer} from '../../types';
+import assetClasses from './classes';
 
 type Props<Item extends AssetOrAssetContainer> = {
     searchBar?: boolean;

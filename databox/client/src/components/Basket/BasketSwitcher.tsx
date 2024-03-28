@@ -1,17 +1,17 @@
-import {useBasketStore} from '../../store/basketStore.ts';
+import {useBasketStore} from '../../store/basketStore';
 import {Button, ButtonGroup, Chip} from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import {useModals} from '@alchemy/navigation';
-import BasketListDialog from './BasketListDialog.tsx';
+import BasketListDialog from './BasketListDialog';
 import {useTranslation} from 'react-i18next';
 import {LoadingButton} from '@alchemy/react-form';
-import {useNavigateToModal} from '../Routing/ModalLink.tsx';
-import {modalRoutes} from '../../routes.ts';
+import {useNavigateToModal} from '../Routing/ModalLink';
+import {modalRoutes} from '../../routes';
 import React, {useContext} from 'react';
-import {TSelectionContext} from '../../context/AssetSelectionContext.tsx';
+import {TSelectionContext} from '../../context/AssetSelectionContext';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import {AssetOrAssetContainer} from '../../types.ts';
+import {AssetOrAssetContainer} from '../../types';
 
 type Props<Item extends AssetOrAssetContainer> = {
     selectionContext: React.Context<TSelectionContext<Item>>;

@@ -1,16 +1,16 @@
 import React from 'react';
 import {Button, List, ListItem, Skeleton, Stack} from '@mui/material';
-import {useBasketStore} from '../../store/basketStore.ts';
-import BasketMenuItem from './BasketMenuItem.tsx';
-import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
+import {useBasketStore} from '../../store/basketStore';
+import BasketMenuItem from './BasketMenuItem';
+import ConfirmDialog from '../Ui/ConfirmDialog';
 import {toast} from 'react-toastify';
 import {useModals} from '@alchemy/navigation';
-import {Basket} from '../../types.ts';
+import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
-import CreateBasket from './CreateBasket.tsx';
+import CreateBasket from './CreateBasket';
 import AddIcon from '@mui/icons-material/Add';
-import {useNavigateToModal} from '../Routing/ModalLink.tsx';
-import {modalRoutes} from '../../routes.ts';
+import {useNavigateToModal} from '../Routing/ModalLink';
+import {modalRoutes} from '../../routes';
 
 type Props = {
     selected?: string;

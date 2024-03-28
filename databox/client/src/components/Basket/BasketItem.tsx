@@ -1,5 +1,5 @@
-import {AssetItemCustomComponentProps} from '../AssetList/types.ts';
-import {BasketAsset} from '../../types.ts';
+import {AssetItemCustomComponentProps} from '../AssetList/types';
+import {BasketAsset} from '../../types';
 import {styled} from '@mui/material/styles';
 
 export default function BasketItem({

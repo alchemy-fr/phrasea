@@ -1,14 +1,14 @@
-import {LayoutProps} from '../../types.ts';
-import {Asset, AssetOrAssetContainer} from '../../../../types.ts';
-import PreviewPopover from '../../PreviewPopover.tsx';
-import {usePreview} from '../../usePreview.ts';
+import {LayoutProps} from '../../types';
+import {Asset, AssetOrAssetContainer} from '../../../../types';
+import PreviewPopover from '../../PreviewPopover';
+import {usePreview} from '../../usePreview';
 import Masonry from '@mui/lab/Masonry';
-import AssetItem from './AssetItem.tsx';
+import AssetItem from './AssetItem';
 import React, {useContext} from 'react';
 import {alpha, Theme} from '@mui/material';
-import assetClasses from '../../classes.ts';
-import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb.tsx';
-import {DisplayContext} from '../../../Media/DisplayContext.tsx';
+import assetClasses from '../../classes';
+import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb';
+import {DisplayContext} from '../../../Media/DisplayContext';
 import Box from '@mui/material/Box';
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({

@@ -1,5 +1,5 @@
 import React, {MouseEvent, PropsWithChildren} from 'react';
-import {Asset, AssetOrAssetContainer} from '../../types.ts';
+import {Asset, AssetOrAssetContainer} from '../../types';
 import {ButtonProps} from '@mui/material/Button';
 
 export type ItemToAssetFunc<Item extends AssetOrAssetContainer> = (

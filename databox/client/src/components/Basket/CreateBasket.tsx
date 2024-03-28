@@ -6,8 +6,8 @@ import {postBasket} from '../../api/basket';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
-import {useBasketStore} from '../../store/basketStore.ts';
+import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab';
+import {useBasketStore} from '../../store/basketStore';
 
 type Props = {
     onCreate?: (data: Basket) => void;

@@ -6,7 +6,7 @@ import {
     getHydraCollection,
 } from './hydra';
 import {AxiosRequestConfig} from 'axios';
-import {TFacets} from '../components/Media/Asset/Facets.tsx';
+import {TFacets} from '../components/Media/Asset/Facets';
 
 export interface GetAssetOptions {
     url?: string;

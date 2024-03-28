@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import {FileBlobThumb} from '../../lib/upload/fileBlob';
 import {Grid, Paper} from '@mui/material';
 import byteSize from 'byte-size';
-import {thumbSx} from "../Media/Asset/Thumb.tsx";
+import {thumbSx} from "../Media/Asset/Thumb";
 
 const size = 100;
 

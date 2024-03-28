@@ -1,11 +1,11 @@
 import {Box} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
-import {VoidFunction} from '../../lib/utils.ts';
+import {VoidFunction} from '../../lib/utils';
 import {useTranslation} from 'react-i18next';
-import {AssetOrAssetContainer} from "../../types.ts";
+import {AssetOrAssetContainer} from "../../types";
 import React from "react";
-import assetClasses from "./classes.ts";
+import assetClasses from "./classes";
 
 type Props<Item extends AssetOrAssetContainer> = {
     onClick: VoidFunction;

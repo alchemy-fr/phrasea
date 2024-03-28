@@ -1,14 +1,14 @@
 import React from 'react';
-import {AssetOrAssetContainer} from '../../../../types.ts';
-import assetClasses from '../../classes.ts';
+import {AssetOrAssetContainer} from '../../../../types';
+import assetClasses from '../../classes';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
-import AssetThumb from '../../../Media/Asset/AssetThumb.tsx';
-import {AssetItemProps, OnPreviewToggle} from '../../types.ts';
+import AssetThumb from '../../../Media/Asset/AssetThumb';
+import {AssetItemProps, OnPreviewToggle} from '../../types';
 import {Checkbox} from '@mui/material';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
-import AssetItemWrapper from '../AssetItemWrapper.tsx';
+import {stopPropagation} from '../../../../lib/stdFuncs';
+import AssetItemWrapper from '../AssetItemWrapper';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;

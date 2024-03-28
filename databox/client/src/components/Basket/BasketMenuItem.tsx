@@ -4,11 +4,11 @@ import {
     ListItemButton,
     ListItemText,
 } from '@mui/material';
-import ModalLink from '../Routing/ModalLink.tsx';
-import {modalRoutes} from '../../routes.ts';
+import ModalLink from '../Routing/ModalLink';
+import {modalRoutes} from '../../routes';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Basket} from '../../types.ts';
+import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
 
 type Props = {

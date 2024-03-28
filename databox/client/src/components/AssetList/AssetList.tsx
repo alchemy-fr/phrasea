@@ -1,11 +1,11 @@
 import React, {Context, MouseEvent, useEffect} from 'react';
-import {Asset, AssetOrAssetContainer, StateSetter} from '../../types.ts';
-import AssetToolbar from './AssetToolbar.tsx';
-import LoadMoreButton from './LoadMoreButton.tsx';
+import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
+import AssetToolbar from './AssetToolbar';
+import LoadMoreButton from './LoadMoreButton';
 import {
     AssetSelectionContext,
     TSelectionContext,
-} from '../../context/AssetSelectionContext.tsx';
+} from '../../context/AssetSelectionContext';
 import {Layout, layouts} from './Layouts';
 import {
     AssetItemComponent,
@@ -18,14 +18,14 @@ import {
     OnSelectionChange,
     OnToggle,
     ReloadFunc,
-} from './types.ts';
-import {getItemListFromEvent} from './selection.ts';
+} from './types';
+import {getItemListFromEvent} from './selection';
 import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy';
-import {useBasketStore} from '../../store/basketStore.ts';
-import assetClasses from './classes.ts';
-import AssetContextMenu from './AssetContextMenu.tsx';
+import {useBasketStore} from '../../store/basketStore';
+import assetClasses from './classes';
+import AssetContextMenu from './AssetContextMenu';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
-import {SelectionActionConfigProps} from './Toolbar/SelectionActions.tsx';
+import {SelectionActionConfigProps} from './Toolbar/SelectionActions';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];

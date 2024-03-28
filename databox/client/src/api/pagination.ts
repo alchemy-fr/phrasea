@@ -1,6 +1,6 @@
-import {StateSetter} from '../types.ts';
-import {ApiCollectionResponse} from './hydra.ts';
-import {LoadMoreFunc} from '../components/AssetList/types.ts';
+import {StateSetter} from '../types';
+import {ApiCollectionResponse} from './hydra';
+import {LoadMoreFunc} from '../components/AssetList/types';
 
 export type Pagination<T> = {
     loading: boolean;

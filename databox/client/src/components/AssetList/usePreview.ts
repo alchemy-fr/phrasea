@@ -1,7 +1,7 @@
 import React, {useContext, useRef} from 'react';
-import {Asset} from '../../types.ts';
-import {DisplayContext} from '../Media/DisplayContext.tsx';
-import {OnPreviewToggle} from './types.ts';
+import {Asset} from '../../types';
+import {DisplayContext} from '../Media/DisplayContext';
+import {OnPreviewToggle} from './types';
 
 export function usePreview(resettingValues: any[]) {
     const d = useContext(DisplayContext)!;

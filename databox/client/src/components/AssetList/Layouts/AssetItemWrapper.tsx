@@ -1,6 +1,6 @@
-import {AssetItemProps} from '../types.ts';
-import {AssetOrAssetContainer} from '../../../types.ts';
-import assetClasses from '../classes.ts';
+import {AssetItemProps} from '../types';
+import {AssetOrAssetContainer} from '../../../types';
+import assetClasses from '../classes';
 import React, {PropsWithChildren} from 'react';
 
 export default function AssetItemWrapper<Item extends AssetOrAssetContainer>({

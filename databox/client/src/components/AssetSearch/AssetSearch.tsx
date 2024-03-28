@@ -1,15 +1,15 @@
 import React, {MouseEventHandler, useCallback} from 'react';
-import {ResultContext} from '../Media/Search/ResultContext.tsx';
-import AssetList from '../AssetList/AssetList.tsx';
-import DebugEsModal from '../Media/Search/DebugEsModal.tsx';
+import {ResultContext} from '../Media/Search/ResultContext';
+import AssetList from '../AssetList/AssetList';
+import DebugEsModal from '../Media/Search/DebugEsModal';
 import {useModals} from '@alchemy/navigation';
 import {Fab} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import {useAuth} from '@alchemy/react-auth';
-import UploadModal from '../Upload/UploadModal.tsx';
-import {modalRoutes} from '../../routes.ts';
-import {useNavigateToModal} from '../Routing/ModalLink.tsx';
-import {OnOpen} from '../AssetList/types.ts';
+import UploadModal from '../Upload/UploadModal';
+import {modalRoutes} from '../../routes';
+import {useNavigateToModal} from '../Routing/ModalLink';
+import {OnOpen} from '../AssetList/types';
 
 type Props = {};
 

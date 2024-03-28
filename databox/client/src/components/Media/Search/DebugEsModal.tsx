@@ -3,7 +3,7 @@ import {Box, Button, Chip} from '@mui/material';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import CopyToClipboard from '../../../lib/CopyToClipboard.tsx';
+import CopyToClipboard from '../../../lib/CopyToClipboard';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
 

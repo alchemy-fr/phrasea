@@ -1,29 +1,29 @@
 import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {Basket, BasketAsset} from '../../types.ts';
+import {Basket, BasketAsset} from '../../types';
 import {useTranslation} from 'react-i18next';
 import React, {useCallback} from 'react';
-import {getBasket, getBasketAssets} from '../../api/basket.ts';
-import {useCloseModal, useNavigateToModal} from '../Routing/ModalLink.tsx';
-import AssetList from '../AssetList/AssetList.tsx';
-import {BasketSelectionContext} from '../../context/BasketSelectionContext.ts';
-import DisplayProvider from '../Media/DisplayProvider.tsx';
-import {useBasketStore} from '../../store/basketStore.ts';
+import {getBasket, getBasketAssets} from '../../api/basket';
+import {useCloseModal, useNavigateToModal} from '../Routing/ModalLink';
+import AssetList from '../AssetList/AssetList';
+import {BasketSelectionContext} from '../../context/BasketSelectionContext';
+import DisplayProvider from '../Media/DisplayProvider';
+import {useBasketStore} from '../../store/basketStore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
     createDefaultPagination,
     createLoadMore,
     createPaginatedLoader,
     Pagination,
-} from '../../api/pagination.ts';
+} from '../../api/pagination';
 import {Button} from '@mui/material';
-import BasketsPanel from './BasketsPanel.tsx';
-import {leftPanelWidth} from '../../themes/base.ts';
-import {zIndex} from '../../themes/zIndex.ts';
+import BasketsPanel from './BasketsPanel';
+import {leftPanelWidth} from '../../themes/base';
+import {zIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
-import {OnOpen} from '../AssetList/types.ts';
-import {modalRoutes} from '../../routes.ts';
-import BasketItem from './BasketItem.tsx';
+import {OnOpen} from '../AssetList/types';
+import {modalRoutes} from '../../routes';
+import BasketItem from './BasketItem';
 
 type Props = {} & StackedModalProps;
 

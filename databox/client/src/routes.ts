@@ -4,10 +4,10 @@ import CollectionDialog from './components/Dialog/Collection/CollectionDialog';
 import AssetDialog from './components/Dialog/Asset/AssetDialog';
 import AssetView from './components/Media/Asset/AssetView';
 import WorkflowView from './components/Workflow/WorkflowView';
-import AppAuthorizationCodePage from './components/AppAuthorizationCodePage.tsx';
+import AppAuthorizationCodePage from './components/AppAuthorizationCodePage';
 import {compileRoutes} from '@alchemy/navigation';
-import BasketDialog from './components/Dialog/Basket/BasketDialog.tsx';
-import BasketViewDialog from './components/Basket/BasketViewDialog.tsx';
+import BasketDialog from './components/Dialog/Basket/BasketDialog';
+import BasketViewDialog from './components/Basket/BasketViewDialog';
 
 const modalRoutes = {
     workspaces: {

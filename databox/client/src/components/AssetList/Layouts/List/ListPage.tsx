@@ -1,9 +1,9 @@
 import React from 'react';
-import {Asset, AssetOrAssetContainer} from '../../../../types.ts';
+import {Asset, AssetOrAssetContainer} from '../../../../types';
 import GroupRow from '../GroupRow';
 import AssetItem from './AssetItem';
-import {LayoutPageProps, OnPreviewToggle} from '../../types.ts';
-import SectionDivider from '../../SectionDivider.tsx';
+import {LayoutPageProps, OnPreviewToggle} from '../../types';
+import SectionDivider from '../../SectionDivider';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;

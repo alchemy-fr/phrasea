@@ -1,16 +1,16 @@
 import React, {useContext} from 'react';
 import {alpha, Grid, Theme} from '@mui/material';
-import {LayoutProps} from '../../types.ts';
-import {AssetOrAssetContainer} from '../../../../types.ts';
-import {DisplayContext} from '../../../Media/DisplayContext.tsx';
-import {sectionDividerClassname} from '../../SectionDivider.tsx';
-import assetClasses from '../../classes.ts';
+import {LayoutProps} from '../../types';
+import {AssetOrAssetContainer} from '../../../../types';
+import {DisplayContext} from '../../../Media/DisplayContext';
+import {sectionDividerClassname} from '../../SectionDivider';
+import assetClasses from '../../classes';
 import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb';
-import GridPage from './GridPage.tsx';
-import PreviewPopover from '../../PreviewPopover.tsx';
-import {usePreview} from '../../usePreview.ts';
-import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList.tsx';
-import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList.tsx';
+import GridPage from './GridPage';
+import PreviewPopover from '../../PreviewPopover';
+import {usePreview} from '../../usePreview';
+import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
+import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,

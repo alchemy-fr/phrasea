@@ -1,7 +1,7 @@
 import apiClient from './api-client';
 import {Basket, BasketAsset} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
-import {clearAssociationIds} from './clearAssociation.ts';
+import {clearAssociationIds} from './clearAssociation';
 
 export type GetBasketOptions = {
     query?: string;

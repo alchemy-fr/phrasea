@@ -1,11 +1,11 @@
 import {Button, ListItem, Skeleton} from '@mui/material';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useBasketStore} from '../../store/basketStore.ts';
+import {useBasketStore} from '../../store/basketStore';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {Basket} from '../../types.ts';
+import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
-import BasketMenuItem from './BasketMenuItem.tsx';
-import CreateBasket from './CreateBasket.tsx';
+import BasketMenuItem from './BasketMenuItem';
+import CreateBasket from './CreateBasket';
 import AddIcon from '@mui/icons-material/Add';
 
 type Props = {} & StackedModalProps;

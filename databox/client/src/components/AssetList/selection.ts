@@ -1,4 +1,4 @@
-import {AssetOrAssetContainer} from '../../types.ts';
+import {AssetOrAssetContainer} from '../../types';
 import React from 'react';
 
 export function getItemListFromEvent<Item extends AssetOrAssetContainer>(

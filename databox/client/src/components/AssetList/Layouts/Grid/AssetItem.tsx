@@ -1,18 +1,18 @@
 import React from 'react';
-import {AssetOrAssetContainer} from '../../../../types.ts';
-import assetClasses from '../../classes.ts';
-import {PrivacyTooltip} from '../../../Ui/PrivacyChip.tsx';
+import {AssetOrAssetContainer} from '../../../../types';
+import assetClasses from '../../classes';
+import {PrivacyTooltip} from '../../../Ui/PrivacyChip';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
-import AssetThumb from '../../../Media/Asset/AssetThumb.tsx';
-import {replaceHighlight} from '../../../Media/Asset/Attribute/Attributes.tsx';
-import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList.tsx';
-import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList.tsx';
-import {AssetItemProps, OnPreviewToggle} from '../../types.ts';
+import AssetThumb from '../../../Media/Asset/AssetThumb';
+import {replaceHighlight} from '../../../Media/Asset/Attribute/Attributes';
+import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
+import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList';
+import {AssetItemProps, OnPreviewToggle} from '../../types';
 import {Checkbox} from '@mui/material';
-import {stopPropagation} from '../../../../lib/stdFuncs.ts';
-import AssetItemWrapper from '../AssetItemWrapper.tsx';
+import {stopPropagation} from '../../../../lib/stdFuncs';
+import AssetItemWrapper from '../AssetItemWrapper';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;

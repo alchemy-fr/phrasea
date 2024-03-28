@@ -27,7 +27,7 @@ import {
     useOutsideRouterDirtyFormPrompt,
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
-import {Asset} from '../../types.ts';
+import {Asset} from '../../types';
 
 type FileWrapper = {
     id: string;

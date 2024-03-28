@@ -2,7 +2,7 @@ import {useCallback, useContext, useState} from 'react';
 import {createDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getVideoDimensions} from './VideoPlayer';
-import {DisplayContext} from '../../DisplayContext.tsx';
+import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 

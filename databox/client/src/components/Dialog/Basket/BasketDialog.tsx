@@ -1,15 +1,15 @@
 import {useEffect, useState} from 'react';
-import TabbedDialog from '../Tabbed/TabbedDialog.tsx';
+import TabbedDialog from '../Tabbed/TabbedDialog';
 import {useTranslation} from 'react-i18next';
 import {useParams} from '@alchemy/navigation';
-import FullPageLoader from '../../Ui/FullPageLoader.tsx';
-import {Basket} from '../../../types.ts';
-import Acl from './Acl.tsx';
+import FullPageLoader from '../../Ui/FullPageLoader';
+import {Basket} from '../../../types';
+import Acl from './Acl';
 import InfoBasket from './InfoBasket';
-import {modalRoutes} from '../../../routes.ts';
-import {useCloseModal} from '../../Routing/ModalLink.tsx';
-import {getBasket} from '../../../api/basket.ts';
-import EditBasket from './EditBasket.tsx';
+import {modalRoutes} from '../../../routes';
+import {useCloseModal} from '../../Routing/ModalLink';
+import {getBasket} from '../../../api/basket';
+import EditBasket from './EditBasket';
 
 type Props = {};
 

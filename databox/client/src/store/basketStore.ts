@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {Basket} from '../types.ts';
+import {Basket} from '../types';
 import {
     addToBasket,
     BasketAssetInput,
@@ -8,7 +8,7 @@ import {
     GetBasketOptions,
     getBaskets,
     removeFromBasket,
-} from '../api/basket.ts';
+} from '../api/basket';
 
 type State = {
     baskets: Basket[];

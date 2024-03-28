@@ -1,10 +1,10 @@
 import React from 'react';
-import {Asset, AssetOrAssetContainer} from '../../../../types.ts';
-import GroupRow from '../GroupRow.tsx';
+import {Asset, AssetOrAssetContainer} from '../../../../types';
+import GroupRow from '../GroupRow';
 import {Grid} from '@mui/material';
-import AssetItem from './AssetItem.tsx';
-import {LayoutPageProps, OnPreviewToggle} from '../../types.ts';
-import SectionDivider from '../../SectionDivider.tsx';
+import AssetItem from './AssetItem';
+import {LayoutPageProps, OnPreviewToggle} from '../../types';
+import SectionDivider from '../../SectionDivider';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;

@@ -5,9 +5,9 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {useBasketStore} from '../../../store/basketStore.ts';
-import {putBasket} from '../../../api/basket.ts';
-import {BasketForm} from '../../Form/BasketForm.tsx';
+import {useBasketStore} from '../../../store/basketStore';
+import {putBasket} from '../../../api/basket';
+import {BasketForm} from '../../Form/BasketForm';
 
 type Props = {
     id: string;

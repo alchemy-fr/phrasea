@@ -252,6 +252,9 @@ importers:
       react-toastify:
         specifier: ^9.1.3
         version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
+      react-virtualized:
+        specifier: ^9.22.5
+        version: 9.22.5(react-dom@18.2.0)(react@18.2.0)
       sass:
         specifier: ^1.71.1
         version: 1.71.1
@@ -298,6 +301,9 @@ importers:
       '@types/react-select':
         specifier: ^5.0.1
         version: 5.0.1(@types/react@18.2.65)(react-dom@18.2.0)(react@18.2.0)
+      '@types/react-virtualized':
+        specifier: ^9.21.29
+        version: 9.21.29
       '@types/testing-library__jest-dom':
         specifier: ^6.0.0
         version: 6.0.0(@types/jest@27.5.2)(jest@23.6.0)
@@ -313,6 +319,9 @@ importers:
       '@vitejs/plugin-react-swc':
         specifier: ^3.6.0
         version: 3.6.0(vite@5.1.6)
+      esbuild-plugin-react-virtualized:
+        specifier: ^1.0.4
+        version: 1.0.4(esbuild@0.19.12)
       eslint-plugin-react-hooks:
         specifier: ^4.6.0
         version: 4.6.0(eslint@8.57.0)
@@ -7165,6 +7174,13 @@ packages:
     dependencies:
       '@types/react': 18.2.65
 
+  /@types/react-virtualized@9.21.29:
+    resolution: {integrity: sha512-+ODVQ+AyKngenj4OPpg43Hz4B9Rdjuz1Naxu9ypNc3Cjo0WVZTYhqXfF/Nm38i8PV/YXECRIl4mTAZK5hq2B+g==}
+    dependencies:
+      '@types/prop-types': 15.7.11
+      '@types/react': 18.2.65
+    dev: true
+
   /@types/react@18.2.65:
     resolution: {integrity: sha512-98TsY0aW4jqx/3RqsUXwMDZSWR1Z4CUlJNue8ueS2/wcxZOsz4xmW1X8ieaWVRHcmmQM3R8xVA4XWB3dJnWwDQ==}
     dependencies:
@@ -11134,6 +11150,14 @@ packages:
 
   /esbuild-plugin-alias@0.2.1:
     resolution: {integrity: sha512-jyfL/pwPqaFXyKnj8lP8iLk6Z0m099uXR45aSN8Av1XD4vhvQutxxPzgA2bTcAwQpa1zCXDcWOlhFgyP3GKqhQ==}
+    dev: true
+
+  /esbuild-plugin-react-virtualized@1.0.4(esbuild@0.19.12):
+    resolution: {integrity: sha512-/Y+82TBduHox0/uhJlTgUqi3ZWN+qZPF0xy9crkHQE2AOOdm76l6VY2F0Mdfvue9hqXz2FOlKHlHUVXNalHLzA==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.19.12
     dev: true
 
   /esbuild-register@3.5.0(esbuild@0.18.20):
@@ -18310,6 +18334,22 @@ packages:
       react-motion: 0.5.2(react@18.2.0)
       resize-observer-polyfill: 1.5.0
       tabbable: 1.1.2
+    dev: false
+
+  /react-virtualized@9.22.5(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-YqQMRzlVANBv1L/7r63OHa2b0ZsAaDp1UhVNEdUaXI8A5u6hTpA5NYtUueLH2rFuY/27mTGIBl7ZhqFKzw18YQ==}
+    peerDependencies:
+      react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+      react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.24.0
+      clsx: 1.2.1
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-lifecycles-compat: 3.0.4
     dev: false
 
   /react@18.2.0:

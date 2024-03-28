@@ -12,7 +12,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FullPageLoader from '../../../Ui/FullPageLoader';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
-import RemoteErrors from '../../../Form/RemoteErrors.tsx';
+import RemoteErrors from '../../../Form/RemoteErrors';
 
 type Props = {
     assets: Asset[];
