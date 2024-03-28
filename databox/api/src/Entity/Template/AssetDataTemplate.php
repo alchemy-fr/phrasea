@@ -20,6 +20,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -69,6 +70,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface, WithOwnerIdInterface, \Stringable
 {
+    use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
@@ -84,10 +86,6 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private bool $public = false;
-
-    #[ORM\Column(type: Types::STRING, length: 36)]
-    #[Groups([AssetDataTemplate::GROUP_READ])]
-    private ?string $ownerId = null;
 
     /**
      * Asset title.
@@ -134,16 +132,6 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     public function setPublic(bool $public): void
     {
         $this->public = $public;
-    }
-
-    public function getOwnerId(): ?string
-    {
-        return $this->ownerId;
-    }
-
-    public function setOwnerId(?string $ownerId): void
-    {
-        $this->ownerId = $ownerId;
     }
 
     public function getTitle(): ?string
@@ -198,7 +186,7 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
 
     public function getAclOwnerId(): string
     {
-        return $this->ownerId ?? 'anon.';
+        return $this->getOwnerId() ?? 'anon.';
     }
 
     public function getName(): ?string

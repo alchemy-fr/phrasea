@@ -21,9 +21,7 @@ export async function getTags(
     return getHydraCollection<Tag>(res.data);
 }
 
-export async function getTag(
-    id: string
-): Promise<Tag> {
+export async function getTag(id: string): Promise<Tag> {
     const res = await apiClient.get(`${tagNS}/${id}`);
 
     return res.data;

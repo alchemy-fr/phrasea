@@ -102,35 +102,36 @@ export default function ResultProvider({children}: Props) {
     const doSearch = async (nextUrl?: string) => {
         setLoading(true);
 
-        search(
-            searchContext.query,
-            getResolvedSortBy(searchContext.sortBy),
-            nextUrl,
-            searchContext.attrFilters,
-            {
-                position: searchContext.geolocation,
-            }
-        )
-            .then(r => {
-                setState(prevState => {
-                    return {
-                        pages: nextUrl
-                            ? prevState.pages.concat([r.result])
-                            : [r.result],
-                        next: r.next,
-                        total: r.total,
-                        loading: false,
-                        facets: r.facets,
-                        debug: r.debug,
-                    };
-                });
-            })
-            .catch(e => {
-                if (!(e instanceof axios.Cancel)) {
-                    console.error(e);
-                    setLoading(false);
+        try {
+            const r = await search(
+                searchContext.query,
+                getResolvedSortBy(searchContext.sortBy),
+                nextUrl,
+                searchContext.attrFilters,
+                {
+                    position: searchContext.geolocation,
                 }
+            );
+
+            setState(prevState => {
+                return {
+                    pages: nextUrl
+                        ? prevState.pages.concat([r.result])
+                        : [r.result],
+                    next: r.next,
+                    total: r.total,
+                    loading: false,
+                    facets: r.facets,
+                    debug: r.debug,
+                };
             });
+        } catch (e: any) {
+            if (!(e instanceof axios.Cancel)) {
+                throw e;
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {

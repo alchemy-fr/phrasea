@@ -1,55 +1,47 @@
 import copy from 'clipboard-copy';
 import * as React from 'react';
 import {Tooltip, TooltipProps} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
-interface ChildProps {
-    copy: (content: any) => void;
-}
+type CopyFunc = (content: string | null | undefined) => void;
 
-interface Props {
-    TooltipProps?: Partial<TooltipProps>;
-    children: (props: ChildProps) => React.ReactElement<any>;
-}
+type ChildProps = {
+    copy: CopyFunc;
+};
 
-interface OwnState {
-    showTooltip: boolean;
-}
+type Props = {
+    tooltipProps?: Partial<TooltipProps>;
+    children: (props: ChildProps) => React.ReactElement;
+};
 
-/**
- * Render prop component that wraps element in a Tooltip that shows "Copied to clipboard!" when the
- * copy function is invoked
- */
-class CopyToClipboard extends React.Component<Props, OwnState> {
-    public state: OwnState = {showTooltip: false};
+export default function CopyToClipboard({children, tooltipProps = {}}: Props) {
+    const [show, setShow] = React.useState(false);
+    const {t} = useTranslation();
 
-    public render() {
-        return (
-            <Tooltip
-                open={this.state.showTooltip}
-                title={'Copied to clipboard!'}
-                leaveDelay={1000}
-                onClose={this.handleOnTooltipClose}
-                {...(this.props.TooltipProps || {})}
-            >
-                {
-                    this.props.children({
-                        copy: this.onCopy,
-                    }) as React.ReactElement<any>
-                }
-            </Tooltip>
-        );
-    }
-
-    private onCopy = (content: any) => {
+    const onCopy: CopyFunc = content => {
         if (content) {
             copy(content);
-            this.setState({showTooltip: true});
+            setShow(true);
+
+            setTimeout(() => {
+                setShow(false);
+            }, 1000);
         }
     };
 
-    private handleOnTooltipClose = () => {
-        this.setState({showTooltip: false});
-    };
-}
+    const child = children({
+        copy: onCopy,
+    });
 
-export default CopyToClipboard;
+    return show ? (
+        <Tooltip
+            open={true}
+            title={t('copy_toclipboard.copied', 'Copied to clipboard!')}
+            {...tooltipProps}
+        >
+            {child}
+        </Tooltip>
+    ) : (
+        child
+    );
+}

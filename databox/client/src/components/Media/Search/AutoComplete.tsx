@@ -7,8 +7,8 @@ import {
 import React, {ReactNode} from 'react';
 import {Paper} from '@mui/material';
 import '@algolia/autocomplete-theme-classic';
-import {replaceHighlight} from '../Asset/Attribute/Attributes.tsx';
-import {SearchSuggestion} from '../../../api/asset.ts';
+import {replaceHighlight} from '../Asset/Attribute/Attributes';
+import {SearchSuggestion} from '../../../api/asset';
 import Box from '@mui/material/Box';
 
 type Props = {

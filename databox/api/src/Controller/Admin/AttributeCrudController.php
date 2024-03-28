@@ -36,7 +36,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('definition'))
             ->add('value')
-            ;
+        ;
     }
 
     public function configureCrud(Crud $crud): Crud

@@ -13,11 +13,13 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AssetSearch extends AbstractSearch
 {
     public function __construct(
+        #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly PaginatedFinderInterface $finder,
         private readonly TagFilterManager $tagFilterManager,
         private readonly AttributeSearch $attributeSearch,

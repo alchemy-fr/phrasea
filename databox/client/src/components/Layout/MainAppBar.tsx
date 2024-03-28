@@ -14,12 +14,12 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import {zIndex} from '../../themes/zIndex';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {ThemeEditorContext} from '@alchemy/theme-editor';
-import config from '../../config.ts';
-import {keycloakClient} from '../../api/api-client.ts';
+import config from '../../config';
+import {keycloakClient} from '../../api/api-client';
 import {DashboardMenu} from '@alchemy/react-ps';
 import {useModals} from '@alchemy/navigation';
-import ChangeTheme from './ChangeTheme.tsx';
-import ThemeEditor from './ThemeEditor.tsx';
+import ChangeTheme from './ChangeTheme';
+import ThemeEditor from './ThemeEditor';
 import {UserMenu} from '@alchemy/phrasea-ui';
 
 export const menuHeight = 42;

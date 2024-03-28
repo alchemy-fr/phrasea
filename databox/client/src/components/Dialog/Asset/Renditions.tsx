@@ -35,13 +35,13 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                             key={r.id}
                             rendition={r}
                             title={data.resolvedTitle}
-                            maxDimensions={maxDimensions}
+                            dimensions={maxDimensions}
                         />
                     );
                 })}
             {!renditions &&
                 [0, 1, 2].map(i => (
-                    <RenditionSkeleton key={i} maxDimensions={maxDimensions} />
+                    <RenditionSkeleton key={i} dimensions={maxDimensions} />
                 ))}
         </ContentTab>
     );

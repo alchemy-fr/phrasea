@@ -13,7 +13,7 @@ export function useNavigateToOverlay(queryParam: string): NavigateToOverlayFunct
         navigate({
             search: `${queryParam}=${getPath(route, params)}`,
         });
-    }, [navigate]);
+    }, []);
 }
 
 export function useCloseOverlay(queryParam: string): CloseOverlayFunction {

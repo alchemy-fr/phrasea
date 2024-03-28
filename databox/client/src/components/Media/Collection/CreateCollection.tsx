@@ -9,7 +9,7 @@ import {CollectionChip, WorkspaceChip} from '../../Ui/Chips';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
 import React from 'react';
-import {useDirtyFormPromptOutsideRouter} from '../../Dialog/Tabbed/FormTab.tsx';
+import {useDirtyFormPromptOutsideRouter} from '../../Dialog/Tabbed/FormTab';
 
 type Props = {
     parent?: string;

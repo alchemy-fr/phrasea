@@ -1,11 +1,11 @@
-import {LayoutEnum} from '../../Media/Search/Pager';
 import {ThemeName} from '../../../lib/theme';
 import React from 'react';
+import {Layout} from '../../AssetList/Layouts';
 
 export type UserPreferences = {
     theme?: ThemeName | undefined;
     pinnedAttrs?: Record<string, string[]> | undefined;
-    layout?: LayoutEnum;
+    layout?: Layout;
 };
 
 export type UpdatePreferenceHandler = <T extends keyof UserPreferences>(

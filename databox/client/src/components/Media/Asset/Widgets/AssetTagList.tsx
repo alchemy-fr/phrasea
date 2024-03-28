@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {Tag} from '../../../../types';
-import {Box} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import TagNode, {tagClassName} from '../../../Ui/TagNode';
+import assetClasses from '../../../AssetList/classes';
 
 type Props = {
     tags: Tag[];
@@ -16,7 +16,12 @@ export default function AssetTagList({tags}: Props) {
     }
 
     const r = (c: Tag) => (
-        <TagNode size={'small'} key={c.id} name={c.nameTranslated} color={c.color} />
+        <TagNode
+            size={'small'}
+            key={c.id}
+            name={c.nameTranslated}
+            color={c.color}
+        />
     );
 
     const rest = tags.length - (tagsLimit - 1);
@@ -44,19 +49,19 @@ export default function AssetTagList({tags}: Props) {
                   ],
               ].flat();
 
-    return (
-        <Box
-            sx={{
-                px: 1,
-                display: 'flex',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                [`.${tagClassName}+.${tagClassName}`]: {
-                    ml: 0.5,
-                },
-            }}
-        >
-            {chips}
-        </Box>
-    );
+    return <div className={assetClasses.tagList}>{chips}</div>;
+}
+
+export function tagListSx() {
+    return {
+        [`.${assetClasses.tagList}`]: {
+            px: 1,
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            [`.${tagClassName}+.${tagClassName}`]: {
+                ml: 0.5,
+            },
+        },
+    };
 }

@@ -12,7 +12,7 @@ import {File} from '../../../types';
 function RemoveBgComparison({
     left,
     right,
-    maxDimensions,
+    dimensions,
 }: {
     left: string;
     right: string;
@@ -20,9 +20,9 @@ function RemoveBgComparison({
     return (
         <div
             style={{
-                width: maxDimensions.width,
-                maxWidth: maxDimensions.width,
-                maxHeight: maxDimensions.height,
+                width: dimensions.width,
+                maxWidth: dimensions.width,
+                maxHeight: dimensions.height,
             }}
         >
             <ReactCompareImage

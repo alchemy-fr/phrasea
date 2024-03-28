@@ -7,16 +7,16 @@ import {
     putAttributeClass,
 } from '../../../api/attributes';
 import {Chip, InputLabel, ListItemText, TextField} from '@mui/material';
-import {FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import {FormFieldErrors} from '@alchemy/react-form';
 import CheckboxWidget from '../../Form/CheckboxWidget';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
+import {PermissionObject} from '../../Permissions/permissions';
 
 function Item({
     data,
@@ -78,7 +78,7 @@ function Item({
                     </InputLabel>
                     <AclForm
                         objectId={data.id}
-                        objectType={'attribute_class'}
+                        objectType={PermissionObject.AttributeClass}
                         displayedPermissions={displayedPermissions}
                     />
                 </FormRow>

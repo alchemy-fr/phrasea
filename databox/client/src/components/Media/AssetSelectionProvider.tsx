@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
     PropsWithChildren,
     useCallback,
@@ -6,7 +7,7 @@ import {
     useRef,
     useState,
 } from 'react';
-import {AssetSelectionContext} from './AssetSelectionContext';
+import {AssetSelectionContext} from '../../context/AssetSelectionContext';
 import {ResultContext} from './Search/ResultContext';
 import {StateSetterArg} from '../../types/react';
 
@@ -50,8 +51,8 @@ export default function AssetSelectionProvider({
     return (
         <AssetSelectionContext.Provider
             value={{
-                selectedAssets,
-                selectAssets: setSelectedAssetsProxy,
+                selection: selectedAssets,
+                select: setSelectedAssetsProxy,
             }}
         >
             {children}

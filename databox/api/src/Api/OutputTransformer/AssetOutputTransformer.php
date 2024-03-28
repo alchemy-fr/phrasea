@@ -13,6 +13,7 @@ use App\Asset\Attribute\AttributesResolver;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -54,18 +55,25 @@ class AssetOutputTransformer implements OutputTransformerInterface
      */
     public function transform(object $data, string $outputClass, array &$context = []): object
     {
+        $output = new AssetOutput();
+        $output->setId($data->getId());
+
+        if (in_array(BasketAsset::GROUP_LIST, $context['groups'], true)) {
+            if (!$this->isGranted(AbstractVoter::READ, $data)) {
+                return $output;
+            }
+        }
+
         $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        $output = new AssetOutput();
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setEditedAt($data->getEditedAt());
         $output->setAttributesEditedAt($data->getAttributesEditedAt());
-        $output->setId($data->getId());
 
         $output->setSource($data->getSource());
 
@@ -158,6 +166,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
         if (null !== $data->getPendingUploadToken()) {
             $output->setPendingSourceFile(true);
             $output->setPendingUploadToken($data->getPendingUploadToken());
+        } else {
+            $output->setPendingSourceFile(false);
         }
 
         if ($this->hasGroup([Asset::GROUP_LIST, Asset::GROUP_READ], $context)) {

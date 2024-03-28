@@ -4,19 +4,60 @@ import {toast} from 'react-toastify';
 
 import {useTranslation} from 'react-i18next';
 
-export default function DisplayProvider({children}: PropsWithChildren<{}>) {
-    const [thumbSize, setThumbSize] = useState(200);
-    const [displayTitle, setDisplayTitle] = useState(true);
-    const [displayTags, setDisplayTags] = useState(true);
-    const [displayPreview, setDisplayPreview] = useState(true);
-    const [titleRows, setTitleRows] = useState(1);
-    const [displayCollections, setDisplayCollections] = useState(true);
-    const [displayAttributes, setDisplayAttributes] = useState(true);
-    const [playVideos, setPlayVideos] = useState(false);
-    const [collectionsLimit, setCollectionsLimit] = useState(2);
-    const [tagsLimit, setTagsLimit] = useState(1);
-    const [playingContext, setPlayingContext] = useState<PlayingContext>();
-    const [previewLocked, setPreviewLocked] = useState(false);
+type Props = PropsWithChildren<{
+    thumbSize?: number;
+    displayTitle?: boolean;
+    displayTags?: boolean;
+    displayPreview?: boolean;
+    titleRows?: number;
+    displayCollections?: boolean;
+    displayAttributes?: boolean;
+    playVideos?: boolean;
+    collectionsLimit?: number;
+    tagsLimit?: number;
+    playingContext?: PlayingContext;
+    previewLocked?: boolean;
+}>;
+
+export default function DisplayProvider({
+    children,
+    thumbSize: defaultThumbSize = 200,
+    displayTitle: defaultDisplayTitle = true,
+    displayTags: defaultDisplayTags = true,
+    displayPreview: defaultDisplayPreview = true,
+    titleRows: defaultTitleRows = 1,
+    displayCollections: defaultDisplayCollections = true,
+    displayAttributes: defaultDisplayAttributes = true,
+    playVideos: defaultPlayVideos = false,
+    collectionsLimit: defaultCollectionsLimit = 2,
+    tagsLimit: defaultTagsLimit = 1,
+    playingContext: defaultPlayingContext,
+    previewLocked: defaultPreviewLocked = false,
+}: Props) {
+    const [thumbSize, setThumbSize] = useState<number>(defaultThumbSize);
+    const [displayTitle, setDisplayTitle] =
+        useState<boolean>(defaultDisplayTitle);
+    const [displayTags, setDisplayTags] = useState<boolean>(defaultDisplayTags);
+    const [displayPreview, setDisplayPreview] = useState<boolean>(
+        defaultDisplayPreview
+    );
+    const [titleRows, setTitleRows] = useState<number>(defaultTitleRows);
+    const [displayCollections, setDisplayCollections] = useState<boolean>(
+        defaultDisplayCollections
+    );
+    const [displayAttributes, setDisplayAttributes] = useState<boolean>(
+        defaultDisplayAttributes
+    );
+    const [playVideos, setPlayVideos] = useState<boolean>(defaultPlayVideos);
+    const [collectionsLimit, setCollectionsLimit] = useState<number>(
+        defaultCollectionsLimit
+    );
+    const [tagsLimit, setTagsLimit] = useState<number>(defaultTagsLimit);
+    const [playingContext, setPlayingContext] = useState<
+        PlayingContext | undefined
+    >(defaultPlayingContext);
+    const [previewLocked, setPreviewLocked] =
+        useState<boolean>(defaultPreviewLocked);
 
     const {t} = useTranslation();
 

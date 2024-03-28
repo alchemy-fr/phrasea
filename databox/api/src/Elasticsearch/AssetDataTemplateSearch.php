@@ -14,12 +14,17 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AssetDataTemplateSearch
 {
-    public function __construct(private PaginatedFinderInterface $finder, private Security $security, private EntityIriConverter $iriConverter)
-    {
+    public function __construct(
+        #[Autowire(service: 'fos_elastica.finder.asset_data_template')]
+        private PaginatedFinderInterface $finder,
+        private Security $security,
+        private EntityIriConverter $iriConverter
+    ) {
     }
 
     public function search(

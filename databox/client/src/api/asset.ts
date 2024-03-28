@@ -1,7 +1,12 @@
 import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute} from '../types';
-import {ApiCollectionResponse, getHydraCollection} from './hydra';
+import {
+    ApiCollectionResponse,
+    getAssetsHydraCollection,
+    getHydraCollection,
+} from './hydra';
 import {AxiosRequestConfig} from 'axios';
+import {TFacets} from '../components/Media/Asset/Facets';
 
 export interface GetAssetOptions {
     url?: string;
@@ -9,7 +14,7 @@ export interface GetAssetOptions {
     workspaces?: string[];
     parents?: string[];
     filters?: any;
-    order: Record<string, 'asc' | 'desc'>;
+    order?: Record<string, 'asc' | 'desc'>;
     group?: string[] | undefined;
     context?:
         | {
@@ -31,6 +36,7 @@ export async function getAssets(
     ApiCollectionResponse<
         Asset,
         {
+            facets: TFacets;
             debug: ESDebug;
         }
     >
@@ -43,7 +49,7 @@ export async function getAssets(
           });
 
     return {
-        ...getHydraCollection<Asset>(res.data),
+        ...getAssetsHydraCollection(res.data),
         debug: {
             query: res.data['debug:es'].query,
             esQueryTime: res.data['debug:es'].time,

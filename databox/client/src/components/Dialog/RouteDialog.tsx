@@ -1,5 +1,5 @@
 import {ReactElement} from 'react';
-import {useCloseModal} from '../Routing/ModalLink.tsx';
+import {useCloseModal} from '../Routing/ModalLink';
 
 type Props = {
     children(options: {

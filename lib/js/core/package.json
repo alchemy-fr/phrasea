@@ -10,10 +10,10 @@
     "react": "^18.2.0"
   },
   "dependencies": {
-    "@sentry/react": "^7.86.0"
+    "@sentry/react": "^7.106.1"
   },
   "devDependencies": {
-    "@sentry/types": "^7.86.0",
-    "@types/react": "^18.2.37"
+    "@sentry/types": "^7.106.1",
+    "@types/react": "^18.2.65"
   }
 }

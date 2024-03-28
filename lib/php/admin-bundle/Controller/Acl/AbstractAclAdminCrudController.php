@@ -42,6 +42,7 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
 
     public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
     {
+        /** @var object $entity */
         $entity = $adminContext->getEntity()->getInstance();
         $id = $entity->getId();
 

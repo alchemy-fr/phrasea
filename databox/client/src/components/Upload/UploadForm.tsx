@@ -33,7 +33,7 @@ export type UploadData = {
 
 export type FormUploadData = {
     tags: string[];
-} & Omit<UploadData, "tags">;
+} & Omit<UploadData, 'tags'>;
 
 export const UploadForm: FC<{
     workspaceId?: string | undefined;
@@ -242,7 +242,10 @@ export const UploadForm: FC<{
                                 control={control}
                                 name={'tags'}
                             />
-                            <FormFieldErrors<FormUploadData> field={'tags'} errors={errors} />
+                            <FormFieldErrors<FormUploadData>
+                                field={'tags'}
+                                errors={errors}
+                            />
                         </FormGroup>
                     </FormRow>
                 )}

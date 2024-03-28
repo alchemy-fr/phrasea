@@ -278,6 +278,38 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
+        basket:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            text: *text_analyzer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%basket_%kernel.environment%"
+            properties:
+                title:
+                    type: text
+                    analyzer: text
+                description:
+                    type: text
+                    analyzer: text
+                ownerId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Basket\Basket
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
 when@dev:
     parameters:
         elastica.use_alias: false

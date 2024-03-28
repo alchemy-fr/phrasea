@@ -2,6 +2,7 @@ import {Asset} from '../../../types';
 import {TFacets} from '../Asset/Facets';
 import {ESDebug} from '../../../api/asset';
 import React from 'react';
+import {ReloadFunc} from '../../AssetList/types';
 
 export type TResultContext = {
     loading: boolean;
@@ -9,12 +10,12 @@ export type TResultContext = {
     total?: number;
     facets?: TFacets;
     debug?: ESDebug;
-    loadMore?: () => Promise<void> | undefined;
-    reload: () => void;
+    loadMore?: (() => Promise<void>) | undefined;
+    reload: ReloadFunc;
 };
 
 export const ResultContext = React.createContext<TResultContext>({
     pages: [],
     loading: false,
-    reload: () => {},
+    reload: async () => {},
 });

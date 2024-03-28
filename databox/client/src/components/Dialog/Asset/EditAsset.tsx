@@ -5,12 +5,12 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab, {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {AssetApiInput, putAsset} from '../../../api/asset';
-import {Privacy} from '../../../api/privacy.ts';
+import {Privacy} from '../../../api/privacy';
 import {FormRow} from '@alchemy/react-form';
 import {FormGroup, InputLabel, TextField} from '@mui/material';
 import {FormFieldErrors} from '@alchemy/react-form';
-import TagSelect from '../../Form/TagSelect.tsx';
-import PrivacyField from '../../Ui/PrivacyField.tsx';
+import TagSelect from '../../Form/TagSelect';
+import PrivacyField from '../../Ui/PrivacyField';
 
 type Props = {
     id: string;
@@ -35,14 +35,15 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             ? {
                   title: data.title,
                   privacy: data.privacy,
-                  tags: (data?.tags?.map(t => t['@id']) ?? []) as unknown as Tag[],
+                  tags: (data?.tags?.map(t => t['@id']) ??
+                      []) as unknown as Tag[],
               }
             : {
                   title: '',
                   privacy: Privacy.Secret,
                   tags: [] as Tag[],
               },
-        onSubmit: async (d) => {
+        onSubmit: async d => {
             return await putAsset(data.id, d as unknown as AssetApiInput);
         },
         onSuccess: () => {
@@ -86,7 +87,10 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                             control={control}
                             name={'tags'}
                         />
-                        <FormFieldErrors<Asset> field={'tags'} errors={errors} />
+                        <FormFieldErrors<Asset>
+                            field={'tags'}
+                            errors={errors}
+                        />
                     </FormGroup>
                 </FormRow>
                 <FormRow>

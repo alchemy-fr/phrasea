@@ -1,11 +1,12 @@
-import {isRtlLocale} from '../../../../lib/lang';
-import {AttributeFormatContext} from './Format/AttributeFormatContext';
+import {TAttributeFormatContext} from './Format/AttributeFormatContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from '@mui/material';
 import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute from './CopyAttribute';
 import React from 'react';
+import {attributesClasses} from './Attributes';
+import {isRtlLocale} from '../../../../lib/lang';
 
 type Props = {
     type: string;
@@ -14,10 +15,11 @@ type Props = {
     attributeName: string;
     value: any;
     highlight?: any;
-    controls: boolean;
+    displayControls: boolean;
     multiple: boolean;
     togglePin: (definitionId: string) => void;
-    pinnedAttributes: string[];
+    pinned: boolean;
+    formatContext: TAttributeFormatContext;
 };
 
 export default function AttributeRowUI({
@@ -29,13 +31,13 @@ export default function AttributeRowUI({
     highlight,
     multiple,
     togglePin,
-    pinnedAttributes,
-    controls,
+    pinned,
+    displayControls,
+    formatContext,
 }: Props) {
     const isRtl = isRtlLocale(locale);
-    const formatContext = React.useContext(AttributeFormatContext);
     const formatter = getAttributeType(type);
-    const pinned = pinnedAttributes.includes(definitionId);
+    const [overControls, setOverControls] = React.useState(false);
 
     const toggleFormat = React.useCallback<
         React.MouseEventHandler<HTMLButtonElement>
@@ -64,48 +66,46 @@ export default function AttributeRowUI({
                       }
                     : undefined
             }
+            onMouseEnter={() => setOverControls(true)}
+            onMouseLeave={() => setOverControls(false)}
         >
-            <div className={'attr-name'}>
+            <div className={attributesClasses.name}>
                 {attributeName}
-                {controls && formatContext.hasFormats(type) && (
-                    <IconButton
-                        onClick={toggleFormat}
-                        sx={{
-                            ml: 1,
-                        }}
-                    >
-                        <VisibilityIcon fontSize={'small'} />
-                    </IconButton>
-                )}
+                {displayControls ? (
+                    <div className={attributesClasses.controls}>
+                        {overControls ? (
+                            <>
+                                {formatContext.hasFormats(type) && (
+                                    <IconButton onClick={toggleFormat}>
+                                        <VisibilityIcon />
+                                    </IconButton>
+                                )}
 
-                {controls && (
-                    <CopyAttribute
-                        sx={{
-                            ml: 1,
-                        }}
-                        value={formatter.formatValueAsString(
-                            valueFormatterProps
+                                <CopyAttribute
+                                    value={formatter.formatValueAsString(
+                                        valueFormatterProps
+                                    )}
+                                />
+
+                                <IconButton
+                                    onClick={() => togglePin(definitionId)}
+                                >
+                                    <PushPinIcon
+                                        color={pinned ? 'success' : undefined}
+                                    />
+                                </IconButton>
+                            </>
+                        ) : (
+                            ''
                         )}
-                    />
-                )}
-
-                {controls && (
-                    <IconButton
-                        onClick={() => togglePin(definitionId)}
-                        sx={{
-                            ml: 1,
-                        }}
-                    >
-                        <PushPinIcon
-                            fontSize={'small'}
-                            color={pinned ? 'success' : undefined}
-                        />
-                    </IconButton>
+                    </div>
+                ) : (
+                    ''
                 )}
             </div>
-            <div className={'attr-val'} lang={locale}>
+            <div className={attributesClasses.val} lang={locale}>
                 {multiple && !formatter.supportsMultiple() ? (
-                    <ul>
+                    <ul className={attributesClasses.list}>
                         {value
                             ? value.map((v: any, i: number) => {
                                   const formatProps = {
@@ -119,11 +119,15 @@ export default function AttributeRowUI({
                                   return (
                                       <li key={i}>
                                           {formatter.formatValue(formatProps)}
-                                          <CopyAttribute
-                                              value={formatter.formatValueAsString(
-                                                  formatProps
-                                              )}
-                                          />
+                                          {displayControls && overControls ? (
+                                              <CopyAttribute
+                                                  value={formatter.formatValueAsString(
+                                                      formatProps
+                                                  )}
+                                              />
+                                          ) : (
+                                              ''
+                                          )}
                                       </li>
                                   );
                               })

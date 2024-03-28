@@ -20,6 +20,7 @@ use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
@@ -86,6 +87,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use OwnerIdTrait;
     use DeletedAtTrait;
     final public const GROUP_READ = 'workspace:read';
     final public const GROUP_LIST = 'workspace:index';
@@ -95,9 +97,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     #[ORM\Column(type: Types::STRING, length: 50, unique: true, nullable: false)]
     private ?string $slug = null;
-
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private ?string $ownerId = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
@@ -180,16 +179,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function __toString(): string
     {
         return $this->getName();
-    }
-
-    public function getOwnerId(): ?string
-    {
-        return $this->ownerId;
-    }
-
-    public function setOwnerId(?string $ownerId): void
-    {
-        $this->ownerId = $ownerId;
     }
 
     #[ApiProperty(readable: false, writable: false)]

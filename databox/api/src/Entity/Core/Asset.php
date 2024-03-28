@@ -34,6 +34,7 @@ use App\Controller\Core\MultipleAssetCreateAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspacePrivacyTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -58,7 +59,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             normalizationContext: [
-                'groups' => [Asset::GROUP_READ],
+                'groups' => [self::GROUP_READ],
             ]
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
@@ -80,7 +81,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/assets/multiple',
             controller: MultipleAssetCreateAction::class,
             normalizationContext: [
-                'groups' => [Asset::GROUP_READ],
+                'groups' => [self::GROUP_READ],
             ],
             input: MultipleAssetInput::class,
             output: MultipleAssetOutput::class,
@@ -114,7 +115,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
     ],
     normalizationContext: [
-        'groups' => [Asset::GROUP_LIST],
+        'groups' => [self::GROUP_LIST],
     ],
     input: AssetInput::class,
     output: AssetOutput::class,
@@ -129,6 +130,7 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use UpdatedAtTrait;
     use WorkspaceTrait;
     use LocaleTrait;
+    use OwnerIdTrait;
     use WorkspacePrivacyTrait;
     final public const GROUP_READ = 'asset:read';
     final public const GROUP_LIST = 'asset:index';
@@ -142,9 +144,6 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
-
-    #[ORM\Column(type: Types::STRING, length: 36)]
-    private ?string $ownerId = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.
@@ -232,16 +231,6 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         if (null !== $sequence) {
             $this->sequence = $sequence;
         }
-    }
-
-    public function getOwnerId(): ?string
-    {
-        return $this->ownerId;
-    }
-
-    public function setOwnerId(?string $ownerId): void
-    {
-        $this->ownerId = $ownerId;
     }
 
     public function getSource(): ?File

@@ -51,7 +51,7 @@ class AssetOutput extends AbstractUuidOutput
     private int $privacy;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
-    private bool $pendingSourceFile = false;
+    private ?bool $pendingSourceFile = null;
 
     #[Groups([Asset::GROUP_READ])]
     private ?string $pendingUploadToken = null;

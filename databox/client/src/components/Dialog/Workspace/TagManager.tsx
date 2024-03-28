@@ -10,7 +10,7 @@ import {Controller} from 'react-hook-form';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {deleteTag, getTag, getTags, postTag, putTag} from '../../../api/tag';
 import {ColorPicker} from '@alchemy/react-form';
-import React from "react";
+import React from 'react';
 
 function Item({
     data,
@@ -44,7 +44,7 @@ function Item({
                 return d as Tag;
             };
         },
-        [data?.id, setValue],
+        [data?.id, setValue]
     );
 
     return (
@@ -56,7 +56,7 @@ function Item({
                     getData={getValues}
                     title={t(
                         'form.profile.firstName.translate.title',
-                        'Translate Tag',
+                        'Translate Tag'
                     )}
                     onUpdate={createSaveTranslations('name')}
                 >
@@ -149,7 +149,7 @@ export default function TagManager({
                     workspace: workspace['@id']!,
                 }).then(r => r.result)
             }
-            loadItem={(id) => getTag(id)}
+            loadItem={id => getTag(id)}
             workspaceId={workspace.id}
             minHeight={minHeight}
             onClose={onClose}

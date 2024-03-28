@@ -4,7 +4,7 @@ import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {FieldValues} from 'react-hook-form';
 import React from 'react';
 import {isAxiosError} from 'axios';
-import {NotAllowSelect} from './UserSelect.tsx';
+import {NotAllowSelect} from './UserSelect';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<Group[]> | undefined;

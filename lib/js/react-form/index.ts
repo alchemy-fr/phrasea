@@ -8,6 +8,7 @@ import SortableCollectionWidget from "./src/Collection/SortableCollectionWidget"
 import TranslationsWidget from "./src/Translations/TranslationsWidget";
 import {ColorBox} from "./src/Color/ColorBox";
 import TranslatedField from "./src/Translations/TranslatedField";
+import LoadingButton from "./src/LoadingButton";
 
 export {
     CollectionWidget,
@@ -20,6 +21,7 @@ export {
     SortableCollectionWidget,
     TranslationsWidget,
     TranslatedField,
+    LoadingButton,
 };
 
 export type * from './src/types';

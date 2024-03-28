@@ -33,7 +33,7 @@ const PhotoEditor = React.forwardRef<
         url: string;
         name: string;
     } & IntegrationOverlayCommonProps
->(({url, name, maxDimensions}, ref) => {
+>(({url, name, dimensions}, ref) => {
     return (
         <div>
             <ImageEditor
@@ -46,13 +46,13 @@ const PhotoEditor = React.forwardRef<
                     theme: myTheme,
                     initMenu: 'filter',
                     uiSize: {
-                        width: `${maxDimensions.width}px`,
-                        height: `${maxDimensions.height}px`,
+                        width: `${dimensions.width}px`,
+                        height: `${dimensions.height}px`,
                     },
                     menuBarPosition: 'bottom',
                 }}
-                cssMaxHeight={maxDimensions.height}
-                cssMaxWidth={maxDimensions.width}
+                cssMaxHeight={dimensions.height}
+                cssMaxWidth={dimensions.width}
                 selectionStyle={{
                     cornerSize: 20,
                     rotatingPointOffset: 70,

@@ -19,3 +19,5 @@ const baseTheme: ThemeOptions = {
 };
 
 export default baseTheme;
+
+export const leftPanelWidth = 360;

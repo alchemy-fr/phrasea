@@ -62,15 +62,15 @@ export default function ErrorLayout({
 }: Props) {
     let canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         if (!canvasRef.current) {
             return;
         }
 
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext('2d')!;
-        const width = 700;
-        const height = 500;
+        const width = 500;
+        const height = 400;
 
         canvas.width = width;
         canvas.height = height;
@@ -90,18 +90,25 @@ export default function ErrorLayout({
             ctx.putImageData(imgData, 0, 0);
         }
 
-        const flickerInterval = setInterval(flickering, 60);
+        const flickerInterval = setInterval(flickering, 80);
 
         return () => {
             clearInterval(flickerInterval);
         }
     }, [canvasRef.current]);
 
-    return <div>
+    return <div style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        background: '#FFF',
+        zIndex: 9999,
+    }}>
         <canvas
             ref={canvasRef}
             style={{
-                zIndex: 1,
                 position: 'absolute',
                 left: 0,
                 top: 0,

@@ -67,7 +67,6 @@ export default class TextType
                         component={'ul'}
                         sx={{
                             [`.${copyToClipBoardClass}`]: {
-                                display: 'inline-block',
                                 visibility: 'hidden',
                                 ml: 2,
                             },

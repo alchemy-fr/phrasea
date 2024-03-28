@@ -9,6 +9,8 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
+use App\Entity\Basket\Basket;
+use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -52,6 +54,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'asset']),
             MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'collection']),
             MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'workspace']),
+            MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'basket']),
             MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
         ];
 
@@ -71,6 +74,11 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('RenditionClass', '', RenditionClass::class),
             MenuItem::linkToCrud('RenditionRule', '', RenditionRule::class),
             MenuItem::linkToCrud('AlternateUrl', '', AlternateUrl::class),
+        ];
+
+        $basket = [
+            MenuItem::linkToCrud('Basket', '', Basket::class),
+            MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
         ];
 
         $submenuTemplates = [
@@ -102,6 +110,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
+        yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);

@@ -7,7 +7,7 @@ import {getWorkspaces} from '../../../api/collection';
 import {
     CollectionPager,
     useCollectionStore,
-} from '../../../store/collectionStore.ts';
+} from '../../../store/collectionStore';
 import {
     Box,
     CircularProgress,

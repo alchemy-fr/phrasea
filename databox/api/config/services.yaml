@@ -19,7 +19,7 @@ services:
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             ApiPlatform\State\ProviderInterface $itemProvider: '@api_platform.doctrine.orm.state.item_provider'
-            ApiPlatform\State\ProviderInterface $itemsProvider: '@api_platform.doctrine.orm.state.collection_provider'
+            ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
 
@@ -56,24 +56,6 @@ services:
     App\Controller\:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
-
-    App\Elasticsearch\AssetSearch:
-        arguments:
-            $finder: '@fos_elastica.finder.asset'
-
-    App\Elasticsearch\SuggestionSearch:
-        arguments:
-            $collectionIndex: '@fos_elastica.index.collection'
-            $assetIndex: '@fos_elastica.index.asset'
-            $attributeIndex: '@fos_elastica.index.attribute'
-
-    App\Elasticsearch\CollectionSearch:
-        arguments:
-            - '@fos_elastica.finder.collection'
-
-    App\Elasticsearch\AssetDataTemplateSearch:
-        arguments:
-            - '@fos_elastica.finder.asset_data_template'
 
     App\Api\Serializer\SecurityContextBuilder:
         decorates: 'api_platform.serializer.context_builder'

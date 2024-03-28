@@ -59,4 +59,9 @@ abstract class AbstractVoter extends Voter
     {
         return $this->security->isGranted(JwtUser::ROLE_ADMIN);
     }
+
+    protected function isAuthenticated(): bool
+    {
+        return $this->security->isGranted(JwtUser::IS_AUTHENTICATED_FULLY);
+    }
 }

@@ -21,10 +21,10 @@ import CreateCollection from './Collection/CreateCollection';
 import ModalLink from '../Routing/ModalLink';
 import {useTranslation} from 'react-i18next';
 import {useModals} from '@alchemy/navigation';
-import {modalRoutes} from '../../routes.ts';
-import {useCollectionStore} from '../../store/collectionStore.ts';
+import {modalRoutes} from '../../routes';
+import {useCollectionStore} from '../../store/collectionStore';
 import {useShallow} from 'zustand/react/shallow';
-import LoadMoreCollections from './Collection/LoadMoreCollections.tsx';
+import LoadMoreCollections from './Collection/LoadMoreCollections';
 
 export type WorkspaceMenuItemProps = {
     data: Workspace;

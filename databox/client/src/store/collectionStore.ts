@@ -1,11 +1,11 @@
 import {create} from 'zustand';
-import {Collection, Workspace} from '../types.ts';
+import {Collection, Workspace} from '../types';
 import {
     collectionChildrenLimit,
     CollectionOptions,
     collectionSecondLimit,
     getCollections,
-} from '../api/collection.ts';
+} from '../api/collection';
 
 export type CollectionPager = {
     items: CollectionExtended[];

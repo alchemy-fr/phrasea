@@ -1,4 +1,5 @@
 import {TFacets} from '../components/Media/Asset/Facets';
+import {Asset} from '../types';
 
 export type ApiCollectionResponse<T, E extends {} = {}> = {
     total: number;
@@ -19,7 +20,6 @@ type HydraCollectionResponse<T, E extends {} = {}> = {
         'hydra:last': string;
     };
     'hydra:member': T[];
-    'facets'?: TFacets;
 } & E;
 
 export interface ApiHydraObjectResponse {
@@ -29,15 +29,14 @@ export interface ApiHydraObjectResponse {
 
 export function getHydraCollection<T, E extends {} = {}>(
     response: HydraCollectionResponse<T, E>
-): ApiCollectionResponse<T> {
-    const res: ApiCollectionResponse<T> = {
+): ApiCollectionResponse<T, {}> {
+    const res: ApiCollectionResponse<T, {}> = {
         total: response['hydra:totalItems'],
         result: response['hydra:member'],
         first: null,
         previous: null,
         next: null,
         last: null,
-        facets: response.facets,
     };
 
     const hydraView = response['hydra:view'];
@@ -49,4 +48,18 @@ export function getHydraCollection<T, E extends {} = {}>(
     }
 
     return res;
+}
+
+export function getAssetsHydraCollection(
+    response: HydraCollectionResponse<
+        Asset,
+        {
+            facets: TFacets;
+        }
+    >
+) {
+    return {
+        ...getHydraCollection(response),
+        facets: response.facets,
+    };
 }
