@@ -13,6 +13,7 @@ import {
     AttrClassIndex,
     attributeTypesEquivalence,
     createAsset,
+    DataboxAttributeType,
     TagIndex,
 } from './shared';
 import {getConfig, getStrict} from '../../configLoader';
@@ -64,9 +65,24 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 continue;
             }
 
+            // scan the conf.fieldMap to get a list of required locales
+            const fieldMap = new Map<string, FieldMap>(Object.entries(dm.fieldMap ?? {}));
+            let locales: string[] = [];
+            for(const [name, fm] of fieldMap) {
+                for (const v of fm.values) {
+                    if (v.locale !== undefined) {
+                        locales.push(v.locale);
+                    }
+                }
+            }
+            locales = locales.filter((value, index, a) => {
+                return a.indexOf(value) === index;
+            });
+
             let workspaceId =
                 await databoxClient.getOrCreateWorkspaceIdWithSlug(
-                    dm.workspaceSlug
+                    dm.workspaceSlug,
+                    locales
                 );
 
             if (options.createNewWorkspace) {
@@ -74,12 +90,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 workspaceId = await databoxClient.flushWorkspace(workspaceId);
             }
 
+
             logger.info(
                 `Start indexing databox "${databox.name}" (#${databox.databox_id}) to workspace "${dm.workspaceSlug}"`
             );
 
             const sourceCollections: string[] = [];
-            if(dm.collections !== undefined) {
+            if(dm.collections) {
                 for (const c of dm.collections.split(',')) {
                     const collection = databox.collections[c.trim()];
                     if (collection == undefined) {
@@ -156,63 +173,73 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
             logger.info(`Fetching Meta structures`);
             const metaStructure = await client.getMetaStruct(databox.databox_id);
-            const fieldMap = new Map<string, FieldMap>(Object.entries(dm.fieldMap ?? {}));
             if(!dm.fieldMap) {
                 // import all fields from structure
                 for (const name in metaStructure) {
                     fieldMap.set(
                         name,
                         {
-                            name: name,
-                            locale: '',
                             id: metaStructure[name].id,
-                            value: `{{record.getMetadata('${name}', '').values}}`,
-                            type: metaStructure[name].type,
+                            position: 0,
+                            type: attributeTypesEquivalence[metaStructure[name].type] ?? DataboxAttributeType.Text,
                             multivalue: metaStructure[name].multivalue,
                             readonly: metaStructure[name].readonly,
+                            translatable: false,
                             labels: metaStructure[name].labels,
-                            attributeDefinition: {} as AttributeDefinition
+                            values: [
+                                {
+                                    type: "metadata",
+                                    value: name
+                                }
+                            ],
+                            attributeDefinition: {} as AttributeDefinition,
                         }
                     );
                 }
             }
-
             const attributeDefinitionIndex: Record<string, AttributeDefinition> = {};
             let ufid = 0;   // used to generate a unique id for fields declared in conf, but not existing in phraseanet
-            for(const [k, fm] of fieldMap) {
-                const r = k.match(/^([^[]+)(\[(.+)\])?$/) ?? ['', k, '', ''];
-                const name = r[1];
+            let position = 1;
+            for(const [name, fm] of fieldMap) {
+                fm.id         = metaStructure[name] ? metaStructure[name].id : (--ufid).toString();
+                fm.position   = position++;
+                fm.multivalue = fm.multivalue ?? (metaStructure[name] ? metaStructure[name].multivalue : false);
+                fm.readonly   = fm.readonly   ?? (metaStructure[name] ? metaStructure[name].readonly : false);
+                fm.labels     = fm.labels     ?? (metaStructure[name] ? metaStructure[name].labels : {});
+                fm.type       = fm.type       ?? (metaStructure[name] ? attributeTypesEquivalence[metaStructure[name].type] : DataboxAttributeType.Text);
+                for (const v of fm.values) {
+                    if (v.locale !== undefined) {
+                        fm.translatable = true;
+                    }
 
-                fm.name = name;
-                fm.id = metaStructure[name] ? metaStructure[name].id : (--ufid).toString();
-                fm.locale = r[3] ?? '';
-                fm.multivalue = (fm.multivalue === undefined && metaStructure[name]) ? metaStructure[name].multivalue : false;
-                fm.readonly = (fm.readonly === undefined && metaStructure[name]) ? metaStructure[name].readonly : false;
-                fm.labels = (fm.labels === undefined && metaStructure[name]) ? metaStructure[name].labels : {};
-                try {
-                    fm.twig = Twig.twig({data: fm.value});  // compile once
-                }
-                catch (e: any) {
-                    throw new Error(`Error compiling twig for field "${name}": ${e.message}`);
+                    if (v.type === "template") {
+                        try {
+                            v.twig = Twig.twig({data: v.value});  // compile once
+                        } catch (e: any) {
+                            throw new Error(`Error compiling twig for field "${name}": ${e.message}`);
+                        }
+                    }
                 }
 
                 if(!attributeDefinitionIndex[name]) {
+                    const data = {
+                        key: `${
+                            idempotencePrefixes["attributeDefinition"]
+                        }_${name}_${fm.type}_${fm.multivalue ? '1' : '0'}`,
+                        name: name,
+                        editable: !fm.readonly,
+                        multiple: fm.multivalue,
+                        fieldType:
+                            attributeTypesEquivalence[fm.type ?? ''] || fm.type,
+                        workspace: `/workspaces/${workspaceId}`,
+                        class: attrClassIndex[defaultPublicClass]['@id'],
+                        labels: fm.labels,
+                        translatable: fm.translatable,
+                    };
                     logger.info(`Creating "${name}" attribute definition`);
                     attributeDefinitionIndex[name] = await databoxClient.createAttributeDefinition(
                         fm.id,
-                        {
-                            key: `${
-                                idempotencePrefixes["attributeDefinition"]
-                            }_${name}_${fm.type}_${fm.multivalue ? '1' : '0'}`,
-                            name: name,
-                            editable: !fm.readonly,
-                            multiple: fm.multivalue,
-                            fieldType:
-                                attributeTypesEquivalence[fm.type ?? ''] || fm.type,
-                            workspace: `/workspaces/${workspaceId}`,
-                            class: attrClassIndex[defaultPublicClass]['@id'],
-                            labels: fm.labels,
-                        }
+                        data
                     );
                 }
                 fm.attributeDefinition = attributeDefinitionIndex[name];
@@ -284,9 +311,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
-            logger.info(`Fetching stories`);
             const recordStories: Record<string, string[]> = {};   // key: record_id ; values: story_id's
             if(storiesCollectionId !== null) {
+                logger.info(`Fetching stories`);
                 let stories: CPhraseanetStory[] = [];
                 let offset = 0;
                 do {
@@ -329,6 +356,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 } while (stories.length > 0);
             }
 
+            logger.info(`Fetching records`);
             let records: CPhraseanetRecord[];
             let offset = 0;
             do {

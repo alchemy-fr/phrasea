@@ -1,17 +1,24 @@
 import {AttributeDefinition} from "../../databox/types";
 import Twig from "twig";
+import {DataboxAttributeType} from "./shared.ts";
+
+export type FieldMapValue = {
+    locale?: string;
+    type: "template" | "metadata" | "text";
+    value: any | any[];
+    twig?: Twig.template;
+};
 
 export type FieldMap = {
-    name: string;
-    locale: string;
     id: string;
-    value: string;
-    type: string;
+    position: number;
+    type: DataboxAttributeType;
     multivalue: boolean;
     readonly: boolean;
+    translatable: boolean;
     labels: Record<string, string>;
+    values: FieldMapValue[];
     attributeDefinition: AttributeDefinition;
-    twig?: Twig.template;
 };
 
 export type ConfigDataboxMapping = {
@@ -22,7 +29,7 @@ export type ConfigDataboxMapping = {
     recordsCollectionPath: string;
     copyTo: string;
     storiesCollectionPath: string;
-    fieldMap: Record<string, FieldMap>;
+    fieldMap: Map<string, FieldMap>;
 };
 
 export type PhraseanetConfig = {
@@ -49,6 +56,12 @@ export type SubDef = {
     };
 };
 
+export enum PhraseanetMetadataType {
+    Date = "date",
+    Number = "number",
+    String = "string"
+}
+
 export type PhraseanetMetaStruct = {
     id: string;
     namespace: string;
@@ -57,7 +70,7 @@ export type PhraseanetMetaStruct = {
     name: string;
     separator: string;
     thesaurus_branch: string;
-    type: string;
+    type: PhraseanetMetadataType;
     indexable: boolean;
     multivalue: boolean;
     readonly: boolean;

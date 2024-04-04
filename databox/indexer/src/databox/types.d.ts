@@ -1,3 +1,5 @@
+import {DataboxAttributeType} from "../handlers/phraseanet/shared";
+
 type AlternateUrl = {
     type: string;
     url: string;
@@ -50,6 +52,7 @@ export type AttributeInput = ({value: any} | {values: any[]}) & {
     status?: string;
     confidence?: number;
     locale: string;
+    position: number;
 };
 
 export type RenditionInput = {
@@ -71,9 +74,10 @@ export type AttributeDefinition = {
     key?: string | undefined;
     name: string;
     editable: boolean;
-    fieldType: string;
+    fieldType: DataboxAttributeType;
     workspace: string;
     class: string;
+    translatable: boolean,
     labels?: Labels | undefined;
 };
 
