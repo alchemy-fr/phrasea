@@ -68,6 +68,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             // scan the conf.fieldMap to get a list of required locales
             const fieldMap = new Map<string, FieldMap>(Object.entries(dm.fieldMap ?? {}));
             let locales: string[] = [];
+            // @ts-ignore
             for(const [name, fm] of fieldMap) {
                 for (const v of fm.values) {
                     if (v.locale !== undefined) {
