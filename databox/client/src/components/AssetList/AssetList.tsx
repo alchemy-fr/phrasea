@@ -1,7 +1,6 @@
 import React, {Context, MouseEvent, useEffect} from 'react';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import AssetToolbar from './AssetToolbar';
-import LoadMoreButton from './LoadMoreButton';
 import {
     AssetSelectionContext,
     TSelectionContext,
@@ -227,18 +226,10 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         onContextMenuOpen,
                         onToggle,
                         pages,
+                        loadMore,
                         toolbarHeight,
                         itemComponent,
                     } as LayoutProps<Item>)}
-
-                    {loadMore ? (
-                        <LoadMoreButton
-                            onClick={loadMore}
-                            pages={pages}
-                        />
-                    ) : (
-                        ''
-                    )}
 
                     {anchorElMenu ? (
                         <AssetContextMenu

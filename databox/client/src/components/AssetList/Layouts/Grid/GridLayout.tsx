@@ -11,6 +11,7 @@ import PreviewPopover from '../../PreviewPopover';
 import {usePreview} from '../../usePreview';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
+import LoadMoreButton from "../../LoadMoreButton.tsx";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -21,6 +22,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     onOpen,
     itemComponent,
     selection,
+    loadMore,
     itemToAsset,
 }: LayoutProps<Item>) {
     const lineHeight = 26;
@@ -161,6 +163,15 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                     />
                 ))}
             </Grid>
+
+            {loadMore ? (
+                <LoadMoreButton
+                    onClick={loadMore}
+                    pages={pages}
+                />
+            ) : (
+                ''
+            )}
 
             <PreviewPopover
                 key={previewAnchorEl?.asset.id ?? 'none'}

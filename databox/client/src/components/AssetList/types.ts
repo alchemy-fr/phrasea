@@ -60,6 +60,7 @@ type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
 
 export type LayoutProps<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
+    loadMore?: LoadMoreFunc;
 } & LayoutCommonProps<Item> &
     AssetActions<Item>;
 

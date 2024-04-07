@@ -6,6 +6,7 @@ import {useTranslation} from 'react-i18next';
 import {AssetOrAssetContainer} from "../../types";
 import React from "react";
 import assetClasses from "./classes";
+import {useInfiniteScroll} from "../../hooks/useInfiniteScroll.ts";
 
 type Props<Item extends AssetOrAssetContainer> = {
     onClick: VoidFunction;
@@ -32,29 +33,10 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onCl
         loadingRef.current = false;
     }, [pages]);
 
-    React.useLayoutEffect(() => {
-        if (pages[0]) {
-            const scrollableNode = ref.current?.closest(`.${assetClasses.scrollable}`);
-            scrollableNode?.scrollTo({top: 0, left: 0});
-        }
-    }, [pages[0], ref]);
-
-    React.useEffect(() => {
-        const scrollableNode = ref.current?.closest(`.${assetClasses.scrollable}`);
-        if (scrollableNode) {
-            const onScrollEnd = (e: HTMLElementEventMap['scroll']) => {
-                const {scrollTop, scrollHeight, clientHeight} = e.currentTarget as HTMLDivElement;
-                if (clientHeight < scrollHeight && scrollTop + clientHeight >= scrollHeight - 20) {
-                    doLoad();
-                }
-            };
-            scrollableNode.addEventListener('scroll', onScrollEnd);
-
-            return () => {
-                scrollableNode.removeEventListener('scroll', onScrollEnd);
-            }
-        }
-    }, [doLoad, ref]);
+    useInfiniteScroll({
+        onLoad: doLoad,
+        node: ref.current?.closest(`.${assetClasses.scrollable}`)
+    });
 
     return (
         <Box

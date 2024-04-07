@@ -35,7 +35,6 @@ export default function Root({}: Props) {
 }
 
 function WrapperComponent({children}: RouteWrapperProps) {
-    console.log('renderKayout');
     return (
         <>
             <ModalStack>
