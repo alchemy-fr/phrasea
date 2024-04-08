@@ -90,7 +90,12 @@ function BasketsPanel({selected}: Props) {
         openModal(CreateBasket, {});
     };
 
-    const results = loadedSearchQuery ? searchResult?.pages.flat() : baskets;
+    const loadMoreHandler = () => loadedSearchQuery ? loadItems(searchResult.next || undefined) : loadMore();
+    const hasLOadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
+
+    const results = loadedSearchQuery ? searchResult?.pages.flat().map(b => {
+        return baskets.find(_b => _b.id === b.id) || b;
+    }) : baskets;
 
     return (
         <div style={{
@@ -160,13 +165,13 @@ function BasketsPanel({selected}: Props) {
                     </>
                 )}
             </List>
-            {hasMore() ?
+            {hasLOadMore ?
                 <Stack sx={{
                     p: 1,
                 }}>
                     <Button
                         variant={'contained'}
-                        onClick={() => loadMore()}
+                        onClick={loadMoreHandler}
                     >
                         {t('load_more.button.loading', 'Load more')}
                     </Button>
