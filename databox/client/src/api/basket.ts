@@ -9,9 +9,10 @@ export type GetBasketOptions = {
 };
 
 export async function getBaskets(
+    nextUrl?: string | undefined,
     params: GetBasketOptions = {}
 ): Promise<ApiCollectionResponse<Basket>> {
-    const res = await apiClient.get('/baskets', {
+    const res = await apiClient.get(nextUrl ?? '/baskets', {
         params,
     });
 

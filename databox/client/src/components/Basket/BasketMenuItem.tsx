@@ -10,6 +10,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
+import {replaceHighlight} from "../Media/Asset/Attribute/Attributes.tsx";
+import {Classes} from "../../classes.ts";
 
 type Props = {
     data: Basket;
@@ -73,11 +75,13 @@ export default function BasketMenuItem({
                     onClick={onClick}
                 >
                     <ListItemText
+                        className={Classes.ellipsisText}
                         primary={
-                            data.titleHighlight ||
-                            data.title ||
-                            t('basket.default.title', 'My Basket')
+                            data.titleHighlight ? replaceHighlight(data.titleHighlight)
+                                : (data.title || t('basket.default.title', 'My Basket'))
                         }
+                        secondary={data.descriptionHighlight ? replaceHighlight(data.descriptionHighlight)
+                            : data.description}
                     />
                 </ListItemButton>
             </ListItem>

@@ -39,7 +39,7 @@ class BasketOutput extends AbstractUuidOutput
     #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
     private ?string $title = null;
 
-    #[Groups([Basket::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Basket::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?string $description = null;
 
     #[Groups([Basket::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
@@ -47,6 +47,9 @@ class BasketOutput extends AbstractUuidOutput
 
     #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]
     private ?string $titleHighlight = null;
+
+    #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]
+    public ?string $descriptionHighlight = null;
 
     #[Groups([Basket::GROUP_READ])]
     public ?UserOutput $owner = null;

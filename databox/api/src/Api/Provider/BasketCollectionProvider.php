@@ -20,6 +20,6 @@ class BasketCollectionProvider extends AbstractCollectionProvider
     {
         $user = $this->getStrictUser();
 
-        return $this->basketSearch->search($user->getId(), $user->getGroups(), $context['filters'] ?? []);
+        return new PagerFantaApiPlatformPaginator($this->basketSearch->search($user->getId(), $user->getGroups(), $context['filters'] ?? []));
     }
 }

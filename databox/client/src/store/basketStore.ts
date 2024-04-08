@@ -13,10 +13,12 @@ import {
 type State = {
     baskets: Basket[];
     current: Basket | undefined;
+    nextUrl?: string | undefined;
     loading: boolean;
     loadingCurrent: boolean;
     loadingMore: boolean;
     total?: number;
+    hasMore: () => boolean;
     load: (params?: GetBasketOptions) => Promise<void>;
     loadMore: () => Promise<void>;
     addBasket: (basket: Basket) => void;
@@ -41,18 +43,25 @@ export const useBasketStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = await getBaskets(params);
+            const data = await getBaskets(undefined, params);
 
+            console.log('data.next', data.next);
             set(state => ({
                 baskets: data.result,
                 total: data.total,
                 loading: false,
                 current: data.total === 1 ? data.result[0] : state.current,
+                nextUrl: data.next || undefined,
             }));
         } catch (e: any) {
             set({loadingMore: true});
             throw e;
         }
+    },
+
+    hasMore() {
+        console.log('!!getState().nextUrl', !!getState().nextUrl);
+        return !!getState().nextUrl;
     },
 
     setCurrent: async data => {
@@ -114,19 +123,20 @@ export const useBasketStore = create<State>((set, getState) => ({
     },
 
     loadMore: async () => {
-        const pager = getState().baskets;
-        if (!pager) {
+        const nextUrl = getState().nextUrl;
+        if (!nextUrl) {
             return;
         }
 
         set({loadingMore: true});
         try {
-            const data = await getBaskets(); // TODO
+            const data = await getBaskets(nextUrl);
 
             set(state => ({
                 baskets: state.baskets.concat(data.result),
                 total: data.total,
                 loadingMore: false,
+                nextUrl: data.next || undefined,
             }));
         } catch (e: any) {
             set({loadingMore: false});
