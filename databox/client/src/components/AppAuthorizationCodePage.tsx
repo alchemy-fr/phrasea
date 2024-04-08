@@ -1,5 +1,5 @@
 import {AuthorizationCodePage} from '@alchemy/react-auth';
-import {oauthClient} from '../api/api-client.ts';
+import {oauthClient} from '../api/api-client';
 
 type Props = {};
 

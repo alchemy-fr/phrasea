@@ -7,7 +7,7 @@ import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {CollectionForm} from '../../Form/CollectionForm';
 import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {useCollectionStore} from '../../../store/collectionStore.ts';
+import {useCollectionStore} from '../../../store/collectionStore';
 
 export type OnCollectionEdit = (coll: Collection) => void;
 

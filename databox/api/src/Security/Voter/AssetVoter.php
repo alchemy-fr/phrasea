@@ -87,7 +87,7 @@ class AssetVoter extends AbstractVoter
                     );
             case self::EDIT_PERMISSIONS:
                 return $isOwner()
-                    || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
+                    || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
                     || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                     || (
                         null !== $subject->getReferenceCollection()

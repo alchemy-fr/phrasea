@@ -1,7 +1,7 @@
 import {useTranslation} from 'react-i18next';
 import {Box, Button, Typography} from '@mui/material';
 import {getPath, Link} from '@alchemy/navigation';
-import {routes} from '../routes.ts';
+import {routes} from '../routes';
 
 type Props = {};
 

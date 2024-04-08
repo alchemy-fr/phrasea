@@ -1,6 +1,6 @@
 import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
-import type {WithTranslations} from '@alchemy/react-form'
+import type {WithTranslations} from '@alchemy/react-form';
 
 type AlternateUrl = {
     type: string;
@@ -39,11 +39,11 @@ export interface Asset
     titleHighlight: string | null;
     description?: string;
     privacy: number;
-    tags: Tag[];
+    tags: Tag[] | undefined;
     owner?: User;
     workspace: Workspace;
     attributes: Attribute[];
-    collections: Collection[];
+    collections: Collection[] | undefined;
     original: AssetRendition | null;
     preview: AssetRendition | null;
     source: File | undefined;
@@ -205,6 +205,34 @@ export interface Collection extends IPermissions {
     owner?: User;
 }
 
+export interface Basket extends IPermissions {
+    id: string;
+    title: string;
+    description?: string | undefined;
+    assetCount?: number;
+    titleHighlight: string;
+    createdAt: string;
+    updatedAt: string;
+    owner?: User;
+}
+
+export interface BasketAsset {
+    id: string;
+    asset: Asset;
+    context?:
+        | {
+              clip?: {
+                  start?: number;
+                  end?: number;
+              };
+          }
+        | undefined;
+    titleHighlight: string;
+    position: number;
+    createdAt: string;
+    owner?: User;
+}
+
 export interface Workspace extends IPermissions {
     id: string;
     name: string;
@@ -256,4 +284,10 @@ export type Ace = (
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
+};
+
+export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
+
+export type AssetOrAssetContainer = {
+    id: string;
 };

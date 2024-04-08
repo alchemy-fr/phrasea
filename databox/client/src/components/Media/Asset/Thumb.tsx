@@ -1,50 +1,59 @@
 import {DOMAttributes, MouseEventHandler, PropsWithChildren} from 'react';
-import {Box} from '@mui/material';
+import {Box, SxProps} from '@mui/material';
 import {alpha, Theme} from '@mui/material/styles';
+import assetClasses from '../../AssetList/classes';
+import {createThumbActiveStyle} from './AssetThumb';
+
+export function createSizeTransition(theme: Theme) {
+    return theme.transitions.create(['height', 'width'], {duration: 300});
+}
+
+export const thumbSx = (
+    thumbSize: number,
+    theme: Theme,
+    overridden: SxProps = {}
+) => ({
+    [`.${assetClasses.thumbWrapper}`]: {
+        'display': 'flex',
+        'overflow': 'hidden',
+        'alignItems': 'center',
+        'position': 'relative',
+        'justifyContent': 'center',
+        'backgroundColor': theme.palette.grey[100],
+        'img': {
+            maxWidth: '100%',
+            maxHeight: '100%',
+        },
+        'width': thumbSize,
+        'height': thumbSize,
+        'transition': createSizeTransition(theme),
+        '> div': {
+            display: 'contents',
+        },
+        ...createThumbActiveStyle(),
+        ...overridden,
+    },
+});
 
 type Props = PropsWithChildren<
     {
         size: number;
         selected?: boolean;
         onMouseOver?: MouseEventHandler | undefined;
-        className?: string | undefined;
     } & DOMAttributes<HTMLElement>
 >;
-
-export function createSizeTransition(theme: Theme) {
-    return theme.transitions.create(['height', 'width'], {duration: 300});
-}
-
-const assetSx = (thumbSize: number) => (theme: Theme) => ({
-    display: 'flex',
-    overflow: 'hidden',
-    alignItems: 'center',
-    position: 'relative',
-    justifyContent: 'center',
-    backgroundColor: theme.palette.grey[100],
-    img: {
-        maxWidth: '100%',
-        maxHeight: '100%',
-    },
-    width: thumbSize,
-    height: thumbSize,
-    transition: createSizeTransition(theme),
-});
 
 export default function Thumb({
     selected,
     children,
-    size,
     onMouseOver,
     onMouseLeave,
-    className,
 }: Props) {
     return (
-        <Box
-            sx={assetSx(size)}
+        <div
             onMouseOver={onMouseOver}
             onMouseLeave={onMouseLeave}
-            className={className}
+            className={assetClasses.thumbWrapper}
         >
             {selected && (
                 <Box
@@ -60,6 +69,6 @@ export default function Thumb({
                 />
             )}
             {children}
-        </Box>
+        </div>
     );
 }

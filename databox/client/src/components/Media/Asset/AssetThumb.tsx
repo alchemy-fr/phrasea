@@ -1,19 +1,16 @@
-import {DOMAttributes} from 'react';
+import React, {DOMAttributes} from 'react';
 import {Asset} from '../../../types';
-import Thumb from './Thumb';
 import AssetFileIcon from './AssetFileIcon';
-import assetClasses from '../Search/Layout/classes';
+import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
-import {createDimensions} from './Players';
 import {CircularProgress, SxProps} from '@mui/material';
+import classNames from 'classnames';
 
 type Props = {
-    selected?: boolean;
-    thumbSize: number;
     asset: Asset;
-} & DOMAttributes<HTMLElement>;
+} & DOMAttributes<HTMLDivElement>;
 
-export default function AssetThumb({
+function AssetThumb({
     asset: {
         resolvedTitle,
         pendingSourceFile,
@@ -21,18 +18,14 @@ export default function AssetThumb({
         thumbnailActive,
         original,
     },
-    thumbSize,
-    selected,
     ...domAttrs
 }: Props) {
-    const dimensions = createDimensions(thumbSize);
-
     return (
-        <Thumb
+        <div
             {...domAttrs}
-            selected={selected}
-            size={thumbSize}
-            className={assetClasses.thumbWrapper}
+            className={classNames({
+                [assetClasses.thumbWrapper]: true,
+            })}
         >
             <div
                 className={
@@ -49,8 +42,6 @@ export default function AssetThumb({
                     <FilePlayer
                         file={thumbnail.file}
                         title={resolvedTitle}
-                        minDimensions={dimensions}
-                        maxDimensions={dimensions}
                         autoPlayable={false}
                     />
                 )}
@@ -58,15 +49,13 @@ export default function AssetThumb({
             {!pendingSourceFile && thumbnailActive?.file && (
                 <div className={assetClasses.thumbActive}>
                     <FilePlayer
-                        minDimensions={dimensions}
-                        maxDimensions={dimensions}
                         file={thumbnailActive.file}
                         title={resolvedTitle}
                         autoPlayable={false}
                     />
                 </div>
             )}
-        </Thumb>
+        </div>
     );
 }
 
@@ -85,3 +74,5 @@ export function createThumbActiveStyle(): SxProps {
         },
     };
 }
+
+export default React.memo(AssetThumb);

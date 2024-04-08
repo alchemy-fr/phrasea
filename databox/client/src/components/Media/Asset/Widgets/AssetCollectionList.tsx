@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {Collection, Workspace} from '../../../../types';
-import {Box} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import {CollectionChip, WorkspaceChip} from '../../../Ui/Chips';
+import assetClasses from '../../../AssetList/classes';
 
 type Props = {
     workspace?: Workspace;
@@ -45,24 +45,28 @@ export default function AssetCollectionList({workspace, collections}: Props) {
               ].flat();
 
     return (
-        <Box
-            sx={{
-                'px': 1,
-                'display': 'flex',
-                'alignItems': 'center',
-                'flexWrap': 'wrap',
-                '.MuiChip-root': {
-                    my: 0.5,
-                },
-                '.MuiChip-root+.MuiChip-root': {
-                    ml: 0.5,
-                },
-            }}
-        >
+        <div className={assetClasses.collectionList}>
             {workspace && (
                 <WorkspaceChip size={'small'} label={workspace.name} />
             )}
             {chips}
-        </Box>
+        </div>
     );
+}
+
+export function collectionListSx() {
+    return {
+        [`.${assetClasses.collectionList}`]: {
+            'px': 1,
+            'display': 'flex',
+            'alignItems': 'center',
+            'flexWrap': 'wrap',
+            '.MuiChip-root': {
+                my: 0.5,
+            },
+            '.MuiChip-root+.MuiChip-root': {
+                ml: 0.5,
+            },
+        },
+    };
 }

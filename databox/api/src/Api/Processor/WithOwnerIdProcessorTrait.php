@@ -7,6 +7,7 @@ namespace App\Api\Processor;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\WithOwnerIdInterface;
 use App\Util\SecurityAwareTrait;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -24,6 +25,9 @@ trait WithOwnerIdProcessorTrait
     protected function processOwnerId(WithOwnerIdInterface $data): WithOwnerIdInterface
     {
         $user = $this->getUser();
+        if (null === $user) {
+            throw new AccessDeniedHttpException('User must be authenticated');
+        }
 
         if (null === $data->getOwnerId()) {
             if (!$user instanceof JwtUser) {

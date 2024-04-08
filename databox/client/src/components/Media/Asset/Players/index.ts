@@ -18,8 +18,7 @@ export function createDimensions(width: number, height?: number): Dimensions {
 
 export type PlayerProps = {
     file: FileWithUrl;
-    minDimensions?: Dimensions | undefined;
-    maxDimensions: Dimensions;
+    dimensions?: Dimensions | undefined;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;
 };

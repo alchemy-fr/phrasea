@@ -32,13 +32,13 @@ type Props = {
     asset: Asset;
     title: string | undefined;
     rendition: AssetRendition;
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
 };
 
 export function Rendition({
     title,
     asset,
-    maxDimensions,
+    dimensions,
     rendition: {name, file},
 }: Props) {
     const {t} = useTranslation();
@@ -46,13 +46,13 @@ export function Rendition({
     return (
         <RenditionStructure
             title={name}
-            maxDimensions={maxDimensions}
+            dimensions={dimensions}
             media={
                 file ? (
                     <FilePlayer
                         file={file}
                         title={title}
-                        maxDimensions={maxDimensions}
+                        dimensions={dimensions}
                         autoPlayable={false}
                         controls={true}
                     />
@@ -61,8 +61,12 @@ export function Rendition({
             info={
                 file && (
                     <div>
-                        {file.size && <>{byteSize(file.size).toString()} • </>}
-                        {file.type}
+                        {file.size ? (
+                            <>{byteSize(file.size).toString()} • </>
+                        ) : (
+                            ''
+                        )}
+                        {file.type ? file.type : ''}
                     </div>
                 )
             }
@@ -96,26 +100,26 @@ function RenditionStructure({
     info,
     media,
     actions,
-    maxDimensions,
+    dimensions,
 }: {
     title: ReactNode;
     info: ReactNode;
     media: ReactNode | undefined;
     actions: ReactNode;
-    maxDimensions: Dimensions;
+    dimensions: Dimensions;
 }) {
     return (
         <Card {...cardProps}>
             <CardMedia
                 sx={theme => ({
-                    ...maxDimensions,
+                    ...dimensions,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: theme.palette.grey['100'],
                 })}
             >
-                {media || ''}
+                {media ? media : ''}
             </CardMedia>
             <CardContent sx={cardContentSx}>
                 <Typography component="div" variant="h5">
@@ -131,17 +135,13 @@ function RenditionStructure({
     );
 }
 
-export function RenditionSkeleton({
-    maxDimensions,
-}: {
-    maxDimensions: Dimensions;
-}) {
+export function RenditionSkeleton({dimensions}: {dimensions: Dimensions}) {
     return (
         <RenditionStructure
             title={<Skeleton variant={'text'} />}
             info={<Skeleton variant={'text'} width={'50%'} />}
-            maxDimensions={maxDimensions}
-            media={<Skeleton {...maxDimensions} variant={'rectangular'} />}
+            dimensions={dimensions}
+            media={<Skeleton {...dimensions} variant={'rectangular'} />}
             actions={
                 <Skeleton width={150} height={60} variant={'rectangular'} />
             }

@@ -16,8 +16,8 @@ import {ResultContext} from './ResultContext';
 import SortBy from './Sorting/SortBy';
 import {zIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
-import AutoComplete from './AutoComplete.tsx';
-import {getSearchSuggestions, SearchSuggestion} from '../../../api/asset.ts';
+import AutoComplete from './AutoComplete';
+import {getSearchSuggestions, SearchSuggestion} from '../../../api/asset';
 import {GetSources} from '@algolia/autocomplete-core';
 
 type Props = {};

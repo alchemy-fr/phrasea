@@ -1,12 +1,12 @@
 import React from 'react';
-import {useCollectionStore} from '../../store/collectionStore.ts';
-import WorkspaceMenuItem from './WorkspaceMenuItem.tsx';
-import {getWorkspaces} from '../../api/collection.ts';
-import {Workspace} from '../../types.ts';
+import {useCollectionStore} from '../../store/collectionStore';
+import WorkspaceMenuItem from './WorkspaceMenuItem';
+import {getWorkspaces} from '../../api/collection';
+import {Workspace} from '../../types';
 
 type Props = {};
 
-export default function CollectionsPanel({}: Props) {
+function CollectionsPanel({}: Props) {
     const [workspaces, setWorkspaces] = React.useState<Workspace[]>([]);
 
     const setRootCollections = useCollectionStore(
@@ -28,3 +28,5 @@ export default function CollectionsPanel({}: Props) {
         </>
     );
 }
+
+export default React.memo(CollectionsPanel);

@@ -8,10 +8,11 @@ import React, {
 } from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
-import {Box} from '@mui/material';
+import {SxProps} from '@mui/material';
 import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
+import {AttributeFormatContext} from './Format/AttributeFormatContext';
 
 type FreeNode = string | ReactNode | ReactNode[];
 
@@ -86,12 +87,13 @@ export function replaceHighlight(
 
 type Props = {
     asset: Asset;
-    controls: boolean;
+    displayControls: boolean;
     pinnedOnly?: boolean;
 };
 
-export default function Attributes({asset, controls, pinnedOnly}: Props) {
+function Attributes({asset, displayControls, pinnedOnly}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
+    const formatContext = useContext(AttributeFormatContext);
 
     const togglePin = React.useCallback((definitionId: string) => {
         updatePreference('pinnedAttrs', prev => {
@@ -136,20 +138,7 @@ export default function Attributes({asset, controls, pinnedOnly}: Props) {
     }
 
     return (
-        <Box
-            sx={{
-                '.attr-name': {
-                    fontWeight: 100,
-                    fontSize: 13,
-                },
-                '.attr-val': {
-                    mb: 2,
-                },
-                'ul': {
-                    m: 0,
-                    pl: 2,
-                },
-            }}
+        <div
             onDoubleClick={stopPropagation}
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
@@ -157,6 +146,7 @@ export default function Attributes({asset, controls, pinnedOnly}: Props) {
             {sortedAttributes.map(a => (
                 <AttributeRowUI
                     key={a.id}
+                    formatContext={formatContext}
                     definitionId={a.definition.id}
                     value={a.value}
                     attributeName={a.definition.name}
@@ -164,11 +154,52 @@ export default function Attributes({asset, controls, pinnedOnly}: Props) {
                     locale={a.locale}
                     highlight={a.highlight}
                     multiple={a.multiple}
-                    controls={controls}
-                    pinnedAttributes={pinnedAttributes}
+                    displayControls={displayControls}
+                    pinned={pinnedAttributes.includes(a.definition.id)}
                     togglePin={togglePin}
                 />
             ))}
-        </Box>
+        </div>
     );
+}
+
+export default React.memo(Attributes) as typeof Attributes;
+
+export const attributesClasses = {
+    controls: 'attr-ctls',
+    name: 'attr-name',
+    val: 'attr-val',
+    list: 'attr-ul',
+};
+
+export function attributesSx(): SxProps {
+    return {
+        [`.${attributesClasses.name}`]: {
+            fontWeight: 100,
+            fontSize: 13,
+            my: 0.5,
+        },
+        [`.${attributesClasses.controls}`]: {
+            'display': 'inline-block',
+            'ml': 1,
+            'my': -1,
+            '.MuiSvgIcon-root': {
+                fontSize: 13,
+            },
+            '.MuiButtonBase-root + .MuiButtonBase-root': {
+                ml: 1,
+            },
+        },
+        [`.${attributesClasses.val}`]: {
+            'mb': 1,
+            'fontSize': 14,
+            '.MuiSvgIcon-root': {
+                fontSize: 13,
+            },
+        },
+        [`.${attributesClasses.list}`]: {
+            m: 0,
+            pl: 1,
+        },
+    };
 }

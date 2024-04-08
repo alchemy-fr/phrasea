@@ -3,7 +3,6 @@ import AssetSelectionProvider from './Media/AssetSelectionProvider';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
 import ResultProvider from './Media/Search/ResultProvider';
-import AssetResults from './Media/Search/AssetResults';
 import SearchProvider from './Media/Search/SearchProvider';
 import AssetDropzone from './Media/Asset/AssetDropzone';
 import {ToastContainer} from 'react-toastify';
@@ -17,6 +16,8 @@ import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFor
 import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
+import AssetSearch from './AssetSearch/AssetSearch';
+import {leftPanelWidth} from '../themes/base';
 
 const AppProxy = React.memo(() => {
     const isSmallView = useMediaQuery((theme: Theme) =>
@@ -52,7 +53,7 @@ const AppProxy = React.memo(() => {
                                     {leftPanelOpen && (
                                         <Box
                                             sx={theme => ({
-                                                width: 360,
+                                                width: leftPanelWidth,
                                                 flexGrow: 0,
                                                 flexShrink: 0,
                                                 height: `calc(100vh - ${menuHeight}px)`,
@@ -69,7 +70,7 @@ const AppProxy = React.memo(() => {
                                             flexGrow: 1,
                                         }}
                                     >
-                                        <AssetResults />
+                                        <AssetSearch />
                                     </div>
                                 </div>
                             </DisplayProvider>

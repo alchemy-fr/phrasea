@@ -8,10 +8,11 @@ export function getRelativeViewWidth(relativeSize: number): number {
 }
 
 export function getRelativeViewHeight(relativeSize: number): number {
-    const docHeight =
-        window.innerHeight ||
+    return (getWindowHeight() * relativeSize) / 100;
+}
+
+export function getWindowHeight(): number {
+    return window.innerHeight ||
         document.documentElement.clientHeight ||
         document.body.clientHeight;
-
-    return (docHeight * relativeSize) / 100;
 }

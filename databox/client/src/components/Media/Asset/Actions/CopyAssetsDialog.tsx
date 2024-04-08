@@ -11,15 +11,11 @@ import RemoteErrors from '../../../Form/RemoteErrors';
 import {FormRow} from '@alchemy/react-form';
 import SwitchWidget from '../../../Form/SwitchWidget';
 import {Asset} from '../../../../types';
-import AssetSelection from '../AssetSelection';
+import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
-
-type Props = {
-    assets: Asset[];
-    onComplete: () => void;
-} & StackedModalProps;
+import {OnSelectionChange} from '../../../AssetList/types';
 
 type FormData = {
     destination: string;
@@ -28,17 +24,17 @@ type FormData = {
     withTags: boolean;
 };
 
-const assetListStyle = {
-    maxHeight: 450,
-    overflow: 'auto',
-};
+type Props = {
+    assets: Asset[];
+    onComplete: () => void;
+} & StackedModalProps;
 
 function AssetList({
     assets,
-    setSelection,
+    onSelectionChange,
 }: {
     assets: Asset[];
-    setSelection: (selection: string[]) => void;
+    onSelectionChange: OnSelectionChange<Asset>;
 }) {
     const {t} = useTranslation();
 
@@ -50,11 +46,16 @@ function AssetList({
                     `You can select the asset you want to duplicate to the destination (hard copy):`
                 )}
             </Typography>
-            <AssetSelection
-                style={assetListStyle}
-                assets={assets}
-                onSelectionChange={setSelection}
-            />
+            <div
+                style={{
+                    height: '50vh',
+                }}
+            >
+                <AssetSelection
+                    assets={assets}
+                    onSelectionChange={onSelectionChange}
+                />
+            </div>
         </div>
     );
 }
@@ -68,8 +69,8 @@ export default function CopyAssetsDialog({
     const [workspaceDest, setWorkspaceDest] = useState<string>();
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const [selectionOW, setSelectionOW] = useState<string[]>([]);
-    const [selectionP, setSelectionP] = useState<string[]>([]);
+    const [selectionOW, setSelectionOW] = useState<Asset[]>([]);
+    const [selectionP, setSelectionP] = useState<Asset[]>([]);
 
     const count = assets.length;
 
@@ -98,8 +99,8 @@ export default function CopyAssetsDialog({
                             a.workspace.id === workspaceDest
                     )
                     .map(a => a.id),
-                ...selectionOW,
-                ...selectionP,
+                ...selectionOW.map(a => a.id),
+                ...selectionP.map(a => a.id),
             ];
 
             return copyAssets(
@@ -232,7 +233,7 @@ export default function CopyAssetsDialog({
                             )}
                         </Typography>
                         <AssetList
-                            setSelection={setSelectionP}
+                            onSelectionChange={setSelectionP}
                             assets={nonLinkablePerm}
                         />
                     </Alert>
@@ -246,7 +247,7 @@ export default function CopyAssetsDialog({
                             )}
                         </Typography>
                         <AssetList
-                            setSelection={setSelectionOW}
+                            onSelectionChange={setSelectionOW}
                             assets={nonLinkableToOtherWS}
                         />
                     </Alert>

@@ -4,7 +4,7 @@
   "public": true,
   "main": "index.ts",
   "dependencies": {
-    "js-cookie": "^3.0.5",
-    "@types/js-cookie": "^3.0.5"
+    "@types/js-cookie": "^3.0.6",
+    "js-cookie": "^3.0.5"
   }
 }

@@ -17,7 +17,7 @@ export default function EditWorkspace({data, onClose, minHeight}: Props) {
 
     const usedFormSubmit = useFormSubmit<Workspace>({
         defaultValues: data,
-        onSubmit: async (data) => {
+        onSubmit: async data => {
             return await putWorkspace(data.id, data);
         },
         onSuccess: () => {

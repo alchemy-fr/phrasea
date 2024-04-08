@@ -7,22 +7,22 @@
   "main": "index.ts",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@mui/material":  "^5.15.1",
     "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0"
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.13",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "@alchemy/storage": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^18.2.38",
-    "@types/react-dom": "^18.2.15",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.13",
+    "@types/react": "^18.2.65",
+    "@types/react-dom": "^18.2.22",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@mui/material":  "^5.15.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0"
+    "react-dom": "^18.2.0"
   }
 }

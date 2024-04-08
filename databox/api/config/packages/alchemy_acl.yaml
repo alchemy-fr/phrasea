@@ -5,3 +5,4 @@ alchemy_acl:
     workspace: App\Entity\Core\Workspace
     attribute_class: App\Entity\Core\AttributeClass
     data_template: App\Entity\Template\AssetDataTemplate
+    basket: App\Entity\Basket\Basket

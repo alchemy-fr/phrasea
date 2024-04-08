@@ -12,7 +12,7 @@ import Renditions from './Renditions';
 import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
-import {modalRoutes} from '../../../routes.ts';
+import {modalRoutes} from '../../../routes';
 
 type Props = {};
 

@@ -4,10 +4,13 @@ import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
 import {styled} from '@mui/material/styles';
 import {TabPanelProps} from '@mui/lab';
+import BasketsPanel from '../Basket/BasketsPanel';
+import {useAuth} from '@alchemy/react-auth';
 
 enum TabEnum {
     facets = 'facets',
     tree = 'tree',
+    baskets = 'baskets',
 }
 
 function a11yProps(name: TabEnum) {
@@ -61,6 +64,7 @@ const AntTab = styled(Tab)({
 
 export default function LeftPanel() {
     const [t, setTab] = useState<TabEnum>(TabEnum.tree);
+    const {isAuthenticated} = useAuth();
 
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: TabEnum) => {
         setTab(newValue);
@@ -71,6 +75,9 @@ export default function LeftPanel() {
             <AntTabs value={t} onChange={handleChange} aria-label="Views">
                 <AntTab label="Tree" {...a11yProps(TabEnum.tree)} />
                 <AntTab label="Facets" {...a11yProps(TabEnum.facets)} />
+                {isAuthenticated() ? (
+                    <AntTab label="Baskets" {...a11yProps(TabEnum.baskets)} />
+                ) : null}
             </AntTabs>
             <TabPanel value={t} index={TabEnum.tree}>
                 <CollectionsPanel />
@@ -78,6 +85,11 @@ export default function LeftPanel() {
             <TabPanel value={t} index={TabEnum.facets}>
                 <Facets />
             </TabPanel>
+            {isAuthenticated() ? (
+                <TabPanel value={t} index={TabEnum.baskets}>
+                    <BasketsPanel />
+                </TabPanel>
+            ) : null}
         </>
     );
 }

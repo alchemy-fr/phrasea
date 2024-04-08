@@ -1,15 +1,12 @@
 import {useCallback} from 'react';
 import PermissionList from '../Permissions/PermissionList';
 import {deleteAce, getAces, putAce} from '../../api/acl';
-import {
-    OnPermissionDelete,
-    PermissionObjectType,
-} from '../Permissions/permissions';
+import {OnPermissionDelete, PermissionObject} from '../Permissions/permissions';
 import {Ace, UserType} from '../../types';
-import {useCollectionStore} from '../../store/collectionStore.ts';
+import {useCollectionStore} from '../../store/collectionStore';
 
 type Props = {
-    objectType: PermissionObjectType;
+    objectType: PermissionObject;
     objectId: string;
     displayedPermissions?: string[] | undefined;
 };

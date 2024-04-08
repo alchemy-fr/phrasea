@@ -4,21 +4,21 @@
   "public": true,
   "main": "index.ts",
   "peerDependencies": {
+    "@alchemy/navigation": "workspace:*",
+    "@mui/icons-material": "^5.15.1",
+    "@mui/material": "^5.15.13",
     "react": "^18.2.0",
-    "@mui/material":  "^5.15.1",
-    "@mui/icons-material":  "^5.15.1",
-    "react-i18next": "^13.5.0",
-    "@alchemy/navigation": "workspace:*"
+    "react-i18next": "^13.5.0"
   },
   "dependencies": {
-    "styled-components": "^6.1.1"
+    "styled-components": "^6.1.8"
   },
   "devDependencies": {
-    "@types/react": "^18.2.37",
+    "@alchemy/navigation": "workspace:*",
+    "@mui/icons-material": "^5.15.13",
+    "@mui/material": "^5.15.13",
+    "@types/react": "^18.2.65",
     "react": "^18.2.0",
-    "@mui/material":  "^5.15.1",
-    "@mui/icons-material":  "^5.15.1",
-    "react-i18next": "^13.5.0",
-    "@alchemy/navigation": "workspace:*"
+    "react-i18next": "^13.5.0"
   }
 }
