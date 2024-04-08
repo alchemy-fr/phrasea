@@ -18,7 +18,6 @@ import {menuHeight} from "../../../Layout/MainAppBar.tsx";
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
 import {CellMeasurerCache} from "react-virtualized/dist/es/CellMeasurer";
 import LoadMoreButton from "../../LoadMoreButton.tsx";
-import {useScrollTopPages} from "../../useScrollTopPages.ts";
 import SectionDivider from "../../SectionDivider.tsx";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
@@ -34,18 +33,20 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
-    const listRef = React.useRef<HTMLDivElement>();
+    const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!;
     const {innerHeight} = useWindowSize();
     const height = innerHeight - toolbarHeight - menuHeight;
 
-    useScrollTopPages(listRef.current?.querySelector(`.${assetClasses.scrollable}`), pages);
+    React.useLayoutEffect(() => {
+        listRef.current?.scrollToRow(0);
+    }, [pages[0], listRef]);
 
     const cellMeasurer = React.useMemo(() => {
         return new CellMeasurerCache({
             fixedWidth: true,
             minHeight: d.thumbSize + 20,
-            defaultHeight: 500
+            defaultHeight: 400
         })
     }, [pages[0], d.thumbSize]);
 
@@ -165,7 +166,16 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         onPreviewToggle={onPreviewToggle}
                     />
                     {loadMore && index === rowCount - 1 ? <LoadMoreButton
-                        onClick={loadMore}
+                        onClick={() => {
+                            loadMore!().then(() => {
+                                cellMeasurer.clear(index, 0);
+                                parent.recomputeGridSize!({
+                                    rowIndex: index,
+                                    columnIndex: 0,
+                                });
+                                parent.forceUpdate();
+                            });
+                        }}
                         pages={pages}
                     /> : ''}
                 </div>
@@ -176,11 +186,11 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     return (
         <Box
             sx={layoutSx}
-            ref={listRef}
         >
             <AutoSizer disableHeight>
                 {({width}) => (
                     <List
+                        ref={listRef}
                         className={assetClasses.scrollable}
                         deferredMeasurementCache={cellMeasurer}
                         height={height}

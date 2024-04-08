@@ -12,6 +12,7 @@ import {usePreview} from '../../usePreview';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
 import LoadMoreButton from "../../LoadMoreButton.tsx";
+import {useScrollTopPages} from "../../useScrollTopPages.ts";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -29,6 +30,9 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     const collLineHeight = 32;
     const tagLineHeight = 32;
     const d = useContext(DisplayContext)!;
+    const listRef = React.useRef<HTMLDivElement | null>(null);
+
+    useScrollTopPages(listRef.current?.closest(`.${assetClasses.scrollable}`), pages);
 
     const gridSx = React.useCallback(
         (theme: Theme) => {
@@ -145,7 +149,12 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
 
     return (
         <>
-            <Grid container spacing={1} sx={gridSx}>
+            <Grid
+                container
+                spacing={1}
+                sx={gridSx}
+                ref={listRef}
+            >
                 {pages.map((page, i) => (
                     <GridPage
                         key={i}
