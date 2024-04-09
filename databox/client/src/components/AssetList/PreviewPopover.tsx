@@ -4,9 +4,7 @@ import {Paper, Popper, Stack} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import {zIndex} from '../../themes/zIndex';
-import Attributes, {
-    attributesSx,
-} from '../Media/Asset/Attribute/Attributes';
+import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 
 type Props = {
@@ -78,12 +76,16 @@ export default function PreviewPopover({
                         direction={'row'}
                         spacing={1}
                         sx={theme => ({
-                            maxHeight: `calc(${height}px - ${theme.spacing(2)})`,
+                            maxHeight: `calc(${height}px - ${theme.spacing(
+                                2
+                            )})`,
                         })}
                     >
-                        <div style={{
-                            maxHeight: height,
-                        }}>
+                        <div
+                            style={{
+                                maxHeight: height,
+                            }}
+                        >
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}

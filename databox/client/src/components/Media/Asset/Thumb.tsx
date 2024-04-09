@@ -8,11 +8,7 @@ type Props = PropsWithChildren<
     } & DOMAttributes<HTMLElement>
 >;
 
-export default function Thumb({
-    children,
-    onMouseOver,
-    onMouseLeave,
-}: Props) {
+export default function Thumb({children, onMouseOver, onMouseLeave}: Props) {
     return (
         <div
             onMouseOver={onMouseOver}

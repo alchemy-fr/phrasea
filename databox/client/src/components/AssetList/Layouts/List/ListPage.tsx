@@ -43,11 +43,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
                     : (item as unknown as Asset);
 
                 return (
-                    <GroupRow
-                        key={item.id}
-                        asset={asset}
-                        top={toolbarHeight}
-                    >
+                    <GroupRow key={item.id} asset={asset} top={toolbarHeight}>
                         <div
                             onDoubleClick={
                                 onOpen && asset.original

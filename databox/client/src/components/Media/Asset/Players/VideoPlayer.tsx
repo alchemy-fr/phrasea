@@ -7,8 +7,8 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import {getSizeCase} from '../../../../lib/sizeCase';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file';
-import {Theme} from "@mui/material/styles";
-import assetClasses from "../../../AssetList/classes.ts";
+import {Theme} from '@mui/material/styles';
+import assetClasses from '../../../AssetList/classes.ts';
 import classNames from 'classnames';
 
 type Progress = {
@@ -65,7 +65,9 @@ export default function VideoPlayer({
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-    const dimensions = createStrictDimensions(forcedDimensions ?? {width: displayContext!.thumbSize});
+    const dimensions = createStrictDimensions(
+        forcedDimensions ?? {width: displayContext!.thumbSize}
+    );
     const videoDimensions = getVideoDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && displayContext?.playVideos;
 
@@ -76,8 +78,7 @@ export default function VideoPlayer({
         e.stopPropagation();
         setPlay(p => {
             displayContext?.setPlaying({
-                stop: !p ? () => setPlay(false) : () => {
-                },
+                stop: !p ? () => setPlay(false) : () => {},
             });
 
             return !p;
@@ -162,21 +163,18 @@ export default function VideoPlayer({
     );
 }
 
-export function videoPlayerSx(
-    thumbSize: number,
-    theme: Theme
-): SxProps {
+export function videoPlayerSx(thumbSize: number, theme: Theme): SxProps {
     return {
         [`.${assetClasses.videoPlayer}`]: {
-            'position': 'relative',
-            'backgroundColor': theme.palette.common.black,
-            'display': 'flex',
-            'justifyContent': 'center',
-            'alignItems': 'center',
-            'minWidth': thumbSize,
-            'minHeight': thumbSize,
+            position: 'relative',
+            backgroundColor: theme.palette.common.black,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minWidth: thumbSize,
+            minHeight: thumbSize,
             [`&.${assetClasses.videoPlayerIsAudio}`]: {
-                'backgroundColor': theme.palette.common.white,
+                backgroundColor: theme.palette.common.white,
             },
             [`.${assetClasses.videoPlayerActions}`]: {
                 'pointerEvents': 'none',
@@ -204,7 +202,7 @@ export function videoPlayerSx(
 
             [`&.${assetClasses.videoPlayerPlaying}`]: {
                 [`.${assetClasses.videoPlayerActions}`]: {
-                    'opacity': 0,
+                    opacity: 0,
                 },
             },
             [`&.${assetClasses.videoPlayerPlaying}:hover`]: {
@@ -213,5 +211,5 @@ export function videoPlayerSx(
                 },
             },
         },
-    }
+    };
 }

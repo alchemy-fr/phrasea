@@ -3,17 +3,20 @@ import {LoadingButton} from '@mui/lab';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import {VoidFunction} from '../../lib/utils';
 import {useTranslation} from 'react-i18next';
-import {AssetOrAssetContainer} from "../../types";
-import React from "react";
-import assetClasses from "./classes";
-import {useInfiniteScroll} from "../../hooks/useInfiniteScroll.ts";
+import {AssetOrAssetContainer} from '../../types';
+import React from 'react';
+import assetClasses from './classes';
+import {useInfiniteScroll} from '../../hooks/useInfiniteScroll.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onClick: VoidFunction;
     pages: Item[][];
 };
 
-export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onClick, pages}: Props<Item>) {
+export default function LoadMoreButton<Item extends AssetOrAssetContainer>({
+    onClick,
+    pages,
+}: Props<Item>) {
     const {t} = useTranslation();
     const [loading, setLoading] = React.useState(false);
     const ref = React.useRef<HTMLDivElement>();
@@ -35,7 +38,7 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({onCl
 
     useInfiniteScroll({
         onLoad: doLoad,
-        node: ref.current?.closest(`.${assetClasses.scrollable}`)
+        node: ref.current?.closest(`.${assetClasses.scrollable}`),
     });
 
     return (
