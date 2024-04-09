@@ -9,15 +9,18 @@ import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import {groupValueTypes} from '../GroupValue/types';
 import assetClasses from '../classes';
+import { createPortal } from 'react-dom';
 
 type Props = PropsWithChildren<{
     asset: Asset;
     toolbarHeight: number;
+    portalNode?: HTMLElement | undefined;
 }>;
 
 export default function GroupRow({
     asset: {groupValue},
     children,
+    portalNode,
     toolbarHeight,
 }: Props) {
     const formatContext = React.useContext(AttributeFormatContext);
@@ -28,56 +31,58 @@ export default function GroupRow({
 
     const {values, type, name} = groupValue;
 
-    return (
-        <>
-            <SectionDivider
-                dividerSx={{
-                    [`.${assetClasses.toggleFormat}`]: {
-                        display: 'none',
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        ml: 1,
-                    },
-                    ':hover': {
-                        [`.${assetClasses.toggleFormat}`]: {
-                            display: 'flex',
-                        },
-                    },
-                    'span + span': {
-                        ml: 1,
-                    },
-                    '.MuiChip-root': {
-                        my: -1,
-                    },
+    const divider = <SectionDivider
+        dividerSx={{
+            [`.${assetClasses.toggleFormat}`]: {
+                display: 'none',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                ml: 1,
+            },
+            ':hover': {
+                [`.${assetClasses.toggleFormat}`]: {
+                    display: 'flex',
+                },
+            },
+            'span + span': {
+                ml: 1,
+            },
+            '.MuiChip-root': {
+                my: -1,
+            },
+        }}
+        top={toolbarHeight}
+    >
+        {formatContext.hasFormats(type) && (
+            <IconButton
+                className={assetClasses.toggleFormat}
+                onClick={() => formatContext.toggleFormat(type)}
+                sx={{
+                    mr: 1,
                 }}
-                top={toolbarHeight}
             >
-                {formatContext.hasFormats(type) && (
-                    <IconButton
-                        className={assetClasses.toggleFormat}
-                        onClick={() => formatContext.toggleFormat(type)}
-                        sx={{
-                            mr: 1,
-                        }}
-                    >
-                        <VisibilityIcon fontSize={'small'} />
-                    </IconButton>
-                )}
-                {values.length > 0
-                    ? values.map((v, i) => (
-                          <span key={i}>
+                <VisibilityIcon fontSize={'small'} />
+            </IconButton>
+        )}
+        {values.length > 0
+            ? values.map((v, i) => (
+                <span key={i}>
                               {groupValueTypes[name]
                                   ? groupValueTypes[name](v)
                                   : formatAttribute(
-                                        type,
-                                        v,
-                                        formatContext.formats[type]
-                                    )}
+                                      type,
+                                      v,
+                                      formatContext.formats[type]
+                                  )}
                           </span>
-                      ))
-                    : 'None'}
-            </SectionDivider>
+            ))
+            : 'None'}
+    </SectionDivider>
+
+    return (
+        <>
+            {portalNode ? createPortal(divider, portalNode) : divider}
             {children}
         </>
     );

@@ -13,6 +13,8 @@ import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList
 import {CellMeasurer, List, ListRowRenderer, WindowScroller} from 'react-virtualized';
 import AssetItem from "./AssetItem.tsx";
 import GroupRow from "../GroupRow.tsx";
+import {menuHeight} from "../../../Layout/MainAppBar.tsx";
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
 import {CellMeasurerCache} from "react-virtualized/dist/es/CellMeasurer";
 import LoadMoreButton from "../../LoadMoreButton.tsx";
 import SectionDivider from "../../SectionDivider.tsx";
@@ -31,9 +33,12 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
-    const containerRef = React.useRef<HTMLDivElement | null>(null);
+    const headersRef = React.useRef<HTMLDivElement | undefined>(undefined);
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!;
+    const {innerHeight} = useWindowSize();
+    const height = innerHeight - toolbarHeight - menuHeight;
+    const [containerNode, setContainerNode] = React.useState<HTMLDivElement>();
 
     React.useLayoutEffect(() => {
         listRef.current?.scrollToRow(0);
@@ -115,6 +120,8 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
             ? itemToAsset(item)
             : (item as unknown as Asset);
 
+        console.log('asset');
+
         return <CellMeasurer
             cache={cellMeasurer}
             columnIndex={0}
@@ -125,7 +132,8 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
             {({registerChild}) => (
                 <GroupRow
                     asset={asset}
-                    toolbarHeight={toolbarHeight + style.top}
+                    portalNode={headersRef.current}
+                    toolbarHeight={toolbarHeight + (style.top as number)}
                 >
                     <div
                         style={style}
@@ -183,34 +191,41 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     return (
         <Box
             sx={layoutSx}
-            ref={containerRef}
+            ref={r => {
+                if (r) {
+                    setContainerNode(r.closest(`.${assetClasses.scrollable}`));
+                }
+            }}
         >
-            <WindowScroller
-                scrollElement={containerRef.current || window}
+            {containerNode ? <WindowScroller
+                scrollElement={containerNode}
             >
-                {({width, height, registerChild, isScrolling, onChildScroll, scrollTop}) => (
-                    <div
-                        // @ts-expect-error undefined
-                        ref={registerChild}
-                    >
-                        <List
-                            height={height}
-                            autoHeight={true}
-                            autoWidth={true}
-                            ref={listRef}
-                            isScrolling={isScrolling}
-                            onScroll={onChildScroll}
-                            deferredMeasurementCache={cellMeasurer}
-                            overscanRowCount={5}
-                            scrollTop={scrollTop}
-                            rowCount={rowCount}
-                            rowHeight={cellMeasurer.rowHeight}
-                            rowRenderer={rowRenderer}
-                            width={width}
-                        />
-                    </div>
-                )}
-            </WindowScroller>
+                {({width, isScrolling, onChildScroll, registerChild, scrollLeft, scrollTop}) => {
+                    console.log('renderList');
+
+                    return (<div
+                            ref={registerChild}
+                        >
+                            <List
+                                autoWidth={true}
+                                autoHeight={true}
+                                ref={listRef}
+                                deferredMeasurementCache={cellMeasurer}
+                                width={width}
+                                height={height}
+                                overscanRowCount={5}
+                                rowCount={rowCount}
+                                rowHeight={cellMeasurer.rowHeight}
+                                rowRenderer={rowRenderer}
+                                scrollLeft={scrollLeft}
+                                scrollTop={scrollTop}
+                                onScroll={onChildScroll}
+                                isScrolling={isScrolling}
+                            />
+                        </div>
+                    );
+                }}
+            </WindowScroller> : ''}
 
             <PreviewPopover
                 key={previewAnchorEl?.asset.id ?? 'none'}
