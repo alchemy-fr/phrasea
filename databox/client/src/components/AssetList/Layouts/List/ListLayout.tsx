@@ -10,11 +10,9 @@ import {alpha, Theme} from '@mui/material';
 import {attributesSx} from '../../../Media/Asset/Attribute/Attributes';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
-import {AutoSizer, CellMeasurer, List, ListRowRenderer} from 'react-virtualized';
+import {CellMeasurer, List, ListRowRenderer, WindowScroller} from 'react-virtualized';
 import AssetItem from "./AssetItem.tsx";
 import GroupRow from "../GroupRow.tsx";
-import {menuHeight} from "../../../Layout/MainAppBar.tsx";
-import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
 import {CellMeasurerCache} from "react-virtualized/dist/es/CellMeasurer";
 import LoadMoreButton from "../../LoadMoreButton.tsx";
 import SectionDivider from "../../SectionDivider.tsx";
@@ -33,10 +31,9 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const containerRef = React.useRef<HTMLDivElement | null>(null);
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!;
-    const {innerHeight} = useWindowSize();
-    const height = innerHeight - toolbarHeight - menuHeight;
 
     React.useLayoutEffect(() => {
         listRef.current?.scrollToRow(0);
@@ -125,83 +122,95 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
             parent={parent}
             rowIndex={index}
         >
-            {({ registerChild }) => (
-            <GroupRow
-                asset={asset}
-                toolbarHeight={toolbarHeight}
-            >
-                <div
-                    onDoubleClick={
-                        onOpen && asset.original
-                            ? () => onOpen(asset, asset.original!.id)
-                            : undefined
-                    }
-                    onContextMenu={
-                        onContextMenuOpen
-                            ? e => onContextMenuOpen!(e, item)
-                            : undefined
-                    }
-                    style={style}
-                    // @ts-expect-error Element | undefined
-                    ref={registerChild}
+            {({registerChild}) => (
+                <GroupRow
+                    asset={asset}
+                    toolbarHeight={toolbarHeight + style.top}
                 >
-                    {page > 0 && pageIndex === 0 ? <SectionDivider
-                        top={toolbarHeight}
-                        textStyle={() => ({
-                            fontWeight: 700,
-                            fontSize: 15,
-                        })}
+                    <div
+                        style={style}
+                        // @ts-expect-error Element | undefined
+                        ref={registerChild}
+                        onDoubleClick={
+                            onOpen && asset.original
+                                ? () => onOpen(asset, asset.original!.id)
+                                : undefined
+                        }
+                        onContextMenu={
+                            onContextMenuOpen
+                                ? e => onContextMenuOpen!(e, item)
+                                : undefined
+                        }
                     >
-                        # {page + 1}
-                    </SectionDivider> : ''}
-                    <AssetItem
-                        asset={asset}
-                        itemComponent={itemComponent}
-                        item={item}
-                        onToggle={onToggle}
-                        selected={selection.includes(item)}
-                        onAddToBasket={onAddToBasket}
-                        onContextMenuOpen={onContextMenuOpen}
-                        displayAttributes={d.displayAttributes}
-                        onPreviewToggle={onPreviewToggle}
-                    />
-                    {loadMore && index === rowCount - 1 ? <LoadMoreButton
-                        onClick={() => {
-                            loadMore!().then(() => {
-                                cellMeasurer.clear(index, 0);
-                                parent.recomputeGridSize!({
-                                    rowIndex: index,
-                                    columnIndex: 0,
+                        {page > 0 && pageIndex === 0 ? <SectionDivider
+                            top={toolbarHeight}
+                            textStyle={() => ({
+                                fontWeight: 700,
+                                fontSize: 15,
+                            })}
+                        >
+                            # {page + 1}
+                        </SectionDivider> : ''}
+                        <AssetItem
+                            asset={asset}
+                            itemComponent={itemComponent}
+                            item={item}
+                            onToggle={onToggle}
+                            selected={selection.includes(item)}
+                            onAddToBasket={onAddToBasket}
+                            onContextMenuOpen={onContextMenuOpen}
+                            displayAttributes={d.displayAttributes}
+                            onPreviewToggle={onPreviewToggle}
+                        />
+                        {loadMore && index === rowCount - 1 ? <LoadMoreButton
+                            onClick={() => {
+                                loadMore!().then(() => {
+                                    cellMeasurer.clear(index, 0);
+                                    parent.recomputeGridSize!({
+                                        rowIndex: index,
+                                        columnIndex: 0,
+                                    });
+                                    parent.forceUpdate();
                                 });
-                                parent.forceUpdate();
-                            });
-                        }}
-                        pages={pages}
-                    /> : ''}
-                </div>
-            </GroupRow>)}
+                            }}
+                            pages={pages}
+                        /> : ''}
+                    </div>
+                </GroupRow>)}
         </CellMeasurer>
     }
 
     return (
         <Box
             sx={layoutSx}
+            ref={containerRef}
         >
-            <AutoSizer disableHeight>
-                {({width}) => (
-                    <List
-                        ref={listRef}
-                        className={assetClasses.scrollable}
-                        deferredMeasurementCache={cellMeasurer}
-                        height={height}
-                        overscanRowCount={5}
-                        rowCount={rowCount}
-                        rowHeight={cellMeasurer.rowHeight}
-                        rowRenderer={rowRenderer}
-                        width={width}
-                    />
+            <WindowScroller
+                scrollElement={containerRef.current || window}
+            >
+                {({width, height, registerChild, isScrolling, onChildScroll, scrollTop}) => (
+                    <div
+                        // @ts-expect-error undefined
+                        ref={registerChild}
+                    >
+                        <List
+                            height={height}
+                            autoHeight={true}
+                            autoWidth={true}
+                            ref={listRef}
+                            isScrolling={isScrolling}
+                            onScroll={onChildScroll}
+                            deferredMeasurementCache={cellMeasurer}
+                            overscanRowCount={5}
+                            scrollTop={scrollTop}
+                            rowCount={rowCount}
+                            rowHeight={cellMeasurer.rowHeight}
+                            rowRenderer={rowRenderer}
+                            width={width}
+                        />
+                    </div>
                 )}
-            </AutoSizer>
+            </WindowScroller>
 
             <PreviewPopover
                 key={previewAnchorEl?.asset.id ?? 'none'}

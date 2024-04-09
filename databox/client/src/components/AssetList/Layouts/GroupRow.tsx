@@ -23,7 +23,7 @@ export default function GroupRow({
     const formatContext = React.useContext(AttributeFormatContext);
 
     if (!groupValue) {
-        return <>{children}</>;
+        return children as ReactNode;
     }
 
     const {values, type, name} = groupValue;
