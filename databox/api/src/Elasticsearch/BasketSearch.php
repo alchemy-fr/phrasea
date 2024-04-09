@@ -33,7 +33,7 @@ class BasketSearch extends AbstractSearch
             $filterQueries[] = $aclBoolQuery;
         }
 
-        $maxLimit = 50;
+        $maxLimit = 30;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;
@@ -45,19 +45,26 @@ class BasketSearch extends AbstractSearch
         }
 
         $queryString = trim($options['query'] ?? '');
-        $parsed = $this->queryStringParser->parseQuery($queryString);
 
-        if (!empty($parsed['should'])) {
-            $multiMatch = new Query\MultiMatch();
-            $multiMatch->setFields(['title', 'description']);
-            $multiMatch->setQuery($parsed['should']);
-            $rootQuery->addShould($multiMatch);
-        }
-        foreach ($parsed['must'] as $must) {
-            $multiMatch = new Query\MultiMatch();
-            $multiMatch->setFields(['title', 'description']);
-            $multiMatch->setQuery($must);
-            $rootQuery->addMust($multiMatch);
+        if (!empty($queryString)) {
+            $searchQuery = new Query\BoolQuery();
+            $parsed = $this->queryStringParser->parseQuery($queryString);
+
+            if (!empty($parsed['should'])) {
+                $searchQuery->setMinimumShouldMatch(1);
+                $multiMatch = new Query\MultiMatch();
+                $multiMatch->setFields(['title', 'description']);
+                $multiMatch->setQuery($parsed['should']);
+                $searchQuery->addShould($multiMatch);
+            }
+            foreach ($parsed['must'] as $must) {
+                $multiMatch = new Query\MultiMatch();
+                $multiMatch->setFields(['title', 'description']);
+                $multiMatch->setQuery($must);
+                $searchQuery->addMust($multiMatch);
+            }
+
+            $rootQuery->addMust($searchQuery);
         }
 
         $query = new Query();
@@ -81,13 +88,13 @@ class BasketSearch extends AbstractSearch
 
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Basket $basket
-        ): bool => $this->isGranted(AbstractVoter::READ, $basket), $adapter));
-        $result->setMaxPerPage((int) $limit);
+        $result = new Pagerfanta(new FilteredPager(fn(Basket $basket): bool => $this->isGranted(AbstractVoter::READ, $basket), $adapter));
+        $result->setMaxPerPage((int)$limit);
         if ($options['page'] ?? false) {
             $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
+            $result->setCurrentPage((int)$options['page']);
         }
+        $result->getCurrentPageResults();
 
         return $result;
     }

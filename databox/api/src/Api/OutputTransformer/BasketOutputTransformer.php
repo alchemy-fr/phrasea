@@ -43,7 +43,8 @@ class BasketOutputTransformer implements OutputTransformerInterface
         $highlights = $data->getElasticHighlights();
         $output->setTitle($data->getTitle());
         $output->description = $data->getDescription();
-        $output->setTitleHighlight($highlights['title'] ?? $data->getTitle());
+        $output->descriptionHighlight = $highlights['description'][0] ?? $data->getDescription();
+        $output->setTitleHighlight($highlights['title'][0] ?? $data->getTitle());
 
         if ($this->hasGroup([
             Basket::GROUP_READ,

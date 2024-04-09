@@ -14,7 +14,12 @@ export function initSentry({
         dsn: sentryDsn,
         environment: sentryEnvironment,
         release: sentryRelease,
-        ignoreErrors: [/Loading (CSS )?chunk \d+ failed/i, /^Network Error$/i],
+        ignoreErrors: [
+            /Loading (CSS )?chunk \d+ failed/i,
+            /^Network Error$/i,
+            /^Request failed with status code/i,
+            /^Request aborted$/i,
+        ],
         denyUrls: [
             /webkit-masked-url/i,
             /safari-web-extension/i,

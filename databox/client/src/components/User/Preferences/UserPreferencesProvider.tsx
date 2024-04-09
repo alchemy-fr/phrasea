@@ -10,6 +10,7 @@ import {createCachedThemeOptions} from '../../../lib/theme';
 import {CssBaseline, GlobalStyles} from '@mui/material';
 import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
+import {Classes} from "../../../classes.ts";
 
 const sessionStorageKey = 'userPrefs';
 
@@ -101,6 +102,12 @@ export default function UserPreferencesProvider({children}: Props) {
                         'body': {
                             backgroundColor: theme.palette.common.white,
                         },
+                        [`.${Classes.ellipsisText} .MuiListItemText-secondary`]: {
+                            textOverflow: 'ellipsis',
+                            wordBreak: 'break-all',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                        }
                     })}
                 />
                 {children}

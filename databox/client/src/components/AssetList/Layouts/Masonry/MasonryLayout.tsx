@@ -2,36 +2,56 @@ import {LayoutProps} from '../../types';
 import {Asset, AssetOrAssetContainer} from '../../../../types';
 import PreviewPopover from '../../PreviewPopover';
 import {usePreview} from '../../usePreview';
-import Masonry from '@mui/lab/Masonry';
 import AssetItem from './AssetItem';
 import React, {useContext} from 'react';
-import {alpha, Theme} from '@mui/material';
+import {alpha, CircularProgress, Theme} from '@mui/material';
 import assetClasses from '../../classes';
 import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb';
 import {DisplayContext} from '../../../Media/DisplayContext';
 import Box from '@mui/material/Box';
+import {CellMeasurer, CellMeasurerCache, CellRenderer, createMasonryCellPositioner, Masonry} from 'react-virtualized';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
+import {leftPanelWidth} from "../../../../themes/base.ts";
+import {menuHeight} from "../../../Layout/MainAppBar.tsx";
+import LoadMoreButton from "../../LoadMoreButton.tsx";
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     pages,
     onToggle,
     onContextMenuOpen,
     onOpen,
+    toolbarHeight,
     onAddToBasket,
+    loadMore,
     selection,
     itemToAsset,
     itemComponent,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const {innerWidth, innerHeight} = useWindowSize();
     const d = useContext(DisplayContext)!;
+    const masonryWidth = innerWidth - leftPanelWidth;
+    const masonryHeight = innerHeight - toolbarHeight - menuHeight;
+    const columnWidth = d.thumbSize;
+    const spacer = 8;
+    const colCount = Math.floor(masonryWidth / (columnWidth + spacer));
+    const defaultHeight = 200;
+    const [loading, setLoading] = React.useState(true);
+    const masonryRef = React.useRef<Masonry>(null);
+    const flatPages = React.useMemo(() => pages.flat(), [pages]);
+    const sizes = React.useRef<Record<string, {
+        width: number;
+        height: number;
+    }>>({});
 
     const layoutSx = React.useCallback(
         (theme: Theme) => {
             return {
                 backgroundColor: theme.palette.common.white,
-                ...thumbSx(d.thumbSize, theme, {
+                ...thumbSx(columnWidth, theme, {
                     height: 'auto',
                     img: {
-                        width: d.thumbSize,
+                        width: columnWidth,
                         maxWidth: 'unset',
                     },
                 }),
@@ -39,9 +59,8 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     m: 5,
                 },
                 [`.${assetClasses.item}`]: {
-                    'width': d.thumbSize,
+                    'width': columnWidth,
                     'transition': createSizeTransition(theme),
-
                     'position': 'relative',
                     [`.${assetClasses.controls}`]: {
                         position: 'absolute',
@@ -105,18 +124,59 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
         [d]
     );
 
-    return (
-        <Box sx={layoutSx} key={d.thumbSize.toString()}>
-            <Masonry spacing={0.5}>
-                {pages.map(page => {
-                    return page.map(item => {
-                        const asset: Asset = itemToAsset
-                            ? itemToAsset(item)
-                            : (item as unknown as Asset);
+    const cache = React.useMemo(() => new CellMeasurerCache({
+        defaultHeight,
+        defaultWidth: columnWidth,
+        fixedWidth: true,
+        fixedHeight: false,
+    }), [columnWidth, defaultHeight]);
 
-                        return (
+    const cellPositionerParams = React.useMemo(() => ({
+        cellMeasurerCache: cache,
+        columnCount: colCount,
+        columnWidth: columnWidth,
+        spacer,
+    }), [cache, colCount, spacer, columnWidth]);
+    const cellPositioner = React.useMemo(() => createMasonryCellPositioner(cellPositionerParams),
+        [cellPositionerParams]);
+
+    const itemCount = flatPages.length;
+
+    const cellRenderer: CellRenderer = React.useMemo(() => ({index, key, parent, style}) => {
+        const item = flatPages[index]!;
+        if (!item) {
+            return <></>
+        }
+
+        const asset: Asset = itemToAsset
+            ? itemToAsset(item)
+            : (item as unknown as Asset);
+
+        const size = sizes.current[item.id];
+        const height = size ? columnWidth * (size.height / size.width) : defaultHeight;
+
+        return (
+            <CellMeasurer
+                cache={cache}
+                index={index}
+                key={key}
+                parent={parent}
+            >
+                    <div
+                        style={style}
+                    >
+                        <div style={{
+                            width: columnWidth,
+                            height,
+
+                        }}
+                             onContextMenu={
+                                 onContextMenuOpen
+                                     ? e => onContextMenuOpen!(e, item)
+                                     : undefined
+                             }
+                        >
                             <AssetItem
-                                key={item.id}
                                 itemComponent={itemComponent}
                                 item={item}
                                 asset={asset}
@@ -127,10 +187,89 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                 onToggle={onToggle}
                                 onPreviewToggle={onPreviewToggle}
                             />
-                        );
-                    });
-                })}
-            </Masonry>
+                            {loadMore && index === itemCount - 1 ? <LoadMoreButton
+                                onClick={() => {
+                                    loadMore!().then(() => {
+                                        // cellMeasurer.clear(index, 0);
+                                        parent.recomputeGridSize!({
+                                            rowIndex: index,
+                                            columnIndex: 0,
+                                        });
+                                        // parent.forceUpdate();
+                                    });
+                                }}
+                                pages={pages}
+                            /> : ''}
+                        </div>
+                    </div>
+            </CellMeasurer>
+        );
+    }, [cache, cellPositioner, flatPages, selection, onContextMenuOpen]);
+
+    React.useEffect(() => {
+        setLoading(true);
+        Promise.all(flatPages.map(async (item): Promise<void> => {
+            const asset: Asset = itemToAsset
+                ? itemToAsset(item)
+                : (item as unknown as Asset);
+
+            const file = asset.thumbnail?.file;
+            if (file?.type.startsWith('image/') && file!.url) {
+                return new Promise((resolve): void => {
+                    const img = new Image();
+                    img.onload = function () {
+                        const i = this as unknown as HTMLImageElement;
+                        if (i.width && i.height) {
+                            sizes.current[item.id] = {
+                                width: i.width,
+                                height: i.height,
+                            }
+                        }
+                        resolve();
+                    };
+                    img.src = file!.url!;
+                })
+            }
+
+            return Promise.resolve();
+        })).then(() => {
+            cellPositioner.reset(cellPositionerParams);
+            masonryRef.current?.clearCellPositions();
+            masonryRef.current?.recomputeCellPositions();
+            cache.clearAll();
+            setLoading(false);
+        })
+    }, [flatPages, masonryRef, cache, cellPositioner, cellPositionerParams]);
+
+    if (loading) {
+        return <div style={{
+            width: masonryWidth,
+            height: masonryHeight,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        }}>
+            <CircularProgress/>
+        </div>
+    }
+
+    return (
+        <Box
+            sx={layoutSx}
+        >
+            <Masonry
+                className={assetClasses.scrollable}
+                overscanByPixels={1000}
+                autoHeight={false}
+                ref={masonryRef}
+                cellCount={itemCount}
+                cellMeasurerCache={cache}
+                cellPositioner={cellPositioner}
+                cellRenderer={cellRenderer}
+                width={masonryWidth}
+                height={masonryHeight}
+            />
+
             <PreviewPopover
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
@@ -140,3 +279,4 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
         </Box>
     );
 }
+
