@@ -5,9 +5,8 @@ import {usePreview} from '../../usePreview';
 import {DisplayContext} from '../../../Media/DisplayContext';
 import React from 'react';
 import assetClasses from '../../classes';
-import {thumbSx} from '../../../Media/Asset/Thumb';
 import Box from '@mui/material/Box';
-import {Theme} from '@mui/material';
+import {alpha, Theme} from '@mui/material';
 import {attributesSx} from '../../../Media/Asset/Attribute/Attributes';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
@@ -19,6 +18,7 @@ import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
 import {CellMeasurerCache} from "react-virtualized/dist/es/CellMeasurer";
 import LoadMoreButton from "../../LoadMoreButton.tsx";
 import SectionDivider from "../../SectionDivider.tsx";
+import {thumbSx} from "../../../Media/Asset/AssetThumb.tsx";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -88,7 +88,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                             },
                     },
                     '&.selected': {
-                        boxShadow: theme.shadows[2],
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
                     },
                     [`.${assetClasses.attributes}`]: {
                         '> div + div': {

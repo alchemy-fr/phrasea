@@ -1,38 +1,41 @@
 import {MouseEvent, useContext, useState} from 'react';
-import {createDimensions, Dimensions, PlayerProps} from './index';
+import {createStrictDimensions, PlayerProps, StrictDimensions} from './index';
 import ReactPlayer from 'react-player/lazy';
-import {Box, IconButton, LinearProgress} from '@mui/material';
+import {IconButton, LinearProgress, SxProps} from '@mui/material';
 import {DisplayContext} from '../../DisplayContext';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import {getSizeCase} from '../../../../lib/sizeCase';
 import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file';
+import {Theme} from "@mui/material/styles";
+import assetClasses from "../../../AssetList/classes.ts";
+import classNames from 'classnames';
 
 type Progress = {
     played: number;
     loaded: number;
 };
 
-const playerActionsClass = 'pa';
-
 export function getVideoDimensions(
-    dimensions: Dimensions,
+    dimensions: StrictDimensions,
     ratio: number | undefined
-): Dimensions {
+): StrictDimensions {
     if (!ratio) {
         return dimensions;
     }
 
-    if (dimensions.width * ratio > dimensions.height) {
+    const {width, height} = dimensions;
+
+    if (width * ratio > height) {
         return {
-            width: dimensions.height / ratio,
-            height: dimensions.height,
+            width: height / ratio,
+            height: height,
         };
     }
 
     return {
-        width: dimensions.width,
-        height: dimensions.width * ratio,
+        width: width,
+        height: width * ratio,
     };
 }
 
@@ -62,8 +65,7 @@ export default function VideoPlayer({
     const [ratio, setRatio] = useState<number>();
     const type = getFileTypeFromMIMEType(file.type);
     const isAudio = type === FileTypeEnum.Audio;
-    const dimensions =
-        forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const dimensions = createStrictDimensions(forcedDimensions ?? {width: displayContext!.thumbSize});
     const videoDimensions = getVideoDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && displayContext?.playVideos;
 
@@ -74,7 +76,8 @@ export default function VideoPlayer({
         e.stopPropagation();
         setPlay(p => {
             displayContext?.setPlaying({
-                stop: !p ? () => setPlay(false) : () => {},
+                stop: !p ? () => setPlay(false) : () => {
+                },
             });
 
             return !p;
@@ -86,49 +89,18 @@ export default function VideoPlayer({
     const hasControls = !noInteraction && controls;
 
     return (
-        <Box
-            sx={theme => ({
-                'position': 'relative',
-                'backgroundColor': isAudio ? '#FFF' : '#000',
-                'display': 'flex',
-                'justifyContent': 'center',
-                'alignItems': 'center',
-                'minWidth': dimensions.width,
-                'minHeight': dimensions.height,
-                'pointerEvents': hasControls ? 'auto' : undefined,
-                [`.${playerActionsClass}`]: {
-                    'pointerEvents': 'none',
-                    'display': 'flex',
-                    'flexDirection': 'column',
-                    'justifyContent': 'center',
-                    'alignItems': 'center',
-                    'position': 'absolute',
-                    'top': 0,
-                    'left': 0,
-                    'right': 0,
-                    'bottom': 0,
-                    'zIndex': 1,
-                    '.MuiButtonBase-root': {
-                        'transition': theme.transitions.create(['opacity'], {
-                            duration: 100,
-                        }),
-                        'pointerEvents': 'auto',
-                        'opacity': play ? 0 : undefined,
-                        'bgcolor': 'primary.contrastText',
-                        '&:hover': {
-                            bgcolor: 'primary.contrastText',
-                        },
-                    },
-                },
-                '&:hover': {
-                    '.MuiButtonBase-root': {
-                        opacity: 1,
-                    },
-                },
+        <div
+            className={classNames({
+                [assetClasses.videoPlayer]: true,
+                [assetClasses.videoPlayerIsAudio]: isAudio,
+                [assetClasses.videoPlayerPlaying]: play,
             })}
+            style={{
+                pointerEvents: hasControls ? 'auto' : undefined,
+            }}
         >
             {!controls && !autoPlay && !noInteraction && (
-                <div className={playerActionsClass}>
+                <div className={assetClasses.videoPlayerActions}>
                     <IconButton
                         onClick={onPlay}
                         onMouseDown={stopPropagationIfNoCtrl}
@@ -186,6 +158,60 @@ export default function VideoPlayer({
                     valueBuffer={progress ? progress.loaded * 100 : undefined}
                 />
             )}
-        </Box>
+        </div>
     );
+}
+
+export function videoPlayerSx(
+    thumbSize: number,
+    theme: Theme
+): SxProps {
+    return {
+        [`.${assetClasses.videoPlayer}`]: {
+            'position': 'relative',
+            'backgroundColor': theme.palette.common.black,
+            'display': 'flex',
+            'justifyContent': 'center',
+            'alignItems': 'center',
+            'minWidth': thumbSize,
+            'minHeight': thumbSize,
+            [`&.${assetClasses.videoPlayerIsAudio}`]: {
+                'backgroundColor': theme.palette.common.white,
+            },
+            [`.${assetClasses.videoPlayerActions}`]: {
+                'pointerEvents': 'none',
+                'display': 'flex',
+                'flexDirection': 'column',
+                'justifyContent': 'center',
+                'alignItems': 'center',
+                'position': 'absolute',
+                'top': 0,
+                'left': 0,
+                'right': 0,
+                'bottom': 0,
+                'zIndex': 1,
+                '.MuiButtonBase-root': {
+                    'transition': theme.transitions.create(['opacity'], {
+                        duration: 100,
+                    }),
+                    'pointerEvents': 'auto',
+                    'bgcolor': 'primary.contrastText',
+                    '&:hover': {
+                        bgcolor: 'primary.contrastText',
+                    },
+                },
+            },
+
+            [`&.${assetClasses.videoPlayerPlaying}`]: {
+                [`.${assetClasses.videoPlayerActions}`]: {
+                    'opacity': 0,
+                },
+            },
+            [`&.${assetClasses.videoPlayerPlaying}:hover`]: {
+                [`.${assetClasses.videoPlayerActions}`]: {
+                    opacity: 1,
+                },
+            },
+        },
+    }
 }

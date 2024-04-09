@@ -19,6 +19,10 @@ const assetClasses = {
     privacy: 'asset-privacy',
     fileIcon: 'asset-file-icon',
     scrollable: 'asset-scrollable',
+    videoPlayer: 'asset-vp',
+    videoPlayerIsAudio: 'asset-ia',
+    videoPlayerActions: 'vp-actions',
+    videoPlayerPlaying: 'asset-playing',
 };
 
 export default assetClasses;

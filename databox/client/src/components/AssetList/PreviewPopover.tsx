@@ -3,7 +3,6 @@ import {Asset} from '../../types';
 import {Paper, Popper, Stack} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
-import {createDimensions} from '../Media/Asset/Players';
 import {zIndex} from '../../themes/zIndex';
 import Attributes, {
     attributesSx,
@@ -88,7 +87,10 @@ export default function PreviewPopover({
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}
-                                dimensions={createDimensions(width / 2, height)}
+                                dimensions={{
+                                    width: width / 2,
+                                    height,
+                                }}
                                 title={asset.resolvedTitle}
                                 onLoad={onLoad}
                                 noInteraction={!previewLocked}

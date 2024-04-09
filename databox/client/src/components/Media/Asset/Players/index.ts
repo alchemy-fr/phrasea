@@ -6,10 +6,15 @@ export type FileWithUrl = {
 
 export type Dimensions = {
     width: number;
+    height?: number;
+};
+
+export type StrictDimensions = {
+    width: number;
     height: number;
 };
 
-export function createDimensions(width: number, height?: number): Dimensions {
+export function createStrictDimensions({width, height}: Dimensions): StrictDimensions {
     return {
         width,
         height: height ?? width,

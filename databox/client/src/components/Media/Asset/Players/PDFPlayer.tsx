@@ -1,5 +1,5 @@
 import {useCallback, useContext, useState} from 'react';
-import {createDimensions, PlayerProps} from './index';
+import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getVideoDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
@@ -15,8 +15,7 @@ export default function PDFPlayer({
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const displayContext = useContext(DisplayContext);
-    const dimensions =
-        forcedDimensions ?? createDimensions(displayContext!.thumbSize);
+    const dimensions = createStrictDimensions(forcedDimensions ?? {width: displayContext!.thumbSize});
     const pdfDimensions = getVideoDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {

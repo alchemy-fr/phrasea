@@ -6,7 +6,6 @@ import AssetItem from './AssetItem';
 import React, {useContext} from 'react';
 import {alpha, CircularProgress, Theme} from '@mui/material';
 import assetClasses from '../../classes';
-import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb';
 import {DisplayContext} from '../../../Media/DisplayContext';
 import Box from '@mui/material/Box';
 import {CellMeasurer, CellMeasurerCache, CellRenderer, createMasonryCellPositioner, Masonry} from 'react-virtualized';
@@ -14,6 +13,7 @@ import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
 import {leftPanelWidth} from "../../../../themes/base.ts";
 import {menuHeight} from "../../../Layout/MainAppBar.tsx";
 import LoadMoreButton from "../../LoadMoreButton.tsx";
+import {createSizeTransition, thumbSx} from "../../../Media/Asset/AssetThumb.tsx";
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     pages,
@@ -35,7 +35,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     const columnWidth = d.thumbSize;
     const spacer = 8;
     const colCount = Math.floor(masonryWidth / (columnWidth + spacer));
-    const defaultHeight = 200;
+    const defaultHeight = columnWidth * 2 / 3;
     const [loading, setLoading] = React.useState(true);
     const masonryRef = React.useRef<Masonry>(null);
     const flatPages = React.useMemo(() => pages.flat(), [pages]);
@@ -54,6 +54,9 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                         width: columnWidth,
                         maxWidth: 'unset',
                     },
+                    '&:empty': {
+                        height: defaultHeight,
+                    }
                 }),
                 [`.${assetClasses.fileIcon}`]: {
                     m: 5,
@@ -62,6 +65,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     'width': columnWidth,
                     'transition': createSizeTransition(theme),
                     'position': 'relative',
+                    'backgroundColor': theme.palette.grey[100],
                     [`.${assetClasses.controls}`]: {
                         position: 'absolute',
                         transform: `translateY(-10px)`,
@@ -121,7 +125,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                 },
             };
         },
-        [d]
+        [columnWidth, defaultHeight]
     );
 
     const cache = React.useMemo(() => new CellMeasurerCache({
@@ -153,7 +157,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
             : (item as unknown as Asset);
 
         const size = sizes.current[item.id];
-        const height = size ? columnWidth * (size.height / size.width) : defaultHeight;
+        const height = size ? columnWidth * (size.height / size.width) : (asset.original?.file ? defaultHeight : defaultHeight);
 
         return (
             <CellMeasurer
@@ -162,13 +166,15 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                 key={key}
                 parent={parent}
             >
+                {({registerChild}) => (
                     <div
                         style={style}
+                        // @ts-expect-error Element | undefined
+                        ref={registerChild}
                     >
                         <div style={{
                             width: columnWidth,
                             height,
-
                         }}
                              onContextMenu={
                                  onContextMenuOpen
@@ -190,18 +196,16 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                             {loadMore && index === itemCount - 1 ? <LoadMoreButton
                                 onClick={() => {
                                     loadMore!().then(() => {
-                                        // cellMeasurer.clear(index, 0);
                                         parent.recomputeGridSize!({
                                             rowIndex: index,
                                             columnIndex: 0,
                                         });
-                                        // parent.forceUpdate();
                                     });
                                 }}
                                 pages={pages}
                             /> : ''}
                         </div>
-                    </div>
+                    </div>)}
             </CellMeasurer>
         );
     }, [cache, cellPositioner, flatPages, selection, onContextMenuOpen]);

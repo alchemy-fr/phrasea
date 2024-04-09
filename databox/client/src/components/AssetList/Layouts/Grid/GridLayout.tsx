@@ -5,7 +5,6 @@ import {AssetOrAssetContainer} from '../../../../types';
 import {DisplayContext} from '../../../Media/DisplayContext';
 import {sectionDividerClassname} from '../../SectionDivider';
 import assetClasses from '../../classes';
-import {createSizeTransition, thumbSx} from '../../../Media/Asset/Thumb';
 import GridPage from './GridPage';
 import PreviewPopover from '../../PreviewPopover';
 import {usePreview} from '../../usePreview';
@@ -13,6 +12,7 @@ import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
 import LoadMoreButton from "../../LoadMoreButton.tsx";
 import {useScrollTopPages} from "../../useScrollTopPages.ts";
+import {createSizeTransition, thumbSx} from "../../../Media/Asset/AssetThumb.tsx";
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -100,20 +100,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         boxShadow: theme.shadows[2],
                         [`.${assetClasses.legend}`]: {
                             color: theme.palette.primary.contrastText,
-                        },
-                        [`.${assetClasses.thumbWrapper}::after`]: {
-                            display: 'block',
-                            content: '""',
-                            position: 'absolute',
-                            zIndex: 1,
-                            top: 0,
-                            left: 0,
-                            bottom: 0,
-                            right: 0,
-                            backgroundColor: alpha(
-                                theme.palette.primary.main,
-                                0.3
-                            ),
                         },
                     },
                 },
