@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react';
-import AssetSelectionProvider from './Media/AssetSelectionProvider';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
 import ResultProvider from './Media/Search/ResultProvider';
@@ -41,7 +40,6 @@ const AppProxy = React.memo(() => {
                         onToggleLeftPanel={toggleLeftPanel}
                     />
                     <AttributeFormatProvider>
-                        <AssetSelectionProvider>
                             <DisplayProvider>
                                 <div
                                     style={{
@@ -74,7 +72,6 @@ const AppProxy = React.memo(() => {
                                     </div>
                                 </div>
                             </DisplayProvider>
-                        </AssetSelectionProvider>
                     </AttributeFormatProvider>
                 </AssetDropzone>
             </ResultProvider>
