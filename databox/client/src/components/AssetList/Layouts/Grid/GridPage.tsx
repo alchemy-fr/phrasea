@@ -45,7 +45,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                     <GroupRow
                         key={item.id}
                         asset={asset}
-                        toolbarHeight={toolbarHeight}
+                        top={toolbarHeight}
                     >
                         <Grid
                             item

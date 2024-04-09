@@ -46,7 +46,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
                     <GroupRow
                         key={item.id}
                         asset={asset}
-                        toolbarHeight={toolbarHeight}
+                        top={toolbarHeight}
                     >
                         <div
                             onDoubleClick={
