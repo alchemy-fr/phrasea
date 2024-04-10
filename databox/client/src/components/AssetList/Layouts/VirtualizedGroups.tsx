@@ -1,8 +1,9 @@
-import React, {ForwardedRef, ReactNode, RefObject} from 'react';
+import React, {ForwardedRef, RefObject} from 'react';
 import {Asset, AssetOrAssetContainer, GroupValue} from '../../../types';
 import {ItemToAssetFunc} from '../types.ts';
 import GroupDivider from './GroupDivider.tsx';
 import {CellMeasurerCache} from 'react-virtualized';
+import PageDivider from "../PageDivider.tsx";
 
 type GroupSet = {
     index: number;
@@ -10,41 +11,51 @@ type GroupSet = {
     key: string | null;
 };
 
+type Position = {
+    page?: number;
+    group?: GroupValue;
+    height?: number;
+}
+
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
     itemToAsset: ItemToAssetFunc<Item> | undefined;
     cellMeasurer: CellMeasurerCache;
     height: number;
+    hasGroups: boolean;
 };
 
 export default React.forwardRef<HTMLDivElement, Props<any>>(
     function VirtualizedGroups<Item extends AssetOrAssetContainer>(
-        {pages, height, itemToAsset, cellMeasurer}: Props<Item>,
+        {pages, height, itemToAsset, cellMeasurer, hasGroups}: Props<Item>,
         ref: ForwardedRef<HTMLDivElement>
     ) {
         const [_inc, setInc] = React.useState(0);
-        const {groups, rowCount} = React.useMemo(() => {
+        const {groups, rowCount, perPage} = React.useMemo(() => {
             const groups: GroupSet[] = [];
-
+            const perPage = pages[0]?.length ?? 0;
             const all = pages.flat();
             const rowCount = all.length;
-            all.map((item, index) => {
-                const asset: Asset = itemToAsset
-                    ? itemToAsset(item)
-                    : (item as unknown as Asset);
 
-                const {groupValue} = asset;
+            if (hasGroups) {
+                all.map((item, index) => {
+                    const asset: Asset = itemToAsset
+                        ? itemToAsset(item)
+                        : (item as unknown as Asset);
 
-                if (groupValue) {
-                    groups.push({
-                        value: groupValue,
-                        key: groupValue.key,
-                        index,
-                    });
-                }
-            });
+                    const {groupValue} = asset;
 
-            return {groups, rowCount};
+                    if (groupValue) {
+                        groups.push({
+                            value: groupValue,
+                            key: groupValue.key,
+                            index,
+                        });
+                    }
+                });
+            }
+
+            return {groups, rowCount, perPage};
         }, [pages, cellMeasurer]);
 
         React.useEffect(() => {
@@ -65,35 +76,40 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
             };
         }, [ref]);
 
-        const divs: ReactNode[] = [];
-        let groupIndex = 0;
-        let i = 0;
-        while (groups[groupIndex] && i < rowCount) {
-            let nextHeight: number | undefined = undefined;
+        const positions: Position[] = [{}];
+        let groupCursor = 0;
+        let currentGroup: GroupSet | undefined = groups[groupCursor];
+        let currPos: Position = positions[0];
 
-            const g = groups[groupIndex];
-            const nextGroup = groups[groupIndex + 1];
-            if (nextGroup) {
-                while (i < nextGroup.index) {
-                    nextHeight =
-                        (nextHeight ?? 0) + cellMeasurer.rowHeight({index: i});
-                    i++;
+        const flush = () => {
+            currPos.height ??= 0;
+            positions.push({...currPos});
+            currPos = {};
+        }
+
+        let currentPage : number | undefined;
+        for (let i = 0; i < rowCount; i++) {
+            const isNewGroup = currentGroup && i === currentGroup.index;
+            if (isNewGroup) {
+                flush();
+                currPos.group = currentGroup.value;
+                if (currentPage) {
+                    currPos.page = currentPage;
                 }
+                ++groupCursor;
+                currentGroup = groups[groupCursor];
             }
 
-            divs.push(
-                <div
-                    key={g.value.key || '__null'}
-                    style={{height: nextHeight ?? '100vh'}}
-                >
-                    <GroupDivider groupValue={g.value} top={0} />
-                </div>
-            );
+            if (i > 0 && (i % perPage) === 0) {
+                if (!isNewGroup) {
+                    flush();
+                }
 
-            if (groupIndex === groups.length - 1) {
-                break;
+                currentPage = Math.floor(i / perPage) + 1;
+                currPos.page = currentPage;
             }
-            groupIndex++;
+
+            currPos.height = (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
         }
 
         return (
@@ -102,7 +118,7 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    right: 0,
+                    right: 10,
                     pointerEvents: 'none',
                 }}
             >
@@ -114,7 +130,22 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                     }}
                     ref={ref}
                 >
-                    {divs}
+                    {positions.map((p, index) => <div
+                        key={index}
+                        style={{
+                            height: p.height ?? '100vh',
+                        }}
+                    >
+                        {p.page && !p.group ? <PageDivider
+                            page={p.page}
+                            top={0}
+                        /> : ''}
+                        {p.group ? <GroupDivider
+                            groupValue={p.group}
+                            top={0}
+                            page={p.page}
+                        /> : ''}
+                    </div>)}
                 </div>
             </div>
         );

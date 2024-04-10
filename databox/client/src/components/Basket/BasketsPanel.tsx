@@ -106,9 +106,7 @@ function BasketsPanel({selected}: Props) {
     const hasLOadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
 
     const results = loadedSearchQuery
-        ? searchResult?.pages.flat().map(b => {
-              return baskets.find(_b => _b.id === b.id) || b;
-          })
+        ? searchResult?.pages.flat()
         : baskets;
 
     return (

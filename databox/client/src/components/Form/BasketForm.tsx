@@ -33,6 +33,7 @@ export const BasketForm: FC<FormProps<Basket>> = function ({
             <FormRow>
                 <TextField
                     rows={5}
+                    fullWidth={true}
                     multiline={true}
                     label={t('form.basket.description.label', 'Description')}
                     disabled={submitting}

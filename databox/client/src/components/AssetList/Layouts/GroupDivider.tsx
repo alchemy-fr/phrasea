@@ -13,9 +13,14 @@ import {getAttributeType} from '../../Media/Asset/Attribute/types';
 type Props = PropsWithChildren<{
     groupValue: GroupValue;
     top?: number | undefined;
+    page?: number | undefined;
 }>;
 
-export default function GroupDivider({groupValue, top}: Props) {
+export default function GroupDivider({
+    groupValue,
+    top,
+    page,
+}: Props) {
     const formatContext = React.useContext(AttributeFormatContext);
 
     const {values, type, name} = groupValue;
@@ -23,6 +28,7 @@ export default function GroupDivider({groupValue, top}: Props) {
     return (
         <SectionDivider
             dividerSx={{
+                pointerEvents: 'auto',
                 [`.${assetClasses.toggleFormat}`]: {
                     display: 'none',
                     position: 'absolute',
@@ -44,6 +50,9 @@ export default function GroupDivider({groupValue, top}: Props) {
             }}
             top={top}
         >
+            {page ? <>
+                # {page}{' - '}
+            </> : ''}
             {formatContext.hasFormats(type) && (
                 <IconButton
                     className={assetClasses.toggleFormat}

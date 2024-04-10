@@ -29,7 +29,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
             {page > 1 && (
                 <SectionDivider
                     top={toolbarHeight}
-                    textStyle={() => ({
+                    textSx={() => ({
                         fontWeight: 700,
                         fontSize: 15,
                     })}

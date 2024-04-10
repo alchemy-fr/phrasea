@@ -20,8 +20,8 @@ function applyStyle(
 export const sectionDividerClassname = 'section-divider';
 
 type Props = PropsWithChildren<{
-    textStyle?: (theme: Theme) => CSSProperties;
-    rootStyle?: (theme: Theme) => CSSProperties;
+    textSx?: (theme: Theme) => CSSProperties;
+    rootSx?: (theme: Theme) => CSSProperties;
     dividerSx?: SxProps;
     top: number | undefined;
 }>;
@@ -29,8 +29,8 @@ type Props = PropsWithChildren<{
 export default function SectionDivider({
     top,
     children,
-    rootStyle,
-    textStyle,
+    rootSx,
+    textSx,
     dividerSx,
 }: Props) {
     const theme = useTheme();
@@ -45,11 +45,14 @@ export default function SectionDivider({
                     top,
                     backgroundColor: theme.palette.common.white,
                 },
-                rootStyle
+                rootSx
             )}
             className={sectionDividerClassname}
         >
-            <Divider textAlign={'left'} sx={dividerSx}>
+            <Divider
+                textAlign={'left'}
+                sx={dividerSx}
+            >
                 <div
                     style={applyStyle(
                         theme,
@@ -58,7 +61,7 @@ export default function SectionDivider({
                             paddingTop: theme.spacing(1),
                             paddingBottom: theme.spacing(1),
                         },
-                        textStyle
+                        textSx
                     )}
                 >
                     {children}

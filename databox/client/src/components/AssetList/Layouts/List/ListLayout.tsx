@@ -22,10 +22,10 @@ import {menuHeight} from '../../../Layout/MainAppBar.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {CellMeasurerCache} from 'react-virtualized/dist/es/CellMeasurer';
 import LoadMoreButton from '../../LoadMoreButton.tsx';
-import SectionDivider from '../../SectionDivider.tsx';
 import {thumbSx} from '../../../Media/Asset/AssetThumb.tsx';
 import {ScrollParams} from 'react-virtualized/dist/es/Grid';
 import VirtualizedGroups from '../VirtualizedGroups.tsx';
+import PageDivider from "../../PageDivider.tsx";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -142,6 +142,14 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         // @ts-expect-error Element | undefined
                         ref={registerChild}
                     >
+                        {page > 0 && pageIndex === 0 ? (
+                            <PageDivider
+                                top={toolbarHeight}
+                                page={page + 1}
+                            />
+                        ) : (
+                            ''
+                        )}
                         <GroupRow asset={asset} top={0}>
                             <div
                                 onDoubleClick={
@@ -156,19 +164,6 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                                         : undefined
                                 }
                             >
-                                {page > 0 && pageIndex === 0 ? (
-                                    <SectionDivider
-                                        top={toolbarHeight}
-                                        textStyle={() => ({
-                                            fontWeight: 700,
-                                            fontSize: 15,
-                                        })}
-                                    >
-                                        # {page + 1}
-                                    </SectionDivider>
-                                ) : (
-                                    ''
-                                )}
                                 <AssetItem
                                     asset={asset}
                                     itemComponent={itemComponent}
@@ -233,8 +228,9 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                             onScroll={onScroll}
                         />
 
-                        {hasGroups ? (
+                        {pages.length > 1 || hasGroups ? (
                             <VirtualizedGroups
+                                hasGroups={hasGroups}
                                 ref={headersRef}
                                 height={height}
                                 cellMeasurer={cellMeasurer}
