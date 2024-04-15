@@ -227,7 +227,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                         <LoadMoreButton
                                             onClick={() => {
                                                 loadMore!().then(() => {
-                                                    parent.recomputeGridSize!({
+                                                    parent.recomputeGridSize && parent.recomputeGridSize!({
                                                         rowIndex: index,
                                                         columnIndex: 0,
                                                     });

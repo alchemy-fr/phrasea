@@ -120,9 +120,14 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
 
     const rowRenderer: ListRowRenderer = ({index, key, style, parent}) => {
         const perPage = pages[0].length;
-        const page = Math.floor(index / perPage);
-        const pageIndex = index % perPage;
-        const item = pages[page][pageIndex]!;
+        const pageIndex = Math.floor(index / perPage);
+        const itemIndex = index % perPage;
+        const page = pages[pageIndex];
+        if (!page || page[itemIndex]) {
+            console.log('Undefined page', index, pageIndex, itemIndex, pages);
+            return <></>
+        }
+        const item = page[itemIndex]!;
 
         const asset: Asset = itemToAsset
             ? itemToAsset(item)
@@ -142,10 +147,10 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                         // @ts-expect-error Element | undefined
                         ref={registerChild}
                     >
-                        {page > 0 && pageIndex === 0 ? (
+                        {pageIndex > 0 && itemIndex === 0 ? (
                             <PageDivider
                                 top={toolbarHeight}
-                                page={page + 1}
+                                page={pageIndex + 1}
                             />
                         ) : (
                             ''
