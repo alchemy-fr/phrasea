@@ -3,4 +3,4 @@ imports:
 
 services:
     App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock: ~
-    App\External\PhraseanetApiClientFactory: '@App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'
+    App\Integration\Phraseanet\PhraseanetApiClientFactory: '@App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'

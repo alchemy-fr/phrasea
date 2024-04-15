@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Expose;
+namespace App\Integration\Phrasea\Expose;
 
 use App\Integration\AbstractIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -17,6 +17,14 @@ class ExposeIntegration extends AbstractIntegration
                 ->defaultValue('${EXPOSE_API_URL}')
                 ->cannotBeEmpty()
                 ->info('The Expose API base URL')
+            ->end()
+            ->scalarNode('clientId')
+                ->defaultValue('${EXPOSE_ADMIN_CLIENT_ID}')
+                ->cannotBeEmpty()
+            ->end()
+            ->scalarNode('clientSecret')
+                ->defaultValue('${EXPOSE_ADMIN_CLIENT_SECRET}')
+                ->cannotBeEmpty()
             ->end()
         ;
     }

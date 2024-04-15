@@ -6,7 +6,6 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
-use App\External\PhraseanetApiClientFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use Psr\Log\LoggerInterface;

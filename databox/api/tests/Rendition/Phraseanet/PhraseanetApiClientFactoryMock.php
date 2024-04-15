@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Rendition\Phraseanet;
 
-use App\External\PhraseanetApiClientFactory;
+use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use Symfony\Component\HttpClient\MockHttpClient;
 
 class PhraseanetApiClientFactoryMock extends PhraseanetApiClientFactory

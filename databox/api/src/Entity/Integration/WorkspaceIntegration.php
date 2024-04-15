@@ -241,6 +241,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
+        if ($this->workspace) {
+            return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
+        }
+
+        return $this->getIntegration();
     }
 }

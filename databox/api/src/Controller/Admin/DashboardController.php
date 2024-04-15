@@ -109,7 +109,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Job states', '', JobState::class),
         ];
 
-
         $expose = [
             MenuItem::linkToCrud('Instances', '', ExposeInstance::class),
             MenuItem::linkToCrud('Baskets-Publications', '', BasketPublication::class),
