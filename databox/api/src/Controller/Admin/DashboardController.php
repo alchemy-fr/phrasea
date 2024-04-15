@@ -26,6 +26,8 @@ use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
+use App\Entity\Expose\BasketPublication;
+use App\Entity\Expose\ExposeInstance;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
@@ -107,6 +109,12 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Job states', '', JobState::class),
         ];
 
+
+        $expose = [
+            MenuItem::linkToCrud('Instances', '', ExposeInstance::class),
+            MenuItem::linkToCrud('Baskets-Publications', '', BasketPublication::class),
+        ];
+
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
@@ -114,6 +122,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);
+        yield MenuItem::subMenu('Expose', 'fas fa-folder-open')->setSubItems($expose);
         yield $this->createDevMenu();
         yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);
     }

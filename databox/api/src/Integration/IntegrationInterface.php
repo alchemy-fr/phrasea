@@ -11,6 +11,8 @@ interface IntegrationInterface
 {
     public static function getName(): string;
 
+    public static function requiresWorkspace(): bool;
+
     public static function getTitle(): string;
 
     public function buildConfiguration(NodeBuilder $builder): void;

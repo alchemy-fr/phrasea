@@ -20,7 +20,7 @@ final readonly class EnvResolver
     ) {
     }
 
-    public function resolve(string $workspaceId, array $config): array
+    public function resolve(?string $workspaceId, array $config): array
     {
         $secrets = $this->em->getRepository(WorkspaceSecret::class)
             ->findBy([

@@ -31,6 +31,11 @@ abstract class AbstractIntegration implements IntegrationInterface
     {
     }
 
+    public static function requiresWorkspace(): bool
+    {
+        return true;
+    }
+
     public function getConfigurationInfo(array $config): array
     {
         return [];
