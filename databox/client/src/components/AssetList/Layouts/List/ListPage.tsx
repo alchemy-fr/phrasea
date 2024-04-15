@@ -29,7 +29,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
             {page > 1 && (
                 <SectionDivider
                     top={toolbarHeight}
-                    textStyle={() => ({
+                    textSx={() => ({
                         fontWeight: 700,
                         fontSize: 15,
                     })}
@@ -43,11 +43,7 @@ function ListPage<Item extends AssetOrAssetContainer>({
                     : (item as unknown as Asset);
 
                 return (
-                    <GroupRow
-                        key={item.id}
-                        asset={asset}
-                        toolbarHeight={toolbarHeight}
-                    >
+                    <GroupRow key={item.id} asset={asset} top={toolbarHeight}>
                         <div
                             onDoubleClick={
                                 onOpen && asset.original

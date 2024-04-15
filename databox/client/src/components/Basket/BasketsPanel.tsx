@@ -1,5 +1,12 @@
 import React from 'react';
-import {Button, List, ListItem, Skeleton, Stack, TextField} from '@mui/material';
+import {
+    Button,
+    List,
+    ListItem,
+    Skeleton,
+    Stack,
+    TextField,
+} from '@mui/material';
 import {useBasketStore} from '../../store/basketStore';
 import BasketMenuItem from './BasketMenuItem';
 import ConfirmDialog from '../Ui/ConfirmDialog';
@@ -11,9 +18,13 @@ import CreateBasket from './CreateBasket';
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {modalRoutes} from '../../routes';
-import {LoadingButton} from "@mui/lab";
-import {getBaskets} from "../../api/basket.ts";
-import {createDefaultPagination, createPaginatedLoader, Pagination} from "../../api/pagination.ts";
+import {LoadingButton} from '@mui/lab';
+import {getBaskets} from '../../api/basket.ts';
+import {
+    createDefaultPagination,
+    createPaginatedLoader,
+    Pagination,
+} from '../../api/pagination.ts';
 
 type Props = {
     selected?: string;
@@ -35,24 +46,23 @@ function BasketsPanel({selected}: Props) {
         ...createDefaultPagination(),
         loading: false,
     });
-    const [loadedSearchQuery, setLoadedSearchQuery] = React.useState<string | undefined>();
+    const [loadedSearchQuery, setLoadedSearchQuery] = React.useState<
+        string | undefined
+    >();
 
     React.useEffect(() => {
         load();
     }, []);
 
     const loadItems = React.useCallback(
-        createPaginatedLoader(
-            async next => {
-                const r = await getBaskets(next, {
-                    query: searchQuery,
-                });
-                setLoadedSearchQuery(searchQuery);
+        createPaginatedLoader(async next => {
+            const r = await getBaskets(next, {
+                query: searchQuery,
+            });
+            setLoadedSearchQuery(searchQuery);
 
-                return r;
-            },
-            setSearchResult
-        ),
+            return r;
+        }, setSearchResult),
         [searchQuery]
     );
 
@@ -62,13 +72,12 @@ function BasketsPanel({selected}: Props) {
         }
     }, [searchQuery]);
 
-
     const onDelete = (data: Basket): void => {
         openModal(ConfirmDialog, {
             textToType:
                 data.assetCount && data.assetCount > 1
                     ? data.title ||
-                    t('dialog.confirm_text_type.default', 'Confirm')
+                      t('dialog.confirm_text_type.default', 'Confirm')
                     : undefined,
             title: t(
                 'basket_delete.title.confirm',
@@ -90,29 +99,39 @@ function BasketsPanel({selected}: Props) {
         openModal(CreateBasket, {});
     };
 
-    const loadMoreHandler = () => loadedSearchQuery ? loadItems(searchResult.next || undefined) : loadMore();
+    const loadMoreHandler = () =>
+        loadedSearchQuery
+            ? loadItems(searchResult.next || undefined)
+            : loadMore();
     const hasLOadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
 
-    const results = loadedSearchQuery ? searchResult?.pages.flat().map(b => {
-        return baskets.find(_b => _b.id === b.id) || b;
-    }) : baskets;
+    const results = loadedSearchQuery
+        ? searchResult?.pages.flat()
+        : baskets;
 
     return (
-        <div style={{
-            position: 'relative',
-            flexGrow: 1,
-        }}>
+        <div
+            style={{
+                position: 'relative',
+                flexGrow: 1,
+            }}
+        >
             <Stack sx={{p: 1}} direction={'row'}>
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    loadItems()
-                }}>
+                <form
+                    onSubmit={e => {
+                        e.preventDefault();
+                        loadItems();
+                    }}
+                >
                     <TextField
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={e => setSearchQuery(e.target.value)}
                         size={'small'}
                         type={'search'}
-                        placeholder={t('common.search.placeholder', 'Search...')}
+                        placeholder={t(
+                            'common.search.placeholder',
+                            'Search...'
+                        )}
                     />
                     <LoadingButton
                         variant={'contained'}
@@ -157,35 +176,39 @@ function BasketsPanel({selected}: Props) {
                 ) : (
                     <>
                         <ListItem>
-                            <Skeleton variant={'text'} width={'100%'}/>
+                            <Skeleton variant={'text'} width={'100%'} />
                         </ListItem>
                         <ListItem>
-                            <Skeleton variant={'text'} width={'100%'}/>
+                            <Skeleton variant={'text'} width={'100%'} />
                         </ListItem>
                     </>
                 )}
             </List>
-            {hasLOadMore ?
-                <Stack sx={{
-                    p: 1,
-                }}>
-                    <Button
-                        variant={'contained'}
-                        onClick={loadMoreHandler}
-                    >
+            {hasLOadMore ? (
+                <Stack
+                    sx={{
+                        p: 1,
+                    }}
+                >
+                    <Button variant={'contained'} onClick={loadMoreHandler}>
                         {t('load_more.button.loading', 'Load more')}
                     </Button>
-                </Stack> : ''}
+                </Stack>
+            ) : (
+                ''
+            )}
 
-            <Stack sx={{
-                p: 1,
-                position: 'sticky',
-                bottom: 0,
-            }}>
+            <Stack
+                sx={{
+                    p: 1,
+                    position: 'sticky',
+                    bottom: 0,
+                }}
+            >
                 <Button
                     variant={'contained'}
                     onClick={createBasket}
-                    startIcon={<AddIcon/>}
+                    startIcon={<AddIcon />}
                 >
                     {t('basket.create_button.label', 'New Basket')}
                 </Button>

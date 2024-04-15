@@ -5,21 +5,21 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
 {
-    public function __construct(private readonly UserChoiceField $userChoiceField)
-    {
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly PrivacyField $privacyField,
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -44,16 +44,10 @@ class CollectionCrudController extends AbstractAclAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $privacyChoices = [];
-        foreach (WorkspaceItemPrivacyInterface::LABELS as $value => $label) {
-            $privacyChoices[$label] = $value;
-        }
-
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
         $parent = AssociationField::new('parent');
-        $privacyTxt = IntegerField::new('privacy')->setTemplatePath('admin/field_privacy.html.twig');
-        $privacy = ChoiceField::new('privacy')->setChoices($privacyChoices);
+        $privacy = $this->privacyField->create('privacy');
         $ownerId = TextField::new('ownerId');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $id = IdField::new();
@@ -67,9 +61,9 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         $referenceAssets = AssociationField::new('referenceAssets');
 
         if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $title, $parent, $workspace, $privacyTxt, $createdAt];
+            return [$id, $title, $parent, $workspace, $privacy, $createdAt];
         } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $deletedAt, $locale, $privacyTxt, $parent, $children, $assets, $referenceAssets, $workspace];
+            return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $deletedAt, $locale, $privacy, $parent, $children, $assets, $referenceAssets, $workspace];
         } elseif (Crud::PAGE_NEW === $pageName) {
             return [$title, $workspace, $parent, $privacy, $ownerUser];
         } elseif (Crud::PAGE_EDIT === $pageName) {

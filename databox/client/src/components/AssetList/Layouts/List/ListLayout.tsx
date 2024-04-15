@@ -10,15 +10,22 @@ import {alpha, Theme} from '@mui/material';
 import {attributesSx} from '../../../Media/Asset/Attribute/Attributes';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
-import {AutoSizer, CellMeasurer, List, ListRowRenderer} from 'react-virtualized';
-import AssetItem from "./AssetItem.tsx";
-import GroupRow from "../GroupRow.tsx";
-import {menuHeight} from "../../../Layout/MainAppBar.tsx";
-import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts'
-import {CellMeasurerCache} from "react-virtualized/dist/es/CellMeasurer";
-import LoadMoreButton from "../../LoadMoreButton.tsx";
-import SectionDivider from "../../SectionDivider.tsx";
-import {thumbSx} from "../../../Media/Asset/AssetThumb.tsx";
+import {
+    AutoSizer,
+    CellMeasurer,
+    List,
+    ListRowRenderer,
+} from 'react-virtualized';
+import AssetItem from './AssetItem.tsx';
+import GroupRow from '../GroupRow.tsx';
+import {menuHeight} from '../../../Layout/MainAppBar.tsx';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
+import {CellMeasurerCache} from 'react-virtualized/dist/es/CellMeasurer';
+import LoadMoreButton from '../../LoadMoreButton.tsx';
+import {thumbSx} from '../../../Media/Asset/AssetThumb.tsx';
+import {ScrollParams} from 'react-virtualized/dist/es/Grid';
+import VirtualizedGroups from '../VirtualizedGroups.tsx';
+import PageDivider from "../../PageDivider.tsx";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -33,10 +40,18 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     itemToAsset,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
+    const headersRef = React.useRef<HTMLDivElement | null>(null);
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!;
     const {innerHeight} = useWindowSize();
     const height = innerHeight - toolbarHeight - menuHeight;
+    const firstItem: Item | undefined = pages[0][0];
+    const firstAsset = firstItem
+        ? itemToAsset
+            ? itemToAsset(firstItem)
+            : (firstItem as unknown as Asset)
+        : undefined;
+    const hasGroups = Boolean(firstAsset?.groupValue);
 
     React.useLayoutEffect(() => {
         listRef.current?.scrollToRow(0);
@@ -46,8 +61,8 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
         return new CellMeasurerCache({
             fixedWidth: true,
             minHeight: d.thumbSize + 20,
-            defaultHeight: 400
-        })
+            defaultHeight: 400,
+        });
     }, [pages[0], d.thumbSize]);
 
     const layoutSx = React.useCallback(
@@ -103,103 +118,134 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
 
     const rowCount = pages.reduce((c, p) => c + p.length, 0);
 
-    const rowRenderer: ListRowRenderer = ({
-        index,
-        key,
-        style,
-        parent,
-    }) => {
+    const rowRenderer: ListRowRenderer = ({index, key, style, parent}) => {
         const perPage = pages[0].length;
-        const page = Math.floor(index / perPage);
-        const pageIndex = index % perPage;
-        const item = pages[page][pageIndex]!;
+        const pageIndex = Math.floor(index / perPage);
+        const itemIndex = index % perPage;
+        const page = pages[pageIndex];
+        if (!page || !page[itemIndex]) {
+            console.log('Undefined page', index, pageIndex, itemIndex, pages);
+            return <></>
+        }
+        const item = page[itemIndex]!;
 
         const asset: Asset = itemToAsset
             ? itemToAsset(item)
             : (item as unknown as Asset);
 
-        return <CellMeasurer
-            cache={cellMeasurer}
-            columnIndex={0}
-            key={key}
-            parent={parent}
-            rowIndex={index}
-        >
-            {({ registerChild }) => (
-            <GroupRow
-                asset={asset}
-                toolbarHeight={toolbarHeight}
+        return (
+            <CellMeasurer
+                cache={cellMeasurer}
+                columnIndex={0}
+                key={key}
+                parent={parent}
+                rowIndex={index}
             >
-                <div
-                    onDoubleClick={
-                        onOpen && asset.original
-                            ? () => onOpen(asset, asset.original!.id)
-                            : undefined
-                    }
-                    onContextMenu={
-                        onContextMenuOpen
-                            ? e => onContextMenuOpen!(e, item)
-                            : undefined
-                    }
-                    style={style}
-                    // @ts-expect-error Element | undefined
-                    ref={registerChild}
-                >
-                    {page > 0 && pageIndex === 0 ? <SectionDivider
-                        top={toolbarHeight}
-                        textStyle={() => ({
-                            fontWeight: 700,
-                            fontSize: 15,
-                        })}
+                {({registerChild}) => (
+                    <div
+                        style={style}
+                        // @ts-expect-error Element | undefined
+                        ref={registerChild}
                     >
-                        # {page + 1}
-                    </SectionDivider> : ''}
-                    <AssetItem
-                        asset={asset}
-                        itemComponent={itemComponent}
-                        item={item}
-                        onToggle={onToggle}
-                        selected={selection.includes(item)}
-                        onAddToBasket={onAddToBasket}
-                        onContextMenuOpen={onContextMenuOpen}
-                        displayAttributes={d.displayAttributes}
-                        onPreviewToggle={onPreviewToggle}
-                    />
-                    {loadMore && index === rowCount - 1 ? <LoadMoreButton
-                        onClick={() => {
-                            loadMore!().then(() => {
-                                cellMeasurer.clear(index, 0);
-                                parent.recomputeGridSize!({
-                                    rowIndex: index,
-                                    columnIndex: 0,
-                                });
-                                parent.forceUpdate();
-                            });
-                        }}
-                        pages={pages}
-                    /> : ''}
-                </div>
-            </GroupRow>)}
-        </CellMeasurer>
-    }
+                        {pageIndex > 0 && itemIndex === 0 ? (
+                            <PageDivider
+                                top={toolbarHeight}
+                                page={pageIndex + 1}
+                            />
+                        ) : (
+                            ''
+                        )}
+                        <GroupRow asset={asset} top={0}>
+                            <div
+                                onDoubleClick={
+                                    onOpen && asset.original
+                                        ? () =>
+                                              onOpen(asset, asset.original!.id)
+                                        : undefined
+                                }
+                                onContextMenu={
+                                    onContextMenuOpen
+                                        ? e => onContextMenuOpen!(e, item)
+                                        : undefined
+                                }
+                            >
+                                <AssetItem
+                                    asset={asset}
+                                    itemComponent={itemComponent}
+                                    item={item}
+                                    onToggle={onToggle}
+                                    selected={selection.includes(item)}
+                                    onAddToBasket={onAddToBasket}
+                                    onContextMenuOpen={onContextMenuOpen}
+                                    displayAttributes={d.displayAttributes}
+                                    onPreviewToggle={onPreviewToggle}
+                                />
+                                {loadMore && index === rowCount - 1 ? (
+                                    <LoadMoreButton
+                                        onClick={() => {
+                                            loadMore!().then(() => {
+                                                cellMeasurer.clear(index, 0);
+                                                parent.recomputeGridSize!({
+                                                    rowIndex: index,
+                                                    columnIndex: 0,
+                                                });
+                                                parent.forceUpdate();
+                                            });
+                                        }}
+                                        pages={pages}
+                                    />
+                                ) : (
+                                    ''
+                                )}
+                            </div>
+                        </GroupRow>
+                    </div>
+                )}
+            </CellMeasurer>
+        );
+    };
+
+    const onScroll = (params: ScrollParams) => {
+        const r = headersRef.current;
+        if (r) {
+            r.style.height = `${params.clientHeight}px`;
+            r.scrollTo({
+                top: params.scrollTop,
+            });
+        }
+    };
 
     return (
-        <Box
-            sx={layoutSx}
-        >
+        <Box sx={layoutSx}>
             <AutoSizer disableHeight>
                 {({width}) => (
-                    <List
-                        ref={listRef}
-                        className={assetClasses.scrollable}
-                        deferredMeasurementCache={cellMeasurer}
-                        height={height}
-                        overscanRowCount={5}
-                        rowCount={rowCount}
-                        rowHeight={cellMeasurer.rowHeight}
-                        rowRenderer={rowRenderer}
-                        width={width}
-                    />
+                    <>
+                        <List
+                            ref={listRef}
+                            className={assetClasses.scrollable}
+                            deferredMeasurementCache={cellMeasurer}
+                            height={height}
+                            overscanRowCount={5}
+                            rowCount={rowCount}
+                            rowHeight={cellMeasurer.rowHeight}
+                            rowRenderer={rowRenderer}
+                            width={width}
+                            onScroll={onScroll}
+                        />
+
+                        {pages.length > 1 || hasGroups ? (
+                            <VirtualizedGroups
+                                hasGroups={hasGroups}
+                                ref={headersRef}
+                                height={height}
+                                cellMeasurer={cellMeasurer}
+                                itemToAsset={itemToAsset}
+                                pages={pages}
+                            />
+                        ) : (
+                            ''
+                        )}
+                    </>
                 )}
             </AutoSizer>
 

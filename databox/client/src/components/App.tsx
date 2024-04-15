@@ -1,5 +1,4 @@
 import React, {useEffect} from 'react';
-import AssetSelectionProvider from './Media/AssetSelectionProvider';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
 import ResultProvider from './Media/Search/ResultProvider';
@@ -41,40 +40,38 @@ const AppProxy = React.memo(() => {
                         onToggleLeftPanel={toggleLeftPanel}
                     />
                     <AttributeFormatProvider>
-                        <AssetSelectionProvider>
-                            <DisplayProvider>
+                        <DisplayProvider>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    height: `calc(100vh - ${menuHeight}px)`,
+                                }}
+                            >
+                                {leftPanelOpen && (
+                                    <Box
+                                        sx={theme => ({
+                                            width: leftPanelWidth,
+                                            flexGrow: 0,
+                                            flexShrink: 0,
+                                            height: `calc(100vh - ${menuHeight}px)`,
+                                            overflow: 'auto',
+                                            boxShadow: theme.shadows[5],
+                                            zIndex: zIndex.leftPanel,
+                                        })}
+                                    >
+                                        <LeftPanel />
+                                    </Box>
+                                )}
                                 <div
                                     style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        height: `calc(100vh - ${menuHeight}px)`,
+                                        flexGrow: 1,
                                     }}
                                 >
-                                    {leftPanelOpen && (
-                                        <Box
-                                            sx={theme => ({
-                                                width: leftPanelWidth,
-                                                flexGrow: 0,
-                                                flexShrink: 0,
-                                                height: `calc(100vh - ${menuHeight}px)`,
-                                                overflow: 'auto',
-                                                boxShadow: theme.shadows[5],
-                                                zIndex: zIndex.leftPanel,
-                                            })}
-                                        >
-                                            <LeftPanel />
-                                        </Box>
-                                    )}
-                                    <div
-                                        style={{
-                                            flexGrow: 1,
-                                        }}
-                                    >
-                                        <AssetSearch />
-                                    </div>
+                                    <AssetSearch />
                                 </div>
-                            </DisplayProvider>
-                        </AssetSelectionProvider>
+                            </div>
+                        </DisplayProvider>
                     </AttributeFormatProvider>
                 </AssetDropzone>
             </ResultProvider>

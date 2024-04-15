@@ -6,14 +6,19 @@ namespace App\Admin\Field;
 
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PrivacyField
+final readonly class PrivacyField
 {
-    public static function new(string $propertyName, ?string $label = null): ChoiceField
+    public function __construct(private TranslatorInterface $translator)
+    {
+    }
+
+    public function create(string $propertyName, ?string $label = null): ChoiceField
     {
         $choices = [];
-        foreach (WorkspaceItemPrivacyInterface::LABELS as $value => $l) {
-            $choices[$l] = $value;
+        foreach (WorkspaceItemPrivacyInterface::KEYS as $value => $l) {
+            $choices[$this->translator->trans(sprintf('privacy.%s', $l))] = $value;
         }
 
         return ChoiceField::new($propertyName, $label)->setChoices($choices);

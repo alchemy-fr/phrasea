@@ -28,10 +28,7 @@ import {useModals} from '@alchemy/navigation';
 import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes';
 import {useAuth} from '@alchemy/react-auth';
-import {
-    CollectionPager,
-    useCollectionStore,
-} from '../../store/collectionStore';
+import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import {deleteCollection} from '../../api/collection';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
 

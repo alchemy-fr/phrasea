@@ -3,6 +3,7 @@ import React from 'react';
 import {LayoutProps} from '../types';
 import ListLayout from './List/ListLayout';
 import MasonryLayout from './Masonry/MasonryLayout';
+import 'react-virtualized/styles.css';
 
 export enum Layout {
     List = 'l',

@@ -11,14 +11,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class JsonConverterSubscriber implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => 'convertJsonStringToArray',
         ];
     }
 
-    public function convertJsonStringToArray(ControllerEvent $event)
+    public function convertJsonStringToArray(ControllerEvent $event): void
     {
         $request = $event->getRequest();
         if ('json' !== $request->getContentTypeFormat() || empty($request->getContent())) {

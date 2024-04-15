@@ -12,7 +12,9 @@ export function getRelativeViewHeight(relativeSize: number): number {
 }
 
 export function getWindowHeight(): number {
-    return window.innerHeight ||
+    return (
+        window.innerHeight ||
         document.documentElement.clientHeight ||
-        document.body.clientHeight;
+        document.body.clientHeight
+    );
 }

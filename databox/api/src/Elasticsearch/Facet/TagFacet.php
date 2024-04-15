@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Facet;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
+use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
 
 final class TagFacet extends AbstractEntityFacet
 {
+    use UserLocaleTrait;
+
     /**
      * @param Tag $value
      */
     public function resolveItem($value): array
     {
         return [
-            'name' => $value->getName(),
+            'name' => $this->resolveLabel($value),
             'color' => $value->getColor(),
         ];
     }
@@ -25,6 +29,14 @@ final class TagFacet extends AbstractEntityFacet
      */
     protected function resolveLabel($value): string
     {
+        $preferredLocales = $this->getPreferredLocales($value->getWorkspace());
+
+        $translations = $value->getTranslations()['name'] ?? [];
+        $key = LocaleUtil::getBestLocale(array_keys($translations), $preferredLocales);
+        if (null !== $key) {
+            return $translations[$key];
+        }
+
         return $value->getName();
     }
 

@@ -5,8 +5,8 @@ import assetClasses from '../../AssetList/classes';
 import FilePlayer from './FilePlayer';
 import {CircularProgress, SxProps} from '@mui/material';
 import classNames from 'classnames';
-import {alpha, Theme} from "@mui/material/styles";
-import {videoPlayerSx} from "./Players/VideoPlayer.tsx";
+import {alpha, Theme} from '@mui/material/styles';
+import {videoPlayerSx} from './Players/VideoPlayer.tsx';
 
 type Props = {
     asset: Asset;
@@ -25,15 +25,17 @@ function AssetThumb({
     let thumb: ReactNode | undefined;
 
     if (pendingSourceFile) {
-        thumb = <CircularProgress title={'Uploading...'} />
+        thumb = <CircularProgress title={'Uploading...'} />;
     } else if (thumbnail?.file) {
-            thumb = <FilePlayer
+        thumb = (
+            <FilePlayer
                 file={thumbnail.file}
                 title={resolvedTitle}
                 autoPlayable={false}
             />
+        );
     } else if (original?.file) {
-        thumb = <AssetFileIcon file={original.file} />
+        thumb = <AssetFileIcon file={original.file} />;
     }
 
     return (
@@ -43,13 +45,17 @@ function AssetThumb({
                 [assetClasses.thumbWrapper]: true,
             })}
         >
-            {thumb ? <div
-                className={
-                    thumbnailActive ? assetClasses.thumbInactive : undefined
-                }
-            >
-                {thumb}
-            </div> : ''}
+            {thumb ? (
+                <div
+                    className={
+                        thumbnailActive ? assetClasses.thumbInactive : undefined
+                    }
+                >
+                    {thumb}
+                </div>
+            ) : (
+                ''
+            )}
             {!pendingSourceFile && thumbnailActive?.file && (
                 <div className={assetClasses.thumbActive}>
                     <FilePlayer
@@ -120,5 +126,5 @@ export const thumbSx = (
         right: 0,
         backgroundColor: alpha(theme.palette.primary.main, 0.3),
         zIndex: 1,
-    }
+    },
 });

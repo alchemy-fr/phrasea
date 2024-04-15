@@ -23,8 +23,10 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         return AssetDataTemplate::class;
     }
 
-    public function __construct(private readonly UserChoiceField $userChoiceField)
-    {
+    public function __construct(
+        private readonly UserChoiceField $userChoiceField,
+        private readonly PrivacyField $privacyField,
+    ) {
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -50,7 +52,7 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         $workspace = AssociationField::new('workspace');
         $collection = AssociationField::new('collection');
         $tags = AssociationField::new('tags');
-        $privacy = PrivacyField::new('privacy');
+        $privacy = $this->privacyField->create('privacy');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $public = BooleanField::new('public');
         $includeCollectionChildren = BooleanField::new('includeCollectionChildren', 'Include children');

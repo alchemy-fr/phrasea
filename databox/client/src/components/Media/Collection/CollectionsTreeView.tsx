@@ -73,6 +73,9 @@ function CollectionTree({
     depth = 0,
 }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
+    const loadChildren = useCollectionStore(
+        state => state.loadChildren
+    );
 
     const pager =
         useCollectionStore(state => state.tree)[collection.id] ??
@@ -89,10 +92,6 @@ function CollectionTree({
 
         if (!loaded) {
             setLoaded(true);
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            const loadChildren = useCollectionStore(
-                state => state.loadChildren
-            );
             await loadChildren(workspaceId, collection.id);
         }
     }

@@ -34,6 +34,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
         private readonly WorkflowOrchestrator $workflowOrchestrator,
+        private readonly PrivacyField $privacyField,
     ) {
     }
 
@@ -90,7 +91,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         $title = TextField::new('title');
         $workspace = AssociationField::new('workspace');
         $tags = AssociationField::new('tags');
-        $privacy = PrivacyField::new('privacy');
+        $privacy = $this->privacyField->create('privacy');
         $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
         $id = IdField::new();
         $key = TextField::new('key');

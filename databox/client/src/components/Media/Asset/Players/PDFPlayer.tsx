@@ -15,7 +15,9 @@ export default function PDFPlayer({
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const displayContext = useContext(DisplayContext);
-    const dimensions = createStrictDimensions(forcedDimensions ?? {width: displayContext!.thumbSize});
+    const dimensions = createStrictDimensions(
+        forcedDimensions ?? {width: displayContext!.thumbSize}
+    );
     const pdfDimensions = getVideoDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {

@@ -4,7 +4,7 @@ import {FileBlobThumb} from '../../lib/upload/fileBlob';
 import {Grid, Paper} from '@mui/material';
 import byteSize from 'byte-size';
 
-import {thumbSx} from "../Media/Asset/AssetThumb.tsx";
+import {thumbSx} from '../Media/Asset/AssetThumb.tsx';
 
 const size = 100;
 

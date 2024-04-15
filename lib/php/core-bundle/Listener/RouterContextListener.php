@@ -8,13 +8,13 @@ use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-class RouterContextListener implements EventSubscriberInterface
+final readonly class RouterContextListener implements EventSubscriberInterface
 {
-    public function __construct(private readonly RouterInterface $router, private readonly string $baseUrl)
+    public function __construct(private RouterInterface $router, private string $baseUrl)
     {
     }
 
-    public function setContext()
+    public function setContext(): void
     {
         $context = $this->router->getContext();
 
