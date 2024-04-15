@@ -7,9 +7,9 @@ namespace App\Admin\Field;
 use App\Integration\IntegrationRegistry;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 
-class IntegrationChoiceField
+final readonly class IntegrationChoiceField
 {
-    public function __construct(private readonly IntegrationRegistry $integrationRegistry)
+    public function __construct(private IntegrationRegistry $integrationRegistry)
     {
     }
 

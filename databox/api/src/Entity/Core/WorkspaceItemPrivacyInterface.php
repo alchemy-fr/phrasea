@@ -24,12 +24,12 @@ interface WorkspaceItemPrivacyInterface
     // Public to everyone
     public const PUBLIC = 5;
 
-    public const LABELS = [
-        WorkspaceItemPrivacyInterface::SECRET => 'Secret',
-        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE => 'Private in workspace',
-        WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE => 'Public in workspace',
-        WorkspaceItemPrivacyInterface::PRIVATE => 'Private',
-        WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS => 'Public for users',
-        WorkspaceItemPrivacyInterface::PUBLIC => 'Public',
+    public const KEYS = [
+        WorkspaceItemPrivacyInterface::SECRET => 'secret',
+        WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE => 'private_in_workspace',
+        WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE => 'public_in_workspace',
+        WorkspaceItemPrivacyInterface::PRIVATE => 'private',
+        WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS => 'public_for_users',
+        WorkspaceItemPrivacyInterface::PUBLIC => 'public',
     ];
 }

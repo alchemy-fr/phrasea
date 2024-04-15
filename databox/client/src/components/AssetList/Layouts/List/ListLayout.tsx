@@ -123,7 +123,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
         const pageIndex = Math.floor(index / perPage);
         const itemIndex = index % perPage;
         const page = pages[pageIndex];
-        if (!page || page[itemIndex]) {
+        if (!page || !page[itemIndex]) {
             console.log('Undefined page', index, pageIndex, itemIndex, pages);
             return <></>
         }

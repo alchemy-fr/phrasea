@@ -16,8 +16,8 @@ field_type:
 
 privacy:
     secret: Secret
-    private_in_workspace: Private in workspace
-    public_in_workspace: Public in workspace
-    private: Private
-    public_for_users: Public for users
-    public: Public
+    private_in_workspace: Privé dans l'espace de travail
+    public_in_workspace: Public dans l'espace de travail
+    private: Privé
+    public_for_users: Ouvert aux utilisateurs
+    public: Ouvert

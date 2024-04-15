@@ -111,6 +111,9 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
 
             currPos.height = (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
         }
+        if (positions.length > 0) {
+            positions[positions.length - 1].height = undefined;
+        }
 
         return (
             <div
