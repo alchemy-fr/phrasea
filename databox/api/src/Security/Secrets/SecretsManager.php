@@ -20,8 +20,8 @@ final readonly class SecretsManager
 
     public function decryptSecret(string $secret): string
     {
-        if ('not_provided' === $this->secretKey) {
-            throw new \LogicException('Secret key should not be used in this context');
+        if (empty($this->secretKey)) {
+            return '***';
         }
 
         return $this->encryptionManager->decryptDataWithKeyPair($secret, new SodiumKeyPair(

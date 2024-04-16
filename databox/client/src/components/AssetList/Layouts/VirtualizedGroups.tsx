@@ -4,6 +4,7 @@ import {ItemToAssetFunc} from '../types.ts';
 import GroupDivider from './GroupDivider.tsx';
 import {CellMeasurerCache} from 'react-virtualized';
 import PageDivider from "../PageDivider.tsx";
+import {getPage} from "./page.ts";
 
 type GroupSet = {
     index: number;
@@ -31,9 +32,9 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
         ref: ForwardedRef<HTMLDivElement>
     ) {
         const [_inc, setInc] = React.useState(0);
-        const {groups, rowCount, perPage} = React.useMemo(() => {
+
+        const {groups, rowCount} = React.useMemo(() => {
             const groups: GroupSet[] = [];
-            const perPage = pages[0]?.length ?? 0;
             const all = pages.flat();
             const rowCount = all.length;
 
@@ -55,7 +56,7 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                 });
             }
 
-            return {groups, rowCount, perPage};
+            return {groups, rowCount};
         }, [pages, cellMeasurer]);
 
         React.useEffect(() => {
@@ -83,12 +84,17 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
 
         const flush = () => {
             currPos.height ??= 0;
-            positions.push({...currPos});
             currPos = {};
+            positions.push(currPos);
         }
 
         let currentPage : number | undefined;
         for (let i = 0; i < rowCount; i++) {
+            const {
+                pageIndex,
+                itemIndex,
+            } = getPage(pages, i);
+
             const isNewGroup = currentGroup && i === currentGroup.index;
             if (isNewGroup) {
                 flush();
@@ -100,12 +106,12 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                 currentGroup = groups[groupCursor];
             }
 
-            if (i > 0 && (i % perPage) === 0) {
+            if (pageIndex > 0 && itemIndex === 0) {
                 if (!isNewGroup) {
                     flush();
                 }
 
-                currentPage = Math.floor(i / perPage) + 1;
+                currentPage = pageIndex + 1;
                 currPos.page = currentPage;
             }
 

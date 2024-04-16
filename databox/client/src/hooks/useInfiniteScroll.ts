@@ -13,7 +13,7 @@ export function useInfiniteScroll({node, onLoad}: Props) {
                     e.currentTarget as HTMLDivElement;
                 if (
                     clientHeight < scrollHeight &&
-                    scrollTop + clientHeight >= scrollHeight - 20
+                    scrollTop + clientHeight >= scrollHeight - 30
                 ) {
                     onLoad();
                 }

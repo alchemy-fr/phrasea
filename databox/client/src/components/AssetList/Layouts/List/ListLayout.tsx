@@ -10,12 +10,7 @@ import {alpha, Theme} from '@mui/material';
 import {attributesSx} from '../../../Media/Asset/Attribute/Attributes';
 import {tagListSx} from '../../../Media/Asset/Widgets/AssetTagList';
 import {collectionListSx} from '../../../Media/Asset/Widgets/AssetCollectionList';
-import {
-    AutoSizer,
-    CellMeasurer,
-    List,
-    ListRowRenderer,
-} from 'react-virtualized';
+import {AutoSizer, CellMeasurer, List, ListRowRenderer,} from 'react-virtualized';
 import AssetItem from './AssetItem.tsx';
 import GroupRow from '../GroupRow.tsx';
 import {menuHeight} from '../../../Layout/MainAppBar.tsx';
@@ -26,6 +21,7 @@ import {thumbSx} from '../../../Media/Asset/AssetThumb.tsx';
 import {ScrollParams} from 'react-virtualized/dist/es/Grid';
 import VirtualizedGroups from '../VirtualizedGroups.tsx';
 import PageDivider from "../../PageDivider.tsx";
+import {getPage} from "../page.ts";
 
 export default function ListLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -119,15 +115,11 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     const rowCount = pages.reduce((c, p) => c + p.length, 0);
 
     const rowRenderer: ListRowRenderer = ({index, key, style, parent}) => {
-        const perPage = pages[0].length;
-        const pageIndex = Math.floor(index / perPage);
-        const itemIndex = index % perPage;
-        const page = pages[pageIndex];
-        if (!page || !page[itemIndex]) {
-            console.log('Undefined page', index, pageIndex, itemIndex, pages);
-            return <></>
-        }
-        const item = page[itemIndex]!;
+        const {
+            pageIndex,
+            itemIndex,
+            item,
+        } = getPage(pages, index);
 
         const asset: Asset = itemToAsset
             ? itemToAsset(item)
