@@ -10,15 +10,40 @@ bin/migrate.sh \
 
 ## Upgrade HELM release
 
-Upgrade helm release then run the following job:
+Upgrade helm release then run the following script line by line:
 
 ```bash
 export MIGRATION_NAME=v20230807
-export RELEASE_NAME=<release-name>
-helm -n ${RELEASE_NAME} get values -o yaml > /tmp/.current-values.yaml \
-  && helm template ${RELEASE_NAME} -f /tmp/.current-values.yaml \
-  --set "configurator.executeMigration=${MIGRATION_NAME}" \
-  -s templates/job-tests.yaml | kubectl apply -f -
-kubectl attach -it pod/${MIGRATION_NAME}
-kubectl delete -it pod/${MIGRATION_NAME}
+export NAMESPACE=<namespace>
+export RELEASE_NAME=phrasea
+```
+
+```bash
+helm -n ${NAMESPACE} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml
+```
+
+```bash
+cd /path/to/alchemy-helm-charts-repo
+cd charts/phrasea
+git pull
+```
+
+```bash
+helm template ${RELEASE_NAME} ./ -f /tmp/.current-values.yaml \
+-s templates/configurator/configure-job.yaml | kubectl apply -f -
+```
+
+```bash
+helm template ${RELEASE_NAME} ./ -f /tmp/.current-values.yaml \
+--set "configurator.executeMigration=${MIGRATION_NAME}" \
+-s templates/configurator/migration-job.yaml | kubectl apply -f -
+```
+
+```bash
+kubectl attach -it job/configurator-migrate-${MIGRATION_NAME}
+```
+
+```bash
+kubectl delete job/configurator-migrate-${MIGRATION_NAME}
+kubectl delete job/configurator-configure
 ```
