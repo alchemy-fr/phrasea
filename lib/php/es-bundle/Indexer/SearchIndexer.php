@@ -24,9 +24,7 @@ final class SearchIndexer
     final public const ACTION_UPSERT = 'u';
     final public const ACTION_DELETE = 'd';
 
-    private array $dependenciesStack = [];
-    private array $dependenciesParents = [];
-    private int $dependenciesCount = 0;
+    private DependencyStacks $dependencyStacks;
 
     /**
      * @param IndexableDependenciesResolverInterface[] $dependenciesResolvers
@@ -39,11 +37,12 @@ final class SearchIndexer
         #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
-        private readonly int $maxDependencyStacksCount = 20,
+        private readonly int $maxDependencyStacksCount = 5,
         private readonly int $batchSize = 100,
         private readonly int $maxPerMessage = 200,
         private readonly int $maxDepth = 10,
     ) {
+        $this->dependencyStacks = new DependencyStacks();
     }
 
     public function hasObjectPersisterFor(string $class): bool
@@ -79,7 +78,12 @@ final class SearchIndexer
     public function index(array $objects, int $depth, array $parents): void
     {
         if ($depth > $this->maxDepth) {
-            $this->logger->emergency(sprintf('%s: Max depth reached', self::class));
+            $error = sprintf('%s: Max depth reached', self::class);
+            if (!$this->direct) {
+                $this->logger->emergency($error);
+            } else {
+                throw new \RuntimeException($error);
+            }
 
             return;
         }
@@ -119,7 +123,7 @@ final class SearchIndexer
                 if (empty($objects)) {
                     $this->logger->alert('No document found for index', [
                         'class' => $class,
-                        'ids' => implode(', ', $ids)
+                        'ids' => implode(', ', $ids),
                     ]);
 
                     return;
@@ -139,7 +143,9 @@ final class SearchIndexer
 
                 foreach ($objects as $object) {
                     if ($object instanceof ESIndexableDependencyInterface) {
-                        $this->updateDependencies($object, $depth, $currentBatch, $parents);
+                        if (!empty($this->dependenciesResolvers)) {
+                            $this->updateDependencies($object, $depth, $currentBatch, $parents);
+                        }
                     }
                 }
 
@@ -149,28 +155,41 @@ final class SearchIndexer
 
     private function updateDependencies(ESIndexableDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
     {
+        $depStack = new DependencyStack(function (DependencyStack $stack, DependencyStack $relay): void {
+            $this->flushDependencies(0);
+            $this->dependencyStacks->addStack($relay);
+        }, $this->maxPerMessage, $depth, $currentBatch, $parents);
+
         /** @var IndexableDependenciesResolverInterface $resolver */
         foreach ($this->dependenciesResolvers as $resolver) {
-            $resolver->setAddToParentsClosure(function (string $class, string $id): void {
-                $this->addToParents($class, $id);
-            });
-            $resolver->setAddDependencyClosure(
-                fn (string $class, string $id) => $this->addDependency($class, $id, $depth, $currentBatch, $parents)
-            );
-
+            $resolver->setDependencyStack($depStack);
             $resolver->updateDependencies($object);
+        }
+
+        if ($depStack->getDependencyCount() > 0) {
+            $this->dependencyStacks->addStack($depStack);
         }
     }
 
     public function flush(): void
     {
-        $i = 0;
-        while (!empty($this->dependenciesStack)) {
-            $this->flushDependenciesStack(0);
+        $this->flushDependencies(0);
+    }
 
-            if (++$i > $this->maxDependencyStacksCount) {
-                throw new \RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
+    private function flushDependencies(int $i): void
+    {
+        if ($i > $this->maxDependencyStacksCount) {
+            throw new \RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
+        }
+
+        $stacks = $this->dependencyStacks->flush();
+
+        if (!empty($stacks)) {
+            foreach ($stacks as $stack) {
+                $this->flushDependencyStack($stack);
             }
+
+            $this->flushDependencies($i + 1);
         }
     }
 
@@ -199,53 +218,10 @@ final class SearchIndexer
         }
     }
 
-    private function isInBatch(string $class, string $id, array $currentBatch): bool
+    private function flushDependencyStack(DependencyStack $dependencyStack): void
     {
-        if (!isset($currentBatch[$class])) {
-            return false;
-        }
-
-        $b = $currentBatch[$class];
-
-        return in_array($id, $b[self::ACTION_UPSERT] ?? $b[self::ACTION_INSERT] ?? [], true);
-    }
-
-    public function addDependency(string $class, string $id, int $depth, array $currentBatch, array $parents): void
-    {
-        if ($this->isInBatch($class, $id, $currentBatch)) {
-            return;
-        }
-
-        if (isset($this->dependenciesParents[$class][$id]) || (isset($parents[$class]) && in_array($id, $parents[$class], true))) {
-            return;
-        }
-
-        $this->dependenciesStack[$class] ??= [];
-        $this->dependenciesStack[$class][self::ACTION_UPSERT] ??= [];
-
-        if (!in_array($id, $this->dependenciesStack[$class][self::ACTION_UPSERT], true)) {
-            $this->dependenciesStack[$class][self::ACTION_UPSERT][] = $id;
-            ++$this->dependenciesCount;
-
-            if ($this->dependenciesCount >= $this->maxPerMessage) {
-                $this->flushDependenciesStack($depth);
-            }
-        }
-    }
-
-    private function addToParents(string $class, string $id): void
-    {
-        $this->dependenciesParents[$class][$id] = true;
-    }
-
-    private function flushDependenciesStack(int $depth): void
-    {
-        if (!empty($this->dependenciesStack)) {
-            $parents = array_map(fn (array $list): array => array_keys($list), $this->dependenciesParents);
-            $objects = $this->dependenciesStack;
-            $this->dependenciesStack = [];
-            $this->dependenciesCount = 0;
-            $this->scheduleIndex($objects, $depth + 1, $parents);
+        if ($dependencyStack->getDependencyCount() > 0) {
+            $this->scheduleIndex($dependencyStack->getObjects(), $dependencyStack->getDepth() + 1, $dependencyStack->getParents());
         }
     }
 

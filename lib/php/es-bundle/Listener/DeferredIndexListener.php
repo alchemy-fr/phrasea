@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\ESBundle\Listener;
 
-use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
+use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Util\ClassUtils;
@@ -28,7 +28,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
-//#[AsDoctrineListener(Events::postFlush)] TODO break tests
+// #[AsDoctrineListener(Events::postFlush)] TODO break tests
 #[AsEventListener(KernelEvents::TERMINATE, 'flush')]
 #[AsEventListener(ConsoleEvents::TERMINATE, 'flush')]
 #[AsEventListener(WorkerMessageHandledEvent::class, 'flush')]

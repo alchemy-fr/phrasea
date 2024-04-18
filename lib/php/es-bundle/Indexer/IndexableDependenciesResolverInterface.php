@@ -9,9 +9,7 @@ interface IndexableDependenciesResolverInterface
 {
     final public const TAG = 'alchemy_es.dependency_resolver';
 
-    public function setAddToParentsClosure(\Closure $closure): void;
-
-    public function setAddDependencyClosure(\Closure $closure): void;
+    public function setDependencyStack(DependencyStack $dependencyStack): void;
 
     public function updateDependencies(ESIndexableDependencyInterface $object): void;
 }

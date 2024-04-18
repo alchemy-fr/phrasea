@@ -4,22 +4,25 @@ namespace Alchemy\ESBundle\Tests;
 
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 
-
 class A implements ESIndexableDependencyInterface
 {
-    static private int $idInc = 1;
+    private static int $idInc = 1;
 
     private string $id;
 
     /**
      * @param B[] $children
      */
-    public function __construct(private readonly iterable $children)
+    public function __construct(private readonly iterable $children, bool $withProxy = false)
     {
-        foreach ($this->children as $child) {
-            $child->setParent($this);
-        }
         $this->id = 'A'.((string) self::$idInc++);
+        foreach ($this->children as $child) {
+            if ($withProxy) {
+                $child->createCProxy($this);
+            } else {
+                $child->setParent($this);
+            }
+        }
     }
 
     public function getId(): string
@@ -30,5 +33,10 @@ class A implements ESIndexableDependencyInterface
     public function getChildren(): iterable
     {
         return $this->children;
+    }
+
+    public static function reset(): void
+    {
+        self::$idInc = 1;
     }
 }

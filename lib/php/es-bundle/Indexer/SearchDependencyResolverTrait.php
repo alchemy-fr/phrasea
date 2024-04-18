@@ -4,29 +4,21 @@ namespace Alchemy\ESBundle\Indexer;
 
 trait SearchDependencyResolverTrait
 {
-    private \Closure $addToParentsClosure;
-    private \Closure $addDependencyClosure;
+    private DependencyStack $dependencyStack;
 
-    public function setAddToParentsClosure(\Closure $closure): void
+    public function setDependencyStack(DependencyStack $dependencyStack): void
     {
-        $this->addToParentsClosure = $closure;
+        $this->dependencyStack = $dependencyStack;
     }
 
-    public function setAddDependencyClosure(\Closure $closure): void
+    public function addParent(string $class, string $id): void
     {
-        $this->addDependencyClosure = $closure;
-    }
-
-    public function addToParents(string $class, string $id): void
-    {
-        $closure = $this->addToParentsClosure;
-        $closure($class, $id);
+        $this->dependencyStack->addParent($class, $id);
     }
 
     public function addDependency(string $class, string $id): void
     {
-        $closure = $this->addDependencyClosure;
-        $closure($class, $id);
+        $this->dependencyStack = $this->dependencyStack->addDependency($class, $id);
     }
 
     protected function appendDependencyIterator(string $class, iterable $iterator): void
