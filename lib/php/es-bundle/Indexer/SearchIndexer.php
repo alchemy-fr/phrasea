@@ -20,10 +20,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsEventListener(WorkerMessageHandledEvent::class, method: 'flush', priority: -255)]
 final class SearchIndexer
 {
-    private const MAX_DEPTH = 10;
-    private const BATCH_SIZE = 100;
-    private const MAX_PER_MESSAGE = 200;
-
     final public const ACTION_INSERT = 'i';
     final public const ACTION_UPSERT = 'u';
     final public const ACTION_DELETE = 'd';
@@ -43,6 +39,10 @@ final class SearchIndexer
         #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
+        private readonly int $maxDependencyStacksCount = 20,
+        private readonly int $batchSize = 100,
+        private readonly int $maxPerMessage = 200,
+        private readonly int $maxDepth = 10,
     ) {
     }
 
@@ -78,7 +78,7 @@ final class SearchIndexer
      */
     public function index(array $objects, int $depth, array $parents): void
     {
-        if ($depth > self::MAX_DEPTH) {
+        if ($depth > $this->maxDepth) {
             $this->logger->emergency(sprintf('%s: Max depth reached', self::class));
 
             return;
@@ -86,7 +86,7 @@ final class SearchIndexer
 
         foreach ($objects as $class => $entities) {
             foreach ($entities as $operation => $ids) {
-                $chunks = array_chunk($ids, self::BATCH_SIZE);
+                $chunks = array_chunk($ids, $this->batchSize);
                 foreach ($chunks as $chunk) {
                     $this->indexClass($class, $chunk, $operation, $depth, $objects, $parents);
                 }
@@ -167,11 +167,8 @@ final class SearchIndexer
         $i = 0;
         while (!empty($this->dependenciesStack)) {
             $this->flushDependenciesStack(0);
-            $this->dependenciesParents = [];
 
-            ++$i;
-
-            if ($i++ > 100) {
+            if (++$i > $this->maxDependencyStacksCount) {
                 throw new \RuntimeException(sprintf('%s error: Infinite loop detected in flush', self::class));
             }
         }
@@ -219,7 +216,7 @@ final class SearchIndexer
             return;
         }
 
-        if (isset($parents[$class]) && in_array($id, $parents[$class], true)) {
+        if (isset($this->dependenciesParents[$class][$id]) || (isset($parents[$class]) && in_array($id, $parents[$class], true))) {
             return;
         }
 
@@ -230,7 +227,7 @@ final class SearchIndexer
             $this->dependenciesStack[$class][self::ACTION_UPSERT][] = $id;
             ++$this->dependenciesCount;
 
-            if ($this->dependenciesCount >= self::MAX_PER_MESSAGE) {
+            if ($this->dependenciesCount >= $this->maxPerMessage) {
                 $this->flushDependenciesStack($depth);
             }
         }
@@ -247,7 +244,6 @@ final class SearchIndexer
             $parents = array_map(fn (array $list): array => array_keys($list), $this->dependenciesParents);
             $objects = $this->dependenciesStack;
             $this->dependenciesStack = [];
-            $this->dependenciesParents = [];
             $this->dependenciesCount = 0;
             $this->scheduleIndex($objects, $depth + 1, $parents);
         }

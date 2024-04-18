@@ -18,7 +18,7 @@
     },
     "scripts": {
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "echo 'This project has no test...'"
+        "test": "./vendor/bin/phpunit"
     },
     "autoload": {
         "psr-4": {
@@ -34,6 +34,10 @@
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^v3.50"
+        "friendsofphp/php-cs-fixer": "^v3.50",
+        "phpunit/phpunit": "^9.5",
+        "doctrine/orm": "^2.7",
+        "ramsey/uuid": "^4.0",
+        "colinodell/psr-testlogger": "^1.2"
     }
 }
