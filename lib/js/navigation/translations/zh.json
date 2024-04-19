@@ -1,0 +1,7 @@
+{
+  "lib": {
+    "navigation": {
+      "dismiss_changes": "您确定要放弃未保存的更改吗？"
+    }
+  }
+}

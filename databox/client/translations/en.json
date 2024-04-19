@@ -1,0 +1,558 @@
+{
+  "acl": {
+    "delete": "Delete",
+    "form": {
+      "group_select": {
+        "placeholder": "Select user"
+      },
+      "user_select": {
+        "placeholder": "Select group"
+      }
+    },
+    "table": {
+      "cols": {
+        "user_group": "User/Group"
+      }
+    }
+  },
+  "asset": {
+    "delete": {
+      "confirm": {
+        "message_many": "Are you sure you want to delete {{count}} assets?",
+        "message_many_plural": "Are you sure you want to delete {{count}} assets?",
+        "message_one": "Are you sure you want to delete this asset?",
+        "title": "Confirm delete"
+      }
+    },
+    "manage": {
+      "acl": {
+        "title": "Permissions",
+        "versions": "Versions"
+      },
+      "attributes": {
+        "title": "Attributes"
+      },
+      "edit": {
+        "title": "Edit"
+      },
+      "info": {
+        "title": "Info"
+      },
+      "operations": {
+        "title": "Operations"
+      },
+      "renditions": {
+        "title": "Renditions"
+      },
+      "title": "Manage asset {{name}}"
+    }
+  },
+  "asset_actions": {
+    "copy": "Copy",
+    "delete": "Delete",
+    "edit": "Edit",
+    "edit_attributes": "Edit attributes",
+    "export": "Export",
+    "move": "Move",
+    "select_all": "Select all",
+    "share": "Share",
+    "unselect_all": "Unselect all"
+  },
+  "attribute_class": {
+    "new": {
+      "label": "New class"
+    }
+  },
+  "attribute_definitions": {
+    "new": {
+      "label": "New attribute"
+    }
+  },
+  "basket": {
+    "choose_modal": {
+      "title": "Select current Basket"
+    },
+    "create_button": {
+      "label": "Create new Basket"
+    },
+    "default": {
+      "title": "My Basket"
+    },
+    "item": {
+      "edit": "Edit this basket"
+    },
+    "manage": {
+      "acl": {
+        "title": "Permissions"
+      },
+      "edit": {
+        "title": "Edit"
+      },
+      "info": {
+        "title": "Info"
+      },
+      "title": "Manage basket {{name}}"
+    }
+  },
+  "basket_delete": {
+    "title": {
+      "confirm": "Are you sure you want to delete this basket?"
+    }
+  },
+  "change_theme": {
+    "save": "Save",
+    "title": "Choose a theme"
+  },
+  "chip": {
+    "editable": "Editable",
+    "private": "Private",
+    "public": "Public",
+    "read_only": "Read only"
+  },
+  "collection": {
+    "item": {
+      "create_asset": "Add new asset to collection",
+      "create_collection": "Create new collection in this one",
+      "edit": "Edit this collection"
+    },
+    "manage": {
+      "acl": {
+        "title": "Permissions"
+      },
+      "edit": {
+        "title": "Edit"
+      },
+      "info": {
+        "title": "Info"
+      },
+      "operations": {
+        "title": "Operations"
+      },
+      "tag_rules": {
+        "title": "Tag rules"
+      },
+      "title": "Manage collection {{name}}"
+    }
+  },
+  "collection_delete": {
+    "title": {
+      "confirm": "Are you sure you want to delete this collection?"
+    }
+  },
+  "collection_move": {
+    "intro": "Select the destination where to move this collection:",
+    "title": "Move collection"
+  },
+  "common": {
+    "delete": "Delete",
+    "item_sorted": "Order saved!",
+    "loading": "Loading...",
+    "search": {
+      "placeholder": "Search...",
+      "submit": "Search"
+    }
+  },
+  "copy_assets": {
+    "dialog": {
+      "intro": "Where do you want to copy the selected assets?",
+      "submit": "Copy",
+      "title": "Copy {{count}} assets",
+      "title_plural": "Copy {{count}} assets"
+    },
+    "form": {
+      "by_reference": {
+        "label": "Copy by reference (shortcut)"
+      },
+      "with_attributes": {
+        "label": "Copy attributes"
+      },
+      "with_tags": {
+        "label": "Copy tags"
+      }
+    }
+  },
+  "copy_toclipboard": {
+    "copied": "Copied to clipboard!"
+  },
+  "danger_zone": "Danger zone",
+  "definition_manager": {
+    "confirm_delete": "Are you sure you want to delete this item?",
+    "saved": "Definition saved!"
+  },
+  "delete": {
+    "basket": {
+      "confirmed": "Basket has been removed!"
+    },
+    "collection": {
+      "confirmed": "Collection has been removed!"
+    }
+  },
+  "dialog": {
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "confirm_text_type": {
+      "default": "Confirm",
+      "intro": "Please type \"{{ text }}\" to confirm:",
+      "placeholder": "Type \"{{ text }}\""
+    },
+    "reset": "Reset",
+    "save": "Save"
+  },
+  "export": {
+    "dialog": {
+      "intro": "Select the renditions you want to export:",
+      "submit": "Export",
+      "title": "Export {{count}} assets",
+      "title_plural": "Export {{count}} assets"
+    }
+  },
+  "filter_rule": {
+    "exclude": {
+      "helper": "Assets in this {{type}} will only be visible if they DOES NOT contains theses tags."
+    },
+    "group": "Group",
+    "include": {
+      "helper": "Assets in this {{type}} will only be visible if they contains theses tags."
+    },
+    "user": "User"
+  },
+  "form": {
+    "asset": {
+      "tags": {
+        "label": "Tags"
+      },
+      "templates": {
+        "label": "Fill with template"
+      },
+      "title": {
+        "label": "Title"
+      }
+    },
+    "asset_create": {
+      "title": "Create asset in",
+      "title_with_parent": "Create asset under"
+    },
+    "asset_edit": {
+      "success": "Asset edited!"
+    },
+    "attribute": {
+      "collection": {
+        "item_add": "Add {{name}}",
+        "item_remove": "Remove"
+      }
+    },
+    "attribute_class": {
+      "editable": {
+        "label": "Editable"
+      },
+      "name": {
+        "label": "Name"
+      },
+      "public": {
+        "label": "Public"
+      }
+    },
+    "attribute_definition": {
+      "allowInvalid": {
+        "label": "Allow invalid values"
+      },
+      "class": {
+        "label": "Class"
+      },
+      "field_type": {
+        "label": "Field type"
+      },
+      "multiple": {
+        "label": "Multiple values"
+      },
+      "name": {
+        "label": "Name"
+      },
+      "searchable": {
+        "label": "Searchable"
+      },
+      "slug": {
+        "label": "Slug"
+      },
+      "suggest": {
+        "label": "Display in search suggestions"
+      },
+      "translatable": {
+        "label": "Translatable"
+      }
+    },
+    "basket": {
+      "description": {
+        "label": "Description"
+      },
+      "title": {
+        "label": "Title"
+      }
+    },
+    "basket_create": {
+      "success": "Basket created!",
+      "title": "Create Basket"
+    },
+    "basket_edit": {
+      "success": "Basket edited!"
+    },
+    "collection": {
+      "title": {
+        "label": "Title"
+      }
+    },
+    "collection_create": {
+      "success": "Collection created!",
+      "title": "Create collection in",
+      "title_with_parent": "Create collection under"
+    },
+    "collection_edit": {
+      "success": "Collection edited!"
+    },
+    "collection_move": {
+      "success": "Collection moved!"
+    },
+    "copy_assets": {
+      "asset_not_linkable": {
+        "other_ws": "The following assets cannot be copied by reference in another workspace.",
+        "permission": "The following assets cannot be copied by reference because you don't have sufficient permission.",
+        "select_for_hard_copy": "You can select the asset you want to duplicate to the destination (hard copy):"
+      },
+      "destination": {
+        "label": "Destination"
+      }
+    },
+    "move_assets": {
+      "destination": {
+        "label": "Destination"
+      }
+    },
+    "permissions": {
+      "label": "Permissions"
+    },
+    "privacy": {
+      "label": "Privacy"
+    },
+    "profile": {
+      "firstName": {
+        "translate": {
+          "title": "Translate Tag"
+        }
+      }
+    },
+    "rendition_class": {
+      "name": {
+        "label": "Name"
+      },
+      "public": {
+        "label": "Public"
+      }
+    },
+    "rendition_definition": {
+      "class": {
+        "label": "Class"
+      },
+      "name": {
+        "label": "Name"
+      },
+      "pickSourceFile": {
+        "label": "Pick source file"
+      },
+      "useAsOriginal": {
+        "label": "Use as original"
+      },
+      "useAsPreview": {
+        "label": "Use as preview"
+      },
+      "useAsThumbnail": {
+        "label": "Use as thumbnail"
+      },
+      "useAsThumbnailActive": {
+        "label": "Use as active thumbnail"
+      }
+    },
+    "save_as": {
+      "destination": {
+        "label": "Destination"
+      }
+    },
+    "tag": {
+      "color": {
+        "label": "Color"
+      },
+      "name": {
+        "label": "Name"
+      }
+    },
+    "upload": {
+      "destination": {
+        "label": "Destination"
+      },
+      "submit": {
+        "title": "Upload"
+      },
+      "success": "Files uploaded!",
+      "title": {
+        "label": "Title"
+      }
+    },
+    "workspace": {
+      "fallback_locales": {
+        "add": "Add fallback locale",
+        "label": "Locale",
+        "title": "Fallbacks locales"
+      },
+      "locales": {
+        "add": "Add locale",
+        "label": "Locale",
+        "placeholder": "e.g. fr or fr-FR",
+        "title": "Workspace locales"
+      },
+      "public": {
+        "label": "Public"
+      },
+      "title": {
+        "label": "Title"
+      }
+    },
+    "workspace_edit": {
+      "success": "Workspace edited!"
+    }
+  },
+  "layout": {
+    "options": {
+      "collections_count": {
+        "label": "collections"
+      },
+      "display_collections": {
+        "label": "Display collections"
+      },
+      "display_previews_hover": {
+        "label": "Display preview on hover"
+      },
+      "display_tags": {
+        "label": "Display tags"
+      },
+      "display_title": {
+        "label": "Display title"
+      },
+      "more": "More options",
+      "play_preview_videos": {
+        "label": "Auto play video previews"
+      },
+      "tags_count": {
+        "label": "tags"
+      },
+      "thumb_size": {
+        "label": "Thumbnail size"
+      },
+      "title_rows": {
+        "label": "rows"
+      }
+    },
+    "previews_locked": "Previews locked",
+    "previews_unlocked": "Previews unlocked",
+    "view": {
+      "grid": "Grid View",
+      "list": "List View",
+      "masonry": "Masonry View"
+    }
+  },
+  "load_more": {
+    "button": {
+      "loading": "Loading..."
+    }
+  },
+  "menu": {
+    "change_theme": "Change theme",
+    "sign_in": "Sign in",
+    "theme_editor": "Theme Editor"
+  },
+  "modal": {
+    "close": "Close"
+  },
+  "move_assets": {
+    "dialog": {
+      "intro": "Where do you want to move the selected assets?",
+      "submit": "Move",
+      "title": "Move {{count}} assets",
+      "title_plural": "Move {{count}} assets"
+    }
+  },
+  "not_found": {
+    "back_home": "Back home",
+    "content": "The page you are looking does not exist or has been removed",
+    "title": "Page not found"
+  },
+  "privacy": {
+    "no_access": "No Access",
+    "private": "Private",
+    "private_in_workspace": "Private in workspace",
+    "public": "Public",
+    "public_for_users": "Public for users",
+    "public_in_workspace": "Public in workspace",
+    "secret": "Secret"
+  },
+  "rendition_class": {
+    "new": {
+      "label": "New class"
+    }
+  },
+  "rendition_definitions": {
+    "new": {
+      "label": "New rendition"
+    }
+  },
+  "renditions": {
+    "download": "Download"
+  },
+  "search": {
+    "search_button": "Search",
+    "sort_by": {
+      "title": "Sort by"
+    }
+  },
+  "tags": {
+    "new": {
+      "label": "New tag"
+    }
+  },
+  "workspace": {
+    "item": {
+      "create_collection": "Add collection in this workspace",
+      "edit": "Edit this workspace"
+    },
+    "manage": {
+      "acl": {
+        "title": "Permissions"
+      },
+      "attribute_class": {
+        "title": "Attribute classes"
+      },
+      "attribute_definitions": {
+        "title": "Attributes"
+      },
+      "edit": {
+        "title": "Edit"
+      },
+      "info": {
+        "title": "Info"
+      },
+      "rendition_class": {
+        "title": "Rendition classes"
+      },
+      "rendition_definition": {
+        "title": "Renditions"
+      },
+      "tag_rules": {
+        "title": "Tag rules"
+      },
+      "tags": {
+        "title": "Tags"
+      },
+      "title": "Manage workspace {{name}}"
+    }
+  }
+}

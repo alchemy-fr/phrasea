@@ -1,0 +1,34 @@
+{
+  "lib": {
+    "form": {
+      "cancel": "Abbrechen",
+      "collection": {
+        "add": "Hinzufügen",
+        "remove": "Entfernen"
+      },
+      "error": {
+        "required": "Dieses Feld ist erforderlich"
+      },
+      "has_errors": "Formular enthält Fehler",
+      "translations": {
+        "collection": {
+          "add": "Neue Übersetzung hinzufügen",
+          "title": "Übersetzungen"
+        },
+        "disabled_translation": "Diese Übersetzung ist deaktiviert",
+        "fallback": {
+          "label": "Standardwert"
+        },
+        "locale": {
+          "placeholder": "Sprache auswählen"
+        },
+        "saved": "Übersetzungen gespeichert!",
+        "submit": "Speichern",
+        "tooltip": "Übersetzungen verwalten",
+        "value": {
+          "label": "Übersetzung"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "lib": {
+    "auth": {
+      "sess_exp": {
+        "about_to_expire": {
+          "intro": "Êtes-vous toujours là ? Voulez-vous maintenir votre session active ?",
+          "logout": "Déconnexion",
+          "stay": "Rester connecté !",
+          "title": "Votre session est sur le point d'expirer"
+        },
+        "expired": {
+          "intro": "N'oubliez pas de sauvegarder vos changements avant de vous reconnecter !",
+          "sign_in": "Fermer",
+          "title": "Votre session a expiré"
+        }
+      }
+    }
+  }
+}

@@ -18,7 +18,7 @@ export default function FormFieldErrors<T extends FieldValues = FieldValues>({
         <>
             {errors[field]?.type === 'required' && (
                 <FormError>
-                    {t('form.error.required', 'This field is required')}
+                    {t('lib.form.error.required', 'This field is required')}
                 </FormError>
             )}
             {errors[field] && (

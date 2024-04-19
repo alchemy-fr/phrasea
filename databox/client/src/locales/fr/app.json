@@ -1,13 +1,13 @@
 {
   "form": {
     "asset": {
-      "name": "Edit <bold>{{name}}</bold>",
+      "name": "Editer <bold>{{name}}</bold>",
       "title": {
         "label": "Title"
       }
     },
     "collection": {
-      "name": "Edit <bold>{{name}}</bold>",
+      "name": "Editer <bold>{{name}}</bold>",
       "title": {
         "label": "Title"
       }

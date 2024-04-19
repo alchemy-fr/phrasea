@@ -6,6 +6,9 @@
   "files": [
     "src/proxy/MatomoRouteWrapper.tsx"
   ],
+  "scripts": {
+    "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
+  },
   "dependencies": {
     "@alchemy/core": "workspace:*",
     "@remix-run/router": "1.11.0",
@@ -15,14 +18,16 @@
     "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "react": "^18.2.0",
-    "react-i18next": "^13.5.0"
+    "react-i18next": "^14.1.0"
   },
   "devDependencies": {
     "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@types/react": "^18.2.65",
-    "i18next": "^23.10.1",
+    "i18next": "^23.11.2",
     "react": "^18.2.0",
-    "react-i18next": "^13.5.0"
+    "react-i18next": "^14.1.0",
+    "i18next-scanner": "^4.4.0",
+    "i18next-scanner-typescript": "^1.2.0"
   }
 }

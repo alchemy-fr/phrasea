@@ -16,6 +16,7 @@
     "@alchemy/core": "workspace:*",
     "@alchemy/navigation": "workspace:*",
     "@alchemy/phrasea-ui": "workspace:*",
+    "@alchemy/i18n": "workspace:*",
     "@alchemy/react-auth": "workspace:*",
     "@alchemy/react-ps": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
@@ -25,15 +26,13 @@
     "axios": "^1.6.7",
     "bootstrap": "^4.6.2",
     "flow-bin": "^0.126.1",
-    "i18next": "^23.10.1",
-    "i18next-browser-languagedetector": "^6.1.8",
     "mapbox-gl": "^1.13.3",
     "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-bootstrap": "^1.6.8",
     "react-dom": "^18.2.0",
     "react-grid-gallery": "^0.5.6",
-    "react-i18next": "^13.5.0",
+    "react-i18next": "^14.1.0",
     "react-image-gallery": "^0.9.1",
     "react-image-magnifiers": "^1.4.0",
     "react-images": "^1.1.7",
@@ -57,10 +56,11 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "i18next-scanner": "^3.3.0",
     "typescript": "^5.4.2",
     "vite": "^5.1.6",
     "vite-plugin-checker": "^0.6.4",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.2.0",
+    "i18next-scanner": "^4.4.0",
+    "i18next-scanner-typescript": "^1.2.0"
   }
 }

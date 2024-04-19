@@ -59,7 +59,6 @@ export const useBasketStore = create<State>((set, getState) => ({
     },
 
     hasMore() {
-        console.log('!!getState().nextUrl', !!getState().nextUrl);
         return !!getState().nextUrl;
     },
 
