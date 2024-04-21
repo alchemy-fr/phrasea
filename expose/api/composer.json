@@ -122,7 +122,7 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^0.17.1",
+        "rector/rector": "^1.0.4",
         "phpstan/phpstan": "^1.10",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",

@@ -29,17 +29,6 @@ class NumberAttributeType extends AbstractAttributeType
         ];
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
-    {
-        return [
-            'fields' => [
-                'raw' => [
-                    'type' => 'keyword',
-                ],
-            ],
-        ];
-    }
-
     public function getElasticSearchType(): string
     {
         return 'long';

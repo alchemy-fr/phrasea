@@ -65,7 +65,7 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^1.10",
-        "rector/rector": "^0.17.1",
+        "rector/rector": "^1.0.4",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
         "symfony/phpunit-bridge": "^6.3",

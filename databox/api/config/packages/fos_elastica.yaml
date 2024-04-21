@@ -244,59 +244,6 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
-        attribute:
-            use_alias: '%elastica.use_alias%'
-            index_name: "%es_index_prefix%attribute_%kernel.environment%"
-            indexable_callback: [ '@App\Elasticsearch\AttributeIndexable', 'isAttributeIndexable' ]
-            settings:
-                index:
-                    analysis:
-                        analyzer:
-                            text: *text_analyzer
-                            partial_words: *partial_words_analyzer
-                        tokenizer:
-                            edge_ngram: *edge_ngram_tokenizer
-                        filter:
-                            worddelimiter: *worddelimiter_filter
-            properties:
-                suggestion:
-                    property_path: value
-                    type: text
-                    analyzer: text
-                    fields:
-                        raw:
-                            type: keyword
-                        suggest: *suggest_field
-                privacy:
-                    property_path: false
-                    type: byte
-                definitionId:
-                    type: keyword
-                workspaceId:
-                    type: keyword
-                ownerId:
-                    type: keyword
-                users:
-                    property_path: false
-                    type: keyword
-                groups:
-                    property_path: false
-                    type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
-                    type: keyword
-                createdAt:
-                    type: date
-            persistence:
-                driver: orm
-                model: App\Entity\Core\Attribute
-                listener: { enabled: false }
-
         asset_data_template:
             use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%asset_data_template_%kernel.environment%"

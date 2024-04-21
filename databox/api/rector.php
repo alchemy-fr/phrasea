@@ -26,8 +26,4 @@ return static function (RectorConfig $rectorConfig): void {
 //        Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
 //        Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
     ]);
-
-    $rectorConfig->skip([
-        Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
-    ]);
 };
