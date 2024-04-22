@@ -20,17 +20,17 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class JobExecutor
+readonly class JobExecutor
 {
-    private readonly LoggerInterface $logger;
-    private readonly OutputInterface $output;
-    private readonly EnvContainer $envs;
+    private LoggerInterface $logger;
+    private OutputInterface $output;
+    private EnvContainer $envs;
 
     public function __construct(
-        private readonly iterable $executors,
-        private readonly ActionRegistryInterface $actionRegistry,
-        private readonly ExpressionParser $expressionParser,
-        private readonly StateRepositoryInterface $stateRepository,
+        private iterable $executors,
+        private ActionRegistryInterface $actionRegistry,
+        private ExpressionParser $expressionParser,
+        private StateRepositoryInterface $stateRepository,
         OutputInterface $output = null,
         LoggerInterface $logger = null,
         EnvContainer $envs = null,
