@@ -128,7 +128,7 @@ export default function Menu({children}: Props) {
                                     </Avatar>
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={t('ui:menu.account', 'My account')}
+                                    primary={t('menu.account', 'My account')}
                                     secondary={user!.username}
                                 />
                             </MenuItem>
@@ -137,7 +137,7 @@ export default function Menu({children}: Props) {
                                     <LogoutIcon />
                                 </ListItemIcon>
                                 <ListItemText
-                                    primary={t('ui:menu.logout', 'Logout')}
+                                    primary={t('menu.logout', 'Logout')}
                                 />
                             </MenuItem>
                         </>

@@ -86,7 +86,7 @@ export default function CollectionWidget<TFieldValues extends FieldValues>({
                             color={'error'}
                         >
                             {removeLabel ||
-                                t('form.collection.remove', 'Remove')}
+                                t('lib.form.collection.remove', 'Remove')}
                         </Button>
                     </div>
                 </div>
@@ -94,7 +94,7 @@ export default function CollectionWidget<TFieldValues extends FieldValues>({
 
             {undefined === max || fields.length < max ? (
                 <Button onClick={appendItem} startIcon={<AddIcon/>}>
-                    {addLabel || t('form.collection.add', 'Add')}
+                    {addLabel || t('lib.form.collection.add', 'Add')}
                 </Button>
             ) : (
                 ''

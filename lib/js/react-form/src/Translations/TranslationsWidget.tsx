@@ -26,14 +26,14 @@ type Props<TFieldValues extends {translations: Translation[]}> = {
 export default function TranslationsWidget<
     TFieldValues extends {translations: Translation[]},
 >({name, control, register, errors, max, inputProps}: Props<TFieldValues>) {
-    const {t} = useTranslation('admin');
+    const {t} = useTranslation();
 
     return (
         <>
             <TextField
                 fullWidth={true}
                 label={t(
-                    'form.translations.fallback.label',
+                    'lib.form.translations.fallback.label',
                     'Default value',
                 )}
                 {...register(`fallback` as any)}
@@ -50,7 +50,7 @@ export default function TranslationsWidget<
                 label={
                     <IconFormLabel startIcon={<EmojiFlags />}>
                         {t(
-                            'form.translations.collection.title',
+                            'lib.form.translations.collection.title',
                             'Translations',
                         )}
                     </IconFormLabel>
@@ -58,7 +58,7 @@ export default function TranslationsWidget<
                 path={name}
                 register={register}
                 addLabel={t(
-                    'form.translations.collection.add',
+                    'lib.form.translations.collection.add',
                     'Add new translation',
                 )}
                 removeLabel={
@@ -81,7 +81,7 @@ export default function TranslationsWidget<
                                         severity={'warning'}
                                     >
                                         {t(
-                                            'form.translations.disabled_translation',
+                                            'lib.form.translations.disabled_translation',
                                             'This translation is disabled',
                                         )}
                                     </Alert>
@@ -100,7 +100,7 @@ export default function TranslationsWidget<
                                                 `${path}.${index}.locale` as any
                                             }
                                             placeholder={t(
-                                                'form.translations.locale.placeholder',
+                                                'lib.form.translations.locale.placeholder',
                                                 'Select locale',
                                             )}
                                             required={true}
@@ -115,7 +115,7 @@ export default function TranslationsWidget<
                                     <div>
                                         <TextField
                                             label={t(
-                                                'form.translations.value.label',
+                                                'lib.form.translations.value.label',
                                                 'Translation',
                                             )}
                                             required={true}

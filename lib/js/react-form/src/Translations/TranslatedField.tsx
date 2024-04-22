@@ -49,7 +49,7 @@ export default function TranslatedField<T extends WithTranslations>({
             {children}
             <Tooltip
                 title={t(
-                    'form.translations.tooltip',
+                    'lib.form.translations.tooltip',
                     'Manage translations',
                 )}
             >

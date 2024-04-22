@@ -1,0 +1,7 @@
+{
+  "lib": {
+    "navigation": {
+      "dismiss_changes": "¿Estás seguro de que quieres descartar los cambios no guardados?"
+    }
+  }
+}

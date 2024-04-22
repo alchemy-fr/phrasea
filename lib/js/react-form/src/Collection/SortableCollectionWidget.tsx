@@ -55,7 +55,7 @@ export default function SortableCollectionWidget<
         useSensor(TouchSensor),
     );
 
-    const {t} = useTranslation('admin');
+    const {t} = useTranslation();
 
     const appendItem = () => {
         append(typeof emptyItem === 'string' ? emptyItem : {
@@ -79,7 +79,7 @@ export default function SortableCollectionWidget<
         setActiveId(active.id as string);
     }
 
-    const rLabel = removeLabel || t('form.collection.remove', 'Remove');
+    const rLabel = removeLabel || t('lib.form.collection.remove', 'Remove');
     const activeFieldIndex =
         null !== activeId ? fields.findIndex(f => f.id === activeId) : null;
     const activeField =
@@ -145,7 +145,7 @@ export default function SortableCollectionWidget<
                 disabled={Boolean(max) && fields.length >= max!}
                 startIcon={<AddIcon/>}
             >
-                {addLabel || t('form.collection.add', 'Add')}
+                {addLabel || t('lib.form.collection.add', 'Add')}
             </Button>
         </div>
     );

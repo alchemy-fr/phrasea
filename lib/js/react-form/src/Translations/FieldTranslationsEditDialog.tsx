@@ -77,7 +77,7 @@ export default function FieldTranslationsEditDialog<
         onSuccess: () => {
             if (!noToast) {
                 toast.success(
-                    t('form.translations.saved', 'Translations saved!'),
+                    t('lib.form.translations.saved', 'Translations saved!'),
                 );
             }
             closeModal();
@@ -110,7 +110,7 @@ export default function FieldTranslationsEditDialog<
                         errors={errors}
                     />
                     <Button onClick={onClose} disabled={submitting}>
-                        {t('common.cancel', 'Cancel')}
+                        {t('lib.form.cancel', 'Cancel')}
                     </Button>
                     <LoadingButton
                         type={'submit'}
@@ -118,7 +118,7 @@ export default function FieldTranslationsEditDialog<
                         loading={submitting}
                         disabled={submitting}
                     >
-                        {t('form.translations.submit', 'Save')}
+                        {t('lib.form.translations.submit', 'Save')}
                     </LoadingButton>
                 </>
             )}

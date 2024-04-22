@@ -1,0 +1,34 @@
+{
+  "lib": {
+    "form": {
+      "cancel": "Annuler",
+      "collection": {
+        "add": "Ajouter",
+        "remove": "Supprimer"
+      },
+      "error": {
+        "required": "Ce champ est obligatoire"
+      },
+      "has_errors": "Le formulaire contient des erreurs",
+      "translations": {
+        "collection": {
+          "add": "Ajouter une nouvelle traduction",
+          "title": "Traductions"
+        },
+        "disabled_translation": "Cette traduction est désactivée",
+        "fallback": {
+          "label": "Valeur par défaut"
+        },
+        "locale": {
+          "placeholder": "Sélectionner une langue"
+        },
+        "saved": "Traductions enregistrées !",
+        "submit": "Enregistrer",
+        "tooltip": "Gérer les traductions",
+        "value": {
+          "label": "Traduction"
+        }
+      }
+    }
+  }
+}

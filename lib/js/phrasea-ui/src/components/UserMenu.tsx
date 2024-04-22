@@ -51,7 +51,7 @@ export default function UserMenu({
             </ListItemIcon>
             <ListItemText
                 primary={t(
-                    'ui:menu.account',
+                    'lib.ui.menu.account',
                     'My account'
                 )}
                 secondary={username}
@@ -74,7 +74,7 @@ export default function UserMenu({
             </ListItemIcon>
             <ListItemText
                 primary={t(
-                    'ui:menu.logout',
+                    'lib.ui.menu.logout',
                     'Logout'
                 )}
             />

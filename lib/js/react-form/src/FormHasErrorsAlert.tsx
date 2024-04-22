@@ -20,7 +20,7 @@ export default function FormHasErrorsAlert<TFieldValues extends FieldValues>({
             {errors && (
                 <FormError style={style}>
                     {Object.keys(errors).length > 0 &&
-                        t('form.has_errors', 'Form contains errors')}
+                        t('lib.form.has_errors', 'Form contains errors')}
                 </FormError>
             )}
         </>

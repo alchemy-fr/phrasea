@@ -1,0 +1,558 @@
+{
+  "acl": {
+    "delete": "删除",
+    "form": {
+      "group_select": {
+        "placeholder": "选择用户"
+      },
+      "user_select": {
+        "placeholder": "选择用户组"
+      }
+    },
+    "table": {
+      "cols": {
+        "user_group": "用户/组"
+      }
+    }
+  },
+  "asset": {
+    "delete": {
+      "confirm": {
+        "message_many": "您确定要删除{{count}}个资产吗？",
+        "message_many_plural": "您确定要删除{{count}}个资产吗？",
+        "message_one": "您确定要删除此资产吗？",
+        "title": "确认删除"
+      }
+    },
+    "manage": {
+      "acl": {
+        "title": "权限",
+        "versions": "版本"
+      },
+      "attributes": {
+        "title": "属性"
+      },
+      "edit": {
+        "title": "编辑"
+      },
+      "info": {
+        "title": "信息"
+      },
+      "operations": {
+        "title": "操作"
+      },
+      "renditions": {
+        "title": "版本"
+      },
+      "title": "管理资产{{name}}"
+    }
+  },
+  "asset_actions": {
+    "copy": "复制",
+    "delete": "删除",
+    "edit": "编辑",
+    "edit_attributes": "编辑属性",
+    "export": "导出",
+    "move": "移动",
+    "select_all": "全选",
+    "share": "分享",
+    "unselect_all": "取消全选"
+  },
+  "attribute_class": {
+    "new": {
+      "label": "新类别"
+    }
+  },
+  "attribute_definitions": {
+    "new": {
+      "label": "新属性"
+    }
+  },
+  "basket": {
+    "choose_modal": {
+      "title": "选择当前购物篮"
+    },
+    "create_button": {
+      "label": "创建新购物篮"
+    },
+    "default": {
+      "title": "我的购物篮"
+    },
+    "item": {
+      "edit": "编辑此购物篮"
+    },
+    "manage": {
+      "acl": {
+        "title": "权限"
+      },
+      "edit": {
+        "title": "编辑"
+      },
+      "info": {
+        "title": "信息"
+      },
+      "title": "管理购物篮{{name}}"
+    }
+  },
+  "basket_delete": {
+    "title": {
+      "confirm": "您确定要删除此购物篮吗？"
+    }
+  },
+  "change_theme": {
+    "save": "保存",
+    "title": "选择主题"
+  },
+  "chip": {
+    "editable": "可编辑",
+    "private": "私有",
+    "public": "公开",
+    "read_only": "只读"
+  },
+  "collection": {
+    "item": {
+      "create_asset": "将新资产添加到集合中",
+      "create_collection": "在其中创建新集合",
+      "edit": "编辑此集合"
+    },
+    "manage": {
+      "acl": {
+        "title": "权限"
+      },
+      "edit": {
+        "title": "编辑"
+      },
+      "info": {
+        "title": "信息"
+      },
+      "operations": {
+        "title": "操作"
+      },
+      "tag_rules": {
+        "title": "标签规则"
+      },
+      "title": "管理集合{{name}}"
+    }
+  },
+  "collection_delete": {
+    "title": {
+      "confirm": "您确定要删除此集合吗？"
+    }
+  },
+  "collection_move": {
+    "intro": "选择要移动此集合的目标位置：",
+    "title": "移动集合"
+  },
+  "common": {
+    "delete": "删除",
+    "item_sorted": "排序已保存！",
+    "loading": "加载中...",
+    "search": {
+      "placeholder": "搜索...",
+      "submit": "搜索"
+    }
+  },
+  "copy_assets": {
+    "dialog": {
+      "intro": "您要将所选资产复制到何处？",
+      "submit": "复制",
+      "title": "复制{{count}}个资产",
+      "title_plural": "复制{{count}}个资产"
+    },
+    "form": {
+      "by_reference": {
+        "label": "通过引用复制（快捷方式）"
+      },
+      "with_attributes": {
+        "label": "复制属性"
+      },
+      "with_tags": {
+        "label": "复制标签"
+      }
+    }
+  },
+  "copy_toclipboard": {
+    "copied": "已复制到剪贴板！"
+  },
+  "danger_zone": "危险区",
+  "definition_manager": {
+    "confirm_delete": "您确定要删除此项吗？",
+    "saved": "定义已保存！"
+  },
+  "delete": {
+    "basket": {
+      "confirmed": "购物篮已删除！"
+    },
+    "collection": {
+      "confirmed": "集合已删除！"
+    }
+  },
+  "dialog": {
+    "apply": "应用",
+    "cancel": "取消",
+    "close": "关闭",
+    "confirm": "确认",
+    "confirm_text_type": {
+      "default": "确认",
+      "intro": "请输入\"{{ text }}\"以确认：",
+      "placeholder": "输入\"{{ text }}\""
+    },
+    "reset": "重置",
+    "save": "保存"
+  },
+  "export": {
+    "dialog": {
+      "intro": "选择要导出的版本：",
+      "submit": "导出",
+      "title": "导出{{count}}个资产",
+      "title_plural": "导出{{count}}个资产"
+    }
+  },
+  "filter_rule": {
+    "exclude": {
+      "helper": "此{{type}}中的资产仅在不包含这些标签时可见。"
+    },
+    "group": "组",
+    "include": {
+      "helper": "此{{type}}中的资产仅在包含这些标签时可见。"
+    },
+    "user": "用户"
+  },
+  "form": {
+    "asset": {
+      "tags": {
+        "label": "标签"
+      },
+      "templates": {
+        "label": "使用模板填充"
+      },
+      "title": {
+        "label": "标题"
+      }
+    },
+    "asset_create": {
+      "title": "在中创建资产",
+      "title_with_parent": "在下创建资产"
+    },
+    "asset_edit": {
+      "success": "资产已编辑！"
+    },
+    "attribute": {
+      "collection": {
+        "item_add": "添加{{name}}",
+        "item_remove": "移除"
+      }
+    },
+    "attribute_class": {
+      "editable": {
+        "label": "可编辑"
+      },
+      "name": {
+        "label": "名称"
+      },
+      "public": {
+        "label": "公开"
+      }
+    },
+    "attribute_definition": {
+      "allowInvalid": {
+        "label": "允许无效值"
+      },
+      "class": {
+        "label": "类别"
+      },
+      "field_type": {
+        "label": "字段类型"
+      },
+      "multiple": {
+        "label": "多个值"
+      },
+      "name": {
+        "label": "名称"
+      },
+      "searchable": {
+        "label": "可搜索"
+      },
+      "slug": {
+        "label": "Slug"
+      },
+      "suggest": {
+        "label": "在搜索建议中显示"
+      },
+      "translatable": {
+        "label": "可翻译"
+      }
+    },
+    "basket": {
+      "description": {
+        "label": "描述"
+      },
+      "title": {
+        "label": "标题"
+      }
+    },
+    "basket_create": {
+      "success": "购物篮已创建！",
+      "title": "创建购物篮"
+    },
+    "basket_edit": {
+      "success": "购物篮已编辑！"
+    },
+    "collection": {
+      "title": {
+        "label": "标题"
+      }
+    },
+    "collection_create": {
+      "success": "集合已创建！",
+      "title": "在中创建集合",
+      "title_with_parent": "在下创建集合"
+    },
+    "collection_edit": {
+      "success": "集合已编辑！"
+    },
+    "collection_move": {
+      "success": "集合已移动！"
+    },
+    "copy_assets": {
+      "asset_not_linkable": {
+        "other_ws": "以下资产无法在其他工作区中通过引用复制。",
+        "permission": "由于您没有足够的权限，以下资产无法通过引用复制。",
+        "select_for_hard_copy": "您可以选择要复制到目的地的资产（硬复制）："
+      },
+      "destination": {
+        "label": "目的地"
+      }
+    },
+    "move_assets": {
+      "destination": {
+        "label": "目的地"
+      }
+    },
+    "permissions": {
+      "label": "权限"
+    },
+    "privacy": {
+      "label": "隐私"
+    },
+    "profile": {
+      "firstName": {
+        "translate": {
+          "title": "翻译标签"
+        }
+      }
+    },
+    "rendition_class": {
+      "name": {
+        "label": "名称"
+      },
+      "public": {
+        "label": "公开"
+      }
+    },
+    "rendition_definition": {
+      "class": {
+        "label": "类别"
+      },
+      "name": {
+        "label": "名称"
+      },
+      "pickSourceFile": {
+        "label": "选择源文件"
+      },
+      "useAsOriginal": {
+        "label": "用作原始文件"
+      },
+      "useAsPreview": {
+        "label": "用作预览"
+      },
+      "useAsThumbnail": {
+        "label": "用作缩略图"
+      },
+      "useAsThumbnailActive": {
+        "label": "用作活动缩略图"
+      }
+    },
+    "save_as": {
+      "destination": {
+        "label": "目的地"
+      }
+    },
+    "tag": {
+      "color": {
+        "label": "颜色"
+      },
+      "name": {
+        "label": "名称"
+      }
+    },
+    "upload": {
+      "destination": {
+        "label": "目的地"
+      },
+      "submit": {
+        "title": "上传"
+      },
+      "success": "文件已上传！",
+      "title": {
+        "label": "标题"
+      }
+    },
+    "workspace": {
+      "fallback_locales": {
+        "add": "添加回退语言环境",
+        "label": "语言环境",
+        "title": "回退语言环境"
+      },
+      "locales": {
+        "add": "添加语言环境",
+        "label": "语言环境",
+        "placeholder": "例如，fr或fr-FR",
+        "title": "工作区语言环境"
+      },
+      "public": {
+        "label": "公开"
+      },
+      "title": {
+        "label": "标题"
+      }
+    },
+    "workspace_edit": {
+      "success": "工作区已编辑！"
+    }
+  },
+  "layout": {
+    "options": {
+      "collections_count": {
+        "label": "集合"
+      },
+      "display_collections": {
+        "label": "显示集合"
+      },
+      "display_previews_hover": {
+        "label": "悬停显示预览"
+      },
+      "display_tags": {
+        "label": "显示标签"
+      },
+      "display_title": {
+        "label": "显示标题"
+      },
+      "more": "更多选项",
+      "play_preview_videos": {
+        "label": "自动播放视频预览"
+      },
+      "tags_count": {
+        "label": "标签"
+      },
+      "thumb_size": {
+        "label": "缩略图大小"
+      },
+      "title_rows": {
+        "label": "行"
+      }
+    },
+    "previews_locked": "预览已锁定",
+    "previews_unlocked": "预览已解锁",
+    "view": {
+      "grid": "网格视图",
+      "list": "列表视图",
+      "masonry": "砌体视图"
+    }
+  },
+  "load_more": {
+    "button": {
+      "loading": "加载中..."
+    }
+  },
+  "menu": {
+    "change_theme": "更改主题",
+    "sign_in": "登录",
+    "theme_editor": "主题编辑器"
+  },
+  "modal": {
+    "close": "关闭"
+  },
+  "move_assets": {
+    "dialog": {
+      "intro": "您要将所选资产移动到何处？",
+      "submit": "移动",
+      "title": "移动{{count}}个资产",
+      "title_plural": "移动{{count}}个资产"
+    }
+  },
+  "not_found": {
+    "back_home": "返回首页",
+    "content": "您正在查找的页面不存在或已删除",
+    "title": "页面未找到"
+  },
+  "privacy": {
+    "no_access": "无访问权限",
+    "private": "私有",
+    "private_in_workspace": "工作区内私有",
+    "public": "公开",
+    "public_for_users": "对用户公开",
+    "public_in_workspace": "工作区内公开",
+    "secret": "秘密"
+  },
+  "rendition_class": {
+    "new": {
+      "label": "新类别"
+    }
+  },
+  "rendition_definitions": {
+    "new": {
+      "label": "新版本"
+    }
+  },
+  "renditions": {
+    "download": "下载"
+  },
+  "search": {
+    "search_button": "搜索",
+    "sort_by": {
+      "title": "排序方式"
+    }
+  },
+  "tags": {
+    "new": {
+      "label": "新标签"
+    }
+  },
+  "workspace": {
+    "item": {
+      "create_collection": "在此工作区中添加集合",
+      "edit": "编辑此工作区"
+    },
+    "manage": {
+      "acl": {
+        "title": "权限"
+      },
+      "attribute_class": {
+        "title": "属性类别"
+      },
+      "attribute_definitions": {
+        "title": "属性"
+      },
+      "edit": {
+        "title": "编辑"
+      },
+      "info": {
+        "title": "信息"
+      },
+      "rendition_class": {
+        "title": "版本类别"
+      },
+      "rendition_definition": {
+        "title": "版本"
+      },
+      "tag_rules": {
+        "title": "标签规则"
+      },
+      "tags": {
+        "title": "标签"
+      },
+      "title": "管理工作区{{name}}"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "download": "Descargar",
+  "download_archive": "Descargar archivo",
+  "gallery": {
+    "empty": "La galería está vacía"
+  },
+  "map": {
+    "empty": "El mapa está vacío"
+  },
+  "menu": {
+    "toggle": "Alternar menú"
+  },
+  "order": {
+    "last_post_added": "Recientes",
+    "publication_name": "Nombre"
+  }
+}

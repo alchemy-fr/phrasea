@@ -1,0 +1,7 @@
+{
+  "lib": {
+    "navigation": {
+      "dismiss_changes": "Are you sure you want to dismiss unsaved changes?"
+    }
+  }
+}

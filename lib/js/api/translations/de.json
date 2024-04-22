@@ -1,0 +1,14 @@
+{
+  "lib": {
+    "api": {
+      "error": {
+        "http_error": "Serverfehler",
+        "http_unauthorized": "Unberechtigt",
+        "session_expired": "Ihre Sitzung ist abgelaufen"
+      },
+      "http_error": {
+        "429": "Zu viele Anfragen, Sie können es in {{minutes}} Minuten erneut versuchen"
+      }
+    }
+  }
+}

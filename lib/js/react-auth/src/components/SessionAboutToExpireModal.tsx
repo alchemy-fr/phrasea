@@ -44,15 +44,15 @@ export default function SessionAboutToExpireModal({
     >
         <DialogTitle>{
             expired ?
-                t('auth:session_expiration.dialog.expired.title', 'You session has expired')
-                : t('auth:session_expiration.dialog.about_to_expire.title', 'You session is about to expire')
+                t('lib.auth.sess_exp.expired.title', 'You session has expired')
+                : t('lib.auth.sess_exp.about_to_expire.title', 'You session is about to expire')
         }</DialogTitle>
         <DialogContent>
             <DialogContentText>
                 {
                     expired ?
-                        t('auth:session_expiration.dialog.expired.intro', `Don't forget to save your contents before signing in again!`)
-                        : t('auth:session_expiration.dialog.about_to_expire.intro', 'Are you still here? Do you want to keep your session alive?')
+                        t('lib.auth.sess_exp.expired.intro', `Don't forget to save your contents before signing in again!`)
+                        : t('lib.auth.sess_exp.about_to_expire.intro', 'Are you still here? Do you want to keep your session alive?')
 
                 }
             </DialogContentText>
@@ -62,7 +62,7 @@ export default function SessionAboutToExpireModal({
                 <Button
                     onClick={handleClose}
                 >
-                    {t('auth:session_expiration.dialog.expired.sign_in', 'Close')}
+                    {t('lib.auth.sess_exp.expired.sign_in', 'Close')}
                 </Button>
             </> : <>
                 <Button
@@ -72,13 +72,13 @@ export default function SessionAboutToExpireModal({
                         handleClose();
                     }}
                 >
-                    {t('auth:session_expiration.dialog.about_to_expire.logout', 'Logout')}
+                    {t('lib.auth.sess_exp.about_to_expire.logout', 'Logout')}
                 </Button>
                 <LoadingButton
                     disabled={refreshing}
                     loading={refreshing}
                     onClick={stay}>
-                    {t('auth:session_expiration.dialog.about_to_expire.stay', 'Keep me in!')}
+                    {t('lib.auth.sess_exp.about_to_expire.stay', 'Keep me in!')}
                 </LoadingButton>
             </>
             }

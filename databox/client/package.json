@@ -7,6 +7,7 @@
     "@alchemy/auth": "workspace:*",
     "@alchemy/core": "workspace:*",
     "@alchemy/navigation": "workspace:*",
+    "@alchemy/i18n": "workspace:*",
     "@alchemy/phrasea-ui": "workspace:*",
     "@alchemy/react-auth": "workspace:*",
     "@alchemy/react-form": "workspace:*",
@@ -35,8 +36,6 @@
     "flag-icons": "^6.15.0",
     "formik": "^2.4.5",
     "formik-material-ui": "4.0.0-alpha.2",
-    "i18next": "^23.10.1",
-    "i18next-browser-languagedetector": "^6.1.8",
     "ismounted": "^0.1.8",
     "leaflet": "^1.9.4",
     "moment": "^2.30.1",
@@ -49,7 +48,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.51.0",
-    "react-i18next": "^13.5.0",
+    "react-i18next": "^14.1.0",
     "react-leaflet": "^4.2.1",
     "react-nl2br": "^1.0.4",
     "react-pdf": "^7.7.1",
@@ -71,7 +70,7 @@
     "lint:fix": "eslint --fix src",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
     "preview": "vite preview",
-    "i18n:scan": "mkdir -p ./i18n-scan-tmp && rm -rf ./i18n-scan-tmp && npx tsc --jsx preserve --target ES6 --module es2022 --noEmit false --outDir ./i18n-scan-tmp && npx i18next-scanner"
+    "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
@@ -94,11 +93,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "eslint-plugin-unused-imports": "^3.1.0",
-    "i18next-scanner": "^3.3.0",
     "ts-jest": "^23.10.5",
     "typescript": "^5.4.2",
     "vite": "^5.1.6",
     "vite-plugin-checker": "^0.6.4",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.2.0",
+    "i18next-scanner": "^4.4.0",
+    "i18next-scanner-typescript": "^1.2.0"
   }
 }

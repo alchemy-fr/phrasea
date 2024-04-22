@@ -1,0 +1,7 @@
+{
+  "lib": {
+    "navigation": {
+      "dismiss_changes": "Êtes-vous sûr de vouloir ignorer les modifications non enregistrées ?"
+    }
+  }
+}

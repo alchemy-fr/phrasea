@@ -1,0 +1,17 @@
+{
+  "download": "下载",
+  "download_archive": "下载存档",
+  "gallery": {
+    "empty": "画廊是空的"
+  },
+  "map": {
+    "empty": "地图是空的"
+  },
+  "menu": {
+    "toggle": "切换菜单"
+  },
+  "order": {
+    "last_post_added": "最新",
+    "publication_name": "名称"
+  }
+}

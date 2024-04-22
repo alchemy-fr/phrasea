@@ -59,9 +59,9 @@ function useBeforeUnloadWhen(when: boolean, message: string): void {
 }
 
 export function useInRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useInRouterNavigationPrompt(t('navigation:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
+    useInRouterNavigationPrompt(t('lib.navigation.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
 }
 
 export function useOutsideRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useOutsideRouterNavigationPrompt(t('navigation:common.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
+    useOutsideRouterNavigationPrompt(t('lib.navigation.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
 }

@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client';
 import './scss/index.scss';
-import './locales/i18n';
+import './i18n';
 import Root from './Root.tsx';
 import {DashboardMenu} from '@alchemy/react-ps';
 import config from './config';

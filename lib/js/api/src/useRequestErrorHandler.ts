@@ -36,7 +36,7 @@ export default function useRequestErrorHandler({
             case 401:
                 toast.error(
                     t(
-                        'api:error.session_expired',
+                        'lib.api.error.session_expired',
                         'Your session has expired'
                     ) as string,
                     {
@@ -47,7 +47,7 @@ export default function useRequestErrorHandler({
                 break;
             case 403:
                 toast.error(
-                    t('api:error.http_unauthorized', 'Unauthorized') as string
+                    t('lib.api.error.http_unauthorized', 'Unauthorized') as string
                 );
                 break;
             case 400:
@@ -68,14 +68,14 @@ export default function useRequestErrorHandler({
                 // Handled by form
                 break;
             case 429:
-                toast.error(data?.[hydraDescriptionKey] || data?.detail || t('api:http_error.429', {
+                toast.error(data?.[hydraDescriptionKey] || data?.detail || t('lib.api.http_error.429', {
                     defaultValue: 'Too many requests, you can retry in {{minutes}}min',
                     minutes: Math.ceil(parseInt(error.response?.headers?.['retry-after'] ?? '0') / 60),
                 }));
                 break;
             default:
                 toast.error(
-                    t('api:error.http_error', 'Server error') as string
+                    t('lib.api.error.http_error', 'Server error') as string
                 );
                 break;
         }

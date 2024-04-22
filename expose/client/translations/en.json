@@ -1,0 +1,17 @@
+{
+  "download": "Download",
+  "download_archive": "Download archive",
+  "gallery": {
+    "empty": "Gallery is empty"
+  },
+  "map": {
+    "empty": "Map is empty"
+  },
+  "menu": {
+    "toggle": "Toggle Menu"
+  },
+  "order": {
+    "last_post_added": "Recents",
+    "publication_name": "Name"
+  }
+}
