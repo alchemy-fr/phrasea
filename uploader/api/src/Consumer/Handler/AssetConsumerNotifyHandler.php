@@ -4,35 +4,27 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * Notify remote consumer that there is a new batch available.
- */
-class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class AssetConsumerNotifyHandler
 {
-    final public const EVENT = 'asset_consumer_notify';
-
     public function __construct(
-        private readonly HttpClientInterface $client,
-        private readonly string $uploaderUrl
+        private HttpClientInterface $client,
+        private EntityManagerInterface $em,
+        private string $uploaderUrl,
     ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(AssetConsumerNotify $message): void
     {
-        $id = $message->getPayload()['id'];
-        $em = $this->getEntityManager();
-        $commit = $em->find(Commit::class, $id);
-        if (!$commit instanceof Commit) {
-            throw new ObjectNotFoundForHandlerException(Commit::class, $id, self::class);
-        }
-
+        $id = $message->getId();
+        $commit = DoctrineUtil::findStrict($this->em, Commit::class, $id);
         $target = $commit->getTarget();
         $accessToken = $target->getTargetAccessToken();
         if (empty($target->getTargetUrl()) || 'avoid' === $accessToken) {
@@ -52,15 +44,5 @@ class AssetConsumerNotifyHandler extends AbstractEntityManagerHandler
             ],
             'json' => $arr,
         ])->getStatusCode();
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function getQueueName(): string
-    {
-        return 'asset_consumer_notify';
     }
 }

@@ -6,10 +6,8 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
-use App\Consumer\Handler\AssetConsumerNotifyHandler;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Entity\Commit;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -21,11 +19,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class CommitCrudController extends AbstractAdminCrudController
 {
-    public function __construct(private readonly MessageBusInterface $bus, private readonly UserChoiceField $userChoiceField)
-    {
+    public function __construct(
+        private readonly MessageBusInterface $bus,
+        private readonly UserChoiceField $userChoiceField
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -94,9 +95,7 @@ class CommitCrudController extends AbstractAdminCrudController
         if ($commit->isAcknowledged()) {
             $this->addFlash('danger', 'Commit has been acknowledged');
         } else {
-            $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
-                'id' => $commit->getId(),
-            ]));
+            $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
         }
 
         $targetUrl = $adminUrlGenerator

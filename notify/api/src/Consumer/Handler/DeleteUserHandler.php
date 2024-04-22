@@ -5,30 +5,20 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Contact\ContactManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class DeleteUserHandler extends AbstractLogHandler
+#[AsMessageHandler]
+final readonly class DeleteUserHandler
 {
-    final public const EVENT = 'delete_user';
-
-    public function __construct(private readonly ContactManager $contactManager)
+    public function __construct(private ContactManager $contactManager)
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(DeleteUser $message): void
     {
-        $payload = $message->getPayload();
-        $userId = $payload['user_id'];
-
-        $contact = $this->contactManager->getContact($userId);
+        $contact = $this->contactManager->getContact($message->getId());
         if (null !== $contact) {
             $this->contactManager->deleteContact($contact);
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

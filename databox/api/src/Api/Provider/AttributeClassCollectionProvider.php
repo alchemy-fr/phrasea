@@ -9,7 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributeClass;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class AttributeClassCollectionProvider extends AbstractCollectionProvider
 {

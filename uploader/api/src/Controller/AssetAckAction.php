@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Consumer\Handler\AssetAcknowledgeHandler;
+use App\Consumer\Handler\AssetAcknowledge;
 use App\Entity\Asset;
 use App\Security\Voter\AssetVoter;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class AssetAckAction extends AbstractController
 {
@@ -22,9 +21,7 @@ final class AssetAckAction extends AbstractController
     {
         $this->denyAccessUnlessGranted(AssetVoter::ACK, $asset);
 
-        $this->eventProducer->publish(new EventMessage(AssetAcknowledgeHandler::EVENT, [
-            'id' => $asset->getId(),
-        ]));
+        $this->bus->dispatch(new AssetAcknowledge($asset->getId()));
 
         return new JsonResponse(true);
     }

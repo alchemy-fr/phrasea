@@ -13,7 +13,7 @@ use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;

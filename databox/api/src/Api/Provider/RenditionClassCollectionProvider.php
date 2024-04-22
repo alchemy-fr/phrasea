@@ -7,7 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\RenditionClass;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class RenditionClassCollectionProvider extends AbstractCollectionProvider
 {

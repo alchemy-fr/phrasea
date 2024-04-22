@@ -7,7 +7,7 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AttributeDefinition;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

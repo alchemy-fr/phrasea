@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Consumer;
 
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final readonly class WebhookHandler
+#[AsMessageHandler]
+final readonly class WebhookEventHandler
 {
     public function __construct(private WebhookTrigger $webhookTrigger)
     {

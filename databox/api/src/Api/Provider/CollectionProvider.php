@@ -6,7 +6,7 @@ namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\CollectionSearch;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class CollectionProvider extends AbstractCollectionProvider
 {

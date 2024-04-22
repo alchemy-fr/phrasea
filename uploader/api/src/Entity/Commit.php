@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use App\Consumer\Handler\CommitMessage;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
 use App\Security\ScopeInterface;
@@ -219,39 +220,31 @@ class Commit extends AbstractUuidEntity
         $this->token = bin2hex(random_bytes(21));
     }
 
-    public function toArray(): array
+    public function toMessage(): CommitMessage
     {
-        $data = [
-            'files' => $this->files,
-            'form' => $this->formData,
-            'user_id' => $this->userId,
-            'target_id' => $this->target->getId(),
-            'notify_email' => $this->notifyEmail,
-            'locale' => $this->locale,
-            'options' => $this->options,
-        ];
-
-        if ($this->token) {
-            $data['token'] = $this->token;
-        }
-
-        return $data;
+        return new CommitMessage(
+            $this->target->getId(),
+            $this->userId,
+            $this->files,
+            $this->formData,
+            $this->notifyEmail,
+            $this->locale,
+            $this->options,
+        );
     }
 
-    public static function fromArray(array $data, EntityManagerInterface $em): self
+    public static function fromMessage(CommitMessage $message, EntityManagerInterface $em): self
     {
         $instance = new self();
-        if (isset($data['files'])) {
-            $instance->setFiles($data['files']);
-        }
+        $instance->setFiles($message->getFiles());
         /** @var Target $target */
-        $target = $em->getReference(Target::class, $data['target_id']);
+        $target = $em->getReference(Target::class, $message->getTargetId());
         $instance->setTarget($target);
-        $instance->setFormData($data['form'] ?? []);
-        $instance->setUserId($data['user_id']);
-        $instance->setNotifyEmail($data['notify_email'] ?? null);
-        $instance->setLocale($data['locale'] ?? null);
-        $instance->setOptions($data['options'] ?? []);
+        $instance->setFormData($message->getForm());
+        $instance->setUserId($message->getUserId());
+        $instance->setNotifyEmail($message->getNotifyEmail());
+        $instance->setLocale($message->getLocale());
+        $instance->setOptions($message->getOptions());
 
         return $instance;
     }

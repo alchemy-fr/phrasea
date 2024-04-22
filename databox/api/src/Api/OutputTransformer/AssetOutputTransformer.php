@@ -22,7 +22,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputTransformer implements OutputTransformerInterface

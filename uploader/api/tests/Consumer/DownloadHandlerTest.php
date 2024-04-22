@@ -6,6 +6,7 @@ namespace App\Tests\Consumer;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
+use App\Consumer\Handler\Download;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
 use App\Entity\Target;
@@ -18,6 +19,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DownloadHandlerTest extends TestCase
 {
@@ -30,15 +33,15 @@ class DownloadHandlerTest extends TestCase
         string $expectedMimeType,
         ?string $expectedExtension
     ): void {
-        /** @var EventProducer|MockObject $producerStub */
-        $producerStub = $this->createMock(EventProducer::class);
-        $producerStub
+        /** @var MessageBusInterface|MockObject $busMock */
+        $busMock = $this->createMock(MessageBusInterface::class);
+        $busMock
             ->expects($this->once())
-            ->method('publish')
-            ->with(
-                $this->callback(fn ($subject) => $subject instanceof EventMessage
-                    && is_string($subject->getPayload()['user_id']))
-            );
+            ->method('dispatch')
+            ->willReturnCallback(function (object $message) {
+                return new Envelope($message, []);
+            })
+        ;
 
         /** @var FileStorageManager|MockObject $storageStub */
         $storageStub = $this->createMock(FileStorageManager::class);
@@ -81,22 +84,19 @@ class DownloadHandlerTest extends TestCase
             $storageStub,
             $clientStub,
             $assetManagerStub,
-            $producerStub,
-            $pathGeneratorStub
+            $busMock,
+            $pathGeneratorStub,
+            $em
         );
-        $consumer->setEntityManager($em);
 
-        $logger = new TestLogger();
-        $consumer->setLogger($logger);
-
-        $message = new EventMessage($consumer::EVENT, [
-            'url' => $url,
-            'user_id' => 'USER_ID',
-            'form_data' => ['foo' => 'bar'],
-            'locale' => 'en',
-            'target_id' => 'c705d014-5e18-4711-bad6-5e9e27e10099',
-        ]);
-        $consumer->handle($message);
+        $message = new Download(
+            $url,
+            'USER_ID',
+            'c705d014-5e18-4711-bad6-5e9e27e10099',
+            ['foo' => 'bar'],
+            'en',
+        );
+        $consumer($message);
     }
 
     public function downloadProvider(): array

@@ -8,7 +8,7 @@ use App\Api\Model\Output\AttributeOutput;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class AttributeOutputTransformer implements OutputTransformerInterface
 {

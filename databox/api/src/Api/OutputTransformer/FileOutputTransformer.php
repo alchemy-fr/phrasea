@@ -9,7 +9,7 @@ use App\Api\Model\Output\FileOutput;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileOutputTransformer implements OutputTransformerInterface

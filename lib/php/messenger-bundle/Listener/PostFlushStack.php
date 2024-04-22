@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\MessengerBundle\Listener;
 
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;

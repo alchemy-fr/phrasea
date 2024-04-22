@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../workflow",
-                "reference": "d4c354bd7b4e5ade6641827bf6fa32a4eb8f8c9c"
+                "reference": "24d2648612a470425894c601626effbbe01a2890"
             },
             "require": {
                 "ext-json": "*",
@@ -25,12 +25,12 @@
                 "symfony/yaml": "^6.2"
             },
             "require-dev": {
-                "arthem/rabbit-bundle": "@dev",
                 "colinodell/psr-testlogger": "^1.2",
                 "doctrine/orm": "^2.14",
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "phpunit/phpunit": "^9.5",
                 "rector/rector": "^1.0.4",
+                "symfony/messenger": "^6.4",
                 "symfony/var-dumper": "^5.4"
             },
             "type": "library",

@@ -14,8 +14,8 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Repository\Basket\BasketRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AddToBasketProcessor implements ProcessorInterface

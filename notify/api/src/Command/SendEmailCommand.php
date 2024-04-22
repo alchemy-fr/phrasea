@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Consumer\Handler\SendEmail;
 use App\Consumer\Handler\SendEmailHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class SendEmailCommand extends Command
 {
@@ -45,12 +45,7 @@ class SendEmailCommand extends Command
             $parameters = [];
         }
 
-        $this->eventProducer->publish(new EventMessage(SendEmailHandler::EVENT, [
-            'email' => $email,
-            'template' => $template,
-            'parameters' => $parameters,
-            'locale' => $locale,
-        ]));
+        $this->bus->dispatch(new SendEmail($email, $template, $parameters, $locale));
 
         return 0;
     }

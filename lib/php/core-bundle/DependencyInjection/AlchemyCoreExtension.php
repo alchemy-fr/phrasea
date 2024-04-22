@@ -75,10 +75,6 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $container->removeDefinition(DoctrineConnectionChecker::class);
         }
 
-        if (!isset($bundles['OldSoundRabbitMqBundle'])) {
-            $container->removeDefinition(RabbitMQConnectionChecker::class);
-        }
-
         $container->registerForAutoconfiguration(HealthCheckerInterface::class)
             ->addTag(HealthCheckerInterface::TAG)
         ;

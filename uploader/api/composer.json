@@ -3,10 +3,6 @@
     "license": "proprietary",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
@@ -61,6 +57,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/messenger-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -72,12 +75,12 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/messenger-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/auth-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
         "api-platform/core": "^3.1",
-        "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3",
@@ -88,7 +91,6 @@
         "guzzlehttp/guzzle": "^7.2",
         "nelmio/cors-bundle": "^2.1",
         "nyholm/psr7": "^1.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid": "^4.2.3",
@@ -102,6 +104,7 @@
         "symfony/flex": "^1.1",
         "symfony/form": "^6.3",
         "symfony/framework-bundle": "^6.3",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/mime": "^6.3",
         "symfony/process": "^6.3",
         "symfony/property-access": "^6.3",

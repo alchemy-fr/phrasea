@@ -10,8 +10,8 @@ use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AssetVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface

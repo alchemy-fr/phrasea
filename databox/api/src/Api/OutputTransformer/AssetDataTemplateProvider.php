@@ -8,7 +8,7 @@ use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class AssetDataTemplateProvider implements OutputTransformerInterface
 {

@@ -8,7 +8,7 @@ use App\Api\Model\Output\WorkspaceOutput;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
 {

@@ -12,7 +12,7 @@ use App\Consumer\Handler\Asset\AssetMove;
 use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;

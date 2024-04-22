@@ -6,25 +6,29 @@ namespace App\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
-use App\Consumer\Handler\CommitHandler;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Form\FormValidator;
 use App\Report\UploaderLogActionInterface;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class CommitAction extends AbstractController
 {
-    public function __construct(private readonly AssetManager $assetManager, private readonly MessageBusInterface $bus, private readonly FormValidator $formValidator, private readonly CommitValidator $commitValidator, private readonly ReportUserService $reportClient, private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly AssetManager $assetManager,
+        private readonly MessageBusInterface $bus,
+        private readonly FormValidator $formValidator,
+        private readonly CommitValidator $commitValidator,
+        private readonly ReportUserService $reportClient,
+        private readonly EntityManagerInterface $em
+    ) {
     }
 
     public function __invoke(Commit $data, Request $request)
@@ -61,7 +65,7 @@ final class CommitAction extends AbstractController
         }
         $data->setFormData(FormValidator::cleanExtraFields($formData));
 
-        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $data->toArray()));
+        $this->bus->dispatch($data->toMessage());
 
         $this->reportClient->pushHttpRequestLog(
             $request,

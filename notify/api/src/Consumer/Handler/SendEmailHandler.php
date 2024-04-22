@@ -5,35 +5,22 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Mail\Mailer;
-use Symfony\Component\Mailer\Exception\TransportException;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class SendEmailHandler extends AbstractRetryableHandler
+#[AsMessageHandler]
+final readonly class SendEmailHandler
 {
-    final public const EVENT = 'send_email';
-
-    public function __construct(private readonly Mailer $mailer)
+    public function __construct(private Mailer $mailer)
     {
     }
 
-    protected function doHandle(array $payload): void
+    public function __invoke(SendEmail $message): void
     {
-        // TODO handle blacklist
-
         $this->mailer->send(
-            $payload['email'],
-            $payload['template'],
-            $payload['parameters'],
-            $payload['locale']
+            $message->getEmail(),
+            $message->getTemplate(),
+            $message->getParameters(),
+            $message->getLocale()
         );
-    }
-
-    protected function isRetryableException(\Throwable $e): bool
-    {
-        return $e instanceof TransportException;
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

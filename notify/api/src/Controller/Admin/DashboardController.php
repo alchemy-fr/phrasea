@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Contact;
-use App\Entity\FailedEvent;
 use App\Entity\TopicSubscriber;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -25,7 +24,6 @@ class DashboardController extends AbstractAdminDashboardController
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
-            MenuItem::linkToCrud('FailedEvent', '', FailedEvent::class),
             MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo'),
         ];
 

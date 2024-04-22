@@ -7,7 +7,7 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Entity\Core\AttributeDefinition;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {

@@ -5,22 +5,21 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Entity\Commit;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * Delete acknowledged asset after graceful period.
- */
-class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class DeleteExpiredAssetsHandler
 {
-    final public const EVENT = 'delete_expired_assets';
-
-    public function __construct(private readonly MessageBusInterface $bus, private readonly int $deleteAssetGracefulTime)
-    {
+    public function __construct(
+        private MessageBusInterface $bus,
+        private EntityManagerInterface $em,
+        private int $deleteAssetGracefulTime,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(DeleteExpiredAssets $message): void
     {
         if ($this->deleteAssetGracefulTime <= 0) {
             return;
@@ -29,31 +28,18 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
         $date = (new \DateTimeImmutable())
             ->setTimestamp(time() - $this->deleteAssetGracefulTime);
 
-        $em = $this->getEntityManager();
-        $commits = $em
+        $commits = $this->em
             ->getRepository(Commit::class)
             ->getAcknowledgedBefore($date);
 
         foreach ($commits as $commit) {
             foreach ($commit->getAssets() as $asset) {
-                $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
-                    'path' => $asset->getPath(),
-                ]));
-                $em->remove($asset);
+                $this->bus->dispatch(new DeleteAssetFile($asset->getPath()));
+                $this->em->remove($asset);
             }
 
-            $em->remove($commit);
-            $em->flush();
+            $this->em->remove($commit);
+            $this->em->flush();
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function getQueueName(): string
-    {
-        return 'fast_events';
     }
 }

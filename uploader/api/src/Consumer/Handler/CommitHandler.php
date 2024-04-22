@@ -8,29 +8,30 @@ use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\TargetParams;
 use App\Storage\AssetManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class CommitHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class CommitHandler
 {
-    final public const EVENT = 'commit';
-
-    public function __construct(private readonly MessageBusInterface $bus, private readonly AssetManager $assetManager)
-    {
+    public function __construct(
+        private MessageBusInterface $bus,
+        private AssetManager $assetManager,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(CommitMessage $message): void
     {
-        $em = $this->getEntityManager();
-        $commit = Commit::fromArray($message->getPayload(), $em);
+        $commit = Commit::fromMessage($message, $this->em);
         $commit->generateToken();
         $target = $commit->getTarget();
 
         $totalSize = $this->assetManager->getTotalSize($commit->getFiles());
         $commit->setTotalSize($totalSize);
 
-        $targetParams = $em
+        $targetParams = $this->em
             ->getRepository(TargetParams::class)
             ->findOneBy([
                 'target' => $commit->getTarget()->getId(),
@@ -43,32 +44,20 @@ class CommitHandler extends AbstractEntityManagerHandler
         }
         $commit->setFormData($formData);
 
-        $em->beginTransaction();
+        $this->em->beginTransaction();
         try {
-            $em->persist($commit);
-            $em->flush();
-            $em
+            $this->em->persist($commit);
+            $this->em->flush();
+            $this->em
                 ->getRepository(Asset::class)
                 ->attachCommit($commit->getFiles(), $commit->getId());
 
-            $em->commit();
+            $this->em->commit();
         } catch (\Throwable $e) {
-            $em->rollback();
+            $this->em->rollback();
             throw $e;
         }
 
-        $this->eventProducer->publish(new EventMessage(AssetConsumerNotifyHandler::EVENT, [
-            'id' => $commit->getId(),
-        ]));
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function getQueueName(): string
-    {
-        return 'bulk_commit';
+        $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
     }
 }

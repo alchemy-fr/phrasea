@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\SuggestionSearch;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class SearchSuggestionCollectionProvider implements ProviderInterface
 {

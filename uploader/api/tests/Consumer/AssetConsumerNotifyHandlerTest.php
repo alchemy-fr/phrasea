@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use Alchemy\ApiTest\ApiTestCase;
+use App\Consumer\Handler\AssetConsumerNotify;
 use App\Consumer\Handler\AssetConsumerNotifyHandler;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use App\Entity\Target;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -46,15 +45,16 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
 
         $em = $this->createMock(EntityManagerInterface::class);
 
-        $commit = Commit::fromArray([
-            'form' => ['foo' => 'bar'],
-            'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
-            'target_id' => 'c705d014-5e18-4711-bad6-5e9e27e10099',
-        ], $em);
+        $target = new Target();
+
+        $commit = new Commit();
+        $commit->setFormData(['foo' => 'bar']);
+        $commit->setUserId('d03fc9f6-3c6b-4428-8d6f-ba07c7c6e856');
+        $commit->setTarget($target);
+
         $commit->getAssets()->add(new Asset());
         $commit->getAssets()->add(new Asset());
         $commit->setToken('a_token');
-        $target = new Target();
         $target->setTargetAccessToken($accessToken);
         $target->setTargetUrl('http://localhost/api/v1/upload/enqueue/');
         $target->setTargetTokenType('OAuth');
@@ -66,16 +66,11 @@ class AssetConsumerNotifyHandlerTest extends ApiTestCase
 
         $handler = new AssetConsumerNotifyHandler(
             $clientStub,
+            $em,
             $uploaderUrl
         );
-        $handler->setEntityManager($em);
 
-        $logger = new TestLogger();
-        $handler->setLogger($logger);
-
-        $message = new EventMessage($handler::EVENT, [
-            'id' => 'an_ID',
-        ]);
-        $handler->handle($message);
+        $message = new AssetConsumerNotify('an_ID');
+        $handler($message);
     }
 }

@@ -6,7 +6,7 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use Symfony\Contracts\Service\Attribute\Required;

@@ -6,7 +6,7 @@ namespace App\Consumer\Handler\Search\Mapping;
 
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Workspace;
-use App\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

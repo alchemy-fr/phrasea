@@ -8,5 +8,4 @@ services:
     Alchemy\CoreBundle\Health\Checker\PredisConnectionChecker: ~
     Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker: ~
 
-    Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker:
-        $amqpPartsHolder: '@old_sound_rabbit_mq.parts_holder'
+    Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker: ~

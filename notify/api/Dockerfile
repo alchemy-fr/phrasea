@@ -30,12 +30,21 @@ ENV FPM_HOSTNAME=notify-api-php
 
 FROM api-php as worker
 
+ENV PHP_MEMORY_LIMIT=1G \
+    WORKER_PRIORITIES=p1 \
+    WORKER_TIME_LIMIT=3600 \
+    WORKER_LIMIT=200
+
 RUN apk add --no-cache \
         supervisor \
     && mkdir -p /var/log/supervisor \
     && chown -R app: /var/log/supervisor \
-    && docker-php-ext-install pcntl
+    && docker-php-ext-configure pcntl --enable-pcntl \
+    && docker-php-ext-install \
+      pcntl
 
 COPY ./notify/api/docker/supervisor/* /etc/supervisor.d/
 
-CMD ["/bin/sh", "-c", "/usr/bin/supervisord -n"]
+ENTRYPOINT ["/srv/app/docker/worker/docker-entrypoint.sh"]
+
+CMD ["/usr/bin/supervisord", "-n"]

@@ -106,7 +106,6 @@
         "ext-sodium": "*",
         "alchemy/acl-bundle": "dev-main",
         "api-platform/core": "^3.1",
-        "arthem/rabbit-bundle": "@dev",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",

@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Consumer\Handler\DeleteUserHandler;
-use App\Consumer\Handler\NotifyTopicHandler;
-use App\Consumer\Handler\NotifyUserHandler;
-use App\Consumer\Handler\RegisterUserHandler;
-use App\Consumer\Handler\SendEmailHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use App\Consumer\Handler\DeleteUser;
+use App\Consumer\Handler\NotifyTopic;
+use App\Consumer\Handler\NotifyUser;
+use App\Consumer\Handler\RegisterUser;
+use App\Consumer\Handler\SendEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-final readonly class MailerRabbitProxy
+final readonly class MailerMessengerProxy
 {
     public function __construct(private MessageBusInterface $bus, private Mailer $mailer)
     {
@@ -38,12 +37,12 @@ final readonly class MailerRabbitProxy
 
         $this->mailer->validateParameters($template, $parameters);
 
-        $this->eventProducer->publish(new EventMessage(SendEmailHandler::EVENT, [
-            'email' => $email,
-            'template' => $template,
-            'parameters' => $parameters,
-            'locale' => $locale,
-        ]));
+        $this->bus->dispatch(new SendEmail(
+          $email,
+          $template,
+          $parameters,
+          $locale,
+        ));
     }
 
     public function notifyUser(Request $request): void
@@ -63,12 +62,12 @@ final readonly class MailerRabbitProxy
 
         $this->mailer->validateParameters($template, $parameters);
 
-        $this->eventProducer->publish(new EventMessage(NotifyUserHandler::EVENT, [
-            'user_id' => $userId,
-            'template' => $template,
-            'parameters' => $parameters,
-            'contact_info' => $contactInfo,
-        ]));
+        $this->bus->dispatch(new NotifyUser(
+            $userId,
+            $template,
+            $parameters,
+            $contactInfo,
+        ));
     }
 
     public function notifyTopic(string $topic, Request $request): void
@@ -82,11 +81,11 @@ final readonly class MailerRabbitProxy
 
         $this->mailer->validateParameters($template, $parameters);
 
-        $this->eventProducer->publish(new EventMessage(NotifyTopicHandler::EVENT, [
-            'topic' => $topic,
-            'template' => $template,
-            'parameters' => $parameters,
-        ]));
+        $this->bus->dispatch(new NotifyTopic(
+            $topic,
+            $template,
+            $parameters,
+        ));
     }
 
     public function registerUser(Request $request): void
@@ -103,10 +102,7 @@ final readonly class MailerRabbitProxy
             throw new BadRequestHttpException('contact_info must be an array');
         }
 
-        $this->eventProducer->publish(new EventMessage(RegisterUserHandler::EVENT, [
-            'user_id' => $userId,
-            'contact_info' => $contactInfo,
-        ]));
+        $this->bus->dispatch(new RegisterUser($userId, $contactInfo));
     }
 
     public function deleteUser(Request $request): void
@@ -116,8 +112,6 @@ final readonly class MailerRabbitProxy
             throw new BadRequestHttpException('Missing user_id');
         }
 
-        $this->eventProducer->publish(new EventMessage(DeleteUserHandler::EVENT, [
-            'user_id' => $userId,
-        ]));
+        $this->bus->dispatch(new DeleteUser($userId));
     }
 }

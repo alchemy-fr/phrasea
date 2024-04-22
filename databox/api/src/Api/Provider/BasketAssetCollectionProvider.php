@@ -8,8 +8,8 @@ use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Repository\Basket\BasketRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class BasketAssetCollectionProvider extends AbstractCollectionProvider
 {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Workflow\Action;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AssignSourceFileToAssetAction implements ActionInterface
@@ -26,15 +26,8 @@ readonly class AssignSourceFileToAssetAction implements ActionInterface
         $fileId = $inputs['fileId'];
         $assetId = $inputs['assetId'];
 
-        $file = $this->em->find(File::class, $fileId);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $fileId, self::class);
-        }
-
-        $asset = $this->em->find(Asset::class, $assetId);
-        if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
-        }
+        $file = DoctrineUtil::findStrict($this->em, File::class, $fileId);
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file);
         $this->em->flush();

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Asset;
 
 use App\Entity\Core\Asset;
-use App\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

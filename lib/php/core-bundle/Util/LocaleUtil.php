@@ -43,4 +43,9 @@ final class LocaleUtil
 
         return null;
     }
+
+    public static function extractLanguageFromLocale(string $locale): string
+    {
+        return preg_replace('#_.+$#', '', $locale);
+    }
 }

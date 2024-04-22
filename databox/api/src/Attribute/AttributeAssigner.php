@@ -8,7 +8,7 @@ use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AbstractExtendedAttributeInput;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
-use App\Util\LocaleUtils;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 
 final readonly class AttributeAssigner
 {
@@ -47,7 +47,7 @@ final readonly class AttributeAssigner
         }
 
         if ($data->locale) {
-            $attribute->setLocale(LocaleUtils::normalizeLocale($data->locale));
+            $attribute->setLocale(LocaleUtil::normalizeLocale($data->locale));
         }
 
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());

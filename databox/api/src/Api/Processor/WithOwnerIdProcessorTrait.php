@@ -6,7 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\WithOwnerIdInterface;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

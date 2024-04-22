@@ -7,7 +7,7 @@ namespace App\Consumer\Handler\File;
 use App\Asset\FileFetcher;
 use App\Entity\Core\File;
 use App\Storage\FileManager;
-use App\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Header;
 use Psr\Log\LoggerInterface;

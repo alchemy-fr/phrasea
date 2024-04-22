@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use App\Consumer\Handler\DownloadHandler;
+use App\Consumer\Handler\Download;
 use App\Form\FormValidator;
 use App\Model\DownloadUrl;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class DownloadUrlAction extends AbstractController
 {
@@ -33,13 +32,13 @@ final class DownloadUrlAction extends AbstractController
         /** @var JwtUser $user */
         $user = $this->getUser();
 
-        $this->eventProducer->publish(new EventMessage(DownloadHandler::EVENT, [
-            'url' => $data->getUrl(),
-            'form_data' => $data->getData(),
-            'user_id' => $user->getId(),
-            'target_id' => $data->getTarget()->getId(),
-            'locale' => $request->getLocale() ?? $request->getDefaultLocale(),
-        ]));
+        $this->bus->dispatch(new Download(
+           $data->getUrl(),
+            $user->getId(),
+            $data->getTarget()->getId(),
+            $data->getData(),
+            $request->getLocale() ?? $request->getDefaultLocale(),
+        ));
 
         return new JsonResponse(true);
     }

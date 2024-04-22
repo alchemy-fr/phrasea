@@ -30,6 +30,8 @@ framework:
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
             Alchemy\Workflow\Message\JobConsumer: p1
+            Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
+            Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
         buses:
             command_bus:
                 middleware:

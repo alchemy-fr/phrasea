@@ -23,10 +23,6 @@
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/core-bundle",
             "options": {
@@ -124,15 +120,12 @@
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
-        "alchemy/es-bundle": "@dev",
-        "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
         "api-platform/core": "^3.2.7",
-        "arthem/rabbit-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
@@ -149,7 +142,6 @@
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^5",
         "nelmio/cors-bundle": "^2.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.6,<1.7",

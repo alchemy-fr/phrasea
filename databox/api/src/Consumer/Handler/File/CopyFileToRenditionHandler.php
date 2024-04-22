@@ -7,7 +7,7 @@ namespace App\Consumer\Handler\File;
 use App\Asset\FileCopier;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
-use App\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

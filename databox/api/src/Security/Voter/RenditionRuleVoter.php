@@ -7,7 +7,7 @@ namespace App\Security\Voter;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Workspace;
-use App\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionRuleVoter extends AbstractVoter

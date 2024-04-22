@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use App\Util\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 

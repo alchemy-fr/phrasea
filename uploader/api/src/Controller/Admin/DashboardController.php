@@ -39,6 +39,6 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
 
-        yield $this->createDevMenu(FailedEvent::class);
+        yield $this->createDevMenu();
     }
 }

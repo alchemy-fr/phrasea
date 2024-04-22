@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Entity\Core\AttributeDefinition;
-use App\Util\LocaleUtils;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -84,7 +84,7 @@ class TextAttributeType extends AbstractAttributeType
             'tr' => 'turkish',
         ];
 
-        $language = LocaleUtils::extractLanguageFromLocale($locale);
+        $language = LocaleUtil::extractLanguageFromLocale($locale);
         if (isset($locales[$locale])) {
             $mapping['analyzer'] = $locales[$locale];
         } elseif (isset($locales[$language])) {
