@@ -3,8 +3,8 @@ import {Asset, AssetOrAssetContainer, GroupValue} from '../../../types';
 import {ItemToAssetFunc} from '../types.ts';
 import GroupDivider from './GroupDivider.tsx';
 import {CellMeasurerCache} from 'react-virtualized';
-import PageDivider from "../PageDivider.tsx";
-import {getPage} from "./page.ts";
+import PageDivider from '../PageDivider.tsx';
+import {getPage} from './page.ts';
 
 type GroupSet = {
     index: number;
@@ -16,7 +16,7 @@ type Position = {
     page?: number;
     group?: GroupValue;
     height?: number;
-}
+};
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -86,14 +86,11 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
             currPos.height ??= 0;
             currPos = {};
             positions.push(currPos);
-        }
+        };
 
-        let currentPage : number | undefined;
+        let currentPage: number | undefined;
         for (let i = 0; i < rowCount; i++) {
-            const {
-                pageIndex,
-                itemIndex,
-            } = getPage(pages, i);
+            const {pageIndex, itemIndex} = getPage(pages, i);
 
             const isNewGroup = currentGroup && i === currentGroup.index;
             if (isNewGroup) {
@@ -115,7 +112,8 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                 currPos.page = currentPage;
             }
 
-            currPos.height = (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
+            currPos.height =
+                (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
         }
         if (positions.length > 0) {
             positions[positions.length - 1].height = undefined;
@@ -139,22 +137,29 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                     }}
                     ref={ref}
                 >
-                    {positions.map((p, index) => <div
-                        key={index}
-                        style={{
-                            height: p.height ?? '100vh',
-                        }}
-                    >
-                        {p.page && !p.group ? <PageDivider
-                            page={p.page}
-                            top={0}
-                        /> : ''}
-                        {p.group ? <GroupDivider
-                            groupValue={p.group}
-                            top={0}
-                            page={p.page}
-                        /> : ''}
-                    </div>)}
+                    {positions.map((p, index) => (
+                        <div
+                            key={index}
+                            style={{
+                                height: p.height ?? '100vh',
+                            }}
+                        >
+                            {p.page && !p.group ? (
+                                <PageDivider page={p.page} top={0} />
+                            ) : (
+                                ''
+                            )}
+                            {p.group ? (
+                                <GroupDivider
+                                    groupValue={p.group}
+                                    top={0}
+                                    page={p.page}
+                                />
+                            ) : (
+                                ''
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
         );

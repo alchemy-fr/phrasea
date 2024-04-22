@@ -57,7 +57,7 @@ export default function PublicationIndex({}: Props) {
                                 </>
                             }
                         >
-                            {Object.keys(orders).map((o) => {
+                            {Object.keys(orders).map(o => {
                                 return (
                                     <Dropdown.Item
                                         key={o}

@@ -78,4 +78,10 @@ const zhMerged = {
     },
 };
 
-export {enMerged as en, frMerged as fr, esMerged as es, deMerged as de, zhMerged as zh};
+export {
+    enMerged as en,
+    frMerged as fr,
+    esMerged as es,
+    deMerged as de,
+    zhMerged as zh,
+};

@@ -49,10 +49,7 @@ export default function SectionDivider({
             )}
             className={sectionDividerClassname}
         >
-            <Divider
-                textAlign={'left'}
-                sx={dividerSx}
-            >
+            <Divider textAlign={'left'} sx={dividerSx}>
                 <div
                     style={applyStyle(
                         theme,

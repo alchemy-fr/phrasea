@@ -8,13 +8,22 @@ import {alpha, CircularProgress, Theme} from '@mui/material';
 import assetClasses from '../../classes';
 import {DisplayContext} from '../../../Media/DisplayContext';
 import Box from '@mui/material/Box';
-import {CellMeasurer, CellMeasurerCache, CellRenderer, createMasonryCellPositioner, Masonry,} from 'react-virtualized';
+import {
+    CellMeasurer,
+    CellMeasurerCache,
+    CellRenderer,
+    createMasonryCellPositioner,
+    Masonry,
+} from 'react-virtualized';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
 import {leftPanelWidth} from '../../../../themes/base.ts';
 import {menuHeight} from '../../../Layout/MainAppBar.tsx';
 import LoadMoreButton from '../../LoadMoreButton.tsx';
-import {createSizeTransition, thumbSx,} from '../../../Media/Asset/AssetThumb.tsx';
-import {FileTypeEnum, getFileTypeFromMIMEType} from "../../../../lib/file.ts";
+import {
+    createSizeTransition,
+    thumbSx,
+} from '../../../Media/Asset/AssetThumb.tsx';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '../../../../lib/file.ts';
 
 export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     pages,
@@ -137,12 +146,13 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     );
 
     const cellPositioner = React.useMemo(
-        () => createMasonryCellPositioner({
-            cellMeasurerCache: cache,
-            columnCount: colCount,
-            columnWidth: columnWidth,
-            spacer,
-        }),
+        () =>
+            createMasonryCellPositioner({
+                cellMeasurerCache: cache,
+                columnCount: colCount,
+                columnWidth: columnWidth,
+                spacer,
+            }),
         [cache]
     );
 
@@ -205,10 +215,13 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                         <LoadMoreButton
                                             onClick={() => {
                                                 loadMore!().then(() => {
-                                                    parent.recomputeGridSize && parent.recomputeGridSize!({
-                                                        rowIndex: index,
-                                                        columnIndex: 0,
-                                                    });
+                                                    parent.recomputeGridSize &&
+                                                        parent.recomputeGridSize!(
+                                                            {
+                                                                rowIndex: index,
+                                                                columnIndex: 0,
+                                                            }
+                                                        );
                                                 });
                                             }}
                                             pages={pages}
@@ -234,7 +247,12 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     : (item as unknown as Asset);
                 const ratio = sizes.current[asset.id];
 
-                cache.set(index, 0, columnWidth, ratio ? (columnWidth * ratio) : defaultHeight);
+                cache.set(
+                    index,
+                    0,
+                    columnWidth,
+                    ratio ? columnWidth * ratio : defaultHeight
+                );
             });
 
             cellPositioner.reset({
@@ -266,9 +284,11 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                                 return new Promise((resolve): void => {
                                     const img = new Image();
                                     img.onload = function () {
-                                        const i = this as unknown as HTMLImageElement;
+                                        const i =
+                                            this as unknown as HTMLImageElement;
                                         if (i.width && i.height) {
-                                            sizes.current[asset.id] = i.height / i.width;
+                                            sizes.current[asset.id] =
+                                                i.height / i.width;
                                         }
                                         resolve();
                                     };
@@ -293,7 +313,12 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     : (item as unknown as Asset);
                 const ratio = sizes.current[asset.id];
                 if (ratio) {
-                    cache.set(index, 0, columnWidth, ratio ? columnWidth * ratio : defaultHeight);
+                    cache.set(
+                        index,
+                        0,
+                        columnWidth,
+                        ratio ? columnWidth * ratio : defaultHeight
+                    );
                 }
             });
             // @ts-expect-error not defined
@@ -305,20 +330,24 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
 
     return (
         <>
-            {pages.length > 0 && computedItems.length === 0 ? <div
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <CircularProgress/>
-            </div> : ''}
+            {pages.length > 0 && computedItems.length === 0 ? (
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <CircularProgress />
+                </div>
+            ) : (
+                ''
+            )}
             <Box sx={layoutSx}>
                 <Masonry
                     className={assetClasses.scrollable}

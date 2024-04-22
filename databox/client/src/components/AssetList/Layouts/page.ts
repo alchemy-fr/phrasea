@@ -1,7 +1,9 @@
-import {AssetOrAssetContainer} from "../../../types.ts";
+import {AssetOrAssetContainer} from '../../../types.ts';
 
-
-export function getPage<Item extends AssetOrAssetContainer>(pages: Item[][], index: number): {
+export function getPage<Item extends AssetOrAssetContainer>(
+    pages: Item[][],
+    index: number
+): {
     item: Item;
     pageIndex: number;
     itemIndex: number;
@@ -24,5 +26,5 @@ export function getPage<Item extends AssetOrAssetContainer>(pages: Item[][], ind
         item,
         pageIndex,
         itemIndex,
-    }
+    };
 }
