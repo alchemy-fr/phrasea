@@ -1,0 +1,17 @@
+{
+  "download": "Herunterladen",
+  "download_archive": "Archiv herunterladen",
+  "gallery": {
+    "empty": "Galerie ist leer"
+  },
+  "map": {
+    "empty": "Karte ist leer"
+  },
+  "menu": {
+    "toggle": "Menü umschalten"
+  },
+  "order": {
+    "last_post_added": "Neueste",
+    "publication_name": "Name"
+  }
+}

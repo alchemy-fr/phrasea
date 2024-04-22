@@ -22,19 +22,12 @@ import esAuth from '@alchemy/react-auth/translations/es.json';
 import deAuth from '@alchemy/react-auth/translations/de.json';
 import zhAuth from '@alchemy/react-auth/translations/zh.json';
 
-import enForm from '@alchemy/react-form/translations/en.json';
-import frForm from '@alchemy/react-form/translations/fr.json';
-import esForm from '@alchemy/react-form/translations/es.json';
-import deForm from '@alchemy/react-form/translations/de.json';
-import zhForm from '@alchemy/react-form/translations/zh.json';
-
 const enMerged = {
     ...en,
     lib: {
         ...enApi.lib,
         ...enNav.lib,
         ...enAuth.lib,
-        ...enForm.lib,
     },
 };
 
@@ -44,7 +37,6 @@ const frMerged = {
         ...frApi.lib,
         ...frNav.lib,
         ...frAuth.lib,
-        ...frForm.lib,
     },
 };
 
@@ -54,7 +46,6 @@ const esMerged = {
         ...esApi.lib,
         ...esNav.lib,
         ...esAuth.lib,
-        ...esForm.lib,
     },
 };
 
@@ -64,7 +55,6 @@ const deMerged = {
         ...deApi.lib,
         ...deNav.lib,
         ...deAuth.lib,
-        ...deForm.lib,
     },
 };
 
@@ -74,7 +64,6 @@ const zhMerged = {
         ...zhApi.lib,
         ...zhNav.lib,
         ...zhAuth.lib,
-        ...zhForm.lib,
     },
 };
 

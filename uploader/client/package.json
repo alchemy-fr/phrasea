@@ -9,7 +9,7 @@
     "lint:fix": "eslint --fix src",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
     "preview": "vite preview",
-    "translations-scan": "i18next-scanner --config i18next-scanner.config.js src/**/*.{js,jsx}"
+    "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js"
   },
   "dependencies": {
     "@alchemy/api": "workspace:*",
@@ -27,7 +27,6 @@
     "axios": "^1.6.7",
     "bootstrap": "^4.6.2",
     "filesize": "^9.0.11",
-    "i18next-xhr-backend": "^3.2.2",
     "react": "^18.2.0",
     "react-bootstrap": "^1.6.8",
     "react-burger-menu": "^2.9.2",

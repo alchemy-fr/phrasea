@@ -1219,9 +1219,6 @@ importers:
       filesize:
         specifier: ^9.0.11
         version: 9.0.11
-      i18next-xhr-backend:
-        specifier: ^3.2.2
-        version: 3.2.2
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -13595,13 +13592,6 @@ packages:
       vinyl: 3.0.0
       vinyl-fs: 4.0.0
     dev: true
-
-  /i18next-xhr-backend@3.2.2:
-    resolution: {integrity: sha512-OtRf2Vo3IqAxsttQbpjYnmMML12IMB5e0fc5B7qKJFLScitYaXa1OhMX0n0X/3vrfFlpHL9Ro/H+ps4Ej2j7QQ==}
-    deprecated: replaced by i18next-http-backend
-    dependencies:
-      '@babel/runtime': 7.24.0
-    dev: false
 
   /i18next@23.11.2:
     resolution: {integrity: sha512-qMBm7+qT8jdpmmDw/kQD16VpmkL9BdL+XNAK5MNbNFaf1iQQq35ZbPrSlqmnNPOSUY4m342+c0t0evinF5l7sA==}

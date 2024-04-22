@@ -4,7 +4,8 @@
   "public": true,
   "main": "index.ts",
   "files": [
-    "src/proxy/MatomoRouteWrapper.tsx"
+    "src/proxy/MatomoRouteWrapper.tsx",
+    "translations/*.json"
   ],
   "scripts": {
     "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"

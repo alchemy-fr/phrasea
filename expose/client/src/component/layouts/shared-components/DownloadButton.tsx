@@ -24,10 +24,9 @@ export default function DownloadButton({downloadUrl, onDownload}: Props) {
                     className={'btn btn-secondary'}
                     href={downloadUrl}
                     type={'button'}
-                    title={t('download')}
                     onClick={downloadHandler}
                 >
-                    {t('download')}
+                    {t('download', 'Download')}
                 </a>
             )}
         </Translation>

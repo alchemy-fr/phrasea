@@ -8,7 +8,8 @@
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "translate": "i18next-scanner --config ../../lib/js/i18n/i18next-scanner.config.js"
   },
   "dependencies": {
     "@alchemy/api": "workspace:*",

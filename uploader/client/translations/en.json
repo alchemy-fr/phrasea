@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "loading_form": "Loading form..."
+  },
+  "menu": {
+    "account": "My account",
+    "logout": "Logout"
+  },
+  "targets": {
+    "none_available": "You don't have access to any upload target."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "loading_form": "Formular wird geladen..."
+  },
+  "menu": {
+    "account": "Mein Konto",
+    "logout": "Abmelden"
+  },
+  "targets": {
+    "none_available": "Sie haben keinen Zugriff auf ein Upload-Ziel."
+  }
+}

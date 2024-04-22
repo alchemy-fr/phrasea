@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "loading_form": "Chargement du formulaire..."
+  },
+  "menu": {
+    "account": "Mon compte",
+    "logout": "Déconnexion"
+  },
+  "targets": {
+    "none_available": "Vous n'avez accès à aucune cible de téléchargement."
+  }
+}

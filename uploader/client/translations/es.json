@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "loading_form": "Cargando formulario..."
+  },
+  "menu": {
+    "account": "Mi cuenta",
+    "logout": "Cerrar sesión"
+  },
+  "targets": {
+    "none_available": "No tienes acceso a ningún destino de carga."
+  }
+}

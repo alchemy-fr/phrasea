@@ -16,17 +16,6 @@ enum SortBy {
     Name = 'name',
 }
 
-const orders = {
-    [SortBy.Date]: {
-        label: `last_post_added`,
-        query: `order[createdAt]=desc`,
-    },
-    [SortBy.Name]: {
-        label: `publication_name`,
-        query: `order[title]=asc`,
-    },
-};
-
 type Props = {};
 
 export default function PublicationIndex({}: Props) {
@@ -34,16 +23,22 @@ export default function PublicationIndex({}: Props) {
     const [sortBy, setSortBy] = React.useState<SortBy>(SortBy.Date);
     const {t} = useTranslation();
 
+    const orders = {
+        [SortBy.Date]: {
+            label: t('order.last_post_added', 'Recents'),
+            query: `order[createdAt]=desc`,
+        },
+        [SortBy.Name]: {
+            label: t('order.publication_name', 'Name'),
+            query: `order[title]=asc`,
+        },
+    };
+
     React.useEffect(() => {
         apiClient.get(`/publications?${orders[sortBy].query}`).then(res => {
             setData(res.data['hydra:member']);
         });
     }, [sortBy]);
-
-    const orderTr = {
-        [SortBy.Date]: t('order.last_post_added'),
-        [SortBy.Name]: t('order.publication_name'),
-    };
 
     return (
         <>
@@ -58,17 +53,17 @@ export default function PublicationIndex({}: Props) {
                             title={
                                 <>
                                     <SortImg width={20} height={20} />
-                                    {orderTr[sortBy]}
+                                    {orders[sortBy].label}
                                 </>
                             }
                         >
-                            {Object.keys(orders).map((o: string | SortBy) => {
+                            {Object.keys(orders).map((o) => {
                                 return (
                                     <Dropdown.Item
                                         key={o}
                                         onClick={() => setSortBy(o as SortBy)}
                                     >
-                                        {orderTr[o as keyof typeof orderTr]}
+                                        {orders[o as keyof typeof orders].label}
                                     </Dropdown.Item>
                                 );
                             })}

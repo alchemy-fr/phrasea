@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "loading_form": "加载表单中..."
+  },
+  "menu": {
+    "account": "我的账户",
+    "logout": "退出"
+  },
+  "targets": {
+    "none_available": "您没有任何上传目标的访问权限。"
+  }
+}
