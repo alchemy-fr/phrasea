@@ -58,6 +58,7 @@ final readonly class CommitHandler
             throw $e;
         }
 
+        $this->em->clear();
         $this->bus->dispatch(new AssetConsumerNotify($commit->getId()));
     }
 }

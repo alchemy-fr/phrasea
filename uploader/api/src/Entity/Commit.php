@@ -152,31 +152,6 @@ class Commit extends AbstractUuidEntity
         return $this->formData;
     }
 
-    #[Groups(['__NONE__'])]
-    public function getFormDataJson(): string
-    {
-        return \GuzzleHttp\json_encode($this->formData, JSON_PRETTY_PRINT);
-    }
-
-    public function setFormDataJson(?string $json): void
-    {
-        $json ??= '{}';
-        $this->formData = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    #[Groups(['__NONE__'])]
-    public function getOptionsJson(): string
-    {
-        return \GuzzleHttp\json_encode($this->options, JSON_PRETTY_PRINT);
-    }
-
-    public function setOptionsJson(?string $json): void
-    {
-        $json ??= '{}';
-
-        $this->options = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-    }
-
     public function setFormData(array $formData): void
     {
         $this->formData = $formData;
@@ -208,11 +183,6 @@ class Commit extends AbstractUuidEntity
     public function getAssets(): Collection
     {
         return $this->assets;
-    }
-
-    public function assetCount(): int
-    {
-        return $this->assets->count();
     }
 
     public function generateToken(): void
@@ -315,5 +285,10 @@ class Commit extends AbstractUuidEntity
     public function setTarget(?Target $target): void
     {
         $this->target = $target;
+    }
+
+    public function getAcknowledgedAt(): ?\DateTimeImmutable
+    {
+        return $this->acknowledgedAt;
     }
 }

@@ -31,18 +31,24 @@ final readonly class AssetConsumerNotifyHandler
             return;
         }
 
+        $assets = array_map(fn(Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray());
+        if (empty($assets)) {
+            throw new \RuntimeException('There is no asset');
+        }
+
         $arr = [
-            'assets' => array_map(fn (Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray()),
+            'assets' => $assets,
             'publisher' => $commit->getUserId(),
             'commit_id' => $commit->getId(),
             'token' => $commit->getToken(),
             'base_url' => $this->uploaderUrl,
         ];
+
         $this->client->request('POST', $target->getTargetUrl(), [
             'headers' => [
                 'Authorization' => ($target->getTargetTokenType() ?? 'Bearer').' '.$accessToken,
             ],
             'json' => $arr,
-        ])->getStatusCode();
+        ])->getContent();
     }
 }

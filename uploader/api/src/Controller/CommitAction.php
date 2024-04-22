@@ -31,7 +31,7 @@ final class CommitAction extends AbstractController
     ) {
     }
 
-    public function __invoke(Commit $data, Request $request)
+    public function __invoke(Commit $data, Request $request): JsonResponse
     {
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([

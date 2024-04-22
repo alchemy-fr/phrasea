@@ -16,7 +16,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -41,6 +40,7 @@ class CommitCrudController extends AbstractAdminCrudController
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->add(Crud::PAGE_INDEX, $triggerAgainAction);
     }
 
@@ -55,35 +55,27 @@ class CommitCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $userId = IdField::new('userId');
-        $user = $this->userChoiceField->create('userId', 'User');
-        $token = TextField::new('token');
-        $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
-        $formDataJson = TextareaField::new('formDataJson');
-        $optionsJson = TextareaField::new('optionsJson');
-        $notifyEmail = TextField::new('notifyEmail');
-        $id = IdField::new();
-        $totalSize = IntegerField::new('totalSize')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-        $formData = JsonField::new('formData');
-        $options = JsonField::new('options');
-        $locale = TextField::new('locale');
-        $acknowledgedAt = DateTimeField::new('acknowledgedAt');
-        $createdAt = DateTimeField::new('createdAt');
-        $assets = AssociationField::new('assets');
-        $target = AssociationField::new('target');
-        $assetCount = IntegerField::new('assetCount');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $userId, $assetCount, $token, $acknowledged, $totalSize, $notifyEmail, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $totalSize, $formData, $options, $userId, $token, $acknowledged, $notifyEmail, $locale, $acknowledgedAt, $createdAt, $assets, $target];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userId, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$user, $token, $acknowledged, $formDataJson, $optionsJson, $notifyEmail];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('target');
+        yield IdField::new('userId');
+        yield $this->userChoiceField->create('userId', 'User');
+        yield TextField::new('token')
+            ->hideOnIndex();
+        yield BooleanField::new('acknowledged')->renderAsSwitch(false);
+        yield TextField::new('notifyEmail')
+            ->hideOnIndex();
+        yield IntegerField::new('totalSize')
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig')
+            ->hideOnIndex();
+        yield JsonField::new('formData')
+            ->hideOnIndex();
+        yield JsonField::new('options')
+            ->hideOnIndex();
+        yield TextField::new('locale');
+        yield DateTimeField::new('acknowledgedAt');
+        yield DateTimeField::new('createdAt');
+        yield AssociationField::new('assets')
+            ->hideOnForm();
     }
 
     public function triggerAgain(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator)
