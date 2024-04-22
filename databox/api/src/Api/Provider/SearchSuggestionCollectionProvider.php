@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\SuggestionSearch;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class SearchSuggestionCollectionProvider implements ProviderInterface
 {

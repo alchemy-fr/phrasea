@@ -39,7 +39,7 @@ class ArrayWidgetResolver implements WidgetResolverInterface
     public function supports(array $config): bool
     {
         return in_array($config['type'], [
-                'array',
-            ], true);
+            'array',
+        ], true);
     }
 }

@@ -61,7 +61,7 @@ class TagFilterRuleRepository extends EntityRepository
             'objectType',
             'objectId',
             'userId',
-                 ] as $key) {
+        ] as $key) {
             if (!array_key_exists($key, $params)) {
                 throw new \InvalidArgumentException(sprintf('Missing "%s" key', $key));
             }
@@ -72,7 +72,7 @@ class TagFilterRuleRepository extends EntityRepository
             'userId' => 'uid',
             'objectType' => 'ot',
             'objectId' => 'oid',
-                 ] as $col => $alias) {
+        ] as $col => $alias) {
             if (isset($params[$col])) {
                 $queryBuilder
                     ->andWhere(sprintf('a.%s = :%s', $col, $alias))

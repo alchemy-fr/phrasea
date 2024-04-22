@@ -3,7 +3,6 @@
 namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
-use Alchemy\CoreBundle\Health\Checker\RabbitMQConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
@@ -84,7 +83,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
     {
         $def = new Definition(PsrLogMessageProcessor::class);
         $def->addTag('monolog.processor', [
-            'handler' =>'sentry',
+            'handler' => 'sentry',
         ]);
         $container->setDefinition(PsrLogMessageProcessor::class, $def);
     }
@@ -118,7 +117,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 'http_method_override' => false,
                 'session' => [
                     'handler_id' => RedisSessionHandler::class,
-                ]
+                ],
             ]);
         }
         if (isset($bundles['SentryBundle'])) {
@@ -129,7 +128,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     ],
                 ],
                 'messenger' => [
-                    'capture_soft_fails' =>  false,
+                    'capture_soft_fails' => false,
                 ],
                 'options' => [
                     'environment' => '%env(SENTRY_ENVIRONMENT)%',
@@ -150,7 +149,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         HttpException::class,
                         MethodNotAllowedHttpException::class,
                     ],
-                ]
+                ],
             ]);
 
             if (isset($bundles['MonologBundle'])) {

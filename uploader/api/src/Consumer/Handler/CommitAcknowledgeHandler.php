@@ -60,8 +60,9 @@ final readonly class CommitAcknowledgeHandler
                 'uploader/commit_acknowledged',
                 $commit->getLocale() ?? 'en',
                 [
-                'asset_count' => $commit->getAssets()->count(),
-            ]);
+                    'asset_count' => $commit->getAssets()->count(),
+                ]
+            );
         }
 
         $this->notifier->notifyTopic(

@@ -14,8 +14,8 @@ use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsEventListener(event: AclUpsertEvent::NAME, method: 'onAclUpsert')]

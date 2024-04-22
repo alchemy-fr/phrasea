@@ -6,7 +6,6 @@ namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\FileDelete;
-use App\Consumer\Handler\File\FileDeleteHandler;
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;

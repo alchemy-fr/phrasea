@@ -6,7 +6,6 @@ namespace App\Api\InputTransformer;
 
 use App\Api\Model\Input\RenditionInput;
 use App\Consumer\Handler\File\CopyFileToRendition;
-use App\Consumer\Handler\File\CopyFileToRenditionHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;

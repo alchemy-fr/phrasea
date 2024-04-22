@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\CollectionSearch;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class CollectionProvider extends AbstractCollectionProvider
 {

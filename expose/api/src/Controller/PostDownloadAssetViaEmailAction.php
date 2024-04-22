@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Consumer\Handler\DownloadRequestHandler;
-use App\Entity\DownloadRequest;
 use App\Consumer\Handler\DownloadRequest as DownloadRequestMessage;
+use App\Entity\DownloadRequest;
 use App\Report\ExposeLogActionInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

@@ -13,8 +13,7 @@ class JwtToken extends AbstractToken
     public function __construct(
         private readonly string $accessToken,
         array $roles = []
-    )
-    {
+    ) {
         parent::__construct($roles);
     }
 

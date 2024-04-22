@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class MoveCollectionProcessor implements ProcessorInterface
 {

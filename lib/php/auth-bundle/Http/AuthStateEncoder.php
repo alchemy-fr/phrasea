@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class AuthStateEncoder
 {
-    public function encodeState(string $redirectUri, string $clientId = null, bool $internal = null): string
+    public function encodeState(string $redirectUri, ?string $clientId = null, ?bool $internal = null): string
     {
         $params = [
             'r' => $redirectUri,

@@ -16,7 +16,7 @@ class ExpressionParser extends ExpressionLanguage
     public function evaluateJobExpression(
         string $expression,
         JobExecutionContext $context,
-        RunContext $runContext = null
+        ?RunContext $runContext = null
     ): mixed {
         $count = preg_match_all(self::DYNAMIC_PATTERN, $expression, $matches);
 
@@ -98,7 +98,7 @@ class ExpressionParser extends ExpressionLanguage
 
     private function createJobVariables(
         JobExecutionContext $context,
-        RunContext $runContext = null
+        ?RunContext $runContext = null
     ): array {
         $workflowState = $context->getWorkflowState();
         $jobState = $context->getJobState();

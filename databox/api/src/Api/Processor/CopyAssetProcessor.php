@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -13,7 +14,6 @@ use App\Asset\AssetCopier;
 use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;

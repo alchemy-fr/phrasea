@@ -16,8 +16,7 @@ class WebhookTrigger
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function triggerEvent(string $event, array $payload): void

@@ -12,8 +12,7 @@ final readonly class JobConsumerHandler
     public function __construct(
         private PlanExecutor $planExecutor,
         private WorkflowOrchestrator $orchestrator
-    )
-    {
+    ) {
     }
 
     public function __invoke(JobConsumer $message): void

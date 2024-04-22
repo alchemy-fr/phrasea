@@ -9,7 +9,6 @@ use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\AssetSourceInput;
 use App\Consumer\Handler\File\ImportFile;
-use App\Consumer\Handler\File\ImportFileHandler;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Asset;
 
 use App\Consumer\Handler\File\NewAssetFromBorder;
-use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -13,8 +12,8 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Security\RenditionPermissionManager;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class AssetCopier
 {

@@ -31,9 +31,9 @@ readonly class JobExecutor
         private ActionRegistryInterface $actionRegistry,
         private ExpressionParser $expressionParser,
         private StateRepositoryInterface $stateRepository,
-        OutputInterface $output = null,
-        LoggerInterface $logger = null,
-        EnvContainer $envs = null,
+        ?OutputInterface $output = null,
+        ?LoggerInterface $logger = null,
+        ?EnvContainer $envs = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
@@ -125,11 +125,7 @@ readonly class JobExecutor
                     $this->stateRepository->releaseJobLock($workflowId, $jobId);
                 }
             } catch (\Throwable $e2) {
-                throw new \RuntimeException(sprintf(
-                    'Error while releasing job lock after another error: %s (First error was: %s)',
-                    $e2->getMessage(),
-                    $e->getMessage(),
-                ), 0, $e);
+                throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
             }
 
             throw $e;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use App\Entity\WithOwnerIdInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use App\Entity\WithOwnerIdInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

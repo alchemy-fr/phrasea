@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Consumer\Handler\Asset\AssetDelete;
-use App\Consumer\Handler\Asset\AssetDeleteHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DeleteAssetByKeysAction extends AbstractController
 {

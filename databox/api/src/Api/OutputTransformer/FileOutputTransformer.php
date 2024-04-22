@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\File;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FileOutputTransformer implements OutputTransformerInterface

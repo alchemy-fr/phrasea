@@ -30,7 +30,7 @@ final class Version20230920160828 extends AbstractMigration
         foreach ([
             ['attribute_definition', 'fallback'],
             ['file', 'alternate_urls'],
-                 ] as $t) {
+        ] as $t) {
             [$table, $column] = $t;
             $rows = $connection->fetchAllAssociative(sprintf('SELECT "id", "%s" FROM "%s"', $column, $table));
 

@@ -33,7 +33,7 @@ final class DownloadUrlAction extends AbstractController
         $user = $this->getUser();
 
         $this->bus->dispatch(new Download(
-           $data->getUrl(),
+            $data->getUrl(),
             $user->getId(),
             $data->getTarget()->getId(),
             $data->getData(),

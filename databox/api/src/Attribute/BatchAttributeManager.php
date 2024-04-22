@@ -12,7 +12,6 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChanged;
-use App\Consumer\Handler\Asset\AttributeChangedEventHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;

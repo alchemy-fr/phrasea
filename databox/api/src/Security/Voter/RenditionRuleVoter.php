@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Workspace;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionRuleVoter extends AbstractVoter

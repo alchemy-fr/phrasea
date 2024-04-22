@@ -18,8 +18,7 @@ final readonly class AssetAcknowledgeHandler
     public function __construct(
         private MessageBusInterface $bus,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function __invoke(AssetAcknowledge $message): void

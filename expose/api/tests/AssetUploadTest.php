@@ -22,8 +22,8 @@ class AssetUploadTest extends AbstractExposeTestCase
                 'publication_id' => $publication->getId(),
                 'asset_id' => KeycloakClientTestMock::ADMIN_UID,
             ], [
-            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
-        ]);
+                'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+            ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (201 !== $response->getStatusCode()) {
             dump($response->getContent());

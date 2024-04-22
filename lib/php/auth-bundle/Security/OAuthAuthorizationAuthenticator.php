@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Http\AuthStateEncoder;
 use Alchemy\AuthBundle\Security\Badge\AccessTokenBadge;
 use Alchemy\AuthBundle\Security\Badge\RefreshTokenBadge;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,7 +53,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
 
         try {
             [$accessToken, $refreshToken] = $this->oauthClient->getTokenFromAuthorizationCode($code, $this->getRedirectUri());
-        } catch (InvalidArgumentException) {
+        } catch (\InvalidArgumentException) {
             throw new CustomUserMessageAuthenticationException('Invalid authorization code.');
         }
 
@@ -113,7 +112,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, ?AuthenticationException $authException = null)
     {
         $state = $this->authStateEncoder->encodeState($request->getUri());
 

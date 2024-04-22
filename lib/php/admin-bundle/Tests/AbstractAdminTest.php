@@ -26,7 +26,7 @@ abstract class AbstractAdminTest extends WebTestCase
         $this->client->followRedirects();
         $response = $this->client->getResponse();
         if (302 !== $response->getStatusCode()) {
-//            dump($response->getContent());
+            //            dump($response->getContent());
         }
 
         $this->assertEquals(302, $response->getStatusCode());

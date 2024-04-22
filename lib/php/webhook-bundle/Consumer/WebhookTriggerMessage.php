@@ -25,5 +25,4 @@ final readonly class WebhookTriggerMessage
     {
         return $this->payload;
     }
-
 }

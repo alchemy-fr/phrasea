@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeOutput;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 
 class AttributeOutputTransformer implements OutputTransformerInterface
 {

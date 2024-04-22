@@ -110,7 +110,7 @@ class EntityListener implements EventSubscriber
         return $this->entitySerializer->convertToDatabaseValue($class, $data);
     }
 
-    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, array $changeSet = null): void
+    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, ?array $changeSet = null): void
     {
         $event = $configNode['event'];
         $oid = spl_object_id($entity);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Entity\Core\AttributeDefinition;
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;

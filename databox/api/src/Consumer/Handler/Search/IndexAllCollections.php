@@ -7,5 +7,4 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 #[MessengerMessage('p1')]
 final readonly class IndexAllCollections
 {
-
 }

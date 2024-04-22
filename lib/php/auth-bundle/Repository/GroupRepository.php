@@ -6,7 +6,7 @@ namespace Alchemy\AuthBundle\Repository;
 
 class GroupRepository extends AbstractKeycloakRepository implements GroupRepositoryInterface
 {
-    public function getGroups(int $limit = null, int $offset = null, ?string $accessToken = null): array
+    public function getGroups(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array
     {
         if (null !== $accessToken) {
             return $this->oauthClient->getGroups($accessToken, $limit, $offset);

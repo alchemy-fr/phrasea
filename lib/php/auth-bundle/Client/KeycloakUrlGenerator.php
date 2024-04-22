@@ -12,7 +12,7 @@ final readonly class KeycloakUrlGenerator
     ) {
     }
 
-    public function getLogoutUrl(string $clientId = null, string $redirectUri = null): string
+    public function getLogoutUrl(?string $clientId = null, ?string $redirectUri = null): string
     {
         if (null === $clientId) {
             return $this->getOpenIdConnectBaseUrl().'/logout';
@@ -44,10 +44,10 @@ final readonly class KeycloakUrlGenerator
     public function getAuthorizeUrl(string $clientId, string $redirectUri, string $state = ''): string
     {
         return $this->getOpenIdConnectBaseUrl().sprintf(
-                '/auth?client_id=%s&response_type=code&redirect_uri=%s',
-                urlencode($clientId),
-                urlencode($redirectUri),
-            ).(!empty($state) ? '&state='.urlencode($state) : '');
+            '/auth?client_id=%s&response_type=code&redirect_uri=%s',
+            urlencode($clientId),
+            urlencode($redirectUri),
+        ).(!empty($state) ? '&state='.urlencode($state) : '');
     }
 
     private function getOpenIdConnectBaseUrl(): string

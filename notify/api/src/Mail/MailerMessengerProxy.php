@@ -38,10 +38,10 @@ final readonly class MailerMessengerProxy
         $this->mailer->validateParameters($template, $parameters);
 
         $this->bus->dispatch(new SendEmail(
-          $email,
-          $template,
-          $parameters,
-          $locale,
+            $email,
+            $template,
+            $parameters,
+            $locale,
         ));
     }
 

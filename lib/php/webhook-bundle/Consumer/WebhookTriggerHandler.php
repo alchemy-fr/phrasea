@@ -18,8 +18,7 @@ final readonly class WebhookTriggerHandler
     public function __construct(
         private Client $client,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function __invoke(WebhookTriggerMessage $message): void

@@ -33,11 +33,11 @@ class ProxyCachePurger
                         'application/json',
                         'application/ld+json',
                         'text/html',
-                             ] as $contentType) {
+                    ] as $contentType) {
                         foreach ([
                             $this->clientBaseUrl,
                             null,
-                                 ] as $origin) {
+                        ] as $origin) {
                             $this->client->get('/purge'.$uri, [
                                 'headers' => [
                                     'Accept' => $contentType,

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;
 use Symfony\Contracts\Service\Attribute\Required;

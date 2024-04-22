@@ -29,10 +29,10 @@ class NotifyUserHandlerTest extends WebTestCase
         );
 
         $message = new NotifyUser(
-           'a_user_id',
-           'tpl',
-           [],
-           [
+            'a_user_id',
+            'tpl',
+            [],
+            [
                 'email' => 'test@test.fr',
             ],
         );

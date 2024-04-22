@@ -6,7 +6,6 @@ namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\Workspace\OnWorkspaceDelete;
-use App\Consumer\Handler\Workspace\OnWorkspaceDeleteHandler;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;

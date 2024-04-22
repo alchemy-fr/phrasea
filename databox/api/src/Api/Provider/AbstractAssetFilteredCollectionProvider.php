@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

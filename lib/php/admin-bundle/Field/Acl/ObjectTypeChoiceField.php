@@ -14,7 +14,7 @@ class ObjectTypeChoiceField
         $this->objectMapping = $objectMapping;
     }
 
-    public function create(string $propertyName, string $label = null)
+    public function create(string $propertyName, ?string $label = null)
     {
         $choices = [];
         foreach ($this->objectMapping->getObjectTypes() as $name) {

@@ -10,8 +10,7 @@ final class AccessTokenBadge implements BadgeInterface
 {
     public function __construct(
         private readonly string $accessToken,
-    )
-    {
+    ) {
     }
 
     public function isResolved(): bool

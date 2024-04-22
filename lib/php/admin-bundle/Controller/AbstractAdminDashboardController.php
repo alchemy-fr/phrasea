@@ -7,7 +7,6 @@ namespace Alchemy\AdminBundle\Controller;
 use Alchemy\AdminBundle\AdminConfigRegistry;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
-use App\Configurator\Vendor\Keycloak\KeycloakInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Menu\SubMenuItem;

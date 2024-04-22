@@ -15,5 +15,4 @@ final readonly class AssetAcknowledge
     {
         return $this->id;
     }
-
 }

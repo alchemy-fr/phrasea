@@ -7,7 +7,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Entity\FailedEvent;
 use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Entity\TargetParams;

@@ -18,12 +18,12 @@ class NestedPublicationTest extends AbstractExposeTestCase
             'POST',
             '/publications',
             [
-            'parentId' => $id,
-            'title' => 'Sub Foo',
-            'config' => [
-                'layout' => 'download',
-            ],
-        ]
+                'parentId' => $id,
+                'title' => 'Sub Foo',
+                'config' => [
+                    'layout' => 'download',
+                ],
+            ]
         );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -49,11 +49,11 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $this->clearEmBeforeApiCall();
 
         foreach ([
-                     null,
-                     '*/*',
-                     'application/json',
-                     'application/ld+json',
-                 ] as $accept) {
+            null,
+            '*/*',
+            'application/json',
+            'application/ld+json',
+        ] as $accept) {
             $response = $this->request(
                 KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
                 'GET',

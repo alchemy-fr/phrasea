@@ -15,8 +15,7 @@ class KeycloakFaker extends BaseProvider
     public function __construct(
         Generator $generator,
         private readonly KeycloakClient $keycloakClient,
-    )
-    {
+    ) {
         parent::__construct($generator);
     }
 
@@ -41,7 +40,7 @@ class KeycloakFaker extends BaseProvider
                 'type' => 'password',
                 'value' => $password,
                 'temporary' => true,
-            ]]
+            ]],
         ], $this->accessToken);
 
         return $response['id'];

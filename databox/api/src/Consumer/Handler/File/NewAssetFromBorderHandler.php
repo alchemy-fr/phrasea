@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

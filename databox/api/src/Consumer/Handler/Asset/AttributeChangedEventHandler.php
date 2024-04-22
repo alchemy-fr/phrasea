@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Workflow\Event\AttributeUpdateWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

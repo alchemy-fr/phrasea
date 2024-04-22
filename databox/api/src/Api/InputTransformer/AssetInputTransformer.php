@@ -10,7 +10,6 @@ use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Asset\AssetManager;
 use App\Asset\OriginalRenditionManager;
 use App\Consumer\Handler\File\CopyFileToAsset;
-use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
 use App\Entity\Core\File;

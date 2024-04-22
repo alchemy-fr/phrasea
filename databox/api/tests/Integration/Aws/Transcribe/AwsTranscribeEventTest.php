@@ -63,8 +63,8 @@ EOL;
         return $apiClient->request(
             'POST',
             sprintf('/integrations/aws-transcribe/%s/events', $integrationId), [
-            'body' => $payload,
-        ]);
+                'body' => $payload,
+            ]);
     }
 
     private function createIntegration(): WorkspaceIntegration

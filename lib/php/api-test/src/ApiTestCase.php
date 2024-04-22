@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\ApiTest;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +21,7 @@ abstract class ApiTestCase extends WebTestCase
         ?array $params = null,
         array $files = [],
         array $server = [],
-        string $content = null
+        ?string $content = null
     ): Response {
         if (null !== $accessToken) {
             if (is_array($accessToken)) {

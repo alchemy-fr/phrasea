@@ -21,8 +21,8 @@ class TextareaWidgetResolver implements WidgetResolverInterface
     public function supports(array $config): bool
     {
         return in_array($config['type'], [
-                'string',
-            ], true)
+            'string',
+        ], true)
             && in_array($config['widget'], [
                 'textarea',
             ], true);

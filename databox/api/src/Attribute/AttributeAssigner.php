@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Attribute;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AbstractExtendedAttributeInput;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
-use Alchemy\CoreBundle\Util\LocaleUtil;
 
 final readonly class AttributeAssigner
 {

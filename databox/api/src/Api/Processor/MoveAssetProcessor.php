@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Consumer\Handler\Asset\AssetMove;
-use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class MoveAssetProcessor implements ProcessorInterface
 {

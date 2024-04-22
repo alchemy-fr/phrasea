@@ -19,4 +19,3 @@ final readonly class ConfirmSnsSubscriptionHandler
         $this->client->request('GET', $message->getUrl());
     }
 }
-

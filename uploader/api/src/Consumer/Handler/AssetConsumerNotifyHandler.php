@@ -31,7 +31,7 @@ final readonly class AssetConsumerNotifyHandler
             return;
         }
 
-        $assets = array_map(fn(Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray());
+        $assets = array_map(fn (Asset $asset): string => $asset->getId(), $commit->getAssets()->toArray());
         if (empty($assets)) {
             throw new \RuntimeException('There is no asset');
         }

@@ -46,7 +46,7 @@ class Notifier implements NotifierInterface, LoggerAwareInterface
         string $userId,
         string $template,
         array $parameters = [],
-        array $contactInfo = null
+        ?array $contactInfo = null
     ): void {
         $data = [
             'user_id' => $userId,

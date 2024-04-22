@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Client\KeycloakClient;
+use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token as TokenInterface;
@@ -21,8 +21,7 @@ final class JwtValidator implements JwtValidatorInterface
     public function __construct(
         private readonly KeycloakClient $authServiceClient,
         private readonly KeycloakUrlGenerator $keycloakUrlGenerator,
-    )
-    {
+    ) {
         $this->validator = new Validator();
     }
 

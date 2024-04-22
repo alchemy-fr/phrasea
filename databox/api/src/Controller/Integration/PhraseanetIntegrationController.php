@@ -6,14 +6,12 @@ namespace App\Controller\Integration;
 
 use App\Asset\FileUrlResolver;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
-use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
 use App\Integration\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodAction;
 use App\Security\JWTTokenManager;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +23,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_')]

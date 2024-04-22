@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
 use App\Consumer\Handler\ZippyDownloadRequest;
-use App\Consumer\Handler\ZippyDownloadRequestHandler;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;

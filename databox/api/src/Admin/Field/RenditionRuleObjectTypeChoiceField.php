@@ -13,9 +13,9 @@ class RenditionRuleObjectTypeChoiceField
     {
         $choices = [];
         foreach ([
-                     'Collection' => RenditionRule::TYPE_COLLECTION,
-                     'Workspace' => RenditionRule::TYPE_WORKSPACE,
-                 ] as $name => $code) {
+            'Collection' => RenditionRule::TYPE_COLLECTION,
+            'Workspace' => RenditionRule::TYPE_WORKSPACE,
+        ] as $name => $code) {
             $choices[$name] = $code;
         }
 

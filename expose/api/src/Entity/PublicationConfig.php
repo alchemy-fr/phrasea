@@ -143,7 +143,7 @@ class PublicationConfig implements MergeableValueObjectInterface
             'terms',
             'theme',
             'urls',
-                 ] as $property) {
+        ] as $property) {
             if (null !== $object->{$property}) {
                 if ($clone->{$property} instanceof MergeableValueObjectInterface) {
                     $clone->{$property}->mergeWith($object->{$property});

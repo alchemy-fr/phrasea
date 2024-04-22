@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Tests\Client;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
-use LogicException;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -28,11 +25,11 @@ class KeycloakClientTestMock implements HttpClientInterface
     private const USERS = [
         self::ADMIN_UID => [
             'username' => 'admin',
-            'roles' => ['admin']
+            'roles' => ['admin'],
         ],
         self::USER_UID => [
             'username' => 'user',
-            'roles' => []
+            'roles' => [],
         ],
     ];
 
@@ -44,11 +41,11 @@ class KeycloakClientTestMock implements HttpClientInterface
     {
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
-            InMemory::file(__DIR__ . '/key.pem'),
-            InMemory::file(__DIR__ . '/key.pub'),
+            InMemory::file(__DIR__.'/key.pem'),
+            InMemory::file(__DIR__.'/key.pub'),
         );
 
-        $now = new DateTimeImmutable();
+        $now = new \DateTimeImmutable();
         $token = $configuration
             ->builder()
             ->issuedBy(getenv('KEYCLOAK_URL').'/realms/phrasea')
@@ -94,7 +91,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]),
             str_ends_with($url, '/admin/realms/phrasea/users'),
             str_ends_with($url, '/admin/realms/phrasea/groups') => $this->createResponse($args, 200, []),
-            default => throw new InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported mock for URI "%s"', $url)),
         };
     }
 
@@ -111,9 +108,9 @@ class KeycloakClientTestMock implements HttpClientInterface
         return $client->request(...$args);
     }
 
-    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
+    public function stream(iterable|ResponseInterface $responses, ?float $timeout = null): ResponseStreamInterface
     {
-        throw new LogicException('Not implemented yet');
+        throw new \LogicException('Not implemented yet');
     }
 
     public function withOptions(array $options): static

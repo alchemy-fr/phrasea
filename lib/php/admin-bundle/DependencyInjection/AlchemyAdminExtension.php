@@ -82,39 +82,39 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
         $this->loadExternalConfig($container, $config['service']);
 
         $container->prependExtensionConfig('easy_admin', [
-                'site_name' => '%easy_admin.site_title%',
-                'formats' => [
-                    'date' => 'd/m/Y',
-                    'time' => 'H:i',
-                    'datetime' => 'd/m/Y H:i:s',
+            'site_name' => '%easy_admin.site_title%',
+            'formats' => [
+                'date' => 'd/m/Y',
+                'time' => 'H:i',
+                'datetime' => 'd/m/Y H:i:s',
+            ],
+            'show' => [
+                'max_results' => 100,
+            ],
+            'user' => [
+                'display_name' => true,
+                'display_avatar' => false,
+                'name_property_path' => 'username',
+            ],
+            'design' => [
+                'templates' => [
+                    'layout' => '@AlchemyAdmin/layout.html.twig',
+                    'list' => '@AlchemyAdmin/list.html.twig',
                 ],
-                'show' => [
-                    'max_results' => 100,
-                ],
-                'user' => [
-                    'display_name' => true,
-                    'display_avatar' => false,
-                    'name_property_path' => 'username',
-                ],
-                'design' => [
-                    'templates' => [
-                        'layout' => '@AlchemyAdmin/layout.html.twig',
-                        'list' => '@AlchemyAdmin/list.html.twig',
-                    ],
-                ],
-            ]
+            ],
+        ]
         );
 
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [
-                    'form_themes' => [
-                        'bootstrap_4_layout.html.twig',
-                    ],
-                    'globals' => [
-                        'dashboard_menu_url' => '%alchemy_admin.dashboard_menu_url%',
-                        'services_menu_enabled' => '%alchemy_admin.services_menu_enabled%',
-                    ],
-                ]
+                'form_themes' => [
+                    'bootstrap_4_layout.html.twig',
+                ],
+                'globals' => [
+                    'dashboard_menu_url' => '%alchemy_admin.dashboard_menu_url%',
+                    'services_menu_enabled' => '%alchemy_admin.services_menu_enabled%',
+                ],
+            ]
             );
         }
     }

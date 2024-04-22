@@ -12,8 +12,7 @@ abstract readonly class AbstractBatchHandler
     public function __construct(
         protected SearchIndexer $searchIndexer,
         protected EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     protected function doHandle(): void

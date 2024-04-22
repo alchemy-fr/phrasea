@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Asset\AssetCopier;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Workspace;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

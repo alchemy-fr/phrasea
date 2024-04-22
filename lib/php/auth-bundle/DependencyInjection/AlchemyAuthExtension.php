@@ -2,12 +2,10 @@
 
 namespace Alchemy\AuthBundle\DependencyInjection;
 
-use Alchemy\AuthBundle\Client\AdminClient;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
-use Alchemy\AuthBundle\Security\JwtValidator;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -62,8 +60,8 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                     'keycloak.client' => [
                         'base_uri' => '%env(KEYCLOAK_URL)%',
                         'verify_peer' => '%env(bool:VERIFY_SSL)%',
-                    ]
-                ]
+                    ],
+                ],
             ],
             'cache' => [
                 'pools' => [
@@ -71,9 +69,9 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                         'adapter' => 'cache.adapter.redis',
                         'provider' => '%env(REDIS_URL)%',
                         'default_lifetime' => 60,
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ]);
 
         $container->prependExtensionConfig('security', [

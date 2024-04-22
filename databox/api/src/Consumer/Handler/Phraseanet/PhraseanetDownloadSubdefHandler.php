@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Phraseanet;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Storage\RenditionManager;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 

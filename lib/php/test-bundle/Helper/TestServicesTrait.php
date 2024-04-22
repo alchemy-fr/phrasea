@@ -7,7 +7,6 @@ namespace Alchemy\TestBundle\Helper;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\SentStamp;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 

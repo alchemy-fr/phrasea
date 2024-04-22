@@ -18,11 +18,11 @@ class SubDefinitionUploadTest extends AbstractExposeTestCase
             KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             'POST',
             '/sub-definitions', [
-            'asset_id' => $assetId,
-            'name' => 'thumb',
-        ], [
-            'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
-        ]);
+                'asset_id' => $assetId,
+                'name' => 'thumb',
+            ], [
+                'file' => new UploadedFile(__DIR__.'/fixtures/32x32.jpg', '32x32.jpg', 'image/jpeg'),
+            ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         if (201 !== $response->getStatusCode()) {

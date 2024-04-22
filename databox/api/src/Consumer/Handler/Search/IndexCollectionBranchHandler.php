@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
