@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SendEmailCommand extends Command
 {
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private readonly MessageBusInterface $bus)
     {
         parent::__construct();
     }

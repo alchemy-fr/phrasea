@@ -5,36 +5,20 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class FileDeleteHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class FileDeleteHandler
 {
-    final public const EVENT = 'file_delete';
-
-    public function __construct(private readonly FileStorageManager $storageManager)
-    {
+    public function __construct(
+        private FileStorageManager $storageManager
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(FileDelete $message): void
     {
-        $payload = $message->getPayload();
-        $paths = $payload['paths'];
-
-        foreach ($paths as $path) {
+        foreach ($message->getPaths() as $path) {
             $this->storageManager->delete($path);
         }
-    }
-
-    public static function createEvent(array $paths): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'paths' => $paths,
-        ]);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

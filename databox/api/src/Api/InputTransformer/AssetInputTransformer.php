@@ -9,6 +9,7 @@ use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Asset\AssetManager;
 use App\Asset\OriginalRenditionManager;
+use App\Consumer\Handler\File\CopyFileToAsset;
 use App\Consumer\Handler\File\CopyFileToAssetHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
@@ -161,7 +162,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         if (null !== $file = $this->handleSource($data->sourceFile, $asset->getWorkspace())) {
             return $file;
         } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
-            $this->postFlushStackListener->addEvent(CopyFileToAssetHandler::createEvent($asset->getId(), $file->getId()));
+            $this->postFlushStackListener->addBusMessage(new CopyFileToAsset($asset->getId(), $file->getId()));
 
             return $file;
         } elseif (null !== $file = $this->handleUpload($asset->getWorkspace())) {

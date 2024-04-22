@@ -21,7 +21,7 @@ final class PostDownloadAssetViaEmailAction extends AbstractAssetAction
         string $publicationId,
         string $assetId,
         Request $request,
-        EventProducer $eventProducer
+        MessageBusInterface $bus
     ): Response {
         $publication = $this->getPublication($publicationId);
         $asset = $this->getAssetOfPublication($assetId, $publication);

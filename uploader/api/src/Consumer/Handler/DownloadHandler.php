@@ -23,7 +23,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         private readonly FileStorageManager $storageManager,
         private readonly HttpClientInterface $client,
         private readonly AssetManager $assetManager,
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $bus,
         private readonly PathGenerator $pathGenerator
     ) {
     }

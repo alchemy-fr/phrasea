@@ -52,17 +52,15 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->setTitle('<div>'.($this->adminConfigRegistry->getSiteLogo() ?: '').'<div>'.$this->adminConfigRegistry->getSiteTitle().'</div></div>');
     }
 
-    protected function createDevMenu(string $failedEventClass): SubMenuItem
+    protected function createDevMenu(): SubMenuItem
     {
-        $submenu2 = [
-            MenuItem::linkToCrud('FailedEvent', '', $failedEventClass)->setPermission(JwtUser::ROLE_TECH),
-        ];
+        $subMenu = [];
         if (class_exists(MessengerMessage::class)) {
-            $submenu2[] = MenuItem::linkToCrud('Messenger Failed Events', null, MessengerMessage::class);
+            $subMenu[] = MenuItem::linkToCrud('Messenger Failed Events', null, MessengerMessage::class);
         }
-        $submenu2[] = MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
+        $subMenu[] = MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
 
-        return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu2)->setPermission(JwtUser::ROLE_TECH);
+        return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
     }
 
     #[Required]

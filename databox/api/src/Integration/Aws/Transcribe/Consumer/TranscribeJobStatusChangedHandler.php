@@ -7,24 +7,23 @@ namespace App\Integration\Aws\Transcribe\Consumer;
 use App\Integration\IntegrationManager;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
 use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class TranscribeJobStatusChangedHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class TranscribeJobStatusChangedHandler
 {
-    final public const EVENT = 'aws_transcribe.job_status_changed';
-
-    public function __construct(private readonly IntegrationManager $integrationManager)
+    public function __construct(private IntegrationManager $integrationManager)
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(TranscribeJobStatusChanged $message): void
     {
-        $payload = $message->getPayload();
-        $message = $payload['message'];
-        $detail = $message['detail'];
+        $msg = $message->getMessage();
+        $detail = $msg['detail'];
 
         if ('COMPLETED' === $detail['TranscriptionJobStatus']) {
-            $this->integrationManager->callIntegrationFunction($payload['integrationId'], 'handlePostComplete', [
-                'message' => $message,
+            $this->integrationManager->callIntegrationFunction($message->getIntegrationId(), 'handlePostComplete', [
+                'message' => $msg,
             ]);
         }
 
@@ -100,17 +99,21 @@ class TranscribeJobStatusChangedHandler extends AbstractEntityManagerHandler
   ]
          */
     }
+}
 
-    public static function getHandledEvents(): array
+final readonly class TranscribeJobStatusChanged
+{
+    public function __construct(private string $integrationId, private array $message)
     {
-        return [self::EVENT];
     }
 
-    public static function createEvent(string $integrationId, array $message): EventMessage
+    public function getIntegrationId(): string
     {
-        return new EventMessage(self::EVENT, [
-            'integrationId' => $integrationId,
-            'message' => $message,
-        ]);
+        return $this->integrationId;
+    }
+
+    public function getMessage(): array
+    {
+        return $this->message;
     }
 }

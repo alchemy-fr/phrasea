@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Consumer\Handler\Workspace\OnWorkspaceDelete;
 use App\Consumer\Handler\Workspace\OnWorkspaceDeleteHandler;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -24,7 +25,7 @@ readonly class WorkspaceListener implements EventSubscriber
         $object = $args->getObject();
 
         if ($object instanceof Workspace) {
-            $this->postFlushStack->addEvent(OnWorkspaceDeleteHandler::createEvent($object->getId()));
+            $this->postFlushStack->addBusMessage(new OnWorkspaceDelete($object->getId()));
         }
     }
 

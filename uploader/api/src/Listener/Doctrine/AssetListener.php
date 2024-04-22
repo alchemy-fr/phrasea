@@ -16,7 +16,7 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(Events::postRemove)]
 readonly class AssetListener implements EventSubscriber
 {
-    public function __construct(private EventProducer $eventProducer)
+    public function __construct(private MessageBusInterface $bus)
     {
     }
 

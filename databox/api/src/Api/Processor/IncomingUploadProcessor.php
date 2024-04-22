@@ -7,14 +7,13 @@ namespace App\Api\Processor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
-use App\Border\Consumer\Handler\Uploader\UploaderNewCommitHandler;
+use App\Border\Consumer\Handler\Uploader\UploaderNewCommit;
 use App\Border\Model\Upload\IncomingUpload;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class IncomingUploadProcessor implements ProcessorInterface
 {
-    public function __construct(private EventProducer $eventProducer)
+    public function __construct(private MessageBusInterface $bus)
     {
     }
 
@@ -24,7 +23,7 @@ readonly class IncomingUploadProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): IncomingUpload
     {
         if ($operation instanceof Post) {
-            $this->eventProducer->publish(new EventMessage(UploaderNewCommitHandler::EVENT, $data->toArray()));
+            $this->bus->dispatch(new UploaderNewCommit($data->toArray()));
         }
 
         return $data;

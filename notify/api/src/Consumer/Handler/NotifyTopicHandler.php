@@ -13,7 +13,7 @@ class NotifyTopicHandler extends AbstractLogHandler
 {
     final public const EVENT = 'notify_topic';
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly TopicManager $topicManager)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly TopicManager $topicManager)
     {
     }
 

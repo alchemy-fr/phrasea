@@ -5,9 +5,10 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use App\Consumer\Handler\Search\ESPopulate;
 use App\Consumer\Handler\Search\ESPopulateHandler;
 use App\Entity\Admin\PopulatePass;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -26,8 +27,10 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         return PopulatePass::class;
     }
 
-    public function __construct(private readonly AdminUrlGenerator $adminUrlGenerator, private readonly EventProducer $eventProducer)
-    {
+    public function __construct(
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly MessageBusInterface $bus
+    ) {
     }
 
     public function configureActions(Actions $actions): Actions
@@ -82,7 +85,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
     public function addPopulate(): Response
     {
-        $this->eventProducer->publish(ESPopulateHandler::createEvent());
+        $this->bus->dispatch(new ESPopulate());
 
         $this->addFlash('info', 'Populate command was triggered');
 

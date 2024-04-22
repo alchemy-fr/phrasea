@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
+use App\Consumer\Handler\File\NewAssetFromBorder;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -12,7 +13,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Security\RenditionPermissionManager;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
@@ -22,7 +23,7 @@ class AssetCopier
 
     private array $fileCopies = [];
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly FileCopier $fileCopier)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly FileCopier $fileCopier)
     {
     }
 
@@ -52,7 +53,7 @@ class AssetCopier
                 $file = $this->copyFile($asset->getSource(), $workspace);
                 $this->em->flush();
 
-                $this->eventProducer->publish(NewAssetFromBorderHandler::createEvent(
+                $this->bus->dispatch(new NewAssetFromBorder(
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],

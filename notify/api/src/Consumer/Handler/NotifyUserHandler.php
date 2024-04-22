@@ -13,7 +13,7 @@ class NotifyUserHandler extends AbstractLogHandler
 {
     final public const EVENT = 'notify_user';
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly ContactManager $contactManager)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly ContactManager $contactManager)
     {
     }
 

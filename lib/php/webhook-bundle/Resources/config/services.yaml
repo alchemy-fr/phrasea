@@ -13,13 +13,10 @@ services:
   Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
     arguments:
       $client: '@alchemy.webhook_client'
-    tags: ['arthem_rabbit.event_handler']
 
-  Alchemy\WebhookBundle\Consumer\SerializeObjectHandler:
-    tags: ['arthem_rabbit.event_handler']
+  Alchemy\WebhookBundle\Consumer\SerializeObjectHandler: ~
 
-  Alchemy\WebhookBundle\Consumer\WebhookHandler:
-    tags: ['arthem_rabbit.event_handler']
+  Alchemy\WebhookBundle\Consumer\WebhookHandler: ~
 
   Alchemy\WebhookBundle\Doctrine\Listener\EntityListener: ~
 

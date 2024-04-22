@@ -7,41 +7,27 @@ namespace App\Consumer\Handler\File;
 use App\Asset\FileFetcher;
 use App\Entity\Core\File;
 use App\Storage\FileManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use App\Util\DoctrineUtil;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Header;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\HttpClient\Exception\ClientException;
 
-class ImportFileHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class ImportFileHandler
 {
-    final public const EVENT = 'import_file';
-
     public function __construct(
-        private readonly FileManager $fileManager,
-        private readonly FileFetcher $fileFetcher,
+        private FileManager $fileManager,
+        private FileFetcher $fileFetcher,
+        private EntityManagerInterface $em,
+        private LoggerInterface $logger,
     ) {
     }
 
-    public static function createEvent(string $fileId): EventMessage
+    public function __invoke(ImportFile $message): void
     {
-        $payload = [
-            'id' => $fileId,
-        ];
-
-        return new EventMessage(self::EVENT, $payload);
-    }
-
-    public function handle(EventMessage $message): void
-    {
-        $payload = $message->getPayload();
-        $id = $payload['id'];
-
-        $em = $this->getEntityManager();
-        $file = $em->find(File::class, $id);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $id, self::class);
-        }
+        $file = DoctrineUtil::findStrict($this->em, File::class, $message->getFileId());
 
         if (!$file->isPathPublic()) {
             throw new \InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
@@ -94,15 +80,10 @@ class ImportFileHandler extends AbstractEntityManagerHandler
             $file->setPath($finalPath);
             $file->setStorage(File::STORAGE_S3_MAIN);
             $file->setPathPublic(true);
-            $em->persist($file);
-            $em->flush();
+            $this->em->persist($file);
+            $this->em->flush();
         } finally {
             unlink($src);
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

@@ -80,12 +80,8 @@ final class ArthemToMessengerRector extends AbstractScopeAwareRector
         return $node;
     }
 
-    private function isHandler(Class_ $class, int $depth = 0): bool
+    private function isHandler(Class_ $class): bool
     {
-        if ($depth > 20) {
-            return false;
-        }
-
         $ancestors = $this->familyRelationsAnalyzer->getClassLikeAncestorNames($class);
 
         if (in_array(EventMessageHandlerInterface::class, $ancestors, true)) {

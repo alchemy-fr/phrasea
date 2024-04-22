@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class MailerRabbitProxy
 {
-    public function __construct(private EventProducer $eventProducer, private Mailer $mailer)
+    public function __construct(private MessageBusInterface $bus, private Mailer $mailer)
     {
     }
 

@@ -6,33 +6,29 @@ namespace Alchemy\WebhookBundle\Consumer;
 
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 
-class WebhookTriggerHandler extends AbstractEntityManagerHandler
+final readonly class WebhookTriggerHandler
 {
-    private const EVENT = 'webhook_trigger';
-    final public const TEST_EVENT = '_test';
-
-    public function __construct(private readonly Client $client)
+    public function __construct(
+        private Client $client,
+        private EntityManagerInterface $em,
+    )
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(WebhookTriggerMessage $message): void
     {
-        $p = $message->getPayload();
-        $id = $p['id'];
-        $event = $p['event'];
-        $payload = $p['payload'];
+        $id = $message->getWebhookId();
+        $event = $message->getEvent();
+        $payload = $message->getPayload();
 
-        $em = $this->getEntityManager();
-        $webhook = $em->find(Webhook::class, $id);
+        $webhook = $this->em->find(Webhook::class, $id);
         if (!$webhook instanceof Webhook) {
-            throw new ObjectNotFoundForHandlerException(Webhook::class, $id, self::class);
+            throw new \InvalidArgumentException(sprintf('%s %s not found', Webhook::class, $id));
         }
 
         if (!$webhook->isActive()) {
@@ -71,22 +67,8 @@ class WebhookTriggerHandler extends AbstractEntityManagerHandler
             $log->setWebhook($webhook);
             $log->setPayload($payload);
 
-            $em->persist($log);
-            $em->flush();
+            $this->em->persist($log);
+            $this->em->flush();
         }
-    }
-
-    public static function createEvent(string $webhookId, string $event, array $payload): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'id' => $webhookId,
-            'event' => $event,
-            'payload' => $payload,
-        ]);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

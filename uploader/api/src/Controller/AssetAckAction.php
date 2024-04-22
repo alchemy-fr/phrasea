@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class AssetAckAction extends AbstractController
 {
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private readonly MessageBusInterface $bus)
     {
     }
 

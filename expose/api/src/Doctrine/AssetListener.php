@@ -28,7 +28,7 @@ class AssetListener implements EventSubscriber
     private array $eventStack = [];
     private array $positionCache = [];
 
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private readonly MessageBusInterface $bus)
     {
     }
 

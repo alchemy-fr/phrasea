@@ -6,21 +6,22 @@ namespace App\Consumer\Handler\Workspace;
 
 use App\Entity\Core\RenditionRule;
 use App\Entity\Core\TagFilterRule;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class OnWorkspaceDeleteHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class OnWorkspaceDeleteHandler
 {
-    final public const EVENT = 'on_workspace_delete';
+    public function __construct(
+        private EntityManagerInterface $em,
+    ) {
+    }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(OnWorkspaceDelete $message): void
     {
-        $payload = $message->getPayload();
-        $id = $payload['id'];
+        $id = $message->getWorkspaceId();
 
-        $em = $this->getEntityManager();
-
-        $em->getRepository(TagFilterRule::class)
+        $this->em->getRepository(TagFilterRule::class)
             ->createQueryBuilder('t')
             ->delete()
             ->andWhere('t.objectType = :type')
@@ -29,7 +30,8 @@ class OnWorkspaceDeleteHandler extends AbstractEntityManagerHandler
             ->setParameter('id', $id)
             ->getQuery()
             ->execute();
-        $em->getRepository(RenditionRule::class)
+
+        $this->em->getRepository(RenditionRule::class)
             ->createQueryBuilder('t')
             ->delete()
             ->andWhere('t.objectType = :type')
@@ -38,17 +40,5 @@ class OnWorkspaceDeleteHandler extends AbstractEntityManagerHandler
             ->setParameter('id', $id)
             ->getQuery()
             ->execute();
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function createEvent(string $id): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'id' => $id,
-        ]);
     }
 }

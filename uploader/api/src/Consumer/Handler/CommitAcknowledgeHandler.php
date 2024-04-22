@@ -16,7 +16,7 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'commit_ack';
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly NotifierInterface $notifier, private readonly int $deleteAssetGracefulTime)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly NotifierInterface $notifier, private readonly int $deleteAssetGracefulTime)
     {
     }
 

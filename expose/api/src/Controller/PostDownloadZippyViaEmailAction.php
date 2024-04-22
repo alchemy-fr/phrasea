@@ -27,7 +27,7 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
     {
     }
 
-    public function __invoke(string $id, Request $request, EventProducer $eventProducer): Response
+    public function __invoke(string $id, Request $request, MessageBusInterface $bus): Response
     {
         /** @var Publication|null $publication */
         $publication = $this->em->find(Publication::class, $id);

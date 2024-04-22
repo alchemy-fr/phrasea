@@ -26,9 +26,6 @@ class AwsTranscribeEventTest extends ApiTestCase
     {
         self::enableFixtures();
 
-        $eventProducer = self::getService(EventProducer::class);
-        $eventProducer->interceptEvents();
-
         $apiClient = static::createClient();
         $apiClient->disableReboot();
 
@@ -51,11 +48,6 @@ EOL;
 
         $this->triggerEvent($apiClient, $wsIntegration->getId(), $payload);
         $this->assertResponseStatusCodeSame(200);
-
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(AwsTranscribeEventHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-
         $this->assertHasData($wsIntegration->getId(), AwsTranscribeEventHandler::DATA_EVENT_MESSAGE, 1);
     }
 

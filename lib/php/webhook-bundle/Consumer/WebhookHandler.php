@@ -5,33 +5,15 @@ declare(strict_types=1);
 namespace Alchemy\WebhookBundle\Consumer;
 
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 
-class WebhookHandler extends AbstractEntityManagerHandler
+final readonly class WebhookHandler
 {
-    private const EVENT = 'webhook';
-
-    public function __construct(private readonly WebhookTrigger $webhookTrigger)
+    public function __construct(private WebhookTrigger $webhookTrigger)
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(WebhookEvent $message): void
     {
-        $p = $message->getPayload();
-        $this->webhookTrigger->triggerEvent($p['event'], $p['payload']);
-    }
-
-    public static function createEvent(string $event, array $payload): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'event' => $event,
-            'payload' => $payload,
-        ]);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
+        $this->webhookTrigger->triggerEvent($message->getEvent(), $message->getPayload());
     }
 }

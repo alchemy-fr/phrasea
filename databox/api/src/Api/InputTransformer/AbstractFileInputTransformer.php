@@ -8,6 +8,7 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\AssetSourceInput;
+use App\Consumer\Handler\File\ImportFile;
 use App\Consumer\Handler\File\ImportFileHandler;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
@@ -96,8 +97,7 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $this->em->persist($file);
 
         if ($source->importFile) {
-            $this->postFlushStackListener
-                ->addEvent(ImportFileHandler::createEvent($file->getId()));
+            $this->postFlushStackListener->addBusMessage(new ImportFile($file->getId()));
         }
 
         return $file;

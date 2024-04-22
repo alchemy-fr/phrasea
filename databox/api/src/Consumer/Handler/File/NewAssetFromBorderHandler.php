@@ -8,73 +8,44 @@ use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use App\Util\DoctrineUtil;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class NewAssetFromBorderHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class NewAssetFromBorderHandler
 {
-    final public const EVENT = 'new_asset_from_border';
-
-    public function __construct(private readonly AssetManager $assetManager)
-    {
+    public function __construct(
+        private AssetManager $assetManager,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(NewAssetFromBorder $message): void
     {
-        $payload = $message->getPayload();
-        $id = $payload['fileId'];
-        $collectionIds = $payload['collections'];
-        $formData = $payload['formData'] ?? [];
-        $locale = $payload['locale'] ?? null;
+        $collectionIds = $message->getCollectionIds();
+        $title = $message->getTitle();
+        $filename = $message->getFilename();
+        $formData = $message->getFormData();
+        $locale = $message->getLocale();
 
-        $em = $this->getEntityManager();
-        $file = $em->find(File::class, $id);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $id, self::class);
-        }
+        $file = DoctrineUtil::findStrict($this->em, File::class, $message->getFileId());
 
-        $collections = $em->getRepository(Collection::class)->findByIds($collectionIds);
+        $collections = $this->em->getRepository(Collection::class)->findByIds($collectionIds);
 
         $asset = new Asset();
 
         $asset->setSource($file);
-        $asset->setOwnerId($payload['userId']);
-        $asset->setTitle($payload['title'] ?? $payload['filename'] ?? $file->getPath());
-        $workspace = $file->getWorkspace();
-        $asset->setWorkspace($workspace);
+        $asset->setOwnerId($message->getUserId());
+        $asset->setTitle($title ?? $filename ?? $file->getPath());
+        $asset->setWorkspace($file->getWorkspace());
 
         foreach ($collections as $collection) {
             $assetCollection = $asset->addToCollection($collection);
-            $em->persist($assetCollection);
+            $this->em->persist($assetCollection);
         }
 
         $this->assetManager->assignNewAssetSourceFile($asset, $file, $formData, $locale);
-        $em->flush();
-    }
-
-    public static function createEvent(
-        string $userId,
-        string $fileId,
-        array $collections,
-        ?string $title = null,
-        ?string $filename = null,
-        ?array $formData = null,
-        ?string $locale = null
-    ): EventMessage {
-        return new EventMessage(self::EVENT, [
-            'userId' => $userId,
-            'fileId' => $fileId,
-            'collections' => $collections,
-            'title' => $title,
-            'filename' => $filename,
-            'formData' => $formData,
-            'locale' => $locale,
-        ]);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
+        $this->em->flush();
     }
 }

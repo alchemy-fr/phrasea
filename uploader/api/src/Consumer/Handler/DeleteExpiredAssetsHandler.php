@@ -16,7 +16,7 @@ class DeleteExpiredAssetsHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'delete_expired_assets';
 
-    public function __construct(private readonly EventProducer $eventProducer, private readonly int $deleteAssetGracefulTime)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly int $deleteAssetGracefulTime)
     {
     }
 

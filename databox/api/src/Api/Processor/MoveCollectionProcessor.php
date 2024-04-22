@@ -10,7 +10,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
 use App\Util\SecurityAwareTrait;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -20,7 +20,7 @@ class MoveCollectionProcessor implements ProcessorInterface
     use SecurityAwareTrait;
 
     public function __construct(
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter
     ) {

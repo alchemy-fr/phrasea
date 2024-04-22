@@ -20,7 +20,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudController
 {
-    private EventProducer $eventProducer;
+    private MessageBusInterface $bus;
     private EntityManagerInterface $em;
 
     public static function getEntityFqcn(): string
@@ -108,7 +108,7 @@ abstract class AbstractAdminFailedEventCrudController extends AbstractAdminCrudC
     }
 
     #[Required]
-    public function setEventProducer(EventProducer $eventProducer): void
+    public function setEventProducer(MessageBusInterface $bus): void
     {
         $this->eventProducer = $eventProducer;
     }

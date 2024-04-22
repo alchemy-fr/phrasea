@@ -4,14 +4,21 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Alchemy\ESBundle\Indexer\SearchIndexer;
+use Doctrine\ORM\EntityManagerInterface;
 
-abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
+abstract readonly class AbstractBatchHandler
 {
-    public function handle(EventMessage $message): void
+    public function __construct(
+        protected SearchIndexer $searchIndexer,
+        protected EntityManagerInterface $em,
+    )
     {
-        $iterator = $this->getIterator($message);
+    }
+
+    protected function doHandle(): void
+    {
+        $iterator = $this->getIterator();
         $batchSize = $this->getBatchSize();
 
         $stack = [];
@@ -30,7 +37,7 @@ abstract class AbstractBatchHandler extends AbstractEntityManagerHandler
         }
     }
 
-    abstract protected function getIterator(EventMessage $message): iterable;
+    abstract protected function getIterator(): iterable;
 
     abstract protected function flushIndexStack(array $stack): void;
 

@@ -45,6 +45,6 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::linkToCrud('EnvVar', 'fas fa-folder-open', EnvVar::class);
-        yield $this->createDevMenu(FailedEvent::class);
+        yield $this->createDevMenu();
     }
 }

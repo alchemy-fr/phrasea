@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Integration;
 
 use App\Asset\FileUrlResolver;
+use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
 use App\Entity\Core\Asset;
 use App\Integration\IntegrationManager;
@@ -12,7 +13,7 @@ use App\Integration\Phraseanet\PhraseanetGenerateAssetRenditionsEnqueueMethodAct
 use App\Security\JWTTokenManager;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -108,7 +109,7 @@ class PhraseanetIntegrationController extends AbstractController
     #[Route(path: '/{integrationId}/events', name: 'webhook_event', methods: ['POST'])]
     public function webhookEventAction(
         Request $request,
-        EventProducer $eventProducer,
+        MessageBusInterface $bus,
         LoggerInterface $logger
     ): Response {
         $json = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -125,7 +126,7 @@ class PhraseanetIntegrationController extends AbstractController
                     $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));
-                    $eventProducer->publish(PhraseanetDownloadSubdefHandler::createEvent(
+                    $bus->dispatch(new PhraseanetDownloadSubdef(
                         $assetId,
                         (string) $data['databox_id'],
                         (string) $data['record_id'],

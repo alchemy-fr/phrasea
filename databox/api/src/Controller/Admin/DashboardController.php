@@ -115,7 +115,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);
-        yield $this->createDevMenu(FailedEvent::class);
+        yield $this->createDevMenu();
         yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);
     }
 }

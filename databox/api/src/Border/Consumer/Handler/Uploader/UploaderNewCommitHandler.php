@@ -7,18 +7,17 @@ namespace App\Border\Consumer\Handler\Uploader;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Border\Model\Upload\IncomingUpload;
 use App\Workflow\Event\IncomingUploaderFileWorkflowEvent;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class UploaderNewCommitHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class UploaderNewCommitHandler
 {
-    final public const EVENT = 'uploader_new_commit';
-
-    public function __construct(private readonly WorkflowOrchestrator $workflowOrchestrator)
-    {
+    public function __construct(
+        private WorkflowOrchestrator $workflowOrchestrator
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(UploaderNewCommit $message): void
     {
         $upload = IncomingUpload::fromArray($message->getPayload());
 
@@ -29,10 +28,5 @@ class UploaderNewCommitHandler extends AbstractEntityManagerHandler
                 $upload->token,
             ));
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

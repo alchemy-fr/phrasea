@@ -6,31 +6,25 @@ namespace App\Consumer\Handler\Search\Mapping;
 
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Workspace;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use App\Util\DoctrineUtil;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class UpdateAttributesMappingHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class UpdateAttributesMappingHandler
 {
-    final public const EVENT = 'update_attr_mapping';
-
-    public function __construct(private readonly IndexMappingUpdater $indexMappingUpdater)
+    public function __construct(
+        private IndexMappingUpdater $indexMappingUpdater,
+        private EntityManagerInterface $em,
+    )
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(UpdateAttributesMapping $message): void
     {
-        $payload = $message->getPayload();
-        $id = $payload['id'];
-
-        $em = $this->getEntityManager();
         /** @var Workspace $workspace */
-        $workspace = $em->find(Workspace::class, $id);
+        $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $message->getId());
 
         $this->indexMappingUpdater->synchronizeWorkspace($workspace);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

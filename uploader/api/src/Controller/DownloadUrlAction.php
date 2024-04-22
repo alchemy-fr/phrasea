@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class DownloadUrlAction extends AbstractController
 {
     public function __construct(
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $bus,
         private readonly FormValidator $formValidator
     ) {
     }

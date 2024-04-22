@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CommitAction extends AbstractController
 {
-    public function __construct(private readonly AssetManager $assetManager, private readonly EventProducer $eventProducer, private readonly FormValidator $formValidator, private readonly CommitValidator $commitValidator, private readonly ReportUserService $reportClient, private readonly EntityManagerInterface $em)
+    public function __construct(private readonly AssetManager $assetManager, private readonly MessageBusInterface $bus, private readonly FormValidator $formValidator, private readonly CommitValidator $commitValidator, private readonly ReportUserService $reportClient, private readonly EntityManagerInterface $em)
     {
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Consumer\Handler\File\FileDelete;
 use App\Consumer\Handler\File\FileDeleteHandler;
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -25,7 +26,7 @@ readonly class FileListener implements EventSubscriber
 
         if ($object instanceof File) {
             if (File::STORAGE_S3_MAIN === $object->getStorage()) {
-                $this->postFlushStack->addEvent(FileDeleteHandler::createEvent([$object->getPath()]));
+                $this->postFlushStack->addBusMessage(new FileDelete([$object->getPath()]));
             }
         }
     }

@@ -1,0 +1,7 @@
+<?php
+
+namespace App\Consumer\Handler\Search;
+
+final readonly class ESPopulate
+{
+}

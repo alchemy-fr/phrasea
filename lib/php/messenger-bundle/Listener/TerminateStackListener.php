@@ -20,14 +20,6 @@ final class TerminateStackListener
     private array $messages = [];
     private array $events = [];
 
-    private EventProducer $eventProducer;
-
-    #[Required]
-    public function setEventProducer(EventProducer $eventProducer)
-    {
-        $this->eventProducer = $eventProducer;
-    }
-
     public function __construct(
         private readonly MessageBusInterface $bus,
     ) {

@@ -19,18 +19,10 @@ final class PostFlushStack
     private array $messages = [];
     private array $events = [];
 
-    private EventProducer $eventProducer;
-
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly TerminateStackListener $terminateStackListener,
     ) {
-    }
-
-    #[Required]
-    public function setEventProducer(EventProducer $eventProducer)
-    {
-        $this->eventProducer = $eventProducer;
     }
 
     public function addCallback(callable $callback): void

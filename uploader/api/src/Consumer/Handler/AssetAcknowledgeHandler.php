@@ -14,7 +14,7 @@ class AssetAcknowledgeHandler extends AbstractEntityManagerHandler
 {
     final public const EVENT = 'asset_ack';
 
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private readonly MessageBusInterface $bus)
     {
     }
 

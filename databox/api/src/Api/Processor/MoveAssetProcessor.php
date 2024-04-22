@@ -8,11 +8,12 @@ use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\MoveAssetInput;
+use App\Consumer\Handler\Asset\AssetMove;
 use App\Consumer\Handler\Asset\AssetMoveHandler;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use App\Util\SecurityAwareTrait;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,7 +22,7 @@ class MoveAssetProcessor implements ProcessorInterface
     use SecurityAwareTrait;
 
     public function __construct(
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter
     ) {
@@ -40,7 +41,7 @@ class MoveAssetProcessor implements ProcessorInterface
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);
-            $this->eventProducer->publish(AssetMoveHandler::createEvent($asset->getId(), $data->destination));
+            $this->bus->dispatch(new AssetMove($asset->getId(), $data->destination));
         }
 
         return new Response('', 204);
