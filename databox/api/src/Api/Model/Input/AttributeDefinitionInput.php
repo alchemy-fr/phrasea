@@ -93,4 +93,9 @@ class AttributeDefinitionInput
      * @var array|null
      */
     public $labels;
+
+    /**
+     * @var int
+     */
+    public $position;
 }

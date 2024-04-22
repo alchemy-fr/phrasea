@@ -81,6 +81,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $labels = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public int $position = 0;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $canEdit = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

@@ -65,6 +65,10 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 continue;
             }
 
+            logger.info(
+                `Start indexing databox "${databox.name}" (#${databox.databox_id}) to workspace "${dm.workspaceSlug}"`
+            );
+
             // scan the conf.fieldMap to get a list of required locales
             const fieldMap = new Map<string, FieldMap>(Object.entries(dm.fieldMap ?? {}));
             let locales: string[] = [];
@@ -89,72 +93,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             if (options.createNewWorkspace) {
                 logger.info(`Flushing databox workspace "${dm.workspaceSlug}"`);
                 workspaceId = await databoxClient.flushWorkspace(workspaceId);
-            }
-
-
-            logger.info(
-                `Start indexing databox "${databox.name}" (#${databox.databox_id}) to workspace "${dm.workspaceSlug}"`
-            );
-
-            const sourceCollections: string[] = [];
-            if(dm.collections) {
-                for (const c of dm.collections.split(',')) {
-                    const collection = databox.collections[c.trim()];
-                    if (collection == undefined) {
-                        logger.info(
-                            `Unknown collection "${c.trim()}" into databox "${
-                                databox.name
-                            }" (#${databox.databox_id}) (ignored)`
-                        );
-                        continue;
-                    }
-                    sourceCollections.push(collection.base_id.toString());
-                }
-                if(sourceCollections.length === 0) {
-                    logger.info(`No collection found for "${
-                        dm.collections
-                    }" into databox "${
-                        databox.name
-                    }" (#${databox.databox_id}) (databox ignored)`);
-                }
-            }
-            else {
-                for(const baseId of databox.baseIds) {
-                    sourceCollections.push(baseId);
-                }
-            }
-
-            const collectionKeyPrefix =
-                idempotencePrefixes['collection'] +
-                databox.databox_id.toString() +
-                ':';
-
-            const branch = splitPath(dm.recordsCollectionPath ?? '');
-            await databoxClient.createCollectionTreeBranch(
-                workspaceId,
-                collectionKeyPrefix,
-                branch.map(k => ({
-                    key: k,
-                    title: k,
-                }))
-            );
-            logger.info(`Created records collection: "${branch.join('/')}"`);
-
-            let storiesCollectionId: string | null = null;
-            if (dm.storiesCollectionPath !== undefined) {
-                const branch = splitPath(dm.storiesCollectionPath);
-                storiesCollectionId =
-                    await databoxClient.createCollectionTreeBranch(
-                        workspaceId,
-                        collectionKeyPrefix,
-                        branch.map(k => ({
-                            key: k,
-                            title: k,
-                        }))
-                    );
-                logger.info(
-                    `Created stories collection: "${branch.join('/')}"`
-                );
             }
 
             const attrClassIndex: AttrClassIndex = {};
@@ -228,6 +166,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             idempotencePrefixes["attributeDefinition"]
                         }_${name}_${fm.type}_${fm.multivalue ? '1' : '0'}`,
                         name: name,
+                        position: fm.position,
                         editable: !fm.readonly,
                         multiple: fm.multivalue,
                         fieldType:
@@ -306,6 +245,67 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         phraseanetDefinition: sd,
                     },
                 });
+            }
+
+            const sourceCollections: string[] = [];
+            if(dm.collections) {
+                for (const c of dm.collections.split(',')) {
+                    const collection = databox.collections[c.trim()];
+                    if (collection == undefined) {
+                        logger.info(
+                            `Unknown collection "${c.trim()}" into databox "${
+                                databox.name
+                            }" (#${databox.databox_id}) (ignored)`
+                        );
+                        continue;
+                    }
+                    sourceCollections.push(collection.base_id.toString());
+                }
+                if(sourceCollections.length === 0) {
+                    logger.info(`No collection found for "${
+                        dm.collections
+                    }" into databox "${
+                        databox.name
+                    }" (#${databox.databox_id}) (databox ignored)`);
+                }
+            }
+            else {
+                for(const baseId of databox.baseIds) {
+                    sourceCollections.push(baseId);
+                }
+            }
+
+            const collectionKeyPrefix =
+                idempotencePrefixes['collection'] +
+                databox.databox_id.toString() +
+                ':';
+
+            const branch = splitPath(dm.recordsCollectionPath ?? '');
+            await databoxClient.createCollectionTreeBranch(
+                workspaceId,
+                collectionKeyPrefix,
+                branch.map(k => ({
+                    key: k,
+                    title: k,
+                }))
+            );
+            logger.info(`Created records collection: "${branch.join('/')}"`);
+
+            let storiesCollectionId: string | null = null;
+            if (dm.storiesCollectionPath !== undefined) {
+                const branch = splitPath(dm.storiesCollectionPath);
+                storiesCollectionId =
+                    await databoxClient.createCollectionTreeBranch(
+                        workspaceId,
+                        collectionKeyPrefix,
+                        branch.map(k => ({
+                            key: k,
+                            title: k,
+                        }))
+                    );
+                logger.info(
+                    `Created stories collection: "${branch.join('/')}"`
+                );
             }
 
             const searchParams = {

@@ -17,3 +17,13 @@ dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer list
 dc run --rm databox-indexer bash
 node@51341e79df22:/srv/workspace/databox/indexer$ pnpm dev <command-name>
 ```
+
+### cheat
+#### add a lib
+
+```bash
+dc run --rm dev zsh
+root@local ➜  indexer  cd databox/indexer
+root@local ➜  indexer  pnpm i --save-dev twig
+root@local ➜  indexer  pnpm i --save-dev @types/twig
+```
