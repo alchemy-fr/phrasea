@@ -23,10 +23,6 @@
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/core-bundle",
             "options": {
@@ -50,6 +46,20 @@
         {
             "type": "path",
             "url": "../../lib/php/storage-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/es-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/messenger-bundle",
             "options": {
                 "symlink": true
             }
@@ -105,7 +115,7 @@
         "ext-json": "*",
         "ext-sodium": "*",
         "alchemy/acl-bundle": "dev-main",
-        "api-platform/core": "^3.1",
+        "api-platform/core": "^3.2.7",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
@@ -115,18 +125,18 @@
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "exercise/htmlpurifier-bundle": "^4.1",
-        "friendsofsymfony/elastica-bundle": "^6@dev",
+        "friendsofsymfony/elastica-bundle": "^6.3",
         "gedmo/doctrine-extensions": "^3.5",
         "hautelook/alice-bundle": "^2.10",
         "intervention/image": "^2.7",
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^5.0",
         "nelmio/cors-bundle": "^2.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.5",
         "stof/doctrine-extensions-bundle": "^1.7",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/asset": "^6.3",
         "symfony/console": "^5.4 || ^6",
         "symfony/dotenv": "^6.3",
@@ -137,6 +147,7 @@
         "symfony/mime": "^6|^7",
         "symfony/property-access": "^5.2 || ^6.2",
         "symfony/property-info": "^6.3",
+        "symfony/psr-http-message-bridge": "^2.3",
         "symfony/rate-limiter": "^6.3",
         "symfony/security-bundle": "^6",
         "symfony/security-core": "^6.3",
@@ -145,6 +156,8 @@
         "symfony/validator": "^6.3",
         "symfony/yaml": "^6.2",
         "symfony/monolog-bundle": "^3.5",
+        "sentry/sentry-symfony": "^4.11",
+        "symfony/messenger": "^6.4",
         "guzzlehttp/guzzle": "^7.2",
         "aws/aws-sdk-php": "^3.20",
         "ramsey/uuid": "^4.2",
@@ -171,7 +184,8 @@
         "symfony/http-client": "^6.3",
         "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "^6.3",
-        "symfony/web-profiler-bundle": "^6.3"
+        "symfony/web-profiler-bundle": "^6.3",
+        "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
         "preferred-install": {
@@ -179,7 +193,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {
@@ -215,9 +230,22 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "rm -f var/cache/test/data*.db && bin/console doctrine:schema:create -e test && bin/console fos:elastica:reset -e test && php -d 'memory_limit=512M' ./bin/phpunit"
+        "pre-phpunit": [
+            "rm -f var/cache/test/data*.db",
+            "bin/console -e test doctrine:schema:create",
+            "bin/console -e test fos:elastica:reset"
+        ],
+        "phpunit": [
+            "@pre-phpunit",
+            "php -d memory_limit=512M ./bin/phpunit"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src",
+            "@phpstan",
+            "@phpunit"
+        ]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

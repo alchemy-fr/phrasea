@@ -3,10 +3,6 @@
     "license": "proprietary",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
@@ -61,6 +57,13 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/messenger-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "minimum-stability": "dev",
@@ -71,7 +74,6 @@
         "ext-iconv": "*",
         "alchemy/acl-bundle": "dev-main",
         "api-platform/core": "^3.1",
-        "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3",
@@ -82,7 +84,6 @@
         "guzzlehttp/guzzle": "^7.2",
         "nelmio/cors-bundle": "^2.1",
         "nyholm/psr7": "^1.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid": "^4.2.3",
@@ -95,7 +96,8 @@
         "symfony/expression-language": "^6.3",
         "symfony/flex": "^1.1",
         "symfony/form": "^6.3",
-        "symfony/framework-bundle": "^4.0 || ^5 || ^6",
+        "symfony/framework-bundle": "^6.4",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/mime": "^6|^7",
         "symfony/process": "^6.3",
         "symfony/property-access": "^6.3",
@@ -116,7 +118,9 @@
         "lcobucci/jwt": "^5.0",
         "symfony/http-client": "^6",
         "opis/json-schema": "^1.0",
-        "symfony/monolog-bundle": "^3.5"
+        "symfony/monolog-bundle": "^3.5",
+        "sentry/sentry-symfony": "^4.11",
+        "symfony/messenger": "^6.4"
     },
     "require-dev": {
         "ext-json": "*",
@@ -125,6 +129,7 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.10",
         "rector/rector": "^1.0.4",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
@@ -134,7 +139,8 @@
         "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "^6.3",
         "symfony/var-dumper": "^6.3",
-        "symfony/web-profiler-bundle": "^6.3"
+        "symfony/web-profiler-bundle": "^6.3",
+        "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
         "preferred-install": {
@@ -142,7 +148,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {
@@ -164,20 +171,34 @@
         "symfony/polyfill-php56": "*"
     },
     "scripts": {
+        "cache-clear": "php -d memory_limit=-1 bin/console cache:clear",
         "auto-scripts": {
-            "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "post-update-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "stan": "vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
+        "pre-phpunit": [
+            "rm -f var/cache/test/data*.db",
+            "bin/console -e test doctrine:schema:create"
+        ],
+        "phpunit": [
+            "@pre-phpunit",
+            "php -d memory_limit=512M ./bin/phpunit"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src",
+            "@phpstan",
+            "@phpunit"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"
