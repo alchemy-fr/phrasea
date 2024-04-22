@@ -25,8 +25,8 @@ class GroupChoiceType extends AbstractType
         }
 
         $resolver->setDefaults([
-                'choices' => $choices,
-            ]
+            'choices' => $choices,
+        ]
         );
     }
 

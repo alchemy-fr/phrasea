@@ -4,38 +4,38 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGenerator;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Storage\AssetManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class DownloadHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class DownloadHandler
 {
-    final public const EVENT = 'download';
-
     public function __construct(
-        private readonly FileStorageManager $storageManager,
-        private readonly HttpClientInterface $client,
-        private readonly AssetManager $assetManager,
-        private readonly EventProducer $eventProducer,
-        private readonly PathGenerator $pathGenerator
+        private FileStorageManager $storageManager,
+        private HttpClientInterface $client,
+        private AssetManager $assetManager,
+        private MessageBusInterface $bus,
+        private PathGenerator $pathGenerator,
+        private EntityManagerInterface $em,
     ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(Download $message): void
     {
-        $payload = $message->getPayload();
-        $url = $payload['url'];
-        $userId = $payload['user_id'];
-        $targetId = $payload['target_id'];
-        $formData = $payload['form_data'];
-        $locale = $payload['locale'];
+        $url = $message->getUrl();
+        $userId = $message->getUserId();
+        $targetId = $message->getTargetId();
+        $formData = $message->getFormData();
+        $locale = $message->getLocale();
         $response = $this->client->request('GET', $url);
         $headers = $response->getHeaders();
         $contentType = $headers['content-type'][0] ?? 'application/octet-stream';
@@ -62,8 +62,7 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $size = strlen($content);
         $this->storageManager->store($path, $content);
 
-        $em = $this->getEntityManager();
-        $target = $em->find(Target::class, $targetId);
+        $target = DoctrineUtil::findStrict($this->em, Target::class, $targetId);
         if (!$target instanceof Target) {
             throw new \InvalidArgumentException(sprintf('Target "%s" not found', $targetId));
         }
@@ -86,19 +85,9 @@ class DownloadHandler extends AbstractEntityManagerHandler
         $commit->setFiles([$asset->getId()]);
         $commit->generateToken();
 
-        $em->persist($commit);
-        $em->flush();
+        $this->em->persist($commit);
+        $this->em->flush();
 
-        $this->eventProducer->publish(new EventMessage(CommitHandler::EVENT, $commit->toArray()));
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function getQueueName(): string
-    {
-        return 'download_url';
+        $this->bus->dispatch($commit->toMessage());
     }
 }

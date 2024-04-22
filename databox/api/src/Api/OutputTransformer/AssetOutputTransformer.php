@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Traits\UserLocaleTrait;
@@ -22,7 +23,6 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetOutputTransformer implements OutputTransformerInterface
@@ -86,9 +86,9 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
 
         if ($this->hasGroup([
-                Asset::GROUP_LIST,
-                Asset::GROUP_READ,
-            ], $context)) {
+            Asset::GROUP_LIST,
+            Asset::GROUP_READ,
+        ], $context)) {
             $attributes = $this->attributesResolver->resolveAssetAttributes($data, true);
 
             if (!empty($highlights)) {
@@ -148,11 +148,11 @@ class AssetOutputTransformer implements OutputTransformerInterface
             ->findAssetRenditions($data->getId());
 
         foreach ([
-                     'original',
-                     'preview',
-                     'thumbnail',
-                     'thumbnailActive',
-                 ] as $type) {
+            'original',
+            'preview',
+            'thumbnail',
+            'thumbnailActive',
+        ] as $type) {
             if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
                 $output->{'set'.ucfirst($type)}($file);
             }

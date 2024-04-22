@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Workflow\Action;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\Attribute\InitialAttributeValuesResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Workspace;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class InitializeAttributesAction implements ActionInterface
@@ -26,14 +26,10 @@ readonly class InitializeAttributesAction implements ActionInterface
         $inputs = $context->getInputs();
         $assetId = $inputs['assetId'];
 
-        $asset = $this->em->find(Asset::class, $assetId);
-        if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $assetId, self::class);
-        }
-
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
         $workspace = $asset->getWorkspace();
         if (!$workspace instanceof Workspace) {
-            throw new ObjectNotFoundForHandlerException(Workspace::class, $asset->getWorkspaceId(), self::class);
+            throw new \InvalidArgumentException(sprintf('%s %s not found', Workspace::class, $asset->getWorkspaceId()));
         }
 
         $attributes = $this->initialValueResolver->resolveInitialAttributes($asset);

@@ -481,9 +481,7 @@
       "title_plural": "Mover {{count}} activos"
     }
   },
-  "not_found":
-
-  {
+  "not_found": {
     "back_home": "Volver a inicio",
     "content": "La página que buscas no existe o ha sido eliminada",
     "title": "Página no encontrada"

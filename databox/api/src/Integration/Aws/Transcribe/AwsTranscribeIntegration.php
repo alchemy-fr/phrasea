@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
@@ -14,7 +15,6 @@ use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
-use App\Util\LocaleUtils;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
@@ -95,7 +95,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         $attributesConfig = $config['attributes'];
 
         $input = new AssetAttributeBatchUpdateInput();
-        $locale = LocaleUtils::normalizeLocale($job['LanguageCode']);
+        $locale = LocaleUtil::normalizeLocale($job['LanguageCode']);
 
         if (!empty($attributesConfig['language'])) {
             $input->actions[] = $this->createAttribute(

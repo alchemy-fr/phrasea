@@ -14,8 +14,7 @@ final readonly class DoctrineConnectionChecker implements HealthCheckerInterface
         #[Autowire(service: 'doctrine')]
         private ConnectionRegistry $connectionRegistry,
         private ?string $connectionName = null,
-    )
-    {
+    ) {
     }
 
     public function getName(): string

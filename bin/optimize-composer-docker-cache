@@ -42,10 +42,12 @@ function updateProject(string $project)
     $composerJson = json_decode(file_get_contents($composerSrc), true, 512, JSON_THROW_ON_ERROR);
 
     $composerCacheSrc = $project . '/docker/caching/composer.json';
-    if (is_dir($project.'/__lib')) {
-        runSubCommand(sprintf('cp -r %s/__lib %s/', $project, dirname($composerCacheSrc)));
+    $libPath = $project.'/../../lib';
+    $libSymlink = $project.'/lib';
+    if (is_dir($libPath)) {
+        runSubCommand(sprintf('ln -s %s %s', $libPath, $libSymlink));
     } else {
-        throw new InvalidArgumentException(sprintf('%s does not exist', $project.'/__lib'));
+        throw new InvalidArgumentException(sprintf('%s does not exist', $libPath));
     }
 
     $composerJson = flattenSubRequire($project, $composerJson);
@@ -65,7 +67,7 @@ function updateProject(string $project)
             '(cd %s && composer update --no-interaction --ansi)',
         ]), dirname($composerCacheSrc), $project));
     } finally {
-        runSubCommand(sprintf('rm -rf %s/__lib', dirname($composerCacheSrc)));
+        runSubCommand(sprintf('rm -f %s', $libSymlink));
     }
 }
 
@@ -75,7 +77,7 @@ function flattenSubRequire(string $workingDir, array $composer): array {
         foreach ($repositories as $repository) {
             if ('path' === $repository['type']) {
                 $url = $repository['url'];
-                $path = $workingDir.preg_replace('#^\./#', '/', $url);
+                $path = $workingDir.'/'.preg_replace('#^\./#', '', $url);
 
                 $subComposer = json_decode(file_get_contents($path.'/composer.json'), true, 512, JSON_THROW_ON_ERROR);
 

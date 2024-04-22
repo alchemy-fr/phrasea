@@ -1,0 +1,52 @@
+parameters:
+    rabbitmq_connect_options:
+        confirm_timeout: 3
+        read_timeout: 3
+        write_timeout: 3
+        heartbeat: 0
+    messenger_transport_dsn: 'amqp://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%/%env(RABBITMQ_VHOST)%'
+
+framework:
+    messenger:
+        serializer:
+            default_serializer: messenger.transport.symfony_serializer
+            symfony_serializer:
+                format: json
+                context: { }
+
+        failure_transport: failed
+
+        transports:
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            p1:
+                dsn: '%messenger_transport_dsn%/p1'
+                options: '%rabbitmq_connect_options%'
+            p2:
+                dsn: '%messenger_transport_dsn%/p2'
+                options: '%rabbitmq_connect_options%'
+            p3:
+                dsn: '%messenger_transport_dsn%/p2'
+                options: '%rabbitmq_connect_options%'
+            failed: 'doctrine://default?queue_name=failed'
+            sync: 'sync://'
+
+        buses:
+            command_bus:
+                middleware:
+                    - doctrine_ping_connection
+
+when@dev:
+    framework:
+        messenger:
+            transports:
+                p1: 'sync://'
+                p2: 'sync://'
+                p3: 'sync://'
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                p1: 'test://'
+                p2: 'test://'
+                p3: 'test://'

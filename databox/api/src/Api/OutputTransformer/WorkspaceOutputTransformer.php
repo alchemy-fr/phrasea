@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
 {

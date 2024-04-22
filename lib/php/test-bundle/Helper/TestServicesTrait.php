@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\TestBundle\Helper;
 
-use App\Tests\Mock\EventProducerMock;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\EventConsumer;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Alchemy\MessengerBundle\Transport\TestTransport;
 use Doctrine\ORM\EntityManagerInterface;
-use Monolog\Handler\TestHandler;
-use PhpAmqpLib\Message\AMQPMessage;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Stamp\SentStamp;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 trait TestServicesTrait
 {
@@ -31,33 +29,22 @@ trait TestServicesTrait
         return self::getService(EntityManagerInterface::class);
     }
 
-    public function getEventProducer(bool $intercept = false): EventProducerMock
+    public function interceptMessengerEvents(): InMemoryTransport
     {
-        /** @var EventProducerMock $eventProducer */
-        $eventProducer = self::getService(EventProducer::class);
+        /** @var TestTransport $testTransport */
+        $testTransport = self::getService('messenger.transport.p1');
 
-        if ($intercept) {
-            $eventProducer->interceptEvents();
-        }
-
-        return $eventProducer;
+        return $testTransport->intercept();
     }
 
-    private function consumeEvent(EventMessage $eventMessage): void
+    private function consumeEvent(Envelope $envelope): void
     {
-        /** @var EventConsumer $eventConsumer */
-        $eventConsumer = self::getService(EventConsumer::class);
+        /** @var TestTransport $testTransport */
+        $testTransport = self::getService('messenger.transport.p1');
+        $syncTransport = $testTransport->getSyncTransport();
 
-        $message = new AMQPMessage($eventMessage->toJson());
-        $eventConsumer->processMessage($message);
+        $envelope->withoutStampsOfType(SentStamp::class);
 
-        /** @var TestHandler $handler */
-        $handler = self::getService('monolog.handler.test');
-        $hasErrorRecords = $handler->hasErrorRecords();
-        if ($hasErrorRecords) {
-            dump($handler->getRecords());
-        }
-
-        self::assertFalse($hasErrorRecords);
+        $syncTransport->send($envelope);
     }
 }

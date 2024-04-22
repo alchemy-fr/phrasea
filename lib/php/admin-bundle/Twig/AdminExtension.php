@@ -15,7 +15,25 @@ class AdminExtension extends AbstractExtension
         return [
             new TwigFilter('file_size', $this->formatSize(...)),
             new TwigFilter('substring', 'substr'),
+            new TwigFilter('json_prettify', $this->jsonPrettify(...)),
         ];
+    }
+
+    public function jsonPrettify($value): string
+    {
+        $data = is_string($value) ?
+            json_encode(json_decode($value, true, 512, JSON_THROW_ON_ERROR), JSON_PRETTY_PRINT)
+            : json_encode($value, JSON_PRETTY_PRINT);
+
+        return str_replace([
+            '\\\\',
+            '\\"',
+            '\\n',
+        ], [
+            '\\',
+            '"',
+            "\n",
+        ], $data);
     }
 
     public function formatSize(?int $sizeInBytes, bool $si = true): ?string

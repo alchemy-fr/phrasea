@@ -222,8 +222,6 @@
     "asset": {
       "tags": {
         "label": "Tags"
-
-
       },
       "templates": {
         "label": "Mit Vorlage ausfüllen"
@@ -477,8 +475,6 @@
   },
   "move_assets": {
     "dialog": {
-
-
       "intro": "Wohin möchten Sie die ausgewählten Assets verschieben?",
       "submit": "Verschieben",
       "title": "{{count}} Assets verschieben",

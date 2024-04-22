@@ -19,8 +19,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        string $workflowStateEntity = null,
-        string $jobStateEntity = null,
+        ?string $workflowStateEntity = null,
+        ?string $jobStateEntity = null,
     ) {
         $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
         $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;

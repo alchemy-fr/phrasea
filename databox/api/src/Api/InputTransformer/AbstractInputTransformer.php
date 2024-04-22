@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Exception\ItemNotFoundException;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetInput;
@@ -11,7 +12,6 @@ use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;

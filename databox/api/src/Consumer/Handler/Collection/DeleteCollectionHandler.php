@@ -5,32 +5,18 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Collection;
 
 use App\Doctrine\Delete\CollectionDelete;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class DeleteCollectionHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class DeleteCollectionHandler
 {
-    final public const EVENT = 'delete_collection';
-
-    public function __construct(private readonly CollectionDelete $collectionDelete)
-    {
+    public function __construct(
+        private CollectionDelete $collectionDelete
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(DeleteCollection $message): void
     {
-        $payload = $message->getPayload();
-        $this->collectionDelete->deleteCollection($payload['id']);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function createEvent(string $id): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'id' => $id,
-        ]);
+        $this->collectionDelete->deleteCollection($message->getId());
     }
 }

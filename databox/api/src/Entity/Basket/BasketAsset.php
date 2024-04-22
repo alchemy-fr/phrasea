@@ -57,7 +57,7 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
 
     #[ORM\Column(type: Types::BIGINT, nullable: false)]
     #[Groups([self::GROUP_LIST])]
-    private string|null $position = '0';
+    private ?string $position = '0';
 
     public function getBasket(): Basket
     {

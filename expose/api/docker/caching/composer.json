@@ -4,61 +4,64 @@
     "license": "proprietary",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
-            "url": "./__lib/admin-bundle",
+            "url": "../../lib/php/admin-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/storage-bundle",
+            "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/auth-bundle",
+            "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/report-bundle",
+            "url": "../../lib/php/report-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/report-sdk",
+            "url": "../../lib/php/messenger-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/core-bundle",
+            "url": "../../lib/php/report-sdk",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/api-test",
+            "url": "../../lib/php/core-bundle",
             "options": {
                 "symlink": true
             }
         },
         {
             "type": "path",
-            "url": "./__lib/notify-bundle",
+            "url": "../../lib/php/api-test",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/notify-bundle",
             "options": {
                 "symlink": true
             }
@@ -73,7 +76,6 @@
         "ext-json": "*",
         "alchemy/acl-bundle": "dev-main",
         "api-platform/core": "^3.1",
-        "arthem/rabbit-bundle": "dev-master",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3.4.3",
@@ -82,11 +84,12 @@
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
         "exercise/htmlpurifier-bundle": "^4.0",
+        "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.5",
+        "symfony/amqp-messenger": "^6.3",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",
         "symfony/dotenv": "^6.3",
@@ -110,15 +113,18 @@
         "symfony/mime": "^6|^7",
         "lcobucci/jwt": "^5.0",
         "symfony/http-client": "^6",
+        "symfony/messenger": "^6.4",
         "opis/json-schema": "^1.0",
-        "symfony/monolog-bundle": "^3.5"
+        "symfony/monolog-bundle": "^3.5",
+        "sentry/sentry-symfony": "^4.11"
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^0.17.1",
+        "rector/rector": "^1.0.4",
+        "phpstan/phpstan": "^1.10",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
         "symfony/debug-bundle": "^6.3",
@@ -126,7 +132,8 @@
         "symfony/phpunit-bridge": "^6.3",
         "symfony/stopwatch": "^6.3",
         "symfony/var-dumper": "^6.3",
-        "symfony/web-profiler-bundle": "^6.3"
+        "symfony/web-profiler-bundle": "^6.3",
+        "php-parallel-lint/php-var-dump-check": "^v0.5"
     },
     "config": {
         "preferred-install": {
@@ -134,7 +141,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         }
     },
     "autoload": {
@@ -156,19 +164,34 @@
         "symfony/polyfill-php56": "*"
     },
     "scripts": {
+        "cache-clear": "php -d memory_limit=-1 bin/console cache:clear",
         "auto-scripts": {
-            "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "post-update-cmd": [
+            "@cache-clear",
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
         "cs": "vendor/bin/php-cs-fixer fix",
-        "test": "rm -f var/cache/test/data.db && bin/console doctrine:schema:create -e test && ./bin/phpunit"
+        "pre-phpunit": [
+            "rm -f var/cache/test/data*.db",
+            "bin/console -e test doctrine:schema:create"
+        ],
+        "phpunit": [
+            "@pre-phpunit",
+            "php -d memory_limit=512M ./bin/phpunit"
+        ],
+        "test": [
+            "vendor/bin/var-dump-check --symfony src",
+            "@phpstan",
+            "@phpunit"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

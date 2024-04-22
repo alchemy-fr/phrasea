@@ -29,7 +29,6 @@ wait_for_es() {
 
 wait_for_es
 
-"${BASEDIR}/console" rabbitmq:setup-fabric
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
 "${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" fos:elastica:reset

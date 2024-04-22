@@ -15,9 +15,9 @@ class ObjectTypeType extends AbstractType
     {
         $choices = [];
         foreach ([
-                     'collection' => RenditionRule::TYPE_COLLECTION,
-                     'workspace' => RenditionRule::TYPE_WORKSPACE,
-                 ] as $name => $code) {
+            'collection' => RenditionRule::TYPE_COLLECTION,
+            'workspace' => RenditionRule::TYPE_WORKSPACE,
+        ] as $name => $code) {
             $choices[$name] = $code;
         }
 

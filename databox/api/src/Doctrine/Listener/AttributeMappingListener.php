@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use App\Consumer\Handler\Search\Mapping\UpdateAttributesMappingHandler;
+use App\Consumer\Handler\Search\Mapping\UpdateAttributesMapping;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -58,9 +57,7 @@ class AttributeMappingListener implements EventSubscriber
 
     public function updateWorkspace(string $workspaceId): void
     {
-        $this->postFlushStack->addEvent(new EventMessage(UpdateAttributesMappingHandler::EVENT, [
-            'id' => $workspaceId,
-        ]));
+        $this->postFlushStack->addBusMessage(new UpdateAttributesMapping($workspaceId));
     }
 
     public function getSubscribedEvents(): array

@@ -47,9 +47,9 @@ trait DataboxTestTrait
                 $tag = $repo->find($tagName);
             } else {
                 if (null === $tag = $repo->findOneBy([
-                        'workspace' => $workspace->getId(),
-                        'name' => $tagName,
-                    ])) {
+                    'workspace' => $workspace->getId(),
+                    'name' => $tagName,
+                ])) {
                     $tag = new Tag();
                     $tag->setName($tagName);
                     $tag->setWorkspace($workspace);

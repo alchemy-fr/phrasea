@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\CopyAssetInput;
 use App\Asset\AssetCopier;
-use App\Consumer\Handler\Asset\AssetCopyHandler;
+use App\Consumer\Handler\Asset\AssetCopy;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class CopyAssetProcessor implements ProcessorInterface
 {
@@ -24,7 +24,7 @@ class CopyAssetProcessor implements ProcessorInterface
     use WithOwnerIdProcessorTrait;
 
     public function __construct(
-        private readonly EventProducer $eventProducer,
+        private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
         private readonly IriConverterInterface $iriConverter
     ) {
@@ -58,7 +58,7 @@ class CopyAssetProcessor implements ProcessorInterface
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
             $symlink = $data->byReference && $this->isGranted(AbstractVoter::EDIT, $asset);
 
-            $this->eventProducer->publish(AssetCopyHandler::createEvent(
+            $this->bus->dispatch(new AssetCopy(
                 $userId,
                 $userGroups,
                 $asset->getId(),

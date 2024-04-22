@@ -12,7 +12,7 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
     $rectorConfig->skip([
         __DIR__.'/vendor',
-        \Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
+        Rector\Php71\Rector\FuncCall\CountOnNullRector::class,
     ]);
 
     // register a single rule
@@ -21,9 +21,9 @@ return static function (RectorConfig $rectorConfig): void {
     // define sets of rules
     $rectorConfig->sets([
         LevelSetList::UP_TO_PHP_82,
-        \Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        \Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
-        \Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
+        Rector\Doctrine\Set\DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        Rector\Symfony\Set\SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
+        Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
+        Rector\Symfony\Set\SensiolabsSetList::FRAMEWORK_EXTRA_61,
     ]);
 };

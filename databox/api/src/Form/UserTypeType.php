@@ -15,9 +15,9 @@ class UserTypeType extends AbstractType
     {
         $choices = [];
         foreach ([
-                     'user' => RenditionRule::TYPE_USER,
-                     'group' => RenditionRule::TYPE_GROUP,
-                 ] as $name => $code) {
+            'user' => RenditionRule::TYPE_USER,
+            'group' => RenditionRule::TYPE_GROUP,
+        ] as $name => $code) {
             $choices[$name] = $code;
         }
 

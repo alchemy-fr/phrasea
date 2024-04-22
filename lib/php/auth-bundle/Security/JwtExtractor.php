@@ -16,8 +16,7 @@ final readonly class JwtExtractor
 
     public function __construct(
         private RoleMapper $roleMapper,
-    )
-    {
+    ) {
         $this->parser = new Parser(new JoseEncoder());
     }
 

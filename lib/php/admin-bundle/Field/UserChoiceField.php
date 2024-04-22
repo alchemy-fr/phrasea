@@ -13,7 +13,7 @@ final readonly class UserChoiceField
     {
     }
 
-    public function create(string $propertyName, string $label = null)
+    public function create(string $propertyName, ?string $label = null)
     {
         /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));

@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Badge\AccessTokenBadge;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\UnencryptedToken;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,8 +25,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly JwtValidatorInterface $jwtValidator,
         private readonly JwtExtractor $jwtExtractor,
-    )
-    {
+    ) {
     }
 
     public function supports(Request $request): bool

@@ -103,7 +103,11 @@ export default class AssetForm extends Component {
         const {schema} = this.state;
 
         if (undefined === schema) {
-            return <Translation>{t => t('layout.loading_form', 'Loading form...')}</Translation>;
+            return (
+                <Translation>
+                    {t => t('layout.loading_form', 'Loading form...')}
+                </Translation>
+            );
         }
 
         return (

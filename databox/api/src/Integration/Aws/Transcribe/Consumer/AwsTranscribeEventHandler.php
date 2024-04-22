@@ -5,24 +5,25 @@ declare(strict_types=1);
 namespace App\Integration\Aws\Transcribe\Consumer;
 
 use App\Integration\IntegrationDataManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class AwsTranscribeEventHandler
 {
     final public const EVENT = 'aws_transcribe.event';
     final public const DATA_EVENT_MESSAGE = 'event_message';
 
-    public function __construct(private readonly IntegrationDataManager $integrationDataManager, private readonly EventProducer $eventProducer)
-    {
+    public function __construct(
+        private IntegrationDataManager $integrationDataManager,
+        private MessageBusInterface $bus,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(AwsTranscribeEvent $message): void
     {
-        $payload = $message->getPayload();
-        $body = $payload['body'];
-        $workspaceIntegration = $this->integrationDataManager->getWorkspaceIntegration($payload['integrationId']);
+        $body = $message->getBody();
+        $workspaceIntegration = $this->integrationDataManager->getWorkspaceIntegration($message->getIntegrationId());
 
         $payload = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
@@ -34,31 +35,18 @@ class AwsTranscribeEventHandler extends AbstractEntityManagerHandler
         );
 
         if ('SubscriptionConfirmation' === $payload['Type']) {
-            $this->eventProducer->publish(ConfirmSnsSubscriptionHandler::createEvent($payload['SubscribeURL']));
+            $this->bus->dispatch(new ConfirmSnsSubscription($payload['SubscribeURL']));
         }
 
         if ('Notification' === $payload['Type']) {
-            $message = json_decode($payload['Message'], true, 512, JSON_THROW_ON_ERROR);
+            $msg = json_decode($payload['Message'], true, 512, JSON_THROW_ON_ERROR);
 
-            if ('aws.transcribe' === $message['source']) {
-                $this->eventProducer->publish(TranscribeJobStatusChangedHandler::createEvent(
+            if ('aws.transcribe' === $msg['source']) {
+                $this->bus->dispatch(new TranscribeJobStatusChanged(
                     $workspaceIntegration->getId(),
-                    $message
+                    $msg
                 ));
             }
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function createEvent(string $integrationId, string $body): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'integrationId' => $integrationId,
-            'body' => $body,
-        ]);
     }
 }

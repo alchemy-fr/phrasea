@@ -72,7 +72,7 @@ class EventInputValidatorTest extends AbstractWorkflowTest
             [
                 'touch',
                 ['extra' => 'param', 'path' => '/a/b/c'],
-               null,
+                null,
             ],
             [
                 'echo',

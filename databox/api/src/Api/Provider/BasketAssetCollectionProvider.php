@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Repository\Basket\BasketRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
 
 class BasketAssetCollectionProvider extends AbstractCollectionProvider
 {

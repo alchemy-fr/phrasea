@@ -23,10 +23,6 @@
             "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/RabbitMqBundle.git"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/core-bundle",
             "options": {
@@ -121,16 +117,15 @@
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
-        "alchemy/core-bundle": "@dev",
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/storage-bundle": "*",
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
         "api-platform/core": "^3.2.7",
-        "arthem/rabbit-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
@@ -147,7 +142,6 @@
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^5",
         "nelmio/cors-bundle": "^2.1",
-        "php-amqplib/rabbitmq-bundle": "dev-master as 2.11.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.6,<1.7",
@@ -179,7 +173,7 @@
         "lcobucci/clock": "^3.1",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^0.17.1",
+        "rector/rector": "^1.0.4",
         "symfony/browser-kit": "^6.3",
         "symfony/css-selector": "^6.3",
         "symfony/debug-bundle": "^6.3",

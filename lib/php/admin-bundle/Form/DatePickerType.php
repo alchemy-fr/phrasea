@@ -13,12 +13,12 @@ class DatePickerType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-                'widget' => 'single_text',
-                'format' => 'dd/MM/yyyy',
-                'attr' => [
-                    'class' => 'date-picker',
-                ],
-            ]
+            'widget' => 'single_text',
+            'format' => 'dd/MM/yyyy',
+            'attr' => [
+                'class' => 'date-picker',
+            ],
+        ]
         );
     }
 

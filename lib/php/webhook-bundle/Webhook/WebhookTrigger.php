@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Alchemy\WebhookBundle\Webhook;
 
-use Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler;
+use Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage;
 use Alchemy\WebhookBundle\Entity\Webhook;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class WebhookTrigger
 {
-    private readonly EntityManagerInterface $em;
     private ?array $webhooks = null;
 
-    public function __construct(private readonly EventProducer $eventProducer, EntityManagerInterface $em)
-    {
-        $this->em = $em;
+    public function __construct(
+        private readonly MessageBusInterface $bus,
+        private readonly EntityManagerInterface $em,
+    ) {
     }
 
     public function triggerEvent(string $event, array $payload): void
@@ -25,7 +25,7 @@ class WebhookTrigger
 
         foreach ($webhooks as $webhook) {
             if ($webhook->hasEvent($event)) {
-                $this->eventProducer->publish(WebhookTriggerHandler::createEvent($webhook->getId(), $event, $payload));
+                $this->bus->dispatch(new WebhookTriggerMessage($webhook->getId(), $event, $payload));
             }
         }
     }

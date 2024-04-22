@@ -15,8 +15,7 @@ final class ServiceAccountClient
     public function __construct(
         protected readonly KeycloakClient $serviceClient,
         private readonly CacheInterface $keycloakRealmCache,
-    )
-    {
+    ) {
     }
 
     private function getAccessToken(): string

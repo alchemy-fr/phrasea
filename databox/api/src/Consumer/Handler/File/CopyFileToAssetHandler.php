@@ -4,60 +4,33 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Asset\FileCopier;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CopyFileToAssetHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class CopyFileToAssetHandler
 {
-    final public const EVENT = 'copy_file_to_asset';
-
-    public function __construct(private readonly FileCopier $fileCopier)
-    {
+    public function __construct(
+        private FileCopier $fileCopier,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public static function createEvent(string $assetId, string $fileId): EventMessage
+    public function __invoke(CopyFileToAsset $message): void
     {
-        $payload = [
-            'assetId' => $assetId,
-            'fileId' => $fileId,
-        ];
-
-        return new EventMessage(self::EVENT, $payload);
-    }
-
-    public function handle(EventMessage $message): void
-    {
-        $payload = $message->getPayload();
-        $assetId = $payload['assetId'];
-        $fileId = $payload['fileId'];
-
-        $em = $this->getEntityManager();
-        $asset = $em->find(Asset::class, $assetId);
-        if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(AssetRendition::class, $assetId, self::class);
-        }
-
-        $file = $em->find(File::class, $fileId);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $fileId, self::class);
-        }
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getAssetId());
+        $file = DoctrineUtil::findStrict($this->em, File::class, $message->getFileId());
 
         $copy = $this->fileCopier->copyFile($file, $asset->getWorkspace());
 
         $asset->setSource($copy);
         $asset->setNoFileVersion(true);
 
-        $em->persist($asset);
-        $em->flush();
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
+        $this->em->persist($asset);
+        $this->em->flush();
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use App\Api\Model\Input\RenditionInput;
-use App\Consumer\Handler\File\CopyFileToRenditionHandler;
+use App\Consumer\Handler\File\CopyFileToRendition;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
@@ -46,7 +46,7 @@ class RenditionInputTransformer extends AbstractFileInputTransformer
         if (null !== $file = $this->handleSource($data->sourceFile, $workspace)) {
             $object->setFile($file);
         } elseif (null !== $file = $this->handleFromFile($data->sourceFileId)) {
-            $this->postFlushStackListener->addEvent(CopyFileToRenditionHandler::createEvent($object->getId(), $file->getId()));
+            $this->postFlushStackListener->addBusMessage(new CopyFileToRendition($object->getId(), $file->getId()));
             $object->setFile($file);
         } elseif (null !== $file = $this->handleUpload($workspace)) {
             $object->setFile($file);

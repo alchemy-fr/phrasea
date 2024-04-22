@@ -4,58 +4,32 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\File;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Asset\FileCopier;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class CopyFileToRenditionHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class CopyFileToRenditionHandler
 {
-    final public const EVENT = 'copy_file_to_rendition';
-
-    public function __construct(private readonly FileCopier $fileCopier)
-    {
+    public function __construct(
+        private FileCopier $fileCopier,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public static function createEvent(string $renditionId, string $fileId): EventMessage
+    public function __invoke(CopyFileToRendition $message): void
     {
-        $payload = [
-            'renditionId' => $renditionId,
-            'fileId' => $fileId,
-        ];
-
-        return new EventMessage(self::EVENT, $payload);
-    }
-
-    public function handle(EventMessage $message): void
-    {
-        $payload = $message->getPayload();
-        $renditionId = $payload['renditionId'];
-        $fileId = $payload['fileId'];
-
-        $em = $this->getEntityManager();
-        $rendition = $em->find(AssetRendition::class, $renditionId);
-        if (!$rendition instanceof AssetRendition) {
-            throw new ObjectNotFoundForHandlerException(AssetRendition::class, $renditionId, self::class);
-        }
-
-        $file = $em->find(File::class, $fileId);
-        if (!$file instanceof File) {
-            throw new ObjectNotFoundForHandlerException(File::class, $fileId, self::class);
-        }
+        $rendition = DoctrineUtil::findStrict($this->em, AssetRendition::class, $message->getRenditionId());
+        $file = DoctrineUtil::findStrict($this->em, File::class, $message->getFileId());
 
         $copy = $this->fileCopier->copyFile($file, $rendition->getAsset()->getWorkspace());
 
         $rendition->setFile($copy);
 
-        $em->persist($rendition);
-        $em->flush();
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
+        $this->em->persist($rendition);
+        $this->em->flush();
     }
 }

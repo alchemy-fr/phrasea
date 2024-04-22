@@ -65,7 +65,6 @@ final readonly class KeycloakClient
         return [$data['access_token'], $data['refresh_token']];
     }
 
-
     public function logout(string $accessToken, string $refreshToken): array
     {
         return $this->wrapRequest(function () use ($accessToken, $refreshToken) {
@@ -94,7 +93,7 @@ final readonly class KeycloakClient
             $statusCode = $e->getResponse()?->getStatusCode();
             if (401 === $statusCode) {
                 throw new UnauthorizedHttpException('access_token', $e->getResponse()->getContent(false), $e);
-            } elseif ($statusCode !== 409) {
+            } elseif (409 !== $statusCode) {
                 throw $e;
             }
         }
@@ -102,7 +101,7 @@ final readonly class KeycloakClient
         $users = $this->getUsers($accessToken, 1, null, [
             'query' => [
                 'username' => $data['username'],
-            ]
+            ],
         ]);
 
         if (empty($users)) {
@@ -131,12 +130,12 @@ final readonly class KeycloakClient
         }
     }
 
-    public function getUsers(string $accessToken, int $limit = null, int $offset = null, array $options = []): array
+    public function getUsers(string $accessToken, ?int $limit = null, ?int $offset = null, array $options = []): array
     {
         return $this->get($this->urlGenerator->getUsersApiUrl(), $accessToken, $limit, $offset, $options);
     }
 
-    public function getGroups(string $accessToken, int $limit = null, int $offset = null): array
+    public function getGroups(string $accessToken, ?int $limit = null, ?int $offset = null): array
     {
         return $this->get($this->urlGenerator->getGroupsApiUrl(), $accessToken, $limit, $offset);
     }
@@ -158,7 +157,7 @@ final readonly class KeycloakClient
         }
     }
 
-    private function get(string $path, string $accessToken, int $limit = null, int $offset = null, array $options = []): array
+    private function get(string $path, string $accessToken, ?int $limit = null, ?int $offset = null, array $options = []): array
     {
         return $this->wrapRequest(function () use ($path, $accessToken, $limit, $offset, $options) {
             return $this->keycloakClient->request('GET', $path, array_merge([

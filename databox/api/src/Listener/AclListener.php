@@ -9,14 +9,13 @@ use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
-use App\Consumer\Handler\Search\IndexAllAssetsHandler;
-use App\Consumer\Handler\Search\IndexAllCollectionsHandler;
-use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
+use App\Consumer\Handler\Search\IndexAllAssets;
+use App\Consumer\Handler\Search\IndexAllCollections;
+use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsEventListener(event: AclUpsertEvent::NAME, method: 'onAclUpsert')]
@@ -26,7 +25,7 @@ readonly class AclListener
     public function __construct(
         private SearchIndexer $searchIndexer,
         private ObjectMapping $objectMapping,
-        private EventProducer $eventProducer,
+        private MessageBusInterface $bus,
         private TagAwareCacheInterface $collectionCache,
     ) {
     }
@@ -50,10 +49,10 @@ readonly class AclListener
         if (null === $objectId) {
             switch ($objectClass) {
                 case Asset::class:
-                    $this->eventProducer->publish(new EventMessage(IndexAllAssetsHandler::EVENT, []));
+                    $this->bus->dispatch(new IndexAllAssets());
                     break;
                 case Collection::class:
-                    $this->eventProducer->publish(new EventMessage(IndexAllCollectionsHandler::EVENT, []));
+                    $this->bus->dispatch(new IndexAllCollections());
                     break;
             }
 
@@ -61,9 +60,7 @@ readonly class AclListener
         }
 
         if (Collection::class === $objectClass) {
-            $this->eventProducer->publish(new EventMessage(IndexCollectionBranchHandler::EVENT, [
-                'id' => $objectId,
-            ]));
+            $this->bus->dispatch(new IndexCollectionBranch($objectId));
         } else {
             $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], SearchIndexer::ACTION_UPSERT);
         }

@@ -54,7 +54,7 @@ class WorkflowOrchestrator
         }
     }
 
-    public function startWorkflow(string $workflowName, WorkflowEvent $event = null, array $context = []): WorkflowState
+    public function startWorkflow(string $workflowName, ?WorkflowEvent $event = null, array $context = []): WorkflowState
     {
         $workflowState = new WorkflowState(
             $this->stateRepository,
@@ -71,7 +71,7 @@ class WorkflowOrchestrator
         return $workflowState;
     }
 
-    public function continueWorkflow(string $workflowId, WorkflowState $workflowState = null): void
+    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null): void
     {
         if (null === $workflowState) {
             $workflowState = $this->stateRepository->getWorkflowState($workflowId);
@@ -102,7 +102,7 @@ class WorkflowOrchestrator
         }
     }
 
-    public function retryFailedJobs(string $workflowId, string $jobIdFilter = null): void
+    public function retryFailedJobs(string $workflowId, ?string $jobIdFilter = null): void
     {
         $this->rerunJobs($workflowId, $jobIdFilter, [
             JobState::STATUS_FAILURE,
@@ -110,7 +110,7 @@ class WorkflowOrchestrator
         ]);
     }
 
-    public function rerunJobs(string $workflowId, string $jobIdFilter = null, array $expectedStatuses = null): void
+    public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?array $expectedStatuses = null): void
     {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 

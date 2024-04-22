@@ -6,9 +6,8 @@ namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
-use App\Consumer\Handler\Search\IndexCollectionBranchHandler;
+use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Collection;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
@@ -44,9 +43,7 @@ class CollectionListener implements EventSubscriber
 
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
-        $this->postFlushStack->addEvent(new EventMessage(IndexCollectionBranchHandler::EVENT, [
-            'id' => $entity->getId(),
-        ]));
+        $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId()));
     }
 
     public function getSubscribedEvents(): array

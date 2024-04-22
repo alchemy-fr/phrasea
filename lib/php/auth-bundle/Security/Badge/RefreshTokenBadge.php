@@ -10,8 +10,7 @@ final class RefreshTokenBadge implements BadgeInterface
 {
     public function __construct(
         private readonly string $refreshToken,
-    )
-    {
+    ) {
     }
 
     public function isResolved(): bool

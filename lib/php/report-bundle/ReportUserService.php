@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\ReportBundle;
 
 use Alchemy\ReportSDK\ReportClient;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ReportUserService
@@ -18,7 +18,7 @@ class ReportUserService
         $this->enabled = !empty($reportBaseUrl);
     }
 
-    public function pushHttpRequestLog(Request $request, string $action, string $itemId = null, array $payload = []): void
+    public function pushHttpRequestLog(Request $request, string $action, ?string $itemId = null, array $payload = []): void
     {
         $payload['ip'] = $request->getClientIp();
         $payload['user_agent'] = $request->headers->get('User-Agent');
@@ -27,7 +27,7 @@ class ReportUserService
         $this->pushLog($action, $itemId, $payload);
     }
 
-    public function pushLog(string $action, string $itemId = null, array $payload = []): void
+    public function pushLog(string $action, ?string $itemId = null, array $payload = []): void
     {
         if (!$this->enabled) {
             return;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
-use App\Util\SecurityAwareTrait;
 
 class AssetDataTemplateProvider implements OutputTransformerInterface
 {

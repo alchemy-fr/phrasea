@@ -34,8 +34,8 @@ abstract class AbstractWorkflowTest extends TestCase
     protected function createOrchestrator(
         array $workflowFiles,
         ?StateRepositoryInterface $stateRepository,
-        OutputInterface $output = null,
-        EnvContainer $envs = null,
+        ?OutputInterface $output = null,
+        ?EnvContainer $envs = null,
     ): array {
         $actionRegistry = new ArrayActionRegistry();
 
@@ -87,7 +87,7 @@ abstract class AbstractWorkflowTest extends TestCase
             if (null === $result) {
                 $this->assertNull($repository->getJobState($workflowId, $jobId));
             } else {
-                $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus());
+                $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus(), $jobId);
             }
         }
     }

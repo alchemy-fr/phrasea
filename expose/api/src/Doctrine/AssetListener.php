@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Doctrine;
 
-use App\Consumer\Handler\DeleteAssetHandler;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Consumer\Handler\DeleteAsset;
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,17 +17,12 @@ use Doctrine\ORM\Events;
 use Doctrine\Persistence\ObjectManager;
 
 #[AsDoctrineListener(Events::onFlush)]
-#[AsDoctrineListener(Events::postFlush)]
 #[AsDoctrineListener(Events::prePersist)]
 class AssetListener implements EventSubscriber
 {
-    /**
-     * @var EventMessage[]
-     */
-    private array $eventStack = [];
     private array $positionCache = [];
 
-    public function __construct(private readonly EventProducer $eventProducer)
+    public function __construct(private readonly PostFlushStack $postFlushStack)
     {
     }
 
@@ -70,24 +64,15 @@ class AssetListener implements EventSubscriber
         return ++$this->positionCache[$publicationId];
     }
 
-    public function onFlush(OnFlushEventArgs $args)
+    public function onFlush(OnFlushEventArgs $args): void
     {
         $em = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof Asset || $entity instanceof SubDefinition) {
-                $this->eventStack[] = new EventMessage(DeleteAssetHandler::EVENT, [
-                    'path' => $entity->getPath(),
-                ]);
+                $this->postFlushStack->addBusMessage(new DeleteAsset($entity->getPath()));
             }
-        }
-    }
-
-    public function postFlush()
-    {
-        while ($message = array_shift($this->eventStack)) {
-            $this->eventProducer->publish($message);
         }
     }
 
@@ -95,7 +80,6 @@ class AssetListener implements EventSubscriber
     {
         return [
             Events::onFlush,
-            Events::postFlush,
             Events::prePersist,
         ];
     }

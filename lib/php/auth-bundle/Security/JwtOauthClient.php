@@ -14,8 +14,7 @@ class JwtOauthClient implements JwtInterface
         private readonly string $jwt,
         private readonly string $clientId,
         private readonly array $scopes = [],
-    )
-    {
+    ) {
         $this->roles = array_map(fn (string $role): string => sprintf('ROLE_%s', strtoupper($role)), $this->scopes);
     }
 

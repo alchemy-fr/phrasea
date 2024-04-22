@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Executor\Expression;
 
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 readonly class ObjectOrArrayAccessor
 {
+    private PropertyAccessorInterface $propertyAccessor;
+
     public function __construct(private object|array $wrapped)
     {
+        $this->propertyAccessor = PropertyAccess::createPropertyAccessorBuilder()
+            ->disableExceptionOnInvalidIndex()
+            ->disableExceptionOnInvalidPropertyPath()
+            ->getPropertyAccessor();
     }
 
     public function __get(string $name): mixed
@@ -18,9 +25,7 @@ readonly class ObjectOrArrayAccessor
             return self::wrap($this->wrapped[$name] ?? null);
         }
 
-        $propertyAccessor = PropertyAccess::createPropertyAccessor();
-
-        return self::wrap($propertyAccessor->getValue($this->wrapped, $name));
+        return self::wrap($this->propertyAccessor->getValue($this->wrapped, $name));
     }
 
     public static function wrap(mixed $value): mixed

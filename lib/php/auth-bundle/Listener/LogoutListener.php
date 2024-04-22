@@ -14,8 +14,7 @@ class LogoutListener implements EventSubscriberInterface
     public function __construct(
         private readonly string $clientId,
         private readonly KeycloakUrlGenerator $urlGenerator,
-    )
-    {
+    ) {
     }
 
     public static function getSubscribedEvents(): array

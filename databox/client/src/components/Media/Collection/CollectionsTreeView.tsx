@@ -73,9 +73,7 @@ function CollectionTree({
     depth = 0,
 }: CollectionTreeProps) {
     const [loaded, setLoaded] = React.useState(false);
-    const loadChildren = useCollectionStore(
-        state => state.loadChildren
-    );
+    const loadChildren = useCollectionStore(state => state.loadChildren);
 
     const pager =
         useCollectionStore(state => state.tree)[collection.id] ??

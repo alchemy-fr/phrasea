@@ -4,26 +4,24 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class IndexCollectionBranchHandler
 {
-    final public const EVENT = 'index_collection_branch';
-
-    public function __construct(private readonly SearchIndexer $searchIndexer)
-    {
+    public function __construct(
+        private SearchIndexer $searchIndexer,
+        private EntityManagerInterface $em
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(IndexCollectionBranch $message): void
     {
-        $id = $message->getPayload()['id'];
-
-        $em = $this->getEntityManager();
-        /** @var Collection $collection */
-        $collection = $em->find(Collection::class, $id);
+        $collection = DoctrineUtil::findStrict($this->em, Collection::class, $message->getCollectionId());
 
         $parent = $collection->getParent();
         while (null !== $parent) {
@@ -45,10 +43,5 @@ class IndexCollectionBranchHandler extends AbstractEntityManagerHandler
     private function indexCollection(Collection $collection): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], SearchIndexer::ACTION_UPSERT);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

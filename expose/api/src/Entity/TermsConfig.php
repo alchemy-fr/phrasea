@@ -23,9 +23,9 @@ class TermsConfig implements MergeableValueObjectInterface
     {
         $clone = clone $this;
         foreach ([
-                     'text',
-                     'url',
-                 ] as $property) {
+            'text',
+            'url',
+        ] as $property) {
             if (null !== $object->{$property}) {
                 if ($clone->{$property} instanceof MergeableValueObjectInterface) {
                     $clone->{$property}->mergeWith($object->{$property});

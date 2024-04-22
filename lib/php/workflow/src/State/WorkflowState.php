@@ -25,7 +25,7 @@ class WorkflowState
         private StateRepositoryInterface $stateRepository,
         private string $workflowName,
         private ?WorkflowEvent $event,
-        string $id = null,
+        ?string $id = null,
         array $context = []
     ) {
         $this->id = $id ?? Uuid::uuid4()->toString();

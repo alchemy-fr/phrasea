@@ -14,8 +14,7 @@ readonly class HealthChecker
     public function __construct(
         #[TaggedIterator(HealthCheckerInterface::TAG)]
         private iterable $checkers,
-    )
-    {
+    ) {
     }
 
     public function getChecks(): array

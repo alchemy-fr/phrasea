@@ -7,18 +7,15 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
-use Alchemy\Workflow\Consumer\JobConsumer;
+use Alchemy\Workflow\Message\JobConsumer;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Consumer\Handler\File\ImportFileHandler;
-use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdefHandler;
+use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Controller\Integration\PhraseanetIntegrationController;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
-use App\Tests\Mock\EventProducerMock;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -45,7 +42,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $apiClient = static::createClient();
         $apiClient->disableReboot();
 
-        $eventProducer = self::getEventProducer(true);
+        $inMemoryTransport = $this->interceptMessengerEvents();
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -99,10 +96,11 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $json = json_decode($response->getContent(), true);
         $assetId = $json['id'];
 
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getPayload()['j']);
-        $this->consumeEvent($eventMessage);
+        $envelope = $inMemoryTransport->get()[0];
+        $eventMessage = $envelope->getMessage();
+        self::assertInstanceOf(JobConsumer::class, $eventMessage);
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getJobId());
+        $this->consumeEvent($envelope);
 
         self::assertEquals('POST', $mockResponse->getRequestMethod());
         $requestOptions = $mockResponse->getRequestOptions();
@@ -166,13 +164,11 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        /** @var EventProducerMock $eventProducer */
-        $eventProducer = self::getService(EventProducer::class);
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(PhraseanetDownloadSubdefHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(ImportFileHandler::EVENT, $eventMessage->getType());
+
+        $envelope = $inMemoryTransport->get()[0];
+        $eventMessage = $envelope->getMessage();
+        self::assertInstanceOf(PhraseanetDownloadSubdef::class, $eventMessage);
+        $this->consumeEvent($envelope);
 
         $em = self::getService(EntityManagerInterface::class);
         $em->clear();

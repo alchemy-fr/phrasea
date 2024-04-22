@@ -5,29 +5,30 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
-use App\Consumer\Handler\ZippyDownloadRequestHandler;
+use App\Consumer\Handler\ZippyDownloadRequest;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
 use App\Security\Voter\PublicationVoter;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/publications/{id}/zippy/download-request', name: 'download_zippy_request_create', methods: ['POST'])]
 final class PostDownloadZippyViaEmailAction extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly ReportUserService $reportClient)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly ReportUserService $reportClient,
+    ) {
     }
 
-    public function __invoke(string $id, Request $request, EventProducer $eventProducer): Response
+    public function __invoke(string $id, Request $request, MessageBusInterface $bus): Response
     {
         /** @var Publication|null $publication */
         $publication = $this->em->find(Publication::class, $id);
@@ -46,9 +47,7 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
         $this->em->persist($downloadRequest);
         $this->em->flush();
 
-        $eventProducer->publish(new EventMessage(ZippyDownloadRequestHandler::EVENT, [
-            'id' => $downloadRequest->getId(),
-        ]));
+        $bus->dispatch(new ZippyDownloadRequest($downloadRequest->getId()));
 
         $this->reportClient->pushHttpRequestLog(
             $request,

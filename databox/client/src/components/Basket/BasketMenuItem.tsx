@@ -79,8 +79,8 @@ export default function BasketMenuItem({
                         primary={
                             data.titleHighlight
                                 ? replaceHighlight(data.titleHighlight)
-                                : (data.title ||
-                                  t('basket.default.title', 'My Basket'))
+                                : data.title ||
+                                  t('basket.default.title', 'My Basket')
                         }
                         secondary={
                             data.descriptionHighlight

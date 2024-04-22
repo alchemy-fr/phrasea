@@ -6,8 +6,8 @@ namespace Alchemy\WebhookBundle\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\WebhookBundle\Config\EntityRegistry;
-use Alchemy\WebhookBundle\Consumer\SerializeObjectHandler;
-use Alchemy\WebhookBundle\Consumer\WebhookHandler;
+use Alchemy\WebhookBundle\Consumer\SerializeObject;
+use Alchemy\WebhookBundle\Consumer\WebhookEvent;
 use Alchemy\WebhookBundle\Doctrine\EntitySerializer;
 use Alchemy\WebhookBundle\Webhook\WebhookTrigger;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -110,7 +110,7 @@ class EntityListener implements EventSubscriber
         return $this->entitySerializer->convertToDatabaseValue($class, $data);
     }
 
-    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, array $changeSet = null): void
+    private function addChange(array $configNode, EntityManagerInterface $em, object $entity, ?array $changeSet = null): void
     {
         $event = $configNode['event'];
         $oid = spl_object_id($entity);
@@ -154,15 +154,15 @@ class EntityListener implements EventSubscriber
                 $data = $change['data'];
                 switch ($event) {
                     case self::EVENT_DELETE:
-                        $this->terminateStackListener->addEvent(WebhookHandler::createEvent($configNode['eventName'], [
+                        $this->terminateStackListener->addBusMessage(new WebhookEvent($configNode['eventName'], [
                             'id' => $data['id'],
                         ]));
                         break;
                     case self::EVENT_UPDATE:
-                        $this->terminateStackListener->addEvent(SerializeObjectHandler::createEvent($configNode['entityClass'], $configNode['eventName'], $data, $change['changeSet']));
+                        $this->terminateStackListener->addBusMessage(new SerializeObject($configNode['entityClass'], $configNode['eventName'], $data, $change['changeSet']));
                         break;
                     case self::EVENT_CREATE:
-                        $this->terminateStackListener->addEvent(SerializeObjectHandler::createEvent($configNode['entityClass'], $configNode['eventName'], $data));
+                        $this->terminateStackListener->addBusMessage(new SerializeObject($configNode['entityClass'], $configNode['eventName'], $data));
                         break;
                 }
             }

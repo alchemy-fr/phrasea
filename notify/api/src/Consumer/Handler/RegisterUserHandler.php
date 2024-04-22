@@ -5,33 +5,22 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Contact\ContactManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class RegisterUserHandler extends AbstractLogHandler
+#[AsMessageHandler]
+final readonly class RegisterUserHandler
 {
-    final public const EVENT = 'register_user';
-
-    public function __construct(private readonly ContactManager $contactManager)
+    public function __construct(private ContactManager $contactManager)
     {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(RegisterUser $message): void
     {
-        $payload = $message->getPayload();
-        $userId = $payload['user_id'];
-        $contactInfo = $payload['contact_info'];
-
-        $contact = $this->contactManager->getContact($userId);
+        $contact = $this->contactManager->getContact($message->getUserId());
         if (null !== $contact) {
-            $this->contactManager->updateContact($contact, $contactInfo);
+            $this->contactManager->updateContact($contact, $message->getContactInfo());
         } else {
-            $this->contactManager->createContact($userId, $contactInfo);
+            $this->contactManager->createContact($message->getUserId(), $message->getContactInfo());
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

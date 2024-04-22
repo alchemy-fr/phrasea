@@ -4,49 +4,41 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Api\IriConverterInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
-use App\Entity\Core\Workspace;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class AssetMoveHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class AssetMoveHandler
 {
-    final public const EVENT = 'asset_move';
-
-    public function __construct(private readonly IriConverterInterface $iriConverter)
-    {
+    public function __construct(
+        private IriConverterInterface $iriConverter,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(AssetMove $message): void
     {
-        $payload = $message->getPayload();
-        $id = $payload['id'];
-        $dest = $payload['dest'];
+        $dest = $message->getDestination();
 
-        $em = $this->getEntityManager();
-        $asset = $em->find(Asset::class, $id);
-        if (!$asset instanceof Asset) {
-            throw new ObjectNotFoundForHandlerException(Asset::class, $id, self::class);
-        }
-
-        /** @var Collection|Workspace $destination */
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getId());
         $destination = $this->iriConverter->getResourceFromIri($dest);
 
-        $em->wrapInTransaction(function () use ($em, $asset, $destination): void {
+        $this->em->wrapInTransaction(function () use ($asset, $destination): void {
             $from = $asset->getReferenceCollection();
 
             if ($from instanceof Collection) {
-                $em
+                $this->em
                     ->getRepository(CollectionAsset::class)
                     ->deleteCollectionAsset($asset->getId(), $from->getId());
             }
 
             if ($destination instanceof Collection) {
-                $em
+                $this->em
                     ->getRepository(CollectionAsset::class)
                     ->deleteCollectionAsset($asset->getId(), $destination->getId());
 
@@ -54,27 +46,13 @@ class AssetMoveHandler extends AbstractEntityManagerHandler
                 $collectionAsset = new CollectionAsset();
                 $collectionAsset->setAsset($asset);
                 $collectionAsset->setCollection($destination);
-                $em->persist($collectionAsset);
+                $this->em->persist($collectionAsset);
             } else {
                 $asset->setReferenceCollection(null);
             }
 
-            $em->persist($asset);
-
-            $em->flush();
+            $this->em->persist($asset);
+            $this->em->flush();
         });
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function createEvent(string $id, string $destination): EventMessage
-    {
-        return new EventMessage(self::EVENT, [
-            'id' => $id,
-            'dest' => $destination,
-        ]);
     }
 }

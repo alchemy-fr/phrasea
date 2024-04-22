@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\BasketVoter;
-use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BasketOutputTransformer implements OutputTransformerInterface

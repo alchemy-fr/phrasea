@@ -13,8 +13,7 @@ final readonly class PredisConnectionChecker implements HealthCheckerInterface
     public function __construct(
         #[Autowire(service: 'alchemy_core.redis')]
         private Client $client
-    )
-    {
+    ) {
     }
 
     public function getName(): string

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AssetVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface

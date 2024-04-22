@@ -4,32 +4,29 @@ declare(strict_types=1);
 
 namespace App\Listener\Doctrine;
 
-use App\Consumer\Handler\DeleteAssetFileHandler;
+use App\Consumer\Handler\DeleteAssetFile;
 use App\Entity\Asset;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsDoctrineListener(Events::postRemove)]
 readonly class AssetListener implements EventSubscriber
 {
-    public function __construct(private EventProducer $eventProducer)
+    public function __construct(private MessageBusInterface $bus)
     {
     }
 
-    public function postRemove(PostRemoveEventArgs $event)
+    public function postRemove(PostRemoveEventArgs $event): void
     {
-        $asset = $event->getEntity();
+        $asset = $event->getObject();
         if (!$asset instanceof Asset) {
             return;
         }
 
-        $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
-            'path' => $asset->getPath(),
-        ]));
+        $this->bus->dispatch(new DeleteAssetFile($asset->getPath()));
     }
 
     public function getSubscribedEvents(): array

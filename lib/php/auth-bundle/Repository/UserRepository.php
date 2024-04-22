@@ -9,7 +9,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 
 class UserRepository extends AbstractKeycloakRepository implements UserRepositoryInterface
 {
-    public function getUsers(int $limit = null, int $offset = null, ?string $accessToken = null): array
+    public function getUsers(?int $limit = null, ?int $offset = null, ?string $accessToken = null): array
     {
         if (null !== $accessToken) {
             return $this->oauthClient->getUsers($accessToken, $limit, $offset);
@@ -31,7 +31,7 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
         });
     }
 
-    public function getAclUsers(int $limit = null, int $offset = 0): array
+    public function getAclUsers(?int $limit = null, int $offset = 0): array
     {
         return $this->getUsers($limit, $offset);
     }

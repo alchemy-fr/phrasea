@@ -176,22 +176,22 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
                     ],
                 ], $replacedAll,
             ],
-        // regex test cannot be done with SQLite
-//            [
-//                [
-//                    [
-//                        'name' => 'description',
-//                        'action' => 'replace',
-//                        'regex' => true,
-//                        'value' => '(e|#)',
-//                        'replaceWith' => '$1-',
-//                    ],
-//                ], $regexDesc,
-//            ],
-//            [
-//                [
-//                ], self::$defaultAttributes,
-//            ],
+            // regex test cannot be done with SQLite
+            //            [
+            //                [
+            //                    [
+            //                        'name' => 'description',
+            //                        'action' => 'replace',
+            //                        'regex' => true,
+            //                        'value' => '(e|#)',
+            //                        'replaceWith' => '$1-',
+            //                    ],
+            //                ], $regexDesc,
+            //            ],
+            //            [
+            //                [
+            //                ], self::$defaultAttributes,
+            //            ],
         ];
     }
 }

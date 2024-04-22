@@ -39,28 +39,22 @@ class AssetCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $path = TextField::new('path');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-        $originalName = TextField::new('originalName');
-        $mimeType = TextField::new('mimeType');
-        $acknowledged = BooleanField::new('acknowledged')->renderAsSwitch(false);
-        $createdAt = DateTimeField::new('createdAt');
-        $userId = IdField::new('userId');
-        $target = AssociationField::new('target');
-        $commit = AssociationField::new('commit');
-        $id = IdField::new();
-        $committed = BooleanField::new('committed')->renderAsSwitch(false);
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $originalName, $size, $userId, $committed, $acknowledged, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$path, $size, $originalName, $mimeType, $acknowledged, $createdAt, $userId, $target, $commit];
-        }
-
-        return [];
+        yield IdField::new();
+        yield IdField::new('userId');
+        yield IntegerField::new('size')
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig')
+            ->hideOnIndex();
+        yield TextField::new('originalName')
+            ->hideOnIndex();
+        yield TextField::new('mimeType')
+            ->hideOnIndex();
+        yield TextField::new('path')
+            ->hideOnIndex();
+        yield BooleanField::new('acknowledged')->renderAsSwitch(false);
+        yield AssociationField::new('target');
+        yield AssociationField::new('commit')
+        ;
+        yield BooleanField::new('committed')->renderAsSwitch(false);
+        yield DateTimeField::new('createdAt');
     }
 }

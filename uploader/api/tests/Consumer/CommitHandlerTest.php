@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use App\Consumer\Handler\CommitHandler;
+use App\Consumer\Handler\CommitMessage;
 use App\Entity\Asset;
 use App\Entity\AssetRepository;
 use App\Entity\Target;
 use App\Entity\TargetParams;
 use App\Storage\AssetManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
-use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class CommitHandlerTest extends TestCase
 {
@@ -39,14 +39,14 @@ class CommitHandlerTest extends TestCase
             ->with(Target::class, '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09')
             ->willReturn(new Target());
 
-        $producerStub = $this->createMock(EventProducer::class);
-        $producerStub
+        $busStub = $this->createMock(MessageBusInterface::class);
+        $busStub
             ->expects($this->once())
-            ->method('publish')
-            ->with(
-                $this->callback(fn ($subject) => $subject instanceof EventMessage
-                    && is_string($subject->getPayload()['id']))
-            );
+            ->method('dispatch')
+            ->willReturnCallback(function (object $message) {
+                return new Envelope($message, []);
+            })
+        ;
 
         $assetManager = $this->createMock(AssetManager::class);
         $assetManager
@@ -54,21 +54,21 @@ class CommitHandlerTest extends TestCase
             ->method('getTotalSize')
             ->willReturn(42);
 
-        $handler = new CommitHandler($producerStub, $assetManager);
-        $handler->setEntityManager($em);
-
-        $logger = new TestLogger();
-        $handler->setLogger($logger);
-
-        $message = new EventMessage($handler::EVENT, [
-            'files' => [
+        $handler = new CommitHandler(
+            $busStub,
+            $assetManager,
+            $em
+        );
+        $message = new CommitMessage(
+            '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09',
+            'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
+            [
                 '4c097077-a26b-4af4-9a5d-b13fd4c77b3d',
                 'a134145e-9461-4f0a-8bd8-7025d31a6b8e',
             ],
-            'form' => ['foo' => 'bar'],
-            'user_id' => 'd03fc9f6-3c6b-4428-8d6f-ba07c7c6e856',
-            'target_id' => '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09',
-        ]);
-        $handler->handle($message);
+            ['foo' => 'bar'],
+        );
+
+        $handler($message);
     }
 }

@@ -15,8 +15,7 @@ final readonly class RoleMapper
             'admin' => JwtUser::ROLE_ADMIN,
             'tech' => JwtUser::ROLE_TECH,
         ],
-    )
-    {
+    ) {
     }
 
     public function getRoles(array $idpRoles): array

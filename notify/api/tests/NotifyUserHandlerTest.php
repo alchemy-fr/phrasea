@@ -4,45 +4,47 @@ declare(strict_types=1);
 
 namespace App\Tests;
 
+use App\Consumer\Handler\NotifyUser;
 use App\Consumer\Handler\NotifyUserHandler;
 use App\Contact\ContactManager;
 use App\Entity\Contact;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use ColinODell\PsrTestLogger\TestLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class NotifyUserHandlerTest extends WebTestCase
 {
     public function testNewNotifyOK(): void
     {
-        $eventProducer = $this->createEventProducerMock();
+        $bus = $this->createBusMock();
         $contactManager = $this->createContactManagerMock();
 
-        $handler = new NotifyUserHandler(
-            $eventProducer,
-            $contactManager
-        );
         $logger = new TestLogger();
-        $handler->setLogger($logger);
+        $handler = new NotifyUserHandler(
+            $bus,
+            $contactManager,
+            $logger,
+        );
 
-        $message = new EventMessage($handler::EVENT, [
-            'user_id' => 'a_user_id',
-            'template' => 'tpl',
-            'contact_info' => [
+        $message = new NotifyUser(
+            'a_user_id',
+            'tpl',
+            [],
+            [
                 'email' => 'test@test.fr',
             ],
-        ]);
+        );
 
-        $handler->handle($message);
+        $handler($message);
 
         $this->assertFalse($logger->hasErrorRecords());
     }
 
     public function testNotifyOK(): void
     {
-        $eventProducer = $this->createEventProducerMock();
+        $bus = $this->createBusMock();
         $contactManager = $this->createContactManagerMock();
 
         $contact = new Contact();
@@ -54,25 +56,22 @@ class NotifyUserHandlerTest extends WebTestCase
             ->method('getContact')
             ->willReturn($contact);
 
-        $handler = new NotifyUserHandler(
-            $eventProducer,
-            $contactManager
-        );
         $logger = new TestLogger();
-        $handler->setLogger($logger);
+        $handler = new NotifyUserHandler(
+            $bus,
+            $contactManager,
+            $logger,
+        );
 
-        $message = new EventMessage($handler::EVENT, [
-            'user_id' => 'a_user_id',
-            'template' => 'tpl',
-        ]);
+        $message = new NotifyUser('a_user_id', 'tpl');
 
-        $handler->handle($message);
+        $handler($message);
         $this->assertFalse($logger->hasErrorRecords());
     }
 
     public function testNotifyWithContactUpdateOK(): void
     {
-        $eventProducer = $this->createEventProducerMock();
+        $bus = $this->createBusMock();
         $contactManager = $this->createContactManagerMock();
 
         $contact = new Contact();
@@ -92,22 +91,23 @@ class NotifyUserHandlerTest extends WebTestCase
                 $this->equalTo(['email' => 'new_email@test.fr'])
             );
 
-        $handler = new NotifyUserHandler(
-            $eventProducer,
-            $contactManager
-        );
         $logger = new TestLogger();
-        $handler->setLogger($logger);
+        $handler = new NotifyUserHandler(
+            $bus,
+            $contactManager,
+            $logger
+        );
 
-        $message = new EventMessage($handler::EVENT, [
-            'user_id' => 'a_user_id',
-            'template' => 'tpl',
-            'contact_info' => [
+        $message = new NotifyUser(
+            'a_user_id',
+            'tpl',
+            [],
+            [
                 'email' => 'new_email@test.fr',
             ],
-        ]);
+        );
 
-        $handler->handle($message);
+        $handler($message);
         $this->assertFalse($logger->hasErrorRecords());
     }
 
@@ -132,16 +132,20 @@ class NotifyUserHandlerTest extends WebTestCase
     }
 
     /**
-     * @return EventProducer|MockObject
+     * @return MessageBusInterface|MockObject
      */
-    private function createEventProducerMock(): MockObject
+    private function createBusMock(): MockObject
     {
-        /** @var EventProducer|MockObject $eventProducer */
-        $eventProducer = $this->createMock(EventProducer::class);
-        $eventProducer
+        /** @var MessageBusInterface|MockObject $bus */
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus
             ->expects($this->once())
-            ->method('publish');
+            ->method('dispatch')
+            ->willReturnCallback(function (object $message) {
+                return new Envelope($message, []);
+            })
+        ;
 
-        return $eventProducer;
+        return $bus;
     }
 }

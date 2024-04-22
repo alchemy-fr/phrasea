@@ -27,8 +27,6 @@ services:
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
     _instanceof:
-        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
-            tags: ['arthem_rabbit.event_handler']
         App\Serializer\Normalizer\EntityNormalizerInterface:
             tags: ['app.entity_normalizer']
 

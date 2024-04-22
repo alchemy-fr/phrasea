@@ -4,74 +4,43 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Phraseanet;
 
-use App\Consumer\Handler\File\ImportFileHandler;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
+use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Storage\RenditionManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+readonly class PhraseanetDownloadSubdefHandler
 {
-    final public const EVENT = 'phraseanet_download_subdef';
-
     public function __construct(
-        private readonly RenditionManager $renditionManager,
-        private readonly EventProducer $eventProducer,
-        LoggerInterface $logger
+        private RenditionManager $renditionManager,
+        private MessageBusInterface $messageBus,
+        private LoggerInterface $logger,
+        private EntityManagerInterface $em,
     ) {
-        $this->logger = $logger;
     }
 
-    public static function createEvent(
-        string $assetId,
-        string $databoxId,
-        string $recordId,
-        string $subdefName,
-        string $permalink,
-        ?string $type,
-        ?int $size
-    ): EventMessage {
-        $payload = [
-            'id' => $assetId,
-            'databoxId' => $databoxId,
-            'recordId' => $recordId,
-            'permalink' => $permalink,
-            'name' => $subdefName,
-            'type' => $type,
-            'size' => $size,
-        ];
-
-        return new EventMessage(self::EVENT, $payload);
-    }
-
-    public function handle(EventMessage $message): void
+    public function __invoke(PhraseanetDownloadSubdef $message): void
     {
-        $payload = $message->getPayload();
-        $assetId = $payload['id'];
-        $em = $this->getEntityManager();
-        $asset = $em->find(Asset::class, $assetId);
-        if (!$asset instanceof Asset) {
-            return;
-        }
+        $permalink = $message->getPermalink();
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getAssetId());
 
-        $this->logger->debug(sprintf('Handle subdef from Phraseanet for asset "%s"', $asset->getId()));
+        $this->logger->debug(sprintf('Handling subdef from Phraseanet for asset "%s"', $asset->getId()));
 
         $workspace = $asset->getWorkspace();
-        $url = $payload['permalink'];
-        if (empty($url)) {
-            throw new \InvalidArgumentException(sprintf('Empty Phraseanet permalink'));
+        if (empty($permalink)) {
+            throw new \InvalidArgumentException('Empty Phraseanet permalink');
         }
 
-        [$urlPart] = explode('?', (string) $url, 2);
+        [$urlPart] = explode('?', $permalink, 2);
 
         try {
-            $renditionDefinition = $this->renditionManager->getRenditionDefinitionByName(
-                $workspace,
-                $payload['name']
-            );
+            $renditionDefinition = $this->renditionManager->getRenditionDefinitionByName($workspace, $message->getSubdefName());
         } catch (\InvalidArgumentException $e) {
             $this->logger->warning($e->getMessage());
 
@@ -82,19 +51,14 @@ class PhraseanetDownloadSubdefHandler extends AbstractEntityManagerHandler
             $asset,
             $renditionDefinition,
             File::STORAGE_URL,
-            $url,
-            $payload['type'] ?? null,
-            $payload['size'] ?? null,
+            $permalink,
+            $message->getType(),
+            $message->getSize(),
             basename($urlPart)
         );
 
-        $em->flush();
+        $this->em->flush();
 
-        $this->eventProducer->publish(ImportFileHandler::createEvent($rendition->getFile()->getId()));
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
+        $this->messageBus->dispatch(new ImportFile($rendition->getFile()->getId()));
     }
 }

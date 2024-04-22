@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
-use App\Consumer\Handler\Asset\AssetDeleteHandler;
+use App\Consumer\Handler\Asset\AssetDelete;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class DeleteAssetByKeysAction extends AbstractController
 {
-    public function __construct(private readonly EventProducer $eventProducer, private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly MessageBusInterface $bus,
+        private readonly EntityManagerInterface $em
+    ) {
     }
 
     public function __invoke(Request $request): Response
@@ -36,7 +38,7 @@ class DeleteAssetByKeysAction extends AbstractController
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
-            $this->eventProducer->publish(AssetDeleteHandler::createEvent($asset->getId()));
+            $this->bus->dispatch(new AssetDelete($asset->getId()));
         }
 
         return new Response('', 204);

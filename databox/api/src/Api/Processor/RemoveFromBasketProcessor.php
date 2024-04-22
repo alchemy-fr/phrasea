@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -11,8 +13,6 @@ use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Entity\Basket\Basket;
 use App\Repository\Basket\BasketRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Util\DoctrineUtil;
-use App\Util\SecurityAwareTrait;
 
 class RemoveFromBasketProcessor implements ProcessorInterface
 {

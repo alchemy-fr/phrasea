@@ -23,8 +23,7 @@ class JwtUser implements JwtInterface, JwtUserInterface
         private readonly array $roles = [],
         private readonly array $groups = [],
         private readonly array $scopes = [],
-    )
-    {
+    ) {
     }
 
     public function getId(): string

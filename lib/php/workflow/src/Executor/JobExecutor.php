@@ -20,20 +20,20 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class JobExecutor
+readonly class JobExecutor
 {
-    private readonly LoggerInterface $logger;
-    private readonly OutputInterface $output;
-    private readonly EnvContainer $envs;
+    private LoggerInterface $logger;
+    private OutputInterface $output;
+    private EnvContainer $envs;
 
     public function __construct(
-        private readonly iterable $executors,
-        private readonly ActionRegistryInterface $actionRegistry,
-        private readonly ExpressionParser $expressionParser,
-        private readonly StateRepositoryInterface $stateRepository,
-        OutputInterface $output = null,
-        LoggerInterface $logger = null,
-        EnvContainer $envs = null,
+        private iterable $executors,
+        private ActionRegistryInterface $actionRegistry,
+        private ExpressionParser $expressionParser,
+        private StateRepositoryInterface $stateRepository,
+        ?OutputInterface $output = null,
+        ?LoggerInterface $logger = null,
+        ?EnvContainer $envs = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
@@ -125,11 +125,7 @@ class JobExecutor
                     $this->stateRepository->releaseJobLock($workflowId, $jobId);
                 }
             } catch (\Throwable $e2) {
-                throw new \RuntimeException(sprintf(
-                    'Error while releasing job lock after another error: %s (First error was: %s)',
-                    $e2->getMessage(),
-                    $e->getMessage(),
-                ), 0, $e);
+                throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
             }
 
             throw $e;

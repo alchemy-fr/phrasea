@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Entity;
 
 use ApiPlatform\Core\Annotation\ApiProperty;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;

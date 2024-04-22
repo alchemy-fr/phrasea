@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Entity\Core\AttributeDefinition;
-use App\Util\SecurityAwareTrait;
 
 class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
 {

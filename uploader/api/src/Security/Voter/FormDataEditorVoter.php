@@ -24,9 +24,9 @@ class FormDataEditorVoter extends Voter
     protected function supports($attribute, $subject): bool
     {
         return in_array($attribute, [
-                self::EDIT_FORM_SCHEMA,
-                self::EDIT_TARGET_DATA,
-            ], true);
+            self::EDIT_FORM_SCHEMA,
+            self::EDIT_TARGET_DATA,
+        ], true);
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool

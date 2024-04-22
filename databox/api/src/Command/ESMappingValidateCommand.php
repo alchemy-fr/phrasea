@@ -30,9 +30,9 @@ class ESMappingValidateCommand extends Command
     {
         $returnCode = 0;
         foreach ([
-                     'collection',
-                     'asset',
-                 ] as $indexName) {
+            'collection',
+            'asset',
+        ] as $indexName) {
             $shouldReindex = $this->indexSyncState->shouldReindex($indexName);
 
             if (null === $shouldReindex) {

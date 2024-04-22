@@ -6,8 +6,8 @@ namespace Alchemy\Workflow\Doctrine\Entity;
 
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\State\StateUtil;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 

@@ -5,37 +5,27 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Topic\TopicManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class NotifyTopicHandler extends AbstractLogHandler
+#[AsMessageHandler]
+final readonly class NotifyTopicHandler
 {
-    final public const EVENT = 'notify_topic';
-
-    public function __construct(private readonly EventProducer $eventProducer, private readonly TopicManager $topicManager)
-    {
+    public function __construct(
+        private MessageBusInterface $bus,
+        private TopicManager $topicManager
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(NotifyTopic $message): void
     {
-        $payload = $message->getPayload();
-        $topic = $payload['topic'];
-        $template = $payload['template'];
-        $parameters = $payload['parameters'];
-
-        $contacts = $this->topicManager->getSubscriptions($topic);
+        $contacts = $this->topicManager->getSubscriptions($message->getTopic());
         foreach ($contacts as $contact) {
-            $this->eventProducer->publish(new EventMessage(NotifyUserHandler::EVENT, [
-                'user_id' => $contact->getContact()->getUserId(),
-                'template' => $template,
-                'parameters' => $parameters,
-            ]));
+            $this->bus->dispatch(new NotifyUser(
+                $contact->getContact()->getUserId(),
+                $message->getTemplate(),
+                $message->getParameters(),
+            ));
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

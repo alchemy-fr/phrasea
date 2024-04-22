@@ -4,41 +4,36 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class CommitAcknowledgeHandler
 {
-    final public const EVENT = 'commit_ack';
-
-    public function __construct(private readonly EventProducer $eventProducer, private readonly NotifierInterface $notifier, private readonly int $deleteAssetGracefulTime)
-    {
+    public function __construct(
+        private MessageBusInterface $bus,
+        private NotifierInterface $notifier,
+        private EntityManagerInterface $em,
+        private int $deleteAssetGracefulTime,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(CommitAcknowledge $message): void
     {
-        $payload = $message->getPayload();
-        $id = $payload['id'];
-
-        $em = $this->getEntityManager();
-        $commit = $em->find(Commit::class, $id);
-        if (!$commit instanceof Commit) {
-            throw new ObjectNotFoundForHandlerException(Commit::class, $id, self::class);
-        }
-
+        $commit = DoctrineUtil::findStrict($this->em, Commit::class, $message->getId());
         if ($commit->isAcknowledged()) {
             return;
         }
 
         $commit->setAcknowledged(true);
 
-        $em->transactional(function () use ($em, $commit): void {
-            $em->createQueryBuilder()
+        $this->em->transactional(function () use ($commit): void {
+            $this->em->createQueryBuilder()
                 ->update(Asset::class, 'a')
                 ->set('a.acknowledged', ':true')
                 ->andWhere('a.commit = :commit')
@@ -47,18 +42,16 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
                 ->getQuery()
                 ->execute();
 
-            $em->persist($commit);
-            $em->flush();
+            $this->em->persist($commit);
+            $this->em->flush();
         });
 
         if ($this->deleteAssetGracefulTime <= 0) {
             foreach ($commit->getAssets() as $asset) {
-                $this->eventProducer->publish(new EventMessage(DeleteAssetFileHandler::EVENT, [
-                    'path' => $asset->getPath(),
-                ]));
+                $this->bus->dispatch(new DeleteAssetFile($asset->getPath()));
             }
         } else {
-            $this->eventProducer->publish(new EventMessage(DeleteExpiredAssetsHandler::EVENT, []));
+            $this->bus->dispatch(new DeleteExpiredAssets());
         }
 
         if ($commit->getNotifyEmail()) {
@@ -67,8 +60,9 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
                 'uploader/commit_acknowledged',
                 $commit->getLocale() ?? 'en',
                 [
-                'asset_count' => $commit->getAssets()->count(),
-            ]);
+                    'asset_count' => $commit->getAssets()->count(),
+                ]
+            );
         }
 
         $this->notifier->notifyTopic(
@@ -78,15 +72,5 @@ class CommitAcknowledgeHandler extends AbstractEntityManagerHandler
                 'asset_count' => $commit->getAssets()->count(),
             ]
         );
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
-    }
-
-    public static function getQueueName(): string
-    {
-        return 'fast_events';
     }
 }

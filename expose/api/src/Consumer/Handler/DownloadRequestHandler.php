@@ -4,31 +4,28 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\NotifyBundle\Notify\NotifierInterface;
 use App\Entity\DownloadRequest;
 use App\Security\Authentication\JWTManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Consumer\Exception\ObjectNotFoundForHandlerException;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class DownloadRequestHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class DownloadRequestHandler
 {
-    final public const EVENT = 'download_request';
-
-    public function __construct(private readonly NotifierInterface $notifier, private readonly UrlGeneratorInterface $urlGenerator, private readonly JWTManager $JWTManager)
-    {
+    public function __construct(
+        private NotifierInterface $notifier,
+        private UrlGeneratorInterface $urlGenerator,
+        private JWTManager $JWTManager,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(DownloadRequest $message): void
     {
-        $id = $message->getPayload()['id'];
-
-        $em = $this->getEntityManager();
-        $downloadRequest = $em->find(DownloadRequest::class, $id);
-        if (!$downloadRequest instanceof DownloadRequest) {
-            throw new ObjectNotFoundForHandlerException(DownloadRequest::class, $id, self::class);
-        }
+        $downloadRequest = DoctrineUtil::findStrict($this->em, DownloadRequest::class, $message->getId());
 
         $parameters = [
             'publicationId' => $downloadRequest->getPublication()->getId(),
@@ -53,10 +50,5 @@ class DownloadRequestHandler extends AbstractEntityManagerHandler
                 'download_url' => $downloadUrl,
             ]
         );
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

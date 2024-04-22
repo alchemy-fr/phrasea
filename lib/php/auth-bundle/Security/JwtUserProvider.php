@@ -16,8 +16,7 @@ readonly class JwtUserProvider implements UserProviderInterface
         private JwtExtractor $jwtExtractor,
         private JwtValidatorInterface $jwtValidator,
         private KeycloakClient $oauthClient,
-    )
-    {
+    ) {
     }
 
     /**

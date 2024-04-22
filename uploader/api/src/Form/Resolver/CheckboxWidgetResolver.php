@@ -21,7 +21,7 @@ class CheckboxWidgetResolver implements WidgetResolverInterface
     public function supports(array $config): bool
     {
         return in_array($config['type'], [
-                'boolean',
-            ], true);
+            'boolean',
+        ], true);
     }
 }

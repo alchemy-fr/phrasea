@@ -11,7 +11,7 @@ use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
-use App\Consumer\Handler\Asset\AttributeChangedEventHandler;
+use App\Consumer\Handler\Asset\AttributeChanged;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -269,7 +269,7 @@ class BatchAttributeManager
                     $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
 
                     if ($dispatchUpdateEvent) {
-                        $this->postFlushStack->addEvent(AttributeChangedEventHandler::createEvent(
+                        $this->postFlushStack->addBusMessage(new AttributeChanged(
                             $attributes,
                             $assetId,
                             $user?->getId(),

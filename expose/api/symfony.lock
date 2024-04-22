@@ -43,9 +43,6 @@
             "src/Entity/.gitignore"
         ]
     },
-    "arthem/rabbit-bundle": {
-        "version": "0.0.7"
-    },
     "brick/math": {
         "version": "0.8.14"
     },
@@ -242,30 +239,11 @@
             "ref": "3ae1b83985e89138f5443bbc2d9b8c074b497d49"
         }
     },
-    "paragonie/constant_time_encoding": {
-        "version": "v2.4.0"
-    },
     "phar-io/manifest": {
         "version": "2.0.1"
     },
     "phar-io/version": {
         "version": "3.1.0"
-    },
-    "php-amqplib/php-amqplib": {
-        "version": "v2.11.3"
-    },
-    "php-amqplib/rabbitmq-bundle": {
-        "version": "1.12",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.12",
-            "ref": "ce3ca2e4577270c4f518539aa6b9e878998fcfef"
-        },
-        "files": [
-            "config/packages/old_sound_rabbit_mq.yaml",
-            "src/Consumer/.gitignore"
-        ]
     },
     "php-http/discovery": {
         "version": "1.19",
@@ -287,9 +265,6 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
-    },
-    "phpseclib/phpseclib": {
-        "version": "2.0.27"
     },
     "phpspec/prophecy": {
         "version": "1.13.0"

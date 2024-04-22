@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Api\Processor;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
-use App\Util\SecurityAwareTrait;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
 use Doctrine\ORM\EntityManagerInterface;
 

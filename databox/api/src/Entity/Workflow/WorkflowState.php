@@ -24,20 +24,20 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiResource(
     shortName: 'workflows',
     operations: [
-    new Get(
-        controller: GetWorkflowAction::class,
-        security: 'is_granted("READ", object)',
-        output: false
-    ),
-    new Post(
-        uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
-        uriVariables: [],
-        controller: RerunJobAction::class,
-        deserialize: false,
-    ),
-    new GetCollection(
-        security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-    )]
+        new Get(
+            controller: GetWorkflowAction::class,
+            security: 'is_granted("READ", object)',
+            output: false
+        ),
+        new Post(
+            uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
+            uriVariables: [],
+            controller: RerunJobAction::class,
+            deserialize: false,
+        ),
+        new GetCollection(
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+        )]
 )]
 #[ORM\Entity]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]

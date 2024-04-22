@@ -7,20 +7,20 @@ namespace App\Consumer\Handler\Search;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Consumer\Handler\AbstractBatchHandler;
 use App\Entity\Core\Collection;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class IndexAllCollectionsHandler extends AbstractBatchHandler
+#[AsMessageHandler]
+final readonly class IndexAllCollectionsHandler extends AbstractBatchHandler
 {
-    final public const EVENT = 'index_all_collections';
-
-    public function __construct(private readonly SearchIndexer $searchIndexer)
+    public function __invoke(IndexAllCollections $message): void
     {
+        parent::doHandle();
     }
 
-    protected function getIterator(EventMessage $message): iterable
+    protected function getIterator(): iterable
     {
         return $this
-            ->getEntityManager()
+            ->em
             ->createQueryBuilder()
             ->select('c.id')
             ->from(Collection::class, 'c')
@@ -31,10 +31,5 @@ class IndexAllCollectionsHandler extends AbstractBatchHandler
     protected function flushIndexStack(array $stack): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, $stack, SearchIndexer::ACTION_UPSERT);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

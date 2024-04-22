@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Search;
 
 use App\Entity\Admin\PopulatePass;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class ESPopulateHandler extends AbstractEntityManagerHandler
+#[AsMessageHandler]
+final readonly class ESPopulateHandler
 {
     final public const EVENT = 'es_populate';
 
-    public function __construct(private readonly KernelInterface $kernel, private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private KernelInterface $kernel,
+        private EntityManagerInterface $em,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(ESPopulate $message): void
     {
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
@@ -42,15 +44,5 @@ class ESPopulateHandler extends AbstractEntityManagerHandler
             }
             $this->em->flush();
         }
-    }
-
-    public static function createEvent(): EventMessage
-    {
-        return new EventMessage(self::EVENT, []);
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

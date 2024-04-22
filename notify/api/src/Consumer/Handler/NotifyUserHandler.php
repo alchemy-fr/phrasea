@@ -5,29 +5,31 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use App\Contact\ContactManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractLogHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class NotifyUserHandler extends AbstractLogHandler
+#[AsMessageHandler]
+final readonly class NotifyUserHandler
 {
-    final public const EVENT = 'notify_user';
-
-    public function __construct(private readonly EventProducer $eventProducer, private readonly ContactManager $contactManager)
-    {
+    public function __construct(
+        private MessageBusInterface $bus,
+        private ContactManager $contactManager,
+        private LoggerInterface $logger,
+    ) {
     }
 
-    public function handle(EventMessage $message): void
+    public function __invoke(NotifyUser $message): void
     {
-        $payload = $message->getPayload();
-        $userId = $payload['user_id'];
+        $userId = $message->getUserId();
 
         $contact = $this->contactManager->getContact($userId);
-        if (!empty($payload['contact_info'])) {
+        $contactInfo = $message->getContactInfo();
+        if (!empty($contactInfo)) {
             if (null !== $contact) {
-                $this->contactManager->updateContact($contact, $payload['contact_info']);
+                $this->contactManager->updateContact($contact, $contactInfo);
             } else {
-                $contact = $this->contactManager->createContact($userId, $payload['contact_info']);
+                $contact = $this->contactManager->createContact($userId, $contactInfo);
             }
         }
 
@@ -38,17 +40,12 @@ class NotifyUserHandler extends AbstractLogHandler
         }
 
         if ($contact->getEmail()) {
-            $this->eventProducer->publish(new EventMessage(SendEmailHandler::EVENT, [
-                'email' => $contact->getEmail(),
-                'template' => $payload['template'],
-                'parameters' => $payload['parameters'] ?? [],
-                'locale' => $contact->getLocale() ?? 'en',
-            ]));
+            $this->bus->dispatch(new SendEmail(
+                $contact->getEmail(),
+                $message->getTemplate(),
+                $message->getParameters(),
+                $contact->getLocale() ?? 'en',
+            ));
         }
-    }
-
-    public static function getHandledEvents(): array
-    {
-        return [self::EVENT];
     }
 }

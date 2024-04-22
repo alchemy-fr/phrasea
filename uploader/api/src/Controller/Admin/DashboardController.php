@@ -7,7 +7,6 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Asset;
 use App\Entity\Commit;
-use App\Entity\FailedEvent;
 use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Entity\TargetParams;
@@ -39,6 +38,6 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Uploads', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
 
-        yield $this->createDevMenu(FailedEvent::class);
+        yield $this->createDevMenu();
     }
 }
