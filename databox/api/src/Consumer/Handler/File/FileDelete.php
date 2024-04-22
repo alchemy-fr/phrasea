@@ -2,6 +2,9 @@
 
 namespace App\Consumer\Handler\File;
 
+use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+
+#[MessengerMessage('p2')]
 final readonly class FileDelete
 {
     public function __construct(

@@ -5,9 +5,9 @@ namespace App\Integration\Aws\Transcribe\Consumer;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
 #[MessengerMessage('p1')]
-final readonly class AwsTranscribeEvent
+final readonly class TranscribeJobStatusChanged
 {
-    public function __construct(private string $integrationId, private string $body)
+    public function __construct(private string $integrationId, private array $message)
     {
     }
 
@@ -16,8 +16,8 @@ final readonly class AwsTranscribeEvent
         return $this->integrationId;
     }
 
-    public function getBody(): string
+    public function getMessage(): array
     {
-        return $this->body;
+        return $this->message;
     }
 }

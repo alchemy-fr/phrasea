@@ -7,15 +7,13 @@ namespace App\Tests\Rendition\Phraseanet;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
-use Alchemy\Workflow\Consumer\JobConsumer;
+use Alchemy\Workflow\Message\JobConsumer;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\External\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
-use App\Tests\Mock\EventProducerMock;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -41,9 +39,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         self::enableFixtures();
         $apiClient = static::createClient();
 
-        /** @var EventProducerMock $eventProducer */
-        $eventProducer = self::getService(EventProducer::class);
-        $eventProducer->interceptEvents();
+        $inMemoryTransport = $this->interceptMessengerEvents();
         $em = self::getService(EntityManagerInterface::class);
         /** @var PhraseanetApiClientFactoryMock $clientFactory */
         $clientFactory = self::getService(PhraseanetApiClientFactory::class);
@@ -97,10 +93,11 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $assetId = $json['id'];
 
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(JobConsumer::EVENT, $eventMessage->getType());
-        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getPayload()['j']);
-        $this->consumeEvent($eventMessage);
+        $envelope = $inMemoryTransport->get()[0];
+        $eventMessage = $envelope->getMessage();
+        self::assertInstanceOf(JobConsumer::class, $eventMessage);
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getJobId());
+        $this->consumeEvent($envelope);
 
         self::assertEquals('POST', $mockResponse->getRequestMethod());
         $requestOptions = $mockResponse->getRequestOptions();

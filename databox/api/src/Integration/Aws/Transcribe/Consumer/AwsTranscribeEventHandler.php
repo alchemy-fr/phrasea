@@ -41,7 +41,7 @@ final readonly class AwsTranscribeEventHandler
         if ('Notification' === $payload['Type']) {
             $msg = json_decode($payload['Message'], true, 512, JSON_THROW_ON_ERROR);
 
-            if ('aws.transcribe' === $message['source']) {
+            if ('aws.transcribe' === $msg['source']) {
                 $this->bus->dispatch(new TranscribeJobStatusChanged(
                     $workspaceIntegration->getId(),
                     $msg

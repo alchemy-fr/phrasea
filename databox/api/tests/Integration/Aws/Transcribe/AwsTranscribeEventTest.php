@@ -12,8 +12,8 @@ use App\Entity\Core\Workspace;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Aws\Transcribe\AwsTranscribeIntegration;
+use App\Integration\Aws\Transcribe\Consumer\AwsTranscribeEvent;
 use App\Integration\Aws\Transcribe\Consumer\AwsTranscribeEventHandler;
-use Arthem\Bundle\RabbitBundle\Producer\EventProducer;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -28,6 +28,8 @@ class AwsTranscribeEventTest extends ApiTestCase
 
         $apiClient = static::createClient();
         $apiClient->disableReboot();
+
+        $inMemoryTransport = $this->interceptMessengerEvents();
 
         $wsIntegration = $this->createIntegration();
 
@@ -48,6 +50,11 @@ EOL;
 
         $this->triggerEvent($apiClient, $wsIntegration->getId(), $payload);
         $this->assertResponseStatusCodeSame(200);
+
+        $envelope = $inMemoryTransport->getSent()[0];
+        self::assertInstanceOf(AwsTranscribeEvent::class, $envelope->getMessage());
+        $this->consumeEvent($envelope);
+
         $this->assertHasData($wsIntegration->getId(), AwsTranscribeEventHandler::DATA_EVENT_MESSAGE, 1);
     }
 
@@ -111,8 +118,7 @@ EOL;
     {
         self::enableFixtures();
 
-        $eventProducer = self::getService(EventProducer::class);
-        $eventProducer->interceptEvents();
+        $inMemoryTransport = $this->interceptMessengerEvents();
 
         $apiClient = static::createClient();
         $apiClient->disableReboot();
@@ -136,9 +142,9 @@ EOL;
         $this->triggerEvent($apiClient, $wsIntegration->getId(), $payload);
         $this->assertResponseStatusCodeSame(200);
 
-        $eventMessage = $eventProducer->shiftEvent();
-        self::assertEquals(AwsTranscribeEventHandler::EVENT, $eventMessage->getType());
-        $this->consumeEvent($eventMessage);
+        $envelope = $inMemoryTransport->get()[0];
+        self::assertInstanceOf(AwsTranscribeEvent::class, $envelope->getMessage());
+        $this->consumeEvent($envelope);
 
         $this->assertHasData($wsIntegration->getId(), AwsTranscribeEventHandler::DATA_EVENT_MESSAGE, 1);
     }

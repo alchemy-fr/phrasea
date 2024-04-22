@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Integration\Aws\Transcribe\Consumer;
 
 use App\Integration\IntegrationManager;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\AbstractEntityManagerHandler;
-use Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -98,22 +96,5 @@ final readonly class TranscribeJobStatusChangedHandler
     ]
   ]
          */
-    }
-}
-
-final readonly class TranscribeJobStatusChanged
-{
-    public function __construct(private string $integrationId, private array $message)
-    {
-    }
-
-    public function getIntegrationId(): string
-    {
-        return $this->integrationId;
-    }
-
-    public function getMessage(): array
-    {
-        return $this->message;
     }
 }

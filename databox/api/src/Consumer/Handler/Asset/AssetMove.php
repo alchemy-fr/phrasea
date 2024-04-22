@@ -2,6 +2,9 @@
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+
+#[MessengerMessage('p1')]
 readonly class AssetMove
 {
     public function __construct(

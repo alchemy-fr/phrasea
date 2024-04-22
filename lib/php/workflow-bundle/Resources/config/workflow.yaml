@@ -31,11 +31,9 @@ services:
     class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
 
   alchemy.workflow.job_trigger:
-    class: Alchemy\Workflow\Trigger\ArthemRabbitJobTrigger
+    class: Alchemy\Workflow\Trigger\MessengerJobTrigger
 
-  Alchemy\Workflow\Consumer\JobConsumer:
-    tags:
-      - { name: arthem_rabbit.event_handler }
+  Alchemy\Workflow\Message\JobConsumerHandler: ~
 
   alchemy.workflow.job_runner:
     class: Alchemy\Workflow\Runner\RuntimeRunner

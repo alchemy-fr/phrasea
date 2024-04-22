@@ -2,6 +2,9 @@
 
 namespace App\Consumer\Handler\File;
 
+use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+
+#[MessengerMessage('p1')]
 final readonly class CopyFileToAsset
 {
     public function __construct(

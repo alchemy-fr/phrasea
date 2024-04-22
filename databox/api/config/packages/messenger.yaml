@@ -29,16 +29,22 @@ framework:
 
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
+            Alchemy\Workflow\Message\JobConsumer: p1
         buses:
             command_bus:
                 middleware:
                     - doctrine_ping_connection
 
-when@dev: &dev
+when@dev:
     framework:
         messenger:
             transports:
                 p1: 'sync://'
                 p2: 'sync://'
 
-when@test: *dev
+when@test:
+    framework:
+        messenger:
+            transports:
+                p1: 'test://'
+                p2: 'test://'

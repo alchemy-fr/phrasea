@@ -26,8 +26,6 @@ services:
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:
             tags: ['alchemy_workflow.action']
-        Arthem\Bundle\RabbitBundle\Consumer\Event\EventMessageHandlerInterface:
-            tags: ['arthem_rabbit.event_handler']
         Symfony\Component\EventDispatcher\EventSubscriberInterface:
             tags: ['kernel.event_subscriber']
         App\Attribute\Type\AttributeTypeInterface:
