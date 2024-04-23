@@ -89,7 +89,11 @@ Collection-path where to import records as "main" assets.
 ## `storiesCollectionPath`
 Collection-path where to import stories. If unset: do not import stories.
 
-## `copyTo` :bomb: do not use
+Each story becomes a collection, and each contained record (= "main" asset) is **copied / aliase** to this collection.
+
+todo: How to import story metadata ?
+
+## `copyTo`
 list (array) of paths where to copy / alias "main" assets.
 
 Each path is a **twig** expressions that must generate databox path(s), depending on run-time values like record metadata.
@@ -150,7 +154,6 @@ If the asset is to be copied in many places (paths), the twig must generate **on
             ...
             ```
 
-
 ## `fieldMap` 
 Map (key=AttributeDefinition name) of attributes to create / import.
 
@@ -163,7 +166,7 @@ Map (key=AttributeDefinition name) of attributes to create / import.
 - `values`: Array of objects to declare initial metadata value(s).
 
     #### values:
-    - `locale`: e.g. "fr" :bomb: do not use
+    - `locale`: e.g. "fr"
     - `type`: how to evaluate the `value` ("metadata", "template", "text" ; default: "text")
     - `value`: value expression, as metadata (=phraseanet field name), template (twig) code or simple text
 
@@ -191,6 +194,14 @@ If the name does not match a Phraseanet field, those settings can be set in conf
 _note 2:_
 
 **If the `FieldMap` setting is not set**: All Phraseanet fields are imported
+
+
+_note 3:_
+
+If an AttributeDefinition setting is declared with a locale, it will be created
+with `translatable=true`.
+
+All the different AttributeDefinition locales are copied to the "Enabled locales" of the workspace.
 
 
 _twig context technical note_: 

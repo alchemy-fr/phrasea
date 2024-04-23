@@ -34,7 +34,7 @@ export async function createAsset(
     key: string,
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
-    shortcutIntoCollections: string[]
+    shortcutIntoCollections: {id: string, path: string}[]
 ): Promise<Asset> {
     const document: SubDef | undefined = record.subdefs.find(
         s => s.name === 'document'

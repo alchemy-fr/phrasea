@@ -312,7 +312,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
-            const recordStories: Record<string, string[]> = {};   // key: record_id ; values: story_id's
+            const recordStories: Record<string, { id:string , path:string }[]> = {};   // key: record_id ; values: story_id's
             if(storiesCollectionId !== null) {
                 logger.info(`Fetching stories`);
                 let stories: CPhraseanetStory[] = [];
@@ -350,7 +350,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             if (recordStories[rs.record_id] === undefined) {
                                 recordStories[rs.record_id] = [];
                             }
-                            recordStories[rs.record_id].push(storyCollId);
+                            recordStories[rs.record_id].push({id:storyCollId, path:s.title});
                         }
                     }
                     offset += stories.length;
@@ -385,14 +385,18 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
                         for(const path of paths) {
                             const branch = splitPath(path);
-                            copyTo.push(await databoxClient.createCollectionTreeBranch(
-                                workspaceId,
-                                collectionKeyPrefix,
-                                branch.map(k => ({
-                                    key: k,
-                                    title: k,
-                                }))
-                            ));
+                            copyTo.push(
+                                {
+                                    path: path,
+                                    id: await databoxClient.createCollectionTreeBranch(
+                                        workspaceId,
+                                        collectionKeyPrefix,
+                                        branch.map(k => ({
+                                            key: k,
+                                            title: k,
+                                        }))
+                                    )
+                                });
                         }
                     }
 
