@@ -11,5 +11,5 @@ interface IndexableDependenciesResolverInterface
 
     public function setDependencyStack(DependencyStack $dependencyStack): void;
 
-    public function updateDependencies(ESIndexableDependencyInterface $object): void;
+    public function updateDependencies(ESIndexableDependencyInterface $object, Operation $operation): void;
 }

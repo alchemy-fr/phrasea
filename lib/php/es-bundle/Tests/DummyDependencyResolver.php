@@ -4,13 +4,14 @@ namespace Alchemy\ESBundle\Tests;
 
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchDependencyResolverTrait;
 
 class DummyDependencyResolver implements IndexableDependenciesResolverInterface
 {
     use SearchDependencyResolverTrait;
 
-    public function updateDependencies(ESIndexableDependencyInterface $object): void
+    public function updateDependencies(ESIndexableDependencyInterface $object, Operation $operation): void
     {
         if ($object instanceof A) {
             $this->addParent(A::class, $object->getId());

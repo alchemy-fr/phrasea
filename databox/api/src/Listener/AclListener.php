@@ -7,6 +7,7 @@ namespace App\Listener;
 use Alchemy\AclBundle\Event\AclDeleteEvent;
 use Alchemy\AclBundle\Event\AclUpsertEvent;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
 use App\Consumer\Handler\Search\IndexAllAssets;
@@ -62,7 +63,7 @@ readonly class AclListener
         if (Collection::class === $objectClass) {
             $this->bus->dispatch(new IndexCollectionBranch($objectId));
         } else {
-            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], SearchIndexer::ACTION_UPSERT);
+            $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
         }
     }
 }

@@ -20,7 +20,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
         openModal(ConfirmDialog, {
             textToType: data.title,
             title: t(
-                'collection_delete.title.confirm',
+                'collection_delete.confirm',
                 'Are you sure you want to delete this collection?'
             ),
             onConfirm: async () => {

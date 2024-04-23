@@ -95,9 +95,7 @@
     }
   },
   "basket_delete": {
-    "title": {
       "confirm": "Are you sure you want to delete this basket?"
-    }
   },
   "change_theme": {
     "save": "Save",
@@ -135,9 +133,7 @@
     }
   },
   "collection_delete": {
-    "title": {
       "confirm": "Are you sure you want to delete this collection?"
-    }
   },
   "collection_move": {
     "intro": "Select the destination where to move this collection:",

@@ -20,10 +20,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsEventListener(WorkerMessageHandledEvent::class, method: 'flush', priority: -255)]
 final class SearchIndexer
 {
-    final public const ACTION_INSERT = 'i';
-    final public const ACTION_UPSERT = 'u';
-    final public const ACTION_DELETE = 'd';
-
     private DependencyStacks $dependencyStacks;
 
     /**
@@ -61,11 +57,11 @@ final class SearchIndexer
         $this->index($objects, $depth, $parents);
     }
 
-    public function scheduleObjectsIndex(string $class, array $ids, string $operation): void
+    public function scheduleObjectsIndex(string $class, array $ids, Operation $operation): void
     {
         $objects = [
             $class => [
-                $operation => $ids,
+                $operation->value => $ids,
             ],
         ];
 
@@ -90,27 +86,28 @@ final class SearchIndexer
 
         foreach ($objects as $class => $entities) {
             foreach ($entities as $operation => $ids) {
+                $op = Operation::from($operation);
                 $chunks = array_chunk($ids, $this->batchSize);
                 foreach ($chunks as $chunk) {
-                    $this->indexClass($class, $chunk, $operation, $depth, $objects, $parents);
+                    $this->indexClass($class, $chunk, $op, $depth, $objects, $parents);
                 }
             }
         }
     }
 
-    private function indexClass(string $class, array $ids, string $operation, int $depth, array $currentBatch, array $parents): void
+    private function indexClass(string $class, array $ids, Operation $operation, int $depth, array $currentBatch, array $parents): void
     {
         $class = ClassUtils::getRealClass($class);
         $ids = array_unique($ids);
 
-        $this->logger->debug(sprintf('ES index %s %s: ("%s")', $class, $operation, implode('", "', $ids)));
+        $this->logger->debug(sprintf('ES index %s %s: ("%s")', $class, $operation->name, implode('", "', $ids)));
 
         switch ($operation) {
-            case self::ACTION_DELETE:
+            case Operation::Delete:
                 $this->indexPersister->deleteManyByIdentifiers($class, $ids);
                 break;
-            case self::ACTION_INSERT:
-            case self::ACTION_UPSERT:
+            case Operation::Insert:
+            case Operation::Upsert:
                 $objects = $this->em
                     ->createQueryBuilder()
                     ->select('t')
@@ -135,7 +132,7 @@ final class SearchIndexer
                     ]);
                 }
 
-                if (self::ACTION_INSERT === $operation) {
+                if (Operation::Insert === $operation) {
                     $this->indexPersister->insertMany($class, $objects);
                 } else {
                     $this->indexPersister->replaceMany($class, $objects);
@@ -144,7 +141,7 @@ final class SearchIndexer
                 foreach ($objects as $object) {
                     if ($object instanceof ESIndexableDependencyInterface) {
                         if (!empty($this->dependenciesResolvers)) {
-                            $this->updateDependencies($object, $depth, $currentBatch, $parents);
+                            $this->updateDependencies($object, $operation, $depth, $currentBatch, $parents);
                         }
                     }
                 }
@@ -153,7 +150,7 @@ final class SearchIndexer
         }
     }
 
-    private function updateDependencies(ESIndexableDependencyInterface $object, int $depth, array $currentBatch, array $parents): void
+    private function updateDependencies(ESIndexableDependencyInterface $object, Operation $operation, int $depth, array $currentBatch, array $parents): void
     {
         $depStack = new DependencyStack(function (DependencyStack $stack, DependencyStack $relay): void {
             $this->flushDependencies(0);
@@ -163,7 +160,7 @@ final class SearchIndexer
         /** @var IndexableDependenciesResolverInterface $resolver */
         foreach ($this->dependenciesResolvers as $resolver) {
             $resolver->setDependencyStack($depStack);
-            $resolver->updateDependencies($object);
+            $resolver->updateDependencies($object, $operation);
         }
 
         if ($depStack->getDependencyCount() > 0) {
@@ -196,7 +193,7 @@ final class SearchIndexer
     /**
      * @param ESIndexableInterface[]|array $entities
      */
-    public static function computeObjects(array &$objects, array $entities, string $operation): void
+    public static function computeObjects(array &$objects, array $entities, Operation $operation): void
     {
         foreach ($entities as $entity) {
             if (is_array($entity)) {
@@ -209,11 +206,11 @@ final class SearchIndexer
             if (!isset($objects[$class])) {
                 $objects[$class] = [];
             }
-            if (!isset($objects[$class][$operation])) {
-                $objects[$class][$operation] = [];
+            if (!isset($objects[$class][$operation->value])) {
+                $objects[$class][$operation->value] = [];
             }
-            if (!in_array($id, $objects[$class][$operation], true)) {
-                $objects[$class][$operation][] = $id;
+            if (!in_array($id, $objects[$class][$operation->value], true)) {
+                $objects[$class][$operation->value][] = $id;
             }
         }
     }

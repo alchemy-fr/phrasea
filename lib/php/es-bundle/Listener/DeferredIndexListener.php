@@ -7,6 +7,7 @@ namespace Alchemy\ESBundle\Listener;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Util\ClassUtils;
@@ -159,11 +160,11 @@ final class DeferredIndexListener
         $objects = [];
 
         if (!empty($this->scheduledForInsertion)) {
-            SearchIndexer::computeObjects($objects, $this->scheduledForInsertion, SearchIndexer::ACTION_INSERT);
+            SearchIndexer::computeObjects($objects, $this->scheduledForInsertion, Operation::Insert);
             $this->scheduledForInsertion = [];
         }
         if (!empty($this->scheduledForUpdate)) {
-            SearchIndexer::computeObjects($objects, $this->scheduledForUpdate, SearchIndexer::ACTION_UPSERT);
+            SearchIndexer::computeObjects($objects, $this->scheduledForUpdate, Operation::Upsert);
             $this->scheduledForUpdate = [];
         }
         if (!empty($this->scheduledForDeletion)) {
@@ -171,7 +172,7 @@ final class DeferredIndexListener
                 if (!isset($objects[$class])) {
                     $objects[$class] = [];
                 }
-                $objects[$class][SearchIndexer::ACTION_DELETE] = $ids;
+                $objects[$class][Operation::Delete->value] = $ids;
             }
             $this->scheduledForDeletion = [];
         }

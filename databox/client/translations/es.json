@@ -95,9 +95,7 @@
     }
   },
   "basket_delete": {
-    "title": {
       "confirm": "¿Estás seguro de que deseas eliminar esta cesta?"
-    }
   },
   "change_theme": {
     "save": "Guardar",
@@ -135,9 +133,7 @@
     }
   },
   "collection_delete": {
-    "title": {
       "confirm": "¿Estás seguro de que deseas eliminar esta colección?"
-    }
   },
   "collection_move": {
     "intro": "Selecciona el destino donde mover esta colección:",

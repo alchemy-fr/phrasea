@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -42,6 +43,6 @@ readonly class IndexCollectionBranchHandler
 
     private function indexCollection(Collection $collection): void
     {
-        $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], SearchIndexer::ACTION_UPSERT);
+        $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
     }
 }

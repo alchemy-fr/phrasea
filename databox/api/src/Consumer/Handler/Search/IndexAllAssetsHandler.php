@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use Alchemy\ESBundle\Indexer\SearchIndexer;
+use Alchemy\ESBundle\Indexer\Operation;
 use App\Consumer\Handler\AbstractBatchHandler;
 use App\Entity\Core\Asset;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -29,6 +29,6 @@ final readonly class IndexAllAssetsHandler extends AbstractBatchHandler
 
     protected function flushIndexStack(array $stack): void
     {
-        $this->searchIndexer->scheduleObjectsIndex(Asset::class, $stack, SearchIndexer::ACTION_UPSERT);
+        $this->searchIndexer->scheduleObjectsIndex(Asset::class, $stack, Operation::Upsert);
     }
 }

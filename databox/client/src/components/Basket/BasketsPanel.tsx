@@ -74,13 +74,9 @@ function BasketsPanel({selected}: Props) {
 
     const onDelete = (data: Basket): void => {
         openModal(ConfirmDialog, {
-            textToType:
-                data.assetCount && data.assetCount > 1
-                    ? data.title ||
-                      t('dialog.confirm_text_type.default', 'Confirm')
-                    : undefined,
+            textToType: data.title,
             title: t(
-                'basket_delete.title.confirm',
+                'basket_delete.confirm',
                 'Are you sure you want to delete this basket?'
             ),
             onConfirm: async () => {

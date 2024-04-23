@@ -97,7 +97,7 @@ export default function CollectionMenuItem({
         openModal(ConfirmDialog, {
             textToType: data.title,
             title: t(
-                'collection_delete.title.confirm',
+                'collection_delete.confirm',
                 'Are you sure you want to delete this collection?'
             ),
             onConfirm: async () => {

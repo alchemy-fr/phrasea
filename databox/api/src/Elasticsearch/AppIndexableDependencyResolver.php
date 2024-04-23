@@ -4,6 +4,7 @@ namespace App\Elasticsearch;
 
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchDependencyResolverTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -19,9 +20,13 @@ class AppIndexableDependencyResolver implements IndexableDependenciesResolverInt
     {
     }
 
-    public function updateDependencies(ESIndexableDependencyInterface $object): void
+    public function updateDependencies(ESIndexableDependencyInterface $object, Operation $operation): void
     {
         if ($object instanceof Collection) {
+            if (Operation::Insert === $operation && null !== $object->getParent()) {
+                $this->addDependency(Collection::class, $object->getParent()->getId());
+            }
+
             $this->appendDependencyIterator(
                 Asset::class,
                 $this->em->getRepository(Asset::class)

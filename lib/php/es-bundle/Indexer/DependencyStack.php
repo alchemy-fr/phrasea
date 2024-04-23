@@ -46,7 +46,7 @@ class DependencyStack
         }, $action), $this->dependencies);
     }
 
-    public function addDependency(string $class, string $id, string $action = SearchIndexer::ACTION_UPSERT): self
+    public function addDependency(string $class, string $id, Operation $operation = Operation::Upsert): self
     {
         if (
             (isset($this->parents[$class]) && $this->parents[$class]->has($id))
@@ -55,8 +55,8 @@ class DependencyStack
             return $this;
         }
 
-        $this->dependencies[$class][$action] ??= new EntityGroup();
-        $this->dependencies[$class][$action]->add($id);
+        $this->dependencies[$class][$operation->value] ??= new EntityGroup();
+        $this->dependencies[$class][$operation->value]->add($id);
 
         if (++$this->dependencyCount > $this->batchSize) {
             return $this->release();
@@ -83,7 +83,7 @@ class DependencyStack
 
         $b = $this->currentBatch[$class];
 
-        return in_array($id, $b[SearchIndexer::ACTION_UPSERT] ?? $b[SearchIndexer::ACTION_INSERT] ?? [], true);
+        return in_array($id, $b[Operation::Upsert->value] ?? $b[Operation::Insert->value] ?? [], true);
     }
 
     public function addParent(string $class, string $id): void

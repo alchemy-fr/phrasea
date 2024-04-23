@@ -10,6 +10,7 @@ import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import {getBasket} from '../../../api/basket';
 import EditBasket from './EditBasket';
+import Operations from "./Operations";
 
 type Props = {};
 
@@ -67,6 +68,18 @@ export default function BasketDialog({}: Props) {
                         data,
                     },
                     enabled: data.capabilities.canEditPermissions,
+                },
+                {
+                    title: t(
+                        'basket.manage.operations.title',
+                        'Operations'
+                    ),
+                    component: Operations,
+                    id: 'ops',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
                 },
             ]}
         />

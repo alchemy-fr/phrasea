@@ -3,6 +3,7 @@
 namespace Alchemy\ESBundle\Tests;
 
 use Alchemy\ESBundle\Indexer\IndexPersister;
+use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use ColinODell\PsrTestLogger\TestLogger;
 use Doctrine\ORM\Configuration;
@@ -43,7 +44,7 @@ class SearchIndexerTest extends TestCase
 
         $objects = [
             A::class => [
-                SearchIndexer::ACTION_UPSERT => array_map(fn (A $o) => $o->getId(), array_values($as)),
+                Operation::Upsert->value => array_map(fn (A $o) => $o->getId(), array_values($as)),
             ],
         ];
 
@@ -86,7 +87,7 @@ class SearchIndexerTest extends TestCase
 
         $objects = [
             A::class => [
-                SearchIndexer::ACTION_UPSERT => array_map(fn (A $o) => $o->getId(), array_values($as)),
+                Operation::Upsert->value => array_map(fn (A $o) => $o->getId(), array_values($as)),
             ],
         ];
 
@@ -133,7 +134,7 @@ class SearchIndexerTest extends TestCase
 
         $objects = [
             A::class => [
-                SearchIndexer::ACTION_UPSERT => array_map(fn (A $o) => $o->getId(), array_values($store[A::class])),
+                Operation::Upsert->value => array_map(fn (A $o) => $o->getId(), array_values($store[A::class])),
             ],
         ];
 
@@ -179,7 +180,7 @@ class SearchIndexerTest extends TestCase
 
         $objects = [
             A::class => [
-                SearchIndexer::ACTION_UPSERT => array_map(fn (A $o) => $o->getId(), array_values($store[A::class])),
+                Operation::Upsert->value => array_map(fn (A $o) => $o->getId(), array_values($store[A::class])),
             ],
         ];
 
@@ -197,7 +198,7 @@ class SearchIndexerTest extends TestCase
         $expectedLog = sprintf(
             'ES index %s %s: ("%s")',
             $class,
-            SearchIndexer::ACTION_UPSERT,
+            Operation::Upsert->name,
             implode('", "', $ids),
         );
 

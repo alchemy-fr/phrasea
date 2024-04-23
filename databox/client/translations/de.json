@@ -95,9 +95,7 @@
     }
   },
   "basket_delete": {
-    "title": {
       "confirm": "Möchten Sie diesen Korb wirklich löschen?"
-    }
   },
   "change_theme": {
     "save": "Speichern",
@@ -135,9 +133,7 @@
     }
   },
   "collection_delete": {
-    "title": {
       "confirm": "Möchten Sie diese Sammlung wirklich löschen?"
-    }
   },
   "collection_move": {
     "intro": "Wählen Sie das Ziel aus, wohin diese Sammlung verschoben werden soll:",
