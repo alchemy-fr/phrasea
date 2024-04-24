@@ -67,8 +67,39 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
             }
         }
 
+        $isSsl = in_array(strtolower(getenv('RABBITMQ_SSL') ?: ''), [
+            '1', 'y', 'true', 'on',
+        ], true);
+
+        $container->setParameter('alchemy_messenger.amqp_transport_dsn', 'amqp'.($isSsl ? 's':  '').'://%env(RABBITMQ_USER)%:%env(RABBITMQ_PASSWORD)%@%env(RABBITMQ_HOST)%:%env(RABBITMQ_PORT)%/%env(RABBITMQ_VHOST)%');
+        $container->setParameter('alchemy_messenger.amqp_transport_options', [
+            'confirm_timeout' => 3,
+            'read_timeout' => 3,
+            'write_timeout' => 3,
+            'heartbeat' => 0,
+        ]);
+
         $container->prependExtensionConfig('framework', [
             'messenger' => [
+                'serializer' => [
+                    'default_serializer' => 'messenger.transport.symfony_serializer',
+                    'symfony_serializer' => [
+                        'format' => 'json',
+                        'context' => []
+                    ]
+                ],
+                'failure_transport' => 'failed',
+                'transports' => [
+                    'failed' => 'doctrine://default?queue_name=failed',
+                    'sync' => 'sync://'
+                ],
+                'buses' => [
+                    'command_bus' => [
+                        'middleware' => [
+                            'doctrine_ping_connection'
+                        ]
+                    ]
+                ],
                 'routing' => $routing,
             ],
         ]);

@@ -389,7 +389,7 @@
       "submit": {
         "title": "Téléverser"
       },
-      "success": "Fichiers téléversés !",
+      "success": "Fichiers téléchargés !",
       "title": {
         "label": "Titre"
       }
