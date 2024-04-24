@@ -3,70 +3,76 @@
 ...
   "locations": [
     {
-      "name": "phraseanet-local",
-      "type": "phraseanet",
-      "options": {
-        "url": "https://phraseanet.phrasea.local/",
-        "token": "my_token",
-        "verifySSL": false,
-        "importFiles": false,
-        "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
-        "idempotencePrefixes": {
-          "asset": "idmp_asset",
-          "collection": "idmp_collection",
-          "attributeDefinition": "idmp_attributeDefinition",
-          "renditionDefinition": "idmp_renditionDefinition"
-        },
-        "databoxMapping": [
-          {
-            "databox": "db_databox1",
-            "collections": "",
-            "workspaceSlug": "phnet",
-            "searchQuery": "",
-            "recordsCollectionPath": "/records",
-            "copyTo": [
-              "{% for s in record.getMetadata('Subject', 'no_subject').values %}/classification/{{ record.getMetadata('Creator', 'no_creator').value | escapePath }}/{{ s | escapePath }}\n{% endfor %}"
-            ],
-            "storiesCollectionPath": "/stories",
-            "fieldMap": {
-              "Info": {
-                "values": [
-                  {
-                    "type": "text",
-                    "value": "Imported from Phraseanet"
-                  }
-                ]
-              },
-              "Creator": {
-                "values": [
-                  {
-                    "type": "metadata",
-                    "value": "Creator"
-                  }
-                ]
-              },
-              "Title": {
-                "values": [
-                  {
-                    "locale": "fr",
-                    "type": "metadata",
-                    "value": "Title"
-                  },
-                  {
-                    "locale": "en",
-                    "type": "metadata",
-                    "value": "Title"
-                  }
-                ]
-              },
-              "Copyright": {
-                "type": "string",
-                "value": "(c){{record.getMetadata('ArchiveDate', '').value | date('Y')}} {{record.getMetadata('Creator', '').value}}"
-              }
-            }
-          }
-        ]
-      }
+        "name": "phraseanet-full-example",
+        "type": "phraseanet",
+        "options": {
+            "url": "https://phraseanet.phrasea.local/",
+            "token": "-------mytoken-------",
+            "verifySSL": false,
+            "importFiles": false,
+            "searchOrder": "%env(PHRASEANET_SEARCH_ORDER)%",
+            "idempotencePrefixes": {
+                "asset": "idmp_asset",
+                "collection": "idmp_collection",
+                "attributeDefinition": "idmp_attributeDefinition",
+                "renditionDefinition": "idmp_renditionDefinition"
+            },
+            "databoxMapping": [
+                {
+                    "databox": "db_databox1",
+                    "collections": "",
+                    "workspaceSlug": "phnet",
+                    "searchQuery": "",
+                    "recordsCollectionPath": "/records",
+                    "storiesCollectionPath": "/stories",
+                    "copyTo": [
+                        "{% for s in record.getMetadata('Subject', 'no_subject').values %}/classification/{{ record.getMetadata('Creator', 'no_creator').value | escapePath }}/{{ s | escapePath }}\n{% endfor %}"
+                    ],
+                    "fieldMap": {
+                        "Title": {
+                            "values": [
+                                {
+                                    "locale": "fr",
+                                    "type": "metadata",
+                                    "value": "Titre"
+                                },
+                                {
+                                    "locale": "en",
+                                    "type": "metadata",
+                                    "value": "Title"
+                                }
+                            ]
+                        },
+                        "Subject": {
+                            "type": "string",
+                            "values": [
+                                {
+                                    "type": "template",
+                                    "value": "{% for v in record.getMetadata('Subject').values %}{{v}}\n{% endfor %}"
+                                }
+                            ]
+                        },
+                        "Copyright": {
+                            "type": "string",
+                            "values": [
+                                {
+                                    "type": "template",
+                                    "value": "(c){{record.getMetadata('ArchiveDate', '').value | date('Y')}} {{record.getMetadata('Creator', '').value}}"
+                                }
+                            ]
+                        },
+                        "Filename": {
+                            "values": [
+                                {
+                                    "type": "metadata",
+                                    "value": "Filename"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
     }
 ...
 ```
