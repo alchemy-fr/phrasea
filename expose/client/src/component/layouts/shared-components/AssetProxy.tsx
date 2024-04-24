@@ -70,7 +70,7 @@ export default function AssetProxy({
                     url={asset.previewUrl}
                     posterUrl={asset.posterUrl}
                     title={asset.title}
-                    webVTTLink={asset.webVTTLink}
+                    webVTTLinks={asset.webVTTLinks}
                     fluid={fluid}
                     mimeType={type}
                     assetId={asset.assetId}

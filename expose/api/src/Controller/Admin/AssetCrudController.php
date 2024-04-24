@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -43,7 +44,7 @@ class AssetCrudController extends AbstractAdminCrudController
         $lat = NumberField::new('lat');
         $lng = NumberField::new('lng');
         $altitude = NumberField::new('altitude');
-        $webVTT = TextareaField::new('webVTT');
+        $webVTT = JsonField::new('webVTT');
         $clientAnnotations = TextareaField::new('clientAnnotations');
         $assetId = IdField::new('assetId');
         $path = TextField::new('path');

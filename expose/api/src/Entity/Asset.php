@@ -25,6 +25,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\Index(columns: ['asset_id'], name: 'assetId')]
@@ -375,13 +376,34 @@ class Asset implements MediaInterface, \Stringable
     private ?float $lng = null;
 
     #[ApiProperty]
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(['asset:admin:read'])]
-    private ?string $webVTT = null;
+    #[Assert\All([
+        new Assert\Collection(
+            fields: [
+                'label' => [
+                    new Assert\NotBlank(),
+                    new Assert\Length(min: 2, max: 100),
+                ],
+                'locale' => [
+                    new Assert\Optional(),
+                    new Assert\Length(min: 2, max: 10),
+                ],
+                'id' => [
+                    new Assert\NotBlank(),
+                    new Assert\Length(min: 10, max: 36),
+                ],
+                'content' => [
+                    new Assert\NotBlank(),
+                ],
+            ],
+        ),
+    ])]
+    private ?array $webVTT = null;
 
     #[ApiProperty(writable: false)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
-    private ?string $webVTTLink = null;
+    private ?array $webVTTLinks = null;
 
     /**
      * Location altitude.
@@ -671,24 +693,44 @@ class Asset implements MediaInterface, \Stringable
         return $this->lat ? sprintf('[%.4f, %.4f]', $this->lat, $this->lng) : null;
     }
 
-    public function getWebVTT(): ?string
+    public function getWebVTT(): ?array
     {
-        return $this->webVTT;
+        if (null === $this->webVTT) {
+            return null;
+        }
+
+        return array_values($this->webVTT);
     }
 
-    public function setWebVTT(?string $webVTT): void
+    public function getWebVTTById(string $id): ?array
     {
-        $this->webVTT = $webVTT;
+        return $this->webVTT[$id] ?? null;
     }
 
-    public function getWebVTTLink(): ?string
+    public function setWebVTT(?array $webVTT): void
     {
-        return $this->webVTTLink;
+        $newValues = array_map(function (array $wv): array {
+            if (!isset($wv['id'])) {
+                $wv['id'] = Uuid::uuid4()->toString();
+            }
+
+            return $wv;
+        }, $webVTT);
+
+        $this->webVTT = [];
+        foreach ($newValues as $v) {
+            $this->webVTT[$v['id']] = $v;
+        }
     }
 
-    public function setWebVTTLink(?string $webVTTLink): void
+    public function getWebVTTLinks(): ?array
     {
-        $this->webVTTLink = $webVTTLink;
+        return $this->webVTTLinks;
+    }
+
+    public function setWebVTTLinks(?array $webVTTLinks): void
+    {
+        $this->webVTTLinks = $webVTTLinks;
     }
 
     public function getUploadURL(): ?string
