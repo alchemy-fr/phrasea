@@ -1,6 +1,6 @@
 import React from 'react';
 import {FieldValues} from 'react-hook-form';
-import {locales} from './locales';
+import {locales} from '@alchemy/i18n/src/Locale/locales';
 import RSelectWidget, {RSelectProps} from '../RSelectWidget';
 
 type Props<TFieldValues extends FieldValues> = RSelectProps<

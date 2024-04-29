@@ -50,11 +50,19 @@ class AssetNormalizer extends AbstractRouterNormalizer
             $object->setPosterUrl($this->generateAssetUrl($poster));
         }
 
-        if (!empty($webVTT = $object->getWebVTT())) {
-            $object->setWebVTTLink($this->urlGenerator->generate('asset_webvtt', [
-                'id' => $object->getId(),
-                'hash' => md5($webVTT),
-            ], UrlGeneratorInterface::ABSOLUTE_URL));
+        if (!empty($webVTTs = $object->getWebVTT())) {
+            $links = [];
+            foreach ($webVTTs as $webVTT) {
+                $links[] = [
+                    'locale' => $webVTT['locale'],
+                    'label' => $webVTT['label'] ?? $webVTT['locale'],
+                    'url' => $this->urlGenerator->generate('asset_webvtt', [
+                        'id' => $object->getId(),
+                        'vttId' => $webVTT['id'],
+                    ], UrlGeneratorInterface::ABSOLUTE_URL),
+                ];
+            }
+            $object->setWebVTTLinks($links);
         }
     }
 

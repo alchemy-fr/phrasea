@@ -1,20 +1,20 @@
 import React from 'react';
 import videojs, {VideoJsPlayer} from 'video.js';
 import {getPosterPlaceholder} from './placeholders';
+import {WebVTTs} from "../../../types.ts";
 
 type Props = {
     title?: string;
-    description?: string;
     url: string;
     posterUrl?: string;
-    webVTTLink?: string;
+    webVTTLinks?: WebVTTs | undefined;
     fluid?: boolean;
     mimeType: string;
     assetId: string | undefined;
 };
 
 export default React.forwardRef(function VideoPlayer(
-    {title, url, posterUrl, webVTTLink, fluid, mimeType, assetId}: Props,
+    {title, url, posterUrl, webVTTLinks, fluid, mimeType, assetId}: Props,
     ref
 ) {
     const player = React.useRef<VideoJsPlayer>();
@@ -68,13 +68,12 @@ export default React.forwardRef(function VideoPlayer(
                     data-matomo-resource={assetId}
                     data-matomo-title={title}
                 >
-                    {webVTTLink && (
-                        <track
+                    {webVTTLinks && webVTTLinks.map(webVTTLink => <track
+                            key={webVTTLink.label}
                             kind="captions"
-                            src={webVTTLink}
-                            srcLang="en"
-                            label="English"
-                            default
+                            src={webVTTLink.url}
+                            srcLang={webVTTLink.locale}
+                            label={webVTTLink.label}
                         />
                     )}
                 </video>

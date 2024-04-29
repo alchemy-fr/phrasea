@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "public": true,
   "main": "src/index.ts",
+  "files": [
+    "src/Locale/locales.ts",
+    "src/Locale/localeHelper.ts"
+  ],
   "peerDependencies": {
     "react-i18next": "^14.1.0"
   },

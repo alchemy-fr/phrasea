@@ -6,8 +6,8 @@ import SortableCollectionWidget from '../Collection/SortableCollectionWidget';
 import LocaleSelectWidget from '../Locale/LocaleSelectWidget';
 import {EmojiFlags} from '@mui/icons-material';
 import {TextFieldProps} from '@mui/material/TextField/TextField';
-import FormRow from "../FormRow.tsx";
-import FormFieldErrors from "../FormFieldErrors.tsx";
+import FormRow from "../FormRow";
+import FormFieldErrors from "../FormFieldErrors";
 
 export type Translation = {
     locale: string;

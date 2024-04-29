@@ -137,6 +137,10 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    private ?array $translations = null;
+
     /**
      * @var Asset[]|Collection
      */
@@ -747,5 +751,15 @@ class Publication implements AclObjectInterface, \Stringable
         }
 
         return false;
+    }
+
+    public function getTranslations(): ?array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?array $translations): void
+    {
+        $this->translations = $translations;
     }
 }

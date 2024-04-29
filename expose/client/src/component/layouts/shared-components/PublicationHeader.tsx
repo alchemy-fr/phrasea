@@ -3,13 +3,14 @@ import Description from './Description';
 import ZippyDownloadButton from './ZippyDownloadButton';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
+import {getTranslatedDescription, getTranslatedTitle} from "../../../i18n.ts";
 
 type Props = {
     data: Publication;
 };
 
 export default function PublicationHeader({data}: Props) {
-    const {title, assets, description, layoutOptions, date} = data;
+    const {assets, description, layoutOptions, date} = data;
 
     return (
         <div className={'pub-header'}>
@@ -23,7 +24,7 @@ export default function PublicationHeader({data}: Props) {
                         <img src={layoutOptions.logoUrl} alt={''} />
                     </div>
                 )}
-                <h1>{title}</h1>
+                <h1>{getTranslatedTitle(data)}</h1>
                 {date ? <time>{moment(date).format('LLLL')}</time> : ''}
                 {assets.length > 0 && config.zippyEnabled && (
                     <div
@@ -35,7 +36,7 @@ export default function PublicationHeader({data}: Props) {
                     ></div>
                 )}
             </div>
-            {description && <Description descriptionHtml={description} />}
+            {description && <Description descriptionHtml={getTranslatedDescription(data)} />}
             {data.downloadEnabled &&
                 config.zippyEnabled &&
                 assets.length > 0 && (

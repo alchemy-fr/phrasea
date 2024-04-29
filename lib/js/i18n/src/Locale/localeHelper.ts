@@ -1,7 +1,3 @@
-import {Translation} from "../Translations/TranslationsWidget";
-import {FieldTranslations, Translations} from "../types";
-
-
 export function getBestLocaleOfTranslations(
     fieldTranslations: Record<string, any> | undefined,
     languages?: readonly string[],
@@ -75,13 +71,13 @@ function normalizeLocale(l: string): string {
 }
 
 export function getBestTranslatedValue<T>(
-    translations: Readonly<Record<string, Readonly<Record<string, T>>>>,
+    translations: Readonly<Record<string, Readonly<Record<string, T>>>> | undefined,
     field: string,
     fallback: T,
     fallbackLocale?: string | undefined,
     languages?: readonly string[],
 ): T {
-    if (!translations[field]) {
+    if (!translations || !translations[field]) {
         return fallback;
     }
 
@@ -99,43 +95,4 @@ export function getBestTranslatedValue<T>(
     const l = getBestLocaleOfTranslations(tr, languages);
 
     return l ? tr[l] : fallback;
-}
-
-export function getFieldTranslationCount(
-    translations: Translations | undefined,
-    field: string,
-): number {
-    if (!translations) {
-        return 0;
-    }
-
-    return Object.prototype.hasOwnProperty.call(translations, field)
-        ? Object.keys(translations[field]).length
-        : 0;
-}
-
-export function getFieldTranslationsList(
-    translations: Translations | undefined,
-    field: string,
-): Translation[] {
-    if (getFieldTranslationCount(translations, field) === 0) {
-        return [];
-    }
-
-    return Object.keys(translations![field]).map(locale => ({
-        locale,
-        value: translations![field][locale],
-    }));
-}
-
-export function getFieldTranslationsObject(
-    translations: Translation[],
-): FieldTranslations | undefined {
-    const tr: FieldTranslations = {};
-
-    translations.forEach(t => {
-        tr[t.locale] = t.value;
-    });
-
-    return tr;
 }

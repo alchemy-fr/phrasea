@@ -10,9 +10,9 @@ import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt} from '@al
 import {AppDialog} from '@alchemy/phrasea-ui'
 import {useFormSubmit} from '@alchemy/api'
 import {TextFieldProps} from '@mui/material/TextField/TextField';
-import {getFieldTranslationsList, getFieldTranslationsObject} from "../Locale/localeHelper";
+import {getFieldTranslationsList, getFieldTranslationsObject} from "./localeHelper";
 import {WithTranslations} from "../types";
-import {locales} from "../Locale/locales";
+import {locales} from "@alchemy/i18n/src/Locale/locales";
 import LoadingButton from "../LoadingButton";
 
 type Model = {

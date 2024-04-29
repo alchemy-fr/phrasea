@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Publication;
 use App\Field\PublicationConfigField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -36,34 +37,34 @@ class PublicationCrudController extends AbstractAclAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $parent = AssociationField::new('parent')
+        yield AssociationField::new('parent')
             ->setRequired(false);
-        $title = TextField::new('title')->setTemplatePath('admin/list/publication_title_link.html.twig');
-        $description = TextareaField::new('description');
-        $slug = TextField::new('slug');
-        $profile = AssociationField::new('profile')
+        yield TextField::new('title')
+            ->setTemplatePath('admin/list/publication_title_link.html.twig');
+        yield TextareaField::new('description')
+            ->hideOnIndex();
+        yield TextField::new('slug');
+        yield AssociationField::new('profile')
             ->setRequired(false);
-        $date = DateTimeField::new('date');
-        $config = PublicationConfigField::new('config');
-        $ownerId = TextField::new('ownerId');
-        $clientAnnotations = TextareaField::new('clientAnnotations');
-        $zippyId = TextField::new('zippyId');
-        $id = IdField::new();
-        $createdAt = DateTimeField::new('createdAt');
-        $childrenCount = IntegerField::new('children.count', 'Children');
-        $assetsCount = IntegerField::new('assets.count', 'Assets');
-        $publiclyListed = BooleanField::new('publiclyListed')->renderAsSwitch(false);
-        $enabled = BooleanField::new('enabled')->renderAsSwitch(false);
-        $securityMethod = TextareaField::new('securityMethod');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $title, $slug, $profile, $parent, $childrenCount, $assetsCount, $publiclyListed, $enabled, $securityMethod, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$parent, $title, $description, $slug, $profile, $date, $config, $ownerId, $clientAnnotations, $zippyId];
-        }
-
-        return [];
+        yield DateTimeField::new('date');
+        yield PublicationConfigField::new('config')
+            ->hideOnIndex()
+        ;
+        yield TextField::new('ownerId');
+        yield JsonField::new('clientAnnotations')
+            ->hideOnIndex();
+        yield TextField::new('zippyId')
+            ->hideOnIndex();
+        yield IdField::new();
+        yield DateTimeField::new('createdAt')
+        ->hideOnForm();
+        yield JsonField::new('translations');
+        yield IntegerField::new('children.count', 'Children');
+        yield IntegerField::new('assets.count', 'Assets');
+        yield BooleanField::new('publiclyListed')
+            ->renderAsSwitch(false);
+        yield BooleanField::new('enabled')
+            ->renderAsSwitch(false);
+        yield TextareaField::new('securityMethod');
     }
 }

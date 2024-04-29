@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import FieldTranslationsEditDialog, {
     FieldTranslationsEditDialogProps,
 } from './FieldTranslationsEditDialog';
-import {getFieldTranslationCount} from "../Locale/localeHelper";
+import {getFieldTranslationCount} from "./localeHelper";
 import {WithTranslations} from "../types";
 
 type Props<T extends WithTranslations> = {

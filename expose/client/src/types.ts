@@ -1,3 +1,5 @@
+import type {Translations} from '@alchemy/i18n';
+
 type TermsConfig = {
     text?: string;
     url?: string;
@@ -33,8 +35,17 @@ export type Publication = {
     layoutOptions: LayoutOptions;
     downloadTerms?: TermsConfig;
     description?: string;
+    translations?: Translations;
     date: string;
 };
+
+export type WebVTT = {
+    label: string;
+    locale: string;
+    url: string;
+};
+
+export type WebVTTs = WebVTT[];
 
 export type Asset = {
     id: string;
@@ -45,11 +56,12 @@ export type Asset = {
     posterUrl: string;
     title: string;
     description?: string;
-    webVTTLink: string;
+    webVTTLinks?: WebVTTs;
     downloadUrl: string;
     thumbUrl?: string;
     originalName?: string;
     subDefinitions: SubDefinition[];
+    translations: Translations;
 };
 
 type SubDefinition = {

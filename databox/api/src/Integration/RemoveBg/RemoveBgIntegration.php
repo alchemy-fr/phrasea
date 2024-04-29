@@ -28,7 +28,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
     {
         $builder
             ->scalarNode('apiKey')
-                ->isRequired()
+                ->defaultValue('${REMOVE_BG_API_KEY}')
                 ->cannotBeEmpty()
             ->end()
             ->booleanNode('processIncoming')

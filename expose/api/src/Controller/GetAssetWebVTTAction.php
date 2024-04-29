@@ -13,14 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/publications/{id}/vtt/{hash}.vtt', name: 'asset_webvtt')]
+#[Route(path: '/publications/{id}/vtt/{vttId}.vtt', name: 'asset_webvtt')]
 final class GetAssetWebVTTAction extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
-    public function __invoke(string $id, string $hash, Request $request): Response
+    public function __invoke(string $id, string $vttId, Request $request): Response
     {
         $corsHeaders = [
             'Access-Control-Allow-Origin' => '*',
@@ -43,7 +43,12 @@ final class GetAssetWebVTTAction extends AbstractController
 
         $this->denyAccessUnlessGranted(AssetVoter::READ, $asset);
 
-        $response = new Response($asset->getWebVTT(), 200, [...$corsHeaders, 'Content-Type' => 'text/vtt']);
+        $webVTT = $asset->getWebVTTById($vttId);
+        if (null === $webVTT) {
+            throw new NotFoundHttpException(sprintf('WebVTT "%s" not found.', $vttId));
+        }
+
+        $response = new Response($webVTT['content'], 200, [...$corsHeaders, 'Content-Type' => 'text/vtt']);
         $response->setCache([
             's_maxage' => 7_776_000,
             'max_age' => 7_776_000,

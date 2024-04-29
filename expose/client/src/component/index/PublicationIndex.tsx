@@ -10,6 +10,7 @@ import {getThumbPlaceholder} from '../layouts/shared-components/placeholders';
 import apiClient from '../../lib/api-client';
 import {useTranslation} from 'react-i18next';
 import {Publication} from '../../types.ts';
+import {getTranslatedDescription, getTranslatedTitle} from "../../i18n.ts";
 
 enum SortBy {
     Date = 'date',
@@ -89,7 +90,7 @@ export default function PublicationIndex({}: Props) {
                                             alt={p.title}
                                         />
                                         <div className="media-body">
-                                            <h5 className="mt-0">{p.title}</h5>
+                                            <h5 className="mt-0">{getTranslatedTitle(p)}</h5>
                                             {p.date ? (
                                                 <time>
                                                     {moment(p.date).format(
@@ -100,7 +101,7 @@ export default function PublicationIndex({}: Props) {
                                                 ''
                                             )}
                                             <Description
-                                                descriptionHtml={p.description}
+                                                descriptionHtml={getTranslatedDescription(p)}
                                             />
                                         </div>
                                     </div>
