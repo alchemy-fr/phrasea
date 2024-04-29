@@ -317,6 +317,10 @@ class Asset implements MediaInterface, \Stringable
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
+    private ?array $translations = null;
+
     #[ApiProperty(iris: ['http://schema.org/name'])]
     #[ORM\Column(type: Types::STRING, length: 255)]
     #[Groups([self::GROUP_READ, Publication::GROUP_READ])]
@@ -766,5 +770,15 @@ class Asset implements MediaInterface, \Stringable
     public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
+    }
+
+    public function getTranslations(): ?array
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(?array $translations): void
+    {
+        $this->translations = $translations;
     }
 }

@@ -38,36 +38,39 @@ class AssetCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $originalName = TextField::new('originalName');
-        $description = TextareaField::new('description');
-        $lat = NumberField::new('lat');
-        $lng = NumberField::new('lng');
-        $altitude = NumberField::new('altitude');
-        $webVTT = JsonField::new('webVTT');
-        $clientAnnotations = TextareaField::new('clientAnnotations');
-        $assetId = IdField::new('assetId');
-        $path = TextField::new('path');
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-        $title = TextField::new('title');
-        $mimeType = TextField::new('mimeType');
-        $ownerId = IdField::new('ownerId');
-        $createdAt = DateTimeField::new('createdAt');
-        $publication = AssociationField::new('publication');
-        $subDefinitions = AssociationField::new('subDefinitions');
-        $geoPoint = TextareaField::new('geoPoint');
-        $position = NumberField::new('position');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $publication, $title, $originalName, $size, $geoPoint, $path, $position, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $assetId, $title, $path, $size, $publication, $description, $originalName, $mimeType, $ownerId, $lat, $lng, $webVTT, $altitude, $createdAt, $clientAnnotations, $subDefinitions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$publication, $title, $originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$publication, $title, $originalName, $description, $lat, $lng, $altitude, $webVTT, $clientAnnotations];
-        }
-
-        return [];
+        yield IdField::new();
+        yield TextField::new('title');
+        yield AssociationField::new('publication');
+        yield IdField::new('ownerId');
+        yield TextField::new('originalName')
+            ->hideOnIndex();
+        yield TextareaField::new('description')
+            ->hideOnIndex();
+        yield NumberField::new('lat');
+        yield NumberField::new('lng');
+        yield NumberField::new('altitude')
+            ->hideOnIndex();
+        yield JsonField::new('webVTT')
+            ->hideOnIndex();
+        yield JsonField::new('clientAnnotations')
+            ->hideOnIndex();
+        yield IdField::new('assetId')
+            ->hideOnIndex();
+        yield TextField::new('path')
+            ->hideOnIndex();
+        yield IntegerField::new('size')
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        yield TextField::new('mimeType');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm()
+        ;
+        yield AssociationField::new('subDefinitions')
+            ->hideOnIndex()
+            ->hideOnForm()
+        ;
+        yield TextareaField::new('geoPoint')
+            ->hideOnForm()
+            ->hideOnIndex();
+        yield NumberField::new('position');
     }
 }

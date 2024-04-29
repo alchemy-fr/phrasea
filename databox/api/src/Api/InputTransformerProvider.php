@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api;
 
+use ApiPlatform\Documentation\Documentation;
 use ApiPlatform\Documentation\Entrypoint;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\OpenApi;
@@ -40,6 +41,7 @@ final class InputTransformerProvider implements ProviderInterface
         if (!is_object($data)
             || $data instanceof Entrypoint
             || $data instanceof OpenApi
+            || $data instanceof Documentation
         ) {
             return $data;
         }

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Publication;
 use App\Field\PublicationConfigField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -46,7 +47,7 @@ class PublicationCrudController extends AbstractAclAdminCrudController
         $date = DateTimeField::new('date');
         $config = PublicationConfigField::new('config');
         $ownerId = TextField::new('ownerId');
-        $clientAnnotations = TextareaField::new('clientAnnotations');
+        $clientAnnotations = JsonField::new('clientAnnotations');
         $zippyId = TextField::new('zippyId');
         $id = IdField::new();
         $createdAt = DateTimeField::new('createdAt');
