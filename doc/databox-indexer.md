@@ -4,11 +4,11 @@
 
 ```bash
 # Index a location
-dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer pnpm dev index <location-name>
+dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer index <location-name>
 # Watch a location
-dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer pnpm dev watch <location-name>
+dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer watch <location-name>
 # List locations
-dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer pnpm dev list
+dc run --rm databox-indexer pnpm build && dc run --rm databox-indexer list
 ```
 
 ## Dev

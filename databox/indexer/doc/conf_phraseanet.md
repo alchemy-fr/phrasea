@@ -81,7 +81,7 @@
 The name or id of the Phraseanet databox to import.
 
 ## `collections`
-A list / filter of Phraseanet collections (id or name, delimited by ",") to import/search on. If unset or empty, will query all collections.
+A list/filter of Phraseanet collections (id or name, delimited by `,`) to import/search on. If unset or empty, will query all collections.
 
 ## `searchQuery`
 The Phraseanet query to search for records to import. If empty: import all.
@@ -165,7 +165,7 @@ Map (key=AttributeDefinition name) of attributes to create / import.
 
 ### AttributeDefinition settings:
 
-- `type`: "text", "number" or "json" (more todo) ; Defautl: "text"
+- `type`: "text", "number" or "json" (more todo) ; Default: "text"
 - `multivalue`: boolean
 - `readonly`: boolean
 - `labels`: map, e.g. `{"fr": "Titre", "en": "Title"}`
