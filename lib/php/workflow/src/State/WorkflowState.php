@@ -14,11 +14,13 @@ class WorkflowState
     final public const STATUS_STARTED = 0;
     final public const STATUS_SUCCESS = 1;
     final public const STATUS_FAILURE = 2;
+    final public const STATUS_CANCELLED = 3;
 
     private string $id;
     private Context $context;
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
+    private ?MicroDateTime $cancelledAt = null;
     private int $status = self::STATUS_STARTED;
 
     public function __construct(
@@ -110,6 +112,25 @@ class WorkflowState
     public function setEndedAt(MicroDateTime $endedAt): void
     {
         $this->endedAt = $endedAt;
+    }
+
+    public function getCancelledAt(): ?MicroDateTime
+    {
+        return $this->cancelledAt;
+    }
+
+    public function setCancelledAt(MicroDateTime $cancelledAt): void
+    {
+        $this->cancelledAt = $cancelledAt;
+    }
+
+    public function cancel(): void
+    {
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
     }
 
     public function getContext(): Context

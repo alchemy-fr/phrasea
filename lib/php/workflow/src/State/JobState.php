@@ -14,6 +14,7 @@ class JobState
     final public const STATUS_SKIPPED = 3;
     final public const STATUS_RUNNING = 4;
     final public const STATUS_ERROR = 5;
+    final public const STATUS_CANCELLED = 6;
 
     final public const STATUS_LABELS = [
         self::STATUS_TRIGGERED => 'triggered',
@@ -22,6 +23,7 @@ class JobState
         self::STATUS_SKIPPED => 'skipped',
         self::STATUS_RUNNING => 'running',
         self::STATUS_ERROR => 'error',
+        self::STATUS_CANCELLED => 'cancelled',
     ];
     private array $errors = [];
     private Outputs $outputs;

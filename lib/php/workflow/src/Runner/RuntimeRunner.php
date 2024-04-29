@@ -6,9 +6,9 @@ namespace Alchemy\Workflow\Runner;
 
 use Alchemy\Workflow\Executor\PlanExecutor;
 
-class RuntimeRunner implements RunnerInterface
+readonly class RuntimeRunner implements RunnerInterface
 {
-    public function __construct(private readonly PlanExecutor $planExecutor)
+    public function __construct(private PlanExecutor $planExecutor)
     {
     }
 

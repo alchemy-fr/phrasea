@@ -18,10 +18,14 @@ use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
 use Alchemy\Workflow\Validator\EventValidatorInterface;
 
-class WorkflowOrchestrator
+readonly class WorkflowOrchestrator
 {
-    public function __construct(private readonly WorkflowRepositoryInterface $workflowRepository, private readonly StateRepositoryInterface $stateRepository, private readonly JobTriggerInterface $trigger, private readonly EventValidatorInterface $eventValidator)
-    {
+    public function __construct(
+        private WorkflowRepositoryInterface $workflowRepository,
+        private StateRepositoryInterface $stateRepository,
+        private JobTriggerInterface $trigger,
+        private EventValidatorInterface $eventValidator
+    ) {
     }
 
     /**
@@ -71,10 +75,32 @@ class WorkflowOrchestrator
         return $workflowState;
     }
 
+    public function cancelWorkflow(string $workflowId): void
+    {
+        $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+        $workflowState->cancel();
+
+        if (null !== $workflowState->getEndedAt()) {
+            return;
+        }
+
+        if (WorkflowState::STATUS_FAILURE === $workflowState->getStatus()) {
+            return;
+        }
+
+        $workflowState->setCancelledAt(new MicroDateTime());
+        $workflowState->setStatus(WorkflowState::STATUS_CANCELLED);
+        $this->stateRepository->persistWorkflowState($workflowState);
+    }
+
     public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null): void
     {
         if (null === $workflowState) {
             $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+        }
+
+        if ($workflowState->isCancelled()) {
+            return;
         }
 
         $event = $workflowState->getEvent();

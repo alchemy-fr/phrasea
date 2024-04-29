@@ -6,9 +6,9 @@ namespace Alchemy\Workflow\Trigger;
 
 use Alchemy\Workflow\Runner\RunnerInterface;
 
-class RuntimeJobTrigger implements JobTriggerInterface
+readonly class RuntimeJobTrigger implements JobTriggerInterface
 {
-    public function __construct(private readonly RunnerInterface $runner)
+    public function __construct(private RunnerInterface $runner)
     {
     }
 
