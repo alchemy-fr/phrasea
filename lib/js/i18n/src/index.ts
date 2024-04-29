@@ -81,3 +81,5 @@ export function createNS(r: {[language: string]: ResourceLanguage}, ns: string =
 
     return resources;
 }
+
+export type * from './types';

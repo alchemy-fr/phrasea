@@ -1,6 +1,9 @@
+import type {Translations} from '@alchemy/i18n'
 
-export type FieldTranslations = Record<string, string>;
-export type Translations = Record<string, FieldTranslations>;
+export type Translation = {
+    locale: string;
+    value: string;
+}
 
 export type WithTranslations = {
     id: string;

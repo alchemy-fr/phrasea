@@ -1,3 +1,5 @@
+import type {Translations} from '@alchemy/i18n';
+
 type TermsConfig = {
     text?: string;
     url?: string;
@@ -33,6 +35,7 @@ export type Publication = {
     layoutOptions: LayoutOptions;
     downloadTerms?: TermsConfig;
     description?: string;
+    translations?: Translations;
     date: string;
 };
 
@@ -58,6 +61,7 @@ export type Asset = {
     thumbUrl?: string;
     originalName?: string;
     subDefinitions: SubDefinition[];
+    translations: Translations;
 };
 
 type SubDefinition = {

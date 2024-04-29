@@ -16,6 +16,7 @@ import {Trans} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logAssetView} from '../../../lib/log';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
+import {getTranslatedDescription, getTranslatedTitle} from "../../../i18n";
 
 const CustomView = ({data, carouselProps, currentView}) => {
     const isCurrent = currentView === data;
@@ -36,7 +37,7 @@ const CustomView = ({data, carouselProps, currentView}) => {
                 />
             </div>
             <div className="desc">
-                <Description descriptionHtml={data.description} />
+                <Description descriptionHtml={getTranslatedDescription(data)} />
                 {data.downloadEnabled && data.downloadUrl ? (
                     <div className="download-btn">
                         <DownloadButton
@@ -140,7 +141,7 @@ class GridLayout extends React.Component {
                             a.thumbUrl || getThumbPlaceholder(a.mimeType),
                         thumbnailWidth: a.thumbWidth,
                         thumbnailHeight: a.thumbHeight,
-                        caption: a.title,
+                        caption: getTranslatedTitle(a),
                     }))}
                 />
                 <ModalGateway>

@@ -5,7 +5,6 @@ import {WebVTTs} from "../../../types.ts";
 
 type Props = {
     title?: string;
-    description?: string;
     url: string;
     posterUrl?: string;
     webVTTLinks?: WebVTTs | undefined;

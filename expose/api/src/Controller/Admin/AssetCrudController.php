@@ -46,6 +46,8 @@ class AssetCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextareaField::new('description')
             ->hideOnIndex();
+        yield JsonField::new('translations')
+            ->hideOnIndex();
         yield NumberField::new('lat');
         yield NumberField::new('lng');
         yield NumberField::new('altitude')

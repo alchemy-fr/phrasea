@@ -100,7 +100,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
     public static function getTitle(): string
     {
-        return 'Phraseanet renditions';
+        return 'Phraseanet Renditions';
     }
 
     public static function getName(): string

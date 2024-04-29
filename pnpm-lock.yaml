@@ -883,6 +883,9 @@ importers:
       '@alchemy/api':
         specifier: workspace:*
         version: link:../api
+      '@alchemy/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@alchemy/navigation':
         specifier: workspace:*
         version: link:../navigation
