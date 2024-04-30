@@ -251,14 +251,14 @@ export class DataboxClient {
         return res.data.id;
     }
 
-    async getOrCreateWorkspaceIdWithSlug(slug: string): Promise<string> {
+    async getOrCreateWorkspaceIdWithSlug(slug: string, locales: string[]): Promise<string> {
         try {
             return (
                 await this.client.post(`/workspaces`, {
                     name: slug,
                     slug: slug,
                     public: false,
-                    enabledLocales: [],
+                    enabledLocales: locales,
                     localeFallbacks: [],
                     ownerId: getStrict('databox.ownerId'),
                 })

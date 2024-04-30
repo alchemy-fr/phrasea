@@ -1,10 +1,35 @@
+import {AttributeDefinition} from "../../databox/types";
+import Twig from "twig";
+import {DataboxAttributeType} from "./shared.ts";
+
+export type FieldMapValue = {
+    locale?: string;
+    type: "template" | "metadata" | "text";
+    value: any | any[];
+    twig?: Twig.template;
+};
+
+export type FieldMap = {
+    id: string;
+    position: number;
+    type: DataboxAttributeType;
+    multivalue: boolean;
+    readonly: boolean;
+    translatable: boolean;
+    labels: Record<string, string>;
+    values: FieldMapValue[];
+    attributeDefinition: AttributeDefinition;
+};
+
 export type ConfigDataboxMapping = {
     databox: string;
     collections?: string;
     searchQuery?: string;
     workspaceSlug: string;
     recordsCollectionPath: string;
+    copyTo: string;
     storiesCollectionPath: string;
+    fieldMap: Map<string, FieldMap>;
 };
 
 export type PhraseanetConfig = {
@@ -31,19 +56,26 @@ export type SubDef = {
     };
 };
 
+export enum PhraseanetMetadataType {
+    Date = "date",
+    Number = "number",
+    String = "string"
+}
+
 export type PhraseanetMetaStruct = {
-    id: number;
+    id: string;
     namespace: string;
     source: string;
     tagname: string;
     name: string;
     separator: string;
     thesaurus_branch: string;
-    type: string;
+    type: PhraseanetMetadataType;
     indexable: boolean;
     multivalue: boolean;
     readonly: boolean;
     required: boolean;
+    labels: Record<string, string>;
 };
 
 export type PhraseanetStatusBitStruct = {
@@ -70,26 +102,28 @@ export type PhraseanetSubDef = {
 };
 
 export type PhraseanetDatabox = {
-    databox_id: number;
+    databox_id: string;
     name: string;
     viewname: string;
     labels: Record<string, string>;
     collections: Record<string, PhraseanetCollection>;
     baseIds: string[];
+    _metaStructSet: boolean;
+    metaStruct: Record<string, PhraseanetMetaStruct>;
 };
 
 export type PhraseanetCollection = {
-    databox_id: number;
-    base_id: number;
+    databox_id: string;
+    base_id: string;
     collection_id: number;
     name: string;
 };
 
-type PhraseanetCaption = {
-    meta_structure_id: number;
+type PhraseanetMetadata = {
+    meta_structure_id: string;
     name: string;
     value: string;
-};
+}
 
 export type PhraseanetRecord = {
     resource_id: string;
@@ -101,8 +135,8 @@ export type PhraseanetRecord = {
     title: string;
     original_name: string;
     subdefs: SubDef[];
-    caption?: PhraseanetCaption[];
     status: PhraseanetStatusBit[];
+    metadata: PhraseanetMetadata[];
 };
 
 export type PhraseanetStory = {
@@ -115,7 +149,7 @@ export type PhraseanetStory = {
     title: string;
     original_name: string;
     subdefs: SubDef[];
-    caption?: PhraseanetCaption[];
     status: PhraseanetStatusBit[];
+    metadata: PhraseanetMetadata[];
     children: PhraseanetRecord[];
 };

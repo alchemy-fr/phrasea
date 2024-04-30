@@ -15,30 +15,28 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     const branch = splitPath(path);
     branch.pop();
+    const collPath = branch.join('/');
 
-    let collIRI: string;
+    let collId: string;
     try {
-        collIRI =
-            '/collections/' +
-            (await databoxClient.createCollectionTreeBranch(
-                asset.workspaceId,
-                asset.collectionKeyPrefix ?? '',
-                branch.map(k => ({
-                    key: k,
-                    title: k,
-                }))
-            ));
+        collId = (await databoxClient.createCollectionTreeBranch(
+            asset.workspaceId,
+            asset.collectionKeyPrefix ?? '',
+            branch.map(k => ({
+                key: k,
+                title: k,
+            }))
+        ));
     } catch (e: any) {
         logger.error(
-            `Failed to create collection branch "${branch.join(
-                '/'
-            )}": ${e.toString()}`
+            `Failed to create collection branch "${collPath}": ${e.toString()}`
         );
         throw e;
     }
 
     try {
         // create real asset
+        logger.info(`  original: "${collPath}"  (#${collId})`);
         const assetId = await databoxClient.createAsset({
             sourceFile: asset.publicUrl
                 ? {
@@ -48,7 +46,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
                       importFile: asset.importFile,
                   }
                 : undefined,
-            collection: collIRI,
+            collection: '/collections/' + collId,
             generateRenditions: asset.generateRenditions,
             key: asset.key,
             title: asset.title || p.basename(path),
@@ -58,8 +56,9 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
         });
         // also create links into collections
         for (const c of asset.shortcutIntoCollections ?? []) {
+            logger.info(`  copy to:  "${c.path}"  (#${c.id})`);
             await databoxClient.copyAsset({
-                destination: '/collections/' + c,
+                destination: '/collections/' + c.id,
                 ids: [assetId],
                 byReference: true,
                 withAttributes: false,

@@ -91,6 +91,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->labels) {
             $object->setLabels($data->labels);
         }
+        if (null !== $data->position) {
+            $object->setPosition($data->position);
+        }
 
         return $object;
     }

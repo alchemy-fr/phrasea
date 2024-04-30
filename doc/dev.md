@@ -54,11 +54,10 @@ COMPOSE_PROFILES=...
 VERIFY_SSL=false
 ```
 
+Build the dev container and install app dependencies
 ```bash
-# Build the dev container
 dc build dev
 
-# Install app dependencies
 dc run --rm dev bin/dev/composer-install.sh
 dc run --rm dev pnpm install
 ```

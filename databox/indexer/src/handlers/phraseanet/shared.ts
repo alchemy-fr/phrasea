@@ -1,6 +1,7 @@
 import {Asset} from '../../indexers';
-import {PhraseanetRecord, SubDef} from './types';
-import {escapeSlashes} from '../../lib/pathUtils';
+import {FieldMap, SubDef} from './types';
+import { CPhraseanetRecord } from './CPhraseanetRecord';
+
 import {
     AttributeClass,
     AttributeInput,
@@ -24,39 +25,73 @@ export type TagIndex = Record<number, string>;
 
 export type AttrClassIndex = Record<string, AttributeClass>;
 
-export function createAsset(
+export async function createAsset(
     workspaceId: string,
     importFiles: boolean,
-    record: PhraseanetRecord,
-    rootCollectionPath: string,
+    record: CPhraseanetRecord,
+    path: string,
     collectionKeyPrefix: string,
     key: string,
-    collectionName: string,
-    attrDefinitionIndex: AttrDefinitionIndex,
+    fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
-    storyCollectionIds: string[]
-): Asset {
+    shortcutIntoCollections: {id: string, path: string}[]
+): Promise<Asset> {
     const document: SubDef | undefined = record.subdefs.find(
         s => s.name === 'document'
     );
 
-    const path = `${rootCollectionPath}/${escapeSlashes(
-        collectionName
-    )}/${escapeSlashes(record.original_name)}`;
-
     const attributes: AttributeInput[] = [];
-    for (const c of record.caption ?? []) {
-        const ad = attrDefinitionIndex[c.meta_structure_id.toString()];
-        if (ad !== undefined) {
+
+    // @ts-ignore
+    for(const [name, fm] of fieldMap) {
+        const ad = fm.attributeDefinition;
+
+        for(const v of fm.values) {
+            let values;
+            switch(v.type) {
+                case "template":    // output : string | string[]
+                    values = (await v.twig.renderAsync({record: record}))
+                        .split("\n").map((p: string) => p.trim())
+                        .filter((p: string) => p);
+                    if(!ad.multiple) {
+                        values = values.join(' ; ');
+                    }
+                    break;
+                case "metadata":   // output : string | string[]
+                    values = ad.multiple ?
+                        (await record.getMetadata(v.value)).values
+                        :
+                        (await record.getMetadata(v.value)).value;
+                    break;
+                default:          // output : any
+                    values = v.value;
+                    break;
+            }
+            switch(fm.type) {
+                case DataboxAttributeType.Number:
+                    if(typeof values === "string") {
+                        values = Number(values).toString();
+                    }
+                    break;
+                case DataboxAttributeType.Json:
+                   if(typeof values === "object") {
+                       values = JSON.stringify(values);
+                   }
+                   break;
+                // todo: better handle of mono/multi/object
+            }
+
             const d = {
                 definitionId: ad.id,
                 origin: 'machine',
                 originVendor: 'indexer-import',
+                locale: v.locale ?? null,
+                position: fm.position,
             } as Partial<AttributeInput>;
 
             attributes.push({
                 ...d,
-                value: ad.multiple ? c.value.split(' ; ') : c.value,
+                value: values,
             } as AttributeInput);
         }
     }
@@ -99,15 +134,33 @@ export function createAsset(
                 };
             })
             .filter(s => Boolean(s)) as RenditionInput[],
-        shortcutIntoCollections: storyCollectionIds,
+        shortcutIntoCollections: shortcutIntoCollections
     };
 }
-
-export const attributeTypesEquivalence: Record<string, string> = {
-    string: 'text',
-};
 
 export enum PhraseanetSearchType {
     Record = 0,
     Story = 1,
 }
+
+export enum DataboxAttributeType {
+    Boolean = "boolean",
+    Code = "code",
+    Color = "color",
+    Date = "date",
+    DateTime = "date_time",
+    GeoPoint = "geo_point",
+    Html = "html",
+    Ip = "ip",
+    Json = "json",
+    Keyword = "keyword",
+    Number = "number",
+    Text = "text"
+};
+
+export const attributeTypesEquivalence: Record<string, DataboxAttributeType> = {
+    string: DataboxAttributeType.Text,
+    date: DataboxAttributeType.Date,
+    number: DataboxAttributeType.Number
+};
+

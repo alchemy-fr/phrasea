@@ -24,12 +24,8 @@ trait WithOwnerIdProcessorTrait
      */
     protected function processOwnerId(WithOwnerIdInterface $data): WithOwnerIdInterface
     {
-        $user = $this->getUser();
-        if (null === $user) {
-            throw new AccessDeniedHttpException('User must be authenticated');
-        }
-
         if (null === $data->getOwnerId()) {
+            $user = $this->getUser();
             if (!$user instanceof JwtUser) {
                 throw new BadRequestHttpException('You must provide "ownerId" as your access token is not associated to a user.');
             }
