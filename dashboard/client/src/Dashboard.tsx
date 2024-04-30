@@ -1,4 +1,4 @@
-import {Alert, Chip, Container, Grid, Typography, useMediaQuery, useTheme,} from '@mui/material';
+import {Alert, Chip, Container, Grid, Link, Typography, useMediaQuery, useTheme} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
@@ -31,9 +31,19 @@ export default function Dashboard({}: Props) {
         STACK_NAME,
         DEV_MODE,
         STACK_VERSION,
+        PGADMIN_URL,
+        ELASTICHQ_URL,
+        MAILHOG_URL,
+        MATOMO_URL,
+        PHPMYADMIN_URL,
+        RABBITMQ_CONSOLE_URL,
+        TRAEFIK_CONSOLE_URL,
     } = config.env;
 
     console.debug('config', config);
+
+    const isAdmin = user !== undefined && user.roles.includes('admin');
+    const roles = user ? user.roles : [];
 
     return (
         <Container>
@@ -75,19 +85,21 @@ export default function Dashboard({}: Props) {
                 container
                 spacing={2}
             >
-                <Service
-                    mainUrl={`${config.keycloakUrl}/admin/${config.realmName}/console`}
-                    title={`Identity Manager`}
-                    description={`Keycloak IAM`}
-                    logo={keycloakImg}
-                    links={[
-                        {
-                            icon: <AdminPanelSettingsIcon />,
-                            href: `${config.keycloakUrl}/admin/master/console`,
-                            title: `Master Admin`,
-                        },
-                    ]}
-                />
+                {(isAdmin || roles.includes('group-admin')) &&
+                    <Service
+                        mainUrl={`${config.keycloakUrl}/admin/${config.realmName}/console`}
+                        title={`Identity Manager`}
+                        description={`Keycloak IAM`}
+                        logo={keycloakImg}
+                        links={[
+                            {
+                                icon: <AdminPanelSettingsIcon/>,
+                                href: `${config.keycloakUrl}/admin/master/console`,
+                                title: `Master Admin`,
+                            },
+                        ]}
+                    />
+                }
                 {DATABOX_API_URL && (
                     <ClientApp
                         apiUrl={DATABOX_API_URL}
@@ -95,6 +107,7 @@ export default function Dashboard({}: Props) {
                         title={`Databox`}
                         description={`Your DAM`}
                         logo={databoxImg}
+                        canAdmin={isAdmin || roles.includes("databox-admin")}
                     />
                 )}
                 {EXPOSE_API_URL && (
@@ -104,6 +117,7 @@ export default function Dashboard({}: Props) {
                         title={`Expose`}
                         description={`Share Publications`}
                         logo={exposeImg}
+                        canAdmin={isAdmin || roles.includes("expose-admin")}
                     />
                 )}
                 {UPLOADER_API_URL && (
@@ -113,11 +127,12 @@ export default function Dashboard({}: Props) {
                         title={`Uploader`}
                         description={`Standalone Asset deposit`}
                         logo={uploaderImg}
+                        canAdmin={isAdmin || roles.includes("uploader-admin")}
                     />
                 )}
                 {NOTIFY_API_URL && (
                     <Service
-                        mainUrl={`${NOTIFY_API_URL}/admin`}
+                        mainUrl={isAdmin || roles.includes('notify_-admin') ? `${NOTIFY_API_URL}/admin` : undefined}
                         title={`Notify Admin`}
                         description={`Mail Sender`}
                         logo={notifyImg}
@@ -131,6 +146,45 @@ export default function Dashboard({}: Props) {
                     />
                 )}
             </Grid>
+            {(isAdmin || roles.includes("tech")) &&
+                <Grid container spacing={2} marginTop={1}>
+                    {PGADMIN_URL && (
+                        <Grid item>
+                            <Link href={PGADMIN_URL} target={'_blank'} rel={'noreferrer noopener'}>PgAdmin</Link>
+                        </Grid>
+                    )}
+                    {PHPMYADMIN_URL && (
+                        <Grid item>
+                            <Link href={PHPMYADMIN_URL} target={'_blank'} rel={'noreferrer noopener'}>PhpMyAdmin</Link>
+                        </Grid>
+                    )}
+                    {ELASTICHQ_URL && (
+                        <Grid item>
+                            <Link href={ELASTICHQ_URL} target={'_blank'} rel={'noreferrer noopener'}>ElasticHQ</Link>
+                        </Grid>
+                    )}
+                    {MAILHOG_URL && (
+                        <Grid item>
+                            <Link href={MAILHOG_URL} target={'_blank'} rel={'noreferrer noopener'}>MailHog</Link>
+                        </Grid>
+                    )}
+                    {MATOMO_URL && (
+                        <Grid item>
+                            <Link href={MATOMO_URL} target={'_blank'} rel={'noreferrer noopener'}>Matomo</Link>
+                        </Grid>
+                    )}
+                    {RABBITMQ_CONSOLE_URL && (
+                        <Grid item>
+                            <Link href={RABBITMQ_CONSOLE_URL} target={'_blank'} rel={'noreferrer noopener'}>RabbitMQ</Link>
+                        </Grid>
+                    )}
+                    {TRAEFIK_CONSOLE_URL && (
+                        <Grid item>
+                            <Link href={TRAEFIK_CONSOLE_URL} target={'_blank'} rel={'noreferrer noopener'}>Traefik</Link>
+                        </Grid>
+                    )}
+                </Grid>
+            }
         </Container>
     );
 }
