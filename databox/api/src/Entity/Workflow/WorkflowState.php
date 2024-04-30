@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use App\Controller\Workflow\CancelWorkflowAction;
 use App\Controller\Workflow\GetWorkflowAction;
 use App\Controller\Workflow\RerunJobAction;
 use App\Entity\Core\Asset;
@@ -33,6 +34,12 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
             uriVariables: [],
             controller: RerunJobAction::class,
+            deserialize: false,
+        ),
+        new Post(
+            uriTemplate: '/workflows/{id}/cancel',
+            uriVariables: [],
+            controller: CancelWorkflowAction::class,
             deserialize: false,
         ),
         new GetCollection(

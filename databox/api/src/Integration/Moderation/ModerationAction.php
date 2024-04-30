@@ -7,12 +7,8 @@ namespace App\Integration\Moderation;
 use Alchemy\Workflow\Executor\Action\ActionInterface;
 use Alchemy\Workflow\Executor\RunContext;
 
-final class ModerationAction implements ActionInterface
+final readonly class ModerationAction implements ActionInterface
 {
-    public function __construct()
-    {
-    }
-
     public function handle(RunContext $context): void
     {
         $context->retainJob();

@@ -7,10 +7,12 @@ export const jobStatuses = {
     [JobStatus.Skipped]: 'Skipped',
     [JobStatus.Running]: 'Running',
     [JobStatus.Error]: 'Error',
+    [JobStatus.Cancelled]: 'Cancelled',
 }
 
 export const workflowStatuses = {
     [WorkflowStatus.Started]: 'Started',
     [WorkflowStatus.Success]: 'Success',
     [WorkflowStatus.Failure]: 'Failure',
+    [WorkflowStatus.Cancelled]: 'Cancelled',
 }

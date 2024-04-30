@@ -56,9 +56,7 @@ class RenditionManager
         }
 
         $rendition = $this->getOrCreateRendition($asset, $definition);
-
         $rendition->setFile($file);
-
         $this->em->persist($rendition);
 
         return $rendition;

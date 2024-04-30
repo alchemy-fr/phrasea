@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;

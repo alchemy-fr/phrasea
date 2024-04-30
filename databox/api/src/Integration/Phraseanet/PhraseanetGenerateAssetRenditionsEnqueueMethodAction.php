@@ -15,6 +15,7 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
 {
     public function __construct(
         private readonly PhraseanetApiClientFactory $clientFactory,
+        private readonly PhraseanetTokenManager $tokenManager,
         private readonly LoggerInterface $logger,
         private readonly string $databoxBaseUrl,
     ) {
@@ -29,7 +30,7 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
             'assets' => [$asset->getId()],
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
-            'token' => self::generateAssetToken($asset), // TODO Add app secret
+            'token' => $this->tokenManager->createToken($asset->getId(), $context->getJobState()->getWorkflowId()),
             'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config['integrationId'].'/',
             'formData' => [
                 'collection_destination' => $config['collectionId'],
@@ -51,11 +52,6 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
 
             throw $e;
         }
-    }
-
-    public static function generateAssetToken(Asset $asset): string
-    {
-        return sprintf('%s::%s', $asset->getId(), $asset->getCreatedAt()->getTimestamp());
     }
 
     protected function shouldRun(Asset $asset): bool

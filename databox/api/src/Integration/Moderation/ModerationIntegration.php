@@ -48,6 +48,7 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         );
 
         $job = new Job(self::getName());
+        $job->setName(self::getName());
 
         $step = new Step('human-moderation', 'Human Moderation');
         $step->setUses(ModerationAction::class);

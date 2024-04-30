@@ -35,6 +35,12 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->cannotBeEmpty()
                 ->info('The Phraseanet base URL')
             ->end()
+            ->arrayNode('renditions')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->prototype('scalar')
+                ->end()
+            ->end()
             ->enumNode('method')
                 ->isRequired()
                 ->values($allowedMethods)
@@ -90,12 +96,30 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
         $method = $config['method'];
 
-        yield WorkflowHelper::createIntegrationJob(
+        yield $firstJob = WorkflowHelper::createIntegrationJob(
             $config,
             $actions[$method],
             $method,
             ucfirst((string) $method),
         );
+
+        foreach ($config['renditions'] as $rendition) {
+            $receiptJob = WorkflowHelper::createIntegrationJob(
+                $config,
+                PhraseanetReceiveAction::class,
+                PhraseanetReceiveAction::JOB_ID.':'.$rendition,
+                $rendition,
+            );
+
+            $receiptJob->getNeeds()->append($firstJob->getId());
+
+            yield $receiptJob;
+        }
+    }
+
+    public static function getRenditionJobId(string $integrationId, string $renditionName): string
+    {
+        return self::getName().':'.$integrationId.':'.PhraseanetReceiveAction::JOB_ID.':'.$renditionName;
     }
 
     public static function getTitle(): string

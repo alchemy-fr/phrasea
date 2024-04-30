@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
+use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\State\Inputs;
+use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Outputs;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,12 +15,13 @@ class RunContext extends JobContext
     private bool $retainJob = false;
 
     public function __construct(
+        JobState $jobState,
         OutputInterface $output,
         Inputs $inputs,
         EnvContainer $envs,
         private readonly Outputs $outputs,
     ) {
-        parent::__construct($output, $inputs, $envs);
+        parent::__construct($jobState, $output, $inputs, $envs);
     }
 
     public function setOutput(string $key, $value): void

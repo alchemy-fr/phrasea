@@ -20,7 +20,7 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         private readonly PhraseanetApiClientFactory $clientFactory,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly JWTTokenManager $JWTTokenManager,
+        private readonly PhraseanetTokenManager $tokenManager,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -43,7 +43,7 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         $destination = [
             'url' => $destUrl,
             'payload' => [
-                'token' => $this->JWTTokenManager->createToken($asset->getId()),
+                'token' => $this->tokenManager->createToken($asset->getId(), $context->getJobState()->getWorkflowId()),
             ],
         ];
 

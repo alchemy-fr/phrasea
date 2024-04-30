@@ -2,25 +2,31 @@ import React, {MouseEventHandler} from 'react';
 import HorizontalTable, {Cells} from "./Ui/HorizontalTable";
 import {workflowStatuses} from "./status";
 import DateValue from "./Ui/DateValue";
-import {OnRefresh, Workflow} from "./types";
+import {OnCancel, OnRefresh, Workflow, WorkflowStatus} from "./types";
 import DetailTitle from "./Ui/DetailTitle";
 import JobData from "./Job/JobData";
-import {SlArrowDown, SlArrowUp} from 'react-icons/sl';
-import Button from "./Ui/Button";
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import './style/WorkflowHeader.scss';
-import {MdReplay} from "react-icons/md";
+import ReplayIcon from '@mui/icons-material/Replay';
+import CancelIcon from '@mui/icons-material/Cancel';
+import {IconButton} from "@mui/material";
+import {LoadingButton} from "@mui/lab";
 
 type Props = {
     workflow: Workflow;
     onRefreshWorkflow?: OnRefresh,
+    onCancel?: OnCancel,
 };
 
 export default function WorkflowHeader({
     workflow,
     onRefreshWorkflow,
+    onCancel,
 }: Props) {
     const [expanded, setExpanded] = React.useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
+    const [cancelling, setCancelling] = React.useState(false);
 
     const toggleExpanded: MouseEventHandler<HTMLSpanElement> = (e => {
         e.stopPropagation();
@@ -43,7 +49,7 @@ export default function WorkflowHeader({
         [`Started At`, <DateValue date={workflow.startedAt}/>],
     ];
 
-    const Arrow = expanded ? SlArrowDown : SlArrowUp;
+    const Arrow = expanded ? ArrowDropDownIcon : ArrowDropUpIcon;
 
     return <div
         className={'workflow-header'}
@@ -56,34 +62,52 @@ export default function WorkflowHeader({
             <div style={{
                 paddingRight: 15,
             }}>
-                <Button
+                <IconButton
                     onClick={toggleExpanded}
                 >
                     <Arrow/>
-                </Button>
+                </IconButton>
             </div>
             <div>
                 <HorizontalTable
                     values={values}
                 />
             </div>
-            {onRefreshWorkflow && <div>
-                <Button
+            <div>
+                {onRefreshWorkflow && <LoadingButton
                     disabled={refreshing}
                     loading={refreshing}
-                    onClick={(e) => {
-                        e.stopPropagation();
-
+                    color={'primary'}
+                    onClick={() => {
                         setRefreshing(true);
                         onRefreshWorkflow!().finally(() => {
                             setRefreshing(false);
                         });
                     }}
-                    icon={MdReplay}
+                    startIcon={<ReplayIcon/>}
                 >
                     Refresh
-                </Button>
-            </div>}
+                </LoadingButton>}
+                {onCancel && workflow.status !== WorkflowStatus.Cancelled && <LoadingButton
+                    disabled={cancelling}
+                    loading={cancelling}
+                    color={'warning'}
+                    sx={{
+                        ml: 1,
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+
+                        setCancelling(true);
+                        onCancel!().finally(() => {
+                            setCancelling(false);
+                        });
+                    }}
+                    startIcon={<CancelIcon/>}
+                >
+                    Cancel
+                </LoadingButton>}
+            </div>
         </div>
 
         {expanded && <div>

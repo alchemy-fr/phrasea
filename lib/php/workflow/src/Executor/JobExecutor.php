@@ -88,7 +88,7 @@ readonly class JobExecutor
                 $jobState,
                 $this->output,
                 $this->envs->mergeWith($env),
-                $workflowState->getEvent()?->getInputs() ?? new Inputs()
+                ($workflowState->getEvent()?->getInputs() ?? new Inputs())->mergeWith($jobState->getInputs()?->getArrayCopy() ?? [])
             );
 
             $jobInputs = $context->getInputs()
@@ -162,6 +162,7 @@ readonly class JobExecutor
             $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
 
             $runContext = new RunContext(
+                $jobState,
                 $output,
                 $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($step->getWith(), $context)),
                 $jobEnvContainer->mergeWith($this->expressionParser->evaluateArray(

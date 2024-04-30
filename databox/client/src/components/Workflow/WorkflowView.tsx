@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from '@alchemy/navigation';
-import {getWorkflow, rerunJob} from '../../api/workflow';
+import {cancelWorkflow, getWorkflow, rerunJob} from '../../api/workflow';
 import {Box, CircularProgress} from '@mui/material';
 import {
     VisualWorkflow,
@@ -28,6 +28,15 @@ export default function WorkflowView({modalIndex}: Props) {
     const rerun = React.useCallback(
         async (jobId: string) => {
             const d = await rerunJob(id!, jobId);
+
+            setData(d);
+        },
+        [id]
+    );
+
+    const onCancel = React.useCallback(
+        async () => {
+            const d = await cancelWorkflow(id!);
 
             setData(d);
         },
@@ -76,6 +85,7 @@ export default function WorkflowView({modalIndex}: Props) {
                             >
                                 <WorkflowHeader
                                     workflow={data}
+                                    onCancel={onCancel}
                                     onRefreshWorkflow={onRefresh}
                                 />
                             </Box>
@@ -89,7 +99,10 @@ export default function WorkflowView({modalIndex}: Props) {
                             height: `calc(100vh - ${headerHeight + 2}px)`,
                         }}
                     >
-                        <VisualWorkflow workflow={data} onRerunJob={rerun} />
+                        <VisualWorkflow
+                            workflow={data}
+                            onRerunJob={rerun}
+                        />
                     </WorkflowPlayground>
                 </AppDialog>
             )}
