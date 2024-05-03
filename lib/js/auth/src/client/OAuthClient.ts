@@ -267,7 +267,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private handleSessionTimeout(tokens: AuthTokens): void {
         this.clearSessionTimeout();
 
-        if (tokens.refreshExpiresIn) {
+        if (tokens.refreshExpiresIn && tokens.refreshExpiresIn < 604800) {
             this.sessionTimeout = setTimeout(() => {
                 this.sessionExpired();
             }, tokens.refreshExpiresIn * 1000);

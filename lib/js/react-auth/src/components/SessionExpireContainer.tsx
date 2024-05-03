@@ -23,7 +23,10 @@ export default function SessionExpireContainer({}: Props) {
     if (tokens?.refreshExpiresAt) {
         const beforeEnd = 60000;
         const end = tokens.refreshExpiresAt * 1000 - new Date().getTime();
-        delay = Math.max(end - beforeEnd, 5000)
+
+        if (end < 604800000) { // Prevent too high TTL for setTimeout
+            delay = Math.max(end - beforeEnd, 5000);
+        }
     }
 
     useTimeout(displayExpireModal, delay);
