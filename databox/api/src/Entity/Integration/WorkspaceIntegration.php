@@ -18,7 +18,6 @@ use App\Entity\Core\Workspace;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\Traits\WorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

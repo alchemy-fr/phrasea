@@ -9,13 +9,12 @@ final readonly class PhraseanetTokenManager
 {
     public function __construct(
         private JWTTokenManager $JWTTokenManager,
-    )
-    {
+    ) {
     }
 
     public function createToken(string $assetId, string $workflowId): string
     {
-        return $this->JWTTokenManager->createToken($assetId, 3600*24*90, [
+        return $this->JWTTokenManager->createToken($assetId, 3600 * 24 * 90, [
             'wid' => $workflowId,
         ]);
     }

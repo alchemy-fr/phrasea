@@ -23,8 +23,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     public function __construct(
         private readonly string $databoxClientBaseUrl,
         private readonly WorkflowOrchestrator $workflowOrchestrator,
-    )
-    {
+    ) {
     }
 
     public static function getEntityFqcn(): string

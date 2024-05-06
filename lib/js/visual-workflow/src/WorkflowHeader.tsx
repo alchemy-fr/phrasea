@@ -44,7 +44,7 @@ export default function WorkflowHeader({
         >
             {workflow.event.name}
         </span> : '-'],
-        [`Status`, workflow.status ? workflowStatuses[workflow.status] : '-'],
+        [`Status`, undefined !== workflow.status ? workflowStatuses[workflow.status] : '-'],
         [`Duration`, workflow.duration ?? '-'],
         [`Started At`, <DateValue date={workflow.startedAt}/>],
     ];

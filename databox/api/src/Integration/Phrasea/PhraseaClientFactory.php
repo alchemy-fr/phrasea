@@ -11,8 +11,7 @@ final readonly class PhraseaClientFactory
     public function __construct(
         private HttpClientInterface $client,
         private CacheInterface $tokenCache,
-    )
-    {
+    ) {
     }
 
     public function create(string $baseUrl, string $clientId, string $clientSecret): HttpClientInterface
@@ -27,7 +26,7 @@ final readonly class PhraseaClientFactory
                     'grant_type' => 'client_credentials',
                     'client_id' => $clientId,
                     'client_secret' => $clientSecret,
-                ]
+                ],
             ])->toArray();
 
             $item->expiresAfter($response['expires_in'] - 2);

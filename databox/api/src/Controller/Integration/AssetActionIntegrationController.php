@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AssetActionIntegrationController extends AbstractController
 {
     #[Route(path: '/integrations/{integrationId}/files/{fileId}/actions/{action}', name: 'integration_asset_action', methods: ['POST'])]
-    public function incomingRenditionAction(
+    public function fileAction(
         string $integrationId,
         string $fileId,
         string $action,

@@ -9,8 +9,7 @@ final readonly class ExposeClient
 {
     public function __construct(
         private PhraseaClientFactory $clientFactory,
-    )
-    {
+    ) {
     }
 
     private function create(array $config): HttpClientInterface
@@ -24,7 +23,7 @@ final readonly class ExposeClient
 
     public function getPublications(array $config): array
     {
-        $res = $this->create($config)
+        return $this->create($config)
             ->request('GET', '/publications')
             ->toArray();
     }

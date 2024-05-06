@@ -186,8 +186,6 @@ readonly class WorkflowOrchestrator
             foreach ($stage->getRuns() as $run) {
                 $jobId = $run->getJob()->getId();
 
-                dump(sprintf('%s - %s', $jobIdFilter, $jobId));
-
                 if (null !== $jobIdFilter && $jobIdFilter !== $jobId) {
                     continue;
                 }
