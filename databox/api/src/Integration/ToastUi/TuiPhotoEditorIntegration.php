@@ -9,6 +9,7 @@ use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
 use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\IntegrationConfig;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,17 +20,14 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
     {
-        /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
-
         switch ($action) {
             case self::ACTION_SAVE:
                 $newFile = $this->saveFile($file, $request);
 
                 $data = $this->integrationDataManager->storeData(
-                    $wsIntegration,
+                    $config->getWorkspaceIntegration(),
                     $file,
                     FileActionsIntegrationInterface::DATA_FILE_ID,
                     $newFile->getId(),
@@ -43,7 +41,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 if (!$dataId) {
                     throw new BadRequestHttpException('Missing "id"');
                 }
-                $this->integrationDataManager->deleteById($wsIntegration, $dataId);
+                $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId);
 
                 return new JsonResponse();
             default:
@@ -51,7 +49,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
         }
     }
 
-    public function supportsFileActions(File $file, array $config): bool
+    public function supportsFileActions(File $file, IntegrationConfig $config): bool
     {
         return FileUtil::isImageType($file->getType());
     }

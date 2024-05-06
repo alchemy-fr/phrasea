@@ -59,10 +59,7 @@ readonly class IntegrationManager
         return $integration;
     }
 
-    /**
-     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
-     */
-    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): array
+    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): IntegrationConfig
     {
         return $this->getConfiguration(
             $workspaceIntegration,
@@ -117,23 +114,18 @@ readonly class IntegrationManager
     /**
      * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
      */
-    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
+    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig
     {
         $node = $this->buildConfiguration($integration);
 
         $processor = new Processor();
         $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
-        $config = $this->envResolver->resolve(
-            $workspaceIntegration->getWorkspaceId(),
-            $config
+        return new IntegrationConfig(
+            $config,
+            $workspaceIntegration,
+            $integration,
+            $this->envResolver,
         );
-
-        $config['integration'] = $integration;
-        $config['workspaceIntegration'] = $workspaceIntegration;
-        $config['integrationId'] = $workspaceIntegration->getId();
-        $config['workspaceId'] = $workspaceIntegration->getWorkspaceId();
-
-        return $config;
     }
 }

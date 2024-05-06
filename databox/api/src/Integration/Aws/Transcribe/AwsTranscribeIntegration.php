@@ -13,6 +13,7 @@ use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -79,7 +80,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         ];
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,
@@ -87,7 +88,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         );
     }
 
-    public function handlePostComplete(array $config, array $args): void
+    public function handlePostComplete(IntegrationConfig $config, array $args): void
     {
         $detail = $args['message']['detail'];
         $jobName = $detail['TranscriptionJobName'];
@@ -145,7 +146,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
         $assetId = $this->getTagByKey($job['Tags'], 'assetId');
 
         $this->batchAttributeManager->handleBatch(
-            $config['workspaceId'],
+            $config->getWorkspaceId(),
             [$assetId],
             $input,
             null

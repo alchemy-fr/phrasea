@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Expose;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Validator\Constraints\Url;
 
@@ -34,7 +35,7 @@ class ExposeIntegration extends AbstractIntegration
         return false;
     }
 
-    public function validateConfiguration(array $config): void
+    public function validateConfiguration(IntegrationConfig $config): void
     {
         $this->validate($config, 'baseUrl', [
             new Url(),

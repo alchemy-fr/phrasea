@@ -20,56 +20,25 @@ final readonly class EnvResolver
     ) {
     }
 
-    public function resolve(?string $workspaceId, array $config): array
+    public function getEnv(string $workspaceId, string $key): string
     {
-        $secrets = $this->em->getRepository(WorkspaceSecret::class)
-            ->findBy([
-                'workspace' => $workspaceId,
-            ]);
+        $params = [
+            'workspace' => $workspaceId,
+            'name' => $key
+        ];
 
-        $varIndex = [];
-        foreach ($secrets as $secret) {
-            $varIndex[$secret->getName()] = new LazySecret($this->secretsManager, $secret->getValue());
+        $secret = $this->em->getRepository(WorkspaceSecret::class)
+            ->findOneBy($params);
+        if ($secret instanceof WorkspaceSecret) {
+            return $this->secretsManager->decryptSecret($secret->getValue());
         }
 
-        $envs = $this->em->getRepository(WorkspaceEnv::class)
-            ->findBy([
-                'workspace' => $workspaceId,
-            ]);
-
-        foreach ($envs as $env) {
-            $varIndex[$env->getName()] = $env->getValue();
+        $env = $this->em->getRepository(WorkspaceEnv::class)
+            ->findOneBy($params);
+        if ($env instanceof WorkspaceEnv) {
+            return $env->getValue();
         }
 
-        return $this->resolveArrayNode($config, $varIndex);
-    }
-
-    /**
-     * @param array<string, LazySecret|string> $variables
-     */
-    public function resolveArrayNode(array $config, array $variables): array
-    {
-        $replace = function (array $match) use ($variables): string {
-            $var = $variables[$match[1]] ?? null;
-            if (null !== $var) {
-                return $var instanceof LazySecret ? $var->getDecrypted() : $var;
-            }
-
-            return getenv(self::ENV_PREFIX.$match[1]) ?: '';
-        };
-
-        foreach ($config as $key => $value) {
-            if (is_array($value)) {
-                $config[$key] = $this->resolveArrayNode($value, $variables);
-            } elseif (is_string($value)) {
-                $resolved = preg_replace_callback('#\$\{([^}]+)}#i', $replace, $value);
-                $resolved = preg_replace_callback('#\$([A-Z\d_]+)#i', $replace, $resolved);
-                if ($resolved !== $value) {
-                    $config[$key] = $resolved;
-                }
-            }
-        }
-
-        return $config;
+        return getenv(self::ENV_PREFIX.$key) ?: '';
     }
 }

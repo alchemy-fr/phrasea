@@ -8,6 +8,7 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -31,7 +32,7 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         ;
     }
 
-    public function validateConfiguration(array $config): void
+    public function validateConfiguration(IntegrationConfig $config): void
     {
         $this->validate($config, 'emails', [
             new All([
@@ -40,7 +41,7 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         ]);
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

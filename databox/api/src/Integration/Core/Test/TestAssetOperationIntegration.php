@@ -6,6 +6,7 @@ namespace App\Integration\Core\Test;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -24,7 +25,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
         ;
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

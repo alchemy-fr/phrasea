@@ -6,6 +6,7 @@ namespace App\Integration\Core\ReadMetadata;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Workflow\Action\InitializeAttributesAction;
@@ -13,7 +14,7 @@ use App\Workflow\Action\ReadMetadataAction;
 
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         $readMetadataJob = WorkflowHelper::createIntegrationJob(
             $config,

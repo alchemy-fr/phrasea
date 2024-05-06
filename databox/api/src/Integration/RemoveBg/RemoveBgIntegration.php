@@ -7,7 +7,9 @@ namespace App\Integration\RemoveBg;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
+use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -43,7 +45,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         ));
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         if ($config['processIncoming']) {
             yield WorkflowHelper::createIntegrationJob(
@@ -53,7 +55,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
     {
         switch ($action) {
             case self::ACTION_PROCESS:
@@ -68,7 +70,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
     }
 
-    public function supportsFileActions(File $file, array $config): bool
+    public function supportsFileActions(File $file, IntegrationConfig $config): bool
     {
         return FileUtil::isImageType($file->getType());
     }

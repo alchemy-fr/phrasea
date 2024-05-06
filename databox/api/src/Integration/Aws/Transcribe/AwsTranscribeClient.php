@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Transcribe;
 
+use App\Integration\IntegrationConfig;
 use Aws\TranscribeService\TranscribeServiceClient;
 
 class AwsTranscribeClient
 {
-    private function createClient(array $options): TranscribeServiceClient
+    private function createClient(IntegrationConfig $options): TranscribeServiceClient
     {
         return new TranscribeServiceClient([
             'region' => $options['region'],
@@ -20,7 +21,7 @@ class AwsTranscribeClient
         ]);
     }
 
-    public function extractTextFromAudio(string $assetId, string $fileId, string $s3Uri, string $mimeType, array $options): array
+    public function extractTextFromAudio(string $assetId, string $fileId, string $s3Uri, string $mimeType, IntegrationConfig $options): array
     {
         $client = $this->createClient($options);
 
@@ -47,7 +48,7 @@ class AwsTranscribeClient
         return $res->toArray();
     }
 
-    public function getJob(string $jobName, array $options): array
+    public function getJob(string $jobName, IntegrationConfig $options): array
     {
         $client = $this->createClient($options);
 

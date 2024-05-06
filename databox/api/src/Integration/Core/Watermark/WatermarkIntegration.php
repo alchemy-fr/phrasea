@@ -6,6 +6,7 @@ namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -50,7 +51,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
         ;
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
             $config,

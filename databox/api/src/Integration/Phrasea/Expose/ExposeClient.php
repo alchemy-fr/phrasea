@@ -2,6 +2,7 @@
 
 namespace App\Integration\Phrasea\Expose;
 
+use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -12,7 +13,7 @@ final readonly class ExposeClient
     ) {
     }
 
-    private function create(array $config): HttpClientInterface
+    private function create(IntegrationConfig $config): HttpClientInterface
     {
         return $this->clientFactory->create(
             $config['baseUrl'],
@@ -21,7 +22,7 @@ final readonly class ExposeClient
         );
     }
 
-    public function getPublications(array $config): array
+    public function getPublications(IntegrationConfig $config): array
     {
         return $this->create($config)
             ->request('GET', '/publications')

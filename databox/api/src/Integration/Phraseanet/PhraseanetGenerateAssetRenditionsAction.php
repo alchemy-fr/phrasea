@@ -30,12 +30,10 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         $asset = $this->getAsset($context);
         $file = $asset->getSource();
 
-        $integrationId = $config['integrationId'];
-
         $url = $this->fileUrlResolver->resolveUrl($file);
 
         $destUrl = $this->urlGenerator->generate('integration_phraseanet_incoming_rendition', [
-            'integrationId' => $integrationId,
+            'integrationId' => $config->getIntegrationId(),
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 

@@ -8,6 +8,7 @@ use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +24,7 @@ final readonly class RemoveBgProcessor
     ) {
     }
 
-    public function process(File $file, array $config): File
+    public function process(File $file, IntegrationConfig $config): File
     {
         $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
@@ -37,9 +38,7 @@ final readonly class RemoveBgProcessor
             sprintf('%s-bg-removed.png', $file->getOriginalName() ?? $file->getId())
         );
 
-        /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
-        $this->integrationDataManager->storeData($wsIntegration, $file, FileActionsIntegrationInterface::DATA_FILE_ID, $bgRemFile->getId());
+        $this->integrationDataManager->storeData($config->getWorkspaceIntegration(), $file, FileActionsIntegrationInterface::DATA_FILE_ID, $bgRemFile->getId());
 
         $this->em->flush();
 

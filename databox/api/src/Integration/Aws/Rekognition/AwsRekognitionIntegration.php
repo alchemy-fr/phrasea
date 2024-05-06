@@ -9,7 +9,9 @@ use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
 use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -18,6 +20,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, FileActionsIntegrationInterface
 {
@@ -35,6 +38,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
     public function __construct(
         private readonly RekognitionAnalyzer $rekognitionAnalyzer,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -100,7 +104,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         $builder->append($this->createBudgetLimitConfigNode(true));
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         foreach (self::CATEGORIES as $category => $action) {
             if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {
@@ -114,12 +118,14 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
                 $category = $request->request->get('category');
                 $payload = $this->rekognitionAnalyzer->analyze(null, $file, $category, $config);
+
+//                $this->bus->dispatch(new RekognitionAnalyze($file->getId(), $category))
 
                 return new JsonResponse([
                     $category => $payload,
@@ -129,7 +135,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
         $output = [];
         foreach (array_keys(self::CATEGORIES) as $category) {
@@ -146,7 +152,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         return FileUtil::isImageType($file->getType());
     }
 
-    public function supportsFileActions(File $file, array $config): bool
+    public function supportsFileActions(File $file, IntegrationConfig $config): bool
     {
         return $this->supportFile($file);
     }

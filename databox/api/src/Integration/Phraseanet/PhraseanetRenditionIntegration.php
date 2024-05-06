@@ -6,6 +6,7 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -59,7 +60,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         ;
     }
 
-    public function validateConfiguration(array $config): void
+    public function validateConfiguration(IntegrationConfig $config): void
     {
         $method = $config['method'];
         if (self::METHOD_API === $method && empty($config['databoxId'])) {
@@ -74,20 +75,20 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         ]);
     }
 
-    public function getConfigurationInfo(array $config): array
+    public function getConfigurationInfo(IntegrationConfig $config): array
     {
         $info = [];
 
         if (self::METHOD_ENQUEUE === $config['method']) {
             $info['Webhook URL'] = $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
-                'integrationId' => $config['integrationId'],
+                'integrationId' => $config->getIntegrationId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         return $info;
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         $actions = [
             self::METHOD_API => PhraseanetGenerateAssetRenditionsAction::class,

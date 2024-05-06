@@ -23,7 +23,7 @@ abstract class AbstractIntegration implements IntegrationInterface
         $this->validator = $validator;
     }
 
-    public function validateConfiguration(array $config): void
+    public function validateConfiguration(IntegrationConfig $config): void
     {
     }
 
@@ -36,7 +36,7 @@ abstract class AbstractIntegration implements IntegrationInterface
         return true;
     }
 
-    public function getConfigurationInfo(array $config): array
+    public function getConfigurationInfo(IntegrationConfig $config): array
     {
         return [];
     }
@@ -81,7 +81,7 @@ abstract class AbstractIntegration implements IntegrationInterface
         return $treeBuilder->getRootNode();
     }
 
-    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
         return [];
     }

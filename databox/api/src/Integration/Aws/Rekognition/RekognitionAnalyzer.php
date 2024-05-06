@@ -14,6 +14,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\ApiBudgetLimiter;
+use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 
 final readonly class RekognitionAnalyzer
@@ -28,10 +29,9 @@ final readonly class RekognitionAnalyzer
     ) {
     }
 
-    public function analyze(?Asset $asset, File $file, string $category, array $config): array
+    public function analyze(?Asset $asset, File $file, string $category, IntegrationConfig $config): array
     {
-        /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
+        $wsIntegration = $config->getWorkspaceIntegration();
 
         $methods = [
             'labels' => 'getImageLabels',

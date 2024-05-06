@@ -21,7 +21,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     /**
      * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
      */
-    protected function getIntegrationConfig(JobExecutionContext|JobContext $context): array
+    protected function getIntegrationConfig(JobExecutionContext|JobContext $context): IntegrationConfig
     {
         $integration = $this->integrationManager->loadIntegration($context->getInputs()['integrationId']);
 
@@ -66,8 +66,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
         }
 
         $config = $this->getIntegrationConfig($context);
-        $workspaceIntegration = $config['workspaceIntegration'];
-        if (null !== $if = $workspaceIntegration->getIf()) {
+        if (null !== $if = $config->getWorkspaceIntegration()->getIf()) {
             return $this->expressionParser->evaluateIf($if, $context, [
                 'asset' => $asset,
             ]);

@@ -38,13 +38,13 @@ class ApiBudgetLimiter
     /**
      * @throws RateLimitExceededException
      */
-    public function acceptIntegrationApiCall(array $config, int $tokens = 1): void
+    public function acceptIntegrationApiCall(IntegrationConfig $config, int $tokens = 1): void
     {
         $limiter = $this->createLimiter(
             $config['budgetLimit']['limit'],
             $config['budgetLimit']['policy'],
             $config['budgetLimit']['interval'],
-            $config['workspaceIntegration']->getId()
+            $config->getIntegrationId()
         );
 
         $limiter->consume($tokens)->ensureAccepted();

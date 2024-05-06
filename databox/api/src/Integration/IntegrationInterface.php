@@ -17,9 +17,9 @@ interface IntegrationInterface
 
     public function buildConfiguration(NodeBuilder $builder): void;
 
-    public function validateConfiguration(array $config): void;
+    public function validateConfiguration(IntegrationConfig $config): void;
 
-    public function getConfigurationInfo(array $config): array;
+    public function getConfigurationInfo(IntegrationConfig $config): array;
 
-    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array;
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array;
 }

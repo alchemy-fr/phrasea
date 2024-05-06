@@ -11,15 +11,13 @@ use App\Entity\Integration\WorkspaceIntegration;
 abstract class WorkflowHelper
 {
     public static function createIntegrationJob(
-        array $config,
+        IntegrationConfig $config,
         string $action,
         ?string $idSuffix = null,
         ?string $nameSuffix = null,
     ): Job {
-        /** @var WorkspaceIntegration $workspaceIntegration */
-        $workspaceIntegration = $config['workspaceIntegration'];
-        /** @var IntegrationInterface $integration */
-        $integration = $config['integration'];
+        $workspaceIntegration = $config->getWorkspaceIntegration();
+        $integration = $config->getIntegration();
         $id = $integration::getName().':'.$workspaceIntegration->getId();
         if (!empty($idSuffix)) {
             $id .= ':'.$idSuffix;

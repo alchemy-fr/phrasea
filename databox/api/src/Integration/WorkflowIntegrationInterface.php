@@ -12,5 +12,5 @@ interface WorkflowIntegrationInterface
     /**
      * @return Job[]
      */
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable;
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable;
 }
