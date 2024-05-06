@@ -25,13 +25,14 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
     {
         $config = $this->getIntegrationConfig($context);
         $asset = $this->getAsset($context);
+        $workflowId = $context->getJobState()->getWorkflowId();
 
         $data = [
             'assets' => [$asset->getId()],
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
-            'token' => $this->tokenManager->createToken($asset->getId(), $context->getJobState()->getWorkflowId()),
-            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config->getIntegrationId().'/',
+            'token' => $this->tokenManager->createToken($asset->getId(), $workflowId),
+            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config->getIntegrationId().'/workflows/'.$workflowId.'/',
             'formData' => [
                 'collection_destination' => $config['collectionId'],
             ],

@@ -112,6 +112,7 @@ class PhraseanetIntegrationController extends AbstractController
 
     #[Route(path: '/{integrationId}/events', name: 'webhook_event', methods: ['POST'])]
     public function webhookEventAction(
+        $integrationId,
         Request $request,
         MessageBusInterface $bus,
         LoggerInterface $logger,
@@ -123,14 +124,18 @@ class PhraseanetIntegrationController extends AbstractController
         switch ($json['event']) {
             case 'record.subdef.created':
                 $data = $json['data'];
-                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(\..+)?$#', (string) $data['original_name'], $groups)) {
-                    $workflowId = $groups[1];
+                $uuidRegex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+                if (1 === preg_match('#^'.preg_quote(self::ASSET_NAME_PREFIX, '#').'('.$uuidRegex.')_('.$uuidRegex.')(\..+)?$#', (string) $data['original_name'], $groups)) {
+                    [, $assetId, $workflowId] = $groups;
 
                     $logger->debug(sprintf('Received webhook "%s" for workflow "%s"', $json['event'], $workflowId));
 
                     $workflowState = $workflowStateRepository->getWorkflowState($workflowId);
-                    $integrationId = $workflowState->getEvent()->getInputs()['integrationId'];
-                    $assetId = $workflowState->getEvent()->getInputs()['assetId'];
+                    $inputs = $workflowState->getEvent()->getInputs();
+                    if ($assetId !== $inputs['assetId']) {
+                        break;
+                    }
+                    $assetId = $inputs['assetId'];
                     $workflowOrchestrator->continueJob(
                         $workflowId,
                         PhraseanetRenditionIntegration::getRenditionJobId($integrationId, $data['subdef_name']),
@@ -160,18 +165,20 @@ class PhraseanetIntegrationController extends AbstractController
         return new Response();
     }
 
-    #[Route(path: '/{integrationId}/assets/{id}', name: 'asset', methods: ['GET'])]
+    #[Route(path: '/{integrationId}/workflows/{workflowId}/assets/{assetId}', name: 'asset', methods: ['GET'])]
     public function assetAction(
         $integrationId,
-        string $id,
+        string $workflowId,
+        string $assetId,
         FileUrlResolver $fileUrlResolver,
         EntityManagerInterface $em,
         LoggerInterface $logger,
         IntegrationManager $integrationManager,
+        StateRepositoryInterface $workflowStateRepository,
         PhraseanetTokenManager $tokenManager,
         Request $request
     ): Response {
-        $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $id));
+        $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $assetId));
 
         $auth = $request->headers->get('Authorization', '');
         if (1 !== preg_match('#^AssetToken (.+)$#', $auth, $matches)) {
@@ -182,16 +189,16 @@ class PhraseanetIntegrationController extends AbstractController
         $integration = $integrationManager->loadIntegration($integrationId);
         $options = $integrationManager->getIntegrationConfiguration($integration);
 
-        $asset = $em->find(Asset::class, $id);
+        $asset = $em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {
-            throw new NotFoundHttpException(sprintf('Asset "%s" not found for Phraseanet enqueue', $id));
+            throw new NotFoundHttpException(sprintf('Asset "%s" not found for Phraseanet enqueue', $assetId));
         }
 
         $tokenManager->validateToken($asset->getId(), $assetToken);
 
         return new JsonResponse([
             'id' => $asset->getId(),
-            'originalName' => sprintf('%s%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $asset->getSource()->getExtension()),
+            'originalName' => sprintf('%s%s_%s.%s', self::ASSET_NAME_PREFIX, $asset->getId(), $workflowId, $asset->getSource()->getExtension()),
             'url' => $fileUrlResolver->resolveUrl($asset->getSource()),
             'formData' => [
                 'collection_destination' => $options['collectionId'],
@@ -199,18 +206,18 @@ class PhraseanetIntegrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{integrationId}/commits/{id}/ack', name: 'enqueue_ack', methods: ['POST'])]
+    #[Route(path: '/{integrationId}/workflows/{workflowId}/commits/{assetId}/ack', name: 'enqueue_ack', methods: ['POST'])]
     public function enqueueAckAction(
         string $integrationId,
-        string $id,
+        string $assetId,
         LoggerInterface $logger
     ): Response {
-        $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset "%s"', $id));
+        $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset "%s"', $assetId));
 
         return new Response();
     }
 
-    #[Route(path: '/{integrationId}/assets/{assetId}/ack', name: 'enqueue_asset_ack', methods: ['POST'])]
+    #[Route(path: '/{integrationId}/workflows/{workflowId}/assets/{assetId}/ack', name: 'enqueue_asset_ack', methods: ['POST'])]
     public function enqueueAssetAckAction(
         string $integrationId,
         string $assetId,

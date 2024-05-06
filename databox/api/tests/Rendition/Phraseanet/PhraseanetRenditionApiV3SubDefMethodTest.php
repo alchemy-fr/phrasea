@@ -61,6 +61,9 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             'token' => 'baz',
             'databoxId' => 2,
             'method' => PhraseanetRenditionIntegration::METHOD_API,
+            'renditions' => [
+                'thumbnail',
+            ],
         ]);
         $em->persist($integration);
 
