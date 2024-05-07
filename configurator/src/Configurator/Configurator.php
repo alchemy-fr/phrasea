@@ -18,8 +18,7 @@ final class Configurator
     public function __construct(
         #[TaggedIterator('app.configurator')]
         iterable $configurators,
-    )
-    {
+    ) {
         $this->configurators = $configurators;
     }
 

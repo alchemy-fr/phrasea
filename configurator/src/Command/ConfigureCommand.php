@@ -16,8 +16,7 @@ final class ConfigureCommand extends Command
 {
     public function __construct(
         private readonly Configurator $configurator,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -25,9 +24,8 @@ final class ConfigureCommand extends Command
     {
         parent::configure();
 
-        $this->addOption('preset', null, InputOption::VALUE_IS_ARRAY|InputOption::VALUE_REQUIRED);
+        $this->addOption('preset', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED);
     }
-
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {

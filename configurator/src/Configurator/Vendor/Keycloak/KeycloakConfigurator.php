@@ -22,31 +22,32 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $hasDevPreset = in_array('dev', $presets, true);
 
         $this->configureRealm();
+        $this->configureDefaultClientScopes();
 
         foreach ($this->symfonyApplications as $app) {
             $this->keycloakManager->createRole($app.'-admin', sprintf('Admin access for %s', ucwords($app)));
         }
 
         foreach ([
-                     KeycloakInterface::ROLE_ADMIN => 'Can do anything',
-                     KeycloakInterface::ROLE_TECH => 'Access to Dev/Ops Operations',
-                     KeycloakInterface::ROLE_USER_ADMIN => 'Manage Users',
-                     KeycloakInterface::ROLE_GROUP_ADMIN => 'Manage Groups',
-                 ] as $role => $desc) {
+            KeycloakInterface::ROLE_ADMIN => 'Can do anything',
+            KeycloakInterface::ROLE_TECH => 'Access to Dev/Ops Operations',
+            KeycloakInterface::ROLE_USER_ADMIN => 'Manage Users',
+            KeycloakInterface::ROLE_GROUP_ADMIN => 'Manage Groups',
+        ] as $role => $desc) {
             $this->keycloakManager->createRole($role, $desc);
         }
 
         foreach ([
-                     'openid',
-                     'groups',
-                 ] as $scope) {
+            'openid',
+            'groups',
+        ] as $scope) {
             $this->keycloakManager->createScope($scope);
         }
 
         foreach ($this->getAppScopes() as $app => $appScopes) {
             foreach ($appScopes as $scope) {
                 $this->keycloakManager->createScope($scope, [
-                    'description' => sprintf('%s in %s', $scope, ucwords($app))
+                    'description' => sprintf('%s in %s', $scope, ucwords($app)),
                 ]);
             }
         }
@@ -112,7 +113,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
                 'temporary' => !$hasTestPreset,
-            ]]
+            ]],
         ]);
 
         $this->keycloakManager->addRolesToUser($defaultAdmin['id'], [
@@ -137,18 +138,18 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return [
             'databox' => array_merge([
                 'super-admin',
-                ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
-                    'create',
-                    'read',
-                    'edit',
-                    'delete',
+            ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
+                'create',
+                'read',
+                'edit',
+                'delete',
             ]), [
-                    'asset',
-                    'collection',
-                    'rendition',
-                    'rendition-class',
-                    'rendition-rule',
-                    'workspace',
+                'asset',
+                'collection',
+                'rendition',
+                'rendition-class',
+                'rendition-rule',
+                'workspace',
             ])),
             'expose' => [
                 'publish',
@@ -184,38 +185,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         foreach ([
             'openid',
             'profile',
-                 ] as $scope) {
+        ] as $scope) {
             $this->keycloakManager->addScopeToClient($scope, $clientData['id']);
         }
-
-        $this->keycloakManager->configureClientClaim($clientData, [
-            'name' => 'roles',
-            'consentRequired' => false,
-            'protocol' => 'openid-connect',
-            'protocolMapper' => 'oidc-usermodel-realm-role-mapper',
-            'config' => [
-                'claim.name' => 'roles',
-                'jsonType.label' => 'String',
-                'access.token.claim' => 'true',
-                'userinfo.token.claim' => 'true',
-                'id.token.claim' => 'true',
-                'multivalued' => 'true',
-                'usermodel.realmRoleMapping.rolePrefix' => '',
-            ],
-        ]);
-
-        $this->keycloakManager->configureClientClaim($clientData, [
-            'name' => 'groups',
-            'consentRequired' => false,
-            'protocol' => 'openid-connect',
-            'protocolMapper' => 'oidc-group-uuid-mapper',
-            'config' => [
-                'claim.name' => 'groups',
-                'access.token.claim' => 'true',
-                'userinfo.token.claim' => 'true',
-                'id.token.claim' => 'true',
-            ],
-        ]);
 
         return $clientData;
     }
@@ -245,5 +217,58 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'password' => $mailer['pass'] ?? null,
             ],
         ]);
+    }
+
+    private function configureDefaultClientScopes(): void
+    {
+        $rolesScope = $this->keycloakManager->getDefaultClientScopesByName('roles');
+        if (null === $rolesScope) {
+            throw new \InvalidArgumentException(sprintf('Scope named "roles" not found in client scopes'));
+        }
+        $scopeId = $rolesScope['id'];
+
+        $protocolMapper = $this->keycloakManager->getClientScopeProtocolMapperByName($scopeId, 'realm roles');
+
+        $rolesMapperData = [
+            'protocol' => 'openid-connect',
+            'protocolMapper' => 'oidc-usermodel-realm-role-mapper',
+            'name' => 'realm roles',
+            'config' => [
+                'usermodel.realmRoleMapping.rolePrefix' => '',
+                'multivalued' => 'true',
+                'claim.name' => 'roles',
+                'jsonType.label' => 'String',
+                'id.token.claim' => 'false',
+                'access.token.claim' => 'true',
+                'userinfo.token.claim' => 'true',
+                'user.attribute' => 'foo',
+            ],
+            'consentRequired' => false,
+        ];
+        if (null === $protocolMapper) {
+            $this->keycloakManager->addClientScopeProtocolMapper($scopeId, $rolesMapperData);
+        } else {
+            $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $rolesMapperData);
+        }
+
+        $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $rolesMapperData);
+
+        $protocolMapper = $this->keycloakManager->getClientScopeProtocolMapperByName($scopeId, 'groups');
+        $groupMapperData = [
+            'protocol' => 'openid-connect',
+            'protocolMapper' => 'oidc-group-uuid-mapper',
+            'name' => 'groups',
+            'config' => [
+                'claim.name' => 'groups',
+                'id.token.claim' => 'true',
+                'access.token.claim' => 'true',
+                'userinfo.token.claim' => 'true',
+            ],
+        ];
+        if (null === $protocolMapper) {
+            $this->keycloakManager->addClientScopeProtocolMapper($scopeId, $groupMapperData);
+        } else {
+            $this->keycloakManager->putClientScopeProtocolMapper($scopeId, $protocolMapper['id'], $groupMapperData);
+        }
     }
 }

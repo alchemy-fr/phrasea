@@ -60,13 +60,13 @@ FROM oauth_client');
                     continue;
                 }
                 if ('auth' === $app && in_array($row['id'], [
-                        'databox-app',
-                        'expose-app',
-                        'uploader-app',
-                        'databox-admin',
-                        'expose-admin',
-                        'uploader-admin',
-                    ], true)) {
+                    'databox-app',
+                    'expose-app',
+                    'uploader-app',
+                    'databox-admin',
+                    'expose-admin',
+                    'uploader-admin',
+                ], true)) {
                     continue;
                 }
 
@@ -245,7 +245,6 @@ FROM "external_access_token"');
             ],
         ], $groupMap);
 
-
         return Command::SUCCESS;
     }
 
@@ -339,8 +338,6 @@ FROM "external_access_token"');
                 'config' => $config,
                 'displayName' => $idp['title'],
                 'providerId' => $idpType,
-//                'enabled' => true,
-//                'trustEmail' => true,
             ];
 
             $this->keycloakManager->createIdentityProvider($data);
@@ -362,9 +359,9 @@ FROM "external_access_token"');
     private function extractUsernameFromAttributes(array $attributes): string
     {
         foreach ([
-                     'username',
-                     'email',
-                 ] as $key) {
+            'username',
+            'email',
+        ] as $key) {
             if (!empty($attributes[$key])) {
                 if (is_string($attributes[$key])) {
                     return $attributes[$key];

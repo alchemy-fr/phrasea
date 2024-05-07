@@ -19,12 +19,7 @@ abstract class HttpClientUtil
 
             $error = $e->getResponse()->getContent(false);
 
-            throw new \InvalidArgumentException(sprintf(
-                '%s: %s%s',
-                $e->getMessage(),
-                $error,
-                null !== $data ? ' (with data: '.print_r($data, true).')' : '',
-            ), 0, $e);
+            throw new \InvalidArgumentException(sprintf('%s: %s%s', $e->getMessage(), $error, null !== $data ? ' (with data: '.print_r($data, true).')' : ''), 0, $e);
         }
     }
 }

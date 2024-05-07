@@ -17,8 +17,7 @@ final class KeycloakManager
     public function __construct(
         private readonly HttpClientInterface $keycloakClient,
         private readonly string $keycloakRealm,
-    )
-    {
+    ) {
         if ('master' === $this->keycloakRealm) {
             throw new \LogicException('Your Keycloak Realm cannot be named "master".');
         }
@@ -61,19 +60,19 @@ final class KeycloakManager
             'realm' => $this->keycloakRealm,
             'enabled' => true,
         ];
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()->request('POST', '', [
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
             'json' => $data,
         ])->getContent(), 409, $data);
     }
 
-    protected function getClients(string $realm = null): array
+    protected function getClients(?string $realm = null): array
     {
         return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/clients', [
             'realm' => $realm ?? $this->keycloakRealm,
         ]))->toArray();
     }
 
-    public function getClientByClientId(string $clientId, string $realm = null): ?array
+    public function getClientByClientId(string $clientId, ?string $realm = null): ?array
     {
         $clients = $this->getClients($realm);
         foreach ($clients as $client) {
@@ -83,6 +82,66 @@ final class KeycloakManager
         }
 
         return null;
+    }
+
+    public function getDefaultClientScopes(): array
+    {
+        return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/default-default-client-scopes', [
+            'realm' => $this->keycloakRealm,
+        ]))->toArray();
+    }
+
+    public function getDefaultClientScopesByName(string $name): ?array
+    {
+        $scopes = $this->getDefaultClientScopes();
+        foreach ($scopes as $scope) {
+            if ('roles' === $scope['name']) {
+                return $scope;
+            }
+        }
+
+        return null;
+    }
+
+    public function getClientScope(string $id): array
+    {
+        return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/client-scopes/{id}', [
+            'realm' => $this->keycloakRealm,
+            'id' => $id,
+        ]))->toArray();
+    }
+
+    public function getClientScopeProtocolMapperByName(string $scopeId, string $protocolName): ?array
+    {
+        $protocolMappers = $this->getClientScope($scopeId)['protocolMappers'];
+        foreach ($protocolMappers as $protocolMapper) {
+            if ($protocolName === $protocolMapper['name']) {
+                return $protocolMapper;
+            }
+        }
+
+        return null;
+    }
+
+    public function putClientScopeProtocolMapper(string $scopeId, string $mapperId, array $data): void
+    {
+        $this->getAuthenticatedClient()->request('PUT', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/protocol-mappers/models/{mapperId}', [
+            'realm' => $this->keycloakRealm,
+            'scopeId' => $scopeId,
+            'mapperId' => $mapperId,
+        ]), [
+            'json' => array_merge(['id' => $mapperId], $data),
+        ]);
+    }
+
+    public function addClientScopeProtocolMapper(string $scopeId, array $data): void
+    {
+        $this->getAuthenticatedClient()->request('POST', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/protocol-mappers/models', [
+            'realm' => $this->keycloakRealm,
+            'scopeId' => $scopeId,
+        ]), [
+            'json' => $data,
+        ]);
     }
 
     public function createScope(string $name, array $data = []): void
@@ -116,16 +175,16 @@ final class KeycloakManager
                 ]);
         }
 
-        $isDefault = $data['type'] === 'default';
+        $isDefault = 'default' === $data['type'];
 
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('DELETE', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $scope['id'],
             ])), 404, []);
 
         if ($isDefault) {
-            HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+            HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
                 ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                     'realm' => $this->keycloakRealm,
                     'id' => $scope['id'],
@@ -176,14 +235,13 @@ final class KeycloakManager
             'role' => $role,
         ];
 
-        $serviceAccountUser =  $this->getAuthenticatedClient()
+        $serviceAccountUser = $this->getAuthenticatedClient()
             ->request('GET', UriTemplate::resolve('{realm}/clients/{clientId}/service-account-user', [
                 'realm' => $this->keycloakRealm,
                 'clientId' => $client['id'],
             ]), [
                 'json' => $data,
             ])->toArray();
-
 
         $realmClient = $this->getClientByClientId($fromClientId);
         if (null === $realmClient) {
@@ -257,7 +315,7 @@ final class KeycloakManager
         array $data,
     ): void {
         $protocolMappers = $client['protocolMappers'] ?? [];
-        $protocolMapper = array_values(array_filter($protocolMappers, fn(array $pm): bool => $pm['name'] === $data['name']))[0] ?? null;
+        $protocolMapper = array_values(array_filter($protocolMappers, fn (array $pm): bool => $pm['name'] === $data['name']))[0] ?? null;
 
         if ($protocolMapper) {
             $this->getAuthenticatedClient()
@@ -281,7 +339,7 @@ final class KeycloakManager
 
     public function createUser(array $data): array
     {
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users', [
                 'realm' => $this->keycloakRealm,
             ]), [
@@ -291,7 +349,7 @@ final class KeycloakManager
         $user = $this->getUsers([
             'query' => [
                 'username' => $data['username'],
-            ]
+            ],
         ])[0];
 
         if ($user['username'] !== $data['username']) {
@@ -345,7 +403,7 @@ final class KeycloakManager
             'query' => [
                 'exact' => 'true',
                 'search' => $name,
-            ]
+            ],
         ])[0] ?? null;
     }
 
@@ -365,7 +423,7 @@ final class KeycloakManager
             'description' => $description,
         ];
 
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/roles', [
                 'realm' => $this->keycloakRealm,
             ]), [
@@ -423,9 +481,9 @@ final class KeycloakManager
 
             throw new \InvalidArgumentException(sprintf('Role "%s" not found', $roleName));
         }, $roleNames);
-        $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
+        $roles = array_filter($roles, fn (?array $r): bool => null !== $r);
 
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/realm', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
@@ -453,9 +511,9 @@ final class KeycloakManager
 
             throw new \InvalidArgumentException(sprintf('Role "%s" not found', $roleName));
         }, $roleNames);
-        $roles = array_filter($roles, fn (array|null $r): bool => null !== $r);
+        $roles = array_filter($roles, fn (?array $r): bool => null !== $r);
 
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/role-mappings/clients/{realmClientId}', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
@@ -467,7 +525,7 @@ final class KeycloakManager
 
     public function addUserToGroup(string $userId, string $groupId): void
     {
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/users/{userId}/groups/{groupId}', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
@@ -499,7 +557,7 @@ final class KeycloakManager
                     'json' => $data,
                 ]);
         } else {
-            HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+            HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
                 ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances', [
                     'realm' => $this->keycloakRealm,
                 ]), [
@@ -524,7 +582,7 @@ final class KeycloakManager
                     'alias' => $alias,
                 ]))->toArray();
         } catch (ClientException $e) {
-            if ($e->getResponse()->getStatusCode() !== 404) {
+            if (404 !== $e->getResponse()->getStatusCode()) {
                 throw $e;
             }
         }
@@ -534,7 +592,7 @@ final class KeycloakManager
 
     public function createIdpMapper(string $idpAlias, array $data): void
     {
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/identity-provider/instances/{alias}/mappers', [
                 'realm' => $this->keycloakRealm,
                 'alias' => $idpAlias,
@@ -545,7 +603,7 @@ final class KeycloakManager
 
     public function linkAccountToIdentityProvider(string $userId, string $idpAlias, array $data): void
     {
-        HttpClientUtil::debugError(fn() => $this->getAuthenticatedClient()
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('POST', UriTemplate::resolve('{realm}/users/{userId}/federated-identity/{alias}', [
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
