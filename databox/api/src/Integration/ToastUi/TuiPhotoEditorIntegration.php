@@ -46,6 +46,8 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
+
+        return null;
     }
 
     public function supportsFileActions(File $file, IntegrationConfig $config): bool

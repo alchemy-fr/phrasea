@@ -133,6 +133,8 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
+
+        return null;
     }
 
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array

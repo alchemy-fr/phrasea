@@ -65,6 +65,8 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
+
+        return null;
     }
 
     public function supportsFileActions(File $file, IntegrationConfig $config): bool
