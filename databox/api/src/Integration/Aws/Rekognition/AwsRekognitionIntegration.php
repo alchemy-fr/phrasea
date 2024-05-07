@@ -122,14 +122,15 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
-                $category = $request->request->get('category');
-                $payload = $this->rekognitionAnalyzer->analyze(null, $file, $category, $config);
+                $this->bus->dispatch(new RekognitionAnalyze(
+                    $file->getId(),
+                    $config->getIntegrationId(),
+                    $request->request->get('category')
+                ));
 
-//                $this->bus->dispatch(new RekognitionAnalyze($file->getId(), $category))
+                // TODO websocket
 
-                return new JsonResponse([
-                    $category => $payload,
-                ]);
+                return new JsonResponse();
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }

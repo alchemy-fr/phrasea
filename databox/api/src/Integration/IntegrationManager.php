@@ -111,9 +111,6 @@ readonly class IntegrationManager
         return trim(preg_replace("#^\n+#", '', $output));
     }
 
-    /**
-     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
-     */
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig
     {
         $node = $this->buildConfiguration($integration);

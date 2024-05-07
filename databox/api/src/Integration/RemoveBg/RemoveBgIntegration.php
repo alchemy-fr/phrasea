@@ -61,10 +61,9 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
             case self::ACTION_PROCESS:
                 $file = $this->removeBgProcessor->process($file, $config);
 
-                return new JsonResponse([
-                    'id' => $file->getId(),
-                    'url' => $this->fileUrlResolver->resolveUrl($file),
-                ]);
+                // TODO websocket
+
+                return new JsonResponse();
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
