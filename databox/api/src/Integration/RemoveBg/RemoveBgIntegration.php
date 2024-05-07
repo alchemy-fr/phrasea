@@ -7,13 +7,11 @@ namespace App\Integration\RemoveBg;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -55,7 +53,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): ?Response
     {
         switch ($action) {
             case self::ACTION_PROCESS:
@@ -63,7 +61,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
 
                 // TODO websocket
 
-                return new JsonResponse();
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }

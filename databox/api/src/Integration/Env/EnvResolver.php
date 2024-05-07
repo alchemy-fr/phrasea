@@ -24,7 +24,7 @@ final readonly class EnvResolver
     {
         $params = [
             'workspace' => $workspaceId,
-            'name' => $key
+            'name' => $key,
         ];
 
         $secret = $this->em->getRepository(WorkspaceSecret::class)

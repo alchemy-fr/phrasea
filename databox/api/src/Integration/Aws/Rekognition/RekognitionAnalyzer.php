@@ -12,7 +12,6 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\ApiBudgetLimiter;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;

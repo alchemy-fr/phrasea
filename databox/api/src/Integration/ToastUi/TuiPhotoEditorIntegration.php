@@ -6,7 +6,6 @@ namespace App\Integration\ToastUi;
 
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractFileAction;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
@@ -20,7 +19,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): ?Response
     {
         switch ($action) {
             case self::ACTION_SAVE:
@@ -43,7 +42,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 }
                 $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId);
 
-                return new JsonResponse();
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }

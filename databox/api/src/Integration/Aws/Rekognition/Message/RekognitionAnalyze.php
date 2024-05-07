@@ -12,8 +12,7 @@ final readonly class RekognitionAnalyze extends AbstractFileActionMessage
         string $fileId,
         string $integrationId,
         private string $category,
-    )
-    {
+    ) {
         parent::__construct($fileId, $integrationId);
     }
 

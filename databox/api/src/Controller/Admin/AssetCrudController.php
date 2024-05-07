@@ -63,8 +63,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
 
         $this->workflowOrchestrator->dispatchEvent(
             AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()), [
-            WorkflowState::INITIATOR_ID => $user->getId(),
-        ]);
+                WorkflowState::INITIATOR_ID => $user->getId(),
+            ]);
 
         return $this->redirect($context->getReferrer());
     }

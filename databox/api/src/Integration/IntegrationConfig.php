@@ -4,7 +4,6 @@ namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
-use ArrayObject;
 
 class IntegrationConfig implements \ArrayAccess
 {
@@ -66,10 +65,16 @@ class IntegrationConfig implements \ArrayAccess
         $value = $this->config[$offset];
 
         if (is_string($value) && str_contains($value, '$')) {
-            $value = preg_replace_callback('#\$\{([^}]+)}#i', fn(array $match
-            ): string => $this->resolve($match), $value);
-            $value = preg_replace_callback('#\$([A-Z\d_]+)#i', fn(array $match
-            ): string => $this->resolve($match), $value);
+            $value = preg_replace_callback(
+                '#\$\{([^}]+)}#i',
+                fn (array $match): string => $this->resolve($match),
+                $value
+            );
+            $value = preg_replace_callback(
+                '#\$([A-Z\d_]+)#i',
+                fn (array $match): string => $this->resolve($match),
+                $value
+            );
         }
 
         return $this->cache[$offset] = $value;

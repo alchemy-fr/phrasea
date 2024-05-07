@@ -17,7 +17,6 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -118,7 +117,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): Response
+    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): ?Response
     {
         switch ($action) {
             case self::ACTION_ANALYZE:
@@ -130,7 +129,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 
                 // TODO websocket
 
-                return new JsonResponse();
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }

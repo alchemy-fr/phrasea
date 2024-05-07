@@ -12,6 +12,7 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -46,7 +47,7 @@ readonly class IntegrationManager
             throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
         }
 
-        return $integration->handleFileAction($action, $request, $file, $config);
+        return $integration->handleFileAction($action, $request, $file, $config) ?? new JsonResponse();
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration

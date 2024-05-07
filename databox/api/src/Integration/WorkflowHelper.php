@@ -6,7 +6,6 @@ namespace App\Integration;
 
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
-use App\Entity\Integration\WorkspaceIntegration;
 
 abstract class WorkflowHelper
 {

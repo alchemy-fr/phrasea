@@ -11,8 +11,7 @@ final class RekognitionAnalyzeHandler extends AbstractFileActionMessageHandler
 {
     public function __construct(
         private readonly RekognitionAnalyzer $rekognitionAnalyzer,
-    )
-    {
+    ) {
     }
 
     public function __invoke(RekognitionAnalyze $message): void
