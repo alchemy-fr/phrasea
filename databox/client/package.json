@@ -6,8 +6,8 @@
     "@alchemy/api": "workspace:*",
     "@alchemy/auth": "workspace:*",
     "@alchemy/core": "workspace:*",
-    "@alchemy/navigation": "workspace:*",
     "@alchemy/i18n": "workspace:*",
+    "@alchemy/navigation": "workspace:*",
     "@alchemy/phrasea-ui": "workspace:*",
     "@alchemy/react-auth": "workspace:*",
     "@alchemy/react-form": "workspace:*",
@@ -39,6 +39,7 @@
     "ismounted": "^0.1.8",
     "leaflet": "^1.9.4",
     "moment": "^2.30.1",
+    "pusher-js": "^8.3.0",
     "react": "^18.2.0",
     "react-ace": "^10.1.0",
     "react-colorful": "^5.6.1",
@@ -93,12 +94,12 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "eslint-plugin-unused-imports": "^3.1.0",
+    "i18next-scanner": "^4.4.0",
+    "i18next-scanner-typescript": "^1.2.0",
     "ts-jest": "^23.10.5",
     "typescript": "^5.4.2",
     "vite": "^5.1.6",
     "vite-plugin-checker": "^0.6.4",
-    "vite-plugin-svgr": "^4.2.0",
-    "i18next-scanner": "^4.4.0",
-    "i18next-scanner-typescript": "^1.2.0"
+    "vite-plugin-svgr": "^4.2.0"
   }
 }

@@ -198,6 +198,9 @@ importers:
       moment:
         specifier: ^2.30.1
         version: 2.30.1
+      pusher-js:
+        specifier: ^8.3.0
+        version: 8.3.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -662,6 +665,9 @@ importers:
       '@types/react':
         specifier: ^18.2.65
         version: 18.2.65
+      pusher-js:
+        specifier: ^8.3.0
+        version: 8.3.0
 
   lib/js/i18n:
     dependencies:
@@ -17697,6 +17703,11 @@ packages:
       - utf-8-validate
     dev: true
 
+  /pusher-js@8.3.0:
+    resolution: {integrity: sha512-6GohP06WlVeomAQQe9qWh1IDzd3+InluWt+ZUOcecVK1SEQkg6a8uYVsvxSJm7cbccfmHhE0jDkmhKIhue8vmA==}
+    dependencies:
+      tweetnacl: 1.0.3
+
   /q@1.5.1:
     resolution: {integrity: sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw==}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
@@ -21107,6 +21118,9 @@ packages:
   /tweetnacl@0.14.5:
     resolution: {integrity: sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==}
     requiresBuild: true
+
+  /tweetnacl@1.0.3:
+    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
 
   /twig@1.17.1:
     resolution: {integrity: sha512-atxccyr/BHtb1gPMA7Lvki0OuU17XBqHsNH9lzDHt9Rr1293EVZOosSZabEXz/DPVikIW8ZDqSkEddwyJnQN2w==}

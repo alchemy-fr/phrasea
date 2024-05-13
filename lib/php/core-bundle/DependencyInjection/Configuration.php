@@ -9,6 +9,12 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  * This is the class that validates and merges configuration from your app/config files.
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
+ *
+ * $host: '%env(SOKETI_HOST)%'
+ * $key: '%env(SOKETI_KEY)%'
+ * $secret: '%env(SOKETI_SECRET)%'
+ * $appId: '%env(SOKETI_APP_ID)%'
+ * $verifySsl: '%env(bool:VERIFY_SSL)%'
  */
 class Configuration implements ConfigurationInterface
 {
@@ -23,6 +29,30 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('healthcheck')
                     ->canBeEnabled()
                     ->children()
+                    ->end()
+                ->end()
+                ->arrayNode('pusher')
+                    ->canBeEnabled()
+                    ->children()
+                        ->scalarNode('host')
+                            ->cannotBeEmpty()
+                            ->defaultValue('%env(SOKETI_HOST)%')
+                        ->end()
+                        ->scalarNode('key')
+                            ->cannotBeEmpty()
+                            ->defaultValue('%env(SOKETI_KEY)%')
+                        ->end()
+                        ->scalarNode('secret')
+                            ->cannotBeEmpty()
+                            ->defaultValue('%env(SOKETI_SECRET)%')
+                        ->end()
+                        ->scalarNode('appId')
+                            ->cannotBeEmpty()
+                            ->defaultValue('%env(SOKETI_APP_ID)%')
+                        ->end()
+                        ->booleanNode('verifySsl')
+                            ->defaultValue('%env(bool:VERIFY_SSL)%')
+                        ->end()
                     ->end()
                 ->end()
             ->end()

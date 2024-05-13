@@ -4,13 +4,17 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
+use Alchemy\CoreBundle\Pusher\PusherFactory;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
+use Pusher\Pusher;
+use Sentry\Monolog\Handler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
@@ -60,11 +64,31 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $this->loadHealthCheckers($container);
         }
 
+        if ($config['pusher']['enabled']) {
+            $this->loadPusher($container, $config['pusher']);
+        }
+
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['SentryBundle'])) {
             $loader->load('sentry.yaml');
             $this->loadSentry($container);
         }
+    }
+
+    private function loadPusher(ContainerBuilder $container, array $config): void
+    {
+        if (!class_exists(Pusher::class)) {
+            throw new InvalidArgumentException('Missing "pusher/pusher-php-server" dependency. Please run "composer require pusher/pusher-php-server"');
+        }
+        $def = new Definition(Pusher::class, [
+            '$host' => $config['host'],
+            '$key' => $config['key'],
+            '$secret' => $config['secret'],
+            '$appId' => $config['appId'],
+            '$verifySsl' => $config['verifySsl'],
+        ]);
+        $def->setFactory([PusherFactory::class, 'create']);
+        $container->setDefinition(Pusher::class, $def);
     }
 
     private function loadHealthCheckers(ContainerBuilder $container): void
@@ -75,8 +99,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
 
         $container->registerForAutoconfiguration(HealthCheckerInterface::class)
-            ->addTag(HealthCheckerInterface::TAG)
-        ;
+            ->addTag(HealthCheckerInterface::TAG);
     }
 
     private function loadSentry(ContainerBuilder $container): void
@@ -162,7 +185,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     'handlers' => [
                         'sentry' => [
                             'type' => 'service',
-                            'id' => \Sentry\Monolog\Handler::class,
+                            'id' => Handler::class,
                         ],
                     ],
                 ]);

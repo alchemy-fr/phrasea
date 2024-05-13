@@ -91,6 +91,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+    extra_hosts:
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_api-php:
     profiles:
@@ -222,6 +224,8 @@ services:
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - UPLOADER_TARGET_SLUG=${DATABOX_UPLOADER_TARGET_SLUG}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
+      - SOKETI_KEY
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
     labels:
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
 
@@ -679,6 +683,9 @@ services:
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - PWI_PHRASEANET_URL=${PHRASEANET_URL}
       - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
+      - SOKETI_APP_ID
+      - SOKETI_KEY
+      - SOKETI_SECRET
     depends_on:
       - redis
       - elasticsearch
@@ -687,6 +694,7 @@ services:
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
     extends:
@@ -1032,6 +1040,27 @@ services:
       - dashboard.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  soketi:
+    profiles:
+      - soketi
+    image: quay.io/soketi/soketi:330e1a60197d2b5798a3b3a2bcd211ec124148d8-16-alpine
+    networks:
+      - internal
+    environment:
+      - SOKETI_DEFAULT_APP_ID=${SOKETI_APP_ID}
+      - SOKETI_DEFAULT_APP_KEY=${SOKETI_KEY}
+      - SOKETI_DEFAULT_APP_SECRET=${SOKETI_SECRET}
+      - SOKETI_DEFAULT_APP_MAX_CONNS=100
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.soketi.rule=Host(`soketi.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.soketi.service=soketi"
+      - "traefik.http.services.soketi.loadbalancer.server.port=6001"
+      - "traefik.http.routers.soketi-usage.rule=Host(`soketi-usage.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.soketi-usage.service=soketi-usage"
+      - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
 volumes:
   db:
