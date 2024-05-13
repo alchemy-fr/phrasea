@@ -2,7 +2,7 @@ import React, {PureComponent} from 'react';
 // import { PropTypes } from 'prop-types'
 import {Link} from '@alchemy/navigation';
 import {loadPublication} from './api';
-import {getTranslatedTitle} from "../i18n";
+import {getTranslatedTitle} from '../i18n';
 
 class PublicationNavigation extends PureComponent {
     // static propTypes = {
@@ -143,7 +143,9 @@ class NavTree extends PureComponent {
                     return (
                         <li key={p.id}>
                             {isCurrent ? (
-                                <div className={navClass}>{getTranslatedTitle(p)}</div>
+                                <div className={navClass}>
+                                    {getTranslatedTitle(p)}
+                                </div>
                             ) : (
                                 <Link
                                     onClick={() => onSelect(p.id)}

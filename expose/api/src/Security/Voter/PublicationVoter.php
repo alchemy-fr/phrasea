@@ -8,21 +8,18 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Publication;
-use App\Security\Authentication\JWTManager;
 use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
 use App\Security\ScopeInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class PublicationVoter extends Voter
 {
     use ScopeVoterTrait;
+    use JwtVoterTrait;
 
     final public const PUBLISH = 'publication:publish';
     final public const CREATE = 'CREATE';
@@ -33,35 +30,14 @@ class PublicationVoter extends Voter
     final public const EDIT = 'EDIT';
     final public const DELETE = 'DELETE';
 
-    public function __construct(private readonly Security $security, private readonly RequestStack $requestStack, private readonly JWTManager $JWTManager)
-    {
+    public function __construct(
+        private readonly Security $security,
+    ) {
     }
 
     protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Publication;
-    }
-
-    private function isValidJWTForRequest(): bool
-    {
-        $currentRequest = $this->requestStack->getCurrentRequest();
-        if (!$currentRequest instanceof Request) {
-            return false;
-        }
-
-        $uri = $currentRequest->getUri();
-        $token = $currentRequest->query->get('jwt');
-        if (!$token) {
-            return false;
-        }
-
-        try {
-            $this->JWTManager->validateJWT($uri, $token);
-        } catch (AccessDeniedHttpException) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

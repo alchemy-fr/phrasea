@@ -16,7 +16,7 @@ import {Trans} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logAssetView} from '../../../lib/log';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
-import {getTranslatedDescription, getTranslatedTitle} from "../../../i18n";
+import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n';
 
 const CustomView = ({data, carouselProps, currentView}) => {
     const isCurrent = currentView === data;

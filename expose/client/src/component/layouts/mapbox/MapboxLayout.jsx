@@ -9,7 +9,7 @@ import AssetProxy from '../shared-components/AssetProxy';
 import {Trans} from 'react-i18next';
 import {logAssetView} from '../../../lib/log';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
-import {getTranslatedDescription} from "../../../i18n";
+import {getTranslatedDescription} from '../../../i18n';
 
 export function initMapbox(mapContainer, {lng, lat, zoom}) {
     mapboxgl.accessToken = config.mapBoxToken;
@@ -292,7 +292,9 @@ class MapboxLayout extends React.Component {
         return (
             <div className={'image-full'}>
                 <AssetProxy asset={asset} />
-                <Description descriptionHtml={getTranslatedDescription(asset)} />
+                <Description
+                    descriptionHtml={getTranslatedDescription(asset)}
+                />
             </div>
         );
     }

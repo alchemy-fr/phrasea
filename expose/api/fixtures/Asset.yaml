@@ -2,28 +2,56 @@ App\Entity\Asset:
   asset (template):
     size: 42
     title: '<name()>'
+    description: '<name()>'
     publication: '@pub_*'
 
   a_audio{1..10} (extends asset):
     mimeType: audio/mp3
     title: 'Audio <current()>'
+    description: 'Audio <current()>'
     path: '<randomMedia("assets", "mp3", <current()>)>'
     originalName: '<current()>.mp3'
 
   a_video{1..10} (extends asset):
     title: 'Video <current()>'
+    description: 'Video <current()>'
     mimeType: video/mp4
     path: '<randomMedia("assets", "mp4", <current()>)>'
     originalName: '<current()>.mp4'
+    webVTT:
+        - locale: fr
+          label: FR
+          content: |
+            WEBVTT
+
+            00:01.000 --> 00:04.000
+            - Ceci est un sous titre en français.
+
+            00:05.000 --> 00:09.000
+            - Une première répblique !
+            - Une deuxième.
+        - locale: en
+          label: EN
+          content: |
+            WEBVTT
+
+            00:01.000 --> 00:04.000
+            - This is an english subtitle
+
+            00:05.000 --> 00:09.000
+            - A sentence !
+            - A second one.
 
   a_pdf{1..10} (extends asset):
     title: 'PDF <current()>'
+    description: 'PDF <current()>'
     mimeType: application/pdf
     path: '<randomMedia("assets", "pdf", <current()>)>'
     originalName: '<current()>.pdf'
 
   a_img{1..10} (extends asset):
     title: 'Image <current()>'
+    description: 'Image <current()>'
     mimeType: image/jpeg
     path: '<imageUrlRandomRatio("assets", <current()>, 1000)>'
     originalName: '<current()>.jpg'

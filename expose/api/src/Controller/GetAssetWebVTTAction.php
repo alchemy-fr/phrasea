@@ -49,11 +49,13 @@ final class GetAssetWebVTTAction extends AbstractController
         }
 
         $response = new Response($webVTT['content'], 200, [...$corsHeaders, 'Content-Type' => 'text/vtt']);
-        $response->setCache([
-            's_maxage' => 7_776_000,
-            'max_age' => 7_776_000,
+        $options = [
+            's_maxage' => 86400,
+            'max_age' => 86400,
             'public' => true,
-        ]);
+        ];
+
+        $response->setCache($options);
 
         return $response;
     }

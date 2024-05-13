@@ -40,6 +40,8 @@ export type Publication = {
 };
 
 export type WebVTT = {
+    id: string;
+    kind?: 'subtitles' | 'captions' | 'descriptions' | 'chapters' | 'metadata';
     label: string;
     locale: string;
     url: string;

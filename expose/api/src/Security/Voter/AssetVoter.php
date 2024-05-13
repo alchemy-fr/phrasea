@@ -11,13 +11,16 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AssetVoter extends Voter
 {
+    use JwtVoterTrait;
+
     final public const READ = 'READ';
     final public const EDIT = 'EDIT';
     final public const DELETE = 'DELETE';
     final public const CREATE = 'CREATE';
 
-    public function __construct(private readonly Security $security)
-    {
+    public function __construct(
+        private readonly Security $security,
+    ) {
     }
 
     protected function supports($attribute, $subject): bool
@@ -31,7 +34,8 @@ class AssetVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
-            self::READ => $this->security->isGranted(PublicationVoter::READ_DETAILS, $subject->getPublication()),
+            self::READ => $this->isValidJWTForRequest()
+                || $this->security->isGranted(PublicationVoter::READ_DETAILS, $subject->getPublication()),
             self::CREATE, self::DELETE, self::EDIT => $this->security->isGranted(PublicationVoter::EDIT, $subject->getPublication()),
             default => false,
         };

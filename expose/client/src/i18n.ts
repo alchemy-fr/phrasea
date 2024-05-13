@@ -15,8 +15,7 @@ export function getTranslatedTitle({
 }: {
     title: string;
     translations?: Translations;
-}): string
-{
+}): string {
     return getBestTranslatedValue(translations, 'title', title);
 }
 
@@ -26,7 +25,6 @@ export function getTranslatedDescription({
 }: {
     description?: string | undefined;
     translations?: Translations;
-}): string | undefined
-{
+}): string | undefined {
     return getBestTranslatedValue(translations, 'description', description);
 }

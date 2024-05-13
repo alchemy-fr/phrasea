@@ -3,7 +3,7 @@ import Description from './Description';
 import ZippyDownloadButton from './ZippyDownloadButton';
 import moment from 'moment';
 import {Publication} from '../../../types.ts';
-import {getTranslatedDescription, getTranslatedTitle} from "../../../i18n.ts";
+import {getTranslatedDescription, getTranslatedTitle} from '../../../i18n.ts';
 
 type Props = {
     data: Publication;
@@ -36,7 +36,9 @@ export default function PublicationHeader({data}: Props) {
                     ></div>
                 )}
             </div>
-            {description && <Description descriptionHtml={getTranslatedDescription(data)} />}
+            {description && (
+                <Description descriptionHtml={getTranslatedDescription(data)} />
+            )}
             {data.downloadEnabled &&
                 config.zippyEnabled &&
                 assets.length > 0 && (
