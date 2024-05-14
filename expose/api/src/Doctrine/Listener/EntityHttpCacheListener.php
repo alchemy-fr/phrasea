@@ -20,9 +20,9 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::preRemove)]
-class EntityHttpCacheListener implements EventSubscriber
+final readonly class EntityHttpCacheListener implements EventSubscriber
 {
-    public function __construct(private readonly ProxyCachePurger $proxyCachePurger)
+    public function __construct(private ProxyCachePurger $proxyCachePurger)
     {
     }
 

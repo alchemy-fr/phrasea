@@ -4,6 +4,7 @@ import {securityMethods} from './methods';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logPublicationView} from '../../lib/log';
 import {keycloakClient} from '../../lib/api-client';
+import {useTranslation} from 'react-i18next';
 
 type Props = PropsWithChildren<{
     publication: Publication | undefined;
@@ -17,6 +18,7 @@ export default function PublicationSecurityProxy({
     reload,
     logPublicationView: log,
 }: Props) {
+    const {t} = useTranslation();
     React.useEffect(() => {
         if (log && publication && publication.authorized) {
             logPublicationView(publication!.id);
@@ -49,10 +51,10 @@ export default function PublicationSecurityProxy({
                     padding: 10,
                 }}
             >
-                <p>Sorry! You are not allowed to access this publication.</p>
+                <p>{t('publication.not_allowed', `Sorry! You are not allowed to access this publication.`)}</p>
 
                 <button onClick={logout} className={'btn btn-sm btn-logout'}>
-                    Logout
+                    {t('publication.logout', `Logout`)}
                 </button>
             </div>
         );

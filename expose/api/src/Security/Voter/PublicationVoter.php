@@ -35,6 +35,11 @@ class PublicationVoter extends Voter
     ) {
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Publication::class, true);
+    }
+
     protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Publication;
@@ -108,6 +113,7 @@ class PublicationVoter extends Voter
                 return true;
             case Publication::SECURITY_METHOD_AUTHENTICATION:
                 if (!$token instanceof JwtUser) {
+                    dump($token);
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
 
                     return false;

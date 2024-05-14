@@ -1,10 +1,11 @@
 import config from './config';
-import PublicationIndex from './component/index/PublicationIndex.jsx';
+import PublicationIndex from './component/index/PublicationIndex';
 import {compileRoutes} from '@alchemy/navigation';
-import PublicationPage from './pages/PublicationPage.tsx';
-import AssetPage from './pages/AssetPage.tsx';
-import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage.tsx';
+import PublicationPage from './pages/PublicationPage';
+import AssetPage from './pages/AssetPage';
+import AppAuthorizationCodePage from './pages/AppAuthorizationCodePage';
 import {NotFoundPage} from '@alchemy/phrasea-ui';
+import EmbeddedAssetPage from './pages/EmbeddedAssetPage';
 
 const routes = {
     index: {
@@ -22,8 +23,8 @@ const routes = {
         },
     },
     embedAsset: {
-        path: 'embed/:asset',
-        component: PublicationPage,
+        path: 'embed/:assetId',
+        component: EmbeddedAssetPage,
     },
     auth: {
         path: 'auth',

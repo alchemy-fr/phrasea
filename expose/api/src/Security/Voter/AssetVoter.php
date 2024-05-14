@@ -23,6 +23,11 @@ class AssetVoter extends Voter
     ) {
     }
 
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Asset::class, true);
+    }
+
     protected function supports($attribute, $subject): bool
     {
         return $subject instanceof Asset;
