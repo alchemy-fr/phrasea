@@ -374,6 +374,11 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->config->getTheme() ?? $this->profile?->getConfig()->getTheme();
     }
 
+    public function isPublic(): bool
+    {
+        return null === $this->getSecurityMethod();
+    }
+
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]
     public function getSecurityMethod(): ?string
     {

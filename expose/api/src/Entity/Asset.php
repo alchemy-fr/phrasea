@@ -400,6 +400,9 @@ class Asset implements MediaInterface, \Stringable
                 'content' => [
                     new Assert\NotBlank(),
                 ],
+                'kind' => [
+                    new Assert\Optional(),
+                ],
             ],
         ),
     ])]

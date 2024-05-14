@@ -16,7 +16,7 @@ import PublicationHeader from '../shared-components/PublicationHeader';
 import {Trans} from 'react-i18next';
 import {logAssetView} from '../../../lib/log';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
-import {getTranslatedDescription} from "../../../i18n";
+import {getTranslatedDescription} from '../../../i18n';
 
 class GalleryLayout extends React.Component {
     // static propTypes = {
@@ -219,7 +219,9 @@ class GalleryLayout extends React.Component {
                 <AssetProxy isCurrent={isCurrent} asset={asset} />
                 {asset.description ? (
                     <div className="image-gallery-description">
-                        <Description descriptionHtml={getTranslatedDescription(asset)} />
+                        <Description
+                            descriptionHtml={getTranslatedDescription(asset)}
+                        />
                     </div>
                 ) : (
                     ''

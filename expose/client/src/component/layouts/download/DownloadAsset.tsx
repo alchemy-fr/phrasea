@@ -3,8 +3,7 @@ import {Trans} from 'react-i18next';
 import {getThumbPlaceholder} from '../shared-components/placeholders';
 import {Asset} from '../../../types.ts';
 import React from 'react';
-import {getTranslatedDescription} from "../../../i18n.ts";
-
+import {getTranslatedDescription} from '../../../i18n.ts';
 
 type Props = {
     asset: Asset;
@@ -34,10 +33,12 @@ export default function DownloadAsset({
                     <h5 className="mt-0">
                         {originalName} - {mimeType}
                     </h5>
-                    <Description descriptionHtml={getTranslatedDescription({
-                        translations,
-                        description,
-                    })} />
+                    <Description
+                        descriptionHtml={getTranslatedDescription({
+                            translations,
+                            description,
+                        })}
+                    />
                     <div className={'download-btns'}>
                         <a
                             onClick={e => onDownload(downloadUrl, e)}

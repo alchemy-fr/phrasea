@@ -1,7 +1,7 @@
 import React from 'react';
 import videojs, {VideoJsPlayer} from 'video.js';
 import {getPosterPlaceholder} from './placeholders';
-import {WebVTTs} from "../../../types.ts";
+import {WebVTTs} from '../../../types.ts';
 
 type Props = {
     title?: string;
@@ -17,15 +17,33 @@ export default React.forwardRef(function VideoPlayer(
     {title, url, posterUrl, webVTTLinks, fluid, mimeType, assetId}: Props,
     ref
 ) {
-    const player = React.useRef<VideoJsPlayer>();
+    const playerRef = React.useRef<VideoJsPlayer | null>(null);
+    const videoRef = React.useRef<HTMLDivElement | null>(null);
 
-    const setRef = React.useCallback((node: HTMLVideoElement) => {
-        if (player.current) {
-            // Make sure to cleanup any events/references added to the last instance
-        }
+    React.useEffect(() => {
+        const tracks = webVTTLinks?.map(webVTTLink => ({
+            kind: webVTTLink.kind ?? 'subtitles',
+            src: webVTTLink.url,
+            language: webVTTLink.locale,
+            srclang: webVTTLink.locale,
+            label: webVTTLink.label,
+            id: webVTTLink.id,
+        }));
 
-        if (node) {
-            player.current = videojs(node, {
+        if (!playerRef.current) {
+            const videoElement = document.createElement('video');
+
+            videoElement.classList.add('video-js');
+            videoElement.classList.add('vjs-big-play-centered');
+            if (assetId) {
+                videoElement.setAttribute('data-matomo-resource', assetId);
+            }
+            if (title) {
+                videoElement.setAttribute('data-matomo-title', title);
+            }
+            videoRef.current!.appendChild(videoElement);
+
+            playerRef.current = videojs(videoElement, {
                 controls: true,
                 fluid,
                 poster: posterUrl || getPosterPlaceholder(mimeType),
@@ -36,20 +54,36 @@ export default React.forwardRef(function VideoPlayer(
                     },
                 ],
                 preload: 'metadata',
+                tracks,
             });
-
-            return () => {
-                player.current?.dispose();
-            };
+        } else {
+            const player = playerRef.current!;
+            const oldTracks = player.remoteTextTracks();
+            if (tracks) {
+                if (oldTracks.length === 0) {
+                    tracks.forEach(tt => player.addRemoteTextTrack(tt, false));
+                }
+            }
         }
-    }, []);
+    }, [videoRef, webVTTLinks]);
+
+    React.useEffect(() => {
+        const player = playerRef.current;
+
+        return () => {
+            if (player && !player.isDisposed()) {
+                player.dispose();
+                playerRef.current = null;
+            }
+        };
+    }, [playerRef]);
 
     React.useImperativeHandle(
         ref,
         () => {
             return {
                 stop: () => {
-                    const p = player.current;
+                    const p = playerRef.current;
                     if (p && !p.paused()) {
                         p?.pause();
                     }
@@ -62,21 +96,7 @@ export default React.forwardRef(function VideoPlayer(
     return (
         <div className="video-container">
             <div data-vjs-player>
-                <video
-                    ref={setRef}
-                    className="video-js vjs-big-play-centered"
-                    data-matomo-resource={assetId}
-                    data-matomo-title={title}
-                >
-                    {webVTTLinks && webVTTLinks.map(webVTTLink => <track
-                            key={webVTTLink.label}
-                            kind="captions"
-                            src={webVTTLink.url}
-                            srcLang={webVTTLink.locale}
-                            label={webVTTLink.label}
-                        />
-                    )}
-                </video>
+                <div ref={videoRef} />
             </div>
         </div>
     );

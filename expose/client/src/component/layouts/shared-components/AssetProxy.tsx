@@ -8,7 +8,7 @@ import {
     TOUCH_ACTIVATION,
 } from 'react-image-magnifiers/dist';
 import {Asset} from '../../../types';
-import {getTranslatedTitle} from "../../../i18n.ts";
+import {getTranslatedTitle} from '../../../i18n.ts';
 
 type Props = {
     asset: Asset;
@@ -71,7 +71,7 @@ export default function AssetProxy({
                     url={asset.previewUrl}
                     posterUrl={asset.posterUrl}
                     title={getTranslatedTitle(asset)}
-                    webVTTLinks={asset.webVTTLinks}
+                    webVTTLinks={isCurrent ? asset.webVTTLinks : undefined}
                     fluid={fluid}
                     mimeType={type}
                     assetId={asset.assetId}

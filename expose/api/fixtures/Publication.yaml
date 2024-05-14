@@ -15,6 +15,12 @@ App\Entity\PublicationConfig:
     enabled: true
     publiclyListed: true
     layout: grid
+  password-protected:
+    enabled: true
+    publiclyListed: true
+    layout: grid
+    securityMethod: password
+    password: xxx
 
 App\Entity\PublicationProfile:
   pr-1:
@@ -39,3 +45,8 @@ App\Entity\Publication:
     slug: grid-pub
     profile: '@pr-1'
     config: '@config-grid'
+
+  pub_password:
+    title: Password protected publication
+    profile: '@pr-1'
+    config: '@password-protected'
