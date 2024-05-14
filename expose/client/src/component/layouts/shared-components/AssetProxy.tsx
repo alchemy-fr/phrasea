@@ -118,8 +118,8 @@ function getMediaType(type: string): MediaType {
         case 'application/pdf' === type:
             return MediaType.Document;
         case type.startsWith('video/'):
-            return MediaType.Video;
         case type.startsWith('audio/'):
+            return MediaType.Video;
         case type.startsWith('image/'):
             return MediaType.Image;
         default:
