@@ -44,7 +44,6 @@ class Layout extends PureComponent {
                         </button>
                     </div>
                     <div>
-                        {this.renderAuthenticated()}
                         <div className="p-3">
                             <h1>
                                 {!config.disableIndexPage ? (
@@ -67,33 +66,6 @@ class Layout extends PureComponent {
                 >
                     {children}
                 </div>
-            </div>
-        );
-    }
-
-    logout = () => {
-        keycloakClient.logout({
-            redirectPath: getCurrentPath(),
-        });
-    };
-
-    renderAuthenticated() {
-        const {username} = this.props;
-
-        if (!username) {
-            return '';
-        }
-
-        return (
-            <div className={'authenticated-user'}>
-                Authenticated as {username}
-                <br />
-                <button
-                    onClick={this.logout}
-                    className={'btn btn-sm btn-logout'}
-                >
-                    Logout
-                </button>
             </div>
         );
     }
