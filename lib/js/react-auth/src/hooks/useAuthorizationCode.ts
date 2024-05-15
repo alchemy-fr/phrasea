@@ -56,7 +56,7 @@ export function useAuthorizationCode({
                 const doNavigate = (uri: string, options?: NavigateOptions): void => {
                     if (window.opener) {
                         try {
-                            if (window.opener.isPhraseaApp) {
+                            if (window.opener.pendingAuth) {
                                 window.opener.document.location.href = uri;
                                 window.close();
                             }

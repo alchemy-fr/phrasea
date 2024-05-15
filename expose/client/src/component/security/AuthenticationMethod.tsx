@@ -2,6 +2,7 @@ import config from '../../config';
 import {keycloakClient, oauthClient} from '../../lib/api-client';
 import FormLayout from './FormLayout';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
+import {inIframe, openLoginWindow} from '@alchemy/auth';
 import {getCurrentPath, getRelativeUrl} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
@@ -28,16 +29,22 @@ export default function AuthenticationMethod({}: Props) {
         }
     }, [shouldRedirect]);
 
+    const isInIframe = inIframe();
+    const redirectUri = new URL(document.location.href);
+    redirectUri.searchParams.delete('logout');
+
+    const loginUrl = getLoginUrl(getRelativeUrl(redirectUri.toString()));
     const onConnect = React.useCallback(() => {
         setRedirectPath && setRedirectPath(getCurrentPath());
-    }, []);
+
+        if (isInIframe) {
+            openLoginWindow(loginUrl);
+        }
+    }, [isInIframe, loginUrl]);
 
     if (shouldRedirect) {
         return <FullPageLoader/>
     }
-
-    const redirectUri = new URL(document.location.href);
-    redirectUri.searchParams.delete('logout');
 
     return (
         <div className={'container'}>
@@ -61,7 +68,7 @@ export default function AuthenticationMethod({}: Props) {
                         }}
                         className={'btn btn-primary'}
                         onClick={onConnect}
-                        href={getLoginUrl(getRelativeUrl(redirectUri.toString()))}
+                        href={isInIframe ? '#' : loginUrl}
                     >
                         {t('publication.auth_required.sign_in', `Sign In`)}
                     </a>

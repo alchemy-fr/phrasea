@@ -79,3 +79,7 @@ declare module 'axios' {
         anonymous?: boolean;
     }
 }
+
+export type PendingAuthWindow = {
+    pendingAuth?: boolean
+} & Window;
