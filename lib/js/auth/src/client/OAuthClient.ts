@@ -11,6 +11,7 @@ import {
     TokenResponseWithTokens,
     UserInfoResponse, ValidationError
 } from "../types";
+import type {CookieStorageOptions} from '@alchemy/storage';
 
 export const loginEventType = 'login';
 export const refreshTokenEventType = 'refreshToken';
@@ -25,6 +26,7 @@ type Options = {
     tokenStorageKey?: string;
     httpClient?: HttpClient;
     scope?: string | undefined;
+    cookiesOptions?: CookieStorageOptions['cookiesOptions'];
 };
 
 export type {Options as OAuthClientOptions};
@@ -52,15 +54,18 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         clientId,
         clientSecret,
         baseUrl,
-        storage = new CookieStorage(),
+        storage,
         tokenStorageKey,
         httpClient,
         scope,
+        cookiesOptions,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
-        this.storage = storage;
+        this.storage = storage ?? new CookieStorage({
+            cookiesOptions,
+        });
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
@@ -450,4 +455,12 @@ export function isValidSession(tokens: AuthTokens | undefined): boolean {
     }
 
     return false;
+}
+
+export function inIframe (): boolean {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }

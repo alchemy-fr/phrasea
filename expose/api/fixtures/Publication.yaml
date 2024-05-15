@@ -58,5 +58,6 @@ App\Entity\Publication:
 
   pub_auth:
     title: Auth protected publication
+    slug: auth-protected
     profile: '@pr-1'
     config: '@auth-protected'

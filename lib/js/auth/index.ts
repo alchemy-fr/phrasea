@@ -1,6 +1,6 @@
 import OAuthClient, {
     configureClientAuthentication,
-    configureClientCredentialsGrantType,
+    configureClientCredentialsGrantType, inIframe,
     isValidSession,
     loginEventType,
     logoutEventType,
@@ -22,6 +22,7 @@ export {
     KeycloakClient,
     isValidSession,
     keycloakNormalizer,
+    inIframe,
 };
 
 export * from './src/types';

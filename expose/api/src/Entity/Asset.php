@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Get(
-            security: 'is_granted("READ", object)', // TODO check git history for window.open with PS Auth service
+            // No security here because normalizer will hide data if publication is not authorized
             name: self::GET_ASSET_ROUTE_NAME,
         ),
         new Delete(
