@@ -40,10 +40,7 @@ export default function Dashboard({}: Props) {
         TRAEFIK_CONSOLE_URL,
     } = config.env;
 
-    console.debug('config', config);
-
-    const isAdmin = user !== undefined && user.roles.includes('admin');
-    const roles = user ? user.roles : [];
+    const roles = user?.roles ?? [];
 
     return (
         <Container>
@@ -85,7 +82,7 @@ export default function Dashboard({}: Props) {
                 container
                 spacing={2}
             >
-                {(isAdmin || roles.includes('group-admin')) &&
+                {roles.includes('group-admin') &&
                     <Service
                         mainUrl={`${config.keycloakUrl}/admin/${config.realmName}/console`}
                         title={`Identity Manager`}
@@ -107,7 +104,7 @@ export default function Dashboard({}: Props) {
                         title={`Databox`}
                         description={`Your DAM`}
                         logo={databoxImg}
-                        canAdmin={isAdmin || roles.includes("databox-admin")}
+                        canAdmin={roles.includes("databox-admin")}
                     />
                 )}
                 {EXPOSE_API_URL && (
@@ -117,7 +114,7 @@ export default function Dashboard({}: Props) {
                         title={`Expose`}
                         description={`Share Publications`}
                         logo={exposeImg}
-                        canAdmin={isAdmin || roles.includes("expose-admin")}
+                        canAdmin={roles.includes("expose-admin")}
                     />
                 )}
                 {UPLOADER_API_URL && (
@@ -127,12 +124,12 @@ export default function Dashboard({}: Props) {
                         title={`Uploader`}
                         description={`Standalone Asset deposit`}
                         logo={uploaderImg}
-                        canAdmin={isAdmin || roles.includes("uploader-admin")}
+                        canAdmin={roles.includes("uploader-admin")}
                     />
                 )}
-                {NOTIFY_API_URL && (
+                {NOTIFY_API_URL && roles.includes('notify_-admin') && (
                     <Service
-                        mainUrl={isAdmin || roles.includes('notify_-admin') ? `${NOTIFY_API_URL}/admin` : undefined}
+                        mainUrl={`${NOTIFY_API_URL}/admin`}
                         title={`Notify Admin`}
                         description={`Mail Sender`}
                         logo={notifyImg}
@@ -146,7 +143,7 @@ export default function Dashboard({}: Props) {
                     />
                 )}
             </Grid>
-            {(isAdmin || roles.includes("tech")) &&
+            {roles.includes("tech") &&
                 <Grid container spacing={2} marginTop={1}>
                     {PGADMIN_URL && (
                         <Grid item>
@@ -180,7 +177,7 @@ export default function Dashboard({}: Props) {
                     )}
                     {TRAEFIK_CONSOLE_URL && (
                         <Grid item>
-                            <Link href={TRAEFIK_CONSOLE_URL} target={'_blank'} rel={'noreferrer noopener'}>Traefik</Link>
+                            <Link href={TRAEFIK_CONSOLE_URL} target={'_blank'} rel={'noreferrer noopener'}>Traefik Console</Link>
                         </Grid>
                     )}
                 </Grid>
