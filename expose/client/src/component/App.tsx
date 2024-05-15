@@ -1,6 +1,6 @@
 import {DashboardMenu} from '@alchemy/react-ps';
 import config from '../config';
-import {MatomoRouteWrapper, RouterProvider} from '@alchemy/navigation';
+import {getCurrentPath, MatomoRouteWrapper, RouterProvider} from '@alchemy/navigation';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {routes} from '../routes.ts';
@@ -52,7 +52,9 @@ export default function App({}: Props) {
                         menuHeight={50}
                         username={user?.username}
                         accountUrl={getAccountUrl()}
-                        onLogout={logout}
+                        onLogout={() => logout({
+                            redirectPath: getCurrentPath(),
+                        })}
                     />
                 ) : ''}
             </Box>
