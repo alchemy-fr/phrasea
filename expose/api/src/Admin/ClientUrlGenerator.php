@@ -6,9 +6,9 @@ namespace App\Admin;
 
 use App\Entity\Publication;
 
-class ClientUrlGenerator
+readonly class ClientUrlGenerator
 {
-    public function __construct(private readonly string $clientBaseUrl)
+    public function __construct(private string $clientBaseUrl)
     {
     }
 

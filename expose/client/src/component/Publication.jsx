@@ -103,8 +103,8 @@ class Publication extends PureComponent {
                 this.load();
             }, ttl * 1000 - 2000);
         } catch (err) {
-            if (err.response && 200 !== err.response.statusCode) {
-                this.setState({error: err.response.statusCode});
+            if (err.response && 200 !== err.response.status) {
+                this.setState({error: err.response.status});
             }
         }
     }

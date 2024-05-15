@@ -79,7 +79,9 @@ export default class KeycloakClient {
                 event.preventDefault = true;
             }
 
-            document.location.href = this.createLogoutUrl({redirectPath});
+            const url = new URL(redirectPath, document.location.href);
+            url.searchParams.set('logout', '1');
+            document.location.href = this.createLogoutUrl({redirectPath: url.toString()});
         }
     }
 }

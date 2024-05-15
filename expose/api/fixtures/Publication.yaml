@@ -21,6 +21,11 @@ App\Entity\PublicationConfig:
     layout: grid
     securityMethod: password
     password: xxx
+  auth-protected:
+    enabled: true
+    publiclyListed: true
+    layout: grid
+    securityMethod: authentication
 
 App\Entity\PublicationProfile:
   pr-1:
@@ -50,3 +55,8 @@ App\Entity\Publication:
     title: Password protected publication
     profile: '@pr-1'
     config: '@password-protected'
+
+  pub_auth:
+    title: Auth protected publication
+    profile: '@pr-1'
+    config: '@auth-protected'

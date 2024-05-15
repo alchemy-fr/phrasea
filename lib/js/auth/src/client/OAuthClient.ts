@@ -46,6 +46,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private readonly tokenStorageKey: string = 'token';
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
+    public sessionHasExpired: boolean = false;
 
     constructor({
         clientId,
@@ -275,6 +276,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     private sessionExpired(): void {
+        this.sessionHasExpired = true;
         this.triggerEvent<SessionExpiredEvent>(sessionExpiredEventType, {});
         this.logout({
             quiet: true,
@@ -352,6 +354,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     public saveTokensFromResponse(res: TokenResponse): AuthTokens {
         const tokens = this.createAuthTokensFromResponse(res);
         this.persistTokens(tokens);
+        this.sessionHasExpired = false;
 
         return tokens;
     }

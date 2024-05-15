@@ -1,5 +1,5 @@
 import {compileRoutes, getPath} from './src/Router';
-import {getCurrentPath, getFullPath} from "./src/utils";
+import {getCurrentPath, getRelativeUrl, getFullPath} from "./src/utils";
 import RouterProvider from "./src/RouterProvider";
 import ModalStack, {StackedModalProps, useModals} from "./src/useModalStack";
 import MatomoRouteWrapper from "./src/proxy/MatomoRouteWrapper";
@@ -20,6 +20,7 @@ export {
     OverlayOutlet,
     getPath,
     compileRoutes,
+    getRelativeUrl,
     getCurrentPath,
     getFullPath,
     useModals,

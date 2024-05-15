@@ -1,7 +1,11 @@
 import {RouteDefinition} from "./types";
 
 export function getCurrentPath(): string {
-    return window.location.href.replace(window.location.origin, '');
+    return getRelativeUrl(window.location.href);
+}
+
+export function getRelativeUrl(url: string): string {
+    return url.replace(window.location.origin, '');
 }
 
 export function getLocationPrefix(): string {

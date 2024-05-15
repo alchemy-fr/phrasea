@@ -150,10 +150,12 @@ final readonly class KeycloakClient
                     ],
                 ], $options));
             });
-        } catch (ClientException $e) {
-            $this->logger->error($e->getMessage());
+        } catch (HttpException $e) {
+            if (404 === $e->getStatusCode()) {
+                return null;
+            }
 
-            return null;
+            throw $e;
         }
     }
 
