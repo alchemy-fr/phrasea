@@ -4,7 +4,7 @@ import EmbeddedAsset from '../component/EmbeddedAsset.tsx';
 type Props = {};
 
 export default function EmbeddedAssetPage({}: Props) {
-    const {id} = useParams();
+    const {assetId} = useParams();
 
-    return <EmbeddedAsset id={id as string} />;
+    return <EmbeddedAsset id={assetId!} />;
 }

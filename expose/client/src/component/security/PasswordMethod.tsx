@@ -1,5 +1,6 @@
 import React, {FormEvent} from 'react';
 import {storePassword} from '../../lib/credential';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     onAuthorization: () => void;
@@ -14,7 +15,7 @@ export default function PasswordMethod({
     error,
 }: Props) {
     const [password, setPassword] = React.useState('');
-
+    const {t} = useTranslation();
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
 
@@ -22,11 +23,17 @@ export default function PasswordMethod({
         onAuthorization();
     };
 
+    const errors: Record<string, string> = {
+        'invalid_password': t('error.invalid_password', 'Invalid password'),
+    }
+
+    const translatedError = error ? (errors[error] ?? error) : undefined;
+
     return (
         <div className={'container'}>
             <form onSubmit={onSubmit}>
                 <div className="form-group">
-                    <label htmlFor="password">Enter password</label>
+                    <label htmlFor="password">{t('publication.password_required.enter_password', `Enter password`)}</label>
                     <input
                         className={'form-control'}
                         id={'password'}
@@ -35,15 +42,15 @@ export default function PasswordMethod({
                         type="password"
                     />
                 </div>
-                {error && error !== 'missing_password' ? (
+                {translatedError && error !== 'missing_password' ? (
                     <ul className="errors">
-                        <li>{error}</li>
+                        <li>{translatedError}</li>
                     </ul>
                 ) : (
                     ''
                 )}
                 <button type={'submit'} className={'btn btn-primary'}>
-                    OK
+                    {t('publication.password_required.submit', `OK`)}
                 </button>
             </form>
         </div>

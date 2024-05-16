@@ -13,10 +13,10 @@ export function useKeycloakUrls({
     keycloakClient,
 }: Props) {
     return {
-        getLoginUrl: () =>
+        getLoginUrl: (redirectUri?: string) =>
             keycloakClient.client.createAuthorizeUrl({
                 connectTo: autoConnectIdP || undefined,
-                state: btoa(JSON.stringify({r: getCurrentPath()})),
+                state: btoa(JSON.stringify({r: redirectUri ?? getCurrentPath()})),
             }),
         getAccountUrl: () => `${keycloakClient.getAccountUrl()}`,
     };

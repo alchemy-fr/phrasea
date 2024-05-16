@@ -11,6 +11,7 @@ import {
     TokenResponseWithTokens,
     UserInfoResponse, ValidationError
 } from "../types";
+import type {CookieStorageOptions} from '@alchemy/storage';
 
 export const loginEventType = 'login';
 export const refreshTokenEventType = 'refreshToken';
@@ -25,6 +26,7 @@ type Options = {
     tokenStorageKey?: string;
     httpClient?: HttpClient;
     scope?: string | undefined;
+    cookiesOptions?: CookieStorageOptions['cookiesOptions'];
 };
 
 export type {Options as OAuthClientOptions};
@@ -46,20 +48,24 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private readonly tokenStorageKey: string = 'token';
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
+    public sessionHasExpired: boolean = false;
 
     constructor({
         clientId,
         clientSecret,
         baseUrl,
-        storage = new CookieStorage(),
+        storage,
         tokenStorageKey,
         httpClient,
         scope,
+        cookiesOptions,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
-        this.storage = storage;
+        this.storage = storage ?? new CookieStorage({
+            cookiesOptions,
+        });
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
@@ -275,6 +281,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     private sessionExpired(): void {
+        this.sessionHasExpired = true;
         this.triggerEvent<SessionExpiredEvent>(sessionExpiredEventType, {});
         this.logout({
             quiet: true,
@@ -352,6 +359,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     public saveTokensFromResponse(res: TokenResponse): AuthTokens {
         const tokens = this.createAuthTokensFromResponse(res);
         this.persistTokens(tokens);
+        this.sessionHasExpired = false;
 
         return tokens;
     }
@@ -447,4 +455,12 @@ export function isValidSession(tokens: AuthTokens | undefined): boolean {
     }
 
     return false;
+}
+
+export function inIframe (): boolean {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }

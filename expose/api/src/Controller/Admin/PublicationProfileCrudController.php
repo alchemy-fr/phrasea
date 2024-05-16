@@ -23,40 +23,36 @@ class PublicationProfileCrudController extends AbstractAclAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $name = TextField::new('name');
-        $config = PublicationConfigField::new('config');
-        $ownerId = IdField::new('ownerId');
-        $clientAnnotations = TextareaField::new('clientAnnotations');
-        $id = IdField::new();
-        $createdAt = DateTimeField::new('createdAt');
-        $configEnabled = Field::new('config.enabled', 'Enabled');
-        $configDownloadViaEmail = Field::new('config.downloadViaEmail');
-        $configIncludeDownloadTermsInZippy = Field::new('config.includeDownloadTermsInZippy');
-        $configUrls = ArrayField::new('config.urls');
-        $configCopyrightText = TextareaField::new('config.copyrightText');
-        $configCss = TextareaField::new('config.css');
-        $configLayout = TextField::new('config.layout', 'Layout');
-        $configTheme = TextField::new('config.theme', 'Theme');
-        $configPubliclyListed = Field::new('config.publiclyListed', 'PubliclyListed');
-        $configDownloadEnabled = Field::new('config.downloadEnabled', 'DownloadEnabled');
-        $configBeginsAt = DateTimeField::new('config.beginsAt');
-        $configExpiresAt = DateTimeField::new('config.expiresAt');
-        $configSecurityMethod = TextField::new('config.securityMethod', 'SecurityMethod');
-        $configSecurityOptions = SecurityMethodChoiceField::new('config.securityOptions', 'SecurityOptions');
-        $configTermsText = TextareaField::new('config.terms.text');
-        $configTermsUrl = TextField::new('config.terms.url');
-        $configDownloadTermsText = TextareaField::new('config.downloadTerms.text');
-        $configDownloadTermsUrl = TextField::new('config.downloadTerms.url');
+        yield IdField::new();
+        yield TextField::new('name');
+        yield IdField::new('ownerId');
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $configLayout, $configEnabled, $configTheme, $configPubliclyListed, $configSecurityMethod, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $ownerId, $createdAt, $clientAnnotations, $configEnabled, $configDownloadViaEmail, $configIncludeDownloadTermsInZippy, $configUrls, $configCopyrightText, $configCss, $configLayout, $configTheme, $configPubliclyListed, $configDownloadEnabled, $configBeginsAt, $configExpiresAt, $configSecurityMethod, $configSecurityOptions, $configTermsText, $configTermsUrl, $configDownloadTermsText, $configDownloadTermsUrl];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $config, $ownerId, $clientAnnotations];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$name, $config, $ownerId, $clientAnnotations];
-        }
+        yield PublicationConfigField::new('config')
+            ->hideOnIndex()
+            ->hideOnDetail();
+        yield Field::new('config.enabled', 'Enabled')
+            ->hideOnForm();
+
+        yield TextField::new('config.layout', 'Layout')
+            ->hideOnForm()
+        ;
+        yield Field::new('config.publiclyListed', 'PubliclyListed')
+            ->hideOnForm();
+        yield DateTimeField::new('config.beginsAt', 'Begins At')
+            ->hideOnForm();
+        yield DateTimeField::new('config.expiresAt', 'Expires At')
+            ->hideOnForm();
+
+        yield TextField::new('config.securityMethod', 'Security Method')
+            ->hideOnForm();
+
+        yield TextareaField::new('clientAnnotations')
+            ->hideOnIndex()
+        ;
+
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm()
+        ;
 
         return [];
     }

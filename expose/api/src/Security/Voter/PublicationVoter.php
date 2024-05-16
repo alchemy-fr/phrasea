@@ -8,9 +8,9 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Publication;
-use App\Security\Authentication\PasswordToken;
 use App\Security\AuthenticationSecurityMethodInterface;
 use App\Security\PasswordSecurityMethodInterface;
+use App\Security\PasswordTokenExtractor;
 use App\Security\ScopeInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -32,7 +32,13 @@ class PublicationVoter extends Voter
 
     public function __construct(
         private readonly Security $security,
+        private readonly PasswordTokenExtractor $passwordTokenExtractor,
     ) {
+    }
+
+    public function supportsType(string $subjectType): bool
+    {
+        return is_a($subjectType, Publication::class, true);
     }
 
     protected function supports($attribute, $subject): bool
@@ -86,14 +92,7 @@ class PublicationVoter extends Voter
             case Publication::SECURITY_METHOD_NONE:
                 return true;
             case Publication::SECURITY_METHOD_PASSWORD:
-                if (!$token instanceof PasswordToken) {
-                    $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
-
-                    return false;
-                }
-
-                $publicationPassword = $token->getPublicationPassword($securityContainer->getId());
-                if (empty($publicationPassword)) {
+                if (null === $publicationPassword = $this->passwordTokenExtractor->getPublicationPassword($securityContainer->getId())) {
                     $publication->setAuthorizationError(PasswordSecurityMethodInterface::ERROR_NO_PASSWORD_PROVIDED);
 
                     return false;

@@ -5,6 +5,7 @@ import AssetProxy from './layouts/shared-components/AssetProxy';
 import {loadAsset} from './api';
 import PublicationSecurityProxy from './security/PublicationSecurityProxy';
 import {logAssetView} from '../lib/log';
+import ErrorPage from "./ErrorPage";
 
 type Props = {
     id: string;
@@ -19,7 +20,12 @@ export default function EmbeddedAsset({id}: Props) {
             const asset = await loadAsset(id);
             setData(asset);
         } catch (e: any) {
-            setError(e.toString());
+            if ([403, 404, 401].includes(e.response?.status)) {
+                setError(e.response.status.toString());
+                return;
+            } else {
+                setError(e.toString());
+            }
         }
     }, [id]);
 
@@ -34,7 +40,11 @@ export default function EmbeddedAsset({id}: Props) {
     }, [data?.id]);
 
     if (error) {
-        return <div>{error}</div>;
+        if (['401', '403'].includes(error)) {
+            return <ErrorPage title={'Forbidden'} code={error} />;
+        } else if ('404' === error) {
+            return <ErrorPage title={'Not found'} code={error} />;
+        }
     }
 
     if (!data) {

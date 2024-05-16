@@ -1,20 +1,16 @@
 import Cookies from "js-cookie";
-import {IStorage, StorageSetOptions} from "./types";
+import {CookieStorageOptions, IStorage, StorageSetOptions} from "./types";
 import {CookieMemoryDecorator} from "./CookieMemoryDecorator";
-
-export type CookieStorageOptions = {
-    cookiesOptions?: Cookies.CookieAttributes;
-    fallback?: boolean,
-};
 
 export default class CookieStorage implements IStorage {
     private readonly cookies: typeof Cookies;
     private readonly cookiesOptions: Cookies.CookieAttributes;
 
     constructor(options: CookieStorageOptions = {}) {
-        this.cookiesOptions = options.cookiesOptions ?? {
+        this.cookiesOptions = {
             secure: true,
             sameSite: 'strict',
+            ...(options.cookiesOptions ?? {})
         };
         this.cookies = options.fallback ? CookieMemoryDecorator : Cookies;
     }

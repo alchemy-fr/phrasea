@@ -22,7 +22,6 @@ security:
             stateless: true
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
-                - App\Security\Authenticator\PasswordTokenAuthenticator
 
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }

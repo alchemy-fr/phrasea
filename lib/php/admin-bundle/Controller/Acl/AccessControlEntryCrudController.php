@@ -30,31 +30,22 @@ class AccessControlEntryCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId', 'mask']);
+            ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId']);
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $userType = $this->userTypeChoiceField->create('userType');
-        $userId = TextField::new('userId', 'ID');
-        $objectType = $this->objectTypeChoiceField->create('objectType');
-        $objectId = TextField::new('objectId');
-        $permissions = $this->permissionsChoiceField->create('permissions');
-        $id = IdField::new();
-        $mask = IntegerField::new('mask');
-        $createdAt = DateTimeField::new('createdAt');
-        $userTypeString = TextareaField::new('userTypeString');
+        yield IdField::new();
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$userTypeString, $userId, $objectType, $objectId, $mask];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $mask, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $permissions];
-        }
-
-        return [];
+        yield $this->userTypeChoiceField->create('userType');
+        yield TextField::new('userId', 'ID');
+        yield $this->objectTypeChoiceField->create('objectType');
+        yield TextField::new('objectId');
+        yield $this->permissionsChoiceField->create('permissions')
+            ->onlyOnForms();
+        yield IntegerField::new('mask')
+            ->hideOnForm();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
     }
 }

@@ -2,10 +2,12 @@ import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce'
 import React from "react";
 import {OAuthClient} from "@alchemy/auth";
 
+type NavigateOptions = {
+    replace?: boolean;
+};
+
 type Props = {
-    navigate: (path: string, options?: {
-        replace?: boolean;
-    }) => void;
+    navigate: (path: string, options?: NavigateOptions) => void;
     oauthClient: OAuthClient<any>,
     successUri?: string,
     successHandler?: () => void,
@@ -51,6 +53,23 @@ export function useAuthorizationCode({
                     return;
                 }
 
+                const doNavigate = (uri: string, options?: NavigateOptions): void => {
+                    if (window.opener) {
+                        try {
+                            if (window.opener.pendingAuth) {
+                                window.opener.document.location.href = uri;
+                                window.close();
+                            }
+
+                            return;
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+
+                    navigate(uri, options);
+                };
+
                 if (state) {
                     try {
                         const dState = JSON.parse(atob(state)) as {
@@ -63,7 +82,7 @@ export function useAuthorizationCode({
                             dState.hasOwnProperty('r') &&
                             typeof dState.r === 'string'
                         ) {
-                            navigate(dState.r);
+                            doNavigate(dState.r);
 
                             return;
                         }
@@ -72,7 +91,7 @@ export function useAuthorizationCode({
                     }
                 }
 
-                navigate(successUri ?? '/', {replace: true});
+                doNavigate(successUri ?? '/', {replace: true});
             })
             .catch ((e) => {
                 if (errorHandler) {

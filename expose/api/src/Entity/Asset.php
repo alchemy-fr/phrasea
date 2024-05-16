@@ -33,9 +33,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Get(
+            // No security here because normalizer will hide data if publication is not authorized
             name: self::GET_ASSET_ROUTE_NAME,
         ),
-        new Delete(security: 'is_granted("DELETE", object)'),
+        new Delete(
+            security: 'is_granted("DELETE", object)'
+        ),
         new Get(
             uriTemplate: '/publications/{publicationSlug}/assets/{assetSlug}',
             defaults: ['_api_receive' => false],

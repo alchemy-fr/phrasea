@@ -1,6 +1,6 @@
 import OAuthClient, {
     configureClientAuthentication,
-    configureClientCredentialsGrantType,
+    configureClientCredentialsGrantType, inIframe,
     isValidSession,
     loginEventType,
     logoutEventType,
@@ -10,6 +10,7 @@ import OAuthClient, {
 
 import KeycloakClient from "./src/client/KeycloakClient";
 import {keycloakNormalizer} from "./src/userNormalizer/keycloakNormalizer";
+import {openLoginWindow} from "./src/openLoginWindow";
 
 export {
     OAuthClient,
@@ -22,6 +23,8 @@ export {
     KeycloakClient,
     isValidSession,
     keycloakNormalizer,
+    inIframe,
+    openLoginWindow,
 };
 
 export * from './src/types';
