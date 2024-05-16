@@ -107,7 +107,6 @@ class PublicationVoter extends Voter
                 return true;
             case Publication::SECURITY_METHOD_AUTHENTICATION:
                 if (!$token instanceof JwtUser) {
-                    dump($token);
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
 
                     return false;
