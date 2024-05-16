@@ -1,4 +1,4 @@
-import i18n, {ResourceLanguage} from 'i18next';
+import i18n, {InitOptions, ResourceLanguage} from 'i18next';
 import {I18nextProviderProps, initReactI18next} from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
@@ -10,6 +10,7 @@ type Options = {
     locales?: string[];
     defaultLocale?: string;
     onLanguageChanged?: (lng: string | undefined) => void;
+    initOptions?: InitOptions;
 }
 
 const defaultLocales = ['en', 'fr', 'de', 'es', 'zh'];
@@ -17,6 +18,7 @@ const rootDefaultLocale = 'en';
 const rootDefaultNs = 'app';
 
 export function createI18N({
+    initOptions = {},
     resources,
     onLanguageChanged,
     defaultNS = rootDefaultNs,
@@ -33,6 +35,7 @@ export function createI18N({
                 escapeValue: false, // not needed for react as it escapes by default
             },
             resources,
+            ...initOptions
         });
 
 
