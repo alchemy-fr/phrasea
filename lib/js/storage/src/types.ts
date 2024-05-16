@@ -1,4 +1,4 @@
-// @ts-expect-error Unused Cookies
+// @ts-ignore Unused Cookies
 import Cookies from 'js-cookie';
 
 export type IStorage = {
