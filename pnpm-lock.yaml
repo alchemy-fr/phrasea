@@ -52,7 +52,7 @@ importers:
         version: 1.1.0(react-dom@18.2.0)(react@18.2.0)
       react-i18next:
         specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        version: 14.1.0(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       vite-plugin-svgr:
         specifier: ^4.2.0
         version: 4.2.0(typescript@5.4.2)(vite@5.1.6)
@@ -227,7 +227,7 @@ importers:
         version: 7.51.0(react@18.2.0)
       react-i18next:
         specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        version: 14.1.0(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-leaflet:
         specifier: ^4.2.1
         version: 4.2.1(leaflet@1.9.4)(react-dom@18.2.0)(react@18.2.0)
@@ -499,7 +499,7 @@ importers:
         version: 0.5.6(react-dom@18.2.0)(react@18.2.0)
       react-i18next:
         specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        version: 14.1.0(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-image-gallery:
         specifier: ^0.9.1
         version: 0.9.1(react@18.2.0)
@@ -604,8 +604,8 @@ importers:
         specifier: ^7.51.0
         version: 7.51.0(react@18.2.0)
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-toastify:
         specifier: ^9.1.3
         version: 9.1.3(react-dom@18.2.0)(react@18.2.0)
@@ -666,20 +666,21 @@ importers:
   lib/js/i18n:
     dependencies:
       i18next:
-        specifier: ^23.11.2
-        version: 23.11.2
+        specifier: ^23.11.4
+        version: 23.11.4
       i18next-browser-languagedetector:
         specifier: ^7.2.1
         version: 7.2.1
       i18next-http-backend:
-        specifier: ^2.5.1
-        version: 2.5.1
+        specifier: ^2.5.2
+        version: 2.5.2
       i18next-localstorage-backend:
         specifier: ^4.2.0
         version: 4.2.0
+    devDependencies:
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
 
   lib/js/liform-react:
     dependencies:
@@ -737,8 +738,8 @@ importers:
         specifier: ^18.2.65
         version: 18.2.65
       i18next:
-        specifier: ^23.11.2
-        version: 23.11.2
+        specifier: ^23.11.4
+        version: 23.11.4
       i18next-scanner:
         specifier: ^4.4.0
         version: 4.4.0
@@ -749,8 +750,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
 
   lib/js/phrasea-ui:
     dependencies:
@@ -780,8 +781,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
 
   lib/js/react-auth:
     dependencies:
@@ -835,8 +836,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
         specifier: 6.18.0
         version: 6.18.0(react-dom@18.2.0)(react@18.2.0)
@@ -877,8 +878,8 @@ importers:
         specifier: ^7.51.0
         version: 7.51.0(react@18.2.0)
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-nl2br:
         specifier: ^1.0.4
         version: 1.0.4(react@18.2.0)
@@ -938,8 +939,8 @@ importers:
   lib/js/react-ps:
     dependencies:
       i18next:
-        specifier: ^23.11.2
-        version: 23.11.2
+        specifier: ^23.11.4
+        version: 23.11.4
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1017,8 +1018,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       react-i18next:
-        specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^14.1.1
+        version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       replace-in-file:
         specifier: ^3.4.4
         version: 3.4.4
@@ -1245,7 +1246,7 @@ importers:
         version: 14.2.3(react@18.2.0)
       react-i18next:
         specifier: ^14.1.0
-        version: 14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0)
+        version: 14.1.0(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0)
       react-redux:
         specifier: ^9.1.0
         version: 9.1.0(@types/react@18.2.65)(react@18.2.0)(redux@4.2.1)
@@ -13564,8 +13565,8 @@ packages:
       '@babel/runtime': 7.24.4
     dev: false
 
-  /i18next-http-backend@2.5.1:
-    resolution: {integrity: sha512-+rNX1tghdVxdfjfPt0bI1sNg5ahGW9kA7OboG7b4t03Fp69NdDlRIze6yXhIbN8rbHxJ8IP4dzRm/okZ15lkQg==}
+  /i18next-http-backend@2.5.2:
+    resolution: {integrity: sha512-+K8HbDfrvc1/2X8jpb7RLhI9ZxBDpx3xogYkQwGKlWAUXLSEGXzgdt3EcUjLlBCdMwdQY+K+EUF6oh8oB6rwHw==}
     dependencies:
       cross-fetch: 4.0.0
     transitivePeerDependencies:
@@ -13612,6 +13613,12 @@ packages:
 
   /i18next@23.11.2:
     resolution: {integrity: sha512-qMBm7+qT8jdpmmDw/kQD16VpmkL9BdL+XNAK5MNbNFaf1iQQq35ZbPrSlqmnNPOSUY4m342+c0t0evinF5l7sA==}
+    dependencies:
+      '@babel/runtime': 7.24.4
+    dev: true
+
+  /i18next@23.11.4:
+    resolution: {integrity: sha512-CCUjtd5TfaCl+mLUzAA0uPSN+AVn4fP/kWCYt/hocPUwusTpMVczdrRyOBUwk6N05iH40qiKx6q1DoNJtBIwdg==}
     dependencies:
       '@babel/runtime': 7.24.4
 
@@ -18154,7 +18161,7 @@ packages:
     dependencies:
       react: 18.2.0
 
-  /react-i18next@14.1.0(i18next@23.11.2)(react-dom@18.2.0)(react@18.2.0):
+  /react-i18next@14.1.0(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-3KwX6LHpbvGQ+sBEntjV4sYW3Zovjjl3fpoHbUwSgFHf0uRBcbeCBLR5al6ikncI5+W0EFb71QXZmfop+J6NrQ==}
     peerDependencies:
       i18next: '>= 23.2.3'
@@ -18169,7 +18176,27 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.4
       html-parse-stringify: 3.0.1
-      i18next: 23.11.2
+      i18next: 23.11.4
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /react-i18next@14.1.1(i18next@23.11.4)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-QSiKw+ihzJ/CIeIYWrarCmXJUySHDwQr5y8uaNIkbxoGRm/5DukkxZs+RPla79IKyyDPzC/DRlgQCABHtrQuQQ==}
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.24.4
+      html-parse-stringify: 3.0.1
+      i18next: 23.11.4
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 

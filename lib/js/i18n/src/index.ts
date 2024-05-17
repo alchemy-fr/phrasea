@@ -1,5 +1,5 @@
-import i18n, {InitOptions, ResourceLanguage} from 'i18next';
-import {I18nextProviderProps, initReactI18next} from 'react-i18next';
+import i18n, {InitOptions, ResourceLanguage, ThirdPartyModule} from 'i18next';
+import {I18nextProviderProps} from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 type Resources = {[language: string]: ResourceLanguage};
@@ -11,6 +11,7 @@ type Options = {
     defaultLocale?: string;
     onLanguageChanged?: (lng: string | undefined) => void;
     initOptions?: InitOptions;
+    initReactI18next: ThirdPartyModule,
 }
 
 const defaultLocales = ['en', 'fr', 'de', 'es', 'zh'];
@@ -18,6 +19,7 @@ const rootDefaultLocale = 'en';
 const rootDefaultNs = 'app';
 
 export function createI18N({
+    initReactI18next, // Application's instance of react-i18next module must be provided to use singleton of i18n
     initOptions = {},
     resources,
     onLanguageChanged,

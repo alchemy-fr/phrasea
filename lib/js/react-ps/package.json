@@ -11,11 +11,11 @@
   "main": "./src/index.ts",
   "peerDependencies": {
     "axios": "^1.1.3",
-    "i18next": "^23.11.2",
+    "i18next": "^23.11.4",
     "i18next-browser-languagedetector": "^6.1.8",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-i18next": "^14.1.0"
+    "react-i18next": "^14.1.1"
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
@@ -45,7 +45,7 @@
     "prompt": "^1.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-i18next": "^14.1.0",
+    "react-i18next": "^14.1.1",
     "replace-in-file": "^3.4.4",
     "rimraf": "^2.7.1",
     "rollup": "^0.67.4",
