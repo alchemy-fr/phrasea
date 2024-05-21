@@ -49,7 +49,11 @@ final class SearchIndexer
     public function scheduleIndex(array $objects, int $depth = 1, array $parents = []): void
     {
         if (!$this->direct) {
-            $this->messageBus->dispatch(new ESIndex($objects, $depth, $parents));
+            $this->messageBus->dispatch(new ESIndex(
+                $objects,
+                $depth,
+                array_map(fn (EntityGroup $entityGroup): array => $entityGroup->toArray(), $parents))
+            );
 
             return;
         }

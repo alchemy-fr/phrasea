@@ -10,7 +10,7 @@ class DependencyStack
     private array $parents;
 
     /**
-     * @var EntityGroup[]
+     * @var EntityGroup[][]
      */
     private array $dependencies = [];
 

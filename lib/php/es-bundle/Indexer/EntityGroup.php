@@ -20,4 +20,17 @@ class EntityGroup
     {
         return $this->ids;
     }
+
+    public function toArray(): array
+    {
+        return $this->ids;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        $instance = new self();
+        $instance->ids = $data;
+
+        return $instance;
+    }
 }
