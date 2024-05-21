@@ -10,7 +10,8 @@
     "require": {
         "php": "^8.2",
         "symfony/framework-bundle": "^6.4",
-        "symfony/messenger": "^6.4"
+        "symfony/messenger": "^6.4",
+        "symfony/doctrine-messenger": "^6.4.7"
     },
     "config": {
         "sort-packages": true

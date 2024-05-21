@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +175,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -230,7 +230,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -286,14 +286,15 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
-                "reference": "4f248b6a6151ea54dbbd8a9272744998a85b27c4"
+                "reference": "f492375c3459e359eff01196c13bccef5c8f2785"
             },
             "require": {
                 "php": "^8.2",
+                "symfony/doctrine-messenger": "^6.4.7",
                 "symfony/framework-bundle": "^6.4",
                 "symfony/messenger": "^6.4"
             },
@@ -337,7 +338,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -460,7 +461,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -515,7 +516,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -567,7 +568,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -624,7 +625,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -694,7 +695,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -8684,6 +8685,78 @@
             "time": "2024-03-19T09:28:31+00:00"
         },
         {
+            "name": "symfony/doctrine-messenger",
+            "version": "v6.4.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/doctrine-messenger.git",
+                "reference": "f850f471765aac77b89b6f9a2a09712a5faed1bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/doctrine-messenger/zipball/f850f471765aac77b89b6f9a2a09712a5faed1bd",
+                "reference": "f850f471765aac77b89b6f9a2a09712a5faed1bd",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^2.13|^3|^4",
+                "php": ">=8.1",
+                "symfony/messenger": "^5.4|^6.0|^7.0",
+                "symfony/service-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "doctrine/persistence": "<1.3"
+            },
+            "require-dev": {
+                "doctrine/persistence": "^1.3|^2|^3",
+                "symfony/property-access": "^5.4|^6.0|^7.0",
+                "symfony/serializer": "^5.4|^6.0|^7.0"
+            },
+            "type": "symfony-messenger-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Messenger\\Bridge\\Doctrine\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Doctrine Messenger Bridge",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/doctrine-messenger/tree/v6.4.7"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-04-18T09:22:46+00:00"
+        },
+        {
             "name": "symfony/dom-crawler",
             "version": "v6.4.4",
             "source": {
@@ -13626,7 +13699,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-arthem-to-messenger",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
