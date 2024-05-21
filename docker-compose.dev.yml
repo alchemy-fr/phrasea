@@ -215,6 +215,10 @@ services:
       - MATOMO_AUTH_TOKEN
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
+      - SOKETI_APP_ID
+      - SOKETI_KEY
+      - SOKETI_SECRET
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

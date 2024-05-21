@@ -9,6 +9,7 @@ use App\Entity\Core\File;
 use App\Integration\AbstractFileAction;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
+use App\Integration\PusherTrait;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +17,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TuiPhotoEditorIntegration extends AbstractFileAction
 {
+    use PusherTrait;
+
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
@@ -23,6 +26,9 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     {
         switch ($action) {
             case self::ACTION_SAVE:
+                $this->triggerPush('asset', $config->getWorkspaceId(), [
+                    'fileId' => $file->getId(),
+                ], direct: true);
                 $newFile = $this->saveFile($file, $request);
 
                 $data = $this->integrationDataManager->storeData(

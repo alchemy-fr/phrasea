@@ -65,8 +65,7 @@ readonly class WorkspaceIntegrationOutputTransformer implements OutputTransforme
         }
 
         $config = $this->integrationManager->getIntegrationConfiguration($data);
-        /** @var IntegrationInterface $integration */
-        $integration = $config['integration'];
+        $integration = $config->getIntegration();
         $output->setConfig($integration->resolveClientConfiguration($data, $config));
 
         if (null !== $file) {

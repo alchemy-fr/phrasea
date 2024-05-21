@@ -65,6 +65,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
 
         if ($config['pusher']['enabled']) {
+            $loader->load('pusher.yaml');
             $this->loadPusher($container, $config['pusher']);
         }
 
