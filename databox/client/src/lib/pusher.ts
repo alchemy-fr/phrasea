@@ -13,14 +13,10 @@ export function registerWs(channel: string, event: string, callback: PusherEvent
     return registerPusherWs(pusher, channel, event, callback);
 }
 
-export function useChannelRegistration(channel: string, workspaceId: string, callback: PusherEventCallback, when: boolean = true) {
+export function useChannelRegistration(channel: string, event: string, callback: PusherEventCallback, when: boolean = true) {
     React.useEffect(() => {
         if (when) {
-            return registerWs(channel, workspaceId, callback);
+            return registerWs(channel, event, callback);
         }
-    }, [channel, when]);
-}
-
-export enum Channel {
-    Asset = 'asset'
+    }, [channel, event, when]);
 }

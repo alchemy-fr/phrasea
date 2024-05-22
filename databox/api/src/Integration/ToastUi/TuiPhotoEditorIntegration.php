@@ -26,9 +26,6 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     {
         switch ($action) {
             case self::ACTION_SAVE:
-                $this->triggerPush('asset', $config->getWorkspaceId(), [
-                    'fileId' => $file->getId(),
-                ], direct: true);
                 $newFile = $this->saveFile($file, $request);
 
                 $data = $this->integrationDataManager->storeData(
@@ -40,6 +37,11 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                     true
                 );
 
+                $this->triggerFilePush($file, [
+                    'action' => 'save',
+                    'id' => $data->getId(),
+                ], direct: true);
+
                 return new JsonResponse($this->serializeData($data), 201, [], true);
             case self::ACTION_DELETE:
                 $dataId = $request->request->get('id');
@@ -47,6 +49,11 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                     throw new BadRequestHttpException('Missing "id"');
                 }
                 $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId);
+
+                $this->triggerFilePush($file, [
+                    'action' => 'delete',
+                    'id' => $dataId,
+                ], direct: true);
 
                 break;
             default:

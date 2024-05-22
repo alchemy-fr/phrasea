@@ -13,12 +13,14 @@ import InfoAsset from './InfoAsset';
 import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
 import {modalRoutes} from '../../../routes';
+import {useNavigateToModal} from "../../Routing/ModalLink.tsx";
 
 type Props = {};
 
 export default function AssetDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
+    const navigateToModal = useNavigateToModal();
 
     const [data, setData] = useState<Asset>();
 
@@ -40,6 +42,18 @@ export default function AssetDialog({}: Props) {
                 name: data.title,
             })}
             tabs={[
+                {
+                    title: t('asset.manage.open.title', 'Open'),
+                    onClick: () => navigateToModal(modalRoutes.assets.routes.view, {
+                        id: data.id,
+                        renditionId: data.original?.id,
+                    }),
+                    id: 'open',
+                    props: {
+                        data,
+                    },
+                    enabled: !!data.original,
+                },
                 {
                     title: t('asset.manage.info.title', 'Info'),
                     component: InfoAsset,

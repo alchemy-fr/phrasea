@@ -10,11 +10,11 @@ export type Pagination<T> = {
     pages: T[][];
 };
 
-export function createDefaultPagination<T>(): Pagination<T> {
+export function createDefaultPagination<T>(firstPage?: T[]): Pagination<T> {
     return {
         loading: true,
         loadingMore: false,
-        pages: [],
+        pages: firstPage ? [firstPage] : [],
     };
 }
 

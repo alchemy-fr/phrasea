@@ -15,9 +15,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class WorkspaceIntegrationExtension implements QueryCollectionExtensionInterface
+readonly class WorkspaceIntegrationExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly EntityManagerInterface $em)
+    public function __construct(private IntegrationRegistry $integrationRegistry, private EntityManagerInterface $em)
     {
     }
 

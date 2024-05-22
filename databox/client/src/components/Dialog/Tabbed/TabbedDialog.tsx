@@ -6,12 +6,21 @@ import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
 import {AppDialogTitle, BootstrapDialog} from '@alchemy/phrasea-ui';
 
-type TabItem<P extends {} = {}, P2 extends {} = any> = {
+interface TabLink {
+    component?: never;
+}
+
+interface TabComponent<P extends {} = {}, P2 extends {} = any> {
+    onClick?: () => void;
+    component: FunctionComponent<P2 & P & DialogTabProps>;
+}
+
+type TabItem<P extends {} = {}, P2 extends {} = any> = (TabLink | TabComponent<P, P2>) & {
     title: ReactNode;
     id: string;
-    component: FunctionComponent<P2 & P & DialogTabProps>;
     props?: P2 & P;
     enabled?: boolean;
+    onClick?: () => void;
 };
 
 export type DialogTabProps = {
@@ -45,10 +54,12 @@ export default function TabbedDialog<P extends {}>({
     const currentTab = tabIndex >= 0 ? tabs[tabIndex] : undefined;
 
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-        navigateToModal(route, {
-            ...routeParams,
-            tab: tabs[newValue].id,
-        });
+        if (tabs[newValue].component) {
+            navigateToModal(route, {
+                ...routeParams,
+                tab: tabs[newValue].id,
+            });
+        }
     };
 
     React.useEffect(() => {
@@ -82,18 +93,26 @@ export default function TabbedDialog<P extends {}>({
                                     label={t.title}
                                     id={t.id}
                                     key={t.id}
+                                    role={'navigation'}
                                     aria-controls={`tabpanel-${t.id}`}
+                                    onClick={t.onClick ? (
+                                        t.component ? (e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            t.onClick!();
+                                        } : t.onClick
+                                    ) : undefined}
                                 />
                             );
                         })}
                     </Tabs>
-                    {currentTab &&
+                    {currentTab && currentTab.component ?
                         React.createElement(currentTab.component, {
                             ...rest,
                             ...currentTab.props,
                             onClose: closeModal,
                             minHeight,
-                        })}
+                        }) : ''}
                 </BootstrapDialog>
             )}
         </RouteDialog>

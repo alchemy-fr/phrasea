@@ -8,9 +8,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\IntegrationDataOutput;
+use App\Api\Provider\IntegrationDataProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\File;
 use App\Entity\Traits\CreatedAtTrait;
@@ -22,16 +24,33 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'integration-data',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
         'groups' => [IntegrationData::GROUP_LIST],
     ],
     output: IntegrationDataOutput::class
+)]
+#[ApiResource(
+    uriTemplate: '/integrations/{integrationId}/data',
+    shortName: 'integration-data',
+    operations: [
+        new GetCollection(
+            provider: IntegrationDataProvider::class,
+        ),
+    ],
+    uriVariables: [
+        'integrationId' => new Link(
+            toProperty: 'integration',
+            fromClass: WorkspaceIntegration::class
+        ),
+    ],
+    normalizationContext: [
+        'groups' => [IntegrationData::GROUP_LIST],
+    ],
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['integration_id', 'file_id', 'name'], name: 'name')]

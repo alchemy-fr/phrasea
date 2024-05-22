@@ -3,11 +3,10 @@ import {Asset, AssetRendition} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
-import {StackedModalProps} from '@alchemy/navigation';
+import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
-import {useParams} from '@alchemy/navigation';
 import {getAsset} from '../../../api/asset';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';
@@ -15,7 +14,6 @@ import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
-import {Channel, useChannelRegistration} from "../../../lib/pusher.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -65,10 +63,6 @@ export default function AssetView({modalIndex}: Props) {
         })();
     }, [assetId]);
 
-    useChannelRegistration(Channel.Asset, data?.workspace.id ?? '', (d) => {
-        console.log('data', d); // TODO
-    }, !!data);
-
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] =
         useState<IntegrationOverlay>();
@@ -92,7 +86,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);

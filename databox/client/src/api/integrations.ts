@@ -1,4 +1,4 @@
-import {WorkspaceIntegration} from '../types';
+import {IntegrationData, WorkspaceIntegration} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 import {AxiosRequestConfig} from 'axios';
@@ -15,6 +15,16 @@ export async function getWorkspaceIntegrations(
             workspace: workspaceId,
         },
     });
+
+    return getHydraCollection(res.data);
+}
+
+export async function getWorkspaceIntegrationData(
+    integrationId: string,
+    next?: string,
+    config?: AxiosRequestConfig
+): Promise<ApiCollectionResponse<IntegrationData>> {
+    const res = await apiClient.get(next || `${integrationNS}/${integrationId}/data`, config);
 
     return getHydraCollection(res.data);
 }

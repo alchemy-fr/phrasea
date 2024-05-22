@@ -8,9 +8,9 @@ use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationDataProcessor;
 
-class IntegrationDataOutputTransformer implements OutputTransformerInterface
+readonly class IntegrationDataOutputTransformer implements OutputTransformerInterface
 {
-    public function __construct(private readonly IntegrationDataProcessor $dataProcessor)
+    public function __construct(private IntegrationDataProcessor $dataProcessor)
     {
     }
 

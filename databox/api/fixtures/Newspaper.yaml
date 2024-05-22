@@ -419,6 +419,9 @@ App\Entity\Integration\WorkspaceIntegration:
     config:
       databoxId: 1
       method: api
+      renditions:
+          - thumbnail
+          - preview
   wi_watermark:
     integration: core.watermark
     workspace: '@w_newspaper'

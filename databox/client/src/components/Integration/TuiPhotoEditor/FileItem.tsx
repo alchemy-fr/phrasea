@@ -36,6 +36,7 @@ export default function FileItem({
     const open = Boolean(anchorEl);
     const [deleting, setDeleting] = React.useState(false);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
         setAnchorEl(event.currentTarget);
     };
     const handleClose = React.useCallback(() => {
