@@ -11,6 +11,7 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
+import {useChannelRegistration} from "../../lib/pusher.ts";
 
 type Props = {} & StackedModalProps;
 
@@ -46,6 +47,10 @@ export default function WorkflowView({modalIndex}: Props) {
     useEffect(() => {
         onRefresh();
     }, [onRefresh]);
+
+    useChannelRegistration(`workflow-${id}`, 'job_update', (d) => {
+        onRefresh();
+    }, !!data);
 
     if (!data) {
         return <CircularProgress />;

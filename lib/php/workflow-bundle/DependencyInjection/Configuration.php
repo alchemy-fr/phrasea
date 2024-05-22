@@ -33,6 +33,14 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('workflows_dirs')
                     ->defaultValue(['%kernel.project_dir%/config/workflows'])
                 ->end()
+                ->arrayNode('pusher')
+                    ->canBeEnabled()
+                    ->children()
+                        ->scalarNode('channel_prefix')
+                            ->defaultValue('workflow-')
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 
