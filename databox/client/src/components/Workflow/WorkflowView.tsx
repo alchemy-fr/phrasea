@@ -11,7 +11,7 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
-import {useChannelRegistration} from "../../lib/pusher.ts";
+import {useChannelRegistration} from '../../lib/pusher.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -35,22 +35,24 @@ export default function WorkflowView({modalIndex}: Props) {
         [id]
     );
 
-    const onCancel = React.useCallback(
-        async () => {
-            const d = await cancelWorkflow(id!);
+    const onCancel = React.useCallback(async () => {
+        const d = await cancelWorkflow(id!);
 
-            setData(d);
-        },
-        [id]
-    );
+        setData(d);
+    }, [id]);
 
     useEffect(() => {
         onRefresh();
     }, [onRefresh]);
 
-    useChannelRegistration(`workflow-${id}`, 'job_update', () => {
-        onRefresh();
-    }, !!data);
+    useChannelRegistration(
+        `workflow-${id}`,
+        'job_update',
+        () => {
+            onRefresh();
+        },
+        !!data
+    );
 
     if (!data) {
         return <CircularProgress />;
@@ -104,10 +106,7 @@ export default function WorkflowView({modalIndex}: Props) {
                             height: `calc(100vh - ${headerHeight + 2}px)`,
                         }}
                     >
-                        <VisualWorkflow
-                            workflow={data}
-                            onRerunJob={rerun}
-                        />
+                        <VisualWorkflow workflow={data} onRerunJob={rerun} />
                     </WorkflowPlayground>
                 </AppDialog>
             )}

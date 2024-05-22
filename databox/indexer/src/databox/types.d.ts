@@ -1,4 +1,4 @@
-import {DataboxAttributeType} from "../handlers/phraseanet/shared";
+import {DataboxAttributeType} from '../handlers/phraseanet/shared';
 
 type AlternateUrl = {
     type: string;
@@ -77,7 +77,7 @@ export type AttributeDefinition = {
     fieldType: DataboxAttributeType;
     workspace: string;
     class: string;
-    translatable: boolean,
+    translatable: boolean;
     labels?: Labels | undefined;
 };
 

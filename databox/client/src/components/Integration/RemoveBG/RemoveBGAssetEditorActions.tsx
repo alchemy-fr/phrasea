@@ -1,5 +1,8 @@
 import {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps, Integration} from '../../Media/Asset/FileIntegrations';
+import {
+    AssetIntegrationActionsProps,
+    Integration,
+} from '../../Media/Asset/FileIntegrations';
 import {Button, Typography} from '@mui/material';
 import {runIntegrationFileAction} from '../../../api/integrations';
 import ReactCompareImage from 'react-compare-image';
@@ -7,8 +10,8 @@ import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
-import {useChannelRegistration} from "../../../lib/pusher.ts";
-import {useIntegrationData} from "../useIntegrationData.ts";
+import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {useIntegrationData} from '../useIntegrationData.ts';
 
 function RemoveBgComparison({
     left,
@@ -58,10 +61,14 @@ export default function RemoveBGAssetEditorActions({
         await runIntegrationFileAction('process', integration.id, file.id);
     };
 
-    useChannelRegistration(`file-${file.id}`, `integration:${Integration.RemoveBg}`, () => {
-        setRunning(false);
-        loadData();
-    });
+    useChannelRegistration(
+        `file-${file.id}`,
+        `integration:${Integration.RemoveBg}`,
+        () => {
+            setRunning(false);
+            loadData();
+        }
+    );
 
     useEffect(() => {
         if (enableInc && bgRemovedFile) {

@@ -24,7 +24,10 @@ export async function getWorkspaceIntegrationData(
     next?: string,
     config?: AxiosRequestConfig
 ): Promise<ApiCollectionResponse<IntegrationData>> {
-    const res = await apiClient.get(next || `${integrationNS}/${integrationId}/data`, config);
+    const res = await apiClient.get(
+        next || `${integrationNS}/${integrationId}/data`,
+        config
+    );
 
     return getHydraCollection(res.data);
 }

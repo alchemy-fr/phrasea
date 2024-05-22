@@ -5,7 +5,7 @@ import AssetProxy from './layouts/shared-components/AssetProxy';
 import {loadAsset} from './api';
 import PublicationSecurityProxy from './security/PublicationSecurityProxy';
 import {logAssetView} from '../lib/log';
-import ErrorPage from "./ErrorPage";
+import ErrorPage from './ErrorPage';
 
 type Props = {
     id: string;

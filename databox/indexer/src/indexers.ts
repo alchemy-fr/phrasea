@@ -21,7 +21,7 @@ export type Asset = {
     attributes?: AttributeInput[];
     tags?: TagInput[];
     renditions?: RenditionInput[];
-    shortcutIntoCollections?: {id: string, path:string}[];
+    shortcutIntoCollections?: {id: string; path: string}[];
 };
 
 export type IndexIterator<T extends Record<string, any> = any> = (

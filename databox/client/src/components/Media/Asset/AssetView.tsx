@@ -47,13 +47,14 @@ export default function AssetView({modalIndex}: Props) {
     const [renditions, setRenditions] = useState<AssetRendition[]>();
 
     useEffect(() => {
-
         (async () => {
             try {
                 await Promise.all([
                     getAsset(assetId!).then(c => setData(c)),
-                    getAssetRenditions(assetId!).then(r => setRenditions(r.result))
-                ])
+                    getAssetRenditions(assetId!).then(r =>
+                        setRenditions(r.result)
+                    ),
+                ]);
             } catch (e: any) {
                 console.log('e', e);
                 if ([401, 403].includes(e.response?.status ?? 0)) {
@@ -86,7 +87,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);

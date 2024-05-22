@@ -9,7 +9,6 @@ use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\FileActionsIntegrationInterface;
-use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;

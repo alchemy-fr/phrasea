@@ -1,11 +1,22 @@
 import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
-import {AssetIntegrationActionsProps, Integration} from '../../Media/Asset/FileIntegrations';
+import {
+    AssetIntegrationActionsProps,
+    Integration,
+} from '../../Media/Asset/FileIntegrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
 import ImageEditor from '@toast-ui/react-image-editor';
-import {List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, TextField, Typography,} from '@mui/material';
+import {
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    ListSubheader,
+    TextField,
+    Typography,
+} from '@mui/material';
 import {runIntegrationFileAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from '../../../lib/file';
@@ -14,8 +25,8 @@ import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {File} from '../../../types';
 import FileItem from './FileItem';
-import {useChannelRegistration} from "../../../lib/pusher.ts";
-import {useIntegrationData} from "../useIntegrationData.ts";
+import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {useIntegrationData} from '../useIntegrationData.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -78,9 +89,13 @@ export default function TUIPhotoEditor({
         defaultData: integration.data,
     });
 
-    useChannelRegistration(`file-${file.id}`, `integration:${Integration.TuiPhotoEditor}`, () => {
-        loadData();
-    });
+    useChannelRegistration(
+        `file-${file.id}`,
+        `integration:${Integration.TuiPhotoEditor}`,
+        () => {
+            loadData();
+        }
+    );
 
     const saveAs = async () => {
         if (editoRef.current) {
@@ -164,7 +179,7 @@ export default function TUIPhotoEditor({
                     sx={{
                         mt: 1,
                     }}
-                    startIcon={<SaveIcon/>}
+                    startIcon={<SaveIcon />}
                     variant={'contained'}
                     onClick={saveAs}
                     disabled={!canEdit || !fileName}
@@ -182,7 +197,7 @@ export default function TUIPhotoEditor({
                         onClick={() => onOpen(file!, '')}
                     >
                         <ListItemIcon>
-                            <FileOpenIcon/>
+                            <FileOpenIcon />
                         </ListItemIcon>
                         <ListItemText>Original</ListItemText>
                     </ListItemButton>

@@ -51,7 +51,12 @@ export default function PublicationSecurityProxy({
                     padding: 10,
                 }}
             >
-                <p>{t('publication.not_allowed', `Sorry! You are not allowed to access this publication.`)}</p>
+                <p>
+                    {t(
+                        'publication.not_allowed',
+                        `Sorry! You are not allowed to access this publication.`
+                    )}
+                </p>
 
                 <button onClick={logout} className={'btn btn-sm btn-logout'}>
                     {t('publication.logout', `Logout`)}

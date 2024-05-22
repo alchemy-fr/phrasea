@@ -1,10 +1,10 @@
-import {AttributeDefinition} from "../../databox/types";
-import Twig from "twig";
-import {DataboxAttributeType} from "./shared.ts";
+import {AttributeDefinition} from '../../databox/types';
+import Twig from 'twig';
+import {DataboxAttributeType} from './shared.ts';
 
 export type FieldMapValue = {
     locale?: string;
-    type: "template" | "metadata" | "text";
+    type: 'template' | 'metadata' | 'text';
     value: any | any[];
     twig?: Twig.template;
 };
@@ -49,9 +49,9 @@ export type PhraseanetConfig = {
 };
 
 export enum PhraseanetMetadataType {
-    Date = "date",
-    Number = "number",
-    String = "string"
+    Date = 'date',
+    Number = 'number',
+    String = 'string',
 }
 
 export type PhraseanetMetaStruct = {
@@ -130,7 +130,7 @@ type PhraseanetMetadata = {
     meta_structure_id: string;
     name: string;
     value: string;
-}
+};
 
 export type PhraseanetRecord = {
     resource_id: string;

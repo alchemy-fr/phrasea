@@ -15,7 +15,10 @@ interface TabComponent<P extends {} = {}, P2 extends {} = any> {
     component: FunctionComponent<P2 & P & DialogTabProps>;
 }
 
-type TabItem<P extends {} = {}, P2 extends {} = any> = (TabLink | TabComponent<P, P2>) & {
+type TabItem<P extends {} = {}, P2 extends {} = any> = (
+    | TabLink
+    | TabComponent<P, P2>
+) & {
     title: ReactNode;
     id: string;
     props?: P2 & P;
@@ -95,24 +98,29 @@ export default function TabbedDialog<P extends {}>({
                                     key={t.id}
                                     role={'navigation'}
                                     aria-controls={`tabpanel-${t.id}`}
-                                    onClick={t.onClick ? (
-                                        t.component ? (e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            t.onClick!();
-                                        } : t.onClick
-                                    ) : undefined}
+                                    onClick={
+                                        t.onClick
+                                            ? t.component
+                                                ? e => {
+                                                      e.preventDefault();
+                                                      e.stopPropagation();
+                                                      t.onClick!();
+                                                  }
+                                                : t.onClick
+                                            : undefined
+                                    }
                                 />
                             );
                         })}
                     </Tabs>
-                    {currentTab && currentTab.component ?
-                        React.createElement(currentTab.component, {
-                            ...rest,
-                            ...currentTab.props,
-                            onClose: closeModal,
-                            minHeight,
-                        }) : ''}
+                    {currentTab && currentTab.component
+                        ? React.createElement(currentTab.component, {
+                              ...rest,
+                              ...currentTab.props,
+                              onClose: closeModal,
+                              minHeight,
+                          })
+                        : ''}
                 </BootstrapDialog>
             )}
         </RouteDialog>

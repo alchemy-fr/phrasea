@@ -1,6 +1,13 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from '../../../types';
-import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography,} from '@mui/material';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    CircularProgress,
+    List,
+    Typography,
+} from '@mui/material';
 import {getWorkspaceIntegrations} from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
 import {SetIntegrationOverlayFunction} from './AssetView';
@@ -43,7 +50,7 @@ function IntegrationProxy({
         return (
             <Accordion expanded={expanded} onChange={onExpand}>
                 <AccordionSummary
-                    expandIcon={<ExpandMoreIcon/>}
+                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
@@ -95,7 +102,7 @@ export default function FileIntegrations({
 
     return (
         <>
-            {!integrations && <CircularProgress color="inherit"/>}
+            {!integrations && <CircularProgress color="inherit" />}
             {integrations && (
                 <List component="nav" aria-labelledby="nested-list-subheader">
                     {integrations

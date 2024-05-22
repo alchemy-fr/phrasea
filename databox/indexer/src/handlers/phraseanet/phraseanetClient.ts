@@ -8,17 +8,12 @@ import {
     PhraseanetStatusBitStruct,
     PhraseanetSubdefStruct,
     PhraseanetRecord,
-    PhraseanetStory
+    PhraseanetStory,
 } from './types';
-import {
-    CPhraseanetRecord,
-    CPhraseanetStory
-} from './CPhraseanetRecord';
+import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import {createHttpClient} from '../../lib/axios';
-import {
-    PhraseanetSearchType,
-} from "./shared";
-import * as winston from "winston";
+import {PhraseanetSearchType} from './shared';
+import * as winston from 'winston';
 
 export function createPhraseanetClient(options: PhraseanetConfig) {
     const baseURL = getStrict('url', options);
@@ -38,7 +33,7 @@ export function createPhraseanetClient(options: PhraseanetConfig) {
 export default class PhraseanetClient {
     private readonly client: AxiosInstance;
     private readonly searchOrder?: string;
-    private readonly id: string;    // not the phraseanet conf.instanceId
+    private readonly id: string; // not the phraseanet conf.instanceId
     private readonly logger: winston.Logger;
     private _databoxIndexSet: boolean = false;
     private databoxIndex: Record<string, PhraseanetDatabox>;
@@ -51,18 +46,17 @@ export default class PhraseanetClient {
         this.databoxIndex = {};
     }
 
-
     async getDatabox(nameOrId: string) {
-        if(!this._databoxIndexSet) {
+        if (!this._databoxIndexSet) {
             const dbi: Record<string, PhraseanetDatabox> = {};
             this.logger.info(`Fetching databoxes and collections`);
-            for(const db of await this.getDataboxes() as PhraseanetDatabox[]) {
+            for (const db of (await this.getDataboxes()) as PhraseanetDatabox[]) {
                 db.collections = {};
                 db.baseIds = [];
                 db.metaStruct = {};
                 dbi[db.name] = dbi[db.databox_id.toString()] = db;
             }
-            for(const c of await this.getCollections()) {
+            for (const c of await this.getCollections()) {
                 dbi[c.databox_id.toString()].collections[c.base_id.toString()] =
                     dbi[c.databox_id.toString()].collections[c.name] = c;
                 dbi[c.databox_id.toString()].baseIds.push(c.base_id.toString());
@@ -120,7 +114,7 @@ export default class PhraseanetClient {
         offset: number = 0,
         searchType: PhraseanetSearchType,
         searchQuery: string
-    ): Promise<(CPhraseanetRecord|CPhraseanetStory)[]> {
+    ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
         if (this.searchOrder) {
             const [col, way] = this.searchOrder.split(',');
             params.sort = col;
@@ -146,34 +140,33 @@ export default class PhraseanetClient {
             },
         });
 
-        const recs: (CPhraseanetRecord|CPhraseanetStory)[] = [];
-        if(searchType === PhraseanetSearchType.Record) {
-            res.data.response.results.records.map(
-                (r:PhraseanetRecord) => {
-                    recs.push(new CPhraseanetRecord(r, this));
-                }
-            )
-        }
-        else {
-            res.data.response.results.stories.map(
-                (s:PhraseanetStory) => {
-                    recs.push(new CPhraseanetStory(s, this));
-                }
-            )
+        const recs: (CPhraseanetRecord | CPhraseanetStory)[] = [];
+        if (searchType === PhraseanetSearchType.Record) {
+            res.data.response.results.records.map((r: PhraseanetRecord) => {
+                recs.push(new CPhraseanetRecord(r, this));
+            });
+        } else {
+            res.data.response.results.stories.map((s: PhraseanetStory) => {
+                recs.push(new CPhraseanetStory(s, this));
+            });
         }
 
         return recs;
     }
 
-    async getMetaStruct(databoxId: string): Promise<Record<string, PhraseanetMetaStruct>> {
-        if(!this.databoxIndex[databoxId]._metaStructSet) {
+    async getMetaStruct(
+        databoxId: string
+    ): Promise<Record<string, PhraseanetMetaStruct>> {
+        if (!this.databoxIndex[databoxId]._metaStructSet) {
             const res = await this.client.get(
                 `/api/v1/databoxes/${databoxId}/metadatas/`
             );
 
-            for(const k in res.data.response.document_metadatas) {
+            for (const k in res.data.response.document_metadatas) {
                 // allow to access field struct by name
-                this.databoxIndex[databoxId].metaStruct[res.data.response.document_metadatas[k].name] = res.data.response.document_metadatas[k];
+                this.databoxIndex[databoxId].metaStruct[
+                    res.data.response.document_metadatas[k].name
+                ] = res.data.response.document_metadatas[k];
             }
             this.databoxIndex[databoxId]._metaStructSet = true;
         }
@@ -181,7 +174,9 @@ export default class PhraseanetClient {
         return this.databoxIndex[databoxId].metaStruct;
     }
 
-    async getStatusBitsStruct(databoxId: string): Promise<PhraseanetStatusBitStruct[]> {
+    async getStatusBitsStruct(
+        databoxId: string
+    ): Promise<PhraseanetStatusBitStruct[]> {
         const res = await this.client.get(
             `/api/v1/databoxes/${databoxId}/status/`
         );

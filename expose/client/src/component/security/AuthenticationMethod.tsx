@@ -21,7 +21,8 @@ export default function AuthenticationMethod({}: Props) {
     });
 
     const searchParams = new URLSearchParams(window.location.search);
-    const shouldRedirect = !oauthClient.sessionHasExpired && !searchParams.has('logout');
+    const shouldRedirect =
+        !oauthClient.sessionHasExpired && !searchParams.has('logout');
 
     React.useEffect(() => {
         if (shouldRedirect) {
@@ -43,7 +44,7 @@ export default function AuthenticationMethod({}: Props) {
     }, [isInIframe, loginUrl]);
 
     if (shouldRedirect) {
-        return <FullPageLoader/>
+        return <FullPageLoader />;
     }
 
     return (
@@ -60,8 +61,15 @@ export default function AuthenticationMethod({}: Props) {
                             height: 100,
                             margin: `30px 0`,
                         }}
-                        src={lockImg} alt="Lock"/>
-                    <h3>{t('publication.auth_required.title', `This publication requires authentication.`)}</h3>
+                        src={lockImg}
+                        alt="Lock"
+                    />
+                    <h3>
+                        {t(
+                            'publication.auth_required.title',
+                            `This publication requires authentication.`
+                        )}
+                    </h3>
                     <a
                         style={{
                             margin: `30px 0`,
