@@ -36,7 +36,6 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     ];
 
     public function __construct(
-        private readonly RekognitionAnalyzer $rekognitionAnalyzer,
         private readonly MessageBusInterface $bus,
     ) {
     }
@@ -126,9 +125,6 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
                     $config->getIntegrationId(),
                     $request->request->get('category')
                 ));
-
-                // TODO websocket
-
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));

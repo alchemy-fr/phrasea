@@ -37,7 +37,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                     true
                 );
 
-                $this->triggerFilePush($file, [
+                $this->triggerFilePush(self::getName(), $file, [
                     'action' => 'save',
                     'id' => $data->getId(),
                 ], direct: true);
@@ -50,7 +50,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 }
                 $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId);
 
-                $this->triggerFilePush($file, [
+                $this->triggerFilePush(self::getName(), $file, [
                     'action' => 'delete',
                     'id' => $dataId,
                 ], direct: true);

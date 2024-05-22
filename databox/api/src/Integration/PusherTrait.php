@@ -21,8 +21,8 @@ trait PusherTrait
         $this->pusherManager->trigger($channel, $event, $payload, $direct);
     }
 
-    public function triggerFilePush(File $file, array $payload, bool $direct = false): void
+    public function triggerFilePush(string $integrationName, File $file, array $payload, bool $direct = false): void
     {
-        $this->pusherManager->trigger('file-'.$file->getId(), 'integration:'.self::getName(), $payload, $direct);
+        $this->pusherManager->trigger('file-'.$file->getId(), 'integration:'.$integrationName, $payload, $direct);
     }
 }

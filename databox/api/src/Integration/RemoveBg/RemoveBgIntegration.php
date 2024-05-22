@@ -9,18 +9,23 @@ use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Integration\AbstractFileAction;
 use App\Integration\IntegrationConfig;
+use App\Integration\PusherTrait;
+use App\Integration\RemoveBg\Message\RemoveBgCall;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrationInterface
 {
+    use PusherTrait;
     private const ACTION_PROCESS = 'process';
 
     public function __construct(
         private readonly RemoveBgProcessor $removeBgProcessor,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -57,10 +62,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
     {
         switch ($action) {
             case self::ACTION_PROCESS:
-                $file = $this->removeBgProcessor->process($file, $config);
-
-                // TODO websocket
-
+                $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId()));
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));

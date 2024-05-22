@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
+import {AssetIntegrationActionsProps, Integration} from '../../Media/Asset/FileIntegrations';
 import {Button, Typography} from '@mui/material';
 import {runIntegrationFileAction} from '../../../api/integrations';
 import ReactCompareImage from 'react-compare-image';
@@ -7,7 +7,8 @@ import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
-import {File} from '../../../types';
+import {useChannelRegistration} from "../../../lib/pusher.ts";
+import {useIntegrationData} from "../useIntegrationData.ts";
 
 function RemoveBgComparison({
     left,
@@ -44,16 +45,23 @@ export default function RemoveBGAssetEditorActions({
     enableInc,
 }: Props) {
     const [running, setRunning] = useState(false);
-    const [bgRemovedFile, setBgRemovedFile] = useState<File | undefined>(
-        integration.data.find(d => d.name === 'file')?.value
-    );
+    const {data, load: loadData} = useIntegrationData({
+        fileId: file.id,
+        integrationId: integration.id,
+        defaultData: integration.data,
+    });
+
+    const bgRemovedFile = data.pages.flat().find(d => d.name === 'file')?.value;
 
     const process = async () => {
         setRunning(true);
-        setBgRemovedFile(
-            await runIntegrationFileAction('process', integration.id, file.id)
-        );
+        await runIntegrationFileAction('process', integration.id, file.id);
     };
+
+    useChannelRegistration(`file-${file.id}`, `integration:${Integration.RemoveBg}`, () => {
+        setRunning(false);
+        loadData();
+    });
 
     useEffect(() => {
         if (enableInc && bgRemovedFile) {
