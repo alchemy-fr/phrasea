@@ -763,6 +763,7 @@ services:
       - PHRASEANET_RECORDS_COLLECTION_PATH=${INDEXER_RECORDS_COLLECTION_PATH}
       - PHRASEANET_STORIES_COLLECTION_PATH=${INDEXER_STORIES_COLLECTION_PATH}
     volumes:
+      - ./databox/indexer/config/config.json:/srv/workspace/databox/config/config.json
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

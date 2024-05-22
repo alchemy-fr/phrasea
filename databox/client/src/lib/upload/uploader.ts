@@ -37,6 +37,11 @@ export async function submitFiles(
     UploadFiles(
         userId,
         data.files.map(f => {
+            if (!f.assetId) {
+                console.log('data', data);
+                throw new Error('MAID'); // Missing Asset ID
+            }
+
             return {
                 file: f.file,
                 data: {
