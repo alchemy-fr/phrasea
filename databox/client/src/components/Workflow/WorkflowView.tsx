@@ -48,7 +48,7 @@ export default function WorkflowView({modalIndex}: Props) {
         onRefresh();
     }, [onRefresh]);
 
-    useChannelRegistration(`workflow-${id}`, 'job_update', (d) => {
+    useChannelRegistration(`workflow-${id}`, 'job_update', () => {
         onRefresh();
     }, !!data);
 
