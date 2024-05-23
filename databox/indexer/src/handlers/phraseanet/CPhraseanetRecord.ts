@@ -41,12 +41,21 @@ class CPhraseanetRecordBase {
         this.subdefs = r.subdefs;
         this.status = r.status;
         r.metadata.map((m) => {
-            if(!this.metadata[m.name]) {
-                this.metadata[m.name] = CPhraseanetMetadata.fromTPhraseanetMetadata(m);
+            if(m.value.trim() !== '') {
+                if (!this.metadata[m.name]) {
+                    this.metadata[m.name] = CPhraseanetMetadata.fromTPhraseanetMetadata(m);
+                }
+                this.metadata[m.name].values.push(m.value);
             }
-            this.metadata[m.name].values.push(m.value);
         })
+
         for(const k in this.metadata) {
+            this.metadata[k].values.sort(
+                (a, b) => {
+                    a = a.toLowerCase(); b = b.toLowerCase();
+                    return a < b ? -1 : (a > b ? 1 : 0);
+                }
+            );
             this.metadata[k].value = this.metadata[k].values.join(' ; ')
         }
     }
