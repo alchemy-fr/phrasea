@@ -58,7 +58,6 @@
         return false;
     }
 
-
     return {
         locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,

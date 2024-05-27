@@ -8,12 +8,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\HttpClient\Exception\ClientException;
 
-final class Configurator
+final readonly class Configurator
 {
     /**
      * @var ConfiguratorInterface[]
      */
-    private readonly iterable $configurators;
+    private iterable $configurators;
 
     public function __construct(
         #[TaggedIterator('app.configurator')]

@@ -2,8 +2,8 @@ import ReactDOM from 'react-dom/client';
 import React from 'react';
 import {CssBaseline, GlobalStyles, responsiveFontSizes} from '@mui/material';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
-import {scrollbarWidth, theme} from './theme.ts';
-import Root from "./Root.tsx";
+import {scrollbarWidth, theme} from './theme';
+import Root from './Root';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     },
                 })}
             />
-            <Root/>
+            <Root />
         </ThemeEditorProvider>
     </React.StrictMode>
 );

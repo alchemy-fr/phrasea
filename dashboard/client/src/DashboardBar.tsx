@@ -1,19 +1,17 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import {PropsWithChildren} from "react";
+import {PropsWithChildren} from 'react';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import config from "./config.ts";
-import {keycloakClient} from "./lib/apiClient.ts";
-import MenuItem from "@mui/material/MenuItem";
-import Box from "@mui/material/Box";
+import config from './config.ts';
+import {keycloakClient} from './lib/apiClient.ts';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
 import {UserMenu} from '@alchemy/phrasea-ui';
-import {useTranslation} from "react-i18next";
+import {useTranslation} from 'react-i18next';
 
 type Props = PropsWithChildren<{}>;
 
-export default function DashboardBar({
-    children
-}: Props) {
+export default function DashboardBar({children}: Props) {
     const menuHeight = 42;
     const {t} = useTranslation();
     const {getLoginUrl, getAccountUrl} = useKeycloakUrls({
@@ -26,12 +24,13 @@ export default function DashboardBar({
     return (
         <AppBar position="sticky">
             <Toolbar>
-                <div style={{
-                    flexGrow: 1
-                }}>
+                <div
+                    style={{
+                        flexGrow: 1,
+                    }}
+                >
                     {children}
                 </div>
-
 
                 <Box sx={{flexGrow: 0}}>
                     {!user ? (

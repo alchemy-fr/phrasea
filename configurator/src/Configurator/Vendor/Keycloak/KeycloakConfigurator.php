@@ -24,18 +24,33 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $this->configureRealm();
         $this->configureDefaultClientScopes();
 
+        $adminSubRoles = [
+            KeycloakInterface::ROLE_USER_ADMIN => [
+                'description' => 'Manage Users',
+                'roles' => [],
+            ],
+            KeycloakInterface::ROLE_GROUP_ADMIN => [
+                'description' => 'Manage Groups',
+                'roles' => [],
+            ],
+        ];
         foreach ($this->symfonyApplications as $app) {
-            $this->keycloakManager->createRole($app.'-admin', sprintf('Admin access for %s', ucwords($app)));
+            $adminSubRoles[$app.'-admin'] = [
+                'description' => sprintf('Admin access for %s', ucwords($app)),
+            ];
         }
 
-        foreach ([
-            KeycloakInterface::ROLE_ADMIN => 'Can do anything',
-            KeycloakInterface::ROLE_TECH => 'Access to Dev/Ops Operations',
-            KeycloakInterface::ROLE_USER_ADMIN => 'Manage Users',
-            KeycloakInterface::ROLE_GROUP_ADMIN => 'Manage Groups',
-        ] as $role => $desc) {
-            $this->keycloakManager->createRole($role, $desc);
-        }
+        $roleHierarchy = [
+            KeycloakInterface::ROLE_ADMIN => [
+                'description' => 'Can do anything',
+                'roles' => $adminSubRoles,
+            ],
+            KeycloakInterface::ROLE_TECH => [
+                'description' => 'Access to Dev/Ops Operations',
+                'roles' => [],
+            ],
+        ];
+        $this->keycloakManager->createRoleHierarchy($roleHierarchy);
 
         foreach ([
             'openid',

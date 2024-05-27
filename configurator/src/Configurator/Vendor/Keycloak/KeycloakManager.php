@@ -415,7 +415,7 @@ final class KeycloakManager
             ]), $options)->toArray();
     }
 
-    public function createRole(string $name, string $description): void
+    public function createRole(string $name, ?string $description): void
     {
         $data = [
             'name' => $name,
@@ -423,12 +423,93 @@ final class KeycloakManager
             'description' => $description,
         ];
 
-        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
-            ->request('POST', UriTemplate::resolve('{realm}/roles', [
+        $existingRole = $this->getRoleByName($name);
+        if ($existingRole) {
+            $this->getAuthenticatedClient()
+                ->request('PUT', UriTemplate::resolve('{realm}/roles/{name}', [
+                    'realm' => $this->keycloakRealm,
+                    'name' => $name,
+                ]), [
+                    'json' => $data,
+                ]);
+        } else {
+            $this->getAuthenticatedClient()
+                ->request('POST', UriTemplate::resolve('{realm}/roles', [
+                    'realm' => $this->keycloakRealm,
+                ]), [
+                    'json' => $data,
+                ]);
+        }
+    }
+
+    public function getRoleByName(string $name): ?array
+    {
+        try {
+            $response = $this->getAuthenticatedClient()
+                ->request('GET', UriTemplate::resolve('{realm}/roles/{name}', [
+                    'realm' => $this->keycloakRealm,
+                    'name' => $name,
+                ]));
+            $response->toArray();
+
+            return $response->toArray();
+        } catch (ClientException $e) {
+            if (404 !== $e->getResponse()->getStatusCode()) {
+                throw $e;
+            }
+        }
+
+        return null;
+    }
+
+    public function createRoleHierarchy(array $roles): array
+    {
+        $stackRoles = [];
+        foreach ($roles as $roleName => $roleInfo) {
+            $this->createRole($roleName, $roleInfo['description'] ?? null);
+            $stackRoles[] = $this->getRoleByName($roleName);
+
+            if (!empty($roleInfo['roles'])) {
+                $subRoles = $this->createRoleHierarchy($roleInfo['roles']);
+                $this->createCompositeRoles($roleName, $subRoles);
+            }
+        }
+
+        return $stackRoles;
+    }
+
+    private function createCompositeRoles(string $roleName, array $subRoles): void
+    {
+        $existingRoles = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/roles/{name}/composites', [
                 'realm' => $this->keycloakRealm,
+                'name' => $roleName,
+            ]), [
+                'json' => $subRoles,
+            ])->toArray();
+
+        foreach ($existingRoles as $existingRole) {
+            foreach ($subRoles as $k => $role) {
+                if ($role['name'] === $existingRole['name']) {
+                    unset($subRoles[$k]);
+                }
+            }
+        }
+
+        $data = array_map(function (array $d): array {
+            unset($d['attributes']);
+
+            return $d;
+        }, array_values($subRoles));
+
+        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
+            ->request('POST', UriTemplate::resolve('{realm}/roles/{name}/composites', [
+                'realm' => $this->keycloakRealm,
+                'name' => $roleName,
             ]), [
                 'json' => $data,
-            ]), 409, $data);
+            ]), null, $data);
+        ;
     }
 
     public function getRealmRoles(): array
