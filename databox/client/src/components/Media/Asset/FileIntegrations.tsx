@@ -8,26 +8,13 @@ import {
     List,
     Typography,
 } from '@mui/material';
-import {getWorkspaceIntegrations} from '../../../api/integrations';
+import {getWorkspaceFileIntegrations} from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
 import {SetIntegrationOverlayFunction} from './AssetView';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
-
-export type AssetIntegrationActionsProps = {
-    asset: Asset;
-    file: File;
-    integration: WorkspaceIntegration;
-    setIntegrationOverlay: SetIntegrationOverlayFunction;
-    enableInc: number;
-};
-
-export enum Integration {
-    RemoveBg = 'remove.bg',
-    AwsRekognition = 'aws.rekognition',
-    TuiPhotoEditor = 'tui.photo-editor',
-}
+import {AssetIntegrationActionsProps, Integration} from "../../Integration/types.ts";
 
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
     [Integration.RemoveBg]: RemoveBGAssetEditorActions,
@@ -89,7 +76,7 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getWorkspaceIntegrations(asset.workspace.id, file.id).then(r =>
+        getWorkspaceFileIntegrations(asset.workspace.id, file.id).then(r =>
             setIntegrations(r.result)
         );
     }, [file.id]);

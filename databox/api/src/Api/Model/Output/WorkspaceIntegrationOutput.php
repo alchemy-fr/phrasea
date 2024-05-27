@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -28,7 +28,7 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private ?bool $supported = null;
 
     /**
-     * @var IntegrationData[]
+     * @var IntegrationFileData[]
      */
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $data = [];

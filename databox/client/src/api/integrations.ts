@@ -5,7 +5,7 @@ import {AxiosRequestConfig} from 'axios';
 
 export const integrationNS = '/integrations';
 
-export async function getWorkspaceIntegrations(
+export async function getWorkspaceFileIntegrations(
     workspaceId: string,
     fileId: string
 ): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
@@ -19,13 +19,31 @@ export async function getWorkspaceIntegrations(
     return getHydraCollection(res.data);
 }
 
+export enum IntegrationType {
+    File = 'file',
+    Basket = 'basket',
+}
+
+export async function getIntegrationsOfType(
+    type: IntegrationType,
+): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
+    const res = await apiClient.get(integrationNS, {
+        params: {
+            type,
+        },
+    });
+
+    return getHydraCollection(res.data);
+}
+
 export async function getWorkspaceIntegrationData(
+    type: IntegrationType,
     integrationId: string,
     next?: string,
     config?: AxiosRequestConfig
 ): Promise<ApiCollectionResponse<IntegrationData>> {
     const res = await apiClient.get(
-        next || `${integrationNS}/${integrationId}/data`,
+        next || `${integrationNS}/${integrationId}/${type}-data`,
         config
     );
 

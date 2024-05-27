@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use App\Api\Model\Output\IntegrationDataOutput;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Integration\IntegrationDataProcessor;
 
 readonly class IntegrationDataOutputTransformer implements OutputTransformerInterface
@@ -16,11 +16,11 @@ readonly class IntegrationDataOutputTransformer implements OutputTransformerInte
 
     public function supports(string $outputClass, object $data): bool
     {
-        return IntegrationDataOutput::class === $outputClass && $data instanceof IntegrationData;
+        return IntegrationDataOutput::class === $outputClass && $data instanceof IntegrationFileData;
     }
 
     /**
-     * @param IntegrationData $data
+     * @param IntegrationFileData $data
      */
     public function transform(object $data, string $outputClass, array &$context = []): object
     {

@@ -5,17 +5,19 @@ import {
 } from '../../api/pagination.ts';
 import {IntegrationData} from '../../types.ts';
 import React from 'react';
-import {getWorkspaceIntegrationData} from '../../api/integrations.ts';
+import {getWorkspaceIntegrationData, IntegrationType} from '../../api/integrations.ts';
 
 type Props = {
+    type: IntegrationType;
     integrationId: string;
-    fileId?: string;
+    objectId?: string;
     defaultData: IntegrationData[];
 };
 
 export function useIntegrationData({
+    type,
     integrationId,
-    fileId,
+    objectId,
     defaultData,
 }: Props) {
     const [data, setData] = React.useState<Pagination<IntegrationData>>(
@@ -25,9 +27,9 @@ export function useIntegrationData({
     const load = React.useCallback(
         createPaginatedLoader(
             next =>
-                getWorkspaceIntegrationData(integrationId, next, {
+                getWorkspaceIntegrationData(type, integrationId, next, {
                     params: {
-                        fileId,
+                        objectId,
                     },
                 }),
             setData

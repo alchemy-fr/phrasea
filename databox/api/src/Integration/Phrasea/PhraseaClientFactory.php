@@ -22,7 +22,7 @@ final readonly class PhraseaClientFactory
 
         $token = $this->tokenCache->get(sprintf('t:%s:%s', $baseUrl, $clientId), function (ItemInterface $item) use ($client, $clientId, $clientSecret): array {
             $response = $client->request('POST', '/oauth/v2/token', [
-                'form' => [
+                'body' => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $clientId,
                     'client_secret' => $clientSecret,

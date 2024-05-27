@@ -20,7 +20,7 @@ final readonly class EnvResolver
     ) {
     }
 
-    public function getEnv(string $workspaceId, string $key): string
+    public function getEnv(?string $workspaceId, string $key): string
     {
         $params = [
             'workspace' => $workspaceId,

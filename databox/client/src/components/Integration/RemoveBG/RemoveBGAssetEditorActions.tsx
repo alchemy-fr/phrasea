@@ -1,7 +1,5 @@
 import {useEffect, useState} from 'react';
 import {
-    AssetIntegrationActionsProps,
-    Integration,
 } from '../../Media/Asset/FileIntegrations';
 import {Button, Typography} from '@mui/material';
 import {runIntegrationFileAction} from '../../../api/integrations';
@@ -12,6 +10,7 @@ import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
+import {AssetIntegrationActionsProps, Integration} from "../types.ts";
 
 function RemoveBgComparison({
     left,
@@ -49,7 +48,7 @@ export default function RemoveBGAssetEditorActions({
 }: Props) {
     const [running, setRunning] = useState(false);
     const {data, load: loadData} = useIntegrationData({
-        fileId: file.id,
+        objectId: file.id,
         integrationId: integration.id,
         defaultData: integration.data,
     });

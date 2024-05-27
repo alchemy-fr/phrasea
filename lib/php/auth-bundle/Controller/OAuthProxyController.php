@@ -32,4 +32,14 @@ class OAuthProxyController extends AbstractController
 
         return new Response($response->getContent(false), $response->getStatusCode(), $response->getHeaders(false));
     }
+
+    #[Route(path: '/authorize', name: 'authorize', methods: ['GET'])]
+    public function authorizeAction(Request $request): Response
+    {
+        return $this->redirect($this->urlGenerator->getAuthorizeUrl(
+            $request->get('client_id', ''),
+            $request->get('redirect_uri', ''),
+            $request->get('state', '')
+        ));
+    }
 }

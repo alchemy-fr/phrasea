@@ -10,7 +10,7 @@ export const keycloakClient = new KeycloakClient({
 });
 export const oauthClient = keycloakClient.client;
 
-const apiClient = createHttpClient(window.config.baseUrl);
+const apiClient = createHttpClient(config.baseUrl);
 
 configureClientAuthentication(apiClient, oauthClient);
 

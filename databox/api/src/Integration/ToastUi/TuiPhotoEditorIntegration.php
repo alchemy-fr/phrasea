@@ -28,7 +28,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
             case self::ACTION_SAVE:
                 $newFile = $this->saveFile($file, $request);
 
-                $data = $this->integrationDataManager->storeData(
+                $data = $this->integrationDataManager->storeFileData(
                     $config->getWorkspaceIntegration(),
                     $file,
                     FileActionsIntegrationInterface::DATA_FILE_ID,
@@ -48,7 +48,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                 if (!$dataId) {
                     throw new BadRequestHttpException('Missing "id"');
                 }
-                $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId);
+                $this->integrationDataManager->deleteFileDataById($config->getWorkspaceIntegration(), $dataId);
 
                 $this->triggerFilePush(self::getName(), $file, [
                     'action' => 'delete',

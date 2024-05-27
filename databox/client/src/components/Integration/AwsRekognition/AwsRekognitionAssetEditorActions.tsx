@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
 import {
     Button,
     List,
@@ -27,6 +26,7 @@ import {
 } from './types';
 import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
+import {AssetIntegrationActionsProps} from "../types.ts";
 
 function ImageOverlay({
     labels,

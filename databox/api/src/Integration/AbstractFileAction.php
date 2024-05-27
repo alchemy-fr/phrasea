@@ -7,7 +7,7 @@ namespace App\Integration;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
@@ -50,14 +50,14 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);
     }
 
-    protected function serializeData(IntegrationData $data): string
+    protected function serializeData(IntegrationFileData $data): string
     {
         return $this->serializer->serialize($data, 'json', [
             'groups' => [WorkspaceIntegration::GROUP_LIST, '_'],
         ]);
     }
 
-    public function transformData(IntegrationData $data): void
+    public function transformData(IntegrationFileData $data): void
     {
         $file = $this->em->find(File::class, $data->getValue());
         $data->setValue([

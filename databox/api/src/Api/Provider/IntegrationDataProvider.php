@@ -19,7 +19,7 @@ final class IntegrationDataProvider implements ProviderInterface
     use SecurityAwareTrait;
 
     public function __construct(
-        private EntityManagerInterface $em,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

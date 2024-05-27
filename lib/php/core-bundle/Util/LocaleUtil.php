@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Util;
 
-final class LocaleUtil
+final readonly class LocaleUtil
 {
     public static function normalizeLocale(string $locale): string
     {

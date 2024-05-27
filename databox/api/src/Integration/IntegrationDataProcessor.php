@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 
 readonly class IntegrationDataProcessor
 {
@@ -15,7 +15,7 @@ readonly class IntegrationDataProcessor
     {
     }
 
-    public function process(IntegrationData $data): void
+    public function process(IntegrationFileData $data): void
     {
         foreach ($this->transformers as $transformer) {
             if ($transformer->supportData($data->getIntegration()->getIntegration(), $data->getName())) {

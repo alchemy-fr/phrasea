@@ -4,6 +4,9 @@
   "public": true,
   "description": "Core library",
   "keywords": [],
+  "files": [
+    "./src/popup.ts"
+  ],
   "main": "index.ts",
   "license": "MIT",
   "peerDependencies": {

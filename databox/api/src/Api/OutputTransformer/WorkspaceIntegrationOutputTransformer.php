@@ -6,7 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Core\File;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationManager;
@@ -53,8 +53,8 @@ readonly class WorkspaceIntegrationOutputTransformer implements OutputTransforme
         }
 
         if (null !== $file) {
-            /** @var IntegrationData[] $subData */
-            $subData = $this->em->getRepository(IntegrationData::class)
+            /** @var IntegrationFileData[] $subData */
+            $subData = $this->em->getRepository(IntegrationFileData::class)
                 ->findBy([
                     'integration' => $data->getId(),
                     'file' => $file->getId(),

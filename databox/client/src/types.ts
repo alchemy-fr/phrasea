@@ -1,6 +1,7 @@
 import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
+import {Integration} from "./components/Integration/types.ts";
 
 type AlternateUrl = {
     type: string;
@@ -246,6 +247,7 @@ export interface Workspace extends IPermissions {
 
 export type IntegrationData = {
     id: string;
+    objectId: string;
     keyId: string | null;
     name: string;
     value: any;
@@ -254,7 +256,7 @@ export type IntegrationData = {
 export interface WorkspaceIntegration {
     id: string;
     title: string;
-    integration: string;
+    integration: Integration;
     data: IntegrationData[];
     config: object;
     supported?: boolean;

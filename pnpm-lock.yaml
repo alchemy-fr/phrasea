@@ -792,6 +792,9 @@ importers:
 
   lib/js/react-auth:
     dependencies:
+      '@alchemy/api':
+        specifier: workspace:*
+        version: link:../api
       '@alchemy/auth':
         specifier: workspace:*
         version: link:../auth

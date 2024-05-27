@@ -8,6 +8,7 @@ import {useForceLogin} from "./src/hooks/useForceLogin";
 import SessionAboutToExpireModal from "./src/components/SessionAboutToExpireModal";
 import SessionExpireContainer from "./src/components/SessionExpireContainer";
 import {useAuthorizationCode} from "./src/hooks/useAuthorizationCode";
+import {useOneTimeToken} from "./src/hooks/useOneTimeToken";
 
 export {
     AuthenticationContext,
@@ -17,6 +18,7 @@ export {
     useKeycloakUrls,
     MatomoUser,
     useForceLogin,
+    useOneTimeToken,
     SessionAboutToExpireModal,
     SessionExpireContainer,
     useAuthorizationCode,

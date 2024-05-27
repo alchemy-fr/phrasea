@@ -27,7 +27,7 @@ final readonly class AwsTranscribeEventHandler
 
         $payload = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
-        $this->integrationDataManager->storeData(
+        $this->integrationDataManager->storeFileData(
             $workspaceIntegration,
             null,
             self::DATA_EVENT_MESSAGE,

@@ -37,7 +37,7 @@ class IntegrationConfig implements \ArrayAccess
         return $this->workspaceIntegration;
     }
 
-    public function getWorkspaceId(): string
+    public function getWorkspaceId(): ?string
     {
         return $this->workspaceIntegration->getWorkspaceId();
     }

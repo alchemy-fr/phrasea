@@ -54,6 +54,8 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
 
     public function prepend(ContainerBuilder $container): void
     {
+        $bundles = $container->getParameter('kernel.bundles');
+
         $container->prependExtensionConfig('framework', [
             'http_client' => [
                 'scoped_clients' => [
@@ -70,6 +72,11 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                         'provider' => '%env(REDIS_URL)%',
                         'default_lifetime' => 60,
                     ],
+                    'one_time_token.cache' => [
+                        'adapter' => 'cache.adapter.redis',
+                        'provider' => '%env(REDIS_URL)%',
+                        'default_lifetime' => 5*60,
+                    ],
                 ],
             ],
         ]);
@@ -81,5 +88,15 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                 ],
             ],
         ]);
+
+        if (isset($bundles['ApiPlatformBundle'])) {
+            $container->prependExtensionConfig('api_platform', [
+                'mapping' => [
+                    'paths' => [
+                        __DIR__.'/../Api/Resource',
+                    ]
+                ]
+            ]);
+        }
     }
 }

@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Entity\AbstractUuidEntity;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\File;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\AbstractIntegrationData;
+use App\Entity\Integration\IntegrationBasketData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
 
-class IntegrationDataManager
+readonly class IntegrationDataManager
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 
@@ -25,17 +29,35 @@ class IntegrationDataManager
         return $workspaceIntegration;
     }
 
-    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData
+    public function storeFileData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationFileData
+    {
+        return $this->storeData(IntegrationFileData::class, $workspaceIntegration, $file, $name, $value, $keyId, $multiple);
+    }
+
+    public function storeBasketData(WorkspaceIntegration $workspaceIntegration, ?Basket $basket, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationBasketData
+    {
+        return $this->storeData(IntegrationFileData::class, $workspaceIntegration, $basket, $name, $value, $keyId, $multiple);
+    }
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     *
+     * @return T
+     */
+    public function storeData(string $class, WorkspaceIntegration $workspaceIntegration, ?AbstractUuidEntity $object, string $name, string $value, ?string $keyId = null, bool $multiple = false): AbstractIntegrationData
     {
         $data = null;
         if (!$multiple || null !== $keyId) {
-            $data = $this->getData($workspaceIntegration, $file, $name, $keyId);
+            $data = $this->getData($class, $workspaceIntegration, $object, $name, $keyId);
         }
 
         if (null === $data) {
-            $data = new IntegrationData();
+            /** @var AbstractIntegrationData $data */
+            $data = new $class;
             $data->setIntegration($workspaceIntegration);
-            $data->setFile($file);
+            $data->setObject($object);
             $data->setName($name);
         }
         $data->setValue($value);
@@ -47,33 +69,36 @@ class IntegrationDataManager
         return $data;
     }
 
-    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null): bool
+    /**
+     * @return IntegrationFileData|IntegrationFileData[]|null
+     */
+    public function getFileData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationFileData|array|null
     {
-        $criteria = [
-            'integration' => $workspaceIntegration->getId(),
-            'file' => $file,
-            'name' => $name,
-        ];
-        if (null !== $keyId) {
-            $criteria['keyId'] = $keyId;
-        }
-
-        $data = $this->em->getRepository(IntegrationData::class)
-            ->findOneBy($criteria);
-
-        return $data instanceof IntegrationData;
+        return $this->getData(IntegrationFileData::class, $workspaceIntegration, $file, $name, $keyId, $multiple);
     }
 
     /**
-     * @return IntegrationData|IntegrationData[]|null
+     * @return IntegrationBasketData|IntegrationBasketData[]|null
      */
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    public function getBasketData(WorkspaceIntegration $workspaceIntegration, ?Basket $basket, string $name, ?string $keyId = null, bool $multiple = false): IntegrationBasketData|array|null
     {
-        $repository = $this->em->getRepository(IntegrationData::class);
+        return $this->getData(IntegrationBasketData::class, $workspaceIntegration, $basket, $name, $keyId, $multiple);
+    }
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     *
+     * @return T|T[]|null
+     */
+    private function getData(string $class, WorkspaceIntegration $workspaceIntegration, ?AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): object|array|null
+    {
+        $repository = $this->em->getRepository($class);
 
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
-            'file' => $file?->getId(),
+            'object' => $object?->getId(),
             'name' => $name,
         ];
 
@@ -88,15 +113,31 @@ class IntegrationDataManager
         }
     }
 
-    public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    public function deleteFileDataById(WorkspaceIntegration $workspaceIntegration, string $id): void
     {
-        $data = $this->em->getRepository(IntegrationData::class)
+        $this->deleteById(IntegrationFileData::class, $workspaceIntegration, $id);
+    }
+
+    public function deleteBasketDataById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    {
+        $this->deleteById(IntegrationBasketData::class, $workspaceIntegration, $id);
+    }
+
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     */
+    private function deleteById(string $class, WorkspaceIntegration $workspaceIntegration, string $id): void
+    {
+        $data = $this->em->getRepository($class)
             ->findOneBy([
                 'id' => $id,
                 'integration' => $workspaceIntegration->getId(),
             ]);
 
-        if ($data instanceof IntegrationData) {
+        if (null !== $data) {
             $this->em->remove($data);
             $this->em->flush($data);
         }

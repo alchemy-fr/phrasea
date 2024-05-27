@@ -9,7 +9,7 @@ use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Core\Workspace;
-use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Aws\Transcribe\AwsTranscribeIntegration;
 use App\Integration\Aws\Transcribe\Consumer\AwsTranscribeEvent;
@@ -94,7 +94,7 @@ EOL;
     private function assertHasData(string $integrationId, string $name, int $expectedCount): void
     {
         $em = $this->getEntityManager();
-        $results = $em->getRepository(IntegrationData::class)
+        $results = $em->getRepository(IntegrationFileData::class)
             ->findBy([
                 'integration' => $integrationId,
                 'name' => $name,

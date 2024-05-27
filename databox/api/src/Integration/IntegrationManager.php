@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Entity\Basket\Basket;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
@@ -48,6 +49,18 @@ readonly class IntegrationManager
         }
 
         return $integration->handleFileAction($action, $request, $file, $config) ?? new JsonResponse();
+    }
+
+    public function handleBasketAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, Basket $basket): Response
+    {
+        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        if (!$integration instanceof BasketActionsIntegrationInterface) {
+            throw new \InvalidArgumentException(sprintf('Integration "%s" does not support basket actions', $workspaceIntegration->getIntegration()));
+        }
+
+        $config = $this->getConfiguration($workspaceIntegration, $integration);
+
+        return $integration->handleBasketAction($action, $request, $basket, $config) ?? new JsonResponse();
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration

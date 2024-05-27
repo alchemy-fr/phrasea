@@ -684,6 +684,7 @@ services:
       - SECRETS_PUBLIC_KEY=${DATABOX_SECRETS_PUBLIC_KEY}
       - PWI_PHRASEANET_URL=${PHRASEANET_URL}
       - PWI_PHRASEANET_API_TOKEN=${PHRASEANET_APP_OAUTH_TOKEN}
+      - PWI_EXPOSE_API_URL=${EXPOSE_API_URL}
       - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
       - SOKETI_APP_ID
       - SOKETI_KEY
@@ -693,6 +694,7 @@ services:
       - elasticsearch
     extra_hosts:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
