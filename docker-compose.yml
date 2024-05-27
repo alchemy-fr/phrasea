@@ -642,6 +642,7 @@ services:
       - SENTRY_ENVIRONMENT
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
+      - SOKETI_USAGE_URL
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
