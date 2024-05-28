@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Token\JwtToken;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoterTrait;
 use App\Entity\Publication;
 use App\Security\AuthenticationSecurityMethodInterface;
@@ -106,7 +107,7 @@ class PublicationVoter extends Voter
 
                 return true;
             case Publication::SECURITY_METHOD_AUTHENTICATION:
-                if (!$token instanceof JwtUser) {
+                if (!$token instanceof JwtToken) {
                     $publication->setAuthorizationError(AuthenticationSecurityMethodInterface::ERROR_NO_ACCESS_TOKEN);
 
                     return false;

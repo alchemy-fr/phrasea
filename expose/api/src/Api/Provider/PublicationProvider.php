@@ -10,11 +10,11 @@ use App\Entity\Publication;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
-final class PublicationProvider implements ProviderInterface
+final readonly class PublicationProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly ProviderInterface $itemsProvider,
-        private readonly EntityManagerInterface $em,
+        private ProviderInterface $itemsProvider,
+        private EntityManagerInterface $em,
     ) {
     }
 
