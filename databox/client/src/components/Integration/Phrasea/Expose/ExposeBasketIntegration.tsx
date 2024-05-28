@@ -1,6 +1,5 @@
 import {BasketIntegrationActionsProps} from "../../types.ts";
 import {LoadingButton} from "@mui/lab";
-import React from "react";
 import {useIntegrationData} from "../../useIntegrationData.ts";
 import {IntegrationType} from "../../../../api/integrations.ts";
 import {useIntegrationAuth} from "../../useIntegrationAuth.ts";
@@ -11,10 +10,10 @@ export default function ExposeBasketIntegration({
     integration,
     basket,
 }: Props) {
-    const {loading, requestAuth} = useIntegrationAuth({
-        integrationId: integration.id,
+    const {loading, requestAuth, hasValidToken} = useIntegrationAuth({
+        integration,
     });
-    const {data, load} = useIntegrationData({
+    const {data} = useIntegrationData({
         type: IntegrationType.Basket,
         integrationId: integration.id,
         objectId: basket.id,
@@ -22,13 +21,15 @@ export default function ExposeBasketIntegration({
     });
 
     return <div>
-        <LoadingButton
+        {!hasValidToken ? <div>
+            <LoadingButton
             onClick={requestAuth}
             loading={loading}
             disabled={loading}
         >
             Authorize
         </LoadingButton>
+        </div> : ''}
 
         {data.pages.length > 0 && (
             data.pages.flat().map(d => {

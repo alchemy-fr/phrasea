@@ -260,6 +260,15 @@ export interface WorkspaceIntegration {
     data: IntegrationData[];
     config: object;
     supported?: boolean;
+    tokens: IntegrationToken[];
+}
+
+export type IntegrationToken = {
+    id: string;
+    userId: string;
+    expired: boolean;
+    expiresAt: string;
+    createdAt: string;
 }
 
 export enum UserType {

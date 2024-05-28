@@ -2,7 +2,7 @@ import {Basket, WorkspaceIntegration} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import React, {useEffect} from "react";
-import {getIntegrationsOfType, IntegrationType} from "../../../api/integrations.ts";
+import {getBasketIntegrations} from "../../../api/integrations.ts";
 import {ListItem, Skeleton} from "@mui/material";
 import {BasketIntegrationActionsProps, Integration} from "../../Integration/types.ts";
 import ExposeBasketIntegration from "../../Integration/Phrasea/Expose/ExposeBasketIntegration";
@@ -15,12 +15,12 @@ export default function Integrations({data, onClose, minHeight}: Props) {
     const [integrations, setIntegrations] = React.useState<WorkspaceIntegration[]>();
 
     useEffect(() => {
-        getIntegrationsOfType(IntegrationType.Basket).then(r =>
+        getBasketIntegrations(data.id).then(r =>
             setIntegrations(r.result)
         );
     }, []);
 
-    const components: Record<Partial<Integration>, React.FC<BasketIntegrationActionsProps>> = {
+    const components: Partial<Record<Integration, React.FC<BasketIntegrationActionsProps>>> = {
         [Integration.PhraseaExpose]: ExposeBasketIntegration,
     };
 
@@ -32,7 +32,7 @@ export default function Integrations({data, onClose, minHeight}: Props) {
                 >
                     {i.title}
 
-                    {components[i.integration] ? React.createElement(components[i.integration], {
+                    {components[i.integration] ? React.createElement(components[i.integration]!, {
                         integration: i,
                         basket: data,
                     }) : ''}
