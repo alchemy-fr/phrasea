@@ -7,6 +7,7 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -105,7 +106,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Entity]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
 #[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: DateFilter::class, properties: ['config.beginsAt', 'config.expiresAt', 'createdAt'])]
+#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'partial', 'description' => 'partial'])]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
