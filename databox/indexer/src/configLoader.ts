@@ -1,11 +1,11 @@
 import {Config} from './types/config';
-import {getEnv} from './env';
+import {getEnv, getEnvStrict} from './env';
 import * as process from 'process';
 import * as fs from 'fs';
 
 function loadConfig(): object {
     return JSON.parse(
-        fs.readFileSync(process.cwd() + '/config/config.json').toString()
+        fs.readFileSync(`${process.cwd()}/config/${getEnvStrict('CONFIG_FILE')}`).toString()
     );
 }
 
