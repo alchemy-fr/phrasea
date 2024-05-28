@@ -28,6 +28,9 @@ node@51341e79df22:/srv/workspace/databox/indexer$ pnpm dev <command-name>
 ## Configuration
 Each location is described in `config.json`, referenced by `name`.
 
+You can change configuration file by overriding `INDEXER_CONFIG_FILE` in your `.env.local`.
+Your new configuration file must be stored in the `databox/indexer/config` folder.
+
 
 ### Location types
 
