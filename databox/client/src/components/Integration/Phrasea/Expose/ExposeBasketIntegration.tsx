@@ -3,6 +3,8 @@ import {LoadingButton} from "@mui/lab";
 import {useIntegrationData} from "../../useIntegrationData.ts";
 import {IntegrationType} from "../../../../api/integrations.ts";
 import {useIntegrationAuth} from "../../useIntegrationAuth.ts";
+import SyncIcon from '@mui/icons-material/Sync';
+import {Button} from "@mui/material";
 
 type Props = {} & BasketIntegrationActionsProps;
 
@@ -13,12 +15,17 @@ export default function ExposeBasketIntegration({
     const {loading, requestAuth, hasValidToken} = useIntegrationAuth({
         integration,
     });
+
     const {data} = useIntegrationData({
         type: IntegrationType.Basket,
         integrationId: integration.id,
         objectId: basket.id,
         defaultData: integration.data,
     });
+
+    const createPublication = () => {
+        // TODO
+    }
 
     return <div>
         {!hasValidToken ? <div>
@@ -30,6 +37,13 @@ export default function ExposeBasketIntegration({
             Authorize
         </LoadingButton>
         </div> : ''}
+
+        <Button
+            startIcon={<SyncIcon/>}
+            onClick={createPublication}
+        >
+            Sync with a Publication
+        </Button>
 
         {data.pages.length > 0 && (
             data.pages.flat().map(d => {
