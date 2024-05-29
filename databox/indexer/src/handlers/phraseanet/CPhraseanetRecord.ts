@@ -1,11 +1,12 @@
 import PhraseanetClient from "./phraseanetClient";
 import {
     PhraseanetStatusBit,
-    SubDef,
+    PhraseanetSubdef,
     PhraseanetRecord,
     PhraseanetStory,
 } from "./types";
 import {CPhraseanetMetadata} from "./CPhraseanetMetadata";
+import {CPhraseanetSubdef} from "./CPhraseanetSubdef";
 
 class CPhraseanetRecordBase {
     client:PhraseanetClient = {} as PhraseanetClient;
@@ -15,9 +16,13 @@ class CPhraseanetRecordBase {
     uuid: string = "";
     title: string = "";
     original_name: string = "";
-    subdefs: SubDef[] = [];
+    mime_type: string = "";
+    created_on: string = "";
+    updated_on: string = "";
+    subdefs: PhraseanetSubdef[] = [];
     metadata: Record<string, CPhraseanetMetadata> = {};
     status: PhraseanetStatusBit[] = [];
+    private csubdefs: Record<string, CPhraseanetSubdef> = {};
 
     async getMetadata(fieldName: string, defaultValue?: string): Promise<CPhraseanetMetadata> {
         if(this.metadata[fieldName]) {
@@ -30,6 +35,21 @@ class CPhraseanetRecordBase {
         return CPhraseanetMetadata.NullMetadata;
     }
 
+    async getStatus(bit: number, valueTrue?: string, valueFalse?: string): Promise<string|boolean> {
+        const vTrue: string|boolean = valueTrue ?? true;
+        const vFalse: string|boolean = valueFalse ?? false;
+        for(const s of this.status) {
+            if(s.bit === bit) {
+                return s.state ? vTrue : vFalse;
+            }
+        }
+        return vFalse;
+    }
+
+    async getSubdef(name: string): Promise<CPhraseanetSubdef> {
+        return this.csubdefs[name] ?? CPhraseanetSubdef.NullSubdef;
+    }
+
     constructor(r:PhraseanetRecord|PhraseanetStory, client:PhraseanetClient) {
         this.client = client;
         this.resource_id = r.resource_id;
@@ -40,6 +60,9 @@ class CPhraseanetRecordBase {
         this.original_name = r.original_name;
         this.subdefs = r.subdefs;
         this.status = r.status;
+        this.mime_type = r.mime_type;
+        this.created_on = r.created_on;
+        this.updated_on = r.updated_on;
         r.metadata.map((m) => {
             if(m.value.trim() !== '') {
                 if (!this.metadata[m.name]) {
@@ -58,6 +81,10 @@ class CPhraseanetRecordBase {
             );
             this.metadata[k].value = this.metadata[k].values.join(' ; ')
         }
+
+        r.subdefs.map((s) => {
+            this.csubdefs[s.name] = new CPhraseanetSubdef(s);
+        });
     }
 }
 

@@ -1,5 +1,5 @@
 import {Asset} from '../../indexers';
-import {FieldMap, SubDef} from './types';
+import {FieldMap, PhraseanetSubdef} from './types';
 import { CPhraseanetRecord } from './CPhraseanetRecord';
 
 import {
@@ -36,7 +36,7 @@ export async function createAsset(
     tagIndex: TagIndex,
     shortcutIntoCollections: {id: string, path: string}[]
 ): Promise<Asset> {
-    const document: SubDef | undefined = record.subdefs.find(
+    const document: PhraseanetSubdef | undefined = record.subdefs.find(
         s => s.name === 'document'
     );
 

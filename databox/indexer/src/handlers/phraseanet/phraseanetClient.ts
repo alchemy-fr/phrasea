@@ -6,7 +6,7 @@ import {
     PhraseanetDatabox,
     PhraseanetMetaStruct,
     PhraseanetStatusBitStruct,
-    PhraseanetSubDef,
+    PhraseanetSubdefStruct,
     PhraseanetRecord,
     PhraseanetStory
 } from './types';
@@ -189,11 +189,11 @@ export default class PhraseanetClient {
         return res.data.response.status;
     }
 
-    async getSubDefinitions(databoxId?: string): Promise<PhraseanetSubDef[]> {
+    async getSubdefsStruct(databoxId?: string): Promise<PhraseanetSubdefStruct[]> {
         const dbid = typeof databoxId !== 'undefined' ? '/' + databoxId : '';
         const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 
-        const subdefs: PhraseanetSubDef[] = [];
+        const subdefs: PhraseanetSubdefStruct[] = [];
 
         const dbxs = res.data.response.databoxes;
         Object.keys(dbxs).forEach(id => {
