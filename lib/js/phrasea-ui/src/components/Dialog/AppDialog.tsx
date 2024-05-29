@@ -73,6 +73,8 @@ type Props = PropsWithChildren<
     } & StackedModalProps
 >;
 
+export type {Props as AppDialogProps};
+
 export default function AppDialog({
     title,
     children,

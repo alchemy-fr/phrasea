@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class BasketActionIntegrationController extends AbstractController
 {
     #[Route(path: '/integrations/{integrationId}/baskets/{basketId}/actions/{action}', name: 'integration_basket_action', methods: ['POST'])]
-    public function fileAction(
+    public function basketAction(
         string $integrationId,
         string $basketId,
         string $action,

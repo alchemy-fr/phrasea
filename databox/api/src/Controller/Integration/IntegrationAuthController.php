@@ -5,6 +5,7 @@ namespace App\Controller\Integration;
 use Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Entity\Integration\IntegrationToken;
+use App\Integration\Auth\IntegrationTokenManager;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,7 @@ class IntegrationAuthController extends AbstractController
         private readonly IntegrationManager $integrationManager,
         private readonly OneTimeTokenAuthenticator $oneTimeTokenAuthenticator,
         private readonly HttpClientInterface $client,
-        private readonly EntityManagerInterface $em,
+        private readonly IntegrationTokenManager $integrationTokenManager,
     ) {
     }
 
@@ -72,20 +73,12 @@ class IntegrationAuthController extends AbstractController
             ],
         ])->toArray();
 
-        $integrationToken = new IntegrationToken();
-        $integrationToken->setIntegration($integration);
-        $integrationToken->setToken($data);
-
         $token = $request->get('state');
         if (empty($token)) {
             throw new BadRequestHttpException('Missing token');
         }
         $user = $this->oneTimeTokenAuthenticator->consumeToken($token);
-        $integrationToken->setUserId($user->getId());
-        $integrationToken->setExpiresAt((new \DateTimeImmutable())->setTimestamp(time() + $data['refresh_expires_in']));
-
-        $this->em->persist($integrationToken);
-        $this->em->flush();
+        $this->integrationTokenManager->persistToken($integration, $data, $user->getId());
 
         return $this->render('closing_popup.html.twig');
     }

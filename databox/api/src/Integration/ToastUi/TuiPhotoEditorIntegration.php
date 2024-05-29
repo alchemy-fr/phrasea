@@ -42,7 +42,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
                     'id' => $data->getId(),
                 ], direct: true);
 
-                return new JsonResponse($this->serializeData($data), 201, [], true);
+                return $this->createNewDataResponse($data);
             case self::ACTION_DELETE:
                 $dataId = $request->request->get('id');
                 if (!$dataId) {

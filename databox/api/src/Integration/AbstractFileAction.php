@@ -7,25 +7,22 @@ namespace App\Integration;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
+use App\Entity\Integration\AbstractIntegrationData;
 use App\Entity\Integration\IntegrationFileData;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Http\FileUploadManager;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractFileAction extends AbstractIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
+abstract class AbstractFileAction extends AbstractActionIntegration implements FileActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     protected FileManager $fileManager;
     protected FileUploadManager $fileUploadManager;
     protected EntityManagerInterface $em;
-    protected IntegrationDataManager $integrationDataManager;
     protected FileUrlResolver $fileUrlResolver;
-    private SerializerInterface $serializer;
 
     protected function saveFile(File $parentFile, Request $request): File
     {
@@ -50,14 +47,10 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);
     }
 
-    protected function serializeData(IntegrationFileData $data): string
-    {
-        return $this->serializer->serialize($data, 'json', [
-            'groups' => [WorkspaceIntegration::GROUP_LIST, '_'],
-        ]);
-    }
-
-    public function transformData(IntegrationFileData $data): void
+    /**
+     * @param IntegrationFileData $data
+     */
+    public function transformData(AbstractIntegrationData $data, IntegrationConfig $config): void
     {
         $file = $this->em->find(File::class, $data->getValue());
         $data->setValue([
@@ -67,9 +60,9 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
         $data->setName(FileActionsIntegrationInterface::DATA_FILE);
     }
 
-    public function supportData(string $integrationName, string $dataKey): bool
+    public function supportData(string $integrationName, string $dataName, IntegrationConfig $config): bool
     {
-        return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataKey;
+        return $integrationName === static::getName() && FileActionsIntegrationInterface::DATA_FILE_ID === $dataName;
     }
 
     #[Required]
@@ -85,21 +78,9 @@ abstract class AbstractFileAction extends AbstractIntegration implements FileAct
     }
 
     #[Required]
-    public function setIntegrationDataManager(IntegrationDataManager $integrationDataManager): void
-    {
-        $this->integrationDataManager = $integrationDataManager;
-    }
-
-    #[Required]
     public function setFileUrlResolver(FileUrlResolver $fileUrlResolver): void
     {
         $this->fileUrlResolver = $fileUrlResolver;
-    }
-
-    #[Required]
-    public function setSerializer(SerializerInterface $serializer): void
-    {
-        $this->serializer = $serializer;
     }
 
     #[Required]

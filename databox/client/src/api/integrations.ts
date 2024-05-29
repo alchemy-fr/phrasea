@@ -97,3 +97,20 @@ export async function runIntegrationFileAction(
         )
     ).data;
 }
+
+export async function runBasketIntegrationAction(
+    action: string,
+    integrationId: string,
+    basketId: string,
+    data?: Record<string, any>,
+): Promise<any> {
+    const config: AxiosRequestConfig = {};
+
+    return (
+        await apiClient.post(
+            `/integrations/${integrationId}/baskets/${basketId}/actions/${action}`,
+            data,
+            config
+        )
+    ).data;
+}

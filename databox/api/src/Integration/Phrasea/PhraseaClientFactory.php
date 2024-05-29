@@ -2,41 +2,37 @@
 
 namespace App\Integration\Phrasea;
 
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use App\Entity\Integration\IntegrationToken;
+use App\Integration\Auth\IntegrationTokenManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class PhraseaClientFactory
 {
     public function __construct(
         private HttpClientInterface $client,
-        private CacheInterface $tokenCache,
+        private IntegrationTokenManager $integrationTokenManager,
     ) {
     }
 
-    public function create(string $baseUrl, string $clientId, string $clientSecret): HttpClientInterface
+    public function create(string $baseUrl, string $clientId, IntegrationToken $integrationToken): HttpClientInterface
     {
         $client = $this->client->withOptions([
             'base_uri' => $baseUrl,
         ]);
 
-        $token = $this->tokenCache->get(sprintf('t:%s:%s', $baseUrl, $clientId), function (ItemInterface $item) use ($client, $clientId, $clientSecret): array {
-            $response = $client->request('POST', '/oauth/v2/token', [
+        $accessToken = $this->integrationTokenManager->getAccessToken($integrationToken, function (string $refreshToken) use ($client, $clientId): array {
+            return $client->request('POST', '/oauth/v2/token', [
                 'body' => [
-                    'grant_type' => 'client_credentials',
+                    'grant_type' => 'refresh_token',
                     'client_id' => $clientId,
-                    'client_secret' => $clientSecret,
+                    'refresh_token' => $refreshToken,
                 ],
             ])->toArray();
-
-            $item->expiresAfter($response['expires_in'] - 2);
-
-            return $response['access_token'];
         });
 
         return $client->withOptions([
             'headers' => [
-                'Authorization' => 'Bearer '.$token,
+                'Authorization' => 'Bearer '.$accessToken,
             ],
         ]);
     }

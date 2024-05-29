@@ -37,9 +37,30 @@ export function useIntegrationData({
         [setData]
     );
 
+    const addData = React.useCallback((newData: IntegrationData) => {
+            setData(p => ({
+                ...p,
+                pages: p.pages.concat([newData]),
+            }));
+        },
+        [setData]
+    );
+
+    const removeData = React.useCallback((id: string) => {
+            setData(p => ({
+                ...p,
+                total: p.total ? p.total - 1 : 0,
+                pages: p.pages.map(pa => pa?.filter(i => i.id !== id)),
+            }));
+        },
+        [setData]
+    );
+
     return {
         load,
         data,
         setData,
+        addData,
+        removeData,
     };
 }

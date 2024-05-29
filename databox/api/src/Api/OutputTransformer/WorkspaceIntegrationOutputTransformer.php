@@ -11,11 +11,11 @@ use App\Entity\Core\File;
 use App\Entity\Integration\AbstractIntegrationData;
 use App\Entity\Integration\IntegrationBasketData;
 use App\Entity\Integration\IntegrationFileData;
-use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
+use App\Repository\Integration\IntegrationTokenRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
@@ -29,6 +29,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         private readonly EntityManagerInterface $em,
         private readonly IntegrationManager $integrationManager,
         private readonly IntegrationDataManager $integrationDataManager,
+        private readonly IntegrationTokenRepository $integrationTokenRepository,
     ) {
     }
 
@@ -92,17 +93,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $output->setSupported($integration->supportsFileActions($object, $config));
         }
 
-        $tokens = $this->em->getRepository(IntegrationToken::class)
-            ->createQueryBuilder('it')
-            ->andWhere('it.integration = :integration')
-            ->andWhere('it.expiresAt > :now')
-            ->andWhere('it.userId IS NULL OR it.userId = :uid')
-            ->setParameter('now', new \DateTimeImmutable())
-            ->setParameter('integration', $data->getId())
-            ->setParameter('uid', $this->getStrictUser()->getId())
-            ->getQuery()
-            ->getResult();
-
+        $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUser()->getId());
         $output->setTokens($tokens);
 
         return $output;

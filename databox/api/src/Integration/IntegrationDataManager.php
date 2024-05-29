@@ -36,7 +36,7 @@ readonly class IntegrationDataManager
 
     public function storeBasketData(WorkspaceIntegration $workspaceIntegration, ?Basket $basket, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationBasketData
     {
-        return $this->storeData(IntegrationFileData::class, $workspaceIntegration, $basket, $name, $value, $keyId, $multiple);
+        return $this->storeData(IntegrationBasketData::class, $workspaceIntegration, $basket, $name, $value, $keyId, $multiple);
     }
 
     /**
@@ -131,15 +131,25 @@ readonly class IntegrationDataManager
      */
     private function deleteById(string $class, WorkspaceIntegration $workspaceIntegration, string $id): void
     {
-        $data = $this->em->getRepository($class)
-            ->findOneBy([
-                'id' => $id,
-                'integration' => $workspaceIntegration->getId(),
-            ]);
+        $data = $this->getById($class, $workspaceIntegration, $id);
 
         if (null !== $data) {
             $this->em->remove($data);
             $this->em->flush($data);
         }
+    }
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     */
+    public function getById(string $class, WorkspaceIntegration $workspaceIntegration, string $id): ?AbstractIntegrationData
+    {
+        return $this->em->getRepository($class)
+            ->findOneBy([
+                'id' => $id,
+                'integration' => $workspaceIntegration->getId(),
+            ]);
     }
 }

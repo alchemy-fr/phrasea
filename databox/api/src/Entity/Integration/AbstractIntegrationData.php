@@ -25,15 +25,15 @@ abstract class AbstractIntegrationData extends AbstractUuidEntity
     private ?WorkspaceIntegration $integration = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
-    #[Groups([AbstractIntegrationData::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
-    #[Groups([AbstractIntegrationData::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
     private ?string $keyId = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
-    #[Groups([AbstractIntegrationData::GROUP_LIST])]
+    #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
     private $value;
 
     public function getIntegration(): ?WorkspaceIntegration
