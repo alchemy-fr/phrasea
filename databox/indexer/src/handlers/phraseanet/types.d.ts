@@ -48,14 +48,6 @@ export type PhraseanetConfig = {
     databoxMapping: ConfigDataboxMapping[];
 };
 
-export type SubDef = {
-    name: string;
-    mime_type?: string;
-    permalink: {
-        url: string;
-    };
-};
-
 export enum PhraseanetMetadataType {
     Date = "date",
     Number = "number",
@@ -89,7 +81,7 @@ export type PhraseanetStatusBit = {
     state: boolean;
 };
 
-export type PhraseanetSubDef = {
+export type PhraseanetSubdefStruct = {
     type: string; // image | video | audio | document
     name: string; // thumbnail, thumbnail_gif, preview, preview_webm ...
     databox_id: number;
@@ -99,6 +91,21 @@ export type PhraseanetSubDef = {
     devices: string[];
     labels: Record<string, string>;
     options: Record<string, any>;
+};
+
+export type PhraseanetSubdef = {
+    name: string;
+    height: number;
+    width: number;
+    filesize: number;
+    player_type: string;
+    mime_type: string;
+    created_on: string;
+    updated_on: string;
+    url: string;
+    permalink: {
+        url: string;
+    };
 };
 
 export type PhraseanetDatabox = {
@@ -134,7 +141,10 @@ export type PhraseanetRecord = {
     uuid: string;
     title: string;
     original_name: string;
-    subdefs: SubDef[];
+    mime_type: string;
+    created_on: string;
+    updated_on: string;
+    subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];
 };
@@ -148,7 +158,10 @@ export type PhraseanetStory = {
     uuid: string;
     title: string;
     original_name: string;
-    subdefs: SubDef[];
+    mime_type: string;
+    created_on: string;
+    updated_on: string;
+    subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];
     children: PhraseanetRecord[];

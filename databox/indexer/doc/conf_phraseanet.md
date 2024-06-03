@@ -107,58 +107,73 @@ Each path is a **twig** expressions that must generate databox path(s), dependin
 If the asset is to be copied in many places (paths), the twig must generate **one line per path**.
 
 - ### `copyTo` Twig context :
-    
-    - `record` record object
 
-    - `record.title` : _todo_
+    - `record`: record object
+      - `record.record_id` : string
+      - `record.resource_id` : string
+      - `record.databox_id` : string
+      - `record.base_id` : string
+      - `record.uuid` : string
+      - `record.title` : string
+      - `record.original_name` : string
+      - `record.mime_type` : string
+      - `record.created_on` : string
+      - `record.updated_on` : string
+      - `record.status` : status[] ***use `getStatus()` method***
+      - `record.getStatus(<bit> [, <valueIfTrue> [, <valueIfFalse>]])` : boolean ; Value of sb <bit> (4...63).
+        Boolean value can be replaced by string value(s) `valueIf...` 
+      - `record.subdef` : subdef[] ***use `getSubdef()` method***
+      - `record.getSubdef(<name>)` : subdef object
+        - `record.getSubdef(...).height` : number
+        - `record.getSubdef(...).width` : number
+        - `record.getSubdef(...).filesize` : number
+        - `record.getSubdef(...).player_type` : string
+        - `record.getSubdef(...).mime_type` : number
+        - `record.getSubdef(...).created_on` : string
+        - `record.getSubdef(...).updated_on` : string
+        - `record.getSubdef(...).url` : string
+        - `record.getSubdef(...).permalink` : permalink object
+          - `record.getSubdef(...).permalink.url` : string
+      - `record.metadata` : metata[] ***use `getMetadata()` method***
+      - `record.getMetadata(<fieldName> [,<default>])` : metadata object, with default value(s) if the field is not set for this record.
+        - `record.getMetadata(...).value` : The mono-value (if the field is multi-value : concat values with " ; ").
+        - `record.getMetadata(...).values` : The multi-values as array (if the field is mono-value : array with a single value).
 
-    - `record.uuid` : _todo_
+    - e.g. 1: Two levels dispatch with unique destination (mono-value fields):
+        
+        ```json lines
+        ...
+        "copyTo": [
+          "/classification/{{record.getMetadata('Category', 'unknown_category').value | escapePath}}/{{record.getMetadata('SubCategory', 'unknown_subcategory').value | escapePath}}"
+        ]
+        ...
+        ```
 
-    - `record.original_name` : _todo_
+    - e.g. 2: Multiple destinations (multi-values field):
 
-    - `record.status` : _todo_
+        ```json lines
+        ...
+        "copyTo": [
+          "{% for s in record.getMetadata('Keywords', 'no_keyword').values %}/classification/{{ s | escapePath }}\n{% endfor %}"
+        ]
+        ...
+        ```
+      note: The `\n` is used to output one line (= one path) per keyword.
 
-    - `record.getMetadata(<fieldName> [,<default>])` : metadata object, with default value(s) if the field is not set for this record.
+      note: The default value "no_keyword" is a must-have, because if the record had no keyword, it would not be copied anywhere.
 
-    - `record.getMetadata(...).value` : The mono-value (if the field is multi-value : concat values with " ; ").
+    - e.g. 3: multiple destinations :
 
-    - `record.getMetadata(...).values` : The multi-values as array (if the field is mono-value : array with a single value).
-
-        - e.g. 1: Two levels dispatch with unique destination (mono-value fields):
-
-            ```json lines
-            ...
-            "copyTo": [
-              "/classification/{{record.getMetadata('Category', 'unknown_category').value | escapePath}}/{{record.getMetadata('SubCategory', 'unknown_subcategory').value | escapePath}}"
-            ]
-            ...
-            ```
-
-        - e.g. 2: Multiple destinations (multi-values field):
-
-            ```json lines
-            ...
-            "copyTo": [
-              "{% for s in record.getMetadata('Keywords', 'no_keyword').values %}/classification/{{ s | escapePath }}\n{% endfor %}"
-            ]
-            ...
-            ```
-          note: The `\n` is used to output one line (= one path) per keyword.
-
-          note: The default value "no_keyword" is a must-have, because if the record had no keyword, it would not be copied anywhere.
-
-        - e.g. 3: multiple destinations :
-
-          To dispatch the records in many "classification" places, one can set many `copyTo` setting.
-            ```json lines
-            ...
-            "copyTo": [
-              "/classification/author/{{record.getMetadata('Author', 'unknown_author').value | escapePath}},
-              "/classification/category/{{record.getMetadata('Category', 'unknown_category').value | escapePath}},
-              "/classification/year/{{record.getMetadata('Date', '').value is empty ? 'unknown_date' : {{record.getMetadata('Date').value | date('Y')}}
-            ]
-            ...
-            ```
+      To dispatch the records in many "classification" places, one can set multiple `copyTo` settings.
+        ```json lines
+        ...
+        "copyTo": [
+          "/classification/author/{{record.getMetadata('Author', 'unknown_author').value | escapePath}},
+          "/classification/category/{{record.getMetadata('Category', 'unknown_category').value | escapePath}},
+          "/classification/year/{{record.getMetadata('Date', '').value is empty ? 'unknown_date' : {{record.getMetadata('Date').value | date('Y')}}
+        ]
+        ...
+        ```
 
 ## `fieldMap` 
 Map (key=AttributeDefinition name) of attributes to create / import.
@@ -214,3 +229,5 @@ _twig context technical note_:
 
 To prevent twig to crash if a field doest not exists in a record (when trying to access a property like `.value`),
 `getMetadata(...)` will return a "fake" empty metadata object.
+
+Same method applies for subdefs: `record.getSubdef('missingSubdef').permalink.url` will return null. 

@@ -215,8 +215,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 classIndex[rc.name] = rc.id;
             });
 
-            const subDefs = await client.getSubDefinitions(databox.databox_id);
-            for (const sd of subDefs) {
+            const subdefs = await client.getSubdefsStruct(databox.databox_id);
+            for (const sd of subdefs) {
                 if (!classIndex[sd.class]) {
                     logger.info(`Creating rendition class "${sd.class}" `);
                     classIndex[sd.class] =
