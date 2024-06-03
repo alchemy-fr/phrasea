@@ -12,9 +12,11 @@ use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataTransformerInterface;
+use App\Integration\Phrasea\Expose\Message\SyncBasket;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
@@ -28,6 +30,7 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ExposeClient $exposeClient,
+        private readonly MessageBusInterface $bus,
     )
     {
     }
@@ -71,6 +74,7 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
 
                 $integrationData = $this->integrationDataManager->storeBasketData(
                     $config->getWorkspaceIntegration(),
+                    $this->getStrictUser()->getId(),
                     $basket,
                     self::DATA_PUBLICATION_ID,
                     $publicationId,
@@ -78,7 +82,17 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
                 );
 
                 return $this->createNewDataResponse($integrationData);
-                break;
+            case 'force-sync':
+                $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+                $intData = $this->integrationDataManager->getById(
+                    IntegrationBasketData::class,
+                    $config->getWorkspaceIntegration(),
+                    $data['id'],
+                    $this->getStrictUser()->getId(),
+                );
+
+                $this->bus->dispatch(new SyncBasket($intData->getId()));
+                return null;
             case 'stop':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $id = $data['id'] ?? throw new \InvalidArgumentException('Missing "id"');;
@@ -90,19 +104,32 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
                         throw new \InvalidArgumentException('Missing integration token');
                     }
 
-                    $intData = $this->integrationDataManager->getById(IntegrationBasketData::class, $config->getWorkspaceIntegration(), $id);
+                    $intData = $this->integrationDataManager->getById(
+                        IntegrationBasketData::class, $config->getWorkspaceIntegration(),
+                        $id,
+                        $this->getStrictUser()->getId(),
+                    );
                     $publicationId = $intData->getValue();
 
                     $this->exposeClient->deletePublication($config, $integrationToken, $publicationId);
                 }
 
-                $this->integrationDataManager->deleteBasketDataById($config->getWorkspaceIntegration(), $id);
+                $this->integrationDataManager->deleteBasketDataById(
+                    $config->getWorkspaceIntegration(),
+                    $id,
+                    $this->getStrictUser()->getId(),
+                );
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported basket action "%s"', $action));
         }
 
         return null;
+    }
+
+    public function handleBasketUpdate(IntegrationBasketData $data, IntegrationConfig $config): void
+    {
+        $this->bus->dispatch(new SyncBasket($data->getId()));
     }
 
     /**

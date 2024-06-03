@@ -12,6 +12,7 @@ use App\Entity\Integration\IntegrationBasketData;
 use App\Entity\Integration\IntegrationFileData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 readonly class IntegrationDataManager
 {
@@ -29,14 +30,14 @@ readonly class IntegrationDataManager
         return $workspaceIntegration;
     }
 
-    public function storeFileData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationFileData
+    public function storeFileData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationFileData
     {
-        return $this->storeData(IntegrationFileData::class, $workspaceIntegration, $file, $name, $value, $keyId, $multiple);
+        return $this->storeData(IntegrationFileData::class, $workspaceIntegration, $userId, $file, $name, $value, $keyId, $multiple);
     }
 
-    public function storeBasketData(WorkspaceIntegration $workspaceIntegration, ?Basket $basket, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationBasketData
+    public function storeBasketData(WorkspaceIntegration $workspaceIntegration, ?string $userId, Basket $basket, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationBasketData
     {
-        return $this->storeData(IntegrationBasketData::class, $workspaceIntegration, $basket, $name, $value, $keyId, $multiple);
+        return $this->storeData(IntegrationBasketData::class, $workspaceIntegration, $userId, $basket, $name, $value, $keyId, $multiple);
     }
 
     /**
@@ -46,11 +47,11 @@ readonly class IntegrationDataManager
      *
      * @return T
      */
-    public function storeData(string $class, WorkspaceIntegration $workspaceIntegration, ?AbstractUuidEntity $object, string $name, string $value, ?string $keyId = null, bool $multiple = false): AbstractIntegrationData
+    public function storeData(string $class, WorkspaceIntegration $workspaceIntegration, ?string $userId, ?AbstractUuidEntity $object, string $name, string $value, ?string $keyId = null, bool $multiple = false): AbstractIntegrationData
     {
         $data = null;
         if (!$multiple || null !== $keyId) {
-            $data = $this->getData($class, $workspaceIntegration, $object, $name, $keyId);
+            $data = $this->getData($class, $workspaceIntegration, $userId, $object, $name, $keyId);
         }
 
         if (null === $data) {
@@ -61,6 +62,7 @@ readonly class IntegrationDataManager
             $data->setName($name);
         }
         $data->setValue($value);
+        $data->setUserId($userId);
         $data->setKeyId($keyId);
 
         $this->em->persist($data);
@@ -72,17 +74,17 @@ readonly class IntegrationDataManager
     /**
      * @return IntegrationFileData|IntegrationFileData[]|null
      */
-    public function getFileData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationFileData|array|null
+    public function getFileData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationFileData|array|null
     {
-        return $this->getData(IntegrationFileData::class, $workspaceIntegration, $file, $name, $keyId, $multiple);
+        return $this->getData(IntegrationFileData::class, $workspaceIntegration, $userId, $file, $name, $keyId, $multiple);
     }
 
     /**
      * @return IntegrationBasketData|IntegrationBasketData[]|null
      */
-    public function getBasketData(WorkspaceIntegration $workspaceIntegration, ?Basket $basket, string $name, ?string $keyId = null, bool $multiple = false): IntegrationBasketData|array|null
+    public function getBasketData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?Basket $basket, string $name, ?string $keyId = null, bool $multiple = false): IntegrationBasketData|array|null
     {
-        return $this->getData(IntegrationBasketData::class, $workspaceIntegration, $basket, $name, $keyId, $multiple);
+        return $this->getData(IntegrationBasketData::class, $workspaceIntegration, $userId, $basket, $name, $keyId, $multiple);
     }
 
     /**
@@ -92,7 +94,7 @@ readonly class IntegrationDataManager
      *
      * @return T|T[]|null
      */
-    private function getData(string $class, WorkspaceIntegration $workspaceIntegration, ?AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): object|array|null
+    private function getData(string $class, WorkspaceIntegration $workspaceIntegration, ?string $userId, ?AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): object|array|null
     {
         $repository = $this->em->getRepository($class);
 
@@ -100,6 +102,7 @@ readonly class IntegrationDataManager
             'integration' => $workspaceIntegration->getId(),
             'object' => $object?->getId(),
             'name' => $name,
+            'userId' => $userId,
         ];
 
         if (null !== $keyId) {
@@ -113,14 +116,14 @@ readonly class IntegrationDataManager
         }
     }
 
-    public function deleteFileDataById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    public function deleteFileDataById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void
     {
-        $this->deleteById(IntegrationFileData::class, $workspaceIntegration, $id);
+        $this->deleteById(IntegrationFileData::class, $workspaceIntegration, $id, $userId);
     }
 
-    public function deleteBasketDataById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    public function deleteBasketDataById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void
     {
-        $this->deleteById(IntegrationBasketData::class, $workspaceIntegration, $id);
+        $this->deleteById(IntegrationBasketData::class, $workspaceIntegration, $id, $userId);
     }
 
 
@@ -129,14 +132,11 @@ readonly class IntegrationDataManager
      *
      * @param class-string<T> $class
      */
-    private function deleteById(string $class, WorkspaceIntegration $workspaceIntegration, string $id): void
+    private function deleteById(string $class, WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void
     {
-        $data = $this->getById($class, $workspaceIntegration, $id);
-
-        if (null !== $data) {
-            $this->em->remove($data);
-            $this->em->flush($data);
-        }
+        $data = $this->getById($class, $workspaceIntegration, $id, $userId);
+        $this->em->remove($data);
+        $this->em->flush($data);
     }
 
     /**
@@ -144,12 +144,35 @@ readonly class IntegrationDataManager
      *
      * @param class-string<T> $class
      */
-    public function getById(string $class, WorkspaceIntegration $workspaceIntegration, string $id): ?AbstractIntegrationData
+    public function getById(string $class, WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): AbstractIntegrationData
     {
-        return $this->em->getRepository($class)
+        $data = $this->em->getRepository($class)
             ->findOneBy([
                 'id' => $id,
                 'integration' => $workspaceIntegration->getId(),
+                'userId' => $userId,
             ]);
+
+        if (null === $data) {
+            throw new \InvalidArgumentException(sprintf('%s "%s" not found', $class, $id));
+        }
+
+        return $data;
+    }
+
+    /**
+     * @template T
+     *
+     * @param class-string<T> $class
+     */
+    public function getByIdTrusted(string $class, string $id): AbstractIntegrationData
+    {
+        /** @var AbstractIntegrationData $data */
+        $data = $this->em->find($class, $id);
+        if (null === $data) {
+            throw new \InvalidArgumentException(sprintf('%s "%s" not found', $class, $id));
+        }
+
+        return $data;
     }
 }

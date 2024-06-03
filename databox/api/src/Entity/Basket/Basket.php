@@ -144,6 +144,9 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
         $this->description = $description;
     }
 
+    /**
+     * @return BasketAsset[]|Collection
+     */
     public function getAssets(): Collection
     {
         return $this->assets;

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Integration\ToastUi;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
 use App\Integration\AbstractFileAction;
 use App\Integration\FileActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\PusherTrait;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class TuiPhotoEditorIntegration extends AbstractFileAction
 {
     use PusherTrait;
+    use SecurityAwareTrait;
 
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
@@ -30,6 +31,7 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
 
                 $data = $this->integrationDataManager->storeFileData(
                     $config->getWorkspaceIntegration(),
+                    $this->getStrictUser()->getId(),
                     $file,
                     FileActionsIntegrationInterface::DATA_FILE_ID,
                     $newFile->getId(),

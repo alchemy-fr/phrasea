@@ -32,6 +32,10 @@ abstract class AbstractIntegrationData extends AbstractUuidEntity
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
     private ?string $keyId = null;
 
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
+    private ?string $userId = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
     private $value;
@@ -75,6 +79,17 @@ abstract class AbstractIntegrationData extends AbstractUuidEntity
     {
         $this->keyId = $keyId;
     }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId;
+    }
+
 
     abstract public function setObject(object $object): void;
     abstract public function getObject(): ?object;

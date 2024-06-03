@@ -37,7 +37,13 @@ final readonly class RemoveBgProcessor
             sprintf('%s-bg-removed.png', $file->getOriginalName() ?? $file->getId())
         );
 
-        $this->integrationDataManager->storeFileData($config->getWorkspaceIntegration(), $file, FileActionsIntegrationInterface::DATA_FILE_ID, $bgRemFile->getId());
+        $this->integrationDataManager->storeFileData(
+            $config->getWorkspaceIntegration(),
+            null,
+            $file,
+            FileActionsIntegrationInterface::DATA_FILE_ID,
+            $bgRemFile->getId()
+        );
 
         $this->em->flush();
 

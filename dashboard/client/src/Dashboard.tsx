@@ -252,6 +252,17 @@ export default function Dashboard({}: Props) {
                             </Link>
                         </Grid>
                     )}
+                    {SOKETI_USAGE_URL && (
+                        <Grid item>
+                            <Link
+                                href={SOKETI_USAGE_URL}
+                                target={'_blank'}
+                                rel={'noreferrer noopener'}
+                            >
+                                Soketi Usage
+                            </Link>
+                        </Grid>
+                    )}
                 </Grid>
             )}
         </Container>

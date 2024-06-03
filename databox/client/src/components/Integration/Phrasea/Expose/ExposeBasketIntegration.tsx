@@ -21,6 +21,7 @@ export default function ExposeBasketIntegration({
         integration,
     });
     const [deleting, setDeleting] = React.useState<string | undefined>();
+    const [syncForced, setSyncForced] = React.useState<string[]>([]);
     const {openModal} = useModals();
 
     const {data, addData, removeData} = useIntegrationData({
@@ -60,6 +61,13 @@ export default function ExposeBasketIntegration({
         });
     }
 
+    const forceSync = async (id: string) => {
+        setSyncForced(p => p.concat([id]));
+        await runBasketIntegrationAction('force-sync', integration.id, basket.id, {
+            id,
+        });
+    }
+
     return <div>
         {!hasValidToken ? <div>
             <LoadingButton
@@ -80,10 +88,26 @@ export default function ExposeBasketIntegration({
 
         {data.pages.length > 0 && (
             data.pages.flat().map(d => {
+                const {id, url} = d.value as {id: string; url: string};
+
                 return <div
                     key={d.id}
                 >
-                    {d.id}
+                    <a
+                        href={url}
+                        target={'_blank'}
+                    >#{id.substring(0, 6)}</a>
+
+                    <LoadingButton
+                        sx={{
+                            ml: 1,
+                        }}
+                        onClick={() => forceSync(d.id)}
+                        startIcon={<SyncIcon/>}
+                        disabled={syncForced.includes(d.id)}
+                    >
+                        Force Sync
+                    </LoadingButton>
 
                     <LoadingButton
                         sx={{

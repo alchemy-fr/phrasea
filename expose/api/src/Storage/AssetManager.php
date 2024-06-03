@@ -72,6 +72,9 @@ class AssetManager
         if (isset($options['webVTT'])) {
             $asset->setWebVTT($options['webVTT']);
         }
+        if (isset($options['clientAnnotations'])) {
+            $asset->setClientAnnotations($options['clientAnnotations']);
+        }
 
         $this->em->persist($publication);
         $this->em->persist($asset);

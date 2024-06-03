@@ -39,14 +39,14 @@ final readonly class RekognitionAnalyzer
         ];
 
         $path = $this->fileFetcher->getFile($file);
-        if (null !== $data = $this->dataManager->getFileData($wsIntegration, $file, $category)) {
+        if (null !== $data = $this->dataManager->getFileData($wsIntegration, null, $file, $category)) {
             $result = json_decode($data->getValue(), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
             $method = $methods[$category];
             $result = call_user_func([$this->client, $method], $path, $config);
-            $this->dataManager->storeFileData($wsIntegration, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
+            $this->dataManager->storeFileData($wsIntegration, null, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
         }
 
         if (!empty($result) && $asset instanceof Asset) {
