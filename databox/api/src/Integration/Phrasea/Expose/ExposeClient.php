@@ -2,8 +2,12 @@
 
 namespace App\Integration\Phrasea\Expose;
 
+use App\Asset\Attribute\AssetTitleResolver;
+use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
@@ -15,6 +19,8 @@ final readonly class ExposeClient
         private PhraseaClientFactory $clientFactory,
         private HttpClientInterface $uploadClient,
         private FileFetcher $fileFetcher,
+        private AssetTitleResolver $assetTitleResolver,
+        private AttributesResolver $attributesResolver,
     ) {
     }
 
@@ -53,11 +59,73 @@ final readonly class ExposeClient
 
     public function postAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $publicationId, Asset $asset, array $extraData = []): void
     {
+        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, true);
+        $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributes, []);
+        if ($resolvedTitleAttr instanceof Attribute) {
+            $resolvedTitle = $resolvedTitleAttr->getValue();
+        } else {
+            $resolvedTitle = $resolvedTitleAttr;
+        }
+
+        $descriptionTranslations = [];
+        if (!empty($attributes)) {
+            foreach ($attributes as $defAttrs) {
+                $attrTranslations = [];
+
+                foreach ($defAttrs as $locale => $attribute) {
+                    $attributeDefinition = $attribute->getDefinition();
+                    $fieldType = $attributeDefinition->getFieldType();
+
+                    $attrTranslations[$locale] = sprintf(
+                        '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
+  <dd class="value field-type-%1$s field-name-%2$s">%4$s</dd>
+',
+                        $fieldType,
+                        $attributeDefinition->getSlug(),
+                        $attributeDefinition->getName(),
+                        $attributeDefinition->isMultiple() ? implode(', ', $attribute->getValues()) : $attribute->getValue(),
+                    );
+                }
+
+                // adding fallback if not set
+                if (!isset($attrTranslations[IndexMappingUpdater::NO_LOCALE])) {
+                    $attrTranslations[IndexMappingUpdater::NO_LOCALE] = reset($attrTranslations);
+                }
+
+                foreach ($attrTranslations as $locale => $translation) {
+                    $descriptionTranslations[$locale] ??= [];
+                    $descriptionTranslations[$locale][] = $translation;
+                }
+            }
+        }
+
+        $translations = [];
+        $description = null;
+        if (!empty($descriptionTranslations)) {
+            $descriptionTranslations = array_map(function (array $ltr): string {
+                return sprintf('<dl>
+%s</dl>', implode("\n", $ltr));
+            }, $descriptionTranslations);
+
+            if (isset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE])) {
+                $description = $descriptionTranslations[IndexMappingUpdater::NO_LOCALE];
+                unset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE]);
+            } else {
+                $description = array_shift($descriptionTranslations);
+            }
+
+            if (!empty($descriptionTranslations)) {
+                $translations['description'] = $descriptionTranslations;
+            }
+        }
+
         $source = $asset->getSource();
         $data = array_merge([
             'publication_id' => $publicationId,
             'asset_id' => $asset->getId(),
-            'title' => $asset->getTitle(),
+            'title' => $resolvedTitle,
+            'description' => $description,
+            'translations' => $translations,
             'upload' => [
                 'type' => $source->getType(),
                 'size' => $source->getSize(),

@@ -5,6 +5,7 @@ namespace App\Integration\Auth;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 
 final readonly class IntegrationTokenManager
 {
@@ -26,7 +27,17 @@ final readonly class IntegrationTokenManager
         $tokens = $integrationToken->getToken();
 
         if (isset($tokens['refresh_token']) && $tokens['expires_at'] < time()) {
-            $data = $onRenew($tokens['refresh_token'], $integrationToken);
+            try {
+                $data = $onRenew($tokens['refresh_token'], $integrationToken);
+            } catch (ClientExceptionInterface $e) {
+                if ($e->getCode() === 400) {
+                    $this->em->remove($integrationToken);
+                    $this->em->flush();
+                }
+
+                throw $e;
+            }
+
             $integrationToken = $this->refreshToken($integrationToken, $data);
         }
 

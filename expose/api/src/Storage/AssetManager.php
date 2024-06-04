@@ -51,6 +51,10 @@ class AssetManager
             $asset->setDescription($options['description']);
         }
 
+        if (isset($options['translations'])) {
+            $asset->setTranslations($options['translations']);
+        }
+
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }

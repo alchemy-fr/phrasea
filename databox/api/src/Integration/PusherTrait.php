@@ -3,6 +3,7 @@
 namespace App\Integration;
 
 use Alchemy\CoreBundle\Pusher\PusherManager;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\File;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -24,5 +25,10 @@ trait PusherTrait
     public function triggerFilePush(string $integrationName, File $file, array $payload, bool $direct = false): void
     {
         $this->pusherManager->trigger('file-'.$file->getId(), 'integration:'.$integrationName, $payload, $direct);
+    }
+
+    public function triggerBasketPush(string $integrationName, Basket $basket, array $payload, bool $direct = false): void
+    {
+        $this->pusherManager->trigger('basket-'.$basket->getId(), 'integration:'.$integrationName, $payload, $direct);
     }
 }

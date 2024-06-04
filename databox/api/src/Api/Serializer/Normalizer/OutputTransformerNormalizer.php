@@ -94,7 +94,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         }
 
         $class = $context['force_resource_class'] ?? $this->getObjectClass($data);
-        $output = $context['output']['class'] ?? null;
+        $output = $context['output']['class'] ?? $this->getOutputClass($data);
         if ($output && $output !== $class) {
             return true;
         }

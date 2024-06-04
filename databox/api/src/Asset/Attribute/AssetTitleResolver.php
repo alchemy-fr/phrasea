@@ -20,7 +20,7 @@ class AssetTitleResolver
     /**
      * @param array<string, array<string, Attribute>> $attributes
      */
-    public function resolveTitle(Asset $asset, array $attributes, array $preferredLocales): ?Attribute
+    public function resolveTitle(Asset $asset, array $attributes, array $preferredLocales): Attribute|string|null
     {
         if (empty($asset->getTitle()) || $this->hasTitleOverride($asset->getWorkspaceId())) {
             $titleAttrs = $this->getTitleAttributes($asset->getWorkspaceId());
@@ -38,7 +38,11 @@ class AssetTitleResolver
             }
         }
 
-        return null;
+        if (null !== $title = $asset->getTitle()) {
+            return $title;
+        }
+
+        return $asset->getSource()?->getOriginalName();
     }
 
     public function hasTitleOverride(string $workspaceId): bool

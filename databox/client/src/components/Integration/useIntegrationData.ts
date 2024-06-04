@@ -40,7 +40,8 @@ export function useIntegrationData({
     const addData = React.useCallback((newData: IntegrationData) => {
             setData(p => ({
                 ...p,
-                pages: p.pages.concat([newData]),
+                pages: p.pages.concat([[newData]]),
+                total: p.total ? p.total + 1 : 1,
             }));
         },
         [setData]
