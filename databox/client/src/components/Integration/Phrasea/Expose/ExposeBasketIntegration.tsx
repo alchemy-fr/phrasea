@@ -104,7 +104,7 @@ export default function ExposeBasketIntegration({
                         }}
                         onClick={() => forceSync(d.id)}
                         startIcon={<SyncIcon/>}
-                        disabled={syncForced.includes(d.id)}
+                        disabled={!hasValidToken || syncForced.includes(d.id)}
                     >
                         Force Sync
                     </LoadingButton>
@@ -116,6 +116,7 @@ export default function ExposeBasketIntegration({
                         loading={deleting === d.id}
                         onClick={() => deleteSync(d.id)}
                         startIcon={<DeleteIcon/>}
+                        disabled={!hasValidToken}
                     >
                         Delete
                     </LoadingButton>

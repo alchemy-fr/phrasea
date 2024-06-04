@@ -9,12 +9,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  * This is the class that validates and merges configuration from your app/config files.
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
- *
- * $host: '%env(SOKETI_HOST)%'
- * $key: '%env(SOKETI_KEY)%'
- * $secret: '%env(SOKETI_SECRET)%'
- * $appId: '%env(SOKETI_APP_ID)%'
- * $verifySsl: '%env(bool:VERIFY_SSL)%'
  */
 class Configuration implements ConfigurationInterface
 {
