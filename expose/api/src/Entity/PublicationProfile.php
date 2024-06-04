@@ -48,7 +48,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiFilter(OrderFilter::class, properties: [
     'name' => 'ASC',
 ])]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'ipartial'])]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;

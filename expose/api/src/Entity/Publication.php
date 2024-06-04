@@ -107,7 +107,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
 #[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
 #[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'partial', 'description' => 'partial'])]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'ipartial', 'description' => 'ipartial'])]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
