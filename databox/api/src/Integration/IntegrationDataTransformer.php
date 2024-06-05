@@ -16,8 +16,7 @@ readonly class IntegrationDataTransformer
         #[AutowireIterator(tag: IntegrationDataTransformerInterface::TAG)]
         private iterable $transformers,
         private IntegrationManager $integrationManager,
-    )
-    {
+    ) {
     }
 
     public function process(IntegrationData $data): void

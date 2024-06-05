@@ -18,8 +18,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private UserChoiceField $userChoiceField,
-    )
-    {
+    ) {
     }
 
     public static function getEntityFqcn(): string
@@ -48,6 +47,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         yield TextField::new('objectType');
         yield IdField::new('objectId');
         yield $this->userChoiceField->create('userId', 'User');
+        yield TextField::new('keyId');
         yield CodeField::new('value');
         yield DateTimeField::new('createdAt');
     }

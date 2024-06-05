@@ -22,4 +22,11 @@ interface IntegrationInterface
     public function getConfigurationInfo(IntegrationConfig $config): array;
 
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array;
+
+    /**
+     * This is used to filter integrations from client.
+     *
+     * @return string[]
+     */
+    public function getSupportedContexts(): array;
 }

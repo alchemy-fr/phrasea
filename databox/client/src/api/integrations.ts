@@ -5,38 +5,30 @@ import {AxiosRequestConfig} from 'axios';
 
 export const integrationNS = '/integrations';
 
-export enum IntegrationType {
+export enum IntegrationContext {
+    AssetView = 'asset-view',
+    Basket = 'basket',
+}
+
+export enum ObjectType {
     File = 'file',
     Basket = 'basket',
 }
 
-export async function getWorkspaceFileIntegrations(
-    workspaceId: string,
-    fileId: string
-): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
-    return getIntegrationsOfType(IntegrationType.File, workspaceId, fileId);
-}
-
-export async function getIntegrationsOfType(
-    objectType: IntegrationType,
-    workspaceId: string | undefined,
-    objectId?: string,
+export async function getIntegrationsOfContext(
+    context: IntegrationContext,
+    workspaceId?: string | undefined,
+    data: Record<string, any> = {},
 ): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
-            objectType,
-            objectId,
+            context,
             workspaceId,
+            ...data
         },
     });
 
     return getHydraCollection(res.data);
-}
-
-export async function getBasketIntegrations(
-    basketId?: string,
-): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
-    return getIntegrationsOfType(IntegrationType.Basket, undefined, basketId);
 }
 
 export async function getWorkspaceIntegrationData(

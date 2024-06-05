@@ -8,8 +8,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\BasketActionsIntegrationInterface;
-use App\Integration\ActionsIntegrationInterface;
+use App\Integration\IntegrationContext;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationRegistry;
 use Doctrine\ORM\QueryBuilder;
@@ -35,16 +34,12 @@ readonly class WorkspaceIntegrationExtension implements QueryCollectionExtension
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $filters = $context['filters'] ?? [];
-        $type = $filters['type'] ?? throw new BadRequestHttpException('Missing integration type');
-
-        $interface = [
-            'basket' => BasketActionsIntegrationInterface::class,
-            'file' => ActionsIntegrationInterface::class,
-        ][$type] ?? throw new BadRequestHttpException(sprintf('Unsupported integration type "%s"', $filters['type']));
+        $context = $filters['context'] ?? throw new BadRequestHttpException('Missing context type');
+        $context = IntegrationContext::tryFrom($context) ?? throw new BadRequestHttpException(sprintf('Invalid context "%s"', $context));
 
         $supportedIntegrations = array_map(
             fn (IntegrationInterface $integration): string => $integration::getName(),
-            $this->integrationRegistry->getIntegrationsOfType($interface)
+            $this->integrationRegistry->getSupportingIntegrations($context)
         );
 
         $queryBuilder

@@ -1,7 +1,7 @@
 import {BasketIntegrationActionsProps, Integration} from "../../types.ts";
 import {LoadingButton} from "@mui/lab";
 import {useIntegrationData} from "../../useIntegrationData.ts";
-import {IntegrationType, runIntegrationAction} from "../../../../api/integrations.ts";
+import {ObjectType, runIntegrationAction} from "../../../../api/integrations.ts";
 import {useIntegrationAuth} from "../../useIntegrationAuth.ts";
 import SyncIcon from '@mui/icons-material/Sync';
 import {Button, Card, CardActions, CardContent, Typography} from "@mui/material";
@@ -37,7 +37,7 @@ export default function ExposeBasketIntegration({
 
     const {data, addData, removeData} = useIntegrationData({
         integrationId: integration.id,
-        objectType: IntegrationType.Basket,
+        objectType: ObjectType.Basket,
         objectId: basket.id,
         defaultData: integration.data,
     });

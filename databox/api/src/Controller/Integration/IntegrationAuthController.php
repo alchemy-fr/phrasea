@@ -4,10 +4,8 @@ namespace App\Controller\Integration;
 
 use Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use App\Entity\Integration\IntegrationToken;
 use App\Integration\Auth\IntegrationTokenManager;
 use App\Integration\IntegrationManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

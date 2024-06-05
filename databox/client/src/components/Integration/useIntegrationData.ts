@@ -5,10 +5,10 @@ import {
 } from '../../api/pagination.ts';
 import {IntegrationData} from '../../types.ts';
 import React from 'react';
-import {getWorkspaceIntegrationData, IntegrationType} from '../../api/integrations.ts';
+import {getWorkspaceIntegrationData, ObjectType} from '../../api/integrations.ts';
 
 type Props = {
-    objectType: IntegrationType;
+    objectType: ObjectType;
     integrationId: string;
     objectId?: string;
     defaultData: IntegrationData[];

@@ -15,7 +15,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {IntegrationType, runIntegrationAction} from '../../../api/integrations';
+import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from '../../../lib/file';
 import {LoadingButton} from '@mui/lab';
@@ -83,7 +83,7 @@ export default function TUIPhotoEditor({
     const [deleting, setDeleting] = useState<string | undefined>();
     const canEdit = asset.capabilities.canEdit;
     const {data, load: loadData} = useIntegrationData({
-        objectType: IntegrationType.File,
+        objectType: ObjectType.File,
         objectId: file.id,
         integrationId: integration.id,
         defaultData: integration.data,

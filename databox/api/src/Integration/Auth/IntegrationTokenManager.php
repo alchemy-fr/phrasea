@@ -11,8 +11,7 @@ final readonly class IntegrationTokenManager
 {
     public function __construct(
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function getAccessToken(IntegrationToken $integrationToken, \Closure $onRenew): string
@@ -30,7 +29,7 @@ final readonly class IntegrationTokenManager
             try {
                 $data = $onRenew($tokens['refresh_token'], $integrationToken);
             } catch (ClientExceptionInterface $e) {
-                if ($e->getCode() === 400) {
+                if (400 === $e->getCode()) {
                     $this->em->remove($integrationToken);
                     $this->em->flush();
                 }

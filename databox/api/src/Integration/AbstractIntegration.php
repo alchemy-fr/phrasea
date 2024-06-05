@@ -100,4 +100,9 @@ abstract class AbstractIntegration implements IntegrationInterface
             throw new InvalidConfigurationException(sprintf('%s: %s', $property, implode("\n", $a)));
         }
     }
+
+    public function getSupportedContexts(): array
+    {
+        return [];
+    }
 }

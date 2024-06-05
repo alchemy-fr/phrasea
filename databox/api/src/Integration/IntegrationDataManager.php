@@ -17,8 +17,7 @@ readonly class IntegrationDataManager
         private EntityManagerInterface $em,
         private IntegrationDataRepository $repository,
         private ObjectMapper $objectMapper,
-    )
-    {
+    ) {
     }
 
     public function getWorkspaceIntegration(string $id): WorkspaceIntegration
@@ -76,7 +75,7 @@ readonly class IntegrationDataManager
         return $criteria;
     }
 
-    private function getData(WorkspaceIntegration $workspaceIntegration, ?string $userId, AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?string $userId, AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
     {
         $criteria = [
             'integration' => $workspaceIntegration->getId(),

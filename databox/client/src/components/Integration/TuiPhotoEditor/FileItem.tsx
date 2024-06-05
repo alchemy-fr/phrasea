@@ -62,7 +62,6 @@ export default function FileItem({
         <ListItemButton
             disabled={deleting || disabled}
             selected={selected}
-            key={data.id}
             onClick={onClick}
         >
             <ListItemIcon>

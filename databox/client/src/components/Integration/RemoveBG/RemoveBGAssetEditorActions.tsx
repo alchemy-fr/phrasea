@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Button, Typography} from '@mui/material';
-import {IntegrationType, runIntegrationAction} from '../../../api/integrations';
+import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import ReactCompareImage from 'react-compare-image';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
@@ -46,7 +46,7 @@ export default function RemoveBGAssetEditorActions({
 }: Props) {
     const [running, setRunning] = useState(false);
     const {data, load: loadData} = useIntegrationData({
-        objectType: IntegrationType.File,
+        objectType: ObjectType.File,
         objectId: file.id,
         integrationId: integration.id,
         defaultData: integration.data,

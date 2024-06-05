@@ -149,7 +149,7 @@ final readonly class ExposeClient
                     'Content-Type' => $source->getType(),
                     'Content-Length' => filesize($fetchedFilePath),
                 ],
-                'body' => fopen($fetchedFilePath, 'r')
+                'body' => fopen($fetchedFilePath, 'r'),
             ]);
         } finally {
             @unlink($fetchedFilePath);

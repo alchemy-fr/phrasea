@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,13 +36,13 @@ readonly class IntegrationManager
     public function handleAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request): Response
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        if (!$integration instanceof ActionsIntegrationInterface) {
+        if (!$integration instanceof UserActionsIntegrationInterface) {
             throw new \InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
         $config = $this->getConfiguration($workspaceIntegration, $integration);
 
-        return $integration->handleAction($action, $request, $config) ?? new JsonResponse();
+        return $integration->handleUserAction($action, $request, $config) ?? new JsonResponse();
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration
@@ -54,6 +53,17 @@ readonly class IntegrationManager
         }
 
         return $integration;
+    }
+
+    public function findIntegrationsOfContext(IntegrationContext $context): array
+    {
+        $types = $this->integrationRegistry->getSupportingIntegrations($context);
+
+        return $this->em->getRepository(WorkspaceIntegration::class)
+            ->findBy([
+                'integration' => array_map(fn(IntegrationInterface $integration): string => $integration::getName(), $types),
+                'enabled' => true,
+            ]);
     }
 
     public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): IntegrationConfig

@@ -1,7 +1,7 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from '../../../types';
 import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography,} from '@mui/material';
-import {getWorkspaceFileIntegrations} from '../../../api/integrations';
+import {getIntegrationsOfContext, IntegrationContext, ObjectType} from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
 import {SetIntegrationOverlayFunction} from './AssetView';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
@@ -69,7 +69,10 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getWorkspaceFileIntegrations(asset.workspace.id, file.id).then(r =>
+        getIntegrationsOfContext(IntegrationContext.AssetView, asset.workspace.id, {
+            objectType: ObjectType.File,
+            objectId: file.id,
+        }).then(r =>
             setIntegrations(r.result)
         );
     }, [file.id]);

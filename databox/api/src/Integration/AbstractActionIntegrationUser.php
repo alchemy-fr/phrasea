@@ -2,28 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Action;
+namespace App\Integration;
 
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Entity\Integration\IntegrationData;
-use App\Integration\IntegrationDataManager;
-use App\Security\Voter\AbstractVoter;
-use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait ActionsTrait
+abstract class AbstractActionIntegrationUser extends AbstractIntegration implements UserActionsIntegrationInterface
 {
-    use SecurityAwareTrait;
-
     protected EntityManagerInterface $em;
     protected IntegrationDataManager $integrationDataManager;
-    protected SerializerInterface $serializer;
+    private SerializerInterface $serializer;
 
     protected function serializeData(IntegrationData $data): string
     {

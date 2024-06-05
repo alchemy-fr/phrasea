@@ -7,15 +7,15 @@ namespace App\Integration\Phrasea\Expose;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
-use App\Integration\AbstractActionIntegration;
 use App\Integration\AbstractIntegration;
-use App\Integration\Action\ActionsTrait;
-use App\Integration\ActionsIntegrationInterface;
+use App\Integration\Action\UserActionsTrait;
 use App\Integration\Auth\IntegrationTokenTrait;
-use App\Integration\BasketActionsIntegrationInterface;
+use App\Integration\BasketUpdateHandlerIntegrationInterface;
 use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\Phrasea\Expose\Message\SyncBasket;
+use App\Integration\UserActionsIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,20 +23,18 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-class ExposeIntegration extends AbstractIntegration implements ActionsIntegrationInterface, IntegrationDataTransformerInterface
+class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface
 {
+    use IntegrationTokenTrait;
+    use UserActionsTrait;
     private const DATA_PUBLICATION_ID = 'publication_id';
     private const DATA_PUBLICATION = 'publication';
-
-    use IntegrationTokenTrait;
-    use ActionsTrait;
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ExposeClient $exposeClient,
         private readonly MessageBusInterface $bus,
-    )
-    {
+    ) {
     }
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -59,7 +57,7 @@ class ExposeIntegration extends AbstractIntegration implements ActionsIntegratio
         ;
     }
 
-    public function handleAction(
+    public function handleUserAction(
         string $action,
         Request $request,
         IntegrationConfig $config
@@ -96,10 +94,11 @@ class ExposeIntegration extends AbstractIntegration implements ActionsIntegratio
                 );
 
                 $this->bus->dispatch(new SyncBasket($intData->getId()));
+
                 return null;
             case 'stop':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-                $id = $data['id'] ?? throw new \InvalidArgumentException('Missing "id"');;
+                $id = $data['id'] ?? throw new \InvalidArgumentException('Missing "id"');
                 $deletePublication = !empty($data['deletePublication']);
 
                 if ($deletePublication) {
@@ -130,10 +129,12 @@ class ExposeIntegration extends AbstractIntegration implements ActionsIntegratio
 
         return null;
     }
+
     public function handleBasketUpdate(IntegrationData $data, IntegrationConfig $config): void
     {
         $this->bus->dispatch(new SyncBasket($data->getId()));
     }
+
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
         $publicationId = $data->getValue();
@@ -179,5 +180,10 @@ class ExposeIntegration extends AbstractIntegration implements ActionsIntegratio
     public static function getName(): string
     {
         return 'phrasea.expose';
+    }
+
+    public function getSupportedContexts(): array
+    {
+     return [IntegrationContext::Basket];
     }
 }

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
-use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\Action\FileActionsTrait;
+use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
-use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
+use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -22,9 +21,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, ActionsIntegrationInterface
+class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
-    use FileActionsTrait;
+    use FileUserActionsTrait;
 
     private const ACTION_ANALYZE = 'analyze';
 
@@ -119,7 +118,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function handleAction(string $action, Request $request, IntegrationConfig $config): ?Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
         $file = $this->getFile($request);
         switch ($action) {
@@ -149,11 +148,6 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         return $output;
     }
 
-    private function supportFile(File $file): bool
-    {
-        return FileUtil::isImageType($file->getType());
-    }
-
     public static function getName(): string
     {
         return 'aws.rekognition';
@@ -162,5 +156,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     public static function getTitle(): string
     {
         return 'AWS Rekognition';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }

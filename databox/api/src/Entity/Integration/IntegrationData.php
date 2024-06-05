@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -55,6 +57,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity]
 #[ORM\Index(columns: ['integration_id', 'object_type', 'object_id'], name: 'int_obj_idx')]
 #[ORM\Index(columns: ['integration_id', 'name'], name: 'int_nam_idx')]
+#[ApiFilter(SearchFilter::class, properties: [
+    'integration' => 'exact',
+    'objectType' => 'exact',
+    'objectId' => 'exact',
+])]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;

@@ -2,7 +2,7 @@ import {Basket, WorkspaceIntegration} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import React, {useEffect} from "react";
-import {getBasketIntegrations} from "../../../api/integrations.ts";
+import {getIntegrationsOfContext, IntegrationContext, ObjectType} from "../../../api/integrations.ts";
 import {ListItem, Skeleton} from "@mui/material";
 import {BasketIntegrationActionsProps, Integration} from "../../Integration/types.ts";
 import ExposeBasketIntegration from "../../Integration/Phrasea/Expose/ExposeBasketIntegration";
@@ -15,7 +15,10 @@ export default function Integrations({data, onClose, minHeight}: Props) {
     const [integrations, setIntegrations] = React.useState<WorkspaceIntegration[]>();
 
     useEffect(() => {
-        getBasketIntegrations(data.id).then(r =>
+        getIntegrationsOfContext(IntegrationContext.Basket, undefined, {
+            objectType: ObjectType.Basket,
+            objectId: data.id,
+        }).then(r =>
             setIntegrations(r.result)
         );
     }, []);

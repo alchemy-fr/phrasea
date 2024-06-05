@@ -16,8 +16,7 @@ final class ExposeSynchronizer
         private readonly ExposeClient $exposeClient,
         private readonly IntegrationManager $integrationManager,
         private readonly IntegrationTokenRepository $integrationTokenRepository,
-    )
-    {
+    ) {
     }
 
     public function synchronize(IntegrationData $basketData): void

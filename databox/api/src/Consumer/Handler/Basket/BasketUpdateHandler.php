@@ -4,7 +4,8 @@ namespace App\Consumer\Handler\Basket;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Basket\Basket;
-use App\Integration\BasketActionsIntegrationInterface;
+use App\Integration\BasketUpdateHandlerIntegrationInterface;
+use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,33 +18,34 @@ final readonly class BasketUpdateHandler
         private EntityManagerInterface $em,
         private IntegrationManager $integrationManager,
         private IntegrationDataManager $integrationDataManager,
-    )
-    {
+    ) {
     }
 
     public function __invoke(BasketUpdate $message): void
     {
+        // TODO cache whether there are basket integrations
+        $workspaceIntegrations = $this->integrationManager->findIntegrationsOfContext(IntegrationContext::Basket);
+        if (empty($workspaceIntegrations)) {
+            return;
+        }
+
         $basket = DoctrineUtil::findStrict($this->em, Basket::class, $message->getId());
 
-        $basketData = $this->integrationDataManager->findBy([
-                'object' => $basket,
-            ], [
-                'integration' => 'ASC',
-            ]);
-
-        foreach ($basketData as $d) {
-            $workspaceIntegration = $d->getIntegration();
-            if (!$workspaceIntegration->isEnabled()) {
-                continue;
-            }
-
+        foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
             $integration = $config->getIntegration();
-            if (!$integration instanceof BasketActionsIntegrationInterface) {
+            if (!$integration instanceof BasketUpdateHandlerIntegrationInterface) {
                 continue;
             }
 
-            $integration->handleBasketUpdate($d, $config);
+            $basketData = $this->integrationDataManager->findBy([
+                'object' => $basket,
+                'integration' => $workspaceIntegration,
+            ]);
+
+            foreach ($basketData as $d) {
+                $integration->handleBasketUpdate($d, $config);
+            }
         }
     }
 }

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Integration\Action;
 
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Integration\IntegrationData;
 use App\Http\FileUploadManager;
-use App\Integration\AbstractActionIntegration;
 use App\Integration\IntegrationConfig;
-use App\Integration\IntegrationDataTransformerInterface;
 use App\Security\Voter\AbstractVoter;
 use App\Storage\FileManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,9 +19,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait FileActionsTrait
+trait FileUserActionsTrait
 {
-    use ActionsTrait;
+    use UserActionsTrait;
 
     final public const DATA_FILE_ID = 'file_id';
     final public const DATA_FILE = 'file';

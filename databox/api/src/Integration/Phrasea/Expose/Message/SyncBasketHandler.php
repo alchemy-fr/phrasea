@@ -12,8 +12,7 @@ final readonly class SyncBasketHandler
     public function __construct(
         private IntegrationDataManager $integrationDataManager,
         private ExposeSynchronizer $exposeSynchronizer,
-    )
-    {
+    ) {
     }
 
     public function __invoke(SyncBasket $message): void

@@ -4,28 +4,26 @@ declare(strict_types=1);
 
 namespace App\Integration\ToastUi;
 
-use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\StorageBundle\Util\FileUtil;
-use App\Entity\Core\File;
-use App\Integration\AbstractFileAction;
 use App\Integration\AbstractIntegration;
-use App\Integration\Action\FileActionsTrait;
-use App\Integration\ActionsIntegrationInterface;
+use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
+use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\PusherTrait;
+use App\Integration\UserActionsIntegrationInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class TuiPhotoEditorIntegration extends AbstractIntegration implements ActionsIntegrationInterface
+class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     use PusherTrait;
-    use FileActionsTrait;
+    use FileUserActionsTrait;
 
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function handleAction(string $action, Request $request, IntegrationConfig $config): ?Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
         $file = $this->getFile($request);
 
@@ -77,5 +75,10 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements ActionsIn
     public static function getTitle(): string
     {
         return 'Toast UI Photo Editor';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }

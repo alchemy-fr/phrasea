@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\RemoveBg;
 
 use App\Entity\Core\File;
-use App\Integration\Action\FileActionsTrait;
 use App\Integration\ApiBudgetLimiter;
-use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 use App\Storage\FileManager;

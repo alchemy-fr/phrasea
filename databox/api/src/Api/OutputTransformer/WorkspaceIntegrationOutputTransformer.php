@@ -6,9 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
 use App\Repository\Integration\IntegrationTokenRepository;
@@ -53,11 +51,10 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $qs = parse_url((string) $uri, PHP_URL_QUERY);
         $filters = Query::parse($qs);
 
-        $object = null;
         $objectId = $filters['objectId'] ?? null;
         if (null !== $objectId) {
-            $type = $filters['type'] ?? throw new BadRequestHttpException('Missing integration type to fetch data');
-            $class = $this->objectMapper->getClassName($type);
+            $objectType = $filters['objectType'] ?? throw new BadRequestHttpException('Missing "objectType" to fetch data');
+            $class = $this->objectMapper->getClassName($objectType);
 
             $object = $this->em->getRepository($class)->find($objectId);
             if (null === $object) {
@@ -68,7 +65,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $subData = $this->integrationDataManager
                 ->findBy([
                     'integration' => $data->getId(),
-                    'objectType' => $type,
+                    'objectType' => $objectType,
                     'objectId' => $object->getId(),
                 ]);
 

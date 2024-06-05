@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Integration\RemoveBg;
 
-use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
-use App\Entity\Core\File;
 use App\Integration\AbstractIntegration;
-use App\Integration\Action\FileActionsTrait;
-use App\Integration\ActionsIntegrationInterface;
+use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
 use App\Integration\PusherTrait;
 use App\Integration\RemoveBg\Message\RemoveBgCall;
+use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -20,10 +19,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ActionsIntegrationInterface
+class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use PusherTrait;
-    use FileActionsTrait;
+    use FileUserActionsTrait;
     private const ACTION_PROCESS = 'process';
 
     public function __construct(
@@ -61,7 +60,7 @@ class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegra
         }
     }
 
-    public function handleAction(string $action, Request $request, IntegrationConfig $config): ?Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
         $file = $this->getFile($request);
 
@@ -84,5 +83,10 @@ class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegra
     public static function getTitle(): string
     {
         return 'Remove BG';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }
