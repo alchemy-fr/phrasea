@@ -925,12 +925,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/object-reference-bundle.git",
-                "reference": "752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2"
+                "reference": "e2c47c07c5a3104acdf6fcd5804f91fb862328d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2",
-                "reference": "752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2",
+                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/e2c47c07c5a3104acdf6fcd5804f91fb862328d5",
+                "reference": "e2c47c07c5a3104acdf6fcd5804f91fb862328d5",
                 "shasum": ""
             },
             "require": {
@@ -962,7 +962,7 @@
                 "issues": "https://github.com/4rthem/object-reference-bundle/issues",
                 "source": "https://github.com/4rthem/object-reference-bundle/tree/master"
             },
-            "time": "2024-06-05T14:54:33+00:00"
+            "time": "2024-06-05T18:49:19+00:00"
         },
         {
             "name": "aws/aws-crt-php",
