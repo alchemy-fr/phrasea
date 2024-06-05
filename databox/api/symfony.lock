@@ -52,6 +52,9 @@
             "src/Entity/.gitignore"
         ]
     },
+    "arthem/object-reference-bundle": {
+        "version": "dev-master"
+    },
     "aws/aws-crt-php": {
         "version": "v1.0.2"
     },

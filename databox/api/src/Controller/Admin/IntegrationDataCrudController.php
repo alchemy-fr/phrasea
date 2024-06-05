@@ -5,20 +5,26 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Integration\IntegrationBasketData;
-use App\Entity\Integration\IntegrationToken;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use App\Entity\Integration\IntegrationData;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class IntegrationBasketDataCrudController extends AbstractAdminCrudController
+class IntegrationDataCrudController extends AbstractAdminCrudController
 {
+    public function __construct(
+        private UserChoiceField $userChoiceField,
+    )
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
-        return IntegrationBasketData::class;
+        return IntegrationData::class;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -35,13 +41,13 @@ class IntegrationBasketDataCrudController extends AbstractAdminCrudController
         ;
     }
 
-
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
         yield AssociationField::new('integration');
-        yield AssociationField::new('object');
-        yield CodeField::new('userId', 'User ID');
+        yield TextField::new('objectType');
+        yield IdField::new('objectId');
+        yield $this->userChoiceField->create('userId', 'User');
         yield CodeField::new('value');
         yield DateTimeField::new('createdAt');
     }

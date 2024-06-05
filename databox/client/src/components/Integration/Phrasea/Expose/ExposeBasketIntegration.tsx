@@ -1,7 +1,7 @@
 import {BasketIntegrationActionsProps, Integration} from "../../types.ts";
 import {LoadingButton} from "@mui/lab";
 import {useIntegrationData} from "../../useIntegrationData.ts";
-import {IntegrationType, runBasketIntegrationAction} from "../../../../api/integrations.ts";
+import {IntegrationType, runIntegrationAction} from "../../../../api/integrations.ts";
 import {useIntegrationAuth} from "../../useIntegrationAuth.ts";
 import SyncIcon from '@mui/icons-material/Sync';
 import {Button, Card, CardActions, CardContent, Typography} from "@mui/material";
@@ -36,8 +36,8 @@ export default function ExposeBasketIntegration({
     const [syncStates, setSyncStates] = React.useState<Record<string, SyncEvent>>({});
 
     const {data, addData, removeData} = useIntegrationData({
-        type: IntegrationType.Basket,
         integrationId: integration.id,
+        objectType: IntegrationType.Basket,
         objectId: basket.id,
         defaultData: integration.data,
     });
@@ -71,7 +71,7 @@ export default function ExposeBasketIntegration({
             onConfirm: async ({deletePublication}) => {
                 setDeleting(id);
                 try {
-                    await runBasketIntegrationAction('stop', integration.id, basket.id, {
+                    await runIntegrationAction('stop', integration.id, {
                         id,
                         deletePublication,
                     });
@@ -85,7 +85,7 @@ export default function ExposeBasketIntegration({
 
     const forceSync = async (id: string) => {
         setSyncForced(p => p.concat([id]));
-        await runBasketIntegrationAction('force-sync', integration.id, basket.id, {
+        await runIntegrationAction('force-sync', integration.id, {
             id,
         });
     }

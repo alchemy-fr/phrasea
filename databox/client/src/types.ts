@@ -247,7 +247,7 @@ export interface Workspace extends IPermissions {
 
 export type IntegrationData = {
     id: string;
-    objectId: string;
+    object?: object | undefined;
     keyId: string | null;
     name: string;
     value: any;
@@ -259,7 +259,6 @@ export interface WorkspaceIntegration {
     integration: Integration;
     data: IntegrationData[];
     config: object;
-    supported?: boolean;
     tokens: IntegrationToken[];
 }
 

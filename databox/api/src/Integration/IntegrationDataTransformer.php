@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Integration\AbstractIntegrationData;
+use App\Entity\Integration\IntegrationData;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 readonly class IntegrationDataTransformer
@@ -20,7 +20,7 @@ readonly class IntegrationDataTransformer
     {
     }
 
-    public function process(AbstractIntegrationData $data): void
+    public function process(IntegrationData $data): void
     {
         $config = $this->integrationManager->getIntegrationConfiguration($data->getIntegration());
 

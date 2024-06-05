@@ -86,9 +86,9 @@ export default function FileIntegrations({
             {integrations && (
                 <List component="nav" aria-labelledby="nested-list-subheader">
                     {integrations
-                        .filter(i => i.supported)
                         .map(i => (
                             <IntegrationProxy
+                                key={i.id}
                                 expanded={expanded === i.id}
                                 onExpand={() => {
                                     enableIncs.current[i.id] = enableIncs
@@ -99,7 +99,6 @@ export default function FileIntegrations({
                                         p === i.id ? undefined : i.id
                                     );
                                 }}
-                                key={i.id}
                                 integration={i}
                                 asset={asset}
                                 file={file}

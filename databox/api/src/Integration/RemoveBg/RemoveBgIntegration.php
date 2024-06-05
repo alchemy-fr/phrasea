@@ -7,7 +7,9 @@ namespace App\Integration\RemoveBg;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
-use App\Integration\AbstractFileAction;
+use App\Integration\AbstractIntegration;
+use App\Integration\Action\FileActionsTrait;
+use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\PusherTrait;
 use App\Integration\RemoveBg\Message\RemoveBgCall;
@@ -18,9 +20,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrationInterface
+class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ActionsIntegrationInterface
 {
     use PusherTrait;
+    use FileActionsTrait;
     private const ACTION_PROCESS = 'process';
 
     public function __construct(
@@ -58,8 +61,10 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): ?Response
+    public function handleAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
+        $file = $this->getFile($request);
+
         switch ($action) {
             case self::ACTION_PROCESS:
                 $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId()));
@@ -69,11 +74,6 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
 
         return null;
-    }
-
-    public function supportsFileActions(File $file, IntegrationConfig $config): bool
-    {
-        return FileUtil::isImageType($file->getType());
     }
 
     public static function getName(): string

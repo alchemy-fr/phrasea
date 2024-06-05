@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "64cec91b3461b86809f15c7f711f37c4",
+    "content-hash": "3c344e87dbd86a0fd65a8e533f602f5e",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -918,6 +918,51 @@
                 "source": "https://github.com/api-platform/core/tree/v3.2.20"
             },
             "time": "2024-04-03T15:33:10+00:00"
+        },
+        {
+            "name": "arthem/object-reference-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/4rthem/object-reference-bundle.git",
+                "reference": "752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2",
+                "reference": "752b3e13cbea2a71e9ac03e6bb714d3813b9a2e2",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/orm": "^2.5 || ^3",
+                "php": "^8",
+                "symfony/framework-bundle": "^6.3 || ^7"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.58.1",
+                "phpunit/phpunit": "^11.1.3",
+                "ramsey/uuid": "^4.7"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Arthem\\ObjectReferenceBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Object reference bundle",
+            "support": {
+                "issues": "https://github.com/4rthem/object-reference-bundle/issues",
+                "source": "https://github.com/4rthem/object-reference-bundle/tree/master"
+            },
+            "time": "2024-06-05T14:54:33+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -16240,6 +16285,7 @@
         "alchemy/metadata-manipulator-bundle": 20,
         "alchemy/webhook-bundle": 20,
         "alchemy/workflow-bundle": 20,
+        "arthem/object-reference-bundle": 20,
         "beberlei/doctrineextensions": 20,
         "friendsofsymfony/elastica-bundle": 20,
         "alchemy/api-test": 20

@@ -126,6 +126,7 @@
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
         "api-platform/core": "^3.2.7",
+        "arthem/object-reference-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",

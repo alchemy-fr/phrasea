@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
-use App\Entity\Integration\IntegrationFileData;
+use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -27,11 +27,8 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private ?array $tokens = null;
 
-    #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    private ?bool $supported = null;
-
     /**
-     * @var IntegrationFileData[]
+     * @var IntegrationData[]
      */
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $data = [];
@@ -90,16 +87,6 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     public function setConfig(array $config): void
     {
         $this->config = $config;
-    }
-
-    public function getSupported(): ?bool
-    {
-        return $this->supported;
-    }
-
-    public function setSupported(?bool $supported): void
-    {
-        $this->supported = $supported;
     }
 
     public function getTokens(): ?array

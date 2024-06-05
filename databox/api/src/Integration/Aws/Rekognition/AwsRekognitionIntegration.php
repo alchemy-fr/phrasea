@@ -8,9 +8,10 @@ use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Action\FileActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
-use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -21,8 +22,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, FileActionsIntegrationInterface
+class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, ActionsIntegrationInterface
 {
+    use FileActionsTrait;
+
     private const ACTION_ANALYZE = 'analyze';
 
     final public const LABELS = 'labels';
@@ -116,8 +119,9 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, IntegrationConfig $config): ?Response
+    public function handleAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
+        $file = $this->getFile($request);
         switch ($action) {
             case self::ACTION_ANALYZE:
                 $this->bus->dispatch(new RekognitionAnalyze(
@@ -148,11 +152,6 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     private function supportFile(File $file): bool
     {
         return FileUtil::isImageType($file->getType());
-    }
-
-    public function supportsFileActions(File $file, IntegrationConfig $config): bool
-    {
-        return $this->supportFile($file);
     }
 
     public static function getName(): string

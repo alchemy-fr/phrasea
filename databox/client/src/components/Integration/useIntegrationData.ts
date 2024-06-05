@@ -8,15 +8,15 @@ import React from 'react';
 import {getWorkspaceIntegrationData, IntegrationType} from '../../api/integrations.ts';
 
 type Props = {
-    type: IntegrationType;
+    objectType: IntegrationType;
     integrationId: string;
     objectId?: string;
     defaultData: IntegrationData[];
 };
 
 export function useIntegrationData({
-    type,
     integrationId,
+    objectType,
     objectId,
     defaultData,
 }: Props) {
@@ -27,8 +27,9 @@ export function useIntegrationData({
     const load = React.useCallback(
         createPaginatedLoader(
             next =>
-                getWorkspaceIntegrationData(type, integrationId, next, {
+                getWorkspaceIntegrationData(integrationId, next, {
                     params: {
+                        objectType,
                         objectId,
                     },
                 }),

@@ -2,7 +2,8 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use App\Entity\Integration\IntegrationBasketData;
+use App\Entity\Basket\Basket;
+use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationManager;
 use App\Integration\PusherTrait;
 use App\Repository\Integration\IntegrationTokenRepository;
@@ -19,7 +20,7 @@ final class ExposeSynchronizer
     {
     }
 
-    public function synchronize(IntegrationBasketData $basketData): void
+    public function synchronize(IntegrationData $basketData): void
     {
         $config = $this->integrationManager->getIntegrationConfiguration($basketData->getIntegration());
         $token = $this->integrationTokenRepository->getLastValidUserToken($config->getIntegrationId(), $basketData->getUserId());
@@ -41,6 +42,7 @@ final class ExposeSynchronizer
             }
         }
 
+        /** @var Basket $basket */
         $basket = $basketData->getObject();
 
         $toAdd = [];

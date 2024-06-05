@@ -9,7 +9,7 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\BasketActionsIntegrationInterface;
-use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationRegistry;
 use Doctrine\ORM\QueryBuilder;
@@ -39,7 +39,7 @@ readonly class WorkspaceIntegrationExtension implements QueryCollectionExtension
 
         $interface = [
             'basket' => BasketActionsIntegrationInterface::class,
-            'file' => FileActionsIntegrationInterface::class,
+            'file' => ActionsIntegrationInterface::class,
         ][$type] ?? throw new BadRequestHttpException(sprintf('Unsupported integration type "%s"', $filters['type']));
 
         $supportedIntegrations = array_map(

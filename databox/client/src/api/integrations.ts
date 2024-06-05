@@ -18,13 +18,13 @@ export async function getWorkspaceFileIntegrations(
 }
 
 export async function getIntegrationsOfType(
-    type: IntegrationType,
+    objectType: IntegrationType,
     workspaceId: string | undefined,
     objectId?: string,
 ): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
-            type,
+            objectType,
             objectId,
             workspaceId,
         },
@@ -33,7 +33,6 @@ export async function getIntegrationsOfType(
     return getHydraCollection(res.data);
 }
 
-
 export async function getBasketIntegrations(
     basketId?: string,
 ): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
@@ -41,13 +40,12 @@ export async function getBasketIntegrations(
 }
 
 export async function getWorkspaceIntegrationData(
-    type: IntegrationType,
     integrationId: string,
     next?: string,
     config?: AxiosRequestConfig
 ): Promise<ApiCollectionResponse<IntegrationData>> {
     const res = await apiClient.get(
-        next || `${integrationNS}/${integrationId}/${type}-data`,
+        next || `${integrationNS}/${integrationId}/data`,
         config
     );
 
@@ -68,11 +66,10 @@ export async function getIntegrationTokens(
     return getHydraCollection(res.data);
 }
 
-export async function runIntegrationFileAction(
+export async function runIntegrationAction(
     action: string,
     integrationId: string,
-    fileId: string,
-    data?: Record<string, string | Blob>,
+    data?: Record<string, any>,
     file?: File
 ): Promise<any> {
     const config: AxiosRequestConfig = {};
@@ -91,25 +88,8 @@ export async function runIntegrationFileAction(
 
     return (
         await apiClient.post(
-            `/integrations/${integrationId}/files/${fileId}/actions/${action}`,
+            `/integrations/${integrationId}/actions/${action}`,
             file ? formData : data,
-            config
-        )
-    ).data;
-}
-
-export async function runBasketIntegrationAction(
-    action: string,
-    integrationId: string,
-    basketId: string,
-    data?: Record<string, any>,
-): Promise<any> {
-    const config: AxiosRequestConfig = {};
-
-    return (
-        await apiClient.post(
-            `/integrations/${integrationId}/baskets/${basketId}/actions/${action}`,
-            data,
             config
         )
     ).data;

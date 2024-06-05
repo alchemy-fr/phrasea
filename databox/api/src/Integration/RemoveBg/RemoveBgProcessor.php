@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Integration\RemoveBg;
 
 use App\Entity\Core\File;
+use App\Integration\Action\FileActionsTrait;
 use App\Integration\ApiBudgetLimiter;
-use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\ActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 use App\Storage\FileManager;
@@ -37,11 +38,11 @@ final readonly class RemoveBgProcessor
             sprintf('%s-bg-removed.png', $file->getOriginalName() ?? $file->getId())
         );
 
-        $this->integrationDataManager->storeFileData(
+        $this->integrationDataManager->storeData(
             $config->getWorkspaceIntegration(),
             null,
             $file,
-            FileActionsIntegrationInterface::DATA_FILE_ID,
+            RemoveBgIntegration::DATA_FILE_ID,
             $bgRemFile->getId()
         );
 

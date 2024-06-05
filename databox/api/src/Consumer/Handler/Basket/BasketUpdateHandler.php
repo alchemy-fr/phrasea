@@ -2,8 +2,10 @@
 
 namespace App\Consumer\Handler\Basket;
 
-use App\Entity\Integration\IntegrationBasketData;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
+use App\Entity\Basket\Basket;
 use App\Integration\BasketActionsIntegrationInterface;
+use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -14,15 +16,17 @@ final readonly class BasketUpdateHandler
     public function __construct(
         private EntityManagerInterface $em,
         private IntegrationManager $integrationManager,
+        private IntegrationDataManager $integrationDataManager,
     )
     {
     }
 
     public function __invoke(BasketUpdate $message): void
     {
-        $basketData = $this->em->getRepository(IntegrationBasketData::class)
-            ->findBy([
-                'object' => $message->getId(),
+        $basket = DoctrineUtil::findStrict($this->em, Basket::class, $message->getId());
+
+        $basketData = $this->integrationDataManager->findBy([
+                'object' => $basket,
             ], [
                 'integration' => 'ASC',
             ]);

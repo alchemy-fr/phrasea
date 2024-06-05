@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Basket\Basket;
-use App\Entity\Integration\AbstractIntegrationData;
-use App\Entity\Integration\IntegrationBasketData;
+use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractActionIntegration;
+use App\Integration\AbstractIntegration;
+use App\Integration\Action\ActionsTrait;
+use App\Integration\ActionsIntegrationInterface;
 use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketActionsIntegrationInterface;
 use App\Integration\IntegrationConfig;
@@ -20,12 +23,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-class ExposeIntegration extends AbstractActionIntegration implements BasketActionsIntegrationInterface, IntegrationDataTransformerInterface
+class ExposeIntegration extends AbstractIntegration implements ActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     private const DATA_PUBLICATION_ID = 'publication_id';
     private const DATA_PUBLICATION = 'publication';
 
     use IntegrationTokenTrait;
+    use ActionsTrait;
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -55,10 +59,9 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
         ;
     }
 
-    public function handleBasketAction(
+    public function handleAction(
         string $action,
         Request $request,
-        Basket $basket,
         IntegrationConfig $config
     ): ?Response {
         switch ($action) {
@@ -67,12 +70,14 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
                 if (null === $integrationToken) {
                     throw new \InvalidArgumentException('Missing integration token');
                 }
+
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+                $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
                 $response = $this->exposeClient->createPublications($config, $integrationToken, $data);
 
                 $publicationId = $response['id'];
 
-                $integrationData = $this->integrationDataManager->storeBasketData(
+                $integrationData = $this->integrationDataManager->storeData(
                     $config->getWorkspaceIntegration(),
                     $this->getStrictUser()->getId(),
                     $basket,
@@ -85,7 +90,6 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
             case 'force-sync':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $intData = $this->integrationDataManager->getById(
-                    IntegrationBasketData::class,
                     $config->getWorkspaceIntegration(),
                     $data['id'],
                     $this->getStrictUser()->getId(),
@@ -105,7 +109,7 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
                     }
 
                     $intData = $this->integrationDataManager->getById(
-                        IntegrationBasketData::class, $config->getWorkspaceIntegration(),
+                        $config->getWorkspaceIntegration(),
                         $id,
                         $this->getStrictUser()->getId(),
                     );
@@ -114,7 +118,7 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
                     $this->exposeClient->deletePublication($config, $integrationToken, $publicationId);
                 }
 
-                $this->integrationDataManager->deleteBasketDataById(
+                $this->integrationDataManager->deleteById(
                     $config->getWorkspaceIntegration(),
                     $id,
                     $this->getStrictUser()->getId(),
@@ -126,16 +130,11 @@ class ExposeIntegration extends AbstractActionIntegration implements BasketActio
 
         return null;
     }
-
-    public function handleBasketUpdate(IntegrationBasketData $data, IntegrationConfig $config): void
+    public function handleBasketUpdate(IntegrationData $data, IntegrationConfig $config): void
     {
         $this->bus->dispatch(new SyncBasket($data->getId()));
     }
-
-    /**
-     * @param IntegrationBasketData $data
-     */
-    public function transformData(AbstractIntegrationData $data, IntegrationConfig $config): void
+    public function transformData(IntegrationData $data, IntegrationConfig $config): void
     {
         $publicationId = $data->getValue();
 

@@ -9,7 +9,7 @@ import {
     ListSubheader,
     Tooltip,
 } from '@mui/material';
-import {runIntegrationFileAction} from '../../../api/integrations';
+import {runIntegrationAction} from '../../../api/integrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
@@ -169,11 +169,11 @@ export default function AwsRekognitionAssetEditorActions({
     const process = async (category: DetectType) => {
         setRunning(category);
         try {
-            const res = await runIntegrationFileAction(
+            const res = await runIntegrationAction(
                 'analyze',
                 integration.id,
-                file.id,
                 {
+                    fileId: file.id,
                     category,
                 }
             );

@@ -15,7 +15,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {IntegrationType, runIntegrationFileAction} from '../../../api/integrations';
+import {IntegrationType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from '../../../lib/file';
 import {LoadingButton} from '@mui/lab';
@@ -83,7 +83,7 @@ export default function TUIPhotoEditor({
     const [deleting, setDeleting] = useState<string | undefined>();
     const canEdit = asset.capabilities.canEdit;
     const {data, load: loadData} = useIntegrationData({
-        type: IntegrationType.File,
+        objectType: IntegrationType.File,
         objectId: file.id,
         integrationId: integration.id,
         defaultData: integration.data,
@@ -101,11 +101,11 @@ export default function TUIPhotoEditor({
         if (editoRef.current) {
             setSaving(true);
             try {
-                await runIntegrationFileAction(
+                await runIntegrationAction(
                     'save',
                     integration.id,
-                    file.id,
                     {
+                        fileId: file.id,
                         assetId: asset.id,
                         name: fileName,
                     },
@@ -125,7 +125,8 @@ export default function TUIPhotoEditor({
     const deleteFile = async (id: string) => {
         setDeleting(id);
         try {
-            await runIntegrationFileAction('delete', integration.id, file.id, {
+            await runIntegrationAction('delete', integration.id, {
+                fileId: file.id,
                 id,
             });
 

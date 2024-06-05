@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Basket\Basket;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
@@ -16,7 +15,6 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 readonly class IntegrationManager
 {
@@ -36,31 +34,16 @@ readonly class IntegrationManager
         call_user_func([$integration, $func], $config, $args);
     }
 
-    public function handleFileAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, File $file): Response
+    public function handleAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request): Response
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        if (!$integration instanceof FileActionsIntegrationInterface) {
+        if (!$integration instanceof ActionsIntegrationInterface) {
             throw new \InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
         $config = $this->getConfiguration($workspaceIntegration, $integration);
-        if (!$integration->supportsFileActions($file, $config)) {
-            throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
-        }
 
-        return $integration->handleFileAction($action, $request, $file, $config) ?? new JsonResponse();
-    }
-
-    public function handleBasketAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, Basket $basket): Response
-    {
-        $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        if (!$integration instanceof BasketActionsIntegrationInterface) {
-            throw new \InvalidArgumentException(sprintf('Integration "%s" does not support basket actions', $workspaceIntegration->getIntegration()));
-        }
-
-        $config = $this->getConfiguration($workspaceIntegration, $integration);
-
-        return $integration->handleBasketAction($action, $request, $basket, $config) ?? new JsonResponse();
+        return $integration->handleAction($action, $request, $config) ?? new JsonResponse();
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration

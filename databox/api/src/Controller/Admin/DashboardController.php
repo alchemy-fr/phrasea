@@ -26,7 +26,7 @@ use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
-use App\Entity\Integration\IntegrationBasketData;
+use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -94,7 +94,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         $submenu4 = [
             MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
-            MenuItem::linkToCrud('Integration Basket Data Tokens', '', IntegrationBasketData::class),
+            MenuItem::linkToCrud('Integration Data', '', IntegrationData::class),
             MenuItem::linkToCrud('Integration Tokens', '', IntegrationToken::class),
             MenuItem::linkToCrud('Env', '', WorkspaceEnv::class),
             MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),

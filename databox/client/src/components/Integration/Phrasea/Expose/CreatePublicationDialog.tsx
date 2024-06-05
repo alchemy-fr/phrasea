@@ -7,7 +7,7 @@ import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
 import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt,} from '@alchemy/navigation';
 import {Basket, IntegrationData} from "../../../../types.ts";
-import {runBasketIntegrationAction} from "../../../../api/integrations.ts";
+import {runIntegrationAction} from "../../../../api/integrations.ts";
 
 type Props = {
     integrationId: string;
@@ -43,7 +43,10 @@ export default function CreatePublicationDialog({
             description: basket.description,
         },
         onSubmit: async (data: ExposePublication) => {
-            return await runBasketIntegrationAction('sync', integrationId, basket.id, data);
+            return await runIntegrationAction('sync', integrationId, {
+                basketId: basket.id,
+                ...data
+            });
         },
         toastSuccess: t('integration.expose.create_pub.success', `Publication has been created and will be synced`),
         onSuccess: (d: IntegrationData) => {
