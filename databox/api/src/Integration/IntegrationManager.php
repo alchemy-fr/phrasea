@@ -61,7 +61,7 @@ readonly class IntegrationManager
 
         return $this->em->getRepository(WorkspaceIntegration::class)
             ->findBy([
-                'integration' => array_map(fn(IntegrationInterface $integration): string => $integration::getName(), $types),
+                'integration' => array_map(fn (IntegrationInterface $integration): string => $integration::getName(), $types),
                 'enabled' => true,
             ]);
     }
