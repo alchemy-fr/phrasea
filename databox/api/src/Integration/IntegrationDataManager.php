@@ -65,17 +65,22 @@ readonly class IntegrationDataManager
 
     private function normalizeCriteria(array $criteria): array
     {
-        if (null !== $object = ($criteria['object'] ?? null)) {
-            assert($object instanceof AbstractUuidEntity);
+        if (array_key_exists('object', $criteria)) {
+            $object = $criteria['object'];
+            if ($object instanceof AbstractUuidEntity) {
+                $criteria['objectType'] = $this->objectMapper->getObjectKey($object);
+                $criteria['objectId'] = $object->getId();
+            } else {
+                $criteria['objectId'] = null;
+            }
+
             unset($criteria['object']);
-            $criteria['objectType'] = $this->objectMapper->getObjectKey($object);
-            $criteria['objectId'] = $object->getId();
         }
 
         return $criteria;
     }
 
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?string $userId, AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
     {
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
