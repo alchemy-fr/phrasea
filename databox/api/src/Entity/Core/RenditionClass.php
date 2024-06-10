@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
-        new Post(securityPostValidation: 'is_granted("CREATE", object)'),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
         'groups' => [RenditionClass::GROUP_LIST],

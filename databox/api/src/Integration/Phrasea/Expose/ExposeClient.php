@@ -7,10 +7,12 @@ use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
+use App\Storage\RenditionManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -21,6 +23,7 @@ final readonly class ExposeClient
         private FileFetcher $fileFetcher,
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
+        private RenditionManager $renditionManager,
     ) {
     }
 
@@ -120,37 +123,77 @@ final readonly class ExposeClient
         }
 
         $source = $asset->getSource();
-        $data = array_merge([
-            'publication_id' => $publicationId,
-            'asset_id' => $asset->getId(),
-            'title' => $resolvedTitle,
-            'description' => $description,
-            'translations' => $translations,
-            'upload' => [
-                'type' => $source->getType(),
-                'size' => $source->getSize(),
-                'name' => $source->getOriginalName(),
-            ],
-        ], $extraData);
-
-        $pubAsset = $this->create($config, $integrationToken)
-            ->request('POST', '/assets', [
-                'json' => $data,
-            ])
-            ->toArray()
-        ;
-
-        $uploadUrl = $pubAsset['uploadURL'];
 
         $fetchedFilePath = $this->fileFetcher->getFile($source);
         try {
-            $this->uploadClient->request('PUT', $uploadUrl, [
+            $data = array_merge([
+                'publication_id' => $publicationId,
+                'asset_id' => $asset->getId(),
+                'title' => $resolvedTitle,
+                'description' => $description,
+                'translations' => $translations,
+                'upload' => [
+                    'type' => $source->getType(),
+                    'size' => $source->getSize(),
+                    'name' => $source->getOriginalName(),
+                ],
+            ], $extraData);
+
+            $pubAsset = $this->create($config, $integrationToken)
+                ->request('POST', '/assets', [
+                    'json' => $data,
+                ])
+                ->toArray()
+            ;
+            $exposeAssetId = $pubAsset['id'];
+
+            $this->uploadClient->request('PUT', $pubAsset['uploadURL'], [
                 'headers' => [
                     'Content-Type' => $source->getType(),
                     'Content-Length' => filesize($fetchedFilePath),
                 ],
                 'body' => fopen($fetchedFilePath, 'r'),
             ]);
+
+            foreach ([
+                'preview',
+                'thumbnail',
+                     ] as $renditionName) {
+                if (null !== $rendition = $this->renditionManager->getAssetRenditionUsedAs($renditionName, $asset->getId())) {
+                    $file = $rendition->getFile();
+                    $subDefFetchedFile = $this->fileFetcher->getFile($file);
+                    try {
+                        $subDefResponse = $this->create($config, $integrationToken)
+                            ->request('POST', '/sub-definitions', [
+                                'json' => [
+                                    'asset_id'          => $exposeAssetId,
+                                    'name'              => $renditionName,
+                                    'use_as_preview'    => 'preview' === $renditionName,
+                                    'use_as_thumbnail'    => 'thumbnail' === $renditionName,
+                                    'use_as_poster'    => 'poster' === $renditionName,
+                                    'upload' => [
+                                        'type' => $file->getType(),
+                                        'size' => $file->getSize(),
+                                        'name' => $file->getOriginalName(),
+
+                                    ]
+                                ],
+                            ])
+                            ->toArray()
+                        ;
+
+                        $this->uploadClient->request('PUT', $subDefResponse['uploadURL'], [
+                            'headers' => [
+                                'Content-Type' => $file->getType(),
+                                'Content-Length' => filesize($subDefFetchedFile),
+                            ],
+                            'body' => fopen($subDefFetchedFile, 'r'),
+                        ]);
+                    } finally {
+                        @unlink($subDefFetchedFile);
+                    }
+                }
+            }
         } finally {
             @unlink($fetchedFilePath);
         }

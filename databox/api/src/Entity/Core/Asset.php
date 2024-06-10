@@ -76,7 +76,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             processor: AssetAttributeBatchUpdateProcessor::class,
         ),
         new GetCollection(),
-        new Post(securityPostValidation: 'is_granted("CREATE", object)'),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/assets/multiple',
             controller: MultipleAssetCreateAction::class,

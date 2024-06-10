@@ -112,6 +112,23 @@ class RenditionManager
             ->getOneOrNullResult();
     }
 
+    public function getAssetRenditionUsedAs(string $as, string $assetId): ?AssetRendition
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('r')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin('r.definition', 'd')
+            ->andWhere('r.asset = :asset')
+            ->andWhere(sprintf("d.useAs%s = :as", ucfirst($as)))
+            ->setParameters([
+                'asset' => $assetId,
+                'as' => true,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function getRenditionDefinitionByName(Workspace $workspace, string $name): RenditionDefinition
     {
         $definition = $this

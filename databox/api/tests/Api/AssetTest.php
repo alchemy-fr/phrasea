@@ -72,7 +72,7 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertMatchesResourceItemJsonSchema(Asset::class);
     }
 
-    public function testCreateInvalidAsset(): void
+    public function testCreateAssetIsForbiddenWithoutWorkspace(): void
     {
         static::createClient()->request('POST', '/assets', [
             'headers' => [
@@ -83,15 +83,7 @@ class AssetTest extends AbstractSearchTestCase
             ],
         ]);
 
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-
-        $this->assertJsonContains([
-            '@context' => '/contexts/ConstraintViolationList',
-            '@type' => 'ConstraintViolationList',
-            'hydra:title' => 'An error occurred',
-            'hydra:description' => 'workspace: This value should not be null.',
-        ]);
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testUpdateAsset(): void
