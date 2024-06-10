@@ -142,6 +142,7 @@
         "intervention/image": "^2.7",
         "kornrunner/blurhash": "^1.2",
         "lcobucci/jwt": "^5",
+        "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",

@@ -93,8 +93,8 @@ class IntegrationData extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     #[ObjectReference(keyLength: 15)]
     private \Closure|AbstractUuidEntity|null $object = null;
-    private ?string $objectType;
-    private ?string $objectId;
+    private ?string $objectType = null;
+    private ?string $objectId = null;
 
     public function getIntegration(): ?WorkspaceIntegration
     {
