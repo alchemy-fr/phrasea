@@ -1,11 +1,11 @@
 import {Tag} from '../../types';
 import {getTags, tagNS} from '../../api/tag';
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
+import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
-} & RSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, false>;
 
 export default function TagSelect<TFieldValues extends FieldValues>({
     workspaceId,
@@ -29,7 +29,7 @@ export default function TagSelect<TFieldValues extends FieldValues>({
     };
 
     return (
-        <RSelectWidget<TFieldValues, false>
+        <AsyncRSelectWidget<TFieldValues, false>
             cacheId={'tags'}
             {...rest}
             loadOptions={load}

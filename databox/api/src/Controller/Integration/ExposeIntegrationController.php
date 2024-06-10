@@ -27,11 +27,11 @@ class ExposeIntegrationController extends AbstractController
     }
 
     #[Route(path: '/{integrationId}/proxy/profiles', name: 'proxy_profiles')]
-    public function proxyProfiles(
+    public function profilesProxy(
         string $integrationId,
         Request $request,
     ): Response {
-        return $this->proxyExpose(
+        return $this->proxifyApi(
             $integrationId,
             'GET',
             '/publication-profiles',
@@ -41,7 +41,23 @@ class ExposeIntegrationController extends AbstractController
         );
     }
 
-    private function proxyExpose(
+
+    #[Route(path: '/{integrationId}/proxy/publications', name: 'proxy_publications')]
+    public function publicationsProxy(
+        string $integrationId,
+        Request $request,
+    ): Response {
+        return $this->proxifyApi(
+            $integrationId,
+            'GET',
+            '/publications',
+            [
+                'query' => $request->query->all(),
+            ],
+        );
+    }
+
+    private function proxifyApi(
         string $integrationId,
         string $method,
         string $path,

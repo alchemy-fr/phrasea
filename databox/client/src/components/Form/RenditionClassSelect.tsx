@@ -1,12 +1,12 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {getRenditionClasses, renditionClassNS} from '../../api/rendition';
 import {RenditionClass} from '../../types';
+import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
-} & RSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, false>;
 
 export default function RenditionClassSelect<TFieldValues extends FieldValues>({
     workspaceId,
@@ -31,7 +31,7 @@ export default function RenditionClassSelect<TFieldValues extends FieldValues>({
     );
 
     return (
-        <RSelectWidget<TFieldValues>
+        <AsyncRSelectWidget<TFieldValues>
             cacheId={'rend-classes'}
             {...rest}
             loadOptions={load}

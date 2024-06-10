@@ -1,4 +1,4 @@
-import {FormLabel, TextField} from '@mui/material';
+import {TextField} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
@@ -10,6 +10,8 @@ import {Basket, IntegrationData} from "../../../../types.ts";
 import {runIntegrationAction} from "../../../../api/integrations.ts";
 import SwitchWidget from "../../../Form/SwitchWidget.tsx";
 import ExposeProfileSelect from "./ExposeProfileSelect.tsx";
+import {ExposePublication} from "./exposeType.ts";
+import ExposePublicationSelect from "./ExposePublicationSelect.tsx";
 
 type Props = {
     integrationId: string;
@@ -17,12 +19,8 @@ type Props = {
     onSuccess: (data: IntegrationData) => void;
 } & StackedModalProps;
 
-type ExposePublication = {
-    title: string;
-    description: string;
-    profile?: string | null | undefined;
-    enabled: boolean;
-}
+
+type FormData = Omit<ExposePublication, "id">;
 
 export default function CreatePublicationDialog({
     open,
@@ -45,21 +43,27 @@ export default function CreatePublicationDialog({
     } = useFormSubmit({
         defaultValues: {
             title: basket.title,
+            slug: '',
             description: basket.description,
             enabled: true,
-            profile: '',
+            profile: null,
+            parent: null,
         },
         onSubmit: async ({
             title,
             description,
             profile,
+            parent,
+            slug,
             ...config
-        }: ExposePublication) => {
+        }: FormData) => {
             return await runIntegrationAction('sync', integrationId, {
                 basketId: basket.id,
                 title,
                 description,
                 profile,
+                parent,
+                slug: slug || null,
                 config,
             });
         },
@@ -85,6 +89,14 @@ export default function CreatePublicationDialog({
         >
             <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
+                    <ExposePublicationSelect
+                        label={t('integration.expose.form.parent', 'Parent Publication')}
+                        control={control}
+                        name={'parent'}
+                        integrationId={integrationId}
+                    />
+                </FormRow>
+                <FormRow>
                     <TextField
                         autoFocus
                         required={true}
@@ -98,8 +110,17 @@ export default function CreatePublicationDialog({
                 </FormRow>
                 <FormRow>
                     <TextField
+                        label={t('integration.expose.form.slug', 'Identitier')}
+                        disabled={submitting}
+                        {...register('slug')}
+                    />
+                    <FormFieldErrors field={'slug'} errors={errors}/>
+                </FormRow>
+                <FormRow>
+                    <TextField
                         label={t('integration.expose.form.description', 'Description')}
                         disabled={submitting}
+                        style={{width: '100%'}}
                         {...register('description')}
                         multiline={true}
                     />
@@ -113,10 +134,8 @@ export default function CreatePublicationDialog({
                     />
                 </FormRow>
                 <FormRow>
-                    <FormLabel>
-                        {t('integration.expose.form.profile', 'Publication Profile')}
-                    </FormLabel>
                     <ExposeProfileSelect
+                        label={t('integration.expose.form.profile', 'Publication Profile')}
                         control={control}
                         name={'profile'}
                         integrationId={integrationId}
