@@ -23,8 +23,6 @@ class AttributeSearch
 {
     final public const OPT_STRICT_PHRASE = 'strict';
     final public const GROUP_ALL = '*';
-    final public const FIELD_MATCH = 'm';
-    final public const FIELD_KEYWORD = 'k';
 
     public function __construct(
         private readonly FieldNameResolver $fieldNameResolver,
@@ -52,23 +50,18 @@ class AttributeSearch
             );
 
             $type = $this->typeRegistry->getStrictType($d['fieldType']);
-            if (
-                $type instanceof TextAttributeType
-                || $type instanceof DateTimeAttributeType
-            ) {
-                $searchType = self::FIELD_MATCH;
-            } elseif ($type instanceof KeywordAttributeType) {
-                $searchType = self::FIELD_KEYWORD;
-            } else {
+
+            if (null === $searchType = $type->getElasticSearchSearchType()) {
                 continue;
             }
 
-            if ($type instanceof DateTimeAttributeType || $type instanceof NumberAttributeType) {
-                $fieldName .= '.text';
+            if (null !== $subField = $type->getElasticSearchSubField()) {
+                $fieldName .= '.'.$subField;
             }
 
             $groups[$fieldName] ??= [
                 'w' => [],
+                'fz' => $type->supportsElasticSearchFuzziness(),
             ];
 
             $boost = $d['searchBoost'] ?? 1;
@@ -79,9 +72,9 @@ class AttributeSearch
                     $trIndex => [],
                 ];
                 $groups[$fieldName]['w'][$boost][$trIndex] ??= [
-                    $searchType => [],
+                    $searchType->value => [],
                 ];
-                $groups[$fieldName]['w'][$boost][$trIndex][$searchType][] = $d['workspaceId'];
+                $groups[$fieldName]['w'][$boost][$trIndex][$searchType->value][] = $d['workspaceId'];
             } else {
                 $groups[$fieldName]['f'] = true;
             }
@@ -105,6 +98,7 @@ class AttributeSearch
                 $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
                     'st' => $st,
                     'b' => $firstBoost,
+                    'fz' => $group['fz'],
                 ];
             } else {
                 foreach ($group['w'] as $boost => $wsB) {
@@ -122,6 +116,7 @@ class AttributeSearch
                             $clusters[$uk]['fields'][$fieldName] = [
                                 'st' => $st,
                                 'b' => $boost,
+                                'fz' => $group['fz'],
                             ];
                         }
                     }
@@ -135,8 +130,9 @@ class AttributeSearch
             'fields' => [],
         ];
         $clusters[self::GROUP_ALL]['fields']['title'] = [
-            'st' => self::FIELD_MATCH,
+            'st' => SearchType::Match->value,
             'b' => 1,
+            'fz' => true,
         ];
 
         return array_values($clusters);
@@ -187,12 +183,16 @@ class AttributeSearch
             $clusterQuery = new Query\BoolQuery();
             $matchBoolQuery = new Query\BoolQuery();
             $weights = [];
+            $weightsFuzzy = [];
 
             foreach ($cluster['fields'] as $fieldName => $conf) {
                 $fieldName = str_replace('{l}', $language, $fieldName);
 
-                if (self::FIELD_MATCH === $conf['st']) {
+                if (SearchType::Match->value === $conf['st']) {
                     $weights[$fieldName] = $conf['b'];
+                    if ($conf['fz']) {
+                        $weightsFuzzy[$fieldName] = $conf['b'];
+                    }
                 } else {
                     $term = new Query\Term([$fieldName => $queryString]);
                     if (1 !== $conf['b']) {
@@ -206,9 +206,9 @@ class AttributeSearch
                 $multiMatch = $this->createMultiMatch($queryString, $weights, false, $options);
                 $matchBoolQuery->addShould($multiMatch);
 
-                if (!$strict) {
+                if (!$strict && !empty($weightsFuzzy)) {
                     $multiMatch->setParam('boost', 5);
-                    $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weights, true, $options));
+                    $matchBoolQuery->addShould($this->createMultiMatch($queryString, $weightsFuzzy, true, $options));
                 }
             }
 

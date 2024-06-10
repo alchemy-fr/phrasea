@@ -7,6 +7,7 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\Facet\FacetRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\SearchType;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -62,7 +63,7 @@ class AttributeSearchTest extends TestCase
         $defaultTitleCluster = [
             'fields' => [
                 'title' => [
-                    'st' => AttributeSearch::FIELD_MATCH,
+                    'st' => SearchType::Match,
                     'b' => 1,
                 ],
             ],
@@ -86,11 +87,11 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -108,7 +109,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 42,
                             ],
                         ],
@@ -118,7 +119,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -157,15 +158,15 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -186,11 +187,11 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -200,7 +201,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -210,7 +211,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 2,
                             ],
                         ],
@@ -231,11 +232,11 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -245,7 +246,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -266,11 +267,11 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'title' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -280,7 +281,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -301,11 +302,11 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -329,7 +330,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -339,7 +340,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.title_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 3,
                             ],
                         ],
@@ -349,7 +350,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 1,
                             ],
                         ],
@@ -359,7 +360,7 @@ class AttributeSearchTest extends TestCase
                     [
                         'fields' => [
                             'attributes._.desc_text_s' => [
-                                'st' => AttributeSearch::FIELD_MATCH,
+                                'st' => SearchType::Match,
                                 'b' => 2,
                             ],
                         ],

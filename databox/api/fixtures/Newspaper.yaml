@@ -112,6 +112,14 @@ App\Entity\Core\AttributeDefinition:
       suggest: true
       class: '@n_ac_public'
       position: 11
+  ad_number (extends attribute_definition_n):
+      name: 'Number'
+      fieldType: number
+      facetEnabled: true
+      sortable: true
+      suggest: true
+      class: '@n_ac_public'
+      position: 12
 
 App\Entity\Core\RenditionClass:
   rendition_class_n (template):

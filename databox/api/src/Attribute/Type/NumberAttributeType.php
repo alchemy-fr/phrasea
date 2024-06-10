@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
@@ -28,6 +29,12 @@ class NumberAttributeType extends AbstractAttributeType
             ],
         ];
     }
+
+    public function getElasticSearchSearchType(): ?SearchType
+    {
+        return SearchType::Match;
+    }
+
 
     public function getElasticSearchType(): string
     {

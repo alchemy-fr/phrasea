@@ -92,6 +92,10 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         };
     }, [onSelectionChange, setSelectionPrivate]);
 
+    React.useEffect(() => {
+        setSelectionPrivate([]);
+    }, [pages[0]]);
+
     useEffect(() => {
         if (!listRef.current) {
             return;
