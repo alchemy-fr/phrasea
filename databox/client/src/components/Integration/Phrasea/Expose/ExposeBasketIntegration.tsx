@@ -12,6 +12,7 @@ import ConfirmDialog from "../../../Ui/ConfirmDialog.tsx";
 import React from "react";
 import {useChannelRegistration} from "../../../../lib/pusher.ts";
 import {useTranslation} from 'react-i18next';
+import AddIcon from "@mui/icons-material/Add";
 
 type Props = {} & BasketIntegrationActionsProps;
 
@@ -108,8 +109,10 @@ export default function ExposeBasketIntegration({
         </div> : ''}
 
         {hasValidToken ? <Button
-            startIcon={<SyncIcon/>}
+            startIcon={<AddIcon/>}
             onClick={createPublication}
+            color={'primary'}
+            variant={'contained'}
         >
             Sync with a Publication
         </Button> : ''}
@@ -121,6 +124,7 @@ export default function ExposeBasketIntegration({
 
                 return <Card
                     key={d.id}
+                    sx={{mt: 2}}
                 >
                     <CardContent>
                         <Typography variant="h5" component="div">

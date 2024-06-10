@@ -48,7 +48,7 @@ readonly class IntegrationDataManager
         $data->setKeyId($keyId);
 
         $this->em->persist($data);
-        $this->em->flush($data);
+        $this->em->flush();
 
         return $data;
     }

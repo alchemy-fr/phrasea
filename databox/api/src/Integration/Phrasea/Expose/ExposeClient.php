@@ -36,6 +36,11 @@ final readonly class ExposeClient
         );
     }
 
+    public function getAuthenticatedClient(IntegrationConfig $config, IntegrationToken $integrationToken): HttpClientInterface
+    {
+        return $this->create($config, $integrationToken);
+    }
+
     public function createPublications(IntegrationConfig $config, IntegrationToken $integrationToken, array $data): array
     {
         return $this->create($config, $integrationToken)

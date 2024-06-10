@@ -1,0 +1,39 @@
+import {FieldValues} from 'react-hook-form';
+import RSelectWidget, {RSelectProps, SelectOption} from "../../../Form/RSelect.tsx";
+import apiClient from "../../../../api/api-client.ts";
+import {getHydraCollection} from "../../../../api/hydra.ts";
+
+type Props<TFieldValues extends FieldValues> = {
+    integrationId: string;
+} & RSelectProps<TFieldValues, false>;
+
+type ExposeProfile = {
+    id: string;
+    name: string;
+}
+
+export default function ExposeProfileSelect<TFieldValues extends FieldValues>({
+    integrationId,
+    ...rest
+}: Props<TFieldValues>) {
+    const load = async (inputValue: string): Promise<SelectOption[]> => {
+        const data = getHydraCollection<ExposeProfile>((await apiClient.get(`/integrations/expose/${integrationId}/proxy/profiles`)).data);
+
+        return data.result
+            .map((t: ExposeProfile) => ({
+                value: `/publication-profiles/${t.id}`,
+                label: t.name,
+            }))
+            .filter((i: SelectOption) =>
+                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
+            );
+    };
+
+    return (
+        <RSelectWidget<TFieldValues, false>
+            cacheId={'exposeProfiles'}
+            {...rest}
+            loadOptions={load}
+        />
+    );
+}

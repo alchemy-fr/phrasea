@@ -84,6 +84,8 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
                     multiple: true,
                 );
 
+                $this->bus->dispatch(new SyncBasket($integrationData->getId()));
+
                 return $this->createNewDataResponse($integrationData);
             case 'force-sync':
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);

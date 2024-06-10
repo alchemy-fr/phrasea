@@ -1,4 +1,4 @@
-import {TextField} from '@mui/material';
+import {FormLabel, TextField} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
@@ -8,6 +8,8 @@ import {useFormSubmit} from '@alchemy/api';
 import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt,} from '@alchemy/navigation';
 import {Basket, IntegrationData} from "../../../../types.ts";
 import {runIntegrationAction} from "../../../../api/integrations.ts";
+import SwitchWidget from "../../../Form/SwitchWidget.tsx";
+import ExposeProfileSelect from "./ExposeProfileSelect.tsx";
 
 type Props = {
     integrationId: string;
@@ -18,6 +20,8 @@ type Props = {
 type ExposePublication = {
     title: string;
     description: string;
+    profile?: string | null | undefined;
+    enabled: boolean;
 }
 
 export default function CreatePublicationDialog({
@@ -32,6 +36,7 @@ export default function CreatePublicationDialog({
 
     const {
         register,
+        control,
         formState: {errors},
         handleSubmit,
         remoteErrors,
@@ -41,11 +46,21 @@ export default function CreatePublicationDialog({
         defaultValues: {
             title: basket.title,
             description: basket.description,
+            enabled: true,
+            profile: '',
         },
-        onSubmit: async (data: ExposePublication) => {
+        onSubmit: async ({
+            title,
+            description,
+            profile,
+            ...config
+        }: ExposePublication) => {
             return await runIntegrationAction('sync', integrationId, {
                 basketId: basket.id,
-                ...data
+                title,
+                description,
+                profile,
+                config,
             });
         },
         toastSuccess: t('integration.expose.create_pub.success', `Publication has been created and will be synced`),
@@ -89,6 +104,23 @@ export default function CreatePublicationDialog({
                         multiline={true}
                     />
                     <FormFieldErrors field={'description'} errors={errors}/>
+                </FormRow>
+                <FormRow>
+                    <SwitchWidget
+                        control={control}
+                        name={'enabled'}
+                        label={t('integration.expose.form.enabled', 'Enabled')}
+                    />
+                </FormRow>
+                <FormRow>
+                    <FormLabel>
+                        {t('integration.expose.form.profile', 'Publication Profile')}
+                    </FormLabel>
+                    <ExposeProfileSelect
+                        control={control}
+                        name={'profile'}
+                        integrationId={integrationId}
+                    />
                 </FormRow>
             </form>
             <RemoteErrors errors={remoteErrors}/>
