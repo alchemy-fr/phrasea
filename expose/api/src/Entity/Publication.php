@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\Entity()
  * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
- * @ApiFilter(SearchFilter::class, properties={"title": "partial", "description": "partial"})
+ * @ApiFilter(SearchFilter::class, properties={"title": "ipartial", "description": "ipartial"})
  * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
  * @ApiResource(
  *     attributes={

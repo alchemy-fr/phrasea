@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
- * @ApiFilter(SearchFilter::class, properties={"title": "partial", "description": "partial"})
+ * @ApiFilter(SearchFilter::class, properties={"name": "ipartial"})
  * @ApiResource(
  *     normalizationContext=PublicationProfile::API_READ,
  *     itemOperations={
