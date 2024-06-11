@@ -7,6 +7,7 @@ namespace App\Entity;
 use Alchemy\AclBundle\AclObjectInterface;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use DateTime;
@@ -18,6 +19,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity()
+ * @ApiFilter(SearchFilter::class, properties={"title": "partial", "description": "partial"})
  * @ApiResource(
  *     normalizationContext=PublicationProfile::API_READ,
  *     itemOperations={
