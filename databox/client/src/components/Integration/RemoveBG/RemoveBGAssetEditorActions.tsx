@@ -8,7 +8,7 @@ import IntegrationPanelContent from '../Common/IntegrationPanelContent';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
-import {AssetIntegrationActionsProps, Integration} from "../types.ts";
+import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 
 function RemoveBgComparison({
     left,

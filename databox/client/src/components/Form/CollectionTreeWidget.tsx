@@ -30,7 +30,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
 
 export default function CollectionTreeWidget<
     TFieldValues extends FieldValues,
-    IsMulti extends boolean = false
+    IsMulti extends boolean = false,
 >({
     name,
     control,

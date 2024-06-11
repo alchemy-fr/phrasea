@@ -2,7 +2,11 @@ import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
 import {getRenditionClasses, renditionClassNS} from '../../api/rendition';
 import {RenditionClass} from '../../types';
-import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
+import {
+    AsyncRSelectWidget,
+    AsyncRSelectProps,
+    SelectOption,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;

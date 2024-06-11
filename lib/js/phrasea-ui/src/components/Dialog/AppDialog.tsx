@@ -8,7 +8,6 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {Breakpoint, LinearProgress, Slide, SxProps} from '@mui/material';
-import {StackedModalProps} from '@alchemy/navigation';
 import {TransitionProps} from '@mui/material/transitions';
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({
@@ -59,6 +58,12 @@ type ActionArgs = {
     onClose: () => void;
     loading?: boolean;
 };
+
+// Copy type to avoid circular dependency
+type StackedModalProps = {
+    open?: boolean;
+    modalIndex?: number;
+}
 
 type Props = PropsWithChildren<
     {

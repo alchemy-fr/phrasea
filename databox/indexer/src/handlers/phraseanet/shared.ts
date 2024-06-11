@@ -1,6 +1,6 @@
 import {Asset} from '../../indexers';
 import {FieldMap, PhraseanetSubdef} from './types';
-import { CPhraseanetRecord } from './CPhraseanetRecord';
+import {CPhraseanetRecord} from './CPhraseanetRecord';
 
 import {
     AttributeClass,
@@ -34,7 +34,7 @@ export async function createAsset(
     key: string,
     fieldMap: Map<string, FieldMap>,
     tagIndex: TagIndex,
-    shortcutIntoCollections: {id: string, path: string}[]
+    shortcutIntoCollections: {id: string; path: string}[]
 ): Promise<Asset> {
     const document: PhraseanetSubdef | undefined = record.subdefs.find(
         s => s.name === 'document'
@@ -42,42 +42,41 @@ export async function createAsset(
 
     const attributes: AttributeInput[] = [];
 
-    // @ts-ignore
-    for(const [name, fm] of fieldMap) {
+    for (const [_name, fm] of fieldMap) {
         const ad = fm.attributeDefinition;
 
-        for(const v of fm.values) {
+        for (const v of fm.values) {
             let values;
-            switch(v.type) {
-                case "template":    // output : string | string[]
+            switch (v.type) {
+                case 'template': // output : string | string[]
                     values = (await v.twig.renderAsync({record: record}))
-                        .split("\n").map((p: string) => p.trim())
+                        .split('\n')
+                        .map((p: string) => p.trim())
                         .filter((p: string) => p);
-                    if(!ad.multiple) {
+                    if (!ad.multiple) {
                         values = values.join(' ; ');
                     }
                     break;
-                case "metadata":   // output : string | string[]
-                    values = ad.multiple ?
-                        (await record.getMetadata(v.value)).values
-                        :
-                        (await record.getMetadata(v.value)).value;
+                case 'metadata': // output : string | string[]
+                    values = ad.multiple
+                        ? (await record.getMetadata(v.value)).values
+                        : (await record.getMetadata(v.value)).value;
                     break;
-                default:          // output : any
+                default: // output : any
                     values = v.value;
                     break;
             }
-            switch(fm.type) {
+            switch (fm.type) {
                 case DataboxAttributeType.Number:
-                    if(typeof values === "string") {
+                    if (typeof values === 'string') {
                         values = Number(values).toString();
                     }
                     break;
                 case DataboxAttributeType.Json:
-                   if(typeof values === "object") {
-                       values = JSON.stringify(values);
-                   }
-                   break;
+                    if (typeof values === 'object') {
+                        values = JSON.stringify(values);
+                    }
+                    break;
                 // todo: better handle of mono/multi/object
             }
 
@@ -134,7 +133,7 @@ export async function createAsset(
                 };
             })
             .filter(s => Boolean(s)) as RenditionInput[],
-        shortcutIntoCollections: shortcutIntoCollections
+        shortcutIntoCollections: shortcutIntoCollections,
     };
 }
 
@@ -144,23 +143,22 @@ export enum PhraseanetSearchType {
 }
 
 export enum DataboxAttributeType {
-    Boolean = "boolean",
-    Code = "code",
-    Color = "color",
-    Date = "date",
-    DateTime = "date_time",
-    GeoPoint = "geo_point",
-    Html = "html",
-    Ip = "ip",
-    Json = "json",
-    Keyword = "keyword",
-    Number = "number",
-    Text = "text"
-};
+    Boolean = 'boolean',
+    Code = 'code',
+    Color = 'color',
+    Date = 'date',
+    DateTime = 'date_time',
+    GeoPoint = 'geo_point',
+    Html = 'html',
+    Ip = 'ip',
+    Json = 'json',
+    Keyword = 'keyword',
+    Number = 'number',
+    Text = 'text',
+}
 
 export const attributeTypesEquivalence: Record<string, DataboxAttributeType> = {
     string: DataboxAttributeType.Text,
     date: DataboxAttributeType.Date,
-    number: DataboxAttributeType.Number
+    number: DataboxAttributeType.Number,
 };
-

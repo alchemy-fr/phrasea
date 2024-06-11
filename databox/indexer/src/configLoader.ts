@@ -5,7 +5,11 @@ import * as fs from 'fs';
 
 function loadConfig(): object {
     return JSON.parse(
-        fs.readFileSync(`${process.cwd()}/config/${getEnvStrict('CONFIG_FILE')}`).toString()
+        fs
+            .readFileSync(
+                `${process.cwd()}/config/${getEnvStrict('CONFIG_FILE')}`
+            )
+            .toString()
     );
 }
 

@@ -5,14 +5,18 @@ import {
     renditionDefinitionNS,
 } from '../../api/rendition';
 import {RenditionDefinition} from '../../types';
-import {AsyncRSelectWidget, SelectOption, AsyncRSelectProps} from '@alchemy/react-form';
+import {
+    AsyncRSelectWidget,
+    SelectOption,
+    AsyncRSelectProps,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
 } & AsyncRSelectProps<TFieldValues, false>;
 
 export default function RenditionDefinitionSelect<
-    TFieldValues extends FieldValues
+    TFieldValues extends FieldValues,
 >({workspaceId, ...rest}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {

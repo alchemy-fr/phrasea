@@ -5,7 +5,10 @@ import {
 } from '../../api/pagination.ts';
 import {IntegrationData} from '../../types.ts';
 import React from 'react';
-import {getWorkspaceIntegrationData, ObjectType} from '../../api/integrations.ts';
+import {
+    getWorkspaceIntegrationData,
+    ObjectType,
+} from '../../api/integrations.ts';
 
 type Props = {
     objectType: ObjectType;
@@ -38,7 +41,8 @@ export function useIntegrationData({
         [setData]
     );
 
-    const addData = React.useCallback((newData: IntegrationData) => {
+    const addData = React.useCallback(
+        (newData: IntegrationData) => {
             setData(p => ({
                 ...p,
                 pages: p.pages.concat([[newData]]),
@@ -48,7 +52,8 @@ export function useIntegrationData({
         [setData]
     );
 
-    const removeData = React.useCallback((id: string) => {
+    const removeData = React.useCallback(
+        (id: string) => {
             setData(p => ({
                 ...p,
                 total: p.total ? p.total - 1 : 0,

@@ -8,7 +8,7 @@ import {RegisterOptions} from 'react-hook-form';
 
 type Props<
     TFieldValues extends FieldValues,
-    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = {
     label?: ReactNode;
     control: Control<TFieldValues>;

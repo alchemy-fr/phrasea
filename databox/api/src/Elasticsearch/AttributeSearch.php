@@ -303,6 +303,7 @@ class AttributeSearch
             $fields[] = $field.'^'.$boost;
         }
         $multiMatch->setFields($fields);
+        $multiMatch->setParam('lenient', true);
 
         return $multiMatch;
     }

@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
-import {
-} from '../../Media/Asset/FileIntegrations';
+import {} from '../../Media/Asset/FileIntegrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
@@ -25,7 +24,7 @@ import {File} from '../../../types';
 import FileItem from './FileItem';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
-import {AssetIntegrationActionsProps, Integration} from "../types.ts";
+import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.

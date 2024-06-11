@@ -12,8 +12,6 @@ import {
 import {getConfig, getStrict} from '../../configLoader';
 import {escapeSlashes, splitPath} from '../../lib/pathUtils';
 import {AttributeDefinition, Tag} from '../../databox/types';
-
-// import * as Twig from "twig";
 import Twig from 'twig';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
@@ -64,8 +62,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 Object.entries(dm.fieldMap ?? {})
             );
             let locales: string[] = [];
-            // @ts-ignore
-            for (const [name, fm] of fieldMap) {
+            for (const [_name, fm] of fieldMap) {
                 for (const v of fm.values) {
                     if (v.locale !== undefined) {
                         locales.push(v.locale);
@@ -222,9 +219,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
             logger.info(`Fetching subdefs`);
             const classIndex: Record<string, string> = {};
-            const renditionClasses = await databoxClient.getRenditionClasses(
-                workspaceId
-            );
+            const renditionClasses =
+                await databoxClient.getRenditionClasses(workspaceId);
             renditionClasses.forEach(rc => {
                 classIndex[rc.name] = rc.id;
             });

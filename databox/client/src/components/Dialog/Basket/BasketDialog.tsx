@@ -11,7 +11,7 @@ import {useCloseModal} from '../../Routing/ModalLink';
 import {getBasket} from '../../../api/basket';
 import EditBasket from './EditBasket';
 import Operations from './Operations';
-import Integrations from "./Integrations.tsx";
+import Integrations from './Integrations.tsx';
 
 type Props = {};
 
@@ -80,7 +80,10 @@ export default function BasketDialog({}: Props) {
                     enabled: data.capabilities.canEdit,
                 },
                 {
-                    title: t('basket.manage.integrations.title', 'Integrations'),
+                    title: t(
+                        'basket.manage.integrations.title',
+                        'Integrations'
+                    ),
                     component: Integrations,
                     id: 'integrations',
                     props: {

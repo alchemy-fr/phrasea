@@ -4,7 +4,11 @@ import {FieldValues} from 'react-hook-form';
 import React from 'react';
 import {isAxiosError} from 'axios';
 import {NotAllowSelect} from './UserSelect';
-import {AsyncRSelectWidget, SelectOption, AsyncRSelectProps} from '@alchemy/react-form';
+import {
+    AsyncRSelectWidget,
+    SelectOption,
+    AsyncRSelectProps,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<Group[]> | undefined;
@@ -45,5 +49,7 @@ export default function GroupSelect<TFieldValues extends FieldValues>({
         return <NotAllowSelect {...props} />;
     }
 
-    return <AsyncRSelectWidget cacheId={'groups'} loadOptions={load} {...props} />;
+    return (
+        <AsyncRSelectWidget cacheId={'groups'} loadOptions={load} {...props} />
+    );
 }

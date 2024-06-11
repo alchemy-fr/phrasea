@@ -26,7 +26,7 @@ import {
 } from './types';
 import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
-import {AssetIntegrationActionsProps} from "../types.ts";
+import {AssetIntegrationActionsProps} from '../types.ts';
 
 function ImageOverlay({
     labels,
@@ -169,14 +169,10 @@ export default function AwsRekognitionAssetEditorActions({
     const process = async (category: DetectType) => {
         setRunning(category);
         try {
-            const res = await runIntegrationAction(
-                'analyze',
-                integration.id,
-                {
-                    fileId: file.id,
-                    category,
-                }
-            );
+            const res = await runIntegrationAction('analyze', integration.id, {
+                fileId: file.id,
+                category,
+            });
 
             switch (category) {
                 case DetectType.Labels:

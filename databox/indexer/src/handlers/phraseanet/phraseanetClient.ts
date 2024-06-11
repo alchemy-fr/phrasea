@@ -184,7 +184,9 @@ export default class PhraseanetClient {
         return res.data.response.status;
     }
 
-    async getSubdefsStruct(databoxId?: string): Promise<PhraseanetSubdefStruct[]> {
+    async getSubdefsStruct(
+        databoxId?: string
+    ): Promise<PhraseanetSubdefStruct[]> {
         const dbid = typeof databoxId !== 'undefined' ? '/' + databoxId : '';
         const res = await this.client.get(`/api/v3/databoxes${dbid}/subdefs/`);
 

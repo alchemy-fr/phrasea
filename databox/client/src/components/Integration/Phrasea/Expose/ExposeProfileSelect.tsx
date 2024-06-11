@@ -1,8 +1,12 @@
 import {FieldValues} from 'react-hook-form';
-import apiClient from "../../../../api/api-client.ts";
-import {getHydraCollection} from "../../../../api/hydra.ts";
-import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
-import {ExposeProfile} from "./exposeType.ts";
+import apiClient from '../../../../api/api-client.ts';
+import {getHydraCollection} from '../../../../api/hydra.ts';
+import {
+    AsyncRSelectWidget,
+    AsyncRSelectProps,
+    SelectOption,
+} from '@alchemy/react-form';
+import {ExposeProfile} from './exposeType.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     integrationId: string;
@@ -13,7 +17,13 @@ export default function ExposeProfileSelect<TFieldValues extends FieldValues>({
     ...rest
 }: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
-        const data = getHydraCollection<ExposeProfile>((await apiClient.get(`/integrations/expose/${integrationId}/proxy/profiles`)).data);
+        const data = getHydraCollection<ExposeProfile>(
+            (
+                await apiClient.get(
+                    `/integrations/expose/${integrationId}/proxy/profiles`
+                )
+            ).data
+        );
 
         return data.result
             .map((t: ExposeProfile) => ({

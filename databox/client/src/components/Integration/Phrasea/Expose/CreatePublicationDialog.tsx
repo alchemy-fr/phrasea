@@ -5,13 +5,17 @@ import RemoteErrors from '../../../Form/RemoteErrors';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
-import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt,} from '@alchemy/navigation';
-import {Basket, IntegrationData} from "../../../../types.ts";
-import {runIntegrationAction} from "../../../../api/integrations.ts";
-import SwitchWidget from "../../../Form/SwitchWidget.tsx";
-import ExposeProfileSelect from "./ExposeProfileSelect.tsx";
-import {ExposePublication} from "./exposeType.ts";
-import ExposePublicationSelect from "./ExposePublicationSelect.tsx";
+import {
+    StackedModalProps,
+    useModals,
+    useOutsideRouterDirtyFormPrompt,
+} from '@alchemy/navigation';
+import {Basket, IntegrationData} from '../../../../types.ts';
+import {runIntegrationAction} from '../../../../api/integrations.ts';
+import SwitchWidget from '../../../Form/SwitchWidget.tsx';
+import ExposeProfileSelect from './ExposeProfileSelect.tsx';
+import {ExposePublication} from './exposeType.ts';
+import ExposePublicationSelect from './ExposePublicationSelect.tsx';
 
 type Props = {
     integrationId: string;
@@ -19,8 +23,7 @@ type Props = {
     onSuccess: (data: IntegrationData) => void;
 } & StackedModalProps;
 
-
-type FormData = Omit<ExposePublication, "id">;
+type FormData = Omit<ExposePublication, 'id'>;
 
 export default function CreatePublicationDialog({
     open,
@@ -67,7 +70,10 @@ export default function CreatePublicationDialog({
                 config,
             });
         },
-        toastSuccess: t('integration.expose.create_pub.success', `Publication has been created and will be synced`),
+        toastSuccess: t(
+            'integration.expose.create_pub.success',
+            `Publication has been created and will be synced`
+        ),
         onSuccess: (d: IntegrationData) => {
             onSuccess(d);
             closeModal();
@@ -79,18 +85,27 @@ export default function CreatePublicationDialog({
 
     return (
         <FormDialog
-            title={t('integration.expose.create_pub.title', `Create Publication`)}
+            title={t(
+                'integration.expose.create_pub.title',
+                `Create Publication`
+            )}
             open={open}
             modalIndex={modalIndex}
             loading={submitting}
             formId={formId}
-            submitIcon={<FileCopyIcon/>}
-            submitLabel={t('integration.expose.create_pub.submit', `Create & Sync`)}
+            submitIcon={<FileCopyIcon />}
+            submitLabel={t(
+                'integration.expose.create_pub.submit',
+                `Create & Sync`
+            )}
         >
             <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <ExposePublicationSelect
-                        label={t('integration.expose.form.parent', 'Parent Publication')}
+                        label={t(
+                            'integration.expose.form.parent',
+                            'Parent Publication'
+                        )}
                         control={control}
                         name={'parent'}
                         integrationId={integrationId}
@@ -100,13 +115,16 @@ export default function CreatePublicationDialog({
                     <TextField
                         autoFocus
                         required={true}
-                        label={t('integration.expose.form.title', 'Publication Title')}
+                        label={t(
+                            'integration.expose.form.title',
+                            'Publication Title'
+                        )}
                         disabled={submitting}
                         {...register('title', {
                             required: true,
                         })}
                     />
-                    <FormFieldErrors field={'title'} errors={errors}/>
+                    <FormFieldErrors field={'title'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <TextField
@@ -114,17 +132,20 @@ export default function CreatePublicationDialog({
                         disabled={submitting}
                         {...register('slug')}
                     />
-                    <FormFieldErrors field={'slug'} errors={errors}/>
+                    <FormFieldErrors field={'slug'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <TextField
-                        label={t('integration.expose.form.description', 'Description')}
+                        label={t(
+                            'integration.expose.form.description',
+                            'Description'
+                        )}
                         disabled={submitting}
                         style={{width: '100%'}}
                         {...register('description')}
                         multiline={true}
                     />
-                    <FormFieldErrors field={'description'} errors={errors}/>
+                    <FormFieldErrors field={'description'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <SwitchWidget
@@ -135,14 +156,17 @@ export default function CreatePublicationDialog({
                 </FormRow>
                 <FormRow>
                     <ExposeProfileSelect
-                        label={t('integration.expose.form.profile', 'Publication Profile')}
+                        label={t(
+                            'integration.expose.form.profile',
+                            'Publication Profile'
+                        )}
                         control={control}
                         name={'profile'}
                         integrationId={integrationId}
                     />
                 </FormRow>
             </form>
-            <RemoteErrors errors={remoteErrors}/>
+            <RemoteErrors errors={remoteErrors} />
         </FormDialog>
     );
 }

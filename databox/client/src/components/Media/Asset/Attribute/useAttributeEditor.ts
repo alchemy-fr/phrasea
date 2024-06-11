@@ -42,7 +42,7 @@ export function useAttributeEditor({
 
                 const [definitions, attributes]: [
                     AttributeDefinition[],
-                    Attribute[]
+                    Attribute[],
                 ] = (await Promise.all(promises)) as any;
 
                 const definitionIndex: DefinitionIndex = {};

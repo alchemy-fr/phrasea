@@ -10,7 +10,9 @@ import RemoteErrors from '../Form/RemoteErrors';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 
 type ConfirmOptions = {[key: string]: ReactNode};
-type ConfirmOptionValues<CO extends ConfirmOptions> = {[key in keyof CO]: boolean};
+type ConfirmOptionValues<CO extends ConfirmOptions> = {
+    [key in keyof CO]: boolean;
+};
 
 type Props<CO extends ConfirmOptions> = PropsWithChildren<
     {
@@ -51,14 +53,16 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
     const [confirmValue, setConfirmValue] = useState('');
 
     const [checks, setChecks] = React.useState<boolean[]>(
-        assertions ? assertions.map(() => false) : [],
+        assertions ? assertions.map(() => false) : []
     );
 
     const defaultOptionValues: Record<string, boolean> = {};
     Object.keys(options).map(k => {
         defaultOptionValues[k] = false;
-    })
-    const [optionValues, setOptionValue] = React.useState<ConfirmOptionValues<CO>>(defaultOptionValues as ConfirmOptionValues<CO>);
+    });
+    const [optionValues, setOptionValue] = React.useState<
+        ConfirmOptionValues<CO>
+    >(defaultOptionValues as ConfirmOptionValues<CO>);
 
     const submittable = !assertions || !assertions.some((_a, i) => !checks![i]);
 
@@ -66,7 +70,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
         (index: number, checked: boolean) => {
             setChecks(p => p.map((c, i) => (i === index ? checked : c)));
         },
-        [],
+        []
     );
 
     const onOptionCheck = React.useCallback(
@@ -78,7 +82,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                 return np;
             });
         },
-        [],
+        []
     );
 
     const confirm = async () => {
@@ -102,8 +106,8 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                         p.concat(
                             (err.response!.data as any)[
                                 'hydra:description'
-                                ] as string,
-                        ),
+                            ] as string
+                        )
                     );
                 }
             }
@@ -189,7 +193,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
             )}
             {options && (
                 <div data-testid="options">
-                    {Object.keys(options).map((k) => (
+                    {Object.keys(options).map(k => (
                         <div key={k}>
                             <FormControlLabel
                                 sx={{

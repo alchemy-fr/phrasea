@@ -1,7 +1,7 @@
 import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
-import {Integration} from "./components/Integration/types.ts";
+import {Integration} from './components/Integration/types.ts';
 
 type AlternateUrl = {
     type: string;
@@ -268,7 +268,7 @@ export type IntegrationToken = {
     expired: boolean;
     expiresAt: string;
     createdAt: string;
-}
+};
 
 export enum UserType {
     User = 'user',

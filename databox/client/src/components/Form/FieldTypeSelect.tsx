@@ -2,7 +2,11 @@ import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
 import {fieldTypesIcons} from '../../lib/icons';
 import {getAttributeFieldTypes} from '../../api/attributes';
-import {AsyncRSelectProps, AsyncRSelectWidget, SelectOption} from '@alchemy/react-form';
+import {
+    AsyncRSelectProps,
+    AsyncRSelectWidget,
+    SelectOption,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,

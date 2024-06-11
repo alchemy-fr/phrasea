@@ -3,7 +3,11 @@ import {getUsers} from '../../api/user';
 import {FieldValues} from 'react-hook-form';
 import {isAxiosError} from 'axios';
 import React from 'react';
-import {AsyncRSelectProps, AsyncRSelectWidget, SelectOption} from '@alchemy/react-form';
+import {
+    AsyncRSelectProps,
+    AsyncRSelectWidget,
+    SelectOption,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     data?: Promise<User[]> | undefined;
@@ -44,7 +48,9 @@ export default function UserSelect<TFieldValues extends FieldValues>({
         return <NotAllowSelect {...props} />;
     }
 
-    return <AsyncRSelectWidget cacheId={'users'} loadOptions={load} {...props} />;
+    return (
+        <AsyncRSelectWidget cacheId={'users'} loadOptions={load} {...props} />
+    );
 }
 
 export function NotAllowSelect<TFieldValues extends FieldValues>(

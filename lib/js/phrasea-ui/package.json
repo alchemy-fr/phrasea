@@ -7,7 +7,6 @@
     "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
   },
   "peerDependencies": {
-    "@alchemy/navigation": "workspace:*",
     "@mui/icons-material": "^5.15.1",
     "@mui/material": "^5.15.13",
     "react": "^18.2.0",
@@ -17,7 +16,6 @@
     "styled-components": "^6.1.8"
   },
   "devDependencies": {
-    "@alchemy/navigation": "workspace:*",
     "@mui/icons-material": "^5.15.13",
     "@mui/material": "^5.15.13",
     "@types/react": "^18.2.65",

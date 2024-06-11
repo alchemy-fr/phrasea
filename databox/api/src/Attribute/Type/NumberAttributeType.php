@@ -35,7 +35,6 @@ class NumberAttributeType extends AbstractAttributeType
         return SearchType::Match;
     }
 
-
     public function getElasticSearchType(): string
     {
         return 'long';

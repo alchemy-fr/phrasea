@@ -1,18 +1,27 @@
-import {BasketIntegrationActionsProps, Integration} from "../../types.ts";
-import {LoadingButton} from "@mui/lab";
-import {useIntegrationData} from "../../useIntegrationData.ts";
-import {ObjectType, runIntegrationAction} from "../../../../api/integrations.ts";
-import {useIntegrationAuth} from "../../useIntegrationAuth.ts";
+import {BasketIntegrationActionsProps, Integration} from '../../types.ts';
+import {LoadingButton} from '@mui/lab';
+import {useIntegrationData} from '../../useIntegrationData.ts';
+import {
+    ObjectType,
+    runIntegrationAction,
+} from '../../../../api/integrations.ts';
+import {useIntegrationAuth} from '../../useIntegrationAuth.ts';
 import SyncIcon from '@mui/icons-material/Sync';
-import {Button, Card, CardActions, CardContent, Typography} from "@mui/material";
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    Typography,
+} from '@mui/material';
 import {useModals} from '@alchemy/navigation';
-import CreatePublicationDialog from "./CreatePublicationDialog.tsx";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ConfirmDialog from "../../../Ui/ConfirmDialog.tsx";
-import React from "react";
-import {useChannelRegistration} from "../../../../lib/pusher.ts";
+import CreatePublicationDialog from './CreatePublicationDialog.tsx';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ConfirmDialog from '../../../Ui/ConfirmDialog.tsx';
+import React from 'react';
+import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {useTranslation} from 'react-i18next';
-import AddIcon from "@mui/icons-material/Add";
+import AddIcon from '@mui/icons-material/Add';
 
 type Props = {} & BasketIntegrationActionsProps;
 
@@ -21,12 +30,9 @@ type SyncEvent = {
     action: string;
     done?: number;
     total?: number;
-}
+};
 
-export default function ExposeBasketIntegration({
-    integration,
-    basket,
-}: Props) {
+export default function ExposeBasketIntegration({integration, basket}: Props) {
     const {loading, requestAuth, hasValidToken} = useIntegrationAuth({
         integration,
     });
@@ -34,7 +40,9 @@ export default function ExposeBasketIntegration({
     const [deleting, setDeleting] = React.useState<string | undefined>();
     const [syncForced, setSyncForced] = React.useState<string[]>([]);
     const {openModal} = useModals();
-    const [syncStates, setSyncStates] = React.useState<Record<string, SyncEvent>>({});
+    const [syncStates, setSyncStates] = React.useState<
+        Record<string, SyncEvent>
+    >({});
 
     const {data, addData, removeData} = useIntegrationData({
         integrationId: integration.id,
@@ -50,7 +58,7 @@ export default function ExposeBasketIntegration({
             setSyncStates(p => ({
                 ...p,
                 [event.id]: event,
-            }))
+            }));
         }
     );
 
@@ -60,7 +68,7 @@ export default function ExposeBasketIntegration({
             basket,
             onSuccess: addData,
         });
-    }
+    };
 
     const deleteSync = async (id: string) => {
         openModal(ConfirmDialog, {
@@ -80,94 +88,123 @@ export default function ExposeBasketIntegration({
                 } finally {
                     setDeleting(undefined);
                 }
-            }
+            },
         });
-    }
+    };
 
     const forceSync = async (id: string) => {
         setSyncForced(p => p.concat([id]));
         await runIntegrationAction('force-sync', integration.id, {
             id,
         });
-    }
+    };
 
     const actionTr: Record<string, string> = {
-        'sync-progress': t('integration.expose.sync.event.sync-complete', `Sync in progress…`),
-        'sync-clean': t('integration.expose.sync.event.sync-complete', `Cleaning assets…`),
-        'sync-complete': t('integration.expose.sync.event.sync-complete', `Sync Complete!`),
-    }
+        'sync-progress': t(
+            'integration.expose.sync.event.sync-complete',
+            `Sync in progress…`
+        ),
+        'sync-clean': t(
+            'integration.expose.sync.event.sync-complete',
+            `Cleaning assets…`
+        ),
+        'sync-complete': t(
+            'integration.expose.sync.event.sync-complete',
+            `Sync Complete!`
+        ),
+    };
 
-    return <div>
-        {!hasValidToken ? <div>
-            <LoadingButton
-                onClick={requestAuth}
-                loading={loading}
-                disabled={loading}
-            >
-                Authorize
-            </LoadingButton>
-        </div> : ''}
+    return (
+        <div>
+            {!hasValidToken ? (
+                <div>
+                    <LoadingButton
+                        onClick={requestAuth}
+                        loading={loading}
+                        disabled={loading}
+                    >
+                        Authorize
+                    </LoadingButton>
+                </div>
+            ) : (
+                ''
+            )}
 
-        {hasValidToken ? <Button
-            startIcon={<AddIcon/>}
-            onClick={createPublication}
-            color={'primary'}
-            variant={'contained'}
-        >
-            Sync with a Publication
-        </Button> : ''}
-
-        {data.pages.length > 0 && (
-            data.pages.flat().map(d => {
-                const {id, url} = d.value as { id: string; url: string };
-                const syncState = syncStates[d.id];
-
-                return <Card
-                    key={d.id}
-                    sx={{mt: 2}}
+            {hasValidToken ? (
+                <Button
+                    startIcon={<AddIcon />}
+                    onClick={createPublication}
+                    color={'primary'}
+                    variant={'contained'}
                 >
-                    <CardContent>
-                        <Typography variant="h5" component="div">
-                            <a
-                                href={url}
-                                target={'_blank'}
-                            >#{id.substring(0, 6)}</a>
-                        </Typography>
-                    </CardContent>
-                    <CardActions>
-                        <LoadingButton
-                            sx={{
-                                mr: 1,
-                            }}
-                            onClick={() => forceSync(d.id)}
-                            startIcon={<SyncIcon/>}
-                            disabled={!hasValidToken || syncForced.includes(d.id)}
-                        >
-                            Force Sync
-                        </LoadingButton>
+                    Sync with a Publication
+                </Button>
+            ) : (
+                ''
+            )}
 
-                        <LoadingButton
-                            sx={{
-                                mr: 1,
-                            }}
-                            loading={deleting === d.id}
-                            onClick={() => deleteSync(d.id)}
-                            startIcon={<DeleteIcon/>}
-                            disabled={!hasValidToken}
-                        >
-                            Delete
-                        </LoadingButton>
-                        <Typography variant="body2">
-                            {syncState ? <>
-                                {actionTr[syncState.action] ?? syncState.action}
-                                {syncState.total ? <>
-                                    {syncState.done}/{syncState.total}
-                                </> : ''}
-                            </> : ''}
-                        </Typography>
-                    </CardActions>
-                </Card>
-            })
-        )}
-    </div>
+            {data.pages.length > 0 &&
+                data.pages.flat().map(d => {
+                    const {id, url} = d.value as {id: string; url: string};
+                    const syncState = syncStates[d.id];
+
+                    return (
+                        <Card key={d.id} sx={{mt: 2}}>
+                            <CardContent>
+                                <Typography variant="h5" component="div">
+                                    <a href={url} target={'_blank'}>
+                                        #{id.substring(0, 6)}
+                                    </a>
+                                </Typography>
+                            </CardContent>
+                            <CardActions>
+                                <LoadingButton
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                    onClick={() => forceSync(d.id)}
+                                    startIcon={<SyncIcon />}
+                                    disabled={
+                                        !hasValidToken ||
+                                        syncForced.includes(d.id)
+                                    }
+                                >
+                                    Force Sync
+                                </LoadingButton>
+
+                                <LoadingButton
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                    loading={deleting === d.id}
+                                    onClick={() => deleteSync(d.id)}
+                                    startIcon={<DeleteIcon />}
+                                    disabled={!hasValidToken}
+                                >
+                                    Delete
+                                </LoadingButton>
+                                <Typography variant="body2">
+                                    {syncState ? (
+                                        <>
+                                            {actionTr[syncState.action] ??
+                                                syncState.action}
+                                            {syncState.total ? (
+                                                <>
+                                                    {syncState.done}/
+                                                    {syncState.total}
+                                                </>
+                                            ) : (
+                                                ''
+                                            )}
+                                        </>
+                                    ) : (
+                                        ''
+                                    )}
+                                </Typography>
+                            </CardActions>
+                        </Card>
+                    );
+                })}
+        </div>
+    );
 }

@@ -1,4 +1,8 @@
-import {IntegrationData, IntegrationToken, WorkspaceIntegration} from '../types';
+import {
+    IntegrationData,
+    IntegrationToken,
+    WorkspaceIntegration,
+} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import apiClient from './api-client';
 import {AxiosRequestConfig} from 'axios';
@@ -18,13 +22,13 @@ export enum ObjectType {
 export async function getIntegrationsOfContext(
     context: IntegrationContext,
     workspaceId?: string | undefined,
-    data: Record<string, any> = {},
+    data: Record<string, any> = {}
 ): Promise<ApiCollectionResponse<WorkspaceIntegration>> {
     const res = await apiClient.get(integrationNS, {
         params: {
             context,
             workspaceId,
-            ...data
+            ...data,
         },
     });
 
@@ -43,7 +47,6 @@ export async function getWorkspaceIntegrationData(
 
     return getHydraCollection(res.data);
 }
-
 
 export async function getIntegrationTokens(
     integrationId: string,

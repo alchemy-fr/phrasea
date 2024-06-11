@@ -71,7 +71,9 @@ export default function Dashboard({}: Props) {
                                 label={STACK_VERSION}
                                 color={'info'}
                             />
-                        ) : ''}
+                        ) : (
+                            ''
+                        )}
                     </Typography>
                 </DashboardBar>
             )}

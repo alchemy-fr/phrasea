@@ -1,13 +1,27 @@
 import React, {FC, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from '../../../types';
-import {Accordion, AccordionDetails, AccordionSummary, CircularProgress, List, Typography,} from '@mui/material';
-import {getIntegrationsOfContext, IntegrationContext, ObjectType} from '../../../api/integrations';
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    CircularProgress,
+    List,
+    Typography,
+} from '@mui/material';
+import {
+    getIntegrationsOfContext,
+    IntegrationContext,
+    ObjectType,
+} from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
 import {SetIntegrationOverlayFunction} from './AssetView';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
-import {AssetIntegrationActionsProps, Integration} from "../../Integration/types.ts";
+import {
+    AssetIntegrationActionsProps,
+    Integration,
+} from '../../Integration/types.ts';
 
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
     [Integration.RemoveBg]: RemoveBGAssetEditorActions,
@@ -30,7 +44,7 @@ function IntegrationProxy({
         return (
             <Accordion expanded={expanded} onChange={onExpand}>
                 <AccordionSummary
-                    expandIcon={<ExpandMoreIcon/>}
+                    expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
@@ -69,12 +83,14 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getIntegrationsOfContext(IntegrationContext.AssetView, asset.workspace.id, {
-            objectType: ObjectType.File,
-            objectId: file.id,
-        }).then(r =>
-            setIntegrations(r.result)
-        );
+        getIntegrationsOfContext(
+            IntegrationContext.AssetView,
+            asset.workspace.id,
+            {
+                objectType: ObjectType.File,
+                objectId: file.id,
+            }
+        ).then(r => setIntegrations(r.result));
     }, [file.id]);
 
     useEffect(() => {
@@ -85,30 +101,30 @@ export default function FileIntegrations({
 
     return (
         <>
-            {!integrations && <CircularProgress color="inherit"/>}
+            {!integrations && <CircularProgress color="inherit" />}
             {integrations && (
                 <List component="nav" aria-labelledby="nested-list-subheader">
-                    {integrations
-                        .map(i => (
-                            <IntegrationProxy
-                                key={i.id}
-                                expanded={expanded === i.id}
-                                onExpand={() => {
-                                    enableIncs.current[i.id] = enableIncs
-                                        .current[i.id]
-                                        ? enableIncs.current[i.id] + 1
-                                        : 1;
-                                    setExpanded(p =>
-                                        p === i.id ? undefined : i.id
-                                    );
-                                }}
-                                integration={i}
-                                asset={asset}
-                                file={file}
-                                enableInc={enableIncs.current[i.id]}
-                                setIntegrationOverlay={setIntegrationOverlay}
-                            />
-                        ))}
+                    {integrations.map(i => (
+                        <IntegrationProxy
+                            key={i.id}
+                            expanded={expanded === i.id}
+                            onExpand={() => {
+                                enableIncs.current[i.id] = enableIncs.current[
+                                    i.id
+                                ]
+                                    ? enableIncs.current[i.id] + 1
+                                    : 1;
+                                setExpanded(p =>
+                                    p === i.id ? undefined : i.id
+                                );
+                            }}
+                            integration={i}
+                            asset={asset}
+                            file={file}
+                            enableInc={enableIncs.current[i.id]}
+                            setIntegrationOverlay={setIntegrationOverlay}
+                        />
+                    ))}
                 </List>
             )}
         </>

@@ -6,9 +6,9 @@ export type ExposePublication = {
     profile?: string | null | undefined;
     parent?: string | null | undefined;
     enabled: boolean;
-}
+};
 
 export type ExposeProfile = {
     id: string;
     name: string;
-}
+};

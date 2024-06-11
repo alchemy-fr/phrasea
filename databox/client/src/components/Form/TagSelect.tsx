@@ -1,7 +1,11 @@
 import {Tag} from '../../types';
 import {getTags, tagNS} from '../../api/tag';
 import {FieldValues} from 'react-hook-form';
-import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
+import {
+    AsyncRSelectWidget,
+    AsyncRSelectProps,
+    SelectOption,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;

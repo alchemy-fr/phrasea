@@ -16,7 +16,7 @@ export function getItemListFromEvent<Item extends AssetOrAssetContainer>(
     if (e?.shiftKey && currentSelection.length > 0) {
         let boundaries: [
             [number, number] | undefined,
-            [number, number] | undefined
+            [number, number] | undefined,
         ] = [undefined, undefined];
 
         for (let p = 0; p < pages.length; ++p) {

@@ -1,5 +1,5 @@
-import {Asset, Basket, File, WorkspaceIntegration} from "../../types.ts";
-import {SetIntegrationOverlayFunction} from "../Media/Asset/AssetView.tsx";
+import {Asset, Basket, File, WorkspaceIntegration} from '../../types.ts';
+import {SetIntegrationOverlayFunction} from '../Media/Asset/AssetView.tsx';
 
 export enum Integration {
     RemoveBg = 'remove.bg',
@@ -10,7 +10,7 @@ export enum Integration {
 
 type IntegrationActionProps = {
     integration: WorkspaceIntegration;
-}
+};
 
 export type BasketIntegrationActionsProps = {
     basket: Basket;

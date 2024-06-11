@@ -2,7 +2,11 @@ import {FieldValues} from 'react-hook-form';
 import {AssetDataTemplate, getAssetDataTemplates} from '../../api/templates';
 import {OptionProps, components} from 'react-select';
 import {Checkbox} from '@mui/material';
-import {AsyncRSelectWidget, AsyncRSelectProps, SelectOption} from '@alchemy/react-form';
+import {
+    AsyncRSelectWidget,
+    AsyncRSelectProps,
+    SelectOption,
+} from '@alchemy/react-form';
 
 const Option = (props: OptionProps<SelectOption>) => {
     return (
@@ -24,7 +28,7 @@ type Props<TFieldValues extends FieldValues> = {
 } & AsyncRSelectProps<TFieldValues, true>;
 
 export default function AssetDataTemplateSelect<
-    TFieldValues extends FieldValues
+    TFieldValues extends FieldValues,
 >({workspaceId, collectionId, ...rest}: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
