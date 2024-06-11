@@ -19,7 +19,7 @@ import {
 import {Button} from '@mui/material';
 import BasketsPanel from './BasketsPanel';
 import {leftPanelWidth} from '../../themes/base';
-import {zIndex} from '../../themes/zIndex';
+import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
 import {OnOpen} from '../AssetList/types';
 import {modalRoutes} from '../../routes';
@@ -97,7 +97,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             width: leftPanelWidth,
                             overflow: 'auto',
                             boxShadow: theme.shadows[5],
-                            zIndex: zIndex.leftPanel,
+                            zIndex: ZIndex.leftPanel,
                         })}
                     >
                         <BasketsPanel selected={id!} />
@@ -120,6 +120,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             selectionContext={BasketSelectionContext}
                             total={pagination.total}
                             onOpen={onOpen}
+                            previewZIndex={ZIndex.modal + 1}
                             actions={[
                                 {
                                     name: 'removeFromBasket',

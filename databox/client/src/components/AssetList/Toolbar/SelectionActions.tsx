@@ -110,7 +110,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         canShare,
         onDelete,
         onCopy,
-        wsId,
+        onMove,
+        onEdit,
+        onEditAttributes,
+        download,
     } = useMemo(() => {
         let canDelete = false;
         let canDownload = false;
@@ -154,6 +157,46 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             }
         }
 
+        const onMove = () => {
+            openModal(MoveAssetsDialog, {
+                assetIds: selectedAssets.map(i => i.id),
+                workspaceId: wsId!,
+                onComplete: () => {
+                    reload && reload();
+                },
+            });
+        };
+
+        const onEdit = () => {
+            if (selection.length === 1) {
+                navigateToModal(modalRoutes.assets.routes.manage, {
+                    tab: 'edit',
+                    id: selectedAssets[0].id,
+                });
+            } else {
+                alert('Multi edit is coming soon...');
+            }
+        };
+
+        const onEditAttributes = () => {
+            if (selection.length === 1) {
+                navigateToModal(modalRoutes.assets.routes.manage, {
+                    tab: 'attributes',
+                    id: selectedAssets[0].id,
+                });
+            } else {
+                alert('Multi edit attributes is coming soon...');
+            }
+        };
+
+        const download = canDownload
+            ? () => {
+                openModal(ExportAssetsDialog, {
+                    assets: selectedAssets,
+                });
+            }
+            : undefined;
+
         return {
             canDelete,
             canDownload,
@@ -177,51 +220,13 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     },
                 });
             },
+            onMove,
+            onEdit,
+            onEditAttributes,
+            download,
             wsId,
         };
     }, [selection]);
-
-    const onMove = () => {
-        openModal(MoveAssetsDialog, {
-            assetIds: selection.map(i => i.id),
-            workspaceId: wsId!,
-            onComplete: () => {
-                reload && reload();
-            },
-        });
-    };
-
-    const onEdit = () => {
-        if (selection.length === 1) {
-            navigateToModal(modalRoutes.assets.routes.manage, {
-                tab: 'edit',
-                id: selection[0].id,
-            });
-        } else {
-            alert('Multi edit is coming soon...');
-        }
-    };
-
-    const onEditAttributes = () => {
-        if (selection.length === 1) {
-            navigateToModal(modalRoutes.assets.routes.manage, {
-                tab: 'attributes',
-                id: selection[0].id,
-            });
-        } else {
-            alert('Multi edit attributes is coming soon...');
-        }
-    };
-
-    const download = canDownload
-        ? () => {
-              openModal(ExportAssetsDialog, {
-                  assets: itemToAsset
-                      ? selection.map(itemToAsset)
-                      : (selection as unknown as Asset[]),
-              });
-          }
-        : undefined;
 
     const selectAllDisabled = (total ?? 0) === 0;
 

@@ -41,6 +41,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     actions?: CustomItemAction<Item>[];
     onSelectionChange?: OnSelectionChange<Item>;
     itemComponent?: AssetItemComponent<Item>;
+    previewZIndex?: number;
 } & SelectionActionConfigProps;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
@@ -56,6 +57,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     onSelectionChange,
     itemComponent,
     actions,
+    previewZIndex,
     layout: defaultLayout,
     selectionContext:
         SelectionContext = AssetSelectionContext as unknown as Context<
@@ -233,6 +235,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         loadMore,
                         toolbarHeight,
                         itemComponent,
+                        previewZIndex,
                     } as LayoutProps<Item>)}
 
                     {anchorElMenu ? (

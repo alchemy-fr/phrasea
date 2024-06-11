@@ -3,23 +3,24 @@ import {Asset} from '../../types';
 import {Paper, Popper, Stack} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
-import {zIndex} from '../../themes/zIndex';
 import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
+import {ZIndex} from "../../themes/zIndex.ts";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
     asset: Asset | undefined;
     displayAttributes: boolean;
+    zIndex: number | undefined;
 };
-
-const relativeSize = 50;
 
 export default function PreviewPopover({
     asset,
     anchorEl,
     displayAttributes,
+    zIndex = ZIndex.assetPreview,
 }: Props) {
+    const relativeSize = 50;
     const [anchor, setAnchor] = useState<HTMLElement>();
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
@@ -37,7 +38,7 @@ export default function PreviewPopover({
             anchorEl={anchor || null}
             sx={{
                 pointerEvents: !previewLocked ? 'none' : undefined,
-                zIndex: zIndex.assetPreview,
+                zIndex,
             }}
             modifiers={[
                 {

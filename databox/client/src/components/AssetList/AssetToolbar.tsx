@@ -1,5 +1,5 @@
 import {LinearProgress, ListSubheader} from '@mui/material';
-import {zIndex} from '../../themes/zIndex';
+import {ZIndex} from '../../themes/zIndex';
 import SearchBar from '../Media/Search/SearchBar';
 import SelectionActions, {
     SelectionActionsProps,
@@ -23,7 +23,7 @@ export default function AssetToolbar<Item extends AssetOrAssetContainer>({
                 component="div"
                 disableGutters={true}
                 sx={() => ({
-                    zIndex: zIndex.toolbar,
+                    zIndex: ZIndex.toolbar,
                 })}
             >
                 {searchBar ? <SearchBar /> : ''}

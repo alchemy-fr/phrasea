@@ -39,6 +39,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     loadMore,
     selection,
     itemToAsset,
+    previewZIndex,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
     const headersRef = React.useRef<HTMLDivElement | null>(null);
@@ -247,6 +248,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={d.displayAttributes}
+                zIndex={previewZIndex}
             />
         </Box>
     );
