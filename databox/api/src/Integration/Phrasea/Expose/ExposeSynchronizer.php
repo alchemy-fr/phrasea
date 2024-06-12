@@ -2,6 +2,7 @@
 
 namespace App\Integration\Phrasea\Expose;
 
+use Alchemy\CoreBundle\Lock\LockTrait;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\IntegrationManager;
@@ -11,6 +12,7 @@ use App\Repository\Integration\IntegrationTokenRepository;
 final class ExposeSynchronizer
 {
     use PusherTrait;
+    use LockTrait;
 
     public function __construct(
         private readonly ExposeClient $exposeClient,
@@ -20,6 +22,16 @@ final class ExposeSynchronizer
     }
 
     public function synchronize(IntegrationData $basketData): void
+    {
+        $this->executeWithLock(
+            'sync:'.$basketData->getId(),
+            30,
+            'synchronize',
+            fn() => $this->doSynchronize($basketData)
+        );
+    }
+
+    private function doSynchronize(IntegrationData $basketData): void
     {
         $config = $this->integrationManager->getIntegrationConfiguration($basketData->getIntegration());
         $token = $this->integrationTokenRepository->getLastValidUserToken($config->getIntegrationId(), $basketData->getUserId());
