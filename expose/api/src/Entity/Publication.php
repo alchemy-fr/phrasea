@@ -11,6 +11,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Controller\GetPublicationAction;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\Entity()
  * @ApiFilter(OrderFilter::class, properties={"title": "ASC", "createdAt": "DESC", "updatedAt": "DESC"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(PublicationFilter::class, properties={"flatten", "parentId", "profileId", "mine", "expired"})
+ * @ApiFilter(SearchFilter::class, properties={"title": "ipartial", "description": "ipartial"})
  * @ApiFilter(DateFilter::class, properties={"config.beginsAt", "config.expiresAt", "createdAt"})
  * @ApiResource(
  *     attributes={
