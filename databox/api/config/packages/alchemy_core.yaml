@@ -2,3 +2,4 @@ alchemy_core:
     app_name: databox
     app_url: '%env(DATABOX_API_URL)%'
     healthcheck: ~
+    pusher: ~

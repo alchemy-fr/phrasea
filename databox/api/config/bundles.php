@@ -31,4 +31,5 @@ return [
     Alchemy\ESBundle\AlchemyESBundle::class => ['all' => true],
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
+    Arthem\ObjectReferenceBundle\ArthemObjectReferenceBundle::class => ['all' => true],
 ];

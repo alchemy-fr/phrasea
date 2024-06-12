@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
+use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\Range;
@@ -25,6 +26,11 @@ class DateTimeAttributeType extends AbstractAttributeType
     public function supportsSuggest(): bool
     {
         return false;
+    }
+
+    public function getElasticSearchSearchType(): ?SearchType
+    {
+        return SearchType::Match;
     }
 
     public function getGroupValueLabel($value): ?string
@@ -69,6 +75,11 @@ class DateTimeAttributeType extends AbstractAttributeType
                 ],
             ],
         ];
+    }
+
+    public function getElasticSearchSubField(): ?string
+    {
+        return 'text';
     }
 
     public function normalizeValue($value): ?string

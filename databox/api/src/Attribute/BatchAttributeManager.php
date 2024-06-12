@@ -191,6 +191,7 @@ class BatchAttributeManager
                                         $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
                                             'definition' => $definition->getId(),
                                             'asset' => $assetId,
+                                            'locale' => $action->locale,
                                         ]);
                                         $this->upsertAttribute($attribute, [$assetId], $definition, $action);
                                     }

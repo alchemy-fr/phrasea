@@ -29,12 +29,14 @@ You can also enable Sentry (don't forget DSN for PHP and Client).
 
 If Databox was not enabled before, you need to enable it and uncheck "Run Migrations" from "Deployment Settings (Advanced)"
 Then, after plan/apply, you can shell to the new `databox-api-php` and run the following commands:
+
 ```bash
 bin/console doctrine:schema:drop -f || true
 bin/install.sh
 ```
+
 Then you should restore "Run Migrations" to checked and disable Databox back.
-THen plan/apply
+Then plan/apply
 
 3. then run the following script line by line:
 

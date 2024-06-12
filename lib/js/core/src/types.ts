@@ -21,6 +21,8 @@ export type WindowConfig = {
     dashboardBaseUrl: Readonly<string>;
     devMode: Readonly<boolean>;
     analytics?: AnalyticsConfig;
+    pusherHost?: Readonly<string>;
+    pusherKey?: Readonly<string>;
 }
 
 export type SentryConfig = Pick<WindowConfig,
@@ -30,3 +32,10 @@ export type SentryConfig = Pick<WindowConfig,
     "appId" |
     "appName"
 >
+
+
+export type RegisterWebSocketOptions = {
+    onError: (error: any) => void;
+};
+export type PusherEventCallback = (data: any) => void;
+export type UnregisterWebSocket = () => void;

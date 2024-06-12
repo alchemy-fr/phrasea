@@ -28,6 +28,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     selection,
     loadMore,
     itemToAsset,
+    previewZIndex,
 }: LayoutProps<Item>) {
     const lineHeight = 26;
     const collLineHeight = 32;
@@ -171,6 +172,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}
                 displayAttributes={true}
+                zIndex={previewZIndex}
             />
         </>
     );

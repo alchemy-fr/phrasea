@@ -7,8 +7,8 @@ import JobData from "./JobData";
 import HorizontalTable, {Cells} from "../Ui/HorizontalTable";
 import DateValue from "../Ui/DateValue";
 import {jobStatuses} from "../status";
-import Button from "../Ui/Button";
-import {MdReplay} from "react-icons/md";
+import ReplayIcon from '@mui/icons-material/Replay';
+import {LoadingButton} from "@mui/lab";
 
 type Props = {
     job: NodeData;
@@ -28,22 +28,19 @@ export default function JobDetail({
         JobStatus.Running,
         JobStatus.Triggered,
     ].includes(job.status) && job.onRerun) {
-        values.push([``, <Button
+        values.push([``, <LoadingButton
             disabled={rerunning}
             loading={rerunning}
-            variant={'primary'}
-            onClick={(e) => {
-                e.stopPropagation();
-
+            onClick={() => {
                 setRerunning(true);
                 job.onRerun!(job.id).finally(() => {
                     setRerunning(false);
                 });
             }}
-            icon={MdReplay}
+            startIcon={<ReplayIcon/>}
         >
             Rerun
-        </Button>]);
+        </LoadingButton>]);
     }
 
     return <Modal>

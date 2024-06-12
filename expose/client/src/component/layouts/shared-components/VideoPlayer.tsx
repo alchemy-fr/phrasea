@@ -78,20 +78,16 @@ export default React.forwardRef(function VideoPlayer(
         };
     }, [playerRef]);
 
-    React.useImperativeHandle(
-        ref,
-        () => {
-            return {
-                stop: () => {
-                    const p = playerRef.current;
-                    if (p && !p.paused()) {
-                        p?.pause();
-                    }
-                },
-            };
-        },
-        []
-    );
+    React.useImperativeHandle(ref, () => {
+        return {
+            stop: () => {
+                const p = playerRef.current;
+                if (p && !p.paused()) {
+                    p?.pause();
+                }
+            },
+        };
+    }, []);
 
     return (
         <div className="video-container">

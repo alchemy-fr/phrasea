@@ -4,23 +4,30 @@ declare(strict_types=1);
 
 namespace App\Integration\RemoveBg;
 
-use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
-use App\Entity\Core\File;
-use App\Integration\AbstractFileAction;
+use App\Integration\AbstractIntegration;
+use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
+use App\Integration\PusherTrait;
+use App\Integration\RemoveBg\Message\RemoveBgCall;
+use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrationInterface
+class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
+    use PusherTrait;
+    use FileUserActionsTrait;
     private const ACTION_PROCESS = 'process';
 
     public function __construct(
         private readonly RemoveBgProcessor $removeBgProcessor,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -43,7 +50,7 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         ));
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         if ($config['processIncoming']) {
             yield WorkflowHelper::createIntegrationJob(
@@ -53,24 +60,19 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
+        $file = $this->getFile($request);
+
         switch ($action) {
             case self::ACTION_PROCESS:
-                $file = $this->removeBgProcessor->process($file, $config);
-
-                return new JsonResponse([
-                    'id' => $file->getId(),
-                    'url' => $this->fileUrlResolver->resolveUrl($file),
-                ]);
+                $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId()));
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
-    }
 
-    public function supportsFileActions(File $file, array $config): bool
-    {
-        return FileUtil::isImageType($file->getType());
+        return null;
     }
 
     public static function getName(): string
@@ -81,5 +83,10 @@ class RemoveBgIntegration extends AbstractFileAction implements WorkflowIntegrat
     public static function getTitle(): string
     {
         return 'Remove BG';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }

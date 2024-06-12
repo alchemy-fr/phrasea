@@ -68,5 +68,7 @@
         sentryDsn: env.SENTRY_DSN,
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
+        pusherHost: env.SOKETI_HOST,
+        pusherKey: env.SOKETI_KEY,
     };
 });

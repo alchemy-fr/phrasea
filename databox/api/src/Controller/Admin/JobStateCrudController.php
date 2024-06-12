@@ -36,6 +36,10 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->displayIf(fn (JobState $entity) => JobStateModel::STATUS_FAILURE === $entity->getStatus())
             ->linkToCrudAction('retryJob');
 
+        $cancel = Action::new('cancelJob', 'Cancel job', 'fas fa-ban')
+            ->displayIf(fn (JobState $entity) => JobStateModel::STATUS_RUNNING === $entity->getStatus())
+            ->linkToCrudAction('cancelJob');
+
         $rerun = Action::new('rerunJob', 'Rerun job', 'fas fa-wrench')
             ->displayIf(fn (JobState $entity) => JobStateModel::STATUS_FAILURE !== $entity->getStatus())
             ->linkToCrudAction('rerunJob');
@@ -46,6 +50,7 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $retry)
             ->add(Crud::PAGE_INDEX, $rerun)
+            ->add(Crud::PAGE_INDEX, $cancel)
         ;
     }
 
@@ -54,6 +59,15 @@ class JobStateCrudController extends AbstractAdminCrudController
         /** @var JobState $jobState */
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->retryFailedJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
+
+        return new RedirectResponse($context->getReferrer());
+    }
+
+    public function cancelJob(AdminContext $context): RedirectResponse
+    {
+        /** @var JobState $jobState */
+        $jobState = $context->getEntity()->getInstance();
+        $this->workflowOrchestrator->cancelWorkflow($jobState->getWorkflow()->getId());
 
         return new RedirectResponse($context->getReferrer());
     }

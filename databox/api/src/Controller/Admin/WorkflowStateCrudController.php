@@ -6,24 +6,38 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
-    public function __construct(private readonly string $databoxClientBaseUrl)
-    {
+    public function __construct(
+        private readonly string $databoxClientBaseUrl,
+        private readonly WorkflowOrchestrator $workflowOrchestrator,
+    ) {
     }
 
     public static function getEntityFqcn(): string
     {
         return WorkflowState::class;
+    }
+
+    public function cancelWorkflow(AdminContext $context): RedirectResponse
+    {
+        /** @var WorkflowState $workflowState */
+        $workflowState = $context->getEntity()->getInstance();
+        $this->workflowOrchestrator->cancelWorkflow($workflowState->getId());
+
+        return new RedirectResponse($context->getReferrer());
     }
 
     public function configureActions(Actions $actions): Actions
@@ -32,11 +46,16 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ->setHtmlAttributes(['target' => '_blank'])
             ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
 
+        $cancel = Action::new('cancelWorkflow', 'Cancel Workflow', 'fas fa-ban')
+            ->displayIf(fn (WorkflowState $entity) => ModelWorkflowState::STATUS_STARTED === $entity->getStatus())
+            ->linkToCrudAction('cancelWorkflow');
+
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $viewWorkflow)
+            ->add(Crud::PAGE_INDEX, $cancel)
         ;
     }
 

@@ -1,8 +1,12 @@
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {AssetDataTemplate, getAssetDataTemplates} from '../../api/templates';
 import {OptionProps, components} from 'react-select';
 import {Checkbox} from '@mui/material';
+import {
+    AsyncRSelectWidget,
+    AsyncRSelectProps,
+    SelectOption,
+} from '@alchemy/react-form';
 
 const Option = (props: OptionProps<SelectOption>) => {
     return (
@@ -21,10 +25,10 @@ const Option = (props: OptionProps<SelectOption>) => {
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
     collectionId: string | undefined;
-} & RSelectProps<TFieldValues, true>;
+} & AsyncRSelectProps<TFieldValues, true>;
 
 export default function AssetDataTemplateSelect<
-    TFieldValues extends FieldValues
+    TFieldValues extends FieldValues,
 >({workspaceId, collectionId, ...rest}: Props<TFieldValues>) {
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
@@ -45,13 +49,13 @@ export default function AssetDataTemplateSelect<
     };
 
     return (
-        <RSelectWidget<TFieldValues, true>
+        <AsyncRSelectWidget<TFieldValues, true>
+            key={`${workspaceId}-${collectionId ?? ''}`}
             cacheId={'asset-data-templates'}
             {...rest}
             components={{Option}}
             loadOptions={load}
             isMulti={true as any}
-            key={`${workspaceId}-${collectionId ?? ''}`}
             closeMenuOnSelect={false}
             hideSelectedOptions={false}
         />

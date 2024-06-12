@@ -7,13 +7,15 @@
   },
   "main": "./src/index.ts",
   "dependencies": {
-    "react-icons": "^4.12.0",
     "reactflow": "^11.10.4"
   },
   "peerDependencies": {
     "moment": "^2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@mui/icons-material": "^5.15.13",
+    "@mui/material": "^5.15.13",
+    "@mui/lab": "5.0.0-alpha.168"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.6.17",
@@ -27,6 +29,9 @@
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^3.1.0",
+    "@mui/icons-material": "^5.15.13",
+    "@mui/material": "^5.15.13",
+    "@mui/lab": "5.0.0-alpha.168",
     "moment": "^2.30.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

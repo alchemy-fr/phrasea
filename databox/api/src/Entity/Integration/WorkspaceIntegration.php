@@ -14,9 +14,10 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\AbstractUuidEntity;
+use App\Entity\Core\Workspace;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\Traits\WorkspaceTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -50,9 +51,14 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use WorkspaceTrait;
+    use NullableWorkspaceTrait;
+
     final public const GROUP_READ = 'wi:read';
     final public const GROUP_LIST = 'wi:index';
+
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    protected ?Workspace $workspace = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
@@ -234,6 +240,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
 
     public function __toString(): string
     {
-        return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
+        if ($this->workspace) {
+            return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
+        }
+
+        return $this->getIntegration();
     }
 }

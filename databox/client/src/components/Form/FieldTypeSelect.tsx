@@ -1,10 +1,14 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {fieldTypesIcons} from '../../lib/icons';
 import {getAttributeFieldTypes} from '../../api/attributes';
+import {
+    AsyncRSelectProps,
+    AsyncRSelectWidget,
+    SelectOption,
+} from '@alchemy/react-form';
 
-type Props<TFieldValues extends FieldValues> = {} & RSelectProps<
+type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
     false
 >;
@@ -32,7 +36,7 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
     );
 
     return (
-        <RSelectWidget<TFieldValues>
+        <AsyncRSelectWidget<TFieldValues>
             cacheId={'fieldType'}
             {...rest}
             loadOptions={load}

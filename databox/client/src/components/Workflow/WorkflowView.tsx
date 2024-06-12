@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from '@alchemy/navigation';
-import {getWorkflow, rerunJob} from '../../api/workflow';
+import {cancelWorkflow, getWorkflow, rerunJob} from '../../api/workflow';
 import {Box, CircularProgress} from '@mui/material';
 import {
     VisualWorkflow,
@@ -11,6 +11,7 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps} from '@alchemy/navigation';
+import {useChannelRegistration} from '../../lib/pusher.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -34,9 +35,24 @@ export default function WorkflowView({modalIndex}: Props) {
         [id]
     );
 
+    const onCancel = React.useCallback(async () => {
+        const d = await cancelWorkflow(id!);
+
+        setData(d);
+    }, [id]);
+
     useEffect(() => {
         onRefresh();
     }, [onRefresh]);
+
+    useChannelRegistration(
+        `workflow-${id}`,
+        'job_update',
+        () => {
+            onRefresh();
+        },
+        !!data
+    );
 
     if (!data) {
         return <CircularProgress />;
@@ -76,6 +92,7 @@ export default function WorkflowView({modalIndex}: Props) {
                             >
                                 <WorkflowHeader
                                     workflow={data}
+                                    onCancel={onCancel}
                                     onRefreshWorkflow={onRefresh}
                                 />
                             </Box>

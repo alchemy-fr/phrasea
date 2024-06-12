@@ -5,7 +5,7 @@ import {Alert, Button, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import ConfirmDialog from '../../Ui/ConfirmDialog';
 import {useModals} from '@alchemy/navigation';
-import {useBasketStore} from "../../../store/basketStore.ts";
+import {useBasketStore} from '../../../store/basketStore.ts';
 
 type Props = {
     data: Basket;

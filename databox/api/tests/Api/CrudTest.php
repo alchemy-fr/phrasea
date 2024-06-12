@@ -164,7 +164,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             ['POST', '/rendition-classes', KeycloakClientTestMock::USER_UID, [
             ], [
-                'code' => 422,
+                'code' => 403,
             ]],
 
             ['POST', '/rendition-classes', KeycloakClientTestMock::ADMIN_UID, [

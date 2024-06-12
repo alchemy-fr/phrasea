@@ -27,9 +27,8 @@ function getFromStorage(): UserPreferences {
 type Props = PropsWithChildren<{}>;
 
 export default function UserPreferencesProvider({children}: Props) {
-    const [preferences, setPreferences] = React.useState<UserPreferences>(
-        getFromStorage()
-    );
+    const [preferences, setPreferences] =
+        React.useState<UserPreferences>(getFromStorage());
     const {user} = useAuth();
 
     const updatePreference = React.useCallback<UpdatePreferenceHandler>(

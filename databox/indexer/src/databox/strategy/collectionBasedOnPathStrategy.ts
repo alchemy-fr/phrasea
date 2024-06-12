@@ -19,14 +19,14 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
 
     let collId: string;
     try {
-        collId = (await databoxClient.createCollectionTreeBranch(
+        collId = await databoxClient.createCollectionTreeBranch(
             asset.workspaceId,
             asset.collectionKeyPrefix ?? '',
             branch.map(k => ({
                 key: k,
                 title: k,
             }))
-        ));
+        );
     } catch (e: any) {
         logger.error(
             `Failed to create collection branch "${collPath}": ${e.toString()}`

@@ -141,7 +141,7 @@ export default function CollectionMenuItem({
                 secondaryAction={
                     <>
                         <span className="c-action">
-                            {data.capabilities.canEdit && (
+                            {data.capabilities.canEdit && authContext!.user ? (
                                 <IconButton
                                     title={t(
                                         'collection.item.create_asset',
@@ -163,7 +163,7 @@ export default function CollectionMenuItem({
                                 >
                                     <AddPhotoAlternateIcon />
                                 </IconButton>
-                            )}
+                            ) : ''}
                             {data.capabilities.canEdit && (
                                 <IconButton
                                     title={t(

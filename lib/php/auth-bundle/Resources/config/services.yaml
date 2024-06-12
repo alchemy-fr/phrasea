@@ -24,6 +24,8 @@ services:
   Alchemy\AuthBundle\Security\JwtValidator: ~
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
   Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator: ~
+  Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator: ~
+  Alchemy\AuthBundle\Api\Processor\UserOneTimeTokenProcessor: ~
   Alchemy\AuthBundle\Security\RoleMapper:
       $appName: '%alchemy_core.app_name%'
 

@@ -1,0 +1,13 @@
+parameters:
+    env(SOKETI_HOST): ''
+    env(SOKETI_APP_ID): ''
+    env(SOKETI_KEY): ''
+    env(SOKETI_SECRET): ''
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\CoreBundle\Message\PusherHandler: ~
+    Alchemy\CoreBundle\Pusher\PusherManager: ~

@@ -1,6 +1,6 @@
 import {CSSProperties, PropsWithChildren} from 'react';
 import {Divider, SxProps, Theme, useTheme} from '@mui/material';
-import {zIndex} from '../../themes/zIndex';
+import {ZIndex} from '../../themes/zIndex';
 
 function applyStyle(
     theme: Theme,
@@ -40,7 +40,7 @@ export default function SectionDivider({
             style={applyStyle(
                 theme,
                 {
-                    zIndex: zIndex.sectionDivider,
+                    zIndex: ZIndex.sectionDivider,
                     position: undefined !== top ? 'sticky' : undefined,
                     top,
                     backgroundColor: theme.palette.common.white,

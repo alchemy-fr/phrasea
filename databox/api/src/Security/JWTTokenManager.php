@@ -12,25 +12,30 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class JWTTokenManager
+readonly class JWTTokenManager
 {
-    public function __construct(private readonly string $signingKey, private readonly int $ttl)
+    public function __construct(private string $signingKey, private int $ttl)
     {
     }
 
-    public function createToken(string $string, ?int $ttl = null): string
+    public function createToken(string $string, ?int $ttl = null, array $extraClaims = []): string
     {
         $config = $this->getConfig();
-        $token = $config->builder()
+        $builder = $config->builder()
             ->identifiedBy($string)
             ->issuedAt(new \DateTimeImmutable())
-            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)))
-            ->getToken($config->signer(), $config->signingKey());
+            ->expiresAt((new \DateTimeImmutable())->setTimestamp(time() + ($ttl ?? $this->ttl)));
+
+        foreach ($extraClaims as $name => $value) {
+            $builder = $builder->withClaim($name, $value);
+        }
+
+        $token = $builder->getToken($config->signer(), $config->signingKey());
 
         return $token->toString();
     }
 
-    public function validateToken(string $string, string $jwt): void
+    public function validateToken(string $string, string $jwt): UnencryptedToken
     {
         $config = $this->getConfig();
         $token = $config->parser()->parse($jwt);
@@ -49,6 +54,8 @@ class JWTTokenManager
         if (!$config->validator()->validate($token, ...$constraints)) {
             throw new AccessDeniedHttpException('Invalid JWT');
         }
+
+        return $token;
     }
 
     private function getConfig(): Configuration

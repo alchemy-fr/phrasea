@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
@@ -22,6 +23,16 @@ class TextAttributeType extends AbstractAttributeType
     public function getElasticSearchType(): string
     {
         return 'text';
+    }
+
+    public function getElasticSearchSearchType(): ?SearchType
+    {
+        return SearchType::Match;
+    }
+
+    public function supportsElasticSearchFuzziness(): bool
+    {
+        return true;
     }
 
     public function createFilterQuery(string $field, $value): AbstractQuery

@@ -26,6 +26,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
             $publication->setAuthorized($isAuthorized);
             if (!$isAuthorized) {
                 $context['groups'] = ['_'];
+
                 return;
             }
         }

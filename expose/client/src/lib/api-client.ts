@@ -8,7 +8,7 @@ export const keycloakClient = new KeycloakClient({
     realm: config.realmName,
     cookiesOptions: {
         sameSite: 'none',
-    }
+    },
 });
 
 export const oauthClient = keycloakClient.client;

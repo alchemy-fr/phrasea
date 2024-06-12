@@ -26,6 +26,7 @@ declare global {
                 UPLOADER_API_URL: string;
                 UPLOADER_CLIENT_URL: string;
                 ZIPPY_URL: string;
+                SOKETI_USAGE_URL: string;
             };
         } & WindowConfig;
     }

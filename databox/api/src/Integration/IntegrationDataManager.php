@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Core\File;
+use App\Entity\AbstractUuidEntity;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Repository\Integration\IntegrationDataRepository;
+use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 
-class IntegrationDataManager
+readonly class IntegrationDataManager
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private IntegrationDataRepository $repository,
+        private ObjectMapper $objectMapper,
+    ) {
     }
 
     public function getWorkspaceIntegration(string $id): WorkspaceIntegration
@@ -25,56 +30,63 @@ class IntegrationDataManager
         return $workspaceIntegration;
     }
 
-    public function storeData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData
+    public function storeData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?AbstractUuidEntity $object, string $name, string $value, ?string $keyId = null, bool $multiple = false): IntegrationData
     {
         $data = null;
         if (!$multiple || null !== $keyId) {
-            $data = $this->getData($workspaceIntegration, $file, $name, $keyId);
+            $data = $this->getData($workspaceIntegration, $userId, $object, $name, $keyId);
         }
 
         if (null === $data) {
             $data = new IntegrationData();
             $data->setIntegration($workspaceIntegration);
-            $data->setFile($file);
+            $data->setObject($object);
             $data->setName($name);
         }
         $data->setValue($value);
+        $data->setUserId($userId);
         $data->setKeyId($keyId);
 
         $this->em->persist($data);
-        $this->em->flush($data);
+        $this->em->flush();
 
         return $data;
     }
 
-    public function hasData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null): bool
+    public function findBy(array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
-        $criteria = [
-            'integration' => $workspaceIntegration->getId(),
-            'file' => $file,
-            'name' => $name,
-        ];
-        if (null !== $keyId) {
-            $criteria['keyId'] = $keyId;
-        }
-
-        $data = $this->em->getRepository(IntegrationData::class)
-            ->findOneBy($criteria);
-
-        return $data instanceof IntegrationData;
+        return $this->repository->findBy($this->normalizeCriteria($criteria), $orderBy, $limit, $offset);
     }
 
-    /**
-     * @return IntegrationData|IntegrationData[]|null
-     */
-    public function getData(WorkspaceIntegration $workspaceIntegration, ?File $file, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    public function findOneBy(array $criteria, ?array $orderBy = null): ?IntegrationData
     {
-        $repository = $this->em->getRepository(IntegrationData::class);
+        return $this->repository->findOneBy($this->normalizeCriteria($criteria), $orderBy);
+    }
 
+    private function normalizeCriteria(array $criteria): array
+    {
+        if (array_key_exists('object', $criteria)) {
+            $object = $criteria['object'];
+            if ($object instanceof AbstractUuidEntity) {
+                $criteria['objectType'] = $this->objectMapper->getObjectKey($object);
+                $criteria['objectId'] = $object->getId();
+            } else {
+                $criteria['objectId'] = null;
+            }
+
+            unset($criteria['object']);
+        }
+
+        return $criteria;
+    }
+
+    public function getData(WorkspaceIntegration $workspaceIntegration, ?string $userId, ?AbstractUuidEntity $object, string $name, ?string $keyId = null, bool $multiple = false): IntegrationData|array|null
+    {
         $criteria = [
             'integration' => $workspaceIntegration->getId(),
-            'file' => $file?->getId(),
+            'object' => $object,
             'name' => $name,
+            'userId' => $userId,
         ];
 
         if (null !== $keyId) {
@@ -82,23 +94,43 @@ class IntegrationDataManager
         }
 
         if ($multiple) {
-            return $repository->findBy($criteria);
+            return $this->findBy($criteria);
         } else {
-            return $repository->findOneBy($criteria);
+            return $this->findOneBy($criteria);
         }
     }
 
-    public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id): void
+    public function deleteById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): void
     {
-        $data = $this->em->getRepository(IntegrationData::class)
+        $data = $this->getById($workspaceIntegration, $id, $userId);
+        $this->em->remove($data);
+        $this->em->flush($data);
+    }
+
+    public function getById(WorkspaceIntegration $workspaceIntegration, string $id, ?string $userId): IntegrationData
+    {
+        $data = $this->repository
             ->findOneBy([
                 'id' => $id,
                 'integration' => $workspaceIntegration->getId(),
+                'userId' => $userId,
             ]);
 
-        if ($data instanceof IntegrationData) {
-            $this->em->remove($data);
-            $this->em->flush($data);
+        if (null === $data) {
+            throw new \InvalidArgumentException(sprintf('%s "%s" not found', IntegrationData::class, $id));
         }
+
+        return $data;
+    }
+
+    public function getByIdTrusted(string $id): IntegrationData
+    {
+        /** @var IntegrationData $data */
+        $data = $this->repository->find($id);
+        if (null === $data) {
+            throw new \InvalidArgumentException(sprintf('%s "%s" not found', IntegrationData::class, $id));
+        }
+
+        return $data;
     }
 }

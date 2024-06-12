@@ -251,7 +251,10 @@ export class DataboxClient {
         return res.data.id;
     }
 
-    async getOrCreateWorkspaceIdWithSlug(slug: string, locales: string[]): Promise<string> {
+    async getOrCreateWorkspaceIdWithSlug(
+        slug: string,
+        locales: string[]
+    ): Promise<string> {
         try {
             return (
                 await this.client.post(`/workspaces`, {

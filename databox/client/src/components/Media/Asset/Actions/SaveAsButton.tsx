@@ -99,7 +99,7 @@ export default function SaveAsButton({
                 ref={anchorRef}
                 {...componentProps}
             >
-                {children ?? 'Save'}
+                {children ?? 'Save as'}
             </Component>
             <Popper
                 sx={theme => ({

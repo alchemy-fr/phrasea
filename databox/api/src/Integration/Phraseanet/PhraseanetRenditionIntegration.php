@@ -6,6 +6,7 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -35,6 +36,12 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->cannotBeEmpty()
                 ->info('The Phraseanet base URL')
             ->end()
+            ->arrayNode('renditions')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->prototype('scalar')
+                ->end()
+            ->end()
             ->enumNode('method')
                 ->isRequired()
                 ->values($allowedMethods)
@@ -53,7 +60,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         ;
     }
 
-    public function validateConfiguration(array $config): void
+    public function validateConfiguration(IntegrationConfig $config): void
     {
         $method = $config['method'];
         if (self::METHOD_API === $method && empty($config['databoxId'])) {
@@ -68,20 +75,20 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         ]);
     }
 
-    public function getConfigurationInfo(array $config): array
+    public function getConfigurationInfo(IntegrationConfig $config): array
     {
         $info = [];
 
         if (self::METHOD_ENQUEUE === $config['method']) {
             $info['Webhook URL'] = $this->urlGenerator->generate('integration_phraseanet_webhook_event', [
-                'integrationId' => $config['integrationId'],
+                'integrationId' => $config->getIntegrationId(),
             ], UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         return $info;
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         $actions = [
             self::METHOD_API => PhraseanetGenerateAssetRenditionsAction::class,
@@ -90,12 +97,30 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
         $method = $config['method'];
 
-        yield WorkflowHelper::createIntegrationJob(
+        yield $firstJob = WorkflowHelper::createIntegrationJob(
             $config,
             $actions[$method],
             $method,
             ucfirst((string) $method),
         );
+
+        foreach ($config['renditions'] as $rendition) {
+            $receiptJob = WorkflowHelper::createIntegrationJob(
+                $config,
+                PhraseanetReceiveAction::class,
+                PhraseanetReceiveAction::JOB_ID.':'.$rendition,
+                $rendition,
+            );
+
+            $receiptJob->getNeeds()->append($firstJob->getId());
+
+            yield $receiptJob;
+        }
+    }
+
+    public static function getRenditionJobId(string $integrationId, string $renditionName): string
+    {
+        return self::getName().':'.$integrationId.':'.PhraseanetReceiveAction::JOB_ID.':'.$renditionName;
     }
 
     public static function getTitle(): string

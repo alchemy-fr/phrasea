@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import {FormRow} from '@alchemy/react-form';
+import {FormRow, SelectOption} from '@alchemy/react-form';
 import {FormFieldErrors} from '@alchemy/react-form';
 import CollectionTreeWidget from '../Form/CollectionTreeWidget';
 import PrivacyField from '../Ui/PrivacyField';
@@ -18,7 +18,6 @@ import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetData
 import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
 import AssetDataTemplateSelect from '../Form/AssetDataTemplateSelect';
 import {OnChangeValue} from 'react-select';
-import {SelectOption} from '../Form/RSelect';
 import {Asset, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';

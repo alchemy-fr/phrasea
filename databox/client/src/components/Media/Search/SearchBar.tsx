@@ -14,7 +14,7 @@ import {useTranslation} from 'react-i18next';
 import {SearchContext} from './SearchContext';
 import {ResultContext} from './ResultContext';
 import SortBy from './Sorting/SortBy';
-import {zIndex} from '../../../themes/zIndex';
+import {ZIndex} from '../../../themes/zIndex';
 import GeoPointFilter from './GeoPointFilter';
 import AutoComplete from './AutoComplete';
 import {getSearchSuggestions, SearchSuggestion} from '../../../api/asset';
@@ -109,7 +109,7 @@ export default function SearchBar({}: Props) {
         <Box
             sx={{
                 bgcolor: 'secondary.main',
-                zIndex: zIndex.toolbar,
+                zIndex: ZIndex.toolbar,
                 position: 'relative',
             }}
         >

@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import {Asset, File, WorkspaceIntegration} from '../../../types';
 import {
     Accordion,
@@ -8,26 +8,25 @@ import {
     List,
     Typography,
 } from '@mui/material';
-import {getWorkspaceIntegrations} from '../../../api/integrations';
+import {
+    getIntegrationsOfContext,
+    IntegrationContext,
+    ObjectType,
+} from '../../../api/integrations';
 import RemoveBGAssetEditorActions from '../../Integration/RemoveBG/RemoveBGAssetEditorActions';
 import {SetIntegrationOverlayFunction} from './AssetView';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
-
-export type AssetIntegrationActionsProps = {
-    asset: Asset;
-    file: File;
-    integration: WorkspaceIntegration;
-    setIntegrationOverlay: SetIntegrationOverlayFunction;
-    enableInc: number;
-    refreshIntegrations: () => Promise<void>;
-};
+import {
+    AssetIntegrationActionsProps,
+    Integration,
+} from '../../Integration/types.ts';
 
 const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
-    'remove.bg': RemoveBGAssetEditorActions,
-    'aws.rekognition': AwsRekognitionAssetEditorActions,
-    'tui.photo-editor': TUIPhotoEditor,
+    [Integration.RemoveBg]: RemoveBGAssetEditorActions,
+    [Integration.AwsRekognition]: AwsRekognitionAssetEditorActions,
+    [Integration.TuiPhotoEditor]: TUIPhotoEditor,
 };
 
 function IntegrationProxy({
@@ -84,9 +83,14 @@ export default function FileIntegrations({
 
     useEffect(() => {
         setExpanded(undefined);
-        getWorkspaceIntegrations(asset.workspace.id, file.id).then(r =>
-            setIntegrations(r.result)
-        );
+        getIntegrationsOfContext(
+            IntegrationContext.AssetView,
+            asset.workspace.id,
+            {
+                objectType: ObjectType.File,
+                objectId: file.id,
+            }
+        ).then(r => setIntegrations(r.result));
     }, [file.id]);
 
     useEffect(() => {
@@ -95,39 +99,32 @@ export default function FileIntegrations({
         }
     }, [expanded, integrations]);
 
-    const refreshIntegrations = useCallback(async () => {
-        const r = await getWorkspaceIntegrations(asset.workspace.id, file.id);
-        setIntegrations(r.result);
-    }, [file.id, asset.workspace.id]);
-
     return (
         <>
             {!integrations && <CircularProgress color="inherit" />}
             {integrations && (
                 <List component="nav" aria-labelledby="nested-list-subheader">
-                    {integrations
-                        .filter(i => i.supported)
-                        .map(i => (
-                            <IntegrationProxy
-                                refreshIntegrations={refreshIntegrations}
-                                expanded={expanded === i.id}
-                                onExpand={() => {
-                                    enableIncs.current[i.id] = enableIncs
-                                        .current[i.id]
-                                        ? enableIncs.current[i.id] + 1
-                                        : 1;
-                                    setExpanded(p =>
-                                        p === i.id ? undefined : i.id
-                                    );
-                                }}
-                                key={i.id}
-                                integration={i}
-                                asset={asset}
-                                file={file}
-                                enableInc={enableIncs.current[i.id]}
-                                setIntegrationOverlay={setIntegrationOverlay}
-                            />
-                        ))}
+                    {integrations.map(i => (
+                        <IntegrationProxy
+                            key={i.id}
+                            expanded={expanded === i.id}
+                            onExpand={() => {
+                                enableIncs.current[i.id] = enableIncs.current[
+                                    i.id
+                                ]
+                                    ? enableIncs.current[i.id] + 1
+                                    : 1;
+                                setExpanded(p =>
+                                    p === i.id ? undefined : i.id
+                                );
+                            }}
+                            integration={i}
+                            asset={asset}
+                            file={file}
+                            enableInc={enableIncs.current[i.id]}
+                            setIntegrationOverlay={setIntegrationOverlay}
+                        />
+                    ))}
                 </List>
             )}
         </>

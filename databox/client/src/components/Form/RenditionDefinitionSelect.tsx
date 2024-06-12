@@ -1,18 +1,22 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {
     getRenditionDefinitions,
     renditionDefinitionNS,
 } from '../../api/rendition';
 import {RenditionDefinition} from '../../types';
+import {
+    AsyncRSelectWidget,
+    SelectOption,
+    AsyncRSelectProps,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
-} & RSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, false>;
 
 export default function RenditionDefinitionSelect<
-    TFieldValues extends FieldValues
+    TFieldValues extends FieldValues,
 >({workspaceId, ...rest}: Props<TFieldValues>) {
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
@@ -35,7 +39,7 @@ export default function RenditionDefinitionSelect<
     );
 
     return (
-        <RSelectWidget<TFieldValues>
+        <AsyncRSelectWidget<TFieldValues>
             cacheId={'rend-definitions'}
             {...rest}
             loadOptions={load}

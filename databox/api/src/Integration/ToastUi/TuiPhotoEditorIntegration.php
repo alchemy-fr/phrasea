@@ -4,56 +4,67 @@ declare(strict_types=1);
 
 namespace App\Integration\ToastUi;
 
-use Alchemy\StorageBundle\Util\FileUtil;
-use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\AbstractFileAction;
-use App\Integration\FileActionsIntegrationInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Integration\AbstractIntegration;
+use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
+use App\Integration\IntegrationDataTransformerInterface;
+use App\Integration\PusherTrait;
+use App\Integration\UserActionsIntegrationInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class TuiPhotoEditorIntegration extends AbstractFileAction
+class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
+    use PusherTrait;
+    use FileUserActionsTrait;
+
     private const ACTION_SAVE = 'save';
     private const ACTION_DELETE = 'delete';
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
-        /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
+        $file = $this->getFile($request);
 
         switch ($action) {
             case self::ACTION_SAVE:
                 $newFile = $this->saveFile($file, $request);
 
                 $data = $this->integrationDataManager->storeData(
-                    $wsIntegration,
+                    $config->getWorkspaceIntegration(),
+                    $this->getStrictUser()->getId(),
                     $file,
-                    FileActionsIntegrationInterface::DATA_FILE_ID,
+                    self::DATA_FILE_ID,
                     $newFile->getId(),
                     $request->request->get('name', self::getName()),
                     true
                 );
 
-                return new JsonResponse($this->serializeData($data), 201, [], true);
+                $this->triggerFilePush(self::getName(), $file, [
+                    'action' => 'save',
+                    'id' => $data->getId(),
+                ], direct: true);
+
+                return $this->createNewDataResponse($data);
             case self::ACTION_DELETE:
                 $dataId = $request->request->get('id');
                 if (!$dataId) {
                     throw new BadRequestHttpException('Missing "id"');
                 }
-                $this->integrationDataManager->deleteById($wsIntegration, $dataId);
+                $this->integrationDataManager->deleteById($config->getWorkspaceIntegration(), $dataId, $this->getStrictUser()->getId());
 
-                return new JsonResponse();
+                $this->triggerFilePush(self::getName(), $file, [
+                    'action' => 'delete',
+                    'id' => $dataId,
+                ], direct: true);
+
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
-    }
 
-    public function supportsFileActions(File $file, array $config): bool
-    {
-        return FileUtil::isImageType($file->getType());
+        return null;
     }
 
     public static function getName(): string
@@ -64,5 +75,10 @@ class TuiPhotoEditorIntegration extends AbstractFileAction
     public static function getTitle(): string
     {
         return 'Toast UI Photo Editor';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }

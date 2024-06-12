@@ -95,7 +95,7 @@
     }
   },
   "basket_delete": {
-      "confirm": "您确定要删除此购物篮吗？"
+    "confirm": "您确定要删除此购物篮吗？"
   },
   "change_theme": {
     "save": "保存",
@@ -133,7 +133,7 @@
     }
   },
   "collection_delete": {
-      "confirm": "您确定要删除此集合吗？"
+    "confirm": "您确定要删除此集合吗？"
   },
   "collection_move": {
     "intro": "选择要移动此集合的目标位置：",

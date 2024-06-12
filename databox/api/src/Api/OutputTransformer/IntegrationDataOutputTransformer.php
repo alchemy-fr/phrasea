@@ -6,11 +6,11 @@ namespace App\Api\OutputTransformer;
 
 use App\Api\Model\Output\IntegrationDataOutput;
 use App\Entity\Integration\IntegrationData;
-use App\Integration\IntegrationDataProcessor;
+use App\Integration\IntegrationDataTransformer;
 
-class IntegrationDataOutputTransformer implements OutputTransformerInterface
+readonly class IntegrationDataOutputTransformer implements OutputTransformerInterface
 {
-    public function __construct(private readonly IntegrationDataProcessor $dataProcessor)
+    public function __construct(private IntegrationDataTransformer $dataTransformer)
     {
     }
 
@@ -24,7 +24,7 @@ class IntegrationDataOutputTransformer implements OutputTransformerInterface
      */
     public function transform(object $data, string $outputClass, array &$context = []): object
     {
-        $this->dataProcessor->process($data);
+        $this->dataTransformer->process($data);
 
         $output = new IntegrationDataOutput();
         $output->setId($data->getId());

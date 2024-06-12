@@ -210,6 +210,9 @@ FROM "external_access_token"');
                 'workspace' => [
                     'owner_id',
                 ],
+                'access_control_entry' => [
+                    'user_id',
+                ],
             ],
             'expose' => [
                 'asset' => [
@@ -220,6 +223,9 @@ FROM "external_access_token"');
                 ],
                 'publication' => [
                     'owner_id',
+                ],
+                'access_control_entry' => [
+                    'user_id',
                 ],
             ],
             'notify' => [
@@ -232,6 +238,9 @@ FROM "external_access_token"');
                     'user_id',
                 ],
                 'asset_commit' => [
+                    'user_id',
+                ],
+                'access_control_entry' => [
                     'user_id',
                 ],
             ],

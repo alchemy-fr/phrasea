@@ -8,8 +8,8 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -23,7 +23,7 @@ class WorkspaceSecret extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    use WorkspaceTrait;
+    use NullableWorkspaceTrait;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['secret:index'])]

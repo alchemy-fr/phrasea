@@ -39,6 +39,10 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^1.0.4"
+        "rector/rector": "^1.0.4",
+        "pusher/pusher-php-server": "^7.2.4"
+    },
+    "suggest": {
+        "pusher/pusher-php-server": "^7.2.4"
     }
 }

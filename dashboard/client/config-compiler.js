@@ -34,6 +34,7 @@
         'UPLOADER_API_URL',
         'UPLOADER_CLIENT_URL',
         'ZIPPY_URL',
+        'SOKETI_USAGE_URL',
     ];
 
     const e = {};

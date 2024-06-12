@@ -28,3 +28,9 @@ export async function rerunJob(
 
     return res.data;
 }
+
+export async function cancelWorkflow(workflowId: string): Promise<Workflow> {
+    const res = await apiClient.post(`/workflows/${workflowId}/cancel`, {});
+
+    return res.data;
+}

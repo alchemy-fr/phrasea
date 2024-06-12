@@ -6,7 +6,6 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
-use App\External\PhraseanetApiClientFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use Psr\Log\LoggerInterface;
@@ -16,6 +15,7 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
 {
     public function __construct(
         private readonly PhraseanetApiClientFactory $clientFactory,
+        private readonly PhraseanetTokenManager $tokenManager,
         private readonly LoggerInterface $logger,
         private readonly string $databoxBaseUrl,
     ) {
@@ -25,13 +25,14 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
     {
         $config = $this->getIntegrationConfig($context);
         $asset = $this->getAsset($context);
+        $workflowId = $context->getJobState()->getWorkflowId();
 
         $data = [
             'assets' => [$asset->getId()],
             'publisher' => $asset->getOwnerId(),
             'commit_id' => $asset->getId(),
-            'token' => self::generateAssetToken($asset), // TODO Add app secret
-            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config['integrationId'].'/',
+            'token' => $this->tokenManager->createToken($asset->getId(), $workflowId),
+            'base_url' => $this->databoxBaseUrl.'/integrations/phraseanet/'.$config->getIntegrationId().'/workflows/'.$workflowId.'/',
             'formData' => [
                 'collection_destination' => $config['collectionId'],
             ],
@@ -52,11 +53,6 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
 
             throw $e;
         }
-    }
-
-    public static function generateAssetToken(Asset $asset): string
-    {
-        return sprintf('%s::%s', $asset->getId(), $asset->getCreatedAt()->getTimestamp());
     }
 
     protected function shouldRun(Asset $asset): bool

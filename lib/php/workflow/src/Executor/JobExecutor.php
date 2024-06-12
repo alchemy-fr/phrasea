@@ -8,6 +8,7 @@ use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Exception\ConcurrencyException;
 use Alchemy\Workflow\Executor\Action\ActionRegistryInterface;
 use Alchemy\Workflow\Executor\Expression\ExpressionParser;
+use Alchemy\Workflow\Listener\JobUpdateEvent;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\State\Inputs;
@@ -15,16 +16,19 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 readonly class JobExecutor
 {
     private LoggerInterface $logger;
     private OutputInterface $output;
     private EnvContainer $envs;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         private iterable $executors,
@@ -34,10 +38,12 @@ readonly class JobExecutor
         ?OutputInterface $output = null,
         ?LoggerInterface $logger = null,
         ?EnvContainer $envs = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->output = $output ?? new NullOutput();
         $this->envs = $envs ?? new EnvContainer();
+        $this->eventDispatcher = $eventDispatcher ?? new EventDispatcher();
     }
 
     private function shouldBeSkipped(JobExecutionContext $context, Job $job): bool
@@ -88,7 +94,7 @@ readonly class JobExecutor
                 $jobState,
                 $this->output,
                 $this->envs->mergeWith($env),
-                $workflowState->getEvent()?->getInputs() ?? new Inputs()
+                ($workflowState->getEvent()?->getInputs() ?? new Inputs())->mergeWith($jobState->getInputs()?->getArrayCopy() ?? [])
             );
 
             $jobInputs = $context->getInputs()
@@ -141,6 +147,8 @@ readonly class JobExecutor
         if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
             $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getJobId());
         }
+
+        $this->eventDispatcher->dispatch(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getStatus()));
     }
 
     private function runJob(JobExecutionContext $context, Job $job): void
@@ -162,6 +170,7 @@ readonly class JobExecutor
             $output->writeln(sprintf('Running step <info>%s</info>', $step->getId()));
 
             $runContext = new RunContext(
+                $jobState,
                 $output,
                 $context->getInputs()->mergeWith($this->expressionParser->evaluateArray($step->getWith(), $context)),
                 $jobEnvContainer->mergeWith($this->expressionParser->evaluateArray(

@@ -53,14 +53,14 @@ export type RSelectOnCreate = (
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
     | {
-          control: Control<TFieldValues>;
-          name: FieldPath<TFieldValues>;
-      }
+    control: Control<TFieldValues>;
+    name: FieldPath<TFieldValues>;
+}
     | {
-          control?: undefined;
-          name?: string;
-      }
-) & {
+    control?: undefined;
+    name?: string;
+}
+    ) & {
     error?: boolean | undefined;
     cacheId?: string;
     disabledValues?: string[];
@@ -74,6 +74,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = (
 } & AsyncProps<SelectOption, IsMulti, GroupBase<SelectOption>>;
 
 export type {Props as AsyncRSelectProps};
+
 export default function AsyncRSelectWidget<
     TFieldValues extends FieldValues,
     IsMulti extends boolean = false,
@@ -142,15 +143,15 @@ export default function AsyncRSelectWidget<
     const loadOptionsWrapper: typeof loadOptions =
         loadOptions && !isDisabled
             ? async (inputValue: string) => {
-                  const options = (await loadOptions!(
-                      inputValue,
-                      () => {},
-                  )) as SelectOption[];
+                const options = (await loadOptions!(
+                    inputValue,
+                    () => {},
+                )) as SelectOption[];
 
-                  updateLastOptions(options);
+                updateLastOptions(options);
 
-                  return options;
-              }
+                return options;
+            }
             : undefined;
 
     const SelectComponent = onCreate ? AsyncCreatableSelect : AsyncSelect;
@@ -166,28 +167,28 @@ export default function AsyncRSelectWidget<
                 render={({field: {onChange, value, ref}}) => {
                     const onCreateOption = onCreate
                         ? (inputValue: string) => {
-                              onCreate(inputValue, option => {
-                                  const newValue = (
-                                      isMulti ? [option] : option
-                                  ) as OnChangeValue<SelectOption, IsMulti>;
-                                  const v = isMulti
-                                      ? (newValue as SelectOption[]).map(
-                                            v => v.value,
-                                        )
-                                      : (newValue as SelectOption | null)
-                                            ?.value;
+                            onCreate(inputValue, option => {
+                                const newValue = (
+                                    isMulti ? [option] : option
+                                ) as OnChangeValue<SelectOption, IsMulti>;
+                                const v = isMulti
+                                    ? (newValue as SelectOption[]).map(
+                                        v => v.value,
+                                    )
+                                    : (newValue as SelectOption | null)
+                                        ?.value;
 
-                                  updateLastOptions([option]);
+                                updateLastOptions([option]);
 
-                                  onChange(v);
+                                onChange(v);
 
-                                  onChangeProp &&
-                                      onChangeProp(newValue, {
-                                          action: 'select-option',
-                                          option,
-                                      });
-                              });
-                          }
+                                onChangeProp &&
+                                onChangeProp(newValue, {
+                                    action: 'select-option',
+                                    option,
+                                });
+                            });
+                        }
                         : undefined;
 
                     return (
@@ -207,21 +208,21 @@ export default function AsyncRSelectWidget<
                                 onChange={(newValue, meta) => {
                                     const v = isMulti
                                         ? (newValue as SelectOption[]).map(
-                                              v => v.value,
-                                          )
+                                            v => v.value,
+                                        )
                                         : (newValue as SelectOption | null)
-                                              ?.value ?? null;
+                                        ?.value ?? null;
                                     onChange(v);
                                     onChangeProp &&
-                                        onChangeProp(newValue as any, meta);
+                                    onChangeProp(newValue as any, meta);
                                 }}
                                 isOptionDisabled={
                                     disabledValues
                                         ? o => {
-                                              return disabledValues!.includes(
-                                                  o.value,
-                                              );
-                                          }
+                                            return disabledValues!.includes(
+                                                o.value,
+                                            );
+                                        }
                                         : undefined
                                 }
                                 cacheOptions={cacheOptions}
@@ -248,18 +249,18 @@ export default function AsyncRSelectWidget<
 
     const onCreateOption = onCreate
         ? (inputValue: string) => {
-              onCreate(inputValue, option => {
-                  const newValue = (
-                      isMulti ? [option] : option
-                  ) as OnChangeValue<SelectOption, IsMulti>;
-                  setValue(newValue);
-                  onChangeProp &&
-                      onChangeProp(newValue, {
-                          action: 'select-option',
-                          option,
-                      });
-              });
-          }
+            onCreate(inputValue, option => {
+                const newValue = (
+                    isMulti ? [option] : option
+                ) as OnChangeValue<SelectOption, IsMulti>;
+                setValue(newValue);
+                onChangeProp &&
+                onChangeProp(newValue, {
+                    action: 'select-option',
+                    option,
+                });
+            });
+        }
         : undefined;
 
     return (
@@ -283,8 +284,8 @@ export default function AsyncRSelectWidget<
                 isOptionDisabled={
                     disabledValues
                         ? o => {
-                              return disabledValues!.includes(o.value);
-                          }
+                            return disabledValues!.includes(o.value);
+                        }
                         : undefined
                 }
                 cacheOptions={cacheOptions}

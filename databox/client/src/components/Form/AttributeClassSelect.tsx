@@ -1,12 +1,16 @@
 import {useCallback} from 'react';
 import {AttributeClass} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import RSelectWidget, {RSelectProps, SelectOption} from './RSelect';
 import {attributeClassNS, getAttributeClasses} from '../../api/attributes';
+import {
+    AsyncRSelectWidget,
+    SelectOption,
+    AsyncRSelectProps,
+} from '@alchemy/react-form';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
-} & RSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, false>;
 
 export default function AttributeClassSelect<TFieldValues extends FieldValues>({
     workspaceId,
@@ -31,7 +35,7 @@ export default function AttributeClassSelect<TFieldValues extends FieldValues>({
     );
 
     return (
-        <RSelectWidget<TFieldValues>
+        <AsyncRSelectWidget<TFieldValues>
             cacheId={'attr-classes'}
             {...rest}
             loadOptions={load}

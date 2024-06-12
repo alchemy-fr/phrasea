@@ -8,7 +8,7 @@ import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import {getWorkflows} from '../../../api/workflow';
 import ModalLink from '../../Routing/ModalLink';
 import moment from 'moment';
-import {jobStatuses, Workflow} from '@alchemy/visual-workflow';
+import {Workflow, workflowStatuses} from '@alchemy/visual-workflow';
 import React from 'react';
 import {modalRoutes} from '../../../routes';
 
@@ -25,13 +25,11 @@ const Intro = styled('div')(({theme}) => ({
 }));
 
 // Importing enum from visual-workflow does not work
-enum JobStatus {
-    Triggered = 0,
+export enum WorkflowStatus {
+    Started = 0,
     Success = 1,
     Failure = 2,
-    Skipped = 3,
-    Running = 4,
-    Error = 5,
+    Cancelled = 3,
 }
 
 export default function OperationsAsset({data, onClose, minHeight}: Props) {
@@ -50,7 +48,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     }, []);
 
     const colors: Record<
-        JobStatus,
+        WorkflowStatus,
         | 'info'
         | 'success'
         | 'error'
@@ -59,12 +57,10 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
         | 'primary'
         | 'secondary'
     > = {
-        [JobStatus.Triggered]: 'secondary',
-        [JobStatus.Success]: 'success',
-        [JobStatus.Failure]: 'error',
-        [JobStatus.Skipped]: 'default',
-        [JobStatus.Running]: 'primary',
-        [JobStatus.Error]: 'error',
+        [WorkflowStatus.Started]: 'secondary',
+        [WorkflowStatus.Success]: 'success',
+        [WorkflowStatus.Cancelled]: 'warning',
+        [WorkflowStatus.Failure]: 'error',
     };
 
     return (
@@ -101,7 +97,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 {w.status !== undefined && (
                                     <Chip
                                         color={colors[w.status]}
-                                        label={jobStatuses[w.status]}
+                                        label={workflowStatuses[w.status]}
                                         size={'small'}
                                         sx={{ml: 2}}
                                     />

@@ -11,7 +11,7 @@ use Alchemy\Workflow\Message\JobConsumer;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\External\PhraseanetApiClientFactory;
+use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,6 +61,9 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             'token' => 'baz',
             'databoxId' => 2,
             'method' => PhraseanetRenditionIntegration::METHOD_API,
+            'renditions' => [
+                'thumbnail',
+            ],
         ]);
         $em->persist($integration);
 

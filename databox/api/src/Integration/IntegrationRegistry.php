@@ -33,11 +33,13 @@ class IntegrationRegistry
     /**
      * @return IntegrationInterface[]
      */
-    public function getIntegrationsOfType(string $interface): array
+    public function getSupportingIntegrations(IntegrationContext $context): array
     {
         $result = [];
         foreach ($this->integrations as $integration) {
-            if (is_subclass_of($integration, $interface)) {
+            if ($integration instanceof UserActionsIntegrationInterface
+                && in_array($context, $integration->getSupportedContexts(), true)
+            ) {
                 $result[] = $integration;
             }
         }

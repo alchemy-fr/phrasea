@@ -10,8 +10,7 @@ final readonly class PasswordTokenExtractor
 
     public function __construct(
         private RequestStack $requestStack,
-    )
-    {
+    ) {
     }
 
     private function getPasswords(): array

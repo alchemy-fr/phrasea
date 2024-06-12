@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import IntegrationPanelContent from '../Common/IntegrationPanelContent';
-import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
+import {} from '../../Media/Asset/FileIntegrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import 'tui-image-editor/dist/tui-image-editor.css';
 // @ts-expect-error TS error in package
@@ -14,7 +14,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {runIntegrationFileAction} from '../../../api/integrations';
+import {ObjectType, runIntegrationAction} from '../../../api/integrations';
 import SaveIcon from '@mui/icons-material/Save';
 import {dataURLtoFile} from '../../../lib/file';
 import {LoadingButton} from '@mui/lab';
@@ -22,6 +22,9 @@ import {toast} from 'react-toastify';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import {File} from '../../../types';
 import FileItem from './FileItem';
+import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {useIntegrationData} from '../useIntegrationData.ts';
+import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -70,7 +73,6 @@ export default function TUIPhotoEditor({
     file,
     integration,
     setIntegrationOverlay,
-    refreshIntegrations,
     enableInc,
 }: Props) {
     const editoRef = useRef<any>();
@@ -78,16 +80,31 @@ export default function TUIPhotoEditor({
     const [saving, setSaving] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<File>(file);
     const [deleting, setDeleting] = useState<string | undefined>();
+    const canEdit = asset.capabilities.canEdit;
+    const {data, load: loadData} = useIntegrationData({
+        objectType: ObjectType.File,
+        objectId: file.id,
+        integrationId: integration.id,
+        defaultData: integration.data,
+    });
+
+    useChannelRegistration(
+        `file-${file.id}`,
+        `integration:${Integration.TuiPhotoEditor}`,
+        () => {
+            loadData();
+        }
+    );
 
     const saveAs = async () => {
         if (editoRef.current) {
             setSaving(true);
             try {
-                await runIntegrationFileAction(
+                await runIntegrationAction(
                     'save',
                     integration.id,
-                    file.id,
                     {
+                        fileId: file.id,
                         assetId: asset.id,
                         name: fileName,
                     },
@@ -97,7 +114,7 @@ export default function TUIPhotoEditor({
                     )
                 );
                 toast.success('Saved!');
-                await refreshIntegrations();
+                loadData();
             } finally {
                 setSaving(false);
             }
@@ -107,13 +124,15 @@ export default function TUIPhotoEditor({
     const deleteFile = async (id: string) => {
         setDeleting(id);
         try {
-            await runIntegrationFileAction('delete', integration.id, file.id, {
+            await runIntegrationAction('delete', integration.id, {
+                fileId: file.id,
                 id,
             });
+
+            loadData();
         } finally {
             setDeleting(undefined);
         }
-        await refreshIntegrations();
     };
 
     useEffect(() => {
@@ -153,7 +172,7 @@ export default function TUIPhotoEditor({
                     onChange={e => {
                         setFileName(e.target.value);
                     }}
-                    disabled={saving}
+                    disabled={!canEdit || saving}
                     placeholder={'File name'}
                 />
                 <LoadingButton
@@ -163,14 +182,14 @@ export default function TUIPhotoEditor({
                     startIcon={<SaveIcon />}
                     variant={'contained'}
                     onClick={saveAs}
-                    disabled={!fileName}
+                    disabled={!canEdit || !fileName}
                     loading={saving}
                 >
                     Save
                 </LoadingButton>
             </IntegrationPanelContent>
 
-            {integration.data.length > 0 && (
+            {data!.pages.length > 0 && (
                 <List>
                     <ListSubheader>Open recent</ListSubheader>
                     <ListItemButton
@@ -183,12 +202,12 @@ export default function TUIPhotoEditor({
                         <ListItemText>Original</ListItemText>
                     </ListItemButton>
 
-                    {integration.data.map(d => {
+                    {data!.pages.flat().map(d => {
                         return (
                             <FileItem
+                                key={d.id}
                                 disabled={deleting === d.id}
                                 selected={selectedFile?.id === d.value.id}
-                                key={d.id}
                                 data={d}
                                 onOpen={onOpen}
                                 onDelete={deleteFile}

@@ -10,7 +10,7 @@ import {Box, Theme, useMediaQuery} from '@mui/material';
 import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
 import uploaderClient from '../api/uploader-client';
-import {zIndex} from '../themes/zIndex';
+import {ZIndex} from '../themes/zIndex';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
 import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
@@ -57,7 +57,7 @@ const AppProxy = React.memo(() => {
                                             height: `calc(100vh - ${menuHeight}px)`,
                                             overflow: 'auto',
                                             boxShadow: theme.shadows[5],
-                                            zIndex: zIndex.leftPanel,
+                                            zIndex: ZIndex.leftPanel,
                                         })}
                                     >
                                         <LeftPanel />

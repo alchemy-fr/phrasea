@@ -1,3 +1,9 @@
 alchemy_workflow:
-  doctrine:
-    workflow_state_entity: App\Entity\Workflow\WorkflowState
+    doctrine:
+        workflow_state_entity: App\Entity\Workflow\WorkflowState
+    pusher: ~
+
+when@test:
+    alchemy_workflow:
+        pusher:
+            enabled: false

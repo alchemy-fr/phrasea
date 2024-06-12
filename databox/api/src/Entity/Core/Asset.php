@@ -25,12 +25,12 @@ use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
+use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use App\Controller\Core\MultipleAssetCreateAction;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -76,10 +76,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
             processor: AssetAttributeBatchUpdateProcessor::class,
         ),
         new GetCollection(),
-        new Post(securityPostValidation: 'is_granted("CREATE", object)'),
+        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
         new Post(
             uriTemplate: '/assets/multiple',
-            controller: MultipleAssetCreateAction::class,
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
@@ -87,6 +86,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             output: MultipleAssetOutput::class,
             validate: false,
             name: 'post_multiple',
+            processor: MultipleAssetCreateProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/move',

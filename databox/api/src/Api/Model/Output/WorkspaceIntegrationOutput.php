@@ -25,7 +25,7 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private bool $enabled = true;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    private ?bool $supported = null;
+    private ?array $tokens = null;
 
     /**
      * @var IntegrationData[]
@@ -89,13 +89,13 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
         $this->config = $config;
     }
 
-    public function getSupported(): ?bool
+    public function getTokens(): ?array
     {
-        return $this->supported;
+        return $this->tokens;
     }
 
-    public function setSupported(?bool $supported): void
+    public function setTokens(?array $tokens): void
     {
-        $this->supported = $supported;
+        $this->tokens = $tokens;
     }
 }

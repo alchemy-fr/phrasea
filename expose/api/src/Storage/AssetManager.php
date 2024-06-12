@@ -51,6 +51,10 @@ class AssetManager
             $asset->setDescription($options['description']);
         }
 
+        if (isset($options['translations'])) {
+            $asset->setTranslations($options['translations']);
+        }
+
         if (isset($options['asset_id'])) {
             $asset->setAssetId($options['asset_id']);
         }
@@ -71,6 +75,9 @@ class AssetManager
         }
         if (isset($options['webVTT'])) {
             $asset->setWebVTT($options['webVTT']);
+        }
+        if (isset($options['clientAnnotations'])) {
+            $asset->setClientAnnotations($options['clientAnnotations']);
         }
 
         $this->em->persist($publication);

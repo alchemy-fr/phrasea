@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Env\EnvResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,9 +11,9 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 readonly class IntegrationManager
 {
@@ -34,19 +33,16 @@ readonly class IntegrationManager
         call_user_func([$integration, $func], $config, $args);
     }
 
-    public function handleFileAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request, File $file): Response
+    public function handleAction(WorkspaceIntegration $workspaceIntegration, string $action, Request $request): Response
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
-        if (!$integration instanceof FileActionsIntegrationInterface) {
+        if (!$integration instanceof UserActionsIntegrationInterface) {
             throw new \InvalidArgumentException(sprintf('Integration "%s" does not support file actions', $workspaceIntegration->getIntegration()));
         }
 
         $config = $this->getConfiguration($workspaceIntegration, $integration);
-        if (!$integration->supportsFileActions($file, $config)) {
-            throw new BadRequestHttpException(sprintf('Unsupported actions on file "%s"', $file->getId()));
-        }
 
-        return $integration->handleFileAction($action, $request, $file, $config);
+        return $integration->handleUserAction($action, $request, $config) ?? new JsonResponse();
     }
 
     public function loadIntegration(string $id): WorkspaceIntegration
@@ -59,10 +55,18 @@ readonly class IntegrationManager
         return $integration;
     }
 
-    /**
-     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
-     */
-    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): array
+    public function findIntegrationsOfContext(IntegrationContext $context): array
+    {
+        $types = $this->integrationRegistry->getSupportingIntegrations($context);
+
+        return $this->em->getRepository(WorkspaceIntegration::class)
+            ->findBy([
+                'integration' => array_map(fn (IntegrationInterface $integration): string => $integration::getName(), $types),
+                'enabled' => true,
+            ]);
+    }
+
+    public function getIntegrationConfiguration(WorkspaceIntegration $workspaceIntegration): IntegrationConfig
     {
         return $this->getConfiguration(
             $workspaceIntegration,
@@ -114,26 +118,18 @@ readonly class IntegrationManager
         return trim(preg_replace("#^\n+#", '', $output));
     }
 
-    /**
-     * @return array{integration: IntegrationInterface, workspaceIntegration: WorkspaceIntegration, integrationId: string, workspaceId: string}
-     */
-    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): array
+    private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig
     {
         $node = $this->buildConfiguration($integration);
 
         $processor = new Processor();
         $config = $processor->process($node, ['root' => $workspaceIntegration->getConfig()]);
 
-        $config = $this->envResolver->resolve(
-            $workspaceIntegration->getWorkspaceId(),
-            $config
+        return new IntegrationConfig(
+            $config,
+            $workspaceIntegration,
+            $integration,
+            $this->envResolver,
         );
-
-        $config['integration'] = $integration;
-        $config['workspaceIntegration'] = $workspaceIntegration;
-        $config['integrationId'] = $workspaceIntegration->getId();
-        $config['workspaceId'] = $workspaceIntegration->getWorkspaceId();
-
-        return $config;
     }
 }

@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import {AssetIntegrationActionsProps} from '../../Media/Asset/FileIntegrations';
 import {
     Button,
     List,
@@ -10,7 +9,7 @@ import {
     ListSubheader,
     Tooltip,
 } from '@mui/material';
-import {runIntegrationFileAction} from '../../../api/integrations';
+import {runIntegrationAction} from '../../../api/integrations';
 import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
@@ -27,6 +26,7 @@ import {
 } from './types';
 import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
+import {AssetIntegrationActionsProps} from '../types.ts';
 
 function ImageOverlay({
     labels,
@@ -169,14 +169,10 @@ export default function AwsRekognitionAssetEditorActions({
     const process = async (category: DetectType) => {
         setRunning(category);
         try {
-            const res = await runIntegrationFileAction(
-                'analyze',
-                integration.id,
-                file.id,
-                {
-                    category,
-                }
-            );
+            const res = await runIntegrationAction('analyze', integration.id, {
+                fileId: file.id,
+                category,
+            });
 
             switch (category) {
                 case DetectType.Labels:

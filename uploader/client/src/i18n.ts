@@ -1,6 +1,6 @@
 import {createI18N, createNS} from '@alchemy/i18n';
 import * as appLangs from '../translations';
-import {initReactI18next} from "react-i18next";
+import {initReactI18next} from 'react-i18next';
 
 const i18n = createI18N({
     initReactI18next,

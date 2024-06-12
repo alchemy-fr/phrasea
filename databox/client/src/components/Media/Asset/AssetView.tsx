@@ -3,17 +3,16 @@ import {Asset, AssetRendition} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
-import {StackedModalProps} from '@alchemy/navigation';
+import {StackedModalProps, useParams} from '@alchemy/navigation';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
-import {useParams} from '@alchemy/navigation';
 import {getAsset} from '../../../api/asset';
 import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';
 import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
-import {useNavigateToModal} from '../../Routing/ModalLink';
+import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
 
 export type IntegrationOverlayCommonProps = {
@@ -42,13 +41,27 @@ type Props = {} & StackedModalProps;
 export default function AssetView({modalIndex}: Props) {
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
+    const closeModal = useCloseModal();
 
     const [data, setData] = useState<Asset>();
     const [renditions, setRenditions] = useState<AssetRendition[]>();
 
     useEffect(() => {
-        getAsset(assetId!).then(c => setData(c));
-        getAssetRenditions(assetId!).then(r => setRenditions(r.result));
+        (async () => {
+            try {
+                await Promise.all([
+                    getAsset(assetId!).then(c => setData(c)),
+                    getAssetRenditions(assetId!).then(r =>
+                        setRenditions(r.result)
+                    ),
+                ]);
+            } catch (e: any) {
+                console.log('e', e);
+                if ([401, 403].includes(e.response?.status ?? 0)) {
+                    closeModal();
+                }
+            }
+        })();
     }, [assetId]);
 
     const winSize = useWindowSize();

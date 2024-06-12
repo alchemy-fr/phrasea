@@ -3,7 +3,7 @@ FROM node:20.10.0-buster-slim
 WORKDIR /srv/workspace
 
 RUN chown -R node:node /srv/workspace \
-    && npm install -g pnpm@^8.11.0
+    && npm install -g pnpm@^9.3.0
 
 USER node
 

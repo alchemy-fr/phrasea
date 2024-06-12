@@ -87,17 +87,14 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
         foreach ($workspaceIntegrations as $workspaceIntegration) {
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
 
-            if ($config['integration'] instanceof WorkflowIntegrationInterface) {
+            if ($config->getIntegration() instanceof WorkflowIntegrationInterface) {
                 $integrationConfigs[] = $config;
             }
         }
 
         foreach ($integrationConfigs as $config) {
             $jobs = [];
-            [
-                'integration' => $integration,
-                'workspaceIntegration' => $workspaceIntegration,
-            ] = $config;
+            $integration = $config->getIntegration();
 
             assert($integration instanceof WorkflowIntegrationInterface);
 
@@ -107,11 +104,11 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                 $jobDefinition->setContinueOnError(true);
                 $jobs[] = $jobDefinition;
             }
-            $jobMap[$workspaceIntegration->getId()] = $jobs;
+            $jobMap[$config->getIntegrationId()] = $jobs;
         }
 
         foreach ($integrationConfigs as $config) {
-            $workspaceIntegration = $config['workspaceIntegration'];
+            $workspaceIntegration = $config->getWorkspaceIntegration();
 
             foreach ($workspaceIntegration->getNeeds() as $need) {
                 foreach ($jobMap[$workspaceIntegration->getId()] as $job) {

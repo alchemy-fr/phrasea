@@ -61,6 +61,7 @@ type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
 export type LayoutProps<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
     loadMore?: LoadMoreFunc;
+    previewZIndex: number | undefined;
 } & LayoutCommonProps<Item> &
     AssetActions<Item>;
 

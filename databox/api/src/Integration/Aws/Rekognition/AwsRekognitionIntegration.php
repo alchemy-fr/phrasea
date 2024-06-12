@@ -4,23 +4,27 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
-use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Workflow\Model\Workflow;
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
-use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\IntegrationConfig;
+use App\Integration\IntegrationContext;
+use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, FileActionsIntegrationInterface
+class AwsRekognitionIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
+    use FileUserActionsTrait;
+
     private const ACTION_ANALYZE = 'analyze';
 
     final public const LABELS = 'labels';
@@ -34,7 +38,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     ];
 
     public function __construct(
-        private readonly RekognitionAnalyzer $rekognitionAnalyzer,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -100,7 +104,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         $builder->append($this->createBudgetLimitConfigNode(true));
     }
 
-    public function getWorkflowJobDefinitions(array $config, Workflow $workflow): iterable
+    public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         foreach (self::CATEGORIES as $category => $action) {
             if ($config[$category]['enabled'] && $config[$category]['processIncoming']) {
@@ -114,22 +118,25 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         }
     }
 
-    public function handleFileAction(string $action, Request $request, File $file, array $config): Response
+    public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
+        $file = $this->getFile($request);
         switch ($action) {
             case self::ACTION_ANALYZE:
-                $category = $request->request->get('category');
-                $payload = $this->rekognitionAnalyzer->analyze(null, $file, $category, $config);
-
-                return new JsonResponse([
-                    $category => $payload,
-                ]);
+                $this->bus->dispatch(new RekognitionAnalyze(
+                    $file->getId(),
+                    $config->getIntegrationId(),
+                    $request->request->get('category')
+                ));
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
         }
+
+        return null;
     }
 
-    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, array $config): array
+    public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
         $output = [];
         foreach (array_keys(self::CATEGORIES) as $category) {
@@ -141,16 +148,6 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
         return $output;
     }
 
-    private function supportFile(File $file): bool
-    {
-        return FileUtil::isImageType($file->getType());
-    }
-
-    public function supportsFileActions(File $file, array $config): bool
-    {
-        return $this->supportFile($file);
-    }
-
     public static function getName(): string
     {
         return 'aws.rekognition';
@@ -159,5 +156,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
     public static function getTitle(): string
     {
         return 'AWS Rekognition';
+    }
+
+    public function getSupportedContexts(): array
+    {
+        return [IntegrationContext::AssetView];
     }
 }

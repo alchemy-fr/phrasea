@@ -9,6 +9,8 @@ import TranslationsWidget from "./src/Translations/TranslationsWidget";
 import {ColorBox} from "./src/Color/ColorBox";
 import TranslatedField from "./src/Translations/TranslatedField";
 import LoadingButton from "./src/LoadingButton";
+import AsyncRSelectWidget, {AsyncRSelectProps} from "./src/AsyncRSelectWidget";
+import RSelectWidget, {RSelectProps, SelectOption} from "./src/RSelectWidget";
 
 export {
     CollectionWidget,
@@ -22,6 +24,14 @@ export {
     TranslationsWidget,
     TranslatedField,
     LoadingButton,
+    AsyncRSelectWidget,
+    RSelectWidget,
+};
+
+export type {
+    AsyncRSelectProps,
+    RSelectProps,
+    SelectOption,
 };
 
 export type * from './src/types';

@@ -7,17 +7,16 @@ namespace App\Api\Extension;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\FileActionsIntegrationInterface;
+use App\Integration\IntegrationContext;
+use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationRegistry;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class WorkspaceIntegrationExtension implements QueryCollectionExtensionInterface
+readonly class WorkspaceIntegrationExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private readonly IntegrationRegistry $integrationRegistry, private readonly EntityManagerInterface $em)
+    public function __construct(private IntegrationRegistry $integrationRegistry)
     {
     }
 
@@ -35,27 +34,18 @@ class WorkspaceIntegrationExtension implements QueryCollectionExtensionInterface
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $filters = $context['filters'] ?? [];
-        if (!isset($filters['workspace']) && !isset($filters['fileId'])) {
-            throw new BadRequestHttpException('Missing "workspace" or "fileId" parameter');
-        }
+        $context = $filters['context'] ?? throw new BadRequestHttpException('Missing context type');
+        $context = IntegrationContext::tryFrom($context) ?? throw new BadRequestHttpException(sprintf('Invalid context "%s"', $context));
 
-        if (isset($filters['fileId'])) {
-            $file = $this->em->find(File::class, $filters['fileId']);
-            if (!$file instanceof File) {
-                throw new \InvalidArgumentException(sprintf('File "%s" not found', $filters['fileId']));
-            }
-            $filters['workspace'] = $file->getWorkspaceId();
+        $supportedIntegrations = array_map(
+            fn (IntegrationInterface $integration): string => $integration::getName(),
+            $this->integrationRegistry->getSupportingIntegrations($context)
+        );
 
-            $supportedIntegrations = array_map(
-                fn (FileActionsIntegrationInterface $integration): string => $integration::getName(),
-                $this->integrationRegistry->getIntegrationsOfType(FileActionsIntegrationInterface::class)
-            );
-
-            $queryBuilder
-                ->andWhere(sprintf('%s.integration IN (:integrations)', $rootAlias))
-                ->setParameter('integrations', $supportedIntegrations)
-            ;
-        }
+        $queryBuilder
+            ->andWhere(sprintf('%s.integration IN (:integrations)', $rootAlias))
+            ->setParameter('integrations', $supportedIntegrations)
+        ;
 
         $queryBuilder->andWhere(sprintf('%s.enabled = true', $rootAlias));
     }

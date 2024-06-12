@@ -13,7 +13,7 @@ use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Controller\Integration\PhraseanetIntegrationController;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\External\PhraseanetApiClientFactory;
+use App\Integration\Phraseanet\PhraseanetApiClientFactory;
 use App\Integration\Phraseanet\PhraseanetRenditionIntegration;
 use App\Tests\FileUploadTrait;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,6 +64,9 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'token' => 'baz',
             'collectionId' => 42,
             'method' => PhraseanetRenditionIntegration::METHOD_ENQUEUE,
+            'renditions' => [
+                'thumbnail',
+            ],
         ]);
         $em->persist($integration);
 
@@ -99,6 +102,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $envelope = $inMemoryTransport->get()[0];
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
+        $workflowId = $eventMessage->getWorkflowId();
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getJobId());
         $this->consumeEvent($envelope);
 
@@ -113,11 +117,12 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             'commit_id' => $assetId,
         ], $phraseanetBodyData);
         $this->assertMatchesRegularExpression(sprintf(
-            '#https://api-databox\.[^/]+/integrations/phraseanet/%s/$#',
-            preg_quote($integration->getId(), '#')
+            '#https://api-databox\.[^/]+/integrations/phraseanet/%s/workflows/%s/$#',
+            preg_quote($integration->getId(), '#'),
+            $workflowId,
         ), $phraseanetBodyData['base_url']);
 
-        $endpoint = sprintf('/integrations/phraseanet/%s/assets/%s', $integration->getId(), $assetId);
+        $endpoint = sprintf('/integrations/phraseanet/%s/workflows/%s/assets/%s', $integration->getId(), $workflowId, $assetId);
         // Call from Phraseanet without token
         $apiClient->request('GET', $endpoint);
         $this->assertResponseStatusCodeSame(401);
@@ -136,7 +141,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $originalName = PhraseanetIntegrationController::ASSET_NAME_PREFIX.$assetId.'.png';
+        $originalName = PhraseanetIntegrationController::ASSET_NAME_PREFIX.$assetId.'_'.$workflowId.'.png';
         $this->assertJsonContains([
             'originalName' => $originalName,
             'formData' => [
@@ -173,7 +178,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $em = self::getService(EntityManagerInterface::class);
         $em->clear();
 
-        $response = $apiClient->request('GET', '/assets/'.$assetId, [
+        $apiClient->request('GET', '/assets/'.$assetId, [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],

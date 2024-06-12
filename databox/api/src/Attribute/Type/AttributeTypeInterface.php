@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -17,6 +18,9 @@ interface AttributeTypeInterface
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
+    public function getElasticSearchSubField(): ?string;
+    public function getElasticSearchSearchType(): ?SearchType;
+    public function supportsElasticSearchFuzziness(): bool;
 
     public function getFacetType(): string;
 

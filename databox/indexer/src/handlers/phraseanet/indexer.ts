@@ -1,13 +1,6 @@
 import {IndexIterator} from '../../indexers';
-import {
-    ConfigDataboxMapping,
-    FieldMap,
-    PhraseanetConfig,
-} from './types';
-import {
-    CPhraseanetRecord,
-    CPhraseanetStory
-} from './CPhraseanetRecord';
+import {ConfigDataboxMapping, FieldMap, PhraseanetConfig} from './types';
+import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient from './phraseanetClient';
 import {
     AttrClassIndex,
@@ -17,22 +10,17 @@ import {
     TagIndex,
 } from './shared';
 import {getConfig, getStrict} from '../../configLoader';
-import {escapeSlashes, splitPath} from "../../lib/pathUtils";
-import {AttributeDefinition, Tag} from "../../databox/types";
-
-// import * as Twig from "twig";
+import {escapeSlashes, splitPath} from '../../lib/pathUtils';
+import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
-
-    Twig.extendFilter(
-        'escapePath',
-        function(v: string) {
-            return v.replace('/', '_')
+        Twig.extendFilter('escapePath', function (v: string) {
+            return v.replace('/', '_');
         });
 
-    const client = new PhraseanetClient(location.options, logger);
+        const client = new PhraseanetClient(location.options, logger);
 
         const databoxMapping: ConfigDataboxMapping[] = getStrict(
             'databoxMapping',
@@ -60,7 +48,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
         for (const dm of databoxMapping) {
             const databox = await client.getDatabox(dm.databox);
-            if(databox === undefined) {
+            if (databox === undefined) {
                 logger.info(`Unknown databox "${dm.databox}" (ignored)`);
                 continue;
             }
@@ -70,10 +58,11 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
 
             // scan the conf.fieldMap to get a list of required locales
-            const fieldMap = new Map<string, FieldMap>(Object.entries(dm.fieldMap ?? {}));
+            const fieldMap = new Map<string, FieldMap>(
+                Object.entries(dm.fieldMap ?? {})
+            );
             let locales: string[] = [];
-            // @ts-ignore
-            for(const [name, fm] of fieldMap) {
+            for (const [_name, fm] of fieldMap) {
                 for (const v of fm.values) {
                     if (v.locale !== undefined) {
                         locales.push(v.locale);
@@ -99,71 +88,92 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             const defaultPublicClass = 'public';
             const name = 'Phraseanet Public';
             logger.info(`Creating "${name}" attribute class`);
-            attrClassIndex[defaultPublicClass] = await databoxClient.createAttributeClass(
-                defaultPublicClass,
-                {
+            attrClassIndex[defaultPublicClass] =
+                await databoxClient.createAttributeClass(defaultPublicClass, {
                     name,
                     public: true,
                     editable: true,
                     workspace: `/workspaces/${workspaceId}`,
                     key: defaultPublicClass,
-                }
-            );
+                });
 
             logger.info(`Fetching Meta structures`);
-            const metaStructure = await client.getMetaStruct(databox.databox_id);
-            if(!dm.fieldMap) {
+            const metaStructure = await client.getMetaStruct(
+                databox.databox_id
+            );
+            if (!dm.fieldMap) {
                 // import all fields from structure
                 for (const name in metaStructure) {
-                    fieldMap.set(
-                        name,
-                        {
-                            id: metaStructure[name].id,
-                            position: 0,
-                            type: attributeTypesEquivalence[metaStructure[name].type] ?? DataboxAttributeType.Text,
-                            multivalue: metaStructure[name].multivalue,
-                            readonly: metaStructure[name].readonly,
-                            translatable: false,
-                            labels: metaStructure[name].labels,
-                            values: [
-                                {
-                                    type: "metadata",
-                                    value: name
-                                }
-                            ],
-                            attributeDefinition: {} as AttributeDefinition,
-                        }
-                    );
+                    fieldMap.set(name, {
+                        id: metaStructure[name].id,
+                        position: 0,
+                        type:
+                            attributeTypesEquivalence[
+                                metaStructure[name].type
+                            ] ?? DataboxAttributeType.Text,
+                        multivalue: metaStructure[name].multivalue,
+                        readonly: metaStructure[name].readonly,
+                        translatable: false,
+                        labels: metaStructure[name].labels,
+                        values: [
+                            {
+                                type: 'metadata',
+                                value: name,
+                            },
+                        ],
+                        attributeDefinition: {} as AttributeDefinition,
+                    });
                 }
             }
-            const attributeDefinitionIndex: Record<string, AttributeDefinition> = {};
-            let ufid = 0;   // used to generate a unique id for fields declared in conf, but not existing in phraseanet
+            const attributeDefinitionIndex: Record<
+                string,
+                AttributeDefinition
+            > = {};
+            let ufid = 0; // used to generate a unique id for fields declared in conf, but not existing in phraseanet
             let position = 1;
-            for(const [name, fm] of fieldMap) {
-                fm.id         = metaStructure[name] ? metaStructure[name].id : (--ufid).toString();
-                fm.position   = position++;
-                fm.multivalue = fm.multivalue ?? (metaStructure[name] ? metaStructure[name].multivalue : false);
-                fm.readonly   = fm.readonly   ?? (metaStructure[name] ? metaStructure[name].readonly : false);
-                fm.labels     = fm.labels     ?? (metaStructure[name] ? metaStructure[name].labels : {});
-                fm.type       = fm.type       ?? (metaStructure[name] ? attributeTypesEquivalence[metaStructure[name].type] : DataboxAttributeType.Text);
+            for (const [name, fm] of fieldMap) {
+                fm.id = metaStructure[name]
+                    ? metaStructure[name].id
+                    : (--ufid).toString();
+                fm.position = position++;
+                fm.multivalue =
+                    fm.multivalue ??
+                    (metaStructure[name]
+                        ? metaStructure[name].multivalue
+                        : false);
+                fm.readonly =
+                    fm.readonly ??
+                    (metaStructure[name]
+                        ? metaStructure[name].readonly
+                        : false);
+                fm.labels =
+                    fm.labels ??
+                    (metaStructure[name] ? metaStructure[name].labels : {});
+                fm.type =
+                    fm.type ??
+                    (metaStructure[name]
+                        ? attributeTypesEquivalence[metaStructure[name].type]
+                        : DataboxAttributeType.Text);
                 for (const v of fm.values) {
                     if (v.locale !== undefined) {
                         fm.translatable = true;
                     }
 
-                    if (v.type === "template") {
+                    if (v.type === 'template') {
                         try {
-                            v.twig = Twig.twig({data: v.value});  // compile once
+                            v.twig = Twig.twig({data: v.value}); // compile once
                         } catch (e: any) {
-                            throw new Error(`Error compiling twig for field "${name}": ${e.message}`);
+                            throw new Error(
+                                `Error compiling twig for field "${name}": ${e.message}`
+                            );
                         }
                     }
                 }
 
-                if(!attributeDefinitionIndex[name]) {
+                if (!attributeDefinitionIndex[name]) {
                     const data = {
                         key: `${
-                            idempotencePrefixes["attributeDefinition"]
+                            idempotencePrefixes['attributeDefinition']
                         }_${name}_${fm.type}_${fm.multivalue ? '1' : '0'}`,
                         name: name,
                         position: fm.position,
@@ -177,10 +187,11 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         translatable: fm.translatable,
                     };
                     logger.info(`Creating "${name}" attribute definition`);
-                    attributeDefinitionIndex[name] = await databoxClient.createAttributeDefinition(
-                        fm.id,
-                        data
-                    );
+                    attributeDefinitionIndex[name] =
+                        await databoxClient.createAttributeDefinition(
+                            fm.id,
+                            data
+                        );
                 }
                 fm.attributeDefinition = attributeDefinitionIndex[name];
             }
@@ -208,9 +219,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
 
             logger.info(`Fetching subdefs`);
             const classIndex: Record<string, string> = {};
-            const renditionClasses = await databoxClient.getRenditionClasses(
-                workspaceId
-            );
+            const renditionClasses =
+                await databoxClient.getRenditionClasses(workspaceId);
             renditionClasses.forEach(rc => {
                 classIndex[rc.name] = rc.id;
             });
@@ -248,7 +258,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             }
 
             const sourceCollections: string[] = [];
-            if(dm.collections) {
+            if (dm.collections) {
                 for (const c of dm.collections.split(',')) {
                     const collection = databox.collections[c.trim()];
                     if (collection == undefined) {
@@ -261,16 +271,13 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     }
                     sourceCollections.push(collection.base_id.toString());
                 }
-                if(sourceCollections.length === 0) {
-                    logger.info(`No collection found for "${
-                        dm.collections
-                    }" into databox "${
-                        databox.name
-                    }" (#${databox.databox_id}) (databox ignored)`);
+                if (sourceCollections.length === 0) {
+                    logger.info(
+                        `No collection found for "${dm.collections}" into databox "${databox.name}" (#${databox.databox_id}) (databox ignored)`
+                    );
                 }
-            }
-            else {
-                for(const baseId of databox.baseIds) {
+            } else {
+                for (const baseId of databox.baseIds) {
                     sourceCollections.push(baseId);
                 }
             }
@@ -312,8 +319,9 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
-            const recordStories: Record<string, { id:string , path:string }[]> = {};   // key: record_id ; values: story_id's
-            if(storiesCollectionId !== null) {
+            const recordStories: Record<string, {id: string; path: string}[]> =
+                {}; // key: record_id ; values: story_id's
+            if (storiesCollectionId !== null) {
                 logger.info(`Fetching stories`);
                 let stories: CPhraseanetStory[] = [];
                 let offset = 0;
@@ -350,7 +358,10 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             if (recordStories[rs.record_id] === undefined) {
                                 recordStories[rs.record_id] = [];
                             }
-                            recordStories[rs.record_id].push({id:storyCollId, path:s.title});
+                            recordStories[rs.record_id].push({
+                                id: storyCollId,
+                                path: s.title,
+                            });
                         }
                     }
                     offset += stories.length;
@@ -378,36 +389,44 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     const copyTo = recordStories[r.record_id] ?? [];
 
                     // copy the asset to other location(s) ?
-                    for(const ct of dm.copyTo ?? []) {
+                    for (const ct of dm.copyTo ?? []) {
                         const template = Twig.twig({data: ct});
-                        const paths = (await template.renderAsync({record: r})).split("\n")
-                            .map(p => p.trim()).filter(p => p);
+                        const paths = (await template.renderAsync({record: r}))
+                            .split('\n')
+                            .map(p => p.trim())
+                            .filter(p => p);
 
-                        for(const path of paths) {
+                        for (const path of paths) {
                             const branch = splitPath(path);
-                            copyTo.push(
-                                {
-                                    path: path,
-                                    id: await databoxClient.createCollectionTreeBranch(
-                                        workspaceId,
-                                        collectionKeyPrefix,
-                                        branch.map(k => ({
-                                            key: k,
-                                            title: k,
-                                        }))
-                                    )
-                                });
+                            copyTo.push({
+                                path: path,
+                                id: await databoxClient.createCollectionTreeBranch(
+                                    workspaceId,
+                                    collectionKeyPrefix,
+                                    branch.map(k => ({
+                                        key: k,
+                                        title: k,
+                                    }))
+                                ),
+                            });
                         }
                     }
 
-                    const path = `${dm.recordsCollectionPath ?? ""}/${escapeSlashes(databox.collections[r.base_id].name)}/${escapeSlashes(r.original_name)}`;
+                    const path = `${
+                        dm.recordsCollectionPath ?? ''
+                    }/${escapeSlashes(
+                        databox.collections[r.base_id].name
+                    )}/${escapeSlashes(r.original_name)}`;
                     yield createAsset(
                         workspaceId,
                         importFiles,
                         r,
                         path,
                         collectionKeyPrefix,
-                        idempotencePrefixes["asset"] + r.databox_id + "_" + r.record_id,
+                        idempotencePrefixes['asset'] +
+                            r.databox_id +
+                            '_' +
+                            r.record_id,
                         fieldMap,
                         tagIndex,
                         copyTo

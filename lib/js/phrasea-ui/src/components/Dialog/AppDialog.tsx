@@ -8,7 +8,6 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import {Breakpoint, LinearProgress, Slide, SxProps} from '@mui/material';
-import {StackedModalProps} from '@alchemy/navigation';
 import {TransitionProps} from '@mui/material/transitions';
 
 export const BootstrapDialog = styled(Dialog)(({theme}) => ({
@@ -60,6 +59,12 @@ type ActionArgs = {
     loading?: boolean;
 };
 
+// Copy type to avoid circular dependency
+type StackedModalProps = {
+    open?: boolean;
+    modalIndex?: number;
+}
+
 type Props = PropsWithChildren<
     {
         title?: ReactNode;
@@ -72,6 +77,8 @@ type Props = PropsWithChildren<
         sx?: SxProps;
     } & StackedModalProps
 >;
+
+export type {Props as AppDialogProps};
 
 export default function AppDialog({
     title,

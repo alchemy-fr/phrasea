@@ -24,16 +24,21 @@ export default function PasswordMethod({
     };
 
     const errors: Record<string, string> = {
-        'invalid_password': t('error.invalid_password', 'Invalid password'),
-    }
+        invalid_password: t('error.invalid_password', 'Invalid password'),
+    };
 
-    const translatedError = error ? (errors[error] ?? error) : undefined;
+    const translatedError = error ? errors[error] ?? error : undefined;
 
     return (
         <div className={'container'}>
             <form onSubmit={onSubmit}>
                 <div className="form-group">
-                    <label htmlFor="password">{t('publication.password_required.enter_password', `Enter password`)}</label>
+                    <label htmlFor="password">
+                        {t(
+                            'publication.password_required.enter_password',
+                            `Enter password`
+                        )}
+                    </label>
                     <input
                         className={'form-control'}
                         id={'password'}

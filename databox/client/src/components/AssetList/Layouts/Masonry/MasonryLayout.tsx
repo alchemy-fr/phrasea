@@ -36,6 +36,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
     selection,
     itemToAsset,
     itemComponent,
+    previewZIndex,
 }: LayoutProps<Item>) {
     const {previewAnchorEl, onPreviewToggle} = usePreview([pages]);
     const {innerWidth, innerHeight} = useWindowSize();
@@ -367,6 +368,7 @@ export default function MasonryLayout<Item extends AssetOrAssetContainer>({
                     asset={previewAnchorEl?.asset}
                     anchorEl={previewAnchorEl?.anchorEl}
                     displayAttributes={true}
+                    zIndex={previewZIndex}
                 />
             </Box>
         </>

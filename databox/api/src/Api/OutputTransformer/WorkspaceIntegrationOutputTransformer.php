@@ -4,21 +4,28 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
-use App\Entity\Core\File;
-use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
-use App\Integration\FileActionsIntegrationInterface;
-use App\Integration\IntegrationInterface;
+use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
+use App\Repository\Integration\IntegrationTokenRepository;
+use App\Security\Voter\AbstractVoter;
+use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-readonly class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
+class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
+    use SecurityAwareTrait;
+
     public function __construct(
-        private EntityManagerInterface $em,
-        private IntegrationManager $integrationManager
+        private readonly EntityManagerInterface $em,
+        private readonly IntegrationManager $integrationManager,
+        private readonly IntegrationDataManager $integrationDataManager,
+        private readonly IntegrationTokenRepository $integrationTokenRepository,
+        private readonly ObjectMapper $objectMapper,
     ) {
     }
 
@@ -44,36 +51,33 @@ readonly class WorkspaceIntegrationOutputTransformer implements OutputTransforme
         $qs = parse_url((string) $uri, PHP_URL_QUERY);
         $filters = Query::parse($qs);
 
-        $file = null;
-        $fileId = $filters['fileId'] ?? null;
-        if (null !== $fileId) {
-            $file = $this->em->getRepository(File::class)->find($fileId);
-            if (!$file instanceof File) {
-                throw new \InvalidArgumentException(sprintf('File "%s" not found', $fileId));
-            }
-        }
+        $objectId = $filters['objectId'] ?? null;
+        if (null !== $objectId) {
+            $objectType = $filters['objectType'] ?? throw new BadRequestHttpException('Missing "objectType" to fetch data');
+            $class = $this->objectMapper->getClassName($objectType);
 
-        if (null !== $file) {
-            /** @var IntegrationData[] $subData */
-            $subData = $this->em->getRepository(IntegrationData::class)
+            $object = $this->em->getRepository($class)->find($objectId);
+            if (null === $object) {
+                throw new \InvalidArgumentException(sprintf('%s "%s" not found', $class, $objectId));
+            }
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
+
+            $subData = $this->integrationDataManager
                 ->findBy([
                     'integration' => $data->getId(),
-                    'file' => $file->getId(),
+                    'objectType' => $objectType,
+                    'objectId' => $object->getId(),
                 ]);
 
             $output->setData($subData);
         }
 
         $config = $this->integrationManager->getIntegrationConfiguration($data);
-        /** @var IntegrationInterface $integration */
-        $integration = $config['integration'];
+        $integration = $config->getIntegration();
         $output->setConfig($integration->resolveClientConfiguration($data, $config));
 
-        if (null !== $file) {
-            if ($integration instanceof FileActionsIntegrationInterface) {
-                $output->setSupported($integration->supportsFileActions($file, $config));
-            }
-        }
+        $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUser()->getId());
+        $output->setTokens($tokens);
 
         return $output;
     }

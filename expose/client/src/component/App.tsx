@@ -1,14 +1,18 @@
 import {DashboardMenu} from '@alchemy/react-ps';
 import config from '../config';
-import {getCurrentPath, MatomoRouteWrapper, RouterProvider} from '@alchemy/navigation';
+import {
+    getCurrentPath,
+    MatomoRouteWrapper,
+    RouterProvider,
+} from '@alchemy/navigation';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {routes} from '../routes.ts';
 import RouteProxy from './RouteProxy.tsx';
 import React from 'react';
-import Box from "@mui/material/Box";
+import Box from '@mui/material/Box';
 import {UserMenu} from '@alchemy/phrasea-ui';
-import {keycloakClient} from "../lib/api-client.ts";
+import {keycloakClient} from '../lib/api-client.ts';
 
 type Props = {};
 
@@ -21,7 +25,6 @@ export default function App({}: Props) {
         keycloakClient,
     });
 
-
     React.useEffect(() => {
         setSentryUser(user);
     }, [user]);
@@ -29,15 +32,17 @@ export default function App({}: Props) {
     return (
         <>
             {css && <style>{css}</style>}
-            <Box sx={theme => ({
-                position: 'absolute',
-                zIndex: 1000,
-                top: theme.spacing(1),
-                right: theme.spacing(1),
-                '.services-menu + button': {
-                    ml: 1,
-                }
-            })}>
+            <Box
+                sx={theme => ({
+                    'position': 'absolute',
+                    'zIndex': 1000,
+                    'top': theme.spacing(1),
+                    'right': theme.spacing(1),
+                    '.services-menu + button': {
+                        ml: 1,
+                    },
+                })}
+            >
                 {config.displayServicesMenu && (
                     <DashboardMenu
                         dashboardBaseUrl={config.dashboardBaseUrl}
@@ -52,11 +57,15 @@ export default function App({}: Props) {
                         menuHeight={50}
                         username={user?.username}
                         accountUrl={getAccountUrl()}
-                        onLogout={() => logout({
-                            redirectPath: getCurrentPath(),
-                        })}
+                        onLogout={() =>
+                            logout({
+                                redirectPath: getCurrentPath(),
+                            })
+                        }
                     />
-                ) : ''}
+                ) : (
+                    ''
+                )}
             </Box>
             <RouterProvider
                 routes={routes}

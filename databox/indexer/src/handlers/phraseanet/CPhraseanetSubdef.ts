@@ -1,4 +1,4 @@
-import {PhraseanetSubdef} from "./types";
+import {PhraseanetSubdef} from './types';
 
 export class CPhraseanetSubdef {
     name?: string;
@@ -17,7 +17,7 @@ export class CPhraseanetSubdef {
     static NullSubdef = new CPhraseanetSubdef();
 
     constructor(s?: PhraseanetSubdef) {
-        if(s) {
+        if (s) {
             this.name = s.name;
             this.height = s.height;
             this.width = s.width;
@@ -30,6 +30,4 @@ export class CPhraseanetSubdef {
             this.permalink = s.permalink;
         }
     }
-
 }
-

@@ -24,6 +24,8 @@ ${IP} traefik-console.${PHRASEA_DOMAIN}
 ${IP} databox-indexer.${PHRASEA_DOMAIN}
 ${IP} grafana.${PHRASEA_DOMAIN}
 ${IP} webhook-endpoint.${PHRASEA_DOMAIN}
+${IP} soketi.${PHRASEA_DOMAIN}
+${IP} soketi-usage.${PHRASEA_DOMAIN}
 ${IP} keycloak.${PHRASEA_DOMAIN}
 ${IP} keycloak2.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

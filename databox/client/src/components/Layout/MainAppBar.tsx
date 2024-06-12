@@ -11,7 +11,7 @@ import {useTranslation} from 'react-i18next';
 import {ListItemIcon, ListItemText} from '@mui/material';
 import {SearchContext} from '../Media/Search/SearchContext';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
-import {zIndex} from '../../themes/zIndex';
+import {ZIndex} from '../../themes/zIndex';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {ThemeEditorContext} from '@alchemy/theme-editor';
 import config from '../../config';
@@ -45,7 +45,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
         <div
             style={{
                 position: 'relative',
-                zIndex: zIndex.mainBar,
+                zIndex: ZIndex.mainBar,
             }}
         >
             <AppBar

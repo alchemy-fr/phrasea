@@ -114,7 +114,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 $output->setResolvedTitle($titleAttribute->getValue());
                 $output->setTitleHighlight($titleAttribute->getHighlight());
             } else {
-                $output->setResolvedTitle($data->getTitle());
+                $output->setResolvedTitle($titleAttribute ?? $data->getTitle());
                 if (isset($highlights['title'])) {
                     $output->setTitleHighlight(reset($highlights['title']));
                 }
@@ -130,12 +130,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
                     $this->lastGroupKey = $groupKey;
                 }
-            }
-        }
-
-        if (empty($output->getResolvedTitle())) {
-            if (null !== $data->getSource()) {
-                $output->setResolvedTitle($data->getSource()->getOriginalName());
             }
         }
 

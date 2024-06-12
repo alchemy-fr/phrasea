@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\External;
+namespace App\Integration\Phraseanet;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 

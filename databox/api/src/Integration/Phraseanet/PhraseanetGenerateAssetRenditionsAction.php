@@ -7,10 +7,8 @@ namespace App\Integration\Phraseanet;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
-use App\External\PhraseanetApiClientFactory;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Security\JWTTokenManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -21,7 +19,7 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         private readonly PhraseanetApiClientFactory $clientFactory,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly JWTTokenManager $JWTTokenManager,
+        private readonly PhraseanetTokenManager $tokenManager,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -32,19 +30,17 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         $asset = $this->getAsset($context);
         $file = $asset->getSource();
 
-        $integrationId = $config['integrationId'];
-
         $url = $this->fileUrlResolver->resolveUrl($file);
 
         $destUrl = $this->urlGenerator->generate('integration_phraseanet_incoming_rendition', [
-            'integrationId' => $integrationId,
+            'integrationId' => $config->getIntegrationId(),
             'assetId' => $asset->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $destination = [
             'url' => $destUrl,
             'payload' => [
-                'token' => $this->JWTTokenManager->createToken($asset->getId()),
+                'token' => $this->tokenManager->createToken($asset->getId(), $context->getJobState()->getWorkflowId()),
             ],
         ];
 

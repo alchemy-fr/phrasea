@@ -15,6 +15,7 @@ export default function JobStatusIndicator({
         [JobStatus.Triggered]: 'workflow-triggered',
         [JobStatus.Skipped]: 'workflow-skipped',
         [JobStatus.Error]: 'workflow-error',
+        [JobStatus.Cancelled]: 'workflow-cancelled',
     }
 
     const pulse = status === JobStatus.Running;

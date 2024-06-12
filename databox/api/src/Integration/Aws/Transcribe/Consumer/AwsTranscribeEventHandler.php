@@ -30,6 +30,7 @@ final readonly class AwsTranscribeEventHandler
         $this->integrationDataManager->storeData(
             $workspaceIntegration,
             null,
+            null,
             self::DATA_EVENT_MESSAGE,
             json_encode($payload, JSON_THROW_ON_ERROR)
         );

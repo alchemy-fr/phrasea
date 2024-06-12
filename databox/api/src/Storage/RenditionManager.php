@@ -56,9 +56,7 @@ class RenditionManager
         }
 
         $rendition = $this->getOrCreateRendition($asset, $definition);
-
         $rendition->setFile($file);
-
         $this->em->persist($rendition);
 
         return $rendition;
@@ -109,6 +107,23 @@ class RenditionManager
             ->setParameters([
                 'asset' => $assetId,
                 'name' => $renditionName,
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getAssetRenditionUsedAs(string $as, string $assetId): ?AssetRendition
+    {
+        return $this->em
+            ->createQueryBuilder()
+            ->select('r')
+            ->from(AssetRendition::class, 'r')
+            ->innerJoin('r.definition', 'd')
+            ->andWhere('r.asset = :asset')
+            ->andWhere(sprintf("d.useAs%s = :as", ucfirst($as)))
+            ->setParameters([
+                'asset' => $assetId,
+                'as' => true,
             ])
             ->getQuery()
             ->getOneOrNullResult();

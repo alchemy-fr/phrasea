@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
+use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -88,5 +89,20 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     public function normalizeBucket(array $bucket): ?array
     {
         return $bucket;
+    }
+
+    public function getElasticSearchSubField(): ?string
+    {
+        return null;
+    }
+
+    public function getElasticSearchSearchType(): ?SearchType
+    {
+        return null;
+    }
+
+    public function supportsElasticSearchFuzziness(): bool
+    {
+        return false;
     }
 }

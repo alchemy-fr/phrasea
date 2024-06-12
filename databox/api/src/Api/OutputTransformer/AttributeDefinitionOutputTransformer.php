@@ -47,6 +47,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->canEdit = $data->getClass()->isEditable()
             || $this->isGranted(PermissionInterface::EDIT, $data->getClass());
         $output->position = $data->getPosition();
+
         return $output;
     }
 }

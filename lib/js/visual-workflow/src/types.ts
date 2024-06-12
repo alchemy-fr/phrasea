@@ -53,13 +53,16 @@ export enum JobStatus {
     Skipped = 3,
     Running = 4,
     Error = 5,
+    Cancelled = 6,
 }
 
 export enum WorkflowStatus {
     Started = 0,
     Success = 1,
     Failure = 2,
+    Cancelled = 3,
 }
 
 export type OnRerun = (jobId: string) => Promise<void>;
+export type OnCancel = () => Promise<void>;
 export type OnRefresh = () => Promise<void>;

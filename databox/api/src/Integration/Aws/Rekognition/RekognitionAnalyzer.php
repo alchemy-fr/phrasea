@@ -12,8 +12,8 @@ use App\Attribute\BatchAttributeManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\ApiBudgetLimiter;
+use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationDataManager;
 
 final readonly class RekognitionAnalyzer
@@ -28,10 +28,9 @@ final readonly class RekognitionAnalyzer
     ) {
     }
 
-    public function analyze(?Asset $asset, File $file, string $category, array $config): array
+    public function analyze(?Asset $asset, File $file, string $category, IntegrationConfig $config): array
     {
-        /** @var WorkspaceIntegration $wsIntegration */
-        $wsIntegration = $config['workspaceIntegration'];
+        $wsIntegration = $config->getWorkspaceIntegration();
 
         $methods = [
             'labels' => 'getImageLabels',
@@ -40,14 +39,14 @@ final readonly class RekognitionAnalyzer
         ];
 
         $path = $this->fileFetcher->getFile($file);
-        if (null !== $data = $this->dataManager->getData($wsIntegration, $file, $category)) {
+        if (null !== $data = $this->dataManager->getData($wsIntegration, null, $file, $category)) {
             $result = json_decode($data->getValue(), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 
             $method = $methods[$category];
             $result = call_user_func([$this->client, $method], $path, $config);
-            $this->dataManager->storeData($wsIntegration, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
+            $this->dataManager->storeData($wsIntegration, null, $file, $category, json_encode($result, JSON_THROW_ON_ERROR));
         }
 
         if (!empty($result) && $asset instanceof Asset) {

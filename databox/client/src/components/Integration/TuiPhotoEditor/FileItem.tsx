@@ -36,6 +36,7 @@ export default function FileItem({
     const open = Boolean(anchorEl);
     const [deleting, setDeleting] = React.useState(false);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        event.stopPropagation();
         setAnchorEl(event.currentTarget);
     };
     const handleClose = React.useCallback(() => {
@@ -61,7 +62,6 @@ export default function FileItem({
         <ListItemButton
             disabled={deleting || disabled}
             selected={selected}
-            key={data.id}
             onClick={onClick}
         >
             <ListItemIcon>
