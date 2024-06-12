@@ -12,6 +12,7 @@ export interface GetAssetOptions {
     url?: string;
     query?: string;
     workspaces?: string[];
+    ids?: string[];
     parents?: string[];
     filters?: any;
     order?: Record<string, 'asc' | 'desc'>;

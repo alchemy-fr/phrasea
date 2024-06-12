@@ -10,14 +10,13 @@ import {
 } from '@alchemy/visual-workflow';
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {StackedModalProps} from '@alchemy/navigation';
 import {useChannelRegistration} from '../../lib/pusher.ts';
 
-type Props = {} & StackedModalProps;
+type Props = {};
 
 const headerHeight = 78;
 
-export default function WorkflowView({modalIndex}: Props) {
+export default function WorkflowView({}: Props) {
     const {id} = useParams();
     const [data, setData] = useState<Workflow>();
 
@@ -70,7 +69,6 @@ export default function WorkflowView({modalIndex}: Props) {
                             maxHeight: headerHeight,
                         },
                     }}
-                    modalIndex={modalIndex}
                     fullScreen={true}
                     title={
                         <WorkflowPlayground

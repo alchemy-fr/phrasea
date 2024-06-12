@@ -14,6 +14,7 @@ import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
+import {scrollbarWidth} from "../../../constants.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -31,14 +32,11 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
     replace?: boolean
 ) => void;
 
-const menuWidth = 300;
-
-const headerHeight = 60;
-const scrollBarDelta = 8;
-
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
+    const menuWidth = 300;
+    const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
     const closeModal = useCloseModal();
@@ -81,7 +79,7 @@ export default function AssetView({modalIndex}: Props) {
 
     const dimensions = useMemo<Dimensions>(() => {
         return {
-            width: winSize.innerWidth - menuWidth - scrollBarDelta,
+            width: winSize.innerWidth - menuWidth - scrollbarWidth,
             height: winSize.innerHeight - headerHeight - 2,
         };
     }, [winSize]);
@@ -147,8 +145,8 @@ export default function AssetView({modalIndex}: Props) {
                             sx={{
                                 overflowY: 'auto',
                                 height: dimensions.height,
-                                width: dimensions.width + scrollBarDelta,
-                                maxWidth: dimensions.width + scrollBarDelta,
+                                width: dimensions.width + scrollbarWidth,
+                                maxWidth: dimensions.width + scrollbarWidth,
                             }}
                         >
                             <div

@@ -174,7 +174,11 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit is coming soon...');
+                navigateToModal(modalRoutes.attributesBatchEdit, {}, {
+                    state: {
+                        selection: selectedAssets.map(a => a.id),
+                    }
+                });
             }
         };
 
@@ -185,7 +189,11 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit attributes is coming soon...');
+                navigateToModal(modalRoutes.attributesBatchEdit, {}, {
+                    state: {
+                        selection: selectedAssets.map(a => a.id),
+                    }
+                });
             }
         };
 
