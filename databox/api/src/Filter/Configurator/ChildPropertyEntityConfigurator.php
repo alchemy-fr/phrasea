@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filter\Configurator;
 
 use App\Filter\ChildPropertyEntityFilter;
-use Doctrine\ORM\Mapping\JoinColumnMapping;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterConfiguratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -62,16 +61,10 @@ final class ChildPropertyEntityConfigurator implements FilterConfiguratorInterfa
             // because an empty filter value would always return no result
             $numberOfRequiredJoinColumns = \count(array_filter(
                     $doctrineMetadata->get('joinColumns'),
-                    static function (array|JoinColumnMapping $joinColumn): bool {
-                // Doctrine ORM 3.x changed the returned type from array to JoinColumnMapping
-                if ($joinColumn instanceof JoinColumnMapping) {
-                    $isNullable = $joinColumn->nullable ?? false;
-                } else {
-                    $isNullable = $joinColumn['nullable'] ?? false;
-                }
-
-                return false === $isNullable;
-            }
+                    static function (array $joinColumn): bool {
+                            $isNullable = $joinColumn['nullable'] ?? false;
+                            return false === $isNullable;
+                    }
             ));
 
             $someJoinColumnsAreNullable = \count($childPropertyDoctrineMetadata->get('joinColumns')) !== $numberOfRequiredJoinColumns;
