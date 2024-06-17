@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filter;
+namespace Alchemy\AdminBundle\Filter;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Filter\Configurator;
+namespace Alchemy\AdminBundle\Filter\Configurator;
 
-use App\Filter\ChildPropertyEntityFilter;
+use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterConfiguratorInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
