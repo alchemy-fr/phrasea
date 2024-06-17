@@ -177,6 +177,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 navigateToModal(modalRoutes.attributesBatchEdit, {}, {
                     state: {
                         selection: selectedAssets.map(a => a.id),
+                        workspaceId: selectedAssets[0].workspace.id,
                     }
                 });
             }
@@ -192,6 +193,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 navigateToModal(modalRoutes.attributesBatchEdit, {}, {
                     state: {
                         selection: selectedAssets.map(a => a.id),
+                        workspaceId: selectedAssets[0].workspace.id,
                     }
                 });
             }

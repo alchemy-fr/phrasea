@@ -1,9 +1,9 @@
 import {useLocation} from '@alchemy/navigation';
 import {AppDialog} from "@alchemy/phrasea-ui";
 import RouteDialog from "../Dialog/RouteDialog.tsx";
-import AttributeEditor from "./AttributeEditor.tsx";
 import {useCloseModal} from "../Routing/ModalLink.tsx";
 import React from "react";
+import AttributeEditorLoader from "./AttributeEditorLoader.tsx";
 
 type Props = {};
 
@@ -32,8 +32,9 @@ export default function AttributeEditorView({}: Props) {
                     fullScreen={true}
                     onClose={onClose}
                 >
-                    <AttributeEditor
+                    <AttributeEditorLoader
                         ids={state.selection}
+                        workspaceId={state.workspaceId}
                     />
                 </AppDialog>
             )}

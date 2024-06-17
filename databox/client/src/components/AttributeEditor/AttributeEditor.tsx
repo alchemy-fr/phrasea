@@ -1,8 +1,5 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
-import {useTranslation} from "react-i18next";
-import {getAssets} from "../../api/asset.ts";
-import {Box, Typography} from "@mui/material";
-import {FullPageLoader} from "@alchemy/phrasea-ui";
+import {Box} from "@mui/material";
 import React from "react";
 import ThumbList from "./ThumbList.tsx";
 import {AssetSelectionContext} from "../../context/AssetSelectionContext.tsx";
@@ -10,19 +7,33 @@ import DisplayProvider from "../Media/DisplayProvider.tsx";
 import {OnToggle} from "../AssetList/types.ts";
 import {getItemListFromEvent} from "../AssetList/selection.ts";
 import Attributes from "./Attributes.tsx";
-import {getWorkspaceAttributeDefinitions} from "../../api/attributes.ts";
+import {useAttributeValues} from "./attributeGroup.ts";
+import DefinitionsSkeleton from "./DefinitionsSkeleton.tsx";
+import SuggestionPanel from "./SuggestionPanel.tsx";
+import {scrollbarWidth} from "../../constants.ts";
+import EditorPanel from "./EditorPanel.tsx";
+import {SetAttributeValue} from "./types.ts";
 
 type Props = {
-    ids: string[];
+    assets: Asset[];
+    attributeDefinitions: AttributeDefinition[];
 };
 
 export default function AttributeEditor({
-    ids,
+    assets,
+    attributeDefinitions,
 }: Props) {
-    const {t} = useTranslation();
-    const [assets, setAssets] = React.useState<Asset[]>();
     const [subSelection, setSubSelection] = React.useState<Asset[]>([]);
-    const [attributeDefinitions, setAttributeDefinitions] = React.useState<AttributeDefinition[]>();
+    const {values, setValue} = useAttributeValues(attributeDefinitions, assets, subSelection);
+    const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
+    const [thumbSize, _setThumbSize] = React.useState(200);
+    const thumbsHeight = thumbSize + scrollbarWidth;
+
+    const value = definition ? values[definition.id] : undefined;
+
+    React.useEffect(() => {
+        setSubSelection(assets);
+    }, [assets]);
 
     const onToggleAsset = React.useCallback<OnToggle<Asset>>(
         (asset, e): void => {
@@ -34,54 +45,91 @@ export default function AttributeEditor({
         [assets]
     );
 
-    React.useEffect(() => {
-        getAssets({
-            ids,
-        }).then(r => {
-            setAssets(r.result);
-            setSubSelection(r.result);
-        });
-    }, [ids]);
-
-    React.useEffect(() => {
-        if (assets) {
-            getWorkspaceAttributeDefinitions(assets[0].workspace.id).then(r => {
-                setAttributeDefinitions(r);
-            });
+    const setAttributeValue = React.useCallback<SetAttributeValue>((value) => {
+        if (definition) {
+            setValue(definition.id, value);
         }
-    }, [assets]);
-
-    if (!assets) {
-        return <FullPageLoader/>
-    }
+    }, [definition]);
 
     return <Box
         sx={{
+            display: 'flex',
+            flexDirection: 'column',
             height: '100vh',
             overflow: 'hidden',
         }}
     >
-        <Typography variant={'h1'}>
-            {t('attribute.editor.title', 'Attribute Editor')}
-        </Typography>
-        <DisplayProvider>
+        <DisplayProvider
+            thumbSize={thumbSize}
+        >
             <AssetSelectionContext.Provider
                 value={{
                     selection: subSelection!,
                     setSelection: setSubSelection,
                 }}
             >
-                <ThumbList
-                    assets={assets}
-                    onToggle={onToggleAsset}
-                    subSelection={subSelection}
-                />
+                <div style={{
+                    height: thumbsHeight,
+                }}>
+                    <ThumbList
+                        assets={assets}
+                        onToggle={onToggleAsset}
+                        subSelection={subSelection}
+                    />
+                </div>
+                <Box sx={{
+                    flexGrow: 1,
+                    flexShrink: 1,
+                    height: `calc(100vh - ${thumbsHeight}px)`,
+                    overflow: 'hidden',
+                }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexGrow: 1,
+                            maxHeight: '100%',
+                            '> div': {
+                                maxHeight: '100%',
+                                overflow: 'auto',
+                            }
+                        }}
+                    >
+                        <Box sx={{
+                            width: 300,
+                            'strong': {
+                                mr: 1,
+                                verticalAlign: 'top',
+                                alignSelf: 'start',
+                            }
+                        }}>
+                            {attributeDefinitions ? <Attributes
+                                attributeDefinitions={attributeDefinitions}
+                                values={values}
+                                setDefinition={setDefinition}
+                                definition={definition}
+                            /> : <DefinitionsSkeleton/>}
+                        </Box>
 
-                {attributeDefinitions ? <Attributes
-                    attributeDefinitions={attributeDefinitions}
-                    assets={assets}
-                    subSelection={subSelection}
-                /> : <>Loading attributes...</>}
+                        <Box sx={{
+                            flexGrow: 1,
+                        }}>
+                            {value && definition ? <EditorPanel
+                                definition={definition}
+                                valueContainer={value}
+                                setAttributeValue={setAttributeValue}
+                            /> : ''}
+                        </Box>
+                        <Box sx={{
+                            width: 300,
+                        }}>
+                            {definition && value ? <SuggestionPanel
+                                valueContainer={value}
+                                definition={definition}
+                                setAttributeValue={setAttributeValue}
+                            /> : ''}
+                        </Box>
+                    </Box>
+                </Box>
             </AssetSelectionContext.Provider>
         </DisplayProvider>
     </Box>

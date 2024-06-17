@@ -1,15 +1,7 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 import React from "react";
+import {AttributesIndex, AttributeValues} from "./types.ts";
 
-type Values<T extends any = any> = {
-    indeterminate?: boolean;
-    values: T[];
-}
-
-type AttributeValues = Record<string, Values>;
-
-type AssetValueIndex = Record<string, any>;
-type AttributesIndex = Record<string, AssetValueIndex>;
 
 export function useAttributeValues(
     attributeDefinitions: AttributeDefinition[],
@@ -25,7 +17,7 @@ export function useAttributeValues(
 
         assets.forEach((a) => {
             a.attributes.forEach((attr) => {
-                index[attr.definition.id][a.id]  = attr.value;
+                index[attr.definition.id][a.id] = attr.value;
             });
         });
 
@@ -36,7 +28,6 @@ export function useAttributeValues(
 
     const values = React.useMemo(() => {
         const values: AttributeValues = {};
-        console.log('index', index);
 
         attributeDefinitions.forEach((def) => {
             values[def.id] ??= {
@@ -83,9 +74,8 @@ export function useAttributeValues(
 
             np[defId] = na;
 
-            console.log('np', defId, np[defId]);
             return np;
-        })
+        });
     }, [subSelection]);
 
     return {
