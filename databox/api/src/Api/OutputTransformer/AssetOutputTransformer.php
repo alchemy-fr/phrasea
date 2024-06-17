@@ -94,6 +94,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
+
             $indexByAttrName = [];
             $preferredAttributes = [];
             foreach ($attributes as $_attrs) {
@@ -106,7 +107,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
                     }
                 }
             }
-            $output->setAttributes($preferredAttributes);
+
+            if (($context['filters']['allLocales'] ?? false)) {
+                $output->setAttributes($attributes);
+            } else {
+                $output->setAttributes($preferredAttributes);
+            }
 
             $output->setTitle($data->getTitle());
             $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributes, $preferredLocales);

@@ -22,7 +22,7 @@ export default function ValuesSuggestions({
     const distinctValues = React.useMemo<Value[]>(() => {
         const stats: Stats = {};
 
-        const values = !useOriginal ? valueContainer.values : valueContainer.originalValues;
+        const values = (!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? [];
 
         const norm = (s: any): string => s ? (typeof s === 'string' ? s : '') : '';
         const sortFn = (a: Value, b: Value) => {
@@ -71,7 +71,7 @@ export default function ValuesSuggestions({
                 disablePadding
             >
                 <ListItemButton
-                    onClick={() => setAttributeValue(v, true)}
+                    onClick={() => setAttributeValue(v.label, true)}
                     sx={!v.label ? {
                         fontStyle: 'italic',
                         color: 'secondary.main',

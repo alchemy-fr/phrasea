@@ -22,6 +22,7 @@ export interface GetAssetOptions {
               position?: string | undefined;
           }
         | undefined;
+    allLocales?: boolean;
 }
 
 export type ESDebug = {

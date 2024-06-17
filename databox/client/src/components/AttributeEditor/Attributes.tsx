@@ -1,6 +1,7 @@
 import {AttributeDefinition, StateSetter} from "../../types";
-import {ListItem, ListItemButton} from "@mui/material";
+import {Box, ListItem, ListItemButton} from "@mui/material";
 import {AttributeValues} from "./types";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     values: AttributeValues;
@@ -15,7 +16,18 @@ export default function Attributes({
     definition,
     setDefinition,
 }: Props) {
-    return <>
+    const {t} = useTranslation();
+
+    const indeterminateClassName = 'def-indeter';
+    const indeterminateLabel = t('attribute_editor.definitions.indeterminate', 'Indeterminate')
+
+    return <Box
+        sx={{
+            [`.${indeterminateClassName}`]: {
+                color: 'warning.main',
+            }
+        }}
+    >
         {attributeDefinitions.map((def) => {
             return <ListItem
                 disablePadding
@@ -30,10 +42,12 @@ export default function Attributes({
                     </strong>
                     <div>
                         {values[def.id].indeterminate ?
-                            <span style={{color: 'red'}}>Indeterminate</span> : values[def.id].values[0] ?? ""}
+                            <span className={indeterminateClassName}>
+                                {indeterminateLabel}
+                            </span> : values[def.id].values[0] ?? ""}
                     </div>
                 </ListItemButton>
             </ListItem>
         })}
-    </>
+    </Box>
 }

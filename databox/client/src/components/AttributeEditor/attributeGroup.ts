@@ -1,16 +1,18 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 import React from "react";
-import {AttributesIndex, AttributeValues} from "./types.ts";
+import {AttributeIndex, AttributeValues} from "./types.ts";
+import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 
 export function useAttributeValues(
     attributeDefinitions: AttributeDefinition[],
     assets: Asset[],
     subSelection: Asset[],
+    currentLocale: string,
 ) {
     const [inc, setInc] = React.useState(0);
-    const initialIndex = React.useMemo<AttributesIndex>(() => {
-        const index: AttributesIndex = {};
+    const initialIndex = React.useMemo<AttributeIndex>(() => {
+        const index: AttributeIndex = {};
 
         attributeDefinitions.forEach((def) => {
             index[def.id] ??= {};
@@ -18,20 +20,22 @@ export function useAttributeValues(
 
         assets.forEach((a) => {
             a.attributes.forEach((attr) => {
-                index[attr.definition.id][a.id] = attr.value;
+                index[attr.definition.id][a.id] ??= {};
+                index[attr.definition.id][a.id][attr.locale ?? NO_LOCALE] = attr.value;
             });
         });
 
         return index;
     }, [attributeDefinitions, assets]);
 
-    const [index, setIndex] = React.useState<AttributesIndex>(initialIndex);
+    const [index, setIndex] = React.useState<AttributeIndex>(initialIndex);
 
     const values = React.useMemo(() => {
         const values: AttributeValues = {};
 
         attributeDefinitions.forEach((def) => {
             values[def.id] ??= {
+                definition: def,
                 values: [],
                 originalValues: [],
             };
@@ -39,8 +43,11 @@ export function useAttributeValues(
 
         subSelection.forEach((a) => {
             Object.keys(index).forEach((defId) => {
-                const v = index[defId][a.id];
                 const g = values[defId];
+                const l = g.definition.translatable ? (currentLocale ?? NO_LOCALE) : NO_LOCALE;
+
+                const translations = index[defId][a.id];
+                const v = translations ? translations[l] : undefined;
                 if (g.values.length === 0) {
                     g.indeterminate = false;
                 } else {
@@ -50,12 +57,15 @@ export function useAttributeValues(
                 }
 
                 g.values.push(v);
-                g.originalValues.push(initialIndex[defId][a.id]);
+
+                if (initialIndex[defId][a.id]) {
+                    g.originalValues.push(initialIndex[defId][a.id][l]);
+                }
             });
         });
 
         return values;
-    }, [subSelection, index]);
+    }, [subSelection, index, currentLocale]);
 
     const reset = React.useCallback(() => {
         setIndex(initialIndex);

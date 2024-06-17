@@ -24,10 +24,16 @@ export default function AttributeEditor({
     attributeDefinitions,
 }: Props) {
     const [subSelection, setSubSelection] = React.useState<Asset[]>([]);
-    const {values, setValue, inputValueInc} = useAttributeValues(attributeDefinitions, assets, subSelection);
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
+    const [currentLocale, setCurrentLocale] = React.useState<string>('en');
+    const {values, setValue, inputValueInc} = useAttributeValues(
+        attributeDefinitions,
+        assets,
+        subSelection,
+        currentLocale,
+    );
 
     const value = definition ? values[definition.id] : undefined;
 
@@ -118,6 +124,8 @@ export default function AttributeEditor({
                                 definition={definition}
                                 valueContainer={value}
                                 subSelection={subSelection}
+                                setCurrentLocale={setCurrentLocale}
+                                currentLocale={currentLocale}
                                 setAttributeValue={setAttributeValue}
                             /> : ''}
                         </Box>
@@ -125,6 +133,7 @@ export default function AttributeEditor({
                             width: 500,
                         }}>
                             {definition && value ? <SuggestionPanel
+                                currentLocale={currentLocale}
                                 valueContainer={value}
                                 definition={definition}
                                 setAttributeValue={setAttributeValue}

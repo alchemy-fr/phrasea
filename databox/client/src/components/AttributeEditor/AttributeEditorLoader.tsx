@@ -20,6 +20,7 @@ export default function AttributeEditorLoader({
     React.useEffect(() => {
         getAssets({
             ids,
+            allLocales: true,
         }).then(r => {
             setAssets(r.result);
         });
