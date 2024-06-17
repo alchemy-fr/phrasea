@@ -33,3 +33,7 @@ services:
       $siteLogo: '%alchemy_admin.site_logo%'
 
   Alchemy\AdminBundle\Listener\EasyAdminListener: ~
+
+  Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter:
+
+  Alchemy\AdminBundle\Filter\Configurator\ChildPropertyEntityConfigurator:

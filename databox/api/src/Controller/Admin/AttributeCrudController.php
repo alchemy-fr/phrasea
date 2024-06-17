@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\Attribute;
+use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -16,7 +17,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AttributeCrudController extends AbstractAdminCrudController
 {
@@ -34,7 +34,7 @@ class AttributeCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('definition'))
+            ->add(ChildPropertyEntityFilter::new('definition', 'workspace', 'Workspace'))
             ->add('value')
         ;
     }
