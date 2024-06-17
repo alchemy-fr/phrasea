@@ -8,6 +8,7 @@ export function useAttributeValues(
     assets: Asset[],
     subSelection: Asset[],
 ) {
+    const [inc, setInc] = React.useState(0);
     const initialIndex = React.useMemo<AttributesIndex>(() => {
         const index: AttributesIndex = {};
 
@@ -32,13 +33,13 @@ export function useAttributeValues(
         attributeDefinitions.forEach((def) => {
             values[def.id] ??= {
                 values: [],
+                originalValues: [],
             };
         });
 
         subSelection.forEach((a) => {
             Object.keys(index).forEach((defId) => {
                 const v = index[defId][a.id];
-
                 const g = values[defId];
                 if (g.values.length === 0) {
                     g.indeterminate = false;
@@ -49,6 +50,7 @@ export function useAttributeValues(
                 }
 
                 g.values.push(v);
+                g.originalValues.push(initialIndex[defId][a.id]);
             });
         });
 
@@ -63,7 +65,7 @@ export function useAttributeValues(
         reset();
     }, [reset]);
 
-    const setValue = React.useCallback((defId: string, value: any) => {
+    const setValue = React.useCallback((defId: string, value: any, updateInput?: boolean) => {
         setIndex(p => {
             const np = {...p};
             const na = {...p[defId]};
@@ -76,9 +78,14 @@ export function useAttributeValues(
 
             return np;
         });
+
+        if (updateInput) {
+            setInc(p => p + 1);
+        }
     }, [subSelection]);
 
     return {
+        inputValueInc: inc,
         values,
         setValue,
         reset,

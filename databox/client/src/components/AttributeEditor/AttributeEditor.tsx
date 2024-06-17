@@ -24,7 +24,7 @@ export default function AttributeEditor({
     attributeDefinitions,
 }: Props) {
     const [subSelection, setSubSelection] = React.useState<Asset[]>([]);
-    const {values, setValue} = useAttributeValues(attributeDefinitions, assets, subSelection);
+    const {values, setValue, inputValueInc} = useAttributeValues(attributeDefinitions, assets, subSelection);
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
@@ -45,11 +45,11 @@ export default function AttributeEditor({
         [assets]
     );
 
-    const setAttributeValue = React.useCallback<SetAttributeValue>((value) => {
+    const setAttributeValue = React.useCallback<SetAttributeValue>((value, updateInput) => {
         if (definition) {
-            setValue(definition.id, value);
+            setValue(definition.id, value, updateInput);
         }
-    }, [definition]);
+    }, [definition, setValue]);
 
     return <Box
         sx={{
@@ -114,18 +114,21 @@ export default function AttributeEditor({
                             flexGrow: 1,
                         }}>
                             {value && definition ? <EditorPanel
+                                inputValueInc={inputValueInc}
                                 definition={definition}
                                 valueContainer={value}
+                                subSelection={subSelection}
                                 setAttributeValue={setAttributeValue}
                             /> : ''}
                         </Box>
                         <Box sx={{
-                            width: 300,
+                            width: 500,
                         }}>
                             {definition && value ? <SuggestionPanel
                                 valueContainer={value}
                                 definition={definition}
                                 setAttributeValue={setAttributeValue}
+                                subSelection={subSelection}
                             /> : ''}
                         </Box>
                     </Box>
