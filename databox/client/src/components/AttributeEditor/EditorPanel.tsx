@@ -13,8 +13,8 @@ type Props<T> = {
     subSelection: Asset[];
     setAttributeValue: SetAttributeValue<T>;
     inputValueInc: number;
-    currentLocale: string;
-    setCurrentLocale: StateSetter<string>;
+    locale: string;
+    setLocale: StateSetter<string>;
 };
 
 export default function EditorPanel<T>({
@@ -23,20 +23,24 @@ export default function EditorPanel<T>({
     setAttributeValue,
     subSelection,
     inputValueInc,
-    currentLocale,
-    setCurrentLocale,
+    locale,
+    setLocale,
 }: Props<T>) {
     const disabled = false; // TODO
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const [value, setValue] = React.useState<T>();
+    const [proxyValue, setValue] = React.useState<T | undefined>();
+    const [currentDefinition, setCurrentDefinition] = React.useState(definition);
+
+    const value = currentDefinition === definition ? proxyValue : undefined;
 
     React.useEffect(() => {
         inputRef.current?.focus();
-    }, [definition, valueContainer, inputValueInc, currentLocale]);
+    }, [definition, valueContainer, inputValueInc, locale]);
 
     React.useEffect(() => {
-        setValue(valueContainer.indeterminate ? '' : (valueContainer.values[0] ?? ''));
-    }, [definition, subSelection, inputValueInc, currentLocale]);
+        setValue(valueContainer.indeterminate[locale] ? undefined : (valueContainer.values[0]?.[locale] ?? ''));
+        setCurrentDefinition(definition);
+    }, [definition, subSelection, inputValueInc, locale]);
 
     const changeHandler = React.useCallback((v: any) => {
         setValue(v);
@@ -53,7 +57,6 @@ export default function EditorPanel<T>({
         );
     }
 
-
     const humanLocale = (l: string) => (l === NO_LOCALE ? `Untranslated` : l);
 
     const readOnly = !definition.canEdit;
@@ -63,10 +66,14 @@ export default function EditorPanel<T>({
             p: 1,
         }}
     >
+        <div>
+            Locale: {locale}
+        </div>
+
         {definition.translatable && definition.locales ? <>
             <Tabs
-                value={currentLocale}
-                onChange={(_e, value) => setCurrentLocale(value)}
+                value={locale}
+                onChange={(_e, l) => setLocale(l)}
                 aria-label="Locales"
                 sx={{
                     '.MuiTab-root': {
@@ -91,22 +98,22 @@ export default function EditorPanel<T>({
 
         {definition.multiple ? (
             <MultiAttributeRow
-                indeterminate={valueContainer.indeterminate}
                 readOnly={readOnly}
                 isRtl={false}
                 disabled={disabled}
                 type={definition.fieldType}
                 name={definition.name}
-                values={value as unknown as (T[] | undefined)}
+                valueContainer={valueContainer}
                 onChange={changeHandler}
                 id={definition.id}
+                locale={locale}
             />
         ) : (
             <AttributeWidget<T>
-                indeterminate={valueContainer.indeterminate}
+                indeterminate={valueContainer.indeterminate.g}
                 readOnly={readOnly}
                 isRtl={false}
-                value={value as T}
+                value={value}
                 disabled={disabled}
                 required={false}
                 autoFocus={true}

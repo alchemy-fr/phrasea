@@ -1,10 +1,12 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 
-export type Values<T extends any = any> = {
+export type Values<T = any> = {
     definition: AttributeDefinition;
-    indeterminate?: boolean;
-    values: T[];
-    originalValues: T[];
+    indeterminate: {
+        g: boolean;
+    } & LocalizedAttributeIndex<boolean>;
+    values: LocalizedAttributeIndex<T>[];
+    originalValues: LocalizedAttributeIndex<T>[];
 }
 
 export type AttributeValues = Record<string, Values>;
@@ -26,7 +28,20 @@ export type SuggestionTabProps = {
     valueContainer: Values;
     setAttributeValue: SetAttributeValue;
     subSelection: Asset[];
-    currentLocale: string;
+    locale: string;
 }
 
 export type SetAttributeValue<T = string> = (value: T | undefined, updateInput?: boolean) => void;
+
+export type MultiValueValue<T> = {
+    value: T;
+    part: number;
+    key: string;
+}
+
+export type MultiValueIndex<T> = {
+    [key: string]: {
+        p: number;
+        v: T;
+    };
+}

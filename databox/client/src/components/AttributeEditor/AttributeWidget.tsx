@@ -5,7 +5,7 @@ type Props<T> = {
     id: string;
     type: string;
     name: string;
-    value: T;
+    value: T | undefined;
     disabled: boolean;
     required: boolean;
     indeterminate?: boolean;

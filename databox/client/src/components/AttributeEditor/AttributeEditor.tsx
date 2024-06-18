@@ -13,6 +13,7 @@ import SuggestionPanel from "./SuggestionPanel.tsx";
 import {scrollbarWidth} from "../../constants.ts";
 import EditorPanel from "./EditorPanel.tsx";
 import {SetAttributeValue} from "./types.ts";
+import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 type Props = {
     assets: Asset[];
@@ -27,15 +28,15 @@ export default function AttributeEditor({
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
-    const [currentLocale, setCurrentLocale] = React.useState<string>('en');
+    const [locale, setLocale] = React.useState<string>('en');
     const {values, setValue, inputValueInc} = useAttributeValues(
         attributeDefinitions,
         assets,
         subSelection,
-        currentLocale,
     );
 
-    const value = definition ? values[definition.id] : undefined;
+    const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
+    const value = definition && values[definition.id] ? values[definition.id] : undefined;
 
     React.useEffect(() => {
         setSubSelection(assets);
@@ -53,9 +54,9 @@ export default function AttributeEditor({
 
     const setAttributeValue = React.useCallback<SetAttributeValue>((value, updateInput) => {
         if (definition) {
-            setValue(definition.id, value, updateInput);
+            setValue(definition.id, definitionLocale, value, updateInput);
         }
-    }, [definition, setValue]);
+    }, [definition, setValue, definitionLocale]);
 
     return <Box
         sx={{
@@ -113,6 +114,7 @@ export default function AttributeEditor({
                                 values={values}
                                 setDefinition={setDefinition}
                                 definition={definition}
+                                locale={locale}
                             /> : <DefinitionsSkeleton/>}
                         </Box>
 
@@ -124,8 +126,8 @@ export default function AttributeEditor({
                                 definition={definition}
                                 valueContainer={value}
                                 subSelection={subSelection}
-                                setCurrentLocale={setCurrentLocale}
-                                currentLocale={currentLocale}
+                                setLocale={setLocale}
+                                locale={definitionLocale}
                                 setAttributeValue={setAttributeValue}
                             /> : ''}
                         </Box>
@@ -133,7 +135,7 @@ export default function AttributeEditor({
                             width: 500,
                         }}>
                             {definition && value ? <SuggestionPanel
-                                currentLocale={currentLocale}
+                                locale={definitionLocale}
                                 valueContainer={value}
                                 definition={definition}
                                 setAttributeValue={setAttributeValue}

@@ -1,18 +1,17 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 import React from "react";
-import {AttributeIndex, AttributeValues} from "./types.ts";
+import {AttributeIndex, AttributeValues, LocalizedAttributeIndex} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 
-export function useAttributeValues(
+export function useAttributeValues<T>(
     attributeDefinitions: AttributeDefinition[],
     assets: Asset[],
     subSelection: Asset[],
-    currentLocale: string,
 ) {
     const [inc, setInc] = React.useState(0);
-    const initialIndex = React.useMemo<AttributeIndex>(() => {
-        const index: AttributeIndex = {};
+    const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
+        const index: AttributeIndex<T> = {};
 
         attributeDefinitions.forEach((def) => {
             index[def.id] ??= {};
@@ -28,7 +27,7 @@ export function useAttributeValues(
         return index;
     }, [attributeDefinitions, assets]);
 
-    const [index, setIndex] = React.useState<AttributeIndex>(initialIndex);
+    const [index, setIndex] = React.useState<AttributeIndex<T>>(initialIndex);
 
     const values = React.useMemo(() => {
         const values: AttributeValues = {};
@@ -38,34 +37,39 @@ export function useAttributeValues(
                 definition: def,
                 values: [],
                 originalValues: [],
+                indeterminate: {
+                    g: false,
+                },
             };
         });
 
         subSelection.forEach((a) => {
             Object.keys(index).forEach((defId) => {
                 const g = values[defId];
-                const l = g.definition.translatable ? (currentLocale ?? NO_LOCALE) : NO_LOCALE;
 
                 const translations = index[defId][a.id];
-                const v = translations ? translations[l] : undefined;
-                if (g.values.length === 0) {
-                    g.indeterminate = false;
-                } else {
-                    if (g.values.some(sv => sv !== v)) {
-                        g.indeterminate = true;
+
+                if (translations) {
+                    Object.keys(translations).forEach((l) => {
+                       g.indeterminate[l] ??= false;
+
+                        if (g.values.some((t: LocalizedAttributeIndex<T>) => t[l] !== translations[l])) {
+                            g.indeterminate[l] = true;
+                            g.indeterminate.g = true;
+                        }
+                    });
+
+                    g.values.push(translations);
+
+                    if (initialIndex[defId][a.id]) {
+                        g.originalValues.push(initialIndex[defId][a.id]);
                     }
-                }
-
-                g.values.push(v);
-
-                if (initialIndex[defId][a.id]) {
-                    g.originalValues.push(initialIndex[defId][a.id][l]);
                 }
             });
         });
 
         return values;
-    }, [subSelection, index, currentLocale]);
+    }, [subSelection, index]);
 
     const reset = React.useCallback(() => {
         setIndex(initialIndex);
@@ -75,13 +79,18 @@ export function useAttributeValues(
         reset();
     }, [reset]);
 
-    const setValue = React.useCallback((defId: string, value: any, updateInput?: boolean) => {
+    const setValue = React.useCallback((defId: string, locale: string, value: any, updateInput?: boolean) => {
         setIndex(p => {
             const np = {...p};
             const na = {...p[defId]};
 
             subSelection.forEach(a => {
-                na[a.id] = value;
+                if (na[a.id]) {
+                    na[a.id] = {...na[a.id]};
+                } else {
+                    na[a.id] = {};
+                }
+                na[a.id][locale] = value;
             });
 
             np[defId] = na;

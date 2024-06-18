@@ -2,6 +2,7 @@ import {SuggestionTabProps} from "../types.ts";
 import {Box, Checkbox, InputLabel, ListItem, ListItemButton} from "@mui/material";
 import React from "react";
 import {useTranslation} from 'react-i18next';
+import PartPercentage from "../PartPercentage.tsx";
 
 type Props = {} & SuggestionTabProps;
 
@@ -14,15 +15,14 @@ type Value = {
 export default function ValuesSuggestions({
     valueContainer,
     setAttributeValue,
+    locale,
 }: Props) {
-    const partClassName = 'value-suggest-part';
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
 
     const distinctValues = React.useMemo<Value[]>(() => {
         const stats: Stats = {};
-
-        const values = (!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? [];
+        const values = ((!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? []).map(tr => tr[locale]);
 
         const norm = (s: any): string => s ? (typeof s === 'string' ? s : '') : '';
         const sortFn = (a: Value, b: Value) => {
@@ -50,12 +50,23 @@ export default function ValuesSuggestions({
 
     }, [valueContainer, useOriginal]);
 
-    return <Box sx={{
-        [`.${partClassName}`]: {
-            color: 'info.main',
-            pl: 2,
-        }
-    }}>
+    const emptyValueClassName = 'empty-val';
+    const labelClassName = 'label-val';
+
+    return <Box
+        sx={{
+            [`.${emptyValueClassName}`]: {
+                fontStyle: 'italic',
+                color: 'secondary.main',
+            },
+            [`.${labelClassName}`]: {
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            }
+        }}
+    >
         <div>
             <InputLabel>
                 <Checkbox
@@ -72,15 +83,16 @@ export default function ValuesSuggestions({
             >
                 <ListItemButton
                     onClick={() => setAttributeValue(v.label, true)}
-                    sx={!v.label ? {
-                        fontStyle: 'italic',
-                        color: 'secondary.main',
-                    } : undefined}
                 >
-                    {v.label || t('attribute_editor.suggestions.no_value', '- empty -')}
-                    {v.part ? <span className={partClassName}>
-                        {v.part}%
-                    </span> : ''}
+                    <div className={labelClassName}>
+                        <div className={!v.label ? emptyValueClassName : undefined}>
+                            {v.label || t('attribute_editor.suggestions.no_value', '- empty -')}
+                        </div>
+                        <PartPercentage
+                            part={v.part}
+                            width={110}
+                        />
+                    </div>
                 </ListItemButton>
             </ListItem>
         })}
