@@ -63,13 +63,9 @@ export default function EditorPanel<T>({
 
     return <Box
         sx={{
-            p: 1,
+            p: 3,
         }}
     >
-        <div>
-            Locale: {locale}
-        </div>
-
         {definition.translatable && definition.locales ? <>
             <Tabs
                 value={locale}

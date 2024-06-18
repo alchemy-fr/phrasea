@@ -15,7 +15,7 @@ import {
     putRenditionDefinition,
 } from '../../../api/rendition';
 import RenditionClassSelect from '../../Form/RenditionClassSelect';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';

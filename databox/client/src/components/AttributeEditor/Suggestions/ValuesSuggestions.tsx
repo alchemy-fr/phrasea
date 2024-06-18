@@ -2,7 +2,7 @@ import {SuggestionTabProps} from "../types.ts";
 import {Box, Checkbox, InputLabel, ListItem, ListItemButton} from "@mui/material";
 import React from "react";
 import {useTranslation} from 'react-i18next';
-import PartPercentage from "../PartPercentage.tsx";
+import PartPercentage, {partPercentageClassName} from "../PartPercentage.tsx";
 
 type Props = {} & SuggestionTabProps;
 
@@ -51,19 +51,29 @@ export default function ValuesSuggestions({
     }, [valueContainer, useOriginal]);
 
     const emptyValueClassName = 'empty-val';
+    const labelWrapperClassName = 'label-wr';
     const labelClassName = 'label-val';
 
     return <Box
         sx={{
-            [`.${emptyValueClassName}`]: {
-                fontStyle: 'italic',
-                color: 'secondary.main',
-            },
-            [`.${labelClassName}`]: {
+            [`.${labelWrapperClassName}`]: {
                 width: '100%',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+            },
+            [`.${labelClassName}`]: {
+                flexShrink: 1,
+                whiteSpace: 'wrap',
+                wordBreak: 'break-word',
+            },
+            [`.${emptyValueClassName}`]: {
+                fontStyle: 'italic',
+                color: 'secondary.main',
+            },
+            [`.${partPercentageClassName}`]: {
+                flexShrink: 0,
+                flexGrow: 0,
             }
         }}
     >
@@ -84,8 +94,8 @@ export default function ValuesSuggestions({
                 <ListItemButton
                     onClick={() => setAttributeValue(v.label, true)}
                 >
-                    <div className={labelClassName}>
-                        <div className={!v.label ? emptyValueClassName : undefined}>
+                    <div className={labelWrapperClassName}>
+                        <div className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}>
                             {v.label || t('attribute_editor.suggestions.no_value', '- empty -')}
                         </div>
                         <PartPercentage

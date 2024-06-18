@@ -13,7 +13,7 @@ import {
     postRenditionClass,
     putRenditionClass,
 } from '../../../api/rendition';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import RenditionClassPermissions from './RenditionClassPermissions';
 
 function Item({

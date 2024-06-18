@@ -9,7 +9,7 @@ import {getItemListFromEvent} from "../AssetList/selection.ts";
 import Attributes from "./Attributes.tsx";
 import {useAttributeValues} from "./attributeGroup.ts";
 import DefinitionsSkeleton from "./DefinitionsSkeleton.tsx";
-import SuggestionPanel from "./SuggestionPanel.tsx";
+import SuggestionPanel from "./Suggestions/SuggestionPanel.tsx";
 import {scrollbarWidth} from "../../constants.ts";
 import EditorPanel from "./EditorPanel.tsx";
 import {SetAttributeValue} from "./types.ts";

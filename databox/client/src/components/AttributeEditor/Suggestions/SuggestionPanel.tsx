@@ -1,8 +1,8 @@
 import React from "react";
-import {SuggestionTabProps} from "./types.ts";
-import ValuesSuggestions from "./Suggestions/ValuesSuggestions.tsx";
-import Tabs from "../Ui/Tabs.tsx";
-import {TabItem} from "../Dialog/Tabbed/tabTypes.ts";
+import {SuggestionTabProps} from "../types.ts";
+import ValuesSuggestions from "./ValuesSuggestions.tsx";
+import Tabs from "../../Ui/Tabs.tsx";
+import {TabItem} from "../../Dialog/Tabbed/tabTypes.ts";
 import {useTranslation} from 'react-i18next';
 
 type Props = {} & SuggestionTabProps;

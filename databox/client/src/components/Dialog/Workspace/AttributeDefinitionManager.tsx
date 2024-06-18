@@ -21,7 +21,7 @@ import DefinitionManager, {
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import AttributeClassSelect from '../../Form/AttributeClassSelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
