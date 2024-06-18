@@ -11,12 +11,13 @@ export default class CodeType extends TextareaType {
         onChange,
         id,
         readOnly,
+        disabled,
     }: AttributeWidgetProps): React.ReactNode {
         return (
             <>
                 <FormLabel>{name}</FormLabel>
                 <CodeEditor
-                    readOnly={readOnly}
+                    readOnly={readOnly || disabled}
                     mode={this.getAceMode()}
                     highlightActiveLine={true}
                     onChange={onChange}
@@ -31,18 +32,7 @@ export default class CodeType extends TextareaType {
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
         return (
             <>
-                {value ? (
-                    <CodeEditor
-                        readOnly={true}
-                        mode={this.getAceMode()}
-                        value={this.prettifyCode(value)}
-                        style={{
-                            maxHeight: 200,
-                            overflow: 'auto',
-                            whiteSpace: 'pre-wrap',
-                        }}
-                    />
-                ) : (
+                {value ? this.prettifyCode(value) : (
                     value
                 )}
             </>

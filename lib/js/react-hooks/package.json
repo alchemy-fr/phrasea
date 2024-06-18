@@ -4,12 +4,13 @@
   "public": true,
   "files": [
     "src/createStateSetterProxy.ts",
+    "src/useDebounce.ts",
     "src/useDebounceLoader.ts",
     "src/useDebounceScroll.ts",
     "src/useEffectOnce.ts",
-    "src/useWindowSize.ts",
+    "src/useTimeout.ts",
     "src/useUniqueId.ts",
-    "src/useTimeout.ts"
+    "src/useWindowSize.ts"
   ],
   "peerDependencies": {
     "axios": "^1.6.2",

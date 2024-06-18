@@ -27,6 +27,9 @@ export default function ValuesSuggestions<T>({
         const stats: Stats = {};
         const tmpValues = ((!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? []).map(tr => tr[locale]);
         const values = definition.multiple ? tmpValues.flat() as T[] : tmpValues;
+        if (values.length === 0) {
+            values.push(undefined);
+        }
 
         const norm = (v: T) => toKey(definition.fieldType, v);
         const sortFn = (a: Value<T>, b: Value<T>) => {

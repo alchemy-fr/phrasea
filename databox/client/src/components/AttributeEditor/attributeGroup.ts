@@ -63,9 +63,6 @@ export function useAttributeValues<T>(
                         g.indeterminate[l] ??= false;
 
                         if (g.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
-                            if (g.definition.multiple) {
-                                console.log('l', l);
-                            }
                             g.indeterminate[l] = true;
                             g.indeterminate.g = true;
                         }
@@ -133,22 +130,17 @@ function normalizeList<T>(a: T[], toKey: ToKeyFuncTypeScoped<T>): string[] {
 }
 
 function listsAreSame<T>(a: T[], b: T[], toKey: ToKeyFuncTypeScoped<T>): boolean {
-    console.log('a', a);
-    console.log('b', b);
     if (a.length !== b.length) {
         return false;
     }
 
     const an = normalizeList<T>(a, toKey);
     const bn = normalizeList<T>(b, toKey);
-    console.log('an', an);
-    console.log('bn', bn);
     for (let i = 0; i < an.length; i++) {
         if (an[i] !== bn[i]) {
             return false;
         }
     }
 
-    console.log('true');
     return true;
 }

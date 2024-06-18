@@ -6,6 +6,8 @@ import AttributeWidget from "./AttributeWidget.tsx";
 import Flag from "../Ui/Flag.tsx";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 import MultiAttributeRow from "./MultiAttributeRow.tsx";
+import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
+
 
 type Props<T> = {
     definition: AttributeDefinition;
@@ -32,6 +34,7 @@ export default function EditorPanel<T>({
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const [proxyValue, setValue] = React.useState<T | undefined>();
     const [currentDefinition, setCurrentDefinition] = React.useState(definition);
+    const debounce = useDebounce();
 
     const value = currentDefinition === definition ? proxyValue : undefined;
 
@@ -46,9 +49,9 @@ export default function EditorPanel<T>({
 
     const changeHandler = React.useCallback((v: any) => {
         setValue(v);
-        setTimeout(() => {
+        debounce(() => {
             setAttributeValue(v);
-        });
+        }, 500);
     }, [setAttributeValue]);
 
     const locales = React.useMemo<string[] | undefined>(() => {
