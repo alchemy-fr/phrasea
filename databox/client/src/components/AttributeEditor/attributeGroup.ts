@@ -1,6 +1,6 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 import React from "react";
-import {AttributeIndex, AttributeValues, LocalizedAttributeIndex} from "./types.ts";
+import {AttributeIndex, AttributeValues, LocalizedAttributeIndex, ToKeyFunc} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 
@@ -8,6 +8,7 @@ export function useAttributeValues<T>(
     attributeDefinitions: AttributeDefinition[],
     assets: Asset[],
     subSelection: Asset[],
+    toKey: ToKeyFunc<T>,
 ) {
     const [inc, setInc] = React.useState(0);
     const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
@@ -47,13 +48,24 @@ export function useAttributeValues<T>(
             Object.keys(index).forEach((defId) => {
                 const g = values[defId];
 
+                function valueIsSame(a: T | T[] | undefined, b: T | T[] | undefined): boolean {
+                    if (g.definition.multiple) {
+                        return listsAreSame((a ?? []) as T[], (b ?? []) as T[], (v: T) => toKey(g.definition.fieldType, v));
+                    }
+
+                    return (a || undefined) === (b || undefined)
+                }
+
                 const translations = index[defId][a.id];
 
                 if (translations) {
                     Object.keys(translations).forEach((l) => {
-                       g.indeterminate[l] ??= false;
+                        g.indeterminate[l] ??= false;
 
-                        if (g.values.some((t: LocalizedAttributeIndex<T>) => t[l] !== translations[l])) {
+                        if (g.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
+                            if (g.definition.multiple) {
+                                console.log('l', l);
+                            }
                             g.indeterminate[l] = true;
                             g.indeterminate.g = true;
                         }
@@ -110,4 +122,33 @@ export function useAttributeValues<T>(
         reset,
         index,
     };
+}
+
+export type ToKeyFuncTypeScoped<T> = (v: T) => string;
+
+function normalizeList<T>(a: T[], toKey: ToKeyFuncTypeScoped<T>): string[] {
+    return a
+        .map(toKey)
+        .sort((a, b) => a.localeCompare(b));
+}
+
+function listsAreSame<T>(a: T[], b: T[], toKey: ToKeyFuncTypeScoped<T>): boolean {
+    console.log('a', a);
+    console.log('b', b);
+    if (a.length !== b.length) {
+        return false;
+    }
+
+    const an = normalizeList<T>(a, toKey);
+    const bn = normalizeList<T>(b, toKey);
+    console.log('an', an);
+    console.log('bn', bn);
+    for (let i = 0; i < an.length; i++) {
+        if (an[i] !== bn[i]) {
+            return false;
+        }
+    }
+
+    console.log('true');
+    return true;
 }

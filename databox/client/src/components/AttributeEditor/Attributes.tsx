@@ -29,8 +29,6 @@ export default function Attributes({
     const indeterminateClassName = 'def-indeter';
     const indeterminateLabel = t('attribute_editor.definitions.indeterminate', 'Indeterminate')
 
-    const l = definition?.translatable ? locale : NO_LOCALE;
-
     return <Box
         sx={{
             [`.${indeterminateClassName}`]: {
@@ -39,6 +37,7 @@ export default function Attributes({
         }}
     >
         {attributeDefinitions.map((def) => {
+            const l = def?.translatable ? locale : NO_LOCALE;
             const type = def.fieldType;
             const formatter = getAttributeType(type);
 

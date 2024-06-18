@@ -1,7 +1,7 @@
 import React from "react";
 import {Asset, AttributeDefinition, StateSetter} from "../../types.ts";
 import {Alert, Box, Tab, Tabs} from "@mui/material";
-import {SetAttributeValue, Values} from "./types.ts";
+import {SetAttributeValue, ToKeyFunc, Values} from "./types.ts";
 import AttributeWidget from "./AttributeWidget.tsx";
 import Flag from "../Ui/Flag.tsx";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
@@ -15,6 +15,7 @@ type Props<T> = {
     inputValueInc: number;
     locale: string;
     setLocale: StateSetter<string>;
+    toKey: ToKeyFunc<T>;
 };
 
 export default function EditorPanel<T>({
@@ -25,6 +26,7 @@ export default function EditorPanel<T>({
     inputValueInc,
     locale,
     setLocale,
+    toKey,
 }: Props<T>) {
     const disabled = false; // TODO
     const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -49,7 +51,21 @@ export default function EditorPanel<T>({
         });
     }, [setAttributeValue]);
 
-    if (definition.translatable && definition.locales!.length === 0) {
+    const locales = React.useMemo<string[] | undefined>(() => {
+        if (!definition.translatable) {
+            return;
+        }
+
+        const locales = [...definition.locales ?? []];
+
+        if (valueContainer.values.some(v => Object.hasOwnProperty.call(v, NO_LOCALE))) {
+            locales.push(NO_LOCALE);
+        }
+
+        return locales;
+    }, [valueContainer, definition]);
+
+    if (definition.translatable && locales!.length === 0) {
         return (
             <Alert severity={'warning'}>
                 No locale defined in this workspace
@@ -66,7 +82,7 @@ export default function EditorPanel<T>({
             p: 3,
         }}
     >
-        {definition.translatable && definition.locales ? <>
+        {locales ? <>
             <Tabs
                 value={locale}
                 onChange={(_e, l) => setLocale(l)}
@@ -77,7 +93,7 @@ export default function EditorPanel<T>({
                     },
                 }}
             >
-                {definition.locales.map(l => (
+                {locales.map(l => (
                     <Tab
                         key={l}
                         label={
@@ -103,6 +119,7 @@ export default function EditorPanel<T>({
                 onChange={changeHandler}
                 id={definition.id}
                 locale={locale}
+                toKey={toKey}
             />
         ) : (
             <AttributeWidget<T>

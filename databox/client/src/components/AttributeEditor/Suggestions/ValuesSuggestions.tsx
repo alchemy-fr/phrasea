@@ -4,28 +4,32 @@ import React from "react";
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from "../PartPercentage.tsx";
 
-type Props = {} & SuggestionTabProps;
-
 type Stats = Record<string, number>;
-type Value = {
+
+type Value<T> = {
     label: string;
+    value: T;
     part: number;
 };
+type Props<T> = {} & SuggestionTabProps<T>;
 
-export default function ValuesSuggestions({
+export default function ValuesSuggestions<T>({
     valueContainer,
     setAttributeValue,
+    definition,
     locale,
-}: Props) {
+    toKey,
+}: Props<T>) {
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
 
-    const distinctValues = React.useMemo<Value[]>(() => {
+    const distinctValues = React.useMemo<Value<T>[]>(() => {
         const stats: Stats = {};
-        const values = ((!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? []).map(tr => tr[locale]);
+        const tmpValues = ((!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? []).map(tr => tr[locale]);
+        const values = definition.multiple ? tmpValues.flat() as T[] : tmpValues;
 
-        const norm = (s: any): string => s ? (typeof s === 'string' ? s : '') : '';
-        const sortFn = (a: Value, b: Value) => {
+        const norm = (v: T) => toKey(definition.fieldType, v);
+        const sortFn = (a: Value<T>, b: Value<T>) => {
             if (a.part === b.part) {
                 return a.label ? (b.label ? a.label.localeCompare(b.label) : 1) : -1;
             }
@@ -34,21 +38,30 @@ export default function ValuesSuggestions({
         };
 
         return (values
-            .map(norm) as string[])
+            .map((v: T): Value<T> => {
+                const key = norm(v);
+
+                return ({
+                    label: key,
+                    value: v,
+                    part: 0,
+                });
+            })
             .map(v => {
-                stats[v] ??= 0;
-                stats[v]++;
+                stats[v.label] ??= 0;
+                stats[v.label]++;
 
                 return v;
             })
-            .filter((value, index, array) => array.indexOf(value) === index)
-            .map((v: string): Value => ({
-                label: v,
-                part: Math.round(stats[v] / values.length * 10000) / 100,
+            .map((v: Value<T>): Value<T> => ({
+                ...v,
+                part: Math.round(stats[v.label] / values.length * 10000) / 100,
             }))
-            .sort(sortFn);
+            .filter((value, index, array) => array.findIndex((v) => v.label === value.label) === index)
+            .sort(sortFn)
+        );
 
-    }, [valueContainer, useOriginal]);
+    }, [valueContainer, useOriginal, definition, locale]);
 
     const emptyValueClassName = 'empty-val';
     const labelWrapperClassName = 'label-wr';
@@ -86,13 +99,13 @@ export default function ValuesSuggestions({
                 {t('attribute_editor.suggestions.originalValues.label', 'Display original values')}
             </InputLabel>
         </div>
-        {distinctValues.map((v: Value, index) => {
+        {distinctValues.map((v: Value<T>, index) => {
             return <ListItem
                 key={index}
                 disablePadding
             >
                 <ListItemButton
-                    onClick={() => setAttributeValue(v.label, true)}
+                    onClick={() => setAttributeValue(v.value, true)}
                 >
                     <div className={labelWrapperClassName}>
                         <div className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}>

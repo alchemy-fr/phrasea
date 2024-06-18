@@ -48,10 +48,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $translatable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $multiple = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

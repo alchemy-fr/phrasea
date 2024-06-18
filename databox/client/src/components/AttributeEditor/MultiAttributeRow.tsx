@@ -5,7 +5,15 @@ import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AttributeWidget from "./AttributeWidget.tsx";
-import {MultiValueIndex, MultiValueValue, Values} from "./types.ts";
+import {MultiValueIndex, MultiValueValue, ToKeyFunc, Values} from "./types.ts";
+
+export function createNewValue(type: string): any {
+    switch (type) {
+        default:
+        case 'text':
+            return '';
+    }
+}
 
 type Props<T> = {
     id: string;
@@ -18,15 +26,8 @@ type Props<T> = {
     indeterminate?: boolean;
     readOnly?: boolean;
     locale: string;
+    toKey: ToKeyFunc<T>,
 };
-
-export function createNewValue(type: string): any {
-    switch (type) {
-        default:
-        case 'text':
-            return '';
-    }
-}
 
 export default function MultiAttributeRow<T>({
     id,
@@ -38,16 +39,9 @@ export default function MultiAttributeRow<T>({
     type,
     readOnly,
     locale,
+    toKey,
 }: Props<T>) {
     const {t} = useTranslation();
-
-    const toKey = (v: T): string => {
-        if (!v) {
-            return '';
-        }
-
-        return v as string;
-    };
 
     const computed = React.useMemo<MultiValueValue<T>[]>(() => {
         const index: MultiValueIndex<T> = {};
@@ -57,7 +51,7 @@ export default function MultiAttributeRow<T>({
             const values = translations[locale];
 
             values?.forEach((v: T) => {
-                const k = toKey(v);
+                const k = toKey(type, v);
 
                 index[k] ??= {
                     p: 0,
@@ -100,7 +94,7 @@ export default function MultiAttributeRow<T>({
                 nv[index] = {
                     value,
                     part: 100,
-                    key: toKey(value),
+                    key: toKey(type, value),
                 };
 
                 setTimeout(() => onChange(nv.map(c => c.value)), 0);
@@ -108,7 +102,7 @@ export default function MultiAttributeRow<T>({
                 return nv;
             });
         },
-        [setValues, onChange]
+        [setValues, onChange, type]
     );
 
     const add = () => {

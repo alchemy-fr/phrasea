@@ -23,12 +23,13 @@ export type AttributeIndex<T = string> = {
     [definitionId: string]: AssetAttributeIndex<T>;
 };
 
-export type SuggestionTabProps = {
+export type SuggestionTabProps<T> = {
     definition: AttributeDefinition;
     valueContainer: Values;
-    setAttributeValue: SetAttributeValue;
+    setAttributeValue: SetAttributeValue<T>;
     subSelection: Asset[];
     locale: string;
+    toKey: ToKeyFunc<T>;
 }
 
 export type SetAttributeValue<T = string> = (value: T | undefined, updateInput?: boolean) => void;
@@ -45,3 +46,5 @@ export type MultiValueIndex<T> = {
         v: T;
     };
 }
+
+export type ToKeyFunc<T = string> = (type: string, v: T) => string;

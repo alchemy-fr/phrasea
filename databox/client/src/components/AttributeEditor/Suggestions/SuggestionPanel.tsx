@@ -5,16 +5,16 @@ import Tabs from "../../Ui/Tabs.tsx";
 import {TabItem} from "../../Dialog/Tabbed/tabTypes.ts";
 import {useTranslation} from 'react-i18next';
 
-type Props = {} & SuggestionTabProps;
+type Props<T> = {} & SuggestionTabProps<T>;
 
 
-export default function SuggestionPanel({
+export default function SuggestionPanel<T = string>({
     ...props
-}: Props) {
+}: Props<T>) {
     const {t} = useTranslation();
     const [tab, setTab] = React.useState('values');
 
-    const tabs = React.useMemo<TabItem<SuggestionTabProps>[]>(() => {
+    const tabs = React.useMemo<TabItem<SuggestionTabProps<T>>[]>(() => {
         return [
             {
                 id: 'values',
@@ -25,7 +25,7 @@ export default function SuggestionPanel({
     }, []);
 
     return <>
-        <Tabs<SuggestionTabProps>
+        <Tabs<SuggestionTabProps<T>>
             tabs={tabs}
             currentTabId={tab}
             onTabChange={(id) => setTab(id)}

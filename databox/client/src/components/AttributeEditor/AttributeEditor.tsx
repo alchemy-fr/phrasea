@@ -1,5 +1,5 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
-import {Box} from "@mui/material";
+import {Box, useTheme} from "@mui/material";
 import React from "react";
 import ThumbList from "./ThumbList.tsx";
 import {AssetSelectionContext} from "../../context/AssetSelectionContext.tsx";
@@ -14,6 +14,7 @@ import {scrollbarWidth} from "../../constants.ts";
 import EditorPanel from "./EditorPanel.tsx";
 import {SetAttributeValue} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
+import { Resizable } from 're-resizable';
 
 type Props = {
     assets: Asset[];
@@ -24,6 +25,15 @@ export default function AttributeEditor({
     assets,
     attributeDefinitions,
 }: Props) {
+    const toKey = React.useCallback((_type: string, v: any): string => {
+        if (!v) {
+            return '';
+        }
+
+        return v.toString() as string;
+    }, []);
+
+    const theme = useTheme();
     const [subSelection, setSubSelection] = React.useState<Asset[]>([]);
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
@@ -33,6 +43,7 @@ export default function AttributeEditor({
         attributeDefinitions,
         assets,
         subSelection,
+        toKey,
     );
 
     const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
@@ -95,32 +106,45 @@ export default function AttributeEditor({
                             display: 'flex',
                             flexGrow: 1,
                             maxHeight: '100%',
-                            '> div': {
-                                maxHeight: '100%',
-                                overflow: 'auto',
-                            }
-                        }}
-                    >
-                        <Box sx={{
-                            width: 300,
                             'strong': {
                                 mr: 1,
                                 verticalAlign: 'top',
                                 alignSelf: 'start',
-                            }
-                        }}>
-                            {attributeDefinitions ? <Attributes
-                                attributeDefinitions={attributeDefinitions}
-                                values={values}
-                                setDefinition={setDefinition}
-                                definition={definition}
-                                locale={locale}
-                            /> : <DefinitionsSkeleton/>}
-                        </Box>
+                            },
+                        }}
+                    >
+                        <Resizable
+                            defaultSize={{
+                                width: 320,
+                                height: 'auto',
+                            }}
+                            minWidth={30}
+                            maxWidth={1200}
+                            style={{
+                                borderRight: `1px solid ${theme.palette.divider}`,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    minHeight: '100%',
+                                    maxHeight: '100%',
+                                    overflow: 'auto',
+                                }}
+                            >
+                                {attributeDefinitions ? <Attributes
+                                    attributeDefinitions={attributeDefinitions}
+                                    values={values}
+                                    setDefinition={setDefinition}
+                                    definition={definition}
+                                    locale={locale}
+                                /> : <DefinitionsSkeleton/>}
+                            </Box>
+                        </Resizable>
 
-                        <Box sx={{
+                        <Box sx={theme => ({
                             flexGrow: 1,
-                        }}>
+                            borderRight: `1px solid ${theme.palette.divider}`,
+                        })}>
                             {value && definition ? <EditorPanel
                                 inputValueInc={inputValueInc}
                                 definition={definition}
@@ -129,19 +153,37 @@ export default function AttributeEditor({
                                 setLocale={setLocale}
                                 locale={definitionLocale}
                                 setAttributeValue={setAttributeValue}
+                                toKey={toKey}
                             /> : ''}
                         </Box>
-                        <Box sx={{
-                            width: 500,
-                        }}>
+                        <Resizable
+                            defaultSize={{
+                                width: 500,
+                                height: 'auto',
+                            }}
+                            minWidth={30}
+                            maxWidth={1200}
+                            style={{
+                                borderRight: `1px solid ${theme.palette.divider}`,
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    minHeight: '100%',
+                                    maxHeight: '100%',
+                                    overflow: 'auto',
+                                }}
+                            >
                             {definition && value ? <SuggestionPanel
                                 locale={definitionLocale}
                                 valueContainer={value}
                                 definition={definition}
                                 setAttributeValue={setAttributeValue}
                                 subSelection={subSelection}
+                                toKey={toKey}
                             /> : ''}
-                        </Box>
+                            </Box>
+                        </Resizable>
                     </Box>
                 </Box>
             </AssetSelectionContext.Provider>
