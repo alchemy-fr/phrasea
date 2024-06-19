@@ -1,10 +1,10 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 function echo_usage() {
     echo "Usage:"
-    echo "  $0 <namespace> <migration-name> <helm-release>"
+    echo "  $0 <namespace> <helm-release>"
 }
 
 if [ -z "$1" ]; then
@@ -14,31 +14,23 @@ if [ -z "$1" ]; then
 fi
 
 if [ -z "$2" ]; then
-  echo "Missing migration name."
-  echo_usage
-  exit 1
-fi
-
-if [ -z "$3" ]; then
   echo "Missing HELM release."
   echo_usage
   exit 1
 fi
 
 NS="${1}"
-MIGRATION_NAME="${2}"
 RELEASE_NAME=phrasea
-RELEASE_VERSION="${3}"
+RELEASE_VERSION="${2}"
 
-echo "Migrating..."
+echo "Running configuration:configure..."
+
 (
   mkdir -p /tmp/phrasea-helm-configure \
   && cd /tmp/phrasea-helm-configure \
   && helm pull https://github.com/alchemy-fr/alchemy-helm-charts-repo/releases/download/phrasea-${RELEASE_VERSION}/phrasea-${RELEASE_VERSION}.tgz \
   && helm -n ${NS} get values ${RELEASE_NAME} -o yaml > .current-values.yaml \
-  && (kubectl -n ${NS} delete job configurator-migrate-${MIGRATION_NAME} || true) \
-  && helm template ${RELEASE_NAME} \
-    ./phrasea-${RELEASE_VERSION}.tgz -f .current-values.yaml \
-    --set "configurator.executeMigration=${MIGRATION_NAME}" \
-    -s templates/configurator/migration-job.yaml | kubectl -n ${NS} apply -f -
+  && (kubectl -n ${NS} delete job configurator-configure || true) \
+  && helm template ${RELEASE_NAME} ./phrasea-${RELEASE_VERSION}.tgz -f .current-values.yaml \
+    -s templates/configurator/configure-job.yaml | kubectl -n ${NS} apply -f -
 )
