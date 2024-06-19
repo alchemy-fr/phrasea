@@ -149,10 +149,6 @@ export function useAttributeValues<T>(
                 });
 
                 values.values.push(translations);
-
-                if (initialIndex[defId][a.id]) {
-                    values.originalValues.push(initialIndex[defId][a.id]);
-                }
             } else {
                 values.values.push({});
                 Object.keys(allLocales).forEach((l) => {
@@ -164,10 +160,16 @@ export function useAttributeValues<T>(
                     }
                 });
             }
+
+            if (initialIndex[defId][a.id]) {
+                values.originalValues.push(initialIndex[defId][a.id]);
+            } else {
+                values.originalValues.push({});
+            }
         });
 
         return values;
-    }, [subSelection, definition, index]);
+    }, [subSelection, definition, index, initialIndex]);
 
     React.useEffect(() => {
         if (definition && values && values.definition.id === definition.id) {
