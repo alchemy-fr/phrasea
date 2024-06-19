@@ -20,7 +20,7 @@ export default class ColorType extends TextType {
         disabled,
         name,
         readOnly,
-    }: AttributeWidgetProps): React.ReactNode {
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <ColorPicker
                 color={value}

@@ -1,10 +1,12 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 
+export type IndeterminateGroup = {
+    g: boolean;
+} & LocalizedAttributeIndex<boolean>;
+
 export type Values<T = any> = {
     definition: AttributeDefinition;
-    indeterminate: {
-        g: boolean;
-    } & LocalizedAttributeIndex<boolean>;
+    indeterminate: IndeterminateGroup;
     values: LocalizedAttributeIndex<T>[];
     originalValues: LocalizedAttributeIndex<T>[];
 }
@@ -23,6 +25,13 @@ export type AttributeIndex<T = string> = {
     [definitionId: string]: AssetAttributeIndex<T>;
 };
 
+export type DefinitionValuesIndex<T> = {
+    [definitionId: string]: {
+        value: LocalizedAttributeIndex<T>;
+        indeterminate: IndeterminateGroup;
+    };
+};
+
 export type SuggestionTabProps<T> = {
     definition: AttributeDefinition;
     valueContainer: Values;
@@ -32,7 +41,13 @@ export type SuggestionTabProps<T> = {
     toKey: ToKeyFunc<T>;
 }
 
-export type SetAttributeValue<T = string> = (value: T | undefined, updateInput?: boolean) => void;
+export type SetAttributeValueOptions = {
+    updateInput?: boolean;
+    add?: boolean;
+    remove?: boolean;
+};
+
+export type SetAttributeValue<T = string> = (value: T | undefined, options?: SetAttributeValueOptions) => void;
 
 export type MultiValueValue<T> = {
     value: T;
@@ -48,3 +63,5 @@ export type MultiValueIndex<T> = {
 }
 
 export type ToKeyFunc<T = string> = (type: string, v: T) => string;
+
+export type ToKeyFuncTypeScoped<T> = (v: T) => string;

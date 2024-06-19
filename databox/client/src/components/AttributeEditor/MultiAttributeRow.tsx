@@ -1,11 +1,14 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Box, Button, IconButton} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {MultiValueIndex, MultiValueValue, SetAttributeValue, ToKeyFunc, Values} from "./types.ts";
+import {getAttributeType} from "../Media/Asset/Attribute/types";
+import {AttributeFormatterProps} from "../Media/Asset/Attribute/types/types";
+import {AttributeFormatContext} from "../Media/Asset/Attribute/Format/AttributeFormatContext.ts";
 import AttributeWidget from "./AttributeWidget.tsx";
-import {MultiValueIndex, MultiValueValue, ToKeyFunc, Values} from "./types.ts";
 
 export function createNewValue(type: string): any {
     switch (type) {
@@ -18,15 +21,14 @@ export function createNewValue(type: string): any {
 type Props<T> = {
     id: string;
     type: string;
-    name?: string;
+    name: string;
     valueContainer: Values;
-    onChange: (values: T[] | undefined) => void;
-    isRtl: boolean;
     disabled: boolean;
     indeterminate?: boolean;
     readOnly?: boolean;
     locale: string;
     toKey: ToKeyFunc<T>,
+    setAttributeValue: SetAttributeValue<T>;
 };
 
 export default function MultiAttributeRow<T>({
@@ -34,14 +36,49 @@ export default function MultiAttributeRow<T>({
     name,
     valueContainer,
     disabled,
-    isRtl,
-    onChange,
     type,
     readOnly,
     locale,
     toKey,
+    setAttributeValue,
 }: Props<T>) {
+    const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t} = useTranslation();
+    const formatContext = useContext(AttributeFormatContext);
+    const [addNew, setAddNew] = React.useState(false);
+    const [newValue, setNewValue] = React.useState<T | undefined>();
+
+    const newHandler = React.useCallback(() => {
+        setAddNew(true);
+    }, []);
+
+    const focus = () => inputRef.current?.focus();
+
+    const addValueHandler = React.useCallback((v: T) => {
+        setAttributeValue(v, {
+            add: true,
+            updateInput: true,
+        });
+        setNewValue(undefined);
+        focus();
+    }, [setAttributeValue]);
+
+    const addHandler = React.useCallback(() => {
+        addValueHandler(newValue!);
+        focus();
+    }, [addValueHandler, newValue]);
+
+    const removeValueHandler = React.useCallback((v: T) => {
+        setAttributeValue(v, {
+            remove: true,
+            updateInput: true,
+        });
+        focus();
+    }, [setAttributeValue]);
+
+    const ChangeNewItemHandler = React.useCallback((v: T | undefined) => {
+        setNewValue(v);
+    }, [setNewValue]);
 
     const computed = React.useMemo<MultiValueValue<T>[]>(() => {
         const index: MultiValueIndex<T> = {};
@@ -86,121 +123,92 @@ export default function MultiAttributeRow<T>({
         setValues(computed ?? []);
     }, [computed]);
 
-    const changeHandler = useCallback(
-        (index: number, value: T) => {
-            setValues((prev) => {
-                const nv = [...prev];
-
-                nv[index] = {
-                    value,
-                    part: 100,
-                    key: toKey(type, value),
-                };
-
-                setTimeout(() => onChange(nv.map(c => c.value)), 0);
-
-                return nv;
-            });
-        },
-        [setValues, onChange, type]
-    );
-
-    const add = () => {
-        setValues(prev => {
-            const nv = prev.concat(createNewValue(type));
-
-            setTimeout(() => onChange(nv.map(c => c.value)), 0);
-
-            return nv;
-        });
-    };
-
-    const remove = (i: number) => {
-        setValues(prev => {
-            const nv = [...prev];
-            nv.splice(i, 1);
-            setTimeout(() => onChange(nv.map(c => c.value)), 0);
-
-            return nv;
-        });
-    };
-
-    const addToAll = (i: number) => {
-        setValues(prev => {
-            const nv = [...prev];
-
-            nv[i].part = 100;
-
-            setTimeout(() => onChange(nv.map(c => c.value)), 0);
-
-            return nv;
-        });
-    };
+    const formatter = getAttributeType(type);
 
     return (
         <FormRow>
             {values.map((v: MultiValueValue<T>, i: number) => {
+                const valueFormatterProps: AttributeFormatterProps = {
+                    value: v.value,
+                    locale,
+                    format: formatContext.formats[type],
+                };
+
                 const indeterminate = v.part < 100;
 
                 return (
-                        <Box
-                            key={i}
-                            sx={{
-                                display: 'flex',
-                                opacity: indeterminate ? 0.7 : undefined,
-                                p: 1,
-                            }}
-                        >
-                            <div style={{
-                                flexGrow: 1,
-                            }}>
-                                <AttributeWidget<T>
-                                    readOnly={readOnly}
-                                    value={v.value}
-                                    isRtl={isRtl}
-                                    disabled={disabled}
-                                    name={`${name} #${i + 1}`}
-                                    type={type}
-                                    required={true}
-                                    onChange={v => {
-                                        changeHandler(i, v!);
-                                    }}
-                                    id={`${id}_${i}`}
-                                />
-                            </div>
-                            <div style={{
-                            }}>
-                                <IconButton
-                                    disabled={!indeterminate || readOnly || disabled}
-                                    onClick={() => addToAll(i)}
-                                    color="success"
-                                >
-                                    <AddIcon/>
-                                </IconButton>
-                                <IconButton
-                                    disabled={readOnly || disabled}
-                                    onClick={() => remove(i)}
-                                    color="error"
-                                >
-                                    <DeleteIcon/>
-                                </IconButton>
-                            </div>
-                        </Box>
+                    <Box
+                        key={i}
+                        sx={{
+                            display: 'flex',
+                            color: indeterminate ? 'warning.main' : undefined,
+                            p: 1,
+                        }}
+                    >
+                        <div style={{
+                            flexGrow: 1,
+                        }}>
+                            {formatter.formatValue(valueFormatterProps)}
+                        </div>
+                        <div style={{}}>
+                            <IconButton
+                                disabled={!indeterminate || readOnly || disabled}
+                                onClick={() => addValueHandler(v.value)}
+                                color="success"
+                            >
+                                <AddIcon/>
+                            </IconButton>
+                            <IconButton
+                                disabled={readOnly || disabled}
+                                onClick={() => removeValueHandler(v.value)}
+                                color="error"
+                            >
+                                <DeleteIcon/>
+                            </IconButton>
+                        </div>
+                    </Box>
                 );
             })}
 
-            <Button
-                sx={{mt: 2,}}
-                startIcon={<AddIcon/>}
-                variant="outlined"
-                disabled={readOnly || disabled}
-                onClick={add}
-                color="secondary"
-            >
-                {t('form.attribute.collection.item_add', 'Add {{name}}', {
-                    name,
-                })}
-            </Button>
+            {addNew ? <>
+                <AttributeWidget<T>
+                    id={id}
+                    name={name}
+                    inputRef={inputRef}
+                    type={type}
+                    isRtl={false}
+                    disabled={disabled}
+                    required={false}
+                    autoFocus={true}
+                    value={newValue}
+                    onChange={ChangeNewItemHandler}
+                />
+                <Button
+                    sx={{mt: 2,}}
+                    startIcon={<AddIcon/>}
+                    variant="outlined"
+                    disabled={readOnly || disabled}
+                    color="primary"
+                    onClick={addHandler}
+                >
+                    {t('form.attribute.collection.item_add', 'Add {{name}}', {
+                        name,
+                    })}
+                </Button>
+            </> : <>
+                <Button
+                    sx={{mt: 2,}}
+                    startIcon={<AddIcon/>}
+                    variant="outlined"
+                    disabled={readOnly || disabled}
+                    color="secondary"
+                    onClick={newHandler}
+                >
+                    {t('form.attribute.collection.item_new', 'New {{name}}', {
+                        name,
+                    })}
+                </Button>
+            </>}
         </FormRow>
     );
 }

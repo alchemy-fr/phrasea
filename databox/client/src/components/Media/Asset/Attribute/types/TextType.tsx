@@ -11,7 +11,7 @@ import React from 'react';
 
 export default class TextType
     extends BaseType
-    implements AttributeTypeInstance
+    implements AttributeTypeInstance<string>
 {
     renderWidget({
         value,
@@ -24,7 +24,8 @@ export default class TextType
         autoFocus,
         isRtl,
         indeterminate,
-    }: AttributeWidgetProps): React.ReactNode {
+        inputRef,
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <TextField
                 {...this.getFieldProps()}
@@ -37,6 +38,7 @@ export default class TextType
                           }
                         : undefined,
                 }}
+                inputRef={inputRef}
                 fullWidth
                 disabled={readOnly || disabled}
                 label={name}

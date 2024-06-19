@@ -32,7 +32,7 @@ export default function EditorPanel<T>({
 }: Props<T>) {
     const disabled = false; // TODO
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const [proxyValue, setValue] = React.useState<T | undefined>();
+    const [proxyValue, setValue] = React.useState<T | T[] | undefined>();
     const [currentDefinition, setCurrentDefinition] = React.useState(definition);
     const debounce = useDebounce();
 
@@ -47,7 +47,7 @@ export default function EditorPanel<T>({
         setCurrentDefinition(definition);
     }, [definition, subSelection, inputValueInc, locale]);
 
-    const changeHandler = React.useCallback((v: any) => {
+    const changeHandler = React.useCallback((v: T | undefined) => {
         setValue(v);
         debounce(() => {
             setAttributeValue(v);
@@ -113,30 +113,30 @@ export default function EditorPanel<T>({
 
         {definition.multiple ? (
             <MultiAttributeRow
-                readOnly={readOnly}
-                isRtl={false}
-                disabled={disabled}
-                type={definition.fieldType}
-                name={definition.name}
-                valueContainer={valueContainer}
-                onChange={changeHandler}
                 id={definition.id}
+                name={definition.name}
+                type={definition.fieldType}
+                setAttributeValue={setAttributeValue}
+                readOnly={readOnly}
+                disabled={disabled}
+                valueContainer={valueContainer}
                 locale={locale}
                 toKey={toKey}
             />
         ) : (
             <AttributeWidget<T>
+                inputRef={inputRef}
+                id={definition.id}
+                name={definition.name}
+                type={definition.fieldType}
                 indeterminate={valueContainer.indeterminate.g}
                 readOnly={readOnly}
                 isRtl={false}
-                value={value}
+                value={value as T | undefined}
                 disabled={disabled}
                 required={false}
                 autoFocus={true}
-                name={definition.name}
-                type={definition.fieldType}
                 onChange={changeHandler}
-                id={definition.id}
             />
         )}
     </Box>

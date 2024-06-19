@@ -25,7 +25,7 @@ export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.WebVtt]: CodeType,
 };
 
-export function getAttributeType(type: string): AttributeTypeInstance {
+export function getAttributeType(type: string): AttributeTypeInstance<any> {
     const t = types[type] ?? types[AttributeType.Text];
 
     return new t();

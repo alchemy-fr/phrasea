@@ -1,6 +1,6 @@
 import {AttributeDefinition, StateSetter} from "../../types";
 import {Box, ListItem, ListItemButton} from "@mui/material";
-import {AttributeValues} from "./types";
+import {DefinitionValuesIndex} from "./types";
 import {useTranslation} from 'react-i18next';
 import {getAttributeType} from "../Media/Asset/Attribute/types";
 import {useContext} from "react";
@@ -9,7 +9,7 @@ import {AttributeFormatterProps} from "../Media/Asset/Attribute/types/types";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 type Props = {
-    values: AttributeValues;
+    definitionValues: DefinitionValuesIndex<any>;
     definition: AttributeDefinition | undefined;
     setDefinition: StateSetter<AttributeDefinition | undefined>;
     attributeDefinitions: AttributeDefinition[];
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default function Attributes({
-    values,
+    definitionValues,
     attributeDefinitions,
     definition,
     setDefinition,
@@ -27,7 +27,7 @@ export default function Attributes({
     const formatContext = useContext(AttributeFormatContext);
 
     const indeterminateClassName = 'def-indeter';
-    const indeterminateLabel = t('attribute_editor.definitions.indeterminate', 'Indeterminate')
+    const indeterminateLabel = t('attribute_editor.definitions.indeterminate', 'Indeterminate');
 
     return <Box
         sx={{
@@ -40,9 +40,9 @@ export default function Attributes({
             const l = def?.translatable ? locale : NO_LOCALE;
             const type = def.fieldType;
             const formatter = getAttributeType(type);
-
+            const defValue = definitionValues[def.id];
             const valueFormatterProps: AttributeFormatterProps = {
-                value: values[def.id].values[0]?.[l] ?? "",
+                value: defValue.value?.[l] ?? '',
                 locale,
                 multiple: def.multiple,
                 format: formatContext.formats[type],
@@ -60,7 +60,7 @@ export default function Attributes({
                         {def.name}
                     </strong>
                     <div>
-                        {values[def.id].indeterminate.g ?
+                        {defValue.indeterminate.g ?
                             <span className={indeterminateClassName}>
                                 {indeterminateLabel}
                             </span> : formatter.formatValue(valueFormatterProps)}

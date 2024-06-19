@@ -19,6 +19,7 @@ export default function ValuesSuggestions<T>({
     definition,
     locale,
     toKey,
+    subSelection,
 }: Props<T>) {
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
@@ -27,7 +28,8 @@ export default function ValuesSuggestions<T>({
         const stats: Stats = {};
         const tmpValues = ((!useOriginal ? valueContainer.values : valueContainer.originalValues) ?? []).map(tr => tr[locale]);
         const values = definition.multiple ? tmpValues.flat() as T[] : tmpValues;
-        if (values.length === 0) {
+        const lengthRef = definition.multiple ? subSelection.length : tmpValues.length;
+        if (!definition.multiple && values.length === 0) {
             values.push(undefined);
         }
 
@@ -58,12 +60,11 @@ export default function ValuesSuggestions<T>({
             })
             .map((v: Value<T>): Value<T> => ({
                 ...v,
-                part: Math.round(stats[v.label] / values.length * 10000) / 100,
+                part: Math.round(stats[v.label] / (lengthRef || 1) * 10000) / 100,
             }))
             .filter((value, index, array) => array.findIndex((v) => v.label === value.label) === index)
             .sort(sortFn)
         );
-
     }, [valueContainer, useOriginal, definition, locale]);
 
     const emptyValueClassName = 'empty-val';
@@ -108,7 +109,10 @@ export default function ValuesSuggestions<T>({
                 disablePadding
             >
                 <ListItemButton
-                    onClick={() => setAttributeValue(v.value, true)}
+                    onClick={() => setAttributeValue(v.value, {
+                        updateInput: true,
+                        add: definition.multiple,
+                    })}
                 >
                     <div className={labelWrapperClassName}>
                         <div className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}>
@@ -116,6 +120,7 @@ export default function ValuesSuggestions<T>({
                         </div>
                         <PartPercentage
                             part={v.part}
+                            totalPart={0} // TODO
                             width={110}
                         />
                     </div>

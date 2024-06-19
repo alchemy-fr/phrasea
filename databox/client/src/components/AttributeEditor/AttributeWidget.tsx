@@ -1,32 +1,16 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
+import {AttributeWidgetProps} from "../Media/Asset/Attribute/types/types";
 
 type Props<T> = {
-    id: string;
     type: string;
-    name: string;
-    value: T | undefined;
-    disabled: boolean;
-    required: boolean;
-    indeterminate?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    isRtl: boolean;
-    onChange: (value: T | undefined) => void;
-};
+} & AttributeWidgetProps<T>;
 
 export default function AttributeWidget<T = string>({
-    id,
-    disabled,
-    autoFocus,
-    name,
     value: initialValue,
     onChange,
-    isRtl,
-    required,
     type,
-    indeterminate,
-    readOnly,
+    ...props
 }: Props<T>) {
     const denormalizeInputValue = (
         initialValue: T | undefined
@@ -62,15 +46,8 @@ export default function AttributeWidget<T = string>({
         <>
             {widget.renderWidget({
                 value: value || undefined,
-                isRtl,
                 onChange: changeHandler,
-                readOnly,
-                id,
-                name,
-                required,
-                indeterminate,
-                autoFocus,
-                disabled,
+                ...props,
             })}
         </>
     );

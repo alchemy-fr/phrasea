@@ -1,6 +1,14 @@
 import {Asset, AttributeDefinition} from "../../types.ts";
 import React from "react";
-import {AttributeIndex, AttributeValues, LocalizedAttributeIndex, ToKeyFunc} from "./types.ts";
+import {
+    AttributeIndex,
+    DefinitionValuesIndex,
+    LocalizedAttributeIndex,
+    SetAttributeValueOptions,
+    ToKeyFunc,
+    ToKeyFuncTypeScoped,
+    Values
+} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 
 
@@ -9,10 +17,12 @@ export function useAttributeValues<T>(
     assets: Asset[],
     subSelection: Asset[],
     toKey: ToKeyFunc<T>,
+    definition: AttributeDefinition | undefined,
 ) {
     const [inc, setInc] = React.useState(0);
-    const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
-        const index: AttributeIndex<T> = {};
+
+    const initialIndex = React.useMemo<AttributeIndex<T| T[]>>(() => {
+        const index: AttributeIndex<T | T[]> = {};
 
         attributeDefinitions.forEach((def) => {
             index[def.id] ??= {};
@@ -28,13 +38,14 @@ export function useAttributeValues<T>(
         return index;
     }, [attributeDefinitions, assets]);
 
-    const [index, setIndex] = React.useState<AttributeIndex<T>>(initialIndex);
+    const [index, setIndex] = React.useState<AttributeIndex<T | T[]>>(initialIndex);
 
-    const values = React.useMemo(() => {
-        const values: AttributeValues = {};
+    const initialDefinitionValues = React.useMemo<DefinitionValuesIndex<T>>(() => {
+        const tree: DefinitionValuesIndex<T> = {};
 
         attributeDefinitions.forEach((def) => {
-            values[def.id] ??= {
+            const defId = def.id;
+            const values: Values<T> = {
                 definition: def,
                 values: [],
                 originalValues: [],
@@ -42,15 +53,13 @@ export function useAttributeValues<T>(
                     g: false,
                 },
             };
-        });
 
-        subSelection.forEach((a) => {
-            Object.keys(index).forEach((defId) => {
-                const g = values[defId];
+            const allLocales: Record<string, true> = {};
 
+            subSelection.forEach((a) => {
                 function valueIsSame(a: T | T[] | undefined, b: T | T[] | undefined): boolean {
-                    if (g.definition.multiple) {
-                        return listsAreSame((a ?? []) as T[], (b ?? []) as T[], (v: T) => toKey(g.definition.fieldType, v));
+                    if (def.multiple) {
+                        return listsAreSame((a ?? []) as T[], (b ?? []) as T[], (v: T) => toKey(values.definition.fieldType, v));
                     }
 
                     return (a || undefined) === (b || undefined)
@@ -60,25 +69,120 @@ export function useAttributeValues<T>(
 
                 if (translations) {
                     Object.keys(translations).forEach((l) => {
-                        g.indeterminate[l] ??= false;
+                        allLocales[l] = true;
+                        values.indeterminate[l] ??= false;
 
-                        if (g.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
-                            g.indeterminate[l] = true;
-                            g.indeterminate.g = true;
+                        if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
+                            values.indeterminate[l] = true;
+                            values.indeterminate.g = true;
                         }
                     });
-
-                    g.values.push(translations);
-
-                    if (initialIndex[defId][a.id]) {
-                        g.originalValues.push(initialIndex[defId][a.id]);
+                    if (!values.indeterminate.g) {
+                        values.values.push(translations as LocalizedAttributeIndex<T>);
                     }
+                } else {
+                    values.values.push({});
+                    Object.keys(allLocales).forEach((l) => {
+                        values.indeterminate[l] ??= false;
+
+                        if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], undefined))) {
+                            values.indeterminate[l] = true;
+                            values.indeterminate.g = true;
+                        }
+                    });
                 }
             });
+
+            tree[defId] = {
+                value: values.values[0] ?? {},
+                indeterminate: values.indeterminate,
+            };
+        });
+
+        return tree;
+    }, [initialIndex, subSelection]);
+
+    React.useEffect(() => {
+        setDefinitionValues(initialDefinitionValues);
+    }, [subSelection]);
+
+    const [definitionValues, setDefinitionValues] = React.useState<DefinitionValuesIndex<T>>(initialDefinitionValues);
+
+    const values = React.useMemo<Values | undefined>(() => {
+        if (!definition) {
+            return;
+        }
+
+        const defId = definition.id;
+
+        const values: Values = {
+            definition,
+            values: [],
+            originalValues: [],
+            indeterminate: {
+                g: false,
+            },
+        };
+
+        const allLocales: Record<string, true> = {};
+
+        subSelection.forEach((a) => {
+            function valueIsSame(a: T | T[] | undefined, b: T | T[] | undefined): boolean {
+                if (values.definition.multiple) {
+                    return listsAreSame((a ?? []) as T[], (b ?? []) as T[], (v: T) => toKey(values.definition.fieldType, v));
+                }
+
+                return (a || undefined) === (b || undefined)
+            }
+
+            const translations = index[defId][a.id];
+
+            if (translations) {
+                Object.keys(translations).forEach((l) => {
+                    allLocales[l] = true;
+                    values.indeterminate[l] ??= false;
+
+                    if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
+                        values.indeterminate[l] = true;
+                        values.indeterminate.g = true;
+                    }
+                });
+
+                values.values.push(translations);
+
+                if (initialIndex[defId][a.id]) {
+                    values.originalValues.push(initialIndex[defId][a.id]);
+                }
+            } else {
+                values.values.push({});
+                Object.keys(allLocales).forEach((l) => {
+                    values.indeterminate[l] ??= false;
+
+                    if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], undefined))) {
+                        values.indeterminate[l] = true;
+                        values.indeterminate.g = true;
+                    }
+                });
+            }
         });
 
         return values;
-    }, [subSelection, index]);
+    }, [subSelection, definition, index]);
+
+    React.useEffect(() => {
+        if (definition && values && values.definition.id === definition.id) {
+            setDefinitionValues(p => {
+                const n = {...p};
+                const indeterminate = values.indeterminate;
+
+                n[definition.id] = {
+                    indeterminate,
+                    value: values.values[0],
+                }
+                return n;
+            });
+        }
+    }, [values]);
 
     const reset = React.useCallback(() => {
         setIndex(initialIndex);
@@ -88,18 +192,38 @@ export function useAttributeValues<T>(
         reset();
     }, [reset]);
 
-    const setValue = React.useCallback((defId: string, locale: string, value: any, updateInput?: boolean) => {
+    const setValue = React.useCallback((locale: string, value: T | undefined, {
+        add,
+        remove,
+        updateInput,
+    }: SetAttributeValueOptions = {}) => {
+        const defId = definition!.id;
+        const type = attributeDefinitions.find(ad => ad.id === defId)!.fieldType;
+        const key = value ? toKey(type, value) : '';
+
         setIndex(p => {
             const np = {...p};
             const na = {...p[defId]};
 
             subSelection.forEach(a => {
-                if (na[a.id]) {
-                    na[a.id] = {...na[a.id]};
+                const c= {...(na[a.id] ?? {})};
+
+                if (add) {
+                    if (value) {
+                        (c[locale] as T[]) ??= [];
+                        if (!(c[locale] as T[]).some(i => key === toKey(type, i))) {
+                            (c[locale] as T[]).push(value);
+                        }
+
+                    }
+                } else if (remove) {
+                    (c[locale] as T[]) ??= [];
+                    (c[locale] as T[]) = (c[locale] as T[]).filter(i => key !== toKey(type, i));
                 } else {
-                    na[a.id] = {};
+                    c[locale] = value;
                 }
-                na[a.id][locale] = value;
+
+                na[a.id] = c;
             });
 
             np[defId] = na;
@@ -110,7 +234,7 @@ export function useAttributeValues<T>(
         if (updateInput) {
             setInc(p => p + 1);
         }
-    }, [subSelection]);
+    }, [definition, subSelection]);
 
     return {
         inputValueInc: inc,
@@ -118,10 +242,9 @@ export function useAttributeValues<T>(
         setValue,
         reset,
         index,
+        definitionValues,
     };
 }
-
-export type ToKeyFuncTypeScoped<T> = (v: T) => string;
 
 function normalizeList<T>(a: T[], toKey: ToKeyFuncTypeScoped<T>): string[] {
     return a

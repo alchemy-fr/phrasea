@@ -12,12 +12,12 @@ export default class CodeType extends TextareaType {
         id,
         readOnly,
         disabled,
-    }: AttributeWidgetProps): React.ReactNode {
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <>
                 <FormLabel>{name}</FormLabel>
                 <CodeEditor
-                    readOnly={readOnly || disabled}
+                    readOnly={readOnly || disabled || false}
                     mode={this.getAceMode()}
                     highlightActiveLine={true}
                     onChange={onChange}

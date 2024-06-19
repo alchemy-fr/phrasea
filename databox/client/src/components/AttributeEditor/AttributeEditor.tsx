@@ -34,24 +34,20 @@ export default function AttributeEditor({
     }, []);
 
     const theme = useTheme();
-    const [subSelection, setSubSelection] = React.useState<Asset[]>([]);
+    const [subSelection, setSubSelection] = React.useState<Asset[]>(assets);
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
     const [locale, setLocale] = React.useState<string>('en');
-    const {values, setValue, inputValueInc} = useAttributeValues(
+    const {values, definitionValues, setValue, inputValueInc} = useAttributeValues(
         attributeDefinitions,
         assets,
         subSelection,
         toKey,
+        definition,
     );
 
     const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
-    const value = definition && values[definition.id] ? values[definition.id] : undefined;
-
-    React.useEffect(() => {
-        setSubSelection(assets);
-    }, [assets]);
 
     const onToggleAsset = React.useCallback<OnToggle<Asset>>(
         (asset, e): void => {
@@ -63,9 +59,9 @@ export default function AttributeEditor({
         [assets]
     );
 
-    const setAttributeValue = React.useCallback<SetAttributeValue>((value, updateInput) => {
+    const setAttributeValue = React.useCallback<SetAttributeValue>((value, options) => {
         if (definition) {
-            setValue(definition.id, definitionLocale, value, updateInput);
+            setValue(definitionLocale, value, options);
         }
     }, [definition, setValue, definitionLocale]);
 
@@ -133,7 +129,7 @@ export default function AttributeEditor({
                             >
                                 {attributeDefinitions ? <Attributes
                                     attributeDefinitions={attributeDefinitions}
-                                    values={values}
+                                    definitionValues={definitionValues}
                                     setDefinition={setDefinition}
                                     definition={definition}
                                     locale={locale}
@@ -145,10 +141,10 @@ export default function AttributeEditor({
                             flexGrow: 1,
                             borderRight: `1px solid ${theme.palette.divider}`,
                         })}>
-                            {value && definition ? <EditorPanel
+                            {values && definition ? <EditorPanel
                                 inputValueInc={inputValueInc}
                                 definition={definition}
-                                valueContainer={value}
+                                valueContainer={values}
                                 subSelection={subSelection}
                                 setLocale={setLocale}
                                 locale={definitionLocale}
@@ -174,9 +170,9 @@ export default function AttributeEditor({
                                     overflow: 'auto',
                                 }}
                             >
-                            {definition && value ? <SuggestionPanel
+                            {definition && values ? <SuggestionPanel
                                 locale={definitionLocale}
-                                valueContainer={value}
+                                valueContainer={values}
                                 definition={definition}
                                 setAttributeValue={setAttributeValue}
                                 subSelection={subSelection}
