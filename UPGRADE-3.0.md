@@ -41,29 +41,9 @@ Then plan/apply
 3. then run the following script line by line:
 
 ```bash
-export MIGRATION_NAME=v20230807
-export RELEASE_NAME=phrasea
-```
-
-```bash
-helm -n ${NAMESPACE} get values ${RELEASE_NAME} -o yaml > /tmp/.current-values.yaml
-```
-
-```bash
-cd /path/to/alchemy-helm-charts-repo
-cd charts/phrasea
-git pull
-```
-
-```bash
-helm template ${RELEASE_NAME} ./ -f /tmp/.current-values.yaml \
--s templates/configurator/configure-job.yaml | kubectl apply -f -
-```
-
-```bash
-helm template ${RELEASE_NAME} ./ -f /tmp/.current-values.yaml \
---set "configurator.executeMigration=${MIGRATION_NAME}" \
--s templates/configurator/migration-job.yaml | kubectl apply -f -
+export CHART_VERSION=<chart-version>
+bin/ops/configurator-configure.sh ${NAMESPACE} ${CHART_VERSION}
+bin/ops/configurator-migrate.sh ${NAMESPACE} v20230807 ${CHART_VERSION}
 ```
 
 Follow the logs (optional):
