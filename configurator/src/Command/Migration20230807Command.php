@@ -56,6 +56,7 @@ allowed_grant_types
 FROM oauth_client');
 
             foreach ($oauthClients as $row) {
+                $output->writeln(sprintf('-  OAuth Client <info>%s</info>', $row['id']));
                 if ($row['id'] === $app.'-admin') {
                     continue;
                 }
@@ -86,7 +87,7 @@ FROM oauth_client');
             }
         }
 
-        $output->writeln('Migrating Users');
+        $output->writeln('Migrating Users/Groups');
         $connection = $this->connections->getConnection('auth');
         $groups = $connection->fetchAllAssociative('SELECT
 id,
@@ -96,6 +97,7 @@ FROM "group"');
 
         $groupMap = [];
         foreach ($groups as $row) {
+            $output->writeln(sprintf('- Group <info>%s</info>', $row['id']));
             $group = $this->keycloakManager->createGroup([
                 'name' => $row['name'],
                 'attributes' => [
@@ -104,6 +106,24 @@ FROM "group"');
             ]);
             $groupMap[$row['id']] = $group['id'];
         }
+
+        $this->replaceInDb([
+            'databox' => [
+                'access_control_entry' => [
+                    'user_id',
+                ],
+            ],
+            'expose' => [
+                'access_control_entry' => [
+                    'user_id',
+                ],
+            ],
+            'uploader' => [
+                'access_control_entry' => [
+                    'user_id',
+                ],
+            ],
+        ], $groupMap);
 
         $users = $connection->fetchAllAssociative('SELECT
 id,
@@ -118,6 +138,7 @@ FROM "user"');
 
         $userMap = [];
         foreach ($users as $row) {
+            $output->writeln(sprintf('-  User <info>%s</info>', $row['id']));
             $roles = json_decode($row['roles'], true, 512, JSON_THROW_ON_ERROR);
             $realmRoles = [];
             foreach ($roles as $role) {
@@ -245,14 +266,6 @@ FROM "external_access_token"');
                 ],
             ],
         ], $userMap);
-
-        $this->replaceInDb([
-            'databox' => [
-                'access_control_entry' => [
-                    'user_id',
-                ],
-            ],
-        ], $groupMap);
 
         return Command::SUCCESS;
     }

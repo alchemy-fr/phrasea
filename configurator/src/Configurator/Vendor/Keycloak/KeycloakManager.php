@@ -12,7 +12,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class KeycloakManager
 {
-    private ?string $token = null;
+    private ?array $tokens = null;
 
     public function __construct(
         private readonly HttpClientInterface $keycloakClient,
@@ -35,23 +35,24 @@ final class KeycloakManager
 
     private function getToken(): string
     {
-        if (null !== $this->token) {
-            return $this->token;
+        if (null === $this->tokens || $this->tokens['expires_at'] < time() + 2666666) {
+            $response = $this->keycloakClient->request('POST', UriTemplate::resolve('/realms/{realm}/protocol/openid-connect/token', [
+                'realm' => 'master',
+            ]), [
+                'base_uri' => getenv('KEYCLOAK_URL'),
+                'body' => [
+                    'client_id' => 'admin-cli',
+                    'grant_type' => 'password',
+                    'username' => getenv('KEYCLOAK_ADMIN'),
+                    'password' => getenv('KEYCLOAK_ADMIN_PASSWORD'),
+                ],
+            ]);
+
+            $this->tokens = $response->toArray();
+            $this->tokens['expires_at'] = time() + $this->tokens['expires_in'];
         }
 
-        $response = $this->keycloakClient->request('POST', UriTemplate::resolve('/realms/{realm}/protocol/openid-connect/token', [
-            'realm' => 'master',
-        ]), [
-            'base_uri' => getenv('KEYCLOAK_URL'),
-            'body' => [
-                'client_id' => 'admin-cli',
-                'grant_type' => 'password',
-                'username' => getenv('KEYCLOAK_ADMIN'),
-                'password' => getenv('KEYCLOAK_ADMIN_PASSWORD'),
-            ],
-        ]);
-
-        return $this->token = $response->toArray()['access_token'];
+        return $this->tokens['access_token'];
     }
 
     public function createRealm(): void
