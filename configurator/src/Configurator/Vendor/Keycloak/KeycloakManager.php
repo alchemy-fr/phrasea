@@ -347,17 +347,19 @@ final class KeycloakManager
                 'json' => $data,
             ]), 409, $data);
 
-        $user = $this->getUsers([
+        $users = $this->getUsers([
             'query' => [
                 'username' => $data['username'],
             ],
-        ])[0];
+        ]);
 
-        if ($user['username'] !== $data['username']) {
-            throw new \InvalidArgumentException(sprintf('Invalid user "%s" "%s"', $user['username'], $data['username']));
+        foreach ($users as $user) {
+            if ($user['username'] === $data['username']) {
+                return $user;
+            }
         }
 
-        return $user;
+        throw new \InvalidArgumentException(sprintf('No user matches username "%s"', $data['username']));
     }
 
     public function getUsers(array $options = []): array
