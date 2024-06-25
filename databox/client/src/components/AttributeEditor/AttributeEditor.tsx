@@ -49,6 +49,7 @@ export default function AttributeEditor({
         history,
         undo,
         redo,
+        onSave,
     } = useAttributeValues(
         attributeDefinitions,
         assets,
@@ -66,8 +67,6 @@ export default function AttributeEditor({
     React.useEffect(() => {
         setSubSelection(assets);
     }, [assets]);
-
-    console.log('history', history);
 
     const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
 
@@ -169,6 +168,8 @@ export default function AttributeEditor({
                             <AttributesToolbar
                                 undo={undo}
                                 redo={redo}
+                                hasChanges={history.current > 0}
+                                onSave={onSave}
                             />
                             {values && definition ? <EditorPanel
                                 inputValueInc={inputValueInc}

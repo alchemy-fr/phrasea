@@ -11,7 +11,7 @@ export type Values<T = any> = {
     originalValues: LocalizedAttributeIndex<T>[];
 }
 
-export type AttributeValues = Record<string, Values>;
+export type AttributeDefinitionIndex = Record<string, AttributeDefinition>;
 
 export type LocalizedAttributeIndex<T = string> = {
     [locale: string]: T | undefined;
@@ -76,3 +76,13 @@ export type AttributesHistory<T> = {
     current: number;
     history: AttributesCommit<T>[];
 }
+
+export type DiffGroupIndex<T> = {
+    [locale: string]: {
+        [key: string]: {
+            ids: string[];
+            value: T;
+        };
+    };
+}
+

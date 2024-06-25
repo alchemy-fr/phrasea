@@ -135,6 +135,7 @@ export enum AttributeBatchActionEnum {
 export type AttributeBatchAction = {
     action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;
+    assets?: string[] | undefined;
     value?: any | undefined;
     definitionId?: string | undefined;
     locale?: string | undefined;

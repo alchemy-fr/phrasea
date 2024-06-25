@@ -1,6 +1,7 @@
 import {Asset, AttributeDefinition, StateSetter} from "../../types.ts";
 import React from "react";
 import {
+    AttributeDefinitionIndex,
     AttributeIndex, AttributesCommit,
     AttributesHistory,
     DefinitionValuesIndex,
@@ -11,6 +12,7 @@ import {
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor";
 import {computeValues} from "./store/values.ts";
 import {computeAllDefinitionsValues, computeDefinitionValuesHandler} from "./store/definitionValues.ts";
+import {getBatchActions} from "./batchActions.ts";
 
 export function useAttributeValues<T>(
     attributeDefinitions: AttributeDefinition[],
@@ -22,11 +24,14 @@ export function useAttributeValues<T>(
     setDefinition: StateSetter<AttributeDefinition | undefined>,
 ) {
     const [inc, setInc] = React.useState(0);
+    const [definitionIndex, setDefinitionIndex] = React.useState<AttributeDefinitionIndex>({});
     const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
         const index: AttributeIndex<T> = {};
+        const definitionIndex: AttributeDefinitionIndex = {};
 
         attributeDefinitions.forEach((def) => {
             index[def.id] ??= {};
+            definitionIndex[def.id] = def;
         });
 
         assets.forEach((a) => {
@@ -35,6 +40,8 @@ export function useAttributeValues<T>(
                 index[attr.definition.id][a.id][attr.locale ?? NO_LOCALE] = attr.value;
             });
         });
+
+        setDefinitionIndex(definitionIndex);
 
         return index;
     }, [attributeDefinitions, assets]);
@@ -170,6 +177,17 @@ export function useAttributeValues<T>(
         })
     }, [applyHistory]);
 
+    const onSave = React.useCallback<() => Promise<void>>(async () => {
+        const actions = getBatchActions<T>(
+            initialIndex,
+            index,
+            definitionIndex,
+            toKey,
+        );
+
+        console.log('actions', actions);
+    }, [index, initialIndex, toKey, definitionIndex]);
+
     return {
         inputValueInc: inc,
         values,
@@ -180,5 +198,6 @@ export function useAttributeValues<T>(
         history,
         undo: history.current > 0 ? undo : undefined,
         redo: history.current < history.history.length - 1 ? redo : undefined,
+        onSave,
     };
 }
