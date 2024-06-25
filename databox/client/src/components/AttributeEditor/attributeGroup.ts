@@ -1,7 +1,7 @@
-import {Asset, AttributeDefinition} from "../../types.ts";
+import {Asset, AttributeDefinition, StateSetter} from "../../types.ts";
 import React from "react";
 import {
-    AttributeIndex,
+    AttributeIndex, AttributesCommit,
     AttributesHistory,
     DefinitionValuesIndex,
     SetAttributeValueOptions,
@@ -10,14 +10,16 @@ import {
 } from "./types";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor";
 import {computeValues} from "./store/values.ts";
-import {computeAllDefinitionsValues} from "./store/definitionValues.ts";
+import {computeAllDefinitionsValues, computeDefinitionValuesHandler} from "./store/definitionValues.ts";
 
 export function useAttributeValues<T>(
     attributeDefinitions: AttributeDefinition[],
     assets: Asset[],
     subSelection: Asset[],
+    setSubSelection: StateSetter<Asset[]>,
     toKey: ToKeyFunc<T>,
     definition: AttributeDefinition | undefined,
+    setDefinition: StateSetter<AttributeDefinition | undefined>,
 ) {
     const [inc, setInc] = React.useState(0);
     const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
@@ -38,7 +40,11 @@ export function useAttributeValues<T>(
     }, [attributeDefinitions, assets]);
 
     const [history, setHistory] = React.useState<AttributesHistory<T>>({
-        history: [initialIndex],
+        history: [{
+            index: initialIndex,
+            definition,
+            subSelection,
+        }],
         current: 0,
     });
 
@@ -55,15 +61,11 @@ export function useAttributeValues<T>(
 
     const [definitionValues, setDefinitionValues] = React.useState<DefinitionValuesIndex<T>>(initialDefinitionValues);
 
-    const [values, setValues] = React.useState<(Values<T>) | undefined>();
-
-    React.useEffect(() => {
+    const values = React.useMemo<Values<T> | undefined>(() => {
         if (definition) {
-            setValues(computeValues<T>(definition, subSelection, index, initialIndex, toKey, setDefinitionValues));
-        } else {
-            setValues(undefined);
+            return computeValues<T>(definition, subSelection, index, initialIndex, toKey);
         }
-    }, [subSelection, definition]);
+    }, [definition, index, subSelection]);
 
     const reset = React.useCallback(() => {
         setIndex(initialIndex);
@@ -109,10 +111,15 @@ export function useAttributeValues<T>(
             np[defId] = na;
 
             setHistory(ph => ({
-                history: ph.history.slice(0, ph.current + 1).concat([np]),
+                history: ph.history.slice(0, ph.current + 1).concat([{
+                    index: np,
+                    subSelection,
+                    definition,
+                }]),
                 current: ph.current + 1,
             }));
-            setValues(computeValues<T>(definition!, subSelection, np, initialIndex, toKey, setDefinitionValues));
+            const values = computeValues<T>(definition!, subSelection, np, initialIndex, toKey);
+            setDefinitionValues(computeDefinitionValuesHandler<T>(definition!, values));
 
             return np;
         });
@@ -122,12 +129,20 @@ export function useAttributeValues<T>(
         }
     }, [definition, subSelection]);
 
-    const applyHistory = React.useCallback((newIndex: AttributeIndex<T>) => {
+    const applyHistory = React.useCallback((commit: AttributesCommit<T>) => {
+        const newIndex = commit.index;
         setIndex(newIndex);
+
+        const subSelection = commit.subSelection;
+        const definition = commit.definition;
+
+        setSubSelection(subSelection);
+        setDefinition(definition);
         setDefinitionValues(computeAllDefinitionsValues<T>(attributeDefinitions, subSelection, toKey, newIndex));
         setInc(p => p + 1);
         if (definition) {
-            setValues(computeValues<T>(definition, subSelection, newIndex, initialIndex, toKey));
+            const values = computeValues<T>(definition!, subSelection, newIndex, initialIndex, toKey);
+            setDefinitionValues(computeDefinitionValuesHandler<T>(definition!, values));
         }
     }, [definition, subSelection, attributeDefinitions]);
 

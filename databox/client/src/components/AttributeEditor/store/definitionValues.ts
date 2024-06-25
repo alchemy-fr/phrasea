@@ -1,4 +1,4 @@
-import {Asset, AttributeDefinition, StateSetter} from "../../../types";
+import {Asset, AttributeDefinition} from "../../../types";
 import {AttributeIndex, DefinitionValuesIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types";
 import {listsAreSame} from "./helper";
 
@@ -69,12 +69,11 @@ export function computeAllDefinitionsValues<T>(
     return tree;
 }
 
-export function computeDefinitionValues<T>(
-    setDefinitionValues: StateSetter<DefinitionValuesIndex<T>>,
+export function computeDefinitionValuesHandler<T>(
     definition: AttributeDefinition,
     values: Values<T>
 ) {
-    setDefinitionValues(p => {
+    return (p: DefinitionValuesIndex<T>): DefinitionValuesIndex<T> => {
         const n = {...p};
         const indeterminate = values.indeterminate;
 
@@ -84,5 +83,5 @@ export function computeDefinitionValues<T>(
         }
 
         return n;
-    });
+    }
 }

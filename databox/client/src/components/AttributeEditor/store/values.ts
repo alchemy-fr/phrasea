@@ -1,6 +1,5 @@
-import {Asset, AttributeDefinition, StateSetter} from "../../../types.ts";
-import {AttributeIndex, DefinitionValuesIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types.ts";
-import {computeDefinitionValues} from "./definitionValues.ts";
+import {Asset, AttributeDefinition} from "../../../types.ts";
+import {AttributeIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types.ts";
 import {listsAreSame} from "./helper.ts";
 
 export function computeValues<T>(
@@ -9,7 +8,6 @@ export function computeValues<T>(
     index: AttributeIndex<T>,
     initialIndex: AttributeIndex<T>,
     toKey: ToKeyFunc<T>,
-    setDefinitionValues?: StateSetter<DefinitionValuesIndex<T>>,
 ): Values<T> {
     const values: Values<T> = {
         definition,
@@ -64,10 +62,6 @@ export function computeValues<T>(
             values.originalValues.push({});
         }
     });
-
-    if (setDefinitionValues) {
-        computeDefinitionValues<T>(setDefinitionValues, definition, values);
-    }
 
     return values;
 }

@@ -66,7 +66,13 @@ export type ToKeyFunc<T = string> = (type: string, v: T) => string;
 
 export type ToKeyFuncTypeScoped<T> = (v: T) => string;
 
+export type AttributesCommit<T> = {
+    index: AttributeIndex<T>;
+    subSelection: Asset[];
+    definition: AttributeDefinition | undefined;
+}
+
 export type AttributesHistory<T> = {
     current: number;
-    history: AttributeIndex<T>[];
+    history: AttributesCommit<T>[];
 }

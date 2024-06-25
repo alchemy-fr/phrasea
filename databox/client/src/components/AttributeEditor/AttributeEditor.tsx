@@ -44,8 +44,10 @@ export default function AttributeEditor({
         attributeDefinitions,
         assets,
         subSelection,
+        setSubSelection,
         toKey,
         definition,
+        setDefinition,
     );
 
     console.log('history', history);
