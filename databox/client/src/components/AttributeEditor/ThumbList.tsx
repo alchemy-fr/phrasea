@@ -20,11 +20,9 @@ export default function ThumbList({
     onToggle,
 }: Props) {
     const d = React.useContext(DisplayContext)!;
-
     const selectedIds = React.useMemo(() => {
         return subSelection.map(a => a.id);
     }, [subSelection]);
-
 
     const listSx = React.useCallback(
         (theme: Theme) => {

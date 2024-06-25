@@ -16,6 +16,7 @@ import {SetAttributeValue} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 import { Resizable } from 're-resizable';
 import AttributesToolbar from "./AttributesToolbar.tsx";
+import {useSelectAllKey} from "../../hooks/useSelectAllKey.ts";
 
 type Props = {
     assets: Asset[];
@@ -40,7 +41,15 @@ export default function AttributeEditor({
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
     const [locale, setLocale] = React.useState<string>('en');
-    const {values, definitionValues, setValue, inputValueInc, history, undo, redo} = useAttributeValues(
+    const {
+        values,
+        definitionValues,
+        setValue,
+        inputValueInc,
+        history,
+        undo,
+        redo,
+    } = useAttributeValues(
         attributeDefinitions,
         assets,
         subSelection,
@@ -49,6 +58,14 @@ export default function AttributeEditor({
         definition,
         setDefinition,
     );
+
+    useSelectAllKey(() => {
+        setSubSelection(assets);
+    }, [assets]);
+
+    React.useEffect(() => {
+        setSubSelection(assets);
+    }, [assets]);
 
     console.log('history', history);
 

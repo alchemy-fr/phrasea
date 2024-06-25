@@ -87,8 +87,6 @@ export default function MultiAttributeRow<T>({
         valueContainer.values.forEach(translations => {
             const values = translations[locale];
 
-            console.log('values', values);
-
             values?.forEach((v: T) => {
                 const k = toKey(type, v);
 
