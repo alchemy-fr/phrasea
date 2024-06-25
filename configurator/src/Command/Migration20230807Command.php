@@ -125,6 +125,7 @@ FROM "group"');
             ],
         ], $groupMap);
 
+        $userCount = $connection->fetchOne('SELECT COUNT(*) as total FROM "user"')['total'];
         $users = $connection->fetchAllAssociative('SELECT
 id,
 username,
@@ -136,9 +137,10 @@ locale,
 created_at
 FROM "user"');
 
-        $userMap = [];
+        $i = 0;
         foreach ($users as $row) {
-            $output->writeln(sprintf('-  User <info>%s</info>', $row['id']));
+            $i++;
+            $output->writeln(sprintf('-  User <info>%s</info> (%d/%s - %d)', $row['id'], $i, $userCount, round($i / $userCount * 100)));
             $roles = json_decode($row['roles'], true, 512, JSON_THROW_ON_ERROR);
             $realmRoles = [];
             foreach ($roles as $role) {
@@ -154,29 +156,65 @@ FROM "user"');
             }
             $realmRoles = array_unique($realmRoles);
 
-            $user = $this->keycloakManager->createUser([
-                'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
-                'username' => $row['username'],
-                'email' => str_contains($row['username'], '@') ? $row['username'] : null,
-                'emailVerified' => $row['email_verified'],
-                'enabled' => $row['enabled'],
-                'attributes' => [
-                    'ps-auth-legacy-id' => $row['id'],
-                ],
-            ]);
-            $userMap[$row['id']] = $user['id'];
+            if (null === $user = $this->keycloakManager->findUser($row['username'])) {
+                $user = $this->keycloakManager->createUser([
+                    'createdTimestamp' => (new \DateTimeImmutable($row['created_at']))->getTimestamp(),
+                    'username' => $row['username'],
+                    'email' => str_contains($row['username'], '@') ? $row['username'] : null,
+                    'emailVerified' => $row['email_verified'],
+                    'enabled' => $row['enabled'],
+                    'attributes' => [
+                        'ps-auth-legacy-id' => $row['id'],
+                    ],
+                ]);
 
-            $userGroups = $connection->fetchAllAssociative('SELECT
+                $userGroups = $connection->fetchAllAssociative('SELECT
 group_id
 FROM "user_group" WHERE user_id = :uid', [
-                'uid' => $row['id'],
-            ]);
+                    'uid' => $row['id'],
+                ]);
 
-            foreach ($userGroups as $userGroupRow) {
-                $this->keycloakManager->addUserToGroup($user['id'], $groupMap[$userGroupRow['group_id']]);
+                foreach ($userGroups as $userGroupRow) {
+                    $this->keycloakManager->addUserToGroup($user['id'], $groupMap[$userGroupRow['group_id']]);
+                }
+
+                $this->keycloakManager->addRolesToUser($user['id'], $realmRoles);
+            }
+        }
+
+        $userMap = [];
+        $first = 0;
+        $perPage = 100;
+        while ($first < $userCount + $first + 1) {
+            $tmp = [];
+            $cacheKey = sprintf('%s/user-%d.map', sys_get_temp_dir(), $first);
+            if (file_exists($cacheKey)) {
+                $userMap = array_merge($userMap, unserialize(file_get_contents($cacheKey)));
+                $first += $perPage;
+                continue;
+            }
+            $output->writeln(sprintf('Users page (<info>%s</info>)', $first));
+
+            $users = $this->keycloakManager->getUsers([
+                'query' => [
+                    'first' => $first,
+                    'max' => $perPage,
+                ]
+            ]);
+            if (empty($users)) {
+                break;
             }
 
-            $this->keycloakManager->addRolesToUser($user['id'], $realmRoles);
+            foreach ($users as $user) {
+                if (!empty($user['attributes']['ps-auth-legacy-id'])) {
+                    $tmp[$user['attributes']['ps-auth-legacy-id'][0]] = $user['id'];
+                    $userMap[$user['attributes']['ps-auth-legacy-id'][0]] = $user['id'];
+                }
+            }
+
+            file_put_contents($cacheKey, serialize($tmp));
+
+            $first += $perPage;
         }
 
         $samlIdentities = $connection->fetchAllAssociative('SELECT
@@ -198,14 +236,18 @@ FROM "saml_identity"');
 user_id,
 identifier,
 provider
-FROM "external_access_token"');
+FROM "external_access_token" GROUP BY user_id');
         foreach ($oauthUsers as $row) {
             $username = $row['identifier'];
 
-            $this->keycloakManager->linkAccountToIdentityProvider($userMap[$row['user_id']], $row['provider'], [
-                'userId' => $username,
-                'userName' => $username,
-            ]);
+            if (isset($userMap[$row['user_id']])) {
+                $this->keycloakManager->linkAccountToIdentityProvider($userMap[$row['user_id']], $row['provider'], [
+                    'userId' => $username,
+                    'userName' => $username,
+                ]);
+            } else {
+                $output->writeln(sprintf('<error>Missing User ID %s from MAP</error>', $row['user_id']));
+            }
         }
 
         $this->replaceInDb([

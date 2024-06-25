@@ -35,7 +35,7 @@ final class KeycloakManager
 
     private function getToken(): string
     {
-        if (null === $this->tokens || $this->tokens['expires_at'] < time() + 2666666) {
+        if (null === $this->tokens || $this->tokens['expires_at'] < time() + 2) {
             $response = $this->keycloakClient->request('POST', UriTemplate::resolve('/realms/{realm}/protocol/openid-connect/token', [
                 'realm' => 'master',
             ]), [
@@ -338,6 +338,24 @@ final class KeycloakManager
         }
     }
 
+    public function findUser(string $username): ?array
+    {
+        $users = $this->getUsers([
+            'query' => [
+                'username' => $username,
+                'exact' => true,
+            ],
+        ]);
+
+        foreach ($users as $user) {
+            if ($user['username'] === $username) {
+                return $user;
+            }
+        }
+
+        return null;
+    }
+
     public function createUser(array $data): array
     {
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
@@ -347,19 +365,7 @@ final class KeycloakManager
                 'json' => $data,
             ]), 409, $data);
 
-        $users = $this->getUsers([
-            'query' => [
-                'username' => $data['username'],
-            ],
-        ]);
-
-        foreach ($users as $user) {
-            if ($user['username'] === $data['username']) {
-                return $user;
-            }
-        }
-
-        throw new \InvalidArgumentException(sprintf('No user matches username "%s"', $data['username']));
+        return $this->findUser($data['username']) ?? throw new \InvalidArgumentException(sprintf('No user matches username "%s"', $data['username']));
     }
 
     public function getUsers(array $options = []): array
