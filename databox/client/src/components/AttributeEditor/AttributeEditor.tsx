@@ -15,6 +15,7 @@ import EditorPanel from "./EditorPanel.tsx";
 import {SetAttributeValue} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 import { Resizable } from 're-resizable';
+import AttributesToolbar from "./AttributesToolbar.tsx";
 
 type Props = {
     assets: Asset[];
@@ -39,13 +40,15 @@ export default function AttributeEditor({
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
     const [locale, setLocale] = React.useState<string>('en');
-    const {values, definitionValues, setValue, inputValueInc} = useAttributeValues(
+    const {values, definitionValues, setValue, inputValueInc, history, undo, redo} = useAttributeValues(
         attributeDefinitions,
         assets,
         subSelection,
         toKey,
         definition,
     );
+
+    console.log('history', history);
 
     const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
 
@@ -140,7 +143,14 @@ export default function AttributeEditor({
                         <Box sx={theme => ({
                             flexGrow: 1,
                             borderRight: `1px solid ${theme.palette.divider}`,
+                            minHeight: '100%',
+                            maxHeight: '100%',
+                            overflow: 'auto',
                         })}>
+                            <AttributesToolbar
+                                undo={undo}
+                                redo={redo}
+                            />
                             {values && definition ? <EditorPanel
                                 inputValueInc={inputValueInc}
                                 definition={definition}
