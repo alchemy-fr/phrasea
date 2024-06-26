@@ -1,10 +1,13 @@
 import {isSame} from '../../utils/comparison';
-import {AttributeDefinitionIndex, AttributeIndex, DiffGroupIndex, ToKeyFunc, ToKeyFuncTypeScoped} from "./types.ts";
-import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 import {
-    AttributeBatchAction,
-    AttributeBatchActionEnum,
-} from '../../api/asset';
+    AttributeDefinitionIndex,
+    AttributeIndex,
+    DiffGroupIndex,
+    ToKeyFunc,
+    ToKeyFuncTypeScoped
+} from "./types.ts";
+import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
+import {AttributeBatchAction, AttributeBatchActionEnum,} from '../../api/asset';
 import {normalizeList} from "./store/normalize.ts";
 
 export function getBatchActions<T>(
@@ -32,11 +35,9 @@ export function getBatchActions<T>(
                     return;
                 }
 
-                if (currValue) {
+                if (currValue && (!definition.multiple || currValue.length > 0)) {
                     const toKeyForType: ToKeyFuncTypeScoped<T> = (v) => toKey(definition.fieldType, v);
-
                     const key = definition.multiple ? normalizeList<T>(currValue as T[], toKeyForType).toString() : toKeyForType(currValue);
-                    console.log('key', key);
                     groups[locale] ??= {};
                     groups[locale][key] ??= {
                         ids: [],
@@ -63,43 +64,63 @@ export function getBatchActions<T>(
         });
     });
 
-    // TODO
-    // if (remoteAttrs) {
-    //     Object.keys(remoteAttrs).forEach((defId): void => {
-    //         Object.keys(remoteAttrs[defId]).forEach((locale): void => {
-    //             const remoteV = remoteAttrs[defId][locale];
-    //
-    //             if (remoteV) {
-    //                 if (remoteV instanceof Array) {
-    //                     const attrV = attributes[defId][locale] as T[];
-    //
-    //                     remoteV.forEach(v => {
-    //                         const found = attrV.find(_v => _v.id === v.id);
-    //                         if (!found) {
-    //                             actions.push({
-    //                                 action: AttributeBatchActionEnum.Delete,
-    //                                 definitionId: defId,
-    //                                 id: v.id,
-    //                             });
-    //                         }
-    //                     });
-    //                 } else {
-    //                     if (
-    //                         !attributes[defId] ||
-    //                         !attributes[defId][locale] ||
-    //                         (attributes[defId][locale] as T).value ===
-    //                         undefined
-    //                     ) {
-    //                         actions.push({
-    //                             action: AttributeBatchActionEnum.Delete,
-    //                             definitionId: defId,
-    //                             id: remoteV.id,
-    //                         });
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     });
+    Object.keys(remoteAttrs).forEach((defId): void => {
+        const definition = definitions[defId];
+        if (!definition.canEdit) {
+            return;
+        }
+
+        const groups: DiffGroupIndex<T> = {};
+
+        const av = remoteAttrs[defId];
+        Object.keys(av).forEach((assetId): void => {
+            const lv = av[assetId];
+            Object.keys(lv).forEach((locale): void => {
+                const initialValue = lv[locale];
+                if (!initialValue) {
+                    return;
+                }
+
+                const currValue = attributes?.[defId]?.[assetId]?.[locale];
+
+                if (definition.multiple) {
+                    if ((initialValue as T[]).length === 0) {
+                        return;
+                    }
+
+                    if (currValue && (currValue as T[]).length > 0) {
+                        return;
+                    }
+                } else if (currValue !== undefined) {
+                    return;
+                }
+
+                const toKeyForType: ToKeyFuncTypeScoped<T> = (v) => toKey(definition.fieldType, v);
+                const key = definition.multiple ? normalizeList<T>(initialValue as T[], toKeyForType).toString() : toKeyForType(initialValue);
+                groups[locale] ??= {};
+                groups[locale][key] ??= {
+                    ids: [],
+                    value: initialValue,
+                };
+                groups[locale][key].ids.push(assetId);
+            });
+        });
+
+        Object.keys(groups).forEach(locale => {
+            const g = groups[locale];
+            Object.keys(g).forEach(key => {
+                const v = g[key];
+
+                actions.push({
+                    action: AttributeBatchActionEnum.Delete,
+                    assets: v.ids,
+                    previous: v.value,
+                    definitionId: defId,
+                    locale: locale !== NO_LOCALE ? locale : undefined,
+                });
+            });
+        });
+    });
 
     return actions;
 }

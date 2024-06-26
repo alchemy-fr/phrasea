@@ -137,6 +137,7 @@ export type AttributeBatchAction = {
     id?: string | undefined;
     assets?: string[] | undefined;
     value?: any | undefined;
+    previous?: any | undefined;
     definitionId?: string | undefined;
     locale?: string | undefined;
     position?: number | undefined;

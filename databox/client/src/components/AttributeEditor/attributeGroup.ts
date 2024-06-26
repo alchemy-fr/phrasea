@@ -13,6 +13,8 @@ import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor";
 import {computeValues} from "./store/values.ts";
 import {computeAllDefinitionsValues, computeDefinitionValuesHandler} from "./store/definitionValues.ts";
 import {getBatchActions} from "./batchActions.ts";
+import {useModals} from '@alchemy/navigation'
+import SavePreviewDialog from "./SavePreviewDialog.tsx";
 
 export function useAttributeValues<T>(
     attributeDefinitions: AttributeDefinition[],
@@ -23,6 +25,7 @@ export function useAttributeValues<T>(
     definition: AttributeDefinition | undefined,
     setDefinition: StateSetter<AttributeDefinition | undefined>,
 ) {
+    const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] = React.useState<AttributeDefinitionIndex>({});
     const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
@@ -186,6 +189,11 @@ export function useAttributeValues<T>(
         );
 
         console.log('actions', actions);
+        openModal(SavePreviewDialog, {
+            actions,
+            definitionIndex,
+        });
+
     }, [index, initialIndex, toKey, definitionIndex]);
 
     return {
