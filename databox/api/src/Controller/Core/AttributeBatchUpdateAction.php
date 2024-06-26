@@ -21,11 +21,11 @@ final class AttributeBatchUpdateAction extends AbstractController
 
     public function __invoke(AttributeBatchUpdateInput $data, Request $request): Response
     {
-        $workspaceId = $this->batchAttributeManager->validate($data->assets, $data);
+        $this->batchAttributeManager->validate($data->workspaceId, $data->assets, $data);
 
         if (null !== $workspaceId) {
             $this->batchAttributeManager->handleBatch(
-                $workspaceId,
+                $data->workspaceId,
                 $data->assets,
                 $data,
                 $this->getStrictUser(),

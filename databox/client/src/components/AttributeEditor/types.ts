@@ -78,10 +78,13 @@ export type AttributesHistory<T> = {
 }
 
 export type DiffGroupIndex<T> = {
-    [locale: string]: {
-        [key: string]: {
-            ids: string[];
-            value: T;
+    [definitionId: string]: {
+        [locale: string]: {
+            [key: string]: {
+                assetIds: string[];
+                value: T;
+                attributeIds?: string[];
+            };
         };
     };
 }

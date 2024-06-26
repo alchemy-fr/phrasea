@@ -182,6 +182,7 @@ export function useAttributeValues<T>(
 
     const onSave = React.useCallback<() => Promise<void>>(async () => {
         const actions = getBatchActions<T>(
+            assets,
             initialIndex,
             index,
             definitionIndex,

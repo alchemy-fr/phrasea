@@ -35,7 +35,7 @@ export default function ValueDiff({
             const definition = definitionIndex[a.definitionId!];
             const formatter = getAttributeType(definition.fieldType);
             const valueFormatterProps: AttributeFormatterProps = {
-                value: a.action! === AttributeBatchActionEnum.Delete ? a.previous : a.value,
+                value: [AttributeBatchActionEnum.Add, AttributeBatchActionEnum.Delete].includes(a.action!) ? [a.value] : a.value,
                 locale: a.locale,
                 multiple: definition.multiple,
                 format: formatContext.formats[definition.fieldType],

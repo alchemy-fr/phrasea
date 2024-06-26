@@ -370,7 +370,12 @@ App\Entity\Core\Attribute:
   at_kw_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
-    value: '50%? PDF : <word()>'
+    value: '80%? Foo : <word()>'
+
+  at_kw2_{@a_*} (extends attribute_n):
+    definition: '@ad_keywords'
+    asset: '@a_*'
+    value: '30%? Bar : <word()>'
 
   at_ean_{@a_*} (extends attribute_n):
     definition: '@ad_ean'

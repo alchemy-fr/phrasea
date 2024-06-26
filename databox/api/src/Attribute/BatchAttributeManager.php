@@ -40,31 +40,33 @@ class BatchAttributeManager
     ) {
     }
 
-    public function validate(array $assetsId, AssetAttributeBatchUpdateInput $input): ?string
+    public function validate(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input): void
     {
-        if (empty($assetsId)) {
-            return null;
+        $allAssetIndex = [];
+        foreach ($assetsId as $id) {
+            $allAssetIndex[$id] = true;
+        }
+        foreach ($input->actions as $action) {
+            if (null !== $action->assets) {
+                foreach ($action->assets as $id) {
+                    $allAssetIndex[$id] = true;
+                }
+            }
         }
 
-        $firstId = $assetsId[0];
-        /** @var Asset $assetOne */
-        $assetOne = $this->em->getRepository(Asset::class)->find($firstId);
-        if (!$assetOne instanceof Asset) {
-            throw new \InvalidArgumentException(sprintf('Asset "%s" not found', $firstId));
-        }
+        $allAssetIds = array_keys($allAssetIndex);
 
-        $workspaceId = $assetOne->getWorkspaceId();
         $assets = $this->em->createQueryBuilder()
             ->select('a')
             ->from(Asset::class, 'a')
             ->andWhere('a.workspace = :w')
             ->setParameter('w', $workspaceId)
             ->andWhere('a.id IN (:ids)')
-            ->setParameter('ids', $assetsId)
+            ->setParameter('ids', $allAssetIds)
             ->getQuery()
             ->getResult();
 
-        if (count($assets) !== count($assetsId)) {
+        if (count($assets) !== count($allAssetIds)) {
             throw new \InvalidArgumentException('Some assets where not found. Possible issues: there are coming from different workspaces, they were deleted');
         }
 
@@ -95,8 +97,6 @@ class BatchAttributeManager
                 }
             }
         }
-
-        return $workspaceId;
     }
 
     private function denyUnlessGranted(AttributeDefinition $definition): void
@@ -114,17 +114,25 @@ class BatchAttributeManager
         ?JwtUser $user,
         bool $dispatchUpdateEvent = false,
     ): void {
-        if (empty($assetsId)) {
-            return;
-        }
-
         DeferredIndexListener::disable();
-
         try {
             $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
+                $updatedAssets = [];
                 $changedAttributeDefinitions = [];
 
+                foreach ($assetsId as $id) {
+                    $updatedAssets[$id] = true;
+                }
+
                 foreach ($input->actions as $i => $action) {
+                    $ids = $action->assets ?? $assetsId;
+                    if (null !== $action->assets) {
+                        foreach ($action->assets as $id) {
+                            $updatedAssets[$id] = true;
+                        }
+                    }
+
+
                     if ($action->definitionId) {
                         $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
                     } elseif ($action->name) {
@@ -148,14 +156,15 @@ class BatchAttributeManager
                                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                             }
 
-                            $this->upsertAttribute(null, $assetsId, $definition, $action);
+                            $this->upsertAttribute(null, $ids, $definition, $action);
                             break;
                         case self::ACTION_DELETE:
                             if (!$definition) {
                                 throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                             }
-                            $this->deleteAttributes($assetsId, $definition, $user, [
+                            $this->deleteAttributes($ids, $definition, $user, [
                                 'id' => $action->id,
+                                'ids' => $action->ids,
                                 'origin' => $action->origin,
                                 'originVendor' => $action->originVendor,
                             ]);
@@ -167,7 +176,7 @@ class BatchAttributeManager
                                     if (!$attribute instanceof Attribute) {
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
                                     }
-                                    $this->upsertAttribute($attribute, $assetsId, $definition, $action);
+                                    $this->upsertAttribute($attribute, $ids, $definition, $action);
                                 } catch (ConversionException $e) {
                                     throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
                                 }
@@ -180,14 +189,14 @@ class BatchAttributeManager
                                         throw new BadRequestHttpException(sprintf('Attribute "%s" is a multi-valued in action #%d, use add/delete actions for this kind of attribute or pass an array in "value"', $definition->getName(), $i));
                                     }
 
-                                    $this->deleteAttributes($assetsId, $definition, $user);
+                                    $this->deleteAttributes($ids, $definition, $user);
                                     foreach ($action->value as $value) {
                                         $vAction = clone $action;
                                         $vAction->value = $value;
-                                        $this->upsertAttribute(null, $assetsId, $definition, $vAction);
+                                        $this->upsertAttribute(null, $ids, $definition, $vAction);
                                     }
                                 } else {
-                                    foreach ($assetsId as $assetId) {
+                                    foreach ($ids as $assetId) {
                                         $attribute = $this->em->getRepository(Attribute::class)->findOneBy([
                                             'definition' => $definition->getId(),
                                             'asset' => $assetId,
@@ -215,7 +224,7 @@ class BatchAttributeManager
                             $qb
                                 ->from(Attribute::class, 'a')
                                 ->andWhere('a.asset IN (:assets)')
-                                ->setParameter('assets', $assetsId)
+                                ->setParameter('assets', $ids)
                                 ->setParameter('from', $action->value)
                                 ->setParameter('to', $action->replaceWith);
                             if ($definition) {
@@ -254,18 +263,19 @@ class BatchAttributeManager
                     }
                 }
 
+                $updatedAssetIds = array_keys($updatedAssets);
                 $this->em->createQueryBuilder()
                     ->update()
                     ->from(Asset::class, 't')
                     ->set('t.attributesEditedAt', ':now')
                     ->andWhere('t.id IN (:ids)')
                     ->setParameter('now', new \DateTimeImmutable())
-                    ->setParameter('ids', $assetsId)
+                    ->setParameter('ids', $updatedAssetIds)
                     ->getQuery()
                     ->execute();
 
                 $attributes = array_keys($changedAttributeDefinitions);
-                foreach ($assetsId as $assetId) {
+                foreach ($updatedAssetIds as $assetId) {
                     // Force assets to be re-indexed
                     $this->deferredIndexListener->scheduleForUpdate($this->em->getReference(Asset::class, $assetId));
 
@@ -360,6 +370,11 @@ class BatchAttributeManager
             $qb
                 ->andWhere('a.id = :id')
                 ->setParameter('id', $options['id']);
+        }
+        if ($options['ids'] ?? null) {
+            $qb
+                ->andWhere('a.id IN (:ids)')
+                ->setParameter('ids', $options['ids']);
         }
         if ($options['origin'] ?? null) {
             $qb

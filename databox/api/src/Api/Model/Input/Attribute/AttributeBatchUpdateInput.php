@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
 {
@@ -13,6 +13,11 @@ class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
      *
      * @var string[]
      */
-    #[Assert\NotNull]
-    public ?array $assets = [];
+    public ?array $assets = null;
+
+    /**
+     * @var string
+     */
+    #[NotNull]
+    public ?string $workspaceId = null;
 }
