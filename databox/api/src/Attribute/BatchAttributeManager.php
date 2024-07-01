@@ -40,10 +40,10 @@ class BatchAttributeManager
     ) {
     }
 
-    public function validate(string $workspaceId, array $assetsId, AssetAttributeBatchUpdateInput $input): void
+    public function validate(string $workspaceId, ?array $assetsId, AssetAttributeBatchUpdateInput $input): void
     {
         $allAssetIndex = [];
-        foreach ($assetsId as $id) {
+        foreach (($assetsId ?? []) as $id) {
             $allAssetIndex[$id] = true;
         }
         foreach ($input->actions as $action) {
@@ -109,12 +109,14 @@ class BatchAttributeManager
 
     public function handleBatch(
         string $workspaceId,
-        array $assetsId,
+        ?array $assetsId,
         AssetAttributeBatchUpdateInput $input,
         ?JwtUser $user,
         bool $dispatchUpdateEvent = false,
     ): void {
         DeferredIndexListener::disable();
+        $assetsId ??= [];
+
         try {
             $this->em->wrapInTransaction(function () use ($user, $input, $assetsId, $workspaceId, $dispatchUpdateEvent): void {
                 $updatedAssets = [];
@@ -131,7 +133,6 @@ class BatchAttributeManager
                             $updatedAssets[$id] = true;
                         }
                     }
-
 
                     if ($action->definitionId) {
                         $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);

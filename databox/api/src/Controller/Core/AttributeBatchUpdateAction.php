@@ -23,15 +23,13 @@ final class AttributeBatchUpdateAction extends AbstractController
     {
         $this->batchAttributeManager->validate($data->workspaceId, $data->assets, $data);
 
-        if (null !== $workspaceId) {
-            $this->batchAttributeManager->handleBatch(
-                $data->workspaceId,
-                $data->assets,
-                $data,
-                $this->getStrictUser(),
-                true,
-            );
-        }
+        $this->batchAttributeManager->handleBatch(
+            $data->workspaceId,
+            $data->assets,
+            $data,
+            $this->getStrictUser(),
+            true,
+        );
 
         return new Response('');
     }

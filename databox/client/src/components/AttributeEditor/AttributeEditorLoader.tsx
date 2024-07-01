@@ -8,11 +8,13 @@ import AttributeEditor from "./AttributeEditor.tsx";
 type Props = {
     ids: string[];
     workspaceId: string;
+    onClose: () => void;
 };
 
 export default function AttributeEditorLoader({
     ids,
     workspaceId,
+    onClose,
 }: Props) {
     const [assets, setAssets] = React.useState<Asset[]>();
     const [attributeDefinitions, setAttributeDefinitions] = React.useState<AttributeDefinition[]>();
@@ -37,5 +39,6 @@ export default function AttributeEditorLoader({
     return <AttributeEditor
         assets={assets}
         attributeDefinitions={attributeDefinitions}
+        onClose={onClose}
     />
 }

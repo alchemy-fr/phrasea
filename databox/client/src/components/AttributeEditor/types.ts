@@ -88,3 +88,8 @@ export type DiffGroupIndex<T> = {
         };
     };
 }
+
+export type MultiValuedAttribute<T> = {
+    id: string;
+    value: T;
+}

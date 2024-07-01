@@ -30,43 +30,61 @@ export default function ValueDiff({
         [AttributeBatchActionEnum.Replace]: <NotesIcon/>,
     }
 
-    return <List>
-        {actions.map((a, i) => {
-            const definition = definitionIndex[a.definitionId!];
-            const formatter = getAttributeType(definition.fieldType);
-            const valueFormatterProps: AttributeFormatterProps = {
-                value: [AttributeBatchActionEnum.Add, AttributeBatchActionEnum.Delete].includes(a.action!) ? [a.value] : a.value,
-                locale: a.locale,
-                multiple: definition.multiple,
-                format: formatContext.formats[definition.fieldType],
-            };
+    const indexedActions: Record<string, AttributeBatchAction[]> = {};
+    actions.forEach(a => {
+        indexedActions[a.definitionId!] ??= [];
+        indexedActions[a.definitionId!].push(a);
+    })
 
-            const formatted = formatter.formatValue(valueFormatterProps);
+    return <List>
+        {Object.keys(indexedActions).map(defId => {
+            const defActions = indexedActions[defId];
+            const definition = definitionIndex[defId];
+            const formatter = getAttributeType(definition.fieldType);
 
             return <ListItem
-                key={i}
+                key={defId}
                 alignItems="flex-start"
             >
-                <ListItemAvatar>
-                    <Avatar>
-                        {actionIcons[a.action!]}
-                    </Avatar>
-                </ListItemAvatar>
                 <ListItemText
                     primary={definition.name}
                     secondary={
                         <>
-                            <Typography
-                                sx={{display: 'inline'}}
-                                component="span"
-                                variant="body2"
-                                color="text.primary"
-                            >
-                                {a.action! === AttributeBatchActionEnum.Delete ? <Rem>
-                                    {formatted}
-                                </Rem> : (a.action === AttributeBatchActionEnum.Add ? <Add>{formatted}</Add> : <Set>{formatted}</Set>)}
-                            </Typography>
-                            {` — ${a.assets!.length} assets`}
+                            {defActions.map((a, i) => {
+                                const valueFormatterProps: AttributeFormatterProps = {
+                                    value: [AttributeBatchActionEnum.Add, AttributeBatchActionEnum.Delete].includes(a.action!) ? [a.value] : a.value,
+                                    locale: a.locale,
+                                    multiple: definition.multiple,
+                                    format: formatContext.formats[definition.fieldType],
+                                };
+
+                                const formatted = formatter.formatValue(valueFormatterProps);
+
+                                return <ListItem key={i}>
+                                    <ListItemAvatar>
+                                        <Avatar>
+                                            {actionIcons[a.action!]}
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        secondary={
+                                            <>
+                                                <Typography
+                                                    sx={{display: 'inline'}}
+                                                    component="span"
+                                                    variant="body2"
+                                                >
+                                                    {a.action! === AttributeBatchActionEnum.Delete ? <Rem>
+                                                        {formatted}
+                                                    </Rem> : (a.action === AttributeBatchActionEnum.Add ? <Add>{formatted}</Add> :
+                                                        <Set>{formatted}</Set>)}
+                                                </Typography>
+                                                {` — ${a.assets!.length} assets`}
+                                            </>
+                                        }
+                                    />
+                                </ListItem>
+                            })}
                         </>
                     }
                 />

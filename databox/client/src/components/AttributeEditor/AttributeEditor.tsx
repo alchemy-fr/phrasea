@@ -15,18 +15,23 @@ import EditorPanel from "./EditorPanel.tsx";
 import {SetAttributeValue} from "./types.ts";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
 import { Resizable } from 're-resizable';
+import {useTranslation} from 'react-i18next';
 import AttributesToolbar from "./AttributesToolbar.tsx";
 import {useSelectAllKey} from "../../hooks/useSelectAllKey.ts";
+import {toast} from "react-toastify";
 
 type Props = {
     assets: Asset[];
     attributeDefinitions: AttributeDefinition[];
+    onClose: () => void;
 };
 
 export default function AttributeEditor({
     assets,
     attributeDefinitions,
+    onClose,
 }: Props) {
+    const {t} = useTranslation();
     const toKey = React.useCallback((_type: string, v: any): string => {
         if (!v) {
             return '';
@@ -41,6 +46,11 @@ export default function AttributeEditor({
     const [thumbSize, _setThumbSize] = React.useState(200);
     const thumbsHeight = thumbSize + scrollbarWidth;
     const [locale, setLocale] = React.useState<string>('en');
+    const onSaved = React.useCallback(() => {
+        toast.success(t('attribute_editor.saved', 'Saved!'));
+        onClose();
+    }, [t, onClose]);
+
     const {
         values,
         definitionValues,
@@ -50,7 +60,7 @@ export default function AttributeEditor({
         undo,
         redo,
         onSave,
-    } = useAttributeValues(
+    } = useAttributeValues({
         attributeDefinitions,
         assets,
         subSelection,
@@ -58,7 +68,8 @@ export default function AttributeEditor({
         toKey,
         definition,
         setDefinition,
-    );
+        onSaved,
+    });
 
     useSelectAllKey(() => {
         setSubSelection(assets);

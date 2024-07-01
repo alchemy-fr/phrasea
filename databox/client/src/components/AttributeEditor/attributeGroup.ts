@@ -4,7 +4,7 @@ import {
     AttributeDefinitionIndex,
     AttributeIndex, AttributesCommit,
     AttributesHistory,
-    DefinitionValuesIndex,
+    DefinitionValuesIndex, MultiValuedAttribute,
     SetAttributeValueOptions,
     ToKeyFunc,
     Values
@@ -16,7 +16,7 @@ import {getBatchActions} from "./batchActions.ts";
 import {useModals} from '@alchemy/navigation'
 import SavePreviewDialog from "./SavePreviewDialog.tsx";
 
-export function useAttributeValues<T>(
+type Props<T> = {
     attributeDefinitions: AttributeDefinition[],
     assets: Asset[],
     subSelection: Asset[],
@@ -24,7 +24,19 @@ export function useAttributeValues<T>(
     toKey: ToKeyFunc<T>,
     definition: AttributeDefinition | undefined,
     setDefinition: StateSetter<AttributeDefinition | undefined>,
-) {
+    onSaved: () => void,
+}
+
+export function useAttributeValues<T>({
+    attributeDefinitions,
+    assets,
+    subSelection,
+    setSubSelection,
+    toKey,
+    definition,
+    setDefinition,
+    onSaved,
+}: Props<T>) {
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] = React.useState<AttributeDefinitionIndex>({});
@@ -40,7 +52,7 @@ export function useAttributeValues<T>(
         assets.forEach((a) => {
             a.attributes.forEach((attr) => {
                 index[attr.definition.id][a.id] ??= {};
-                index[attr.definition.id][a.id][attr.locale ?? NO_LOCALE] = attr.value;
+                index[attr.definition.id][a.id][attr.locale ?? NO_LOCALE] = definitionIndex[attr.definition.id].multiple ? (attr.value as MultiValuedAttribute<T>[] | undefined)?.map((i: MultiValuedAttribute<T>) => i.value) : attr.value;
             });
         });
 
@@ -189,13 +201,14 @@ export function useAttributeValues<T>(
             toKey,
         );
 
-        console.log('actions', actions);
         openModal(SavePreviewDialog, {
             actions,
             definitionIndex,
+            workspaceId: assets[0].workspace.id,
+            onSaved,
         });
 
-    }, [index, initialIndex, toKey, definitionIndex]);
+    }, [index, initialIndex, toKey, definitionIndex, onSaved]);
 
     return {
         inputValueInc: inc,

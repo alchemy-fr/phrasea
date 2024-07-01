@@ -35,6 +35,7 @@ export default function AttributeEditorView({}: Props) {
                     <AttributeEditorLoader
                         ids={state.selection}
                         workspaceId={state.workspaceId}
+                        onClose={() => closeDrawer()}
                     />
                 </AppDialog>
             )}

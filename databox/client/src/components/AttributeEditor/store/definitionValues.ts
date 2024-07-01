@@ -1,5 +1,11 @@
 import {Asset, AttributeDefinition} from "../../../types";
-import {AttributeIndex, DefinitionValuesIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types";
+import {
+    AttributeIndex,
+    DefinitionValuesIndex,
+    LocalizedAttributeIndex,
+    ToKeyFunc,
+    Values
+} from "../types";
 import {listsAreSame} from "./helper";
 
 export function computeAllDefinitionsValues<T>(
