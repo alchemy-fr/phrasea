@@ -64,9 +64,9 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
     public function getCases(): array
     {
         return [
-            [['Description' => 'Foo bar', 'Keywords' => 'KW #1'], ['Description' => 'Foo bar', 'Keywords' => ['KW #1']]],
-            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => ['KW #1']]],
-            [['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']], ['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1']]]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1']]]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1'], ['value' => 'KW #2']]]],
         ];
     }
 }

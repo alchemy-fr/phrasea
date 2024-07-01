@@ -14,7 +14,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 {
     private static array $defaultAttributes = [
         'Description' => 'This is a description test.',
-        'Keywords' => ['This is KW #1', 'This is KW #2', 'This is KW #3'],
+        'Keywords' => [['value' => 'This is KW #1'], ['value' => 'This is KW #2'], ['value' => 'This is KW #3']],
     ];
 
     public function testAssetAttributesBatchUpdateWithInvalidValue(): void
@@ -139,7 +139,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
                         'name' => 'keywords',
                         'value' => ['This is KW #1'],
                     ],
-                ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']]),
+                ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => [['value' => 'This is KW #1']]]),
             ],
             [
                 [

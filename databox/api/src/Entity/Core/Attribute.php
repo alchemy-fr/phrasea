@@ -19,7 +19,6 @@ use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
-use App\Controller\Core\AttributeBatchUpdateAction;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -39,7 +38,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
         ),
         new Post(
             uriTemplate: '/attributes/batch-update',
-            controller: AttributeBatchUpdateAction::class,
+            status: 200,
             input: AttributeBatchUpdateInput::class,
             name: 'post_batch',
             processor: BatchAttributeUpdateProcessor::class,

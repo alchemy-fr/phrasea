@@ -77,7 +77,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                 $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
                 if ($definition->isMultiple()) {
-                    $v = $a->getValues();
+                    $v = array_map(fn ( array $v) => $v['value'], $a->getValues());
                     if (!empty($v)) {
                         $v = array_map(fn (string $v): string => $type->normalizeElasticsearchValue($v), $v);
                     }
