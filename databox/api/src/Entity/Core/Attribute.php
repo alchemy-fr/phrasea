@@ -122,11 +122,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
      */
     private ?string $highlight = null;
 
-    /**
-     * Dynamically resolved.
-     */
-    private ?array $highlights = null;
-
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private ?int $origin = null;
 
@@ -291,16 +286,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function setHighlight(?string $highlight): void
     {
         $this->highlight = $highlight;
-    }
-
-    public function getHighlights(): ?array
-    {
-        return $this->highlights;
-    }
-
-    public function setHighlights(?array $highlights): void
-    {
-        $this->highlights = $highlights;
     }
 
     public function getTranslationOrigin(): ?Attribute

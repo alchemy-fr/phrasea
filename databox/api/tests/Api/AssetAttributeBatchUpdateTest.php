@@ -14,7 +14,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 {
     private static array $defaultAttributes = [
         'Description' => 'This is a description test.',
-        'Keywords' => [['value' => 'This is KW #1'], ['value' => 'This is KW #2'], ['value' => 'This is KW #3']],
+        'Keywords' => ['This is KW #1', 'This is KW #2', 'This is KW #3'],
     ];
 
     public function testAssetAttributesBatchUpdateWithInvalidValue(): void
@@ -78,12 +78,17 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         ksort($expectedValues);
         foreach ($expectedValues as $name => $value) {
-            $attrAssertions[] = [
-                'definition' => [
-                    'name' => $name,
-                ],
-                'value' => $value,
-            ];
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+            foreach ($value as $v) {
+                $attrAssertions[] = [
+                    'definition' => [
+                        'name' => $name,
+                    ],
+                    'value' => $v,
+                ];
+            }
         }
         $this->assertJsonContains([
             '@type' => 'asset',
@@ -121,7 +126,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $replacedDesc['Description'] = 'This is a replaced test.';
 
         $replacedAll = self::$defaultAttributes;
-        $repl = fn (string $str): string => str_replace(' is', ' IS', $str);
+        $repl = fn(string $str): string => str_replace(' is', ' IS', $str);
         $replacedAll['Description'] = $repl($replacedAll['Description']);
         $replacedAll['Keywords'] = array_map($repl, $replacedAll['Keywords']);
 
@@ -139,7 +144,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
                         'name' => 'keywords',
                         'value' => ['This is KW #1'],
                     ],
-                ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => [['value' => 'This is KW #1']]]),
+                ], array_merge(self::$defaultAttributes, ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']]),
             ],
             [
                 [

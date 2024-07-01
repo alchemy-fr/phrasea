@@ -45,12 +45,17 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
 
         $attrAssertions = [];
         foreach ($expectedValues as $name => $value) {
-            $attrAssertions[] = [
-                'definition' => [
-                    'name' => $name,
-                ],
-                'value' => $value,
-            ];
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+            foreach ($value as $v) {
+                $attrAssertions[] = [
+                    'definition' => [
+                        'name' => $name,
+                    ],
+                    'value' => $v,
+                ];
+            }
         }
         $this->assertJsonContains([
             '@type' => 'asset',
@@ -64,9 +69,9 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
     public function getCases(): array
     {
         return [
-            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1']]]],
-            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1']]]],
-            [['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']], ['Description' => 'Foo bar', 'Keywords' => [['value' => 'KW #1'], ['value' => 'KW #2']]]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => ['KW #1']]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1']], ['Description' => 'Foo bar', 'Keywords' => ['KW #1']]],
+            [['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']], ['Description' => 'Foo bar', 'Keywords' => ['KW #1', 'KW #2']]],
         ];
     }
 }

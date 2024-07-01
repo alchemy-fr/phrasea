@@ -106,7 +106,7 @@ readonly class AttributesResolver
                     $v = $attribute->getValue();
                     foreach ($h as $hlValue) {
                         if (preg_replace('#\[hl](.*)\[/hl]#', '$1', (string) $hlValue) === $v) {
-                            $attribute->setHighlights($hlValue);
+                            $attribute->setHighlight($hlValue);
                             break;
                         }
                     }

@@ -66,12 +66,17 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
             ksort($expectedValues);
             $attrAssertions = [];
             foreach ($expectedValues as $name => $value) {
-                $attrAssertions[] = [
-                    'definition' => [
-                        'name' => $name,
-                    ],
-                    'value' => $value,
-                ];
+                if (!is_array($value)) {
+                    $value = [$value];
+                }
+                foreach ($value as $v) {
+                    $attrAssertions[] = [
+                        'definition' => [
+                            'name' => $name,
+                        ],
+                        'value' => $v,
+                    ];
+                }
             }
 
             $asset = $em->getRepository(Asset::class)->findOneBy([
@@ -137,8 +142,8 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
                         'value' => ['This is KW #1'],
                     ],
                 ], [
-                    'foo' => ['Description' => 'Foo bar', 'Keywords' => [['value' => 'This is KW #1']]],
-                    'bar' => ['Description' => 'Foo bar', 'Keywords' => [['value' => 'This is KW #1']]],
+                    'foo' => ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']],
+                    'bar' => ['Description' => 'Foo bar', 'Keywords' => ['This is KW #1']],
                 ],
             ],
         ];

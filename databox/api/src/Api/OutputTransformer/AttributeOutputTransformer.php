@@ -42,7 +42,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
 
         if ($data instanceof Attribute) {
             $output->asset = $data->getAsset();
-            $output->highlight = $data->getHighlights() ?? $data->getHighlight();
+            $output->highlight = $data->getHighlight();
             $output->origin = $data->getOriginLabel();
             $output->originUserId = $data->getOriginUserId();
             $output->originVendor = $data->getOriginVendor();
