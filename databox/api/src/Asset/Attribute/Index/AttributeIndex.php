@@ -24,7 +24,7 @@ final class AttributeIndex
         unset($this->definitions[$definitionId]);
     }
 
-    public function getValue(string $definitionId, string $locale): mixed
+    public function getAttribute(string $definitionId, string $locale): ?Attribute
     {
         return $this->definitions[$definitionId]?->getAttribute($locale);
     }

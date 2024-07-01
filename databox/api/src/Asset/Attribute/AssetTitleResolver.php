@@ -26,7 +26,7 @@ class AssetTitleResolver
                 $definitionId = $attrTitle->getDefinition()->getId();
 
                 foreach ($preferredLocales as $l) {
-                    if (null !== $attribute = $attributesIndex->getValue($definitionId, $l)) {
+                    if (null !== $attribute = $attributesIndex->getAttribute($definitionId, $l)) {
                         return $attribute;
                     }
                 }

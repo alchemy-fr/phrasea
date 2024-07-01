@@ -67,8 +67,8 @@ final readonly class ExposeClient
 
     public function postAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $publicationId, Asset $asset, array $extraData = []): void
     {
-        $attributes = $this->attributesResolver->resolveAssetAttributesList($asset, true);
-        $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributes, []);
+        $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
+        $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributesIndex, []);
         if ($resolvedTitleAttr instanceof Attribute) {
             $resolvedTitle = $resolvedTitleAttr->getValue();
         } else {
@@ -76,34 +76,32 @@ final readonly class ExposeClient
         }
 
         $descriptionTranslations = [];
-        if (!empty($attributes)) {
-            foreach ($attributes as $defAttrs) {
-                $attrTranslations = [];
+        foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
+            $attrTranslations = [];
 
-                foreach ($defAttrs as $locale => $attribute) {
-                    $attributeDefinition = $attribute->getDefinition();
-                    $fieldType = $attributeDefinition->getFieldType();
+            foreach ($definitionIndex->getLocales() as $locale => $attribute) {
+                $definition = $definitionIndex->getDefinition();
+                $fieldType = $definition->getFieldType();
 
-                    $attrTranslations[$locale] = sprintf(
-                        '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
+                $attrTranslations[$locale] = sprintf(
+                    '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
   <dd class="value field-type-%1$s field-name-%2$s">%4$s</dd>
 ',
-                        $fieldType,
-                        $attributeDefinition->getSlug(),
-                        $attributeDefinition->getName(),
-                        $attributeDefinition->isMultiple() ? implode(', ', $attribute->getValues()) : $attribute->getValue(),
-                    );
-                }
+                    $fieldType,
+                    $definition->getSlug(),
+                    $definition->getName(),
+                    $definition->isMultiple() ? implode(', ', array_map(fn (Attribute $a): ?string => $a->getValue(), $attribute->getValues())) : $attribute->getValue(),
+                );
+            }
 
-                // adding fallback if not set
-                if (!isset($attrTranslations[IndexMappingUpdater::NO_LOCALE])) {
-                    $attrTranslations[IndexMappingUpdater::NO_LOCALE] = reset($attrTranslations);
-                }
+            // adding fallback if not set
+            if (!isset($attrTranslations[IndexMappingUpdater::NO_LOCALE])) {
+                $attrTranslations[IndexMappingUpdater::NO_LOCALE] = reset($attrTranslations);
+            }
 
-                foreach ($attrTranslations as $locale => $translation) {
-                    $descriptionTranslations[$locale] ??= [];
-                    $descriptionTranslations[$locale][] = $translation;
-                }
+            foreach ($attrTranslations as $locale => $translation) {
+                $descriptionTranslations[$locale] ??= [];
+                $descriptionTranslations[$locale][] = $translation;
             }
         }
 

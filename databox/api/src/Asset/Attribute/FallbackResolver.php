@@ -50,7 +50,7 @@ class FallbackResolver
         $fallbacks = $definition->getFallback();
 
         if (!empty($fallbacks[$locale])) {
-            if (null === $attributesIndex->getValue($definition->getId(), $locale)) {
+            if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
                 $fallbackValue = $this->resolveFallback($fallbacks[$locale], [
                     'file' => $asset->getSource(),
                     'asset' => $asset,

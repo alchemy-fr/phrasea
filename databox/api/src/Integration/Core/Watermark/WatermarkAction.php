@@ -38,14 +38,13 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         $config = $this->getIntegrationConfig($context);
         $manager = $this->imageManagerFactory->createManager();
 
-        $attributes = $this->attributesResolver->resolveAssetAttributesList($asset, false);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
         $attrName = $config['attributeName'];
 
         $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
             ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrName, $asset->getWorkspaceId()));
 
-        $attr = $attributes[$attrDef->getId()][IndexMappingUpdater::NO_LOCALE] ?? null;
-        $text = $attr?->getValue() ?? null;
+        $text = $attributeIndex->getAttribute($attrDef->getId(), IndexMappingUpdater::NO_LOCALE)?->getValue();
 
         if (empty($text)) {
             return;

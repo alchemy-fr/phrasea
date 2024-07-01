@@ -89,7 +89,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
         ], $context)) {
-            $attributesIndex = $this->attributesResolver->resolveAssetAttributesList($data, true);
+            $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();
 
             if (!empty($highlights)) {
@@ -111,7 +111,21 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             $groupBy = $context['groupBy'][0] ?? null;
             if (null !== $groupBy) {
-                $groupValue = $this->getGroupValue($groupBy, $data, $indexByAttrName[$groupBy] ?? null);
+                $indexValue = null;
+                foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
+                    if ($groupBy === $this->fieldNameResolver->getFieldNameFromDefinition($definitionIndex->getDefinition())) {
+                        foreach ($preferredLocales as $l) {
+                            if (null !== $attr = $definitionIndex->getAttribute($l)) {
+                                $indexValue = $attr->getValue();
+                                break 2;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                $groupValue = $this->getGroupValue($groupBy, $data, $indexValue);
                 $groupKey = $groupValue->getKey();
 
                 if ($this->lastGroupKey !== $groupKey) {
@@ -131,19 +145,19 @@ class AssetOutputTransformer implements OutputTransformerInterface
             ->findAssetRenditions($data->getId());
 
         foreach ([
-            'original',
-            'preview',
-            'thumbnail',
-            'thumbnailActive',
-        ] as $type) {
+                     'original',
+                     'preview',
+                     'thumbnail',
+                     'thumbnailActive',
+                 ] as $type) {
             if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
                 $output->{'set'.ucfirst($type)}($file);
             }
         }
 
-        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset
+        $output->setCollections($data->getCollections()->map(fn(CollectionAsset $collectionAsset
         ): Collection => $collectionAsset->getCollection())
-            ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
+            ->filter(fn(Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
             ->getValues());
 
         if (null !== $data->getPendingUploadToken()) {

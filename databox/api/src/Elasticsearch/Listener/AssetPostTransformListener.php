@@ -69,7 +69,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
     {
         $data = [];
 
-        $attributeIndex = $this->attributesResolver->resolveAssetAttributesList($asset, false);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
             foreach ($definitionIndex->getLocales() as $l => $a) {

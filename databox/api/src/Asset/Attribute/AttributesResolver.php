@@ -24,7 +24,7 @@ readonly class AttributesResolver
     ) {
     }
 
-    public function resolveAssetAttributesList(Asset $asset, bool $applyPermissions): AttributeIndex
+    public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
@@ -73,7 +73,7 @@ readonly class AttributesResolver
             $fallbacks = $definition->getFallback();
             if (null !== $fallbacks) {
                 foreach ($fallbacks as $locale => $fb) {
-                    if (null === $attributes->getValue($k, $locale)) {
+                    if (null === $attributes->getAttribute($k, $locale)) {
                         $attr = $this->fallbackResolver->resolveAttrFallback(
                             $asset,
                             $locale,

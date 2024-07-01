@@ -37,7 +37,7 @@ class DynamicAttributeBag
         $defId = $def->getId();
 
         foreach ($this->locales as $l) {
-            if (null !== $attr = $this->attributes->getValue($defId, $l)) {
+            if (null !== $attr = $this->attributes->getAttribute($defId, $l)) {
                 return $attr->getValue();
             }
         }
