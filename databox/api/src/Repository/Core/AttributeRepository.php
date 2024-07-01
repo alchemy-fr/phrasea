@@ -53,13 +53,13 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->getResult();
     }
 
-    public function getAssetAttributes(Asset $asset): array
+    public function getAssetAttributes(string $assetId): array
     {
         return $this
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.asset = :asset')
-            ->setParameter('asset', $asset->getId())
+            ->setParameter('asset', $assetId)
             ->innerJoin('a.definition', 'd')
             ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')

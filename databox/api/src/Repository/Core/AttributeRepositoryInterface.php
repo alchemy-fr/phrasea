@@ -18,7 +18,7 @@ interface AttributeRepositoryInterface extends ObjectRepository
      */
     public function getDuplicates(Attribute $attribute): array;
 
-    public function getAssetAttributes(Asset $asset): array;
+    public function getAssetAttributes(string $assetId): array;
 
     public function getESQueryBuilder(): QueryBuilder;
 }

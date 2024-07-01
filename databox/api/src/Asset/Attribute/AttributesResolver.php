@@ -31,7 +31,7 @@ readonly class AttributesResolver
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
-            ->getAssetAttributes($asset);
+            ->getAssetAttributes($asset->getId());
 
         $groupedByDef = $this->groupAttributesByLocale($attributes, $applyPermissions);
 
@@ -73,9 +73,12 @@ readonly class AttributesResolver
             $groupAttr = $groupedByDef[$k][$locale];
 
             if ($def->isMultiple()) {
-                $values = $groupAttr->getValues() ?? [];
-                $values[] = $attribute->getValue();
-                $groupAttr->setValues($values);
+                $groupAttr->setValues(array_merge(
+                    $groupAttr->getValues() ?? [],
+                    [[
+                        'id' => $attribute->getId(),
+                        'value' => $attribute->getValue(),
+                    ]]));
             }
         }
         unset($attributes);
