@@ -38,7 +38,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         $config = $this->getIntegrationConfig($context);
         $manager = $this->imageManagerFactory->createManager();
 
-        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, false);
+        $attributes = $this->attributesResolver->resolveAssetAttributesList($asset, false);
         $attrName = $config['attributeName'];
 
         $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)

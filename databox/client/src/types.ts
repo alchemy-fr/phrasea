@@ -61,10 +61,12 @@ export interface Asset
 
 type AttrValue = any;
 
+type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
+
 export interface Attribute extends IPermissions {
     id: string;
     definition: AttributeDefinition;
-    origin: 'human' | 'machine';
+    origin: AttributeOrigin;
     multiple: boolean;
     originVendor?: string;
     locale?: string | undefined;

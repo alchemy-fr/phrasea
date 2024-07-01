@@ -34,13 +34,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $values = $data->getValues();
-        $output->value = $values ? array_map(
-            fn (array $v) => [
-                ...$v,
-                'value' => $type->denormalizeValue($v['value'])
-            ], $data->getValues()) : $type->denormalizeValue($data->getValue());
-        $output->multiple = null !== $values;
+        $output->value = $type->denormalizeValue($data->getValue());
 
         $output->locale = $data->getLocale();
         $output->position = $data->getPosition();

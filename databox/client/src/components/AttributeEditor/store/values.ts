@@ -1,12 +1,12 @@
 import {Asset, AttributeDefinition} from "../../../types.ts";
-import {AttributeIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types.ts";
+import {BatchAttributeIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types.ts";
 import {listsAreSame} from "./helper.ts";
 
 export function computeValues<T>(
     definition: AttributeDefinition,
     subSelection: Asset[],
-    index: AttributeIndex<T>,
-    initialIndex: AttributeIndex<T>,
+    index: BatchAttributeIndex<T>,
+    initialIndex: BatchAttributeIndex<T>,
     toKey: ToKeyFunc<T>,
 ): Values<T> {
     const values: Values<T> = {

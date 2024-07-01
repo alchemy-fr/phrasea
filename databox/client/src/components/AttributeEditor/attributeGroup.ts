@@ -2,9 +2,9 @@ import {Asset, AttributeDefinition, StateSetter} from "../../types.ts";
 import React from "react";
 import {
     AttributeDefinitionIndex,
-    AttributeIndex, AttributesCommit,
+    BatchAttributeIndex, AttributesCommit,
     AttributesHistory,
-    DefinitionValuesIndex, MultiValuedAttribute,
+    DefinitionValuesIndex,
     SetAttributeValueOptions,
     ToKeyFunc,
     Values
@@ -40,8 +40,8 @@ export function useAttributeValues<T>({
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] = React.useState<AttributeDefinitionIndex>({});
-    const initialIndex = React.useMemo<AttributeIndex<T>>(() => {
-        const index: AttributeIndex<T> = {};
+    const initialIndex = React.useMemo<BatchAttributeIndex<T>>(() => {
+        const index: BatchAttributeIndex<T> = {};
         const definitionIndex: AttributeDefinitionIndex = {};
 
         attributeDefinitions.forEach((def) => {
@@ -50,9 +50,20 @@ export function useAttributeValues<T>({
         });
 
         assets.forEach((a) => {
-            a.attributes.forEach((attr) => {
-                index[attr.definition.id][a.id] ??= {};
-                index[attr.definition.id][a.id][attr.locale ?? NO_LOCALE] = definitionIndex[attr.definition.id].multiple ? (attr.value as MultiValuedAttribute<T>[] | undefined)?.map((i: MultiValuedAttribute<T>) => i.value) : attr.value;
+            a.attributes.forEach((attribute) => {
+                const definitionId = attribute.definition.id;
+
+                index[definitionId][a.id] ??= {};
+                const definition = definitionIndex[definitionId];
+                const assetIndex = index[definitionId][a.id];
+                const locale = attribute.locale ?? NO_LOCALE;
+
+                if (definition.multiple) {
+                    (assetIndex[locale] as T[]) ??= [];
+                    (assetIndex[locale] as T[]).push(attribute.value);
+                } else {
+                    assetIndex[locale] = attribute.value;
+                }
             });
         });
 
@@ -71,7 +82,7 @@ export function useAttributeValues<T>({
     });
 
 
-    const [index, setIndex] = React.useState<AttributeIndex<T>>(initialIndex);
+    const [index, setIndex] = React.useState<BatchAttributeIndex<T>>(initialIndex);
 
     const initialDefinitionValues = React.useMemo<DefinitionValuesIndex<T>>(() => {
         return computeAllDefinitionsValues(attributeDefinitions, subSelection, toKey, index);

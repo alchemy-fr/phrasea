@@ -89,33 +89,16 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
         ], $context)) {
-            $attributes = $this->attributesResolver->resolveAssetAttributes($data, true);
+            $attributesIndex = $this->attributesResolver->resolveAssetAttributesList($data, true);
+            $attributes = $attributesIndex->getFlattenAttributes();
 
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
-
-            $indexByAttrName = [];
-            $preferredAttributes = [];
-            foreach ($attributes as $_attrs) {
-                foreach ($preferredLocales as $l) {
-                    if (isset($_attrs[$l]) && null !== $_attrs[$l]->getValue()) {
-                        $preferredAttributes[] = $_attrs[$l];
-                        $key = $this->fieldNameResolver->getFieldNameFromDefinition($_attrs[$l]->getDefinition());
-                        $indexByAttrName[$key] = $_attrs[$l]->getValue();
-                        continue 2;
-                    }
-                }
-            }
-
-            if (($context['filters']['allLocales'] ?? false)) {
-                $output->setAttributes($attributes);
-            } else {
-                $output->setAttributes($preferredAttributes);
-            }
+            $output->setAttributes($attributes);
 
             $output->setTitle($data->getTitle());
-            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributes, $preferredLocales);
+            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributesIndex, $preferredLocales);
             if ($titleAttribute instanceof Attribute) {
                 $output->setResolvedTitle($titleAttribute->getValue());
                 $output->setTitleHighlight($titleAttribute->getHighlight());

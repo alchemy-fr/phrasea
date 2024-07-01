@@ -10,6 +10,7 @@ use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
@@ -68,22 +69,20 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
     {
         $data = [];
 
-        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, false);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributesList($asset, false);
 
-        foreach ($attributes as $_attrs) {
-            foreach ($_attrs as $l => $a) {
-                $definition = $a->getDefinition();
-
+        foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
+            foreach ($definitionIndex->getLocales() as $l => $a) {
+                $definition = $definitionIndex->getDefinition();
                 $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
 
+                $v = null;
                 if ($definition->isMultiple()) {
-                    $v = array_map(fn ( array $v) => $v['value'], $a->getValues());
-                    if (!empty($v)) {
-                        $v = array_map(fn (string $v): string => $type->normalizeElasticsearchValue($v), $v);
+                    if (!empty($a)) {
+                        $v = array_map(fn (Attribute $v): string => $type->normalizeElasticsearchValue($v->getValue()), $a);
                     }
                 } else {
                     $v = $a->getValue();
-
                     if (null !== $v) {
                         $v = $type->normalizeElasticsearchValue($v);
                     }

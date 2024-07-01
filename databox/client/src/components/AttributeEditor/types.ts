@@ -21,7 +21,7 @@ export type AssetAttributeIndex<T = string> = {
     [assetId: string]: LocalizedAttributeIndex<T>;
 };
 
-export type AttributeIndex<T = string> = {
+export type BatchAttributeIndex<T = string> = {
     [definitionId: string]: AssetAttributeIndex<T>;
 };
 
@@ -67,7 +67,7 @@ export type ToKeyFunc<T = string> = (type: string, v: T) => string;
 export type ToKeyFuncTypeScoped<T> = (v: T) => string;
 
 export type AttributesCommit<T> = {
-    index: AttributeIndex<T>;
+    index: BatchAttributeIndex<T>;
     subSelection: Asset[];
     definition: AttributeDefinition | undefined;
 }
@@ -87,9 +87,4 @@ export type DiffGroupIndex<T> = {
             };
         };
     };
-}
-
-export type MultiValuedAttribute<T> = {
-    id: string;
-    value: T;
 }

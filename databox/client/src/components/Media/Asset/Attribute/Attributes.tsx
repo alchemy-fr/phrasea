@@ -1,11 +1,6 @@
-import {Asset, Attribute} from '../../../../types';
+import {Asset} from '../../../../types';
 import reactStringReplace from 'react-string-replace';
-import React, {
-    PropsWithChildren,
-    ReactElement,
-    ReactNode,
-    useContext,
-} from 'react';
+import React, {PropsWithChildren, ReactElement, ReactNode, useContext,} from 'react';
 import {styled} from '@mui/material/styles';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -13,6 +8,7 @@ import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
+import {buildAttributesGroupedByDefinition} from "./attributeIndex.ts";
 
 type FreeNode = string | ReactNode | ReactNode[];
 
@@ -117,24 +113,17 @@ function Attributes({asset, displayControls, pinnedOnly}: Props) {
     const pinnedAttributes =
         (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [];
 
-    const sortedAttributes: Attribute[] = [];
-    pinnedAttributes.forEach(defId => {
-        const i = asset.attributes.findIndex(a => a.definition.id === defId);
-        if (i >= 0) {
-            sortedAttributes.push(asset.attributes[i]);
-        }
+    let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
+
+    attributeGroups.sort((a, b) => {
+        const aa = pinnedAttributes.includes(a.definition.id) ? 1 : 0;
+        const bb = pinnedAttributes.includes(b.definition.id) ? 1 : 0;
+
+        return bb - aa;
     });
 
-    if (!pinnedOnly) {
-        asset.attributes.forEach(a => {
-            if (
-                !sortedAttributes.some(
-                    sa => sa.definition.id === a.definition.id
-                )
-            ) {
-                sortedAttributes.push(a);
-            }
-        });
+    if (pinnedOnly) {
+        attributeGroups = attributeGroups.filter(g => pinnedAttributes.includes(g.definition.id));
     }
 
     return (
@@ -143,22 +132,19 @@ function Attributes({asset, displayControls, pinnedOnly}: Props) {
             onClick={stopPropagation}
             onMouseDown={stopPropagation}
         >
-            {sortedAttributes.map(a => (
-                <AttributeRowUI
-                    key={a.id}
-                    formatContext={formatContext}
-                    definitionId={a.definition.id}
-                    value={a.value}
-                    attributeName={a.definition.name}
-                    type={a.definition.fieldType}
-                    locale={a.locale}
-                    highlight={a.highlight}
-                    multiple={a.multiple}
-                    displayControls={displayControls}
-                    pinned={pinnedAttributes.includes(a.definition.id)}
-                    togglePin={togglePin}
-                />
-            ))}
+            {attributeGroups.map(g => {
+                return (
+                    <AttributeRowUI
+                        key={g.definition.id}
+                        formatContext={formatContext}
+                        attribute={g.attribute}
+                        definition={g.definition}
+                        displayControls={displayControls}
+                        pinned={pinnedAttributes.includes(g.definition.id)}
+                        togglePin={togglePin}
+                    />
+                );
+            })}
         </div>
     );
 }

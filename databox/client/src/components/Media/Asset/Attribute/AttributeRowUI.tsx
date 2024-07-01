@@ -7,36 +7,27 @@ import CopyAttribute from './CopyAttribute';
 import React from 'react';
 import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
+import {Attribute, AttributeDefinition} from "../../../../types.ts";
 
 type Props = {
-    type: string;
-    definitionId: string;
-    locale: string | undefined;
-    attributeName: string;
-    value: any;
-    highlight?: any;
+    definition: AttributeDefinition;
+    attribute: Attribute | Attribute[];
     displayControls: boolean;
-    multiple: boolean;
     togglePin: (definitionId: string) => void;
     pinned: boolean;
     formatContext: TAttributeFormatContext;
 };
 
 export default function AttributeRowUI({
-    type,
-    definitionId,
-    locale,
-    attributeName,
-    value,
-    highlight,
-    multiple,
+    definition,
+    attribute,
     togglePin,
     pinned,
     displayControls,
     formatContext,
 }: Props) {
-    const isRtl = isRtlLocale(locale);
-    const formatter = getAttributeType(type);
+    const {id, name, fieldType, multiple} = definition;
+    const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
 
     const toggleFormat = React.useCallback<
@@ -44,17 +35,20 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(type);
+            formatContext.toggleFormat(fieldType);
         },
         [formatContext]
     );
 
+    const locale = multiple ? undefined : (attribute as Attribute).locale;
+    const isRtl = locale ? isRtlLocale(locale) : false;
+
     const valueFormatterProps = {
-        value,
-        highlight,
+        value: multiple ? (attribute as Attribute[]).map(a => a.value) : (attribute as Attribute).value,
+        highlight: multiple ? undefined : (attribute as Attribute).highlight,
         locale,
         multiple,
-        format: formatContext.formats[type],
+        format: formatContext.formats[fieldType],
     };
 
     return (
@@ -62,22 +56,22 @@ export default function AttributeRowUI({
             style={
                 isRtl
                     ? {
-                          direction: 'rtl',
-                      }
+                        direction: 'rtl',
+                    }
                     : undefined
             }
             onMouseEnter={() => setOverControls(true)}
             onMouseLeave={() => setOverControls(false)}
         >
             <div className={attributesClasses.name}>
-                {attributeName}
+                {name}
                 {displayControls ? (
                     <div className={attributesClasses.controls}>
                         {overControls ? (
                             <>
-                                {formatContext.hasFormats(type) && (
+                                {formatContext.hasFormats(fieldType) && (
                                     <IconButton onClick={toggleFormat}>
-                                        <VisibilityIcon />
+                                        <VisibilityIcon/>
                                     </IconButton>
                                 )}
 
@@ -88,7 +82,7 @@ export default function AttributeRowUI({
                                 />
 
                                 <IconButton
-                                    onClick={() => togglePin(definitionId)}
+                                    onClick={() => togglePin(id)}
                                 >
                                     <PushPinIcon
                                         color={pinned ? 'success' : undefined}
@@ -103,34 +97,47 @@ export default function AttributeRowUI({
                     ''
                 )}
             </div>
-            <div className={attributesClasses.val} lang={locale}>
+            <div className={attributesClasses.val}>
                 {multiple && !formatter.supportsMultiple() ? (
                     <ul className={attributesClasses.list}>
-                        {value
-                            ? value.map((v: any, i: number) => {
-                                  const formatProps = {
-                                      value: v,
-                                      highlight,
-                                      locale,
-                                      multiple,
-                                      format: formatContext.formats[type],
-                                  };
+                        {attribute
+                            ? (attribute as Attribute[]).map((a, i: number) => {
+                                const formatProps = {
+                                    value: a.value,
+                                    highlight: a.highlight,
+                                    locale: a.locale,
+                                    multiple,
+                                    format: formatContext.formats[fieldType],
+                                };
 
-                                  return (
-                                      <li key={i}>
-                                          {formatter.formatValue(formatProps)}
-                                          {displayControls && overControls ? (
-                                              <CopyAttribute
-                                                  value={formatter.formatValueAsString(
-                                                      formatProps
-                                                  )}
-                                              />
-                                          ) : (
-                                              ''
-                                          )}
-                                      </li>
-                                  );
-                              })
+                                const isRtl = isRtlLocale(a.locale);
+
+
+                                return (
+                                    <li
+                                        key={i}
+                                        lang={a.locale}
+                                        style={
+                                            isRtl
+                                                ? {
+                                                    direction: 'rtl',
+                                                }
+                                                : undefined
+                                        }
+                                    >
+                                        {formatter.formatValue(formatProps)}
+                                        {displayControls && overControls ? (
+                                            <CopyAttribute
+                                                value={formatter.formatValueAsString(
+                                                    formatProps
+                                                )}
+                                            />
+                                        ) : (
+                                            ''
+                                        )}
+                                    </li>
+                                );
+                            })
                             : null}
                     </ul>
                 ) : (

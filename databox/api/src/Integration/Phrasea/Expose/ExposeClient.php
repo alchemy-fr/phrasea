@@ -67,7 +67,7 @@ final readonly class ExposeClient
 
     public function postAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $publicationId, Asset $asset, array $extraData = []): void
     {
-        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, true);
+        $attributes = $this->attributesResolver->resolveAssetAttributesList($asset, true);
         $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributes, []);
         if ($resolvedTitleAttr instanceof Attribute) {
             $resolvedTitle = $resolvedTitleAttr->getValue();

@@ -1,6 +1,6 @@
 import {Asset, AttributeDefinition} from "../../../types";
 import {
-    AttributeIndex,
+    BatchAttributeIndex,
     DefinitionValuesIndex,
     LocalizedAttributeIndex,
     ToKeyFunc,
@@ -12,7 +12,7 @@ export function computeAllDefinitionsValues<T>(
     attributeDefinitions: AttributeDefinition[],
     subSelection: Asset[],
     toKey: ToKeyFunc<T>,
-    index: AttributeIndex<T>
+    index: BatchAttributeIndex<T>
 ) {
     const tree: DefinitionValuesIndex<T> = {};
 

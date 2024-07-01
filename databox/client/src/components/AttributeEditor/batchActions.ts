@@ -1,8 +1,8 @@
 import {isSame} from '../../utils/comparison';
 import {
     AttributeDefinitionIndex,
-    AttributeIndex,
-    DiffGroupIndex, MultiValuedAttribute,
+    BatchAttributeIndex,
+    DiffGroupIndex,
     ToKeyFunc,
     ToKeyFuncTypeScoped,
 } from "./types.ts";
@@ -13,8 +13,8 @@ import {Asset, Attribute} from "../../types.ts";
 
 export function getBatchActions<T>(
     assets: Asset[],
-    initialAttributes: AttributeIndex<T>,
-    attributes: AttributeIndex<T>,
+    initialAttributes: BatchAttributeIndex<T>,
+    attributes: BatchAttributeIndex<T>,
     definitions: AttributeDefinitionIndex,
     toKey: ToKeyFunc<T>,
 ): AttributeBatchAction[] {
@@ -61,7 +61,6 @@ export function getBatchActions<T>(
                             });
 
                             deleteNonPresent(
-                                definitions,
                                 currValue as T[],
                                 normalizedInitialValues,
                                 defId,
@@ -116,7 +115,6 @@ export function getBatchActions<T>(
                     }
 
                     deleteNonPresent(
-                        definitions,
                         currValue as T[] ?? [],
                         initialValue as T[],
                         defId,
@@ -141,7 +139,6 @@ export function getBatchActions<T>(
                     pushUnique(deleteGroups[defId][locale][key].assetIds, assetId);
 
                     addAttributeIdsToGroup(
-                        definitions,
                         asset,
                         defId,
                         locale,
@@ -221,7 +218,6 @@ function computeActionsFromGroups<T>(
 
 
 function deleteNonPresent<T>(
-    definitions: AttributeDefinitionIndex,
     list: T[],
     referenceList: T[],
     defId: string,
@@ -244,7 +240,6 @@ function deleteNonPresent<T>(
             pushUnique(deleteGroups[defId][locale][key].assetIds, asset.id);
 
             addAttributeIdsToGroup(
-                definitions,
                 asset,
                 defId,
                 locale,
@@ -257,7 +252,6 @@ function deleteNonPresent<T>(
 }
 
 function addAttributeIdsToGroup<T>(
-    definitions: AttributeDefinitionIndex,
     asset: Asset,
     defId: string,
     locale: string,
@@ -265,28 +259,11 @@ function addAttributeIdsToGroup<T>(
     toKeyForType: ToKeyFuncTypeScoped<T>,
     deleteGroups: DiffGroupIndex<T>
 ) {
-    const attributeIds = asset.attributes.map((a: Attribute): string[] => {
-        if (a.definition.id === defId
-            && (a.locale ?? NO_LOCALE) === locale) {
-            if (definitions[defId].multiple) {
-
-                return a.value
-                    .filter((i: MultiValuedAttribute<T>) => {
-
-                        console.log('key', key, toKeyForType(i.value));
-
-                        return toKeyForType(i.value) === key;
-                    })
-                    .map((i: MultiValuedAttribute<T>) => i.id);
-            }
-
-            if (toKeyForType(a.value) === key) {
-                return [a.id];
-            }
-        }
-
-        return [];
-    }).flat();
+    const attributeIds = asset.attributes.filter((a: Attribute): boolean => {
+        return a.definition.id === defId
+            && (a.locale ?? NO_LOCALE) === locale
+            && toKeyForType(a.value) === key;
+    }).map(a => a.id);
 
     if (attributeIds.length === 0) {
         throw new Error('No attribute found for action');
