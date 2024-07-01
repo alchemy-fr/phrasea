@@ -42,7 +42,7 @@ final class AttributeIndex
      */
     public function getFlattenAttributes(): array
     {
-        $arrays = array_values(array_map(fn(DefinitionIndex $definitionIndex): array => $definitionIndex->getFlattenAttributes(), $this->definitions));
+        $arrays = array_values(array_map(fn (DefinitionIndex $definitionIndex): array => $definitionIndex->getFlattenAttributes(), $this->definitions));
 
         return array_merge(...$arrays);
     }

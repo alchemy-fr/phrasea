@@ -15,9 +15,6 @@ class AttributeBatchUpdateInput extends AssetAttributeBatchUpdateInput
      */
     public ?array $assets = null;
 
-    /**
-     * @var string
-     */
     #[NotNull]
     public ?string $workspaceId = null;
 }

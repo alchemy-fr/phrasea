@@ -120,7 +120,7 @@ class RenditionManager
             ->from(AssetRendition::class, 'r')
             ->innerJoin('r.definition', 'd')
             ->andWhere('r.asset = :asset')
-            ->andWhere(sprintf("d.useAs%s = :as", ucfirst($as)))
+            ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
             ->setParameters([
                 'asset' => $assetId,
                 'as' => true,

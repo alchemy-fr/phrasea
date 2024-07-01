@@ -6,9 +6,6 @@ namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\DateTimeAttributeType;
-use App\Attribute\Type\KeywordAttributeType;
-use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;

@@ -47,8 +47,6 @@ readonly class AttributesResolver
 
     /**
      * @param Attribute[] $attributes
-     *
-     * @return AttributeIndex
      */
     private function buildIndex(array $attributes): AttributeIndex
     {

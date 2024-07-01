@@ -16,8 +16,7 @@ final class BatchAttributeUpdateProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly BatchAttributeManager $batchAttributeManager,
-    )
-    {
+    ) {
     }
 
     /**

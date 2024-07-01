@@ -145,19 +145,19 @@ class AssetOutputTransformer implements OutputTransformerInterface
             ->findAssetRenditions($data->getId());
 
         foreach ([
-                     'original',
-                     'preview',
-                     'thumbnail',
-                     'thumbnailActive',
-                 ] as $type) {
+            'original',
+            'preview',
+            'thumbnail',
+            'thumbnailActive',
+        ] as $type) {
             if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
                 $output->{'set'.ucfirst($type)}($file);
             }
         }
 
-        $output->setCollections($data->getCollections()->map(fn(CollectionAsset $collectionAsset
+        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset
         ): Collection => $collectionAsset->getCollection())
-            ->filter(fn(Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
+            ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
             ->getValues());
 
         if (null !== $data->getPendingUploadToken()) {

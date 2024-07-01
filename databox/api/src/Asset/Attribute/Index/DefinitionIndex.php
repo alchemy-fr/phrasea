@@ -21,10 +21,12 @@ final class DefinitionIndex
     {
         return $this->locales;
     }
+
     public function getDefinition(): AttributeDefinition
     {
         return $this->definition;
     }
+
     public function addAttribute(Attribute $attribute): void
     {
         $locale = $attribute->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
@@ -47,6 +49,6 @@ final class DefinitionIndex
      */
     public function getFlattenAttributes(): array
     {
-        return array_merge(...array_values(array_map(fn(array|Attribute $value): array => $value instanceof Attribute ? [$value] : $value, $this->locales)));
+        return array_merge(...array_values(array_map(fn (array|Attribute $value): array => $value instanceof Attribute ? [$value] : $value, $this->locales)));
     }
 }
