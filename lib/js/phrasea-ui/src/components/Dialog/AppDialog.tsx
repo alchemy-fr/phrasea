@@ -115,6 +115,7 @@ export default function AppDialog({
                 dividers
                 sx={{
                     p: disablePadding ? 0 : 2,
+                    border: disablePadding ? 0 : undefined,
                 }}
             >
                 {children}

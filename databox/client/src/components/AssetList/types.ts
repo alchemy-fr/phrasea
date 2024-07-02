@@ -37,7 +37,7 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
 };
 
 export type AssetItemProps<Item extends AssetOrAssetContainer> = {
-    itemComponent: AssetItemComponent<Item> | undefined;
+    itemComponent?: AssetItemComponent<Item> | undefined;
     item: Item;
     asset: Asset;
     selected: boolean;

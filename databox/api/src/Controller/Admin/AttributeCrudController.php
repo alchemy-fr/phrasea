@@ -4,8 +4,9 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Core\Attribute;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
+use App\Entity\Core\Attribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -28,7 +29,9 @@ class AttributeCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-            ->remove(Crud::PAGE_INDEX, Action::NEW);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -50,37 +53,28 @@ class AttributeCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $definition = AssociationField::new('definition');
-        $value = TextField::new('value');
-        $locale = TextField::new('locale');
-        $locked = Field::new('locked');
-        $origin = IntegerField::new('origin');
-        $originVendor = TextField::new('originVendor');
-        $originVendorContext = TextareaField::new('originVendorContext');
-        $id = IdField::new();
-        $position = IntegerField::new('position');
-        $translationId = Field::new('translationId');
-        $translationOriginHash = TextField::new('translationOriginHash');
-        $originUserId = Field::new('originUserId');
-        $coordinates = TextareaField::new('coordinates');
-        $status = IntegerField::new('status');
-        $confidence = NumberField::new('confidence');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $asset = AssociationField::new('asset');
-        $translationOrigin = AssociationField::new('translationOrigin');
-        $translations = AssociationField::new('translations');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $asset, $definition, $value, $locale, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $locale, $locked, $position, $translationId, $translationOriginHash, $value, $origin, $originVendor, $originUserId, $originVendorContext, $coordinates, $status, $confidence, $createdAt, $updatedAt, $asset, $definition, $translationOrigin, $translations];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$value, $locale, $locked, $origin, $originVendor, $originVendorContext];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$definition, $value, $locale, $locked, $origin, $originVendor, $originVendorContext];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('definition');
+        yield AssociationField::new('asset');
+        yield TextField::new('locale');
+        yield TextField::new('value');
+        yield Field::new('locked');
+        yield IntegerField::new('origin');
+        yield TextField::new('originVendor')
+            ->hideOnIndex();
+        yield TextareaField::new('originVendorContext');
+        yield IntegerField::new('position');
+        yield IdField::new('originUserId')
+            ->hideOnIndex();
+        yield JsonField::new('assetAnnotations')
+            ->hideOnIndex();
+        yield IntegerField::new('status')
+            ->hideOnIndex();
+        yield NumberField::new('confidence')
+            ->hideOnIndex();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
     }
 }

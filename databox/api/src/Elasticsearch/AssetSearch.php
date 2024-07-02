@@ -33,6 +33,8 @@ class AssetSearch extends AbstractSearch
         array $groupIds,
         array $options = []
     ): array {
+        $maxLimit = 50;
+
         $filterQueries = [];
 
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
@@ -48,6 +50,11 @@ class AssetSearch extends AbstractSearch
             $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
+        }
+
+        if (isset($options['ids'])) {
+            $filterQueries[] = new Query\Terms('_id', $options['ids']);
+            $maxLimit = 500;
         }
 
         if (isset($options['workspaces'])) {
@@ -82,7 +89,6 @@ class AssetSearch extends AbstractSearch
             }
         }
 
-        $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;

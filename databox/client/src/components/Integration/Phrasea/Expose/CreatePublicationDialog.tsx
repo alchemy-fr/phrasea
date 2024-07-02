@@ -12,7 +12,7 @@ import {
 } from '@alchemy/navigation';
 import {Basket, IntegrationData} from '../../../../types.ts';
 import {runIntegrationAction} from '../../../../api/integrations.ts';
-import SwitchWidget from '../../../Form/SwitchWidget.tsx';
+import {SwitchWidget} from '@alchemy/react-form';
 import ExposeProfileSelect from './ExposeProfileSelect.tsx';
 import {ExposePublication} from './exposeType.ts';
 import ExposePublicationSelect from './ExposePublicationSelect.tsx';

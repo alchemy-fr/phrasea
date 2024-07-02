@@ -96,7 +96,6 @@ export function formatAttribute(
     return formatter.formatValue({
         value,
         locale: undefined,
-        multiple: false,
         highlight: undefined,
         format,
     });

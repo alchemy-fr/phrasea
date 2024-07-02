@@ -370,7 +370,14 @@ App\Entity\Core\Attribute:
   at_kw_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
-    value: '50%? PDF : <word()>'
+    value: '80%? Foo : <word()>'
+    assetAnnotations: '80%? <assetAnnotations()>'
+
+  at_kw2_{@a_*} (extends attribute_n):
+    definition: '@ad_keywords'
+    asset: '@a_*'
+    value: '30%? Bar : <word()>'
+    assetAnnotations: '<assetAnnotations()>'
 
   at_ean_{@a_*} (extends attribute_n):
     definition: '@ad_ean'
@@ -446,6 +453,11 @@ App\Entity\Integration\WorkspaceIntegration:
       rendition: thumbnail
     needs:
       - '@wi_renditions'
+  wi_expose:
+    title: Expose Basket
+    integration: phrasea.expose
+    config:
+      clientId: expose-integration
 
 App\Entity\Integration\WorkspaceSecret:
   aws_access_key_id:

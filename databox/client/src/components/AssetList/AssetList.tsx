@@ -25,6 +25,7 @@ import assetClasses from './classes';
 import AssetContextMenu from './AssetContextMenu';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
 import {SelectionActionConfigProps} from './Toolbar/SelectionActions';
+import {useSelectAllKey} from "../../hooks/useSelectAllKey.ts";
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -116,30 +117,8 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         };
     }, [listRef.current]);
 
-    React.useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.ctrlKey && e.key === 'a') {
-                const activeElement = document.activeElement;
-                if (
-                    activeElement &&
-                    ['input', 'select', 'button', 'textarea'].includes(
-                        activeElement.tagName.toLowerCase()
-                    ) &&
-                    (activeElement as HTMLInputElement).type !== 'checkbox'
-                ) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-                setSelection(pages.flat());
-            }
-        };
-        window.addEventListener('keydown', handler);
-
-        return () => {
-            window.removeEventListener('keydown', handler);
-        };
+    useSelectAllKey(() => {
+        setSelection(pages.flat());
     }, [pages]);
 
     const onContextMenuOpen = React.useCallback<OnContextMenuOpen<Item>>(

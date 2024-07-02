@@ -123,7 +123,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 

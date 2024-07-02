@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Link;
 use App\Api\Provider\BasketAssetCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Core\Asset;
+use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -39,6 +40,7 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
 {
     use OwnerIdTrait;
     use CreatedAtTrait;
+    use AssetAnnotationsTrait;
 
     public const GROUP_LIST = 'basket-asset:list';
 
@@ -77,16 +79,6 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     public function setAsset(Asset $asset): void
     {
         $this->asset = $asset;
-    }
-
-    public function getClip(): ?array
-    {
-        return $this->context['clip'] ?? null;
-    }
-
-    public function setClip(?array $clip): void
-    {
-        $this->context['clip'] = $clip;
     }
 
     public function getContext(): ?array

@@ -10,7 +10,7 @@ import {
     useCloseOverlay,
     useNavigateToOverlay
 } from "./src/useNavigateToOverlay";
-import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams, useNavigation} from "react-router-dom";
 import OverlayOutlet from "./src/Overlay/OverlayOutlet";
 import {useOverlay} from "./src/Overlay/OverlayContext";
 
@@ -35,6 +35,7 @@ export {
     useParams,
     Link,
     useNavigate,
+    useNavigation,
 }
 export type {
     StackedModalProps,

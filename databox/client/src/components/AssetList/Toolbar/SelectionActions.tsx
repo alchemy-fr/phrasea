@@ -123,6 +123,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         let canShare = false;
         let wsId: string | undefined = undefined;
 
+        function filterEditableAttributes(asset: Asset): boolean {
+            return asset.capabilities.canEditAttributes;
+        }
+
         const selectedAssets = itemToAsset
             ? selection.map(itemToAsset)
             : (selection as unknown as Asset[]);
@@ -174,7 +178,12 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit is coming soon...');
+                navigateToModal(modalRoutes.attributesBatchEdit, {}, {
+                    state: {
+                        selection: selectedAssets.filter(filterEditableAttributes).map(a => a.id),
+                        workspaceId: selectedAssets[0].workspace.id,
+                    }
+                });
             }
         };
 
@@ -185,7 +194,12 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit attributes is coming soon...');
+                navigateToModal(modalRoutes.attributesBatchEdit, {}, {
+                    state: {
+                        selection: selectedAssets.filter(filterEditableAttributes).map(a => a.id),
+                        workspaceId: selectedAssets[0].workspace.id,
+                    }
+                });
             }
         };
 

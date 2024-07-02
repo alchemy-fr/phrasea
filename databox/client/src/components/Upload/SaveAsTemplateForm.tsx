@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {FormRow} from '@alchemy/react-form';
-import SwitchWidget from '../Form/SwitchWidget';
+import {SwitchWidget} from '@alchemy/react-form';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {FormFieldErrors} from '@alchemy/react-form';
 import React from 'react';

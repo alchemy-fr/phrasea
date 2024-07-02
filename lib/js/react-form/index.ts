@@ -11,7 +11,8 @@ import TranslatedField from "./src/Translations/TranslatedField";
 import LoadingButton from "./src/LoadingButton";
 import AsyncRSelectWidget, {AsyncRSelectProps} from "./src/AsyncRSelectWidget";
 import RSelectWidget, {RSelectProps, SelectOption} from "./src/RSelectWidget";
-
+import SwitchWidget from "./src/Widget/SwitchWidget";
+import CheckboxWidget from "./src/Widget/CheckboxWidget";
 export {
     CollectionWidget,
     ColorPicker,
@@ -26,6 +27,8 @@ export {
     LoadingButton,
     AsyncRSelectWidget,
     RSelectWidget,
+    SwitchWidget,
+    CheckboxWidget,
 };
 
 export type {

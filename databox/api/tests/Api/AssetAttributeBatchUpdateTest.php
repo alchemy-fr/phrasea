@@ -78,12 +78,17 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
         ksort($expectedValues);
         foreach ($expectedValues as $name => $value) {
-            $attrAssertions[] = [
-                'definition' => [
-                    'name' => $name,
-                ],
-                'value' => $value,
-            ];
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+            foreach ($value as $v) {
+                $attrAssertions[] = [
+                    'definition' => [
+                        'name' => $name,
+                    ],
+                    'value' => $v,
+                ];
+            }
         }
         $this->assertJsonContains([
             '@type' => 'asset',

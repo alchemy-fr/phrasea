@@ -43,7 +43,7 @@ final readonly class AttributeAssigner
             if ($data->confidence) {
                 $attribute->setConfidence($data->confidence);
             }
-            $attribute->setCoordinates($data->coordinates);
+            $attribute->setAssetAnnotations($data->annotations);
         }
 
         if ($data->locale) {

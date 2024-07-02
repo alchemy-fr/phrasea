@@ -9,7 +9,7 @@ import {FormFieldErrors} from '@alchemy/react-form';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RemoteErrors from '../../../Form/RemoteErrors';
 import {FormRow} from '@alchemy/react-form';
-import SwitchWidget from '../../../Form/SwitchWidget';
+import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';
 import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';

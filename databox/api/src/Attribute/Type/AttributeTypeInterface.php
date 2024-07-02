@@ -18,8 +18,11 @@ interface AttributeTypeInterface
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
+
     public function getElasticSearchSubField(): ?string;
+
     public function getElasticSearchSearchType(): ?SearchType;
+
     public function supportsElasticSearchFuzziness(): bool;
 
     public function getFacetType(): string;

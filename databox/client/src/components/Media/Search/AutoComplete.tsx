@@ -7,7 +7,7 @@ import {
 import React, {ReactNode} from 'react';
 import {Paper} from '@mui/material';
 import '@algolia/autocomplete-theme-classic';
-import {replaceHighlight} from '../Asset/Attribute/Attributes';
+import {replaceHighlight} from '../Asset/Attribute/AttributeHighlights';
 import {SearchSuggestion} from '../../../api/asset';
 import Box from '@mui/material/Box';
 

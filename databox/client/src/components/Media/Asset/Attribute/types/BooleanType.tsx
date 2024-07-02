@@ -17,7 +17,7 @@ enum Formats {
 
 export default class BooleanType
     extends BaseType
-    implements AttributeTypeInstance
+    implements AttributeTypeInstance<boolean>
 {
     formatValue({value, format}: AttributeFormatterProps): React.ReactNode {
         if (false !== value && true !== value) {
@@ -46,11 +46,13 @@ export default class BooleanType
         value,
         onChange,
         name,
-    }: AttributeWidgetProps): React.ReactNode {
+        inputRef,
+    }: AttributeWidgetProps<boolean>): React.ReactNode {
         return (
             <FormControlLabel
                 control={
                     <Checkbox
+                        inputRef={inputRef}
                         checked={value ?? false}
                         indeterminate={value === undefined}
                         onChange={(_e, checked) => onChange(checked)}

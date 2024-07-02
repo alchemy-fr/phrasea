@@ -11,7 +11,7 @@ import {SortableCollectionWidget} from '@alchemy/react-form';
 
 import Flag from '../Ui/Flag';
 import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
-import CheckboxWidget from './CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 
 const emptyLocaleItem = '';
 

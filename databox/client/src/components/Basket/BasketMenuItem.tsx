@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Basket} from '../../types';
 import {useTranslation} from 'react-i18next';
-import {replaceHighlight} from '../Media/Asset/Attribute/Attributes.tsx';
+import {replaceHighlight} from '../Media/Asset/Attribute/AttributeHighlights.tsx';
 import {Classes} from '../../classes.ts';
 
 type Props = {

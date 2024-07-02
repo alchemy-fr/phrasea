@@ -25,16 +25,18 @@ class AttributeVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        $attributeDefinition = $subject->getDefinition();
+
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
                 && (
-                    $subject->getDefinition()->getClass()->isPublic()
-                    || $this->hasAcl(PermissionInterface::VIEW, $subject->getDefinition()->getClass(), $token)
+                    $attributeDefinition->getClass()->isPublic()
+                    || $this->hasAcl(PermissionInterface::VIEW, $attributeDefinition->getClass(), $token)
                 ),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                 && (
-                    $subject->getDefinition()->getClass()->isEditable()
-                    || $this->hasAcl(PermissionInterface::EDIT, $subject->getDefinition()->getClass(), $token)
+                    $attributeDefinition->getClass()->isEditable()
+                    || $this->hasAcl(PermissionInterface::EDIT, $attributeDefinition->getClass(), $token)
                 ),
             default => false,
         };

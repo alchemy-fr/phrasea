@@ -61,8 +61,8 @@ class AttributeOutput extends AbstractUuidOutput
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public ?string $originVendorContext = null;
 
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
-    public ?string $coordinates = null;
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
+    public ?array $assetAnnotations = null;
 
     /**
      * @var string|null
@@ -84,10 +84,4 @@ class AttributeOutput extends AbstractUuidOutput
 
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public $confidence;
-
-    /**
-     * @var bool
-     */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ])]
-    public $multiple;
 }

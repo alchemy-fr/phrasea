@@ -19,7 +19,7 @@ use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
-use App\Controller\Core\AttributeBatchUpdateAction;
+use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -39,7 +39,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
         ),
         new Post(
             uriTemplate: '/attributes/batch-update',
-            controller: AttributeBatchUpdateAction::class,
+            status: 200,
             input: AttributeBatchUpdateInput::class,
             name: 'post_batch',
             processor: BatchAttributeUpdateProcessor::class,
@@ -59,6 +59,8 @@ use Ramsey\Uuid\Doctrine\UuidType;
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {
+    use AssetAnnotationsTrait;
+
     final public const GROUP_READ = 'attr:read';
     final public const GROUP_LIST = 'attr:index';
 
@@ -123,11 +125,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
      */
     private ?string $highlight = null;
 
-    /**
-     * Dynamically resolved.
-     */
-    private ?array $highlights = null;
-
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private ?int $origin = null;
 
@@ -142,9 +139,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
      */
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $originVendorContext = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $coordinates = null;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private int $status = self::STATUS_VALID;
@@ -242,16 +236,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
         $this->originVendorContext = $originVendorContext;
     }
 
-    public function getCoordinates(): ?string
-    {
-        return $this->coordinates;
-    }
-
-    public function setCoordinates(?string $coordinates): void
-    {
-        $this->coordinates = $coordinates;
-    }
-
     public function getStatus(): int
     {
         return $this->status;
@@ -292,16 +276,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function setHighlight(?string $highlight): void
     {
         $this->highlight = $highlight;
-    }
-
-    public function getHighlights(): ?array
-    {
-        return $this->highlights;
-    }
-
-    public function setHighlights(?array $highlights): void
-    {
-        $this->highlights = $highlights;
     }
 
     public function getTranslationOrigin(): ?Attribute

@@ -27,7 +27,7 @@ final class ExposeSynchronizer
             'sync:'.$basketData->getId(),
             30,
             'synchronize',
-            fn() => $this->doSynchronize($basketData)
+            fn () => $this->doSynchronize($basketData)
         );
     }
 

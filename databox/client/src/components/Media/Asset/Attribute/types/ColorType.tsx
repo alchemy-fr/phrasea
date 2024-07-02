@@ -5,7 +5,7 @@ import {
 } from './types';
 import TextType from './TextType';
 import {ColorBox, ColorPicker} from '@alchemy/react-form';
-import {replaceHighlight} from '../Attributes';
+import {replaceHighlight} from '../AttributeHighlights';
 import React from 'react';
 
 enum Formats {
@@ -20,7 +20,7 @@ export default class ColorType extends TextType {
         disabled,
         name,
         readOnly,
-    }: AttributeWidgetProps): React.ReactNode {
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <ColorPicker
                 color={value}

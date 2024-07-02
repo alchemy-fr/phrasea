@@ -13,7 +13,7 @@ import DefinitionManager, {
     DefinitionItemProps,
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import AclForm from '../../Acl/AclForm';
 import {AclPermission} from '../../Acl/acl';
 import {PermissionObject} from '../../Permissions/permissions';

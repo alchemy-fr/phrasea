@@ -2,7 +2,7 @@ import React, {PropsWithChildren, ReactNode, useRef} from 'react';
 import {useLocation, useNavigate} from "react-router-dom";
 import OverlayRouterProvider from "./OverlayRouterProvider";
 import {getOverlayContext, TOverlayContext} from "./OverlayContext";
-import {Routes} from "../types";
+import {RouteProxyComponent, Routes} from "../types";
 
 
 type OverlayComponentProps = PropsWithChildren<{
@@ -16,12 +16,14 @@ type Props = {
     queryParam: string;
     routes: Routes;
     WrapperComponent?: OverlayComponent;
+    RouteProxyComponent?: RouteProxyComponent;
 };
 
 export default function OverlayOutlet({
     queryParam,
     routes,
     WrapperComponent = DefaultWrapperComponent,
+    RouteProxyComponent,
 }: Props) {
     const location = useLocation();
     const timer = useRef<ReturnType<typeof setTimeout>>();
@@ -83,6 +85,9 @@ export default function OverlayOutlet({
                 path={finalUrl}
                 queryParam={queryParam}
                 routes={routes}
+                options={{
+                    RouteProxyComponent,
+                }}
             /> : ''}
         </WrapperComponent>
     </OverlayContext.Provider>

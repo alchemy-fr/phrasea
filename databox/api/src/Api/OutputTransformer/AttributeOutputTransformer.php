@@ -34,9 +34,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $values = $data->getValues();
-        $output->value = $values ? array_map(fn (?string $v) => $type->denormalizeValue($v), $data->getValues()) : $type->denormalizeValue($data->getValue());
-        $output->multiple = null !== $values;
+        $output->value = $type->denormalizeValue($data->getValue());
 
         $output->locale = $data->getLocale();
         $output->position = $data->getPosition();
@@ -44,14 +42,14 @@ class AttributeOutputTransformer implements OutputTransformerInterface
 
         if ($data instanceof Attribute) {
             $output->asset = $data->getAsset();
-            $output->highlight = $data->getHighlights() ?? $data->getHighlight();
+            $output->highlight = $data->getHighlight();
             $output->origin = $data->getOriginLabel();
             $output->originUserId = $data->getOriginUserId();
             $output->originVendor = $data->getOriginVendor();
             $output->originVendorContext = $data->getOriginVendorContext();
             $output->status = $data->getStatusLabel();
             $output->confidence = $data->getConfidence();
-            $output->coordinates = $data->getCoordinates();
+            $output->assetAnnotations = $data->getAssetAnnotations();
         }
 
         return $output;
