@@ -1,93 +1,23 @@
-import {Asset} from '../../../../types';
-import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode, useContext,} from 'react';
-import {styled} from '@mui/material/styles';
+import {Asset, AssetAnnotation} from '../../../../types';
+import React, {useContext,} from 'react';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
-import nl2br from 'react-nl2br';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
 import {buildAttributesGroupedByDefinition} from "./attributeIndex.ts";
+import {copyToClipBoardClass, copyToClipBoardContainerClass} from "./CopyAttribute.tsx";
 
-type FreeNode = string | ReactNode | ReactNode[];
-
-function replaceText(
-    text: FreeNode,
-    func: (text: string) => FreeNode,
-    options: {
-        props?: {};
-        depth?: number;
-        stopTags?: string[];
-    } = {}
-): FreeNode {
-    if (typeof text === 'string') {
-        return func(text);
-    } else if (React.isValidElement(text)) {
-        if (
-            (options.stopTags ?? []).includes(
-                (text as ReactElement<object, string>).type
-            )
-        ) {
-            return text;
-        }
-
-        return React.cloneElement(
-            text,
-            options.props || {},
-            replaceText(text.props.children, func, options)
-        ) as ReactElement;
-    } else if (Array.isArray(text)) {
-        return text
-            .map((e, i) =>
-                replaceText(e, func, {
-                    ...options,
-                    depth: (options.depth ?? 0) + 1,
-                    props: {
-                        key: `${options.depth?.toString() ?? '0'}:${i}`,
-                    },
-                })
-            )
-            .flat();
-    }
-
-    return text;
-}
-
-const Highlight = styled('em')(({theme}) => ({
-    backgroundColor: theme.palette.warning.main,
-    color: theme.palette.warning.contrastText,
-    padding: '1px 3px',
-    margin: '-1px -3px',
-    borderRadius: 3,
-}));
-
-export function replaceHighlight(
-    value?: string,
-    Compoment: React.FunctionComponent<PropsWithChildren<any>> = Highlight
-): FreeNode {
-    if (!value) {
-        return [];
-    }
-
-    const replaced = reactStringReplace(
-        value,
-        /\[hl](.*?)\[\/hl]/g,
-        (m, index) => {
-            return <Compoment key={index}>{m}</Compoment>;
-        }
-    );
-
-    return replaceText(replaced, nl2br);
-}
+export type OnAnnotations = (annotations: AssetAnnotation[]) => void;
 
 type Props = {
     asset: Asset;
     displayControls: boolean;
     pinnedOnly?: boolean;
+    onAnnotations?: OnAnnotations | undefined;
 };
 
-function Attributes({asset, displayControls, pinnedOnly}: Props) {
+function Attributes({asset, displayControls, pinnedOnly, onAnnotations}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
 
@@ -142,6 +72,7 @@ function Attributes({asset, displayControls, pinnedOnly}: Props) {
                         displayControls={displayControls}
                         pinned={pinnedAttributes.includes(g.definition.id)}
                         togglePin={togglePin}
+                        onAnnotations={onAnnotations}
                     />
                 );
             })}
@@ -186,6 +117,13 @@ export function attributesSx(): SxProps {
         [`.${attributesClasses.list}`]: {
             m: 0,
             pl: 1,
+        },
+        [`.${copyToClipBoardContainerClass} .${copyToClipBoardClass}`]: {
+            visibility: 'hidden',
+            ml: 2,
+        },
+        [`.${copyToClipBoardContainerClass}:hover .${copyToClipBoardClass}`]: {
+            visibility: 'visible',
         },
     };
 }

@@ -7,6 +7,7 @@ type Props = {
 };
 
 export const copyToClipBoardClass = 'ctcb';
+export const copyToClipBoardContainerClass = 'ctcb-wr';
 
 export default function CopyAttribute({value}: Props) {
     return (

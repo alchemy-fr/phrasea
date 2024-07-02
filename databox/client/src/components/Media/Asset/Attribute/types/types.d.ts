@@ -21,7 +21,6 @@ export type AttributeFormatterProps = {
     value: any;
     highlight?: any;
     format?: AttributeFormat;
-    multiple?: boolean;
     locale?: string | undefined;
 };
 
@@ -31,10 +30,8 @@ export type AvailableFormat = {
 };
 
 export type AttributeTypeFormatter = {
-    supportsMultiple(): boolean;
     formatValue(props: AttributeFormatterProps): React.ReactNode;
     formatValueAsString(props: AttributeFormatterProps): string | undefined;
-
     getAvailableFormats(): AvailableFormat[];
 };
 export type AttributeTypeWidget<T> = {

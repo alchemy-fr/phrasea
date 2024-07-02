@@ -44,7 +44,6 @@ export default function Attributes({
             const valueFormatterProps: AttributeFormatterProps = {
                 value: defValue.value?.[l] ?? '',
                 locale,
-                multiple: def.multiple,
                 format: formatContext.formats[type],
             };
 
@@ -63,7 +62,17 @@ export default function Attributes({
                         {defValue.indeterminate.g ?
                             <span className={indeterminateClassName}>
                                 {indeterminateLabel}
-                            </span> : formatter.formatValue(valueFormatterProps)}
+                            </span> : (def.multiple ? formatter.formatValue(valueFormatterProps) : <ul>
+                                {defValue.value?.map((v: any, i: number) => {
+
+                                return <li key={i}>
+                                    {formatter.formatValue({
+                                        ...valueFormatterProps,
+                                        value: v,
+                                    })}
+                                </li>
+                            })}</ul>)
+                        }
                     </div>
                 </ListItemButton>
             </ListItem>

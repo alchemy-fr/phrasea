@@ -11,7 +11,6 @@ import apiClient from '../api/api-client';
 import DisplayProvider from './Media/DisplayProvider';
 import uploaderClient from '../api/uploader-client';
 import {ZIndex} from '../themes/zIndex';
-import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider';
 import {useRequestErrorHandler} from '@alchemy/api';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
@@ -39,40 +38,38 @@ const AppProxy = React.memo(() => {
                         leftPanelOpen={leftPanelOpen}
                         onToggleLeftPanel={toggleLeftPanel}
                     />
-                    <AttributeFormatProvider>
-                        <DisplayProvider>
+                    <DisplayProvider>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                height: `calc(100vh - ${menuHeight}px)`,
+                            }}
+                        >
+                            {leftPanelOpen && (
+                                <Box
+                                    sx={theme => ({
+                                        width: leftPanelWidth,
+                                        flexGrow: 0,
+                                        flexShrink: 0,
+                                        height: `calc(100vh - ${menuHeight}px)`,
+                                        overflow: 'auto',
+                                        boxShadow: theme.shadows[5],
+                                        zIndex: ZIndex.leftPanel,
+                                    })}
+                                >
+                                    <LeftPanel/>
+                                </Box>
+                            )}
                             <div
                                 style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    height: `calc(100vh - ${menuHeight}px)`,
+                                    flexGrow: 1,
                                 }}
                             >
-                                {leftPanelOpen && (
-                                    <Box
-                                        sx={theme => ({
-                                            width: leftPanelWidth,
-                                            flexGrow: 0,
-                                            flexShrink: 0,
-                                            height: `calc(100vh - ${menuHeight}px)`,
-                                            overflow: 'auto',
-                                            boxShadow: theme.shadows[5],
-                                            zIndex: ZIndex.leftPanel,
-                                        })}
-                                    >
-                                        <LeftPanel />
-                                    </Box>
-                                )}
-                                <div
-                                    style={{
-                                        flexGrow: 1,
-                                    }}
-                                >
-                                    <AssetSearch />
-                                </div>
+                                <AssetSearch/>
                             </div>
-                        </DisplayProvider>
-                    </AttributeFormatProvider>
+                        </div>
+                    </DisplayProvider>
                 </AssetDropzone>
             </ResultProvider>
         </SearchProvider>
@@ -106,8 +103,8 @@ export default function App() {
 
     return (
         <>
-            <ToastContainer />
-            <AppProxy />
+            <ToastContainer/>
+            <AppProxy/>
         </>
     );
 }

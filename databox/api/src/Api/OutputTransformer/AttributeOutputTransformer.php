@@ -49,7 +49,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
             $output->originVendorContext = $data->getOriginVendorContext();
             $output->status = $data->getStatusLabel();
             $output->confidence = $data->getConfidence();
-            $output->coordinates = $data->getCoordinates();
+            $output->assetAnnotations = $data->getAssetAnnotations();
         }
 
         return $output;

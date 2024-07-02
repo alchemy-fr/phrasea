@@ -74,6 +74,7 @@ export interface Attribute extends IPermissions {
     originVendorContext?: string;
     value: AttrValue;
     highlight: AttrValue;
+    assetAnnotations?: AssetAnnotation[];
 }
 
 export interface AssetFileVersion {
@@ -189,7 +190,7 @@ export interface Group {
     name: string;
 }
 
-export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
+export type CollectionOptionalWorkspace = { workspace?: Workspace } & Omit<
     Collection,
     'workspace'
 >;
@@ -225,11 +226,11 @@ export interface BasketAsset {
     asset: Asset;
     context?:
         | {
-              clip?: {
-                  start?: number;
-                  end?: number;
-              };
-          }
+        clip?: {
+            start?: number;
+            end?: number;
+        };
+    }
         | undefined;
     titleHighlight: string;
     position: number;
@@ -284,14 +285,14 @@ export enum CollectionOrWorkspace {
 
 export type Ace = (
     | {
-          userType: UserType.Group;
-          group?: Group | null;
-      }
+    userType: UserType.Group;
+    group?: Group | null;
+}
     | {
-          userType: UserType.User;
-          user?: User | null;
-      }
-) & {
+    userType: UserType.User;
+    user?: User | null;
+}
+    ) & {
     id: string;
     mask: number;
     userId: string | null;
@@ -304,3 +305,17 @@ export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 export type AssetOrAssetContainer = {
     id: string;
 };
+
+
+export enum AnnotationType {
+    Point = 'point',
+    Circle = 'circle',
+    Rect = 'rect',
+    Cue = 'cue',
+    TimeRange = 'time_range',
+}
+
+export type AssetAnnotation = {
+    type: AnnotationType;
+    [prop: string]: any;
+}

@@ -54,7 +54,6 @@ export default function ValueDiff({
                                 const valueFormatterProps: AttributeFormatterProps = {
                                     value: [AttributeBatchActionEnum.Add, AttributeBatchActionEnum.Delete].includes(a.action!) ? [a.value] : a.value,
                                     locale: a.locale,
-                                    multiple: definition.multiple,
                                     format: formatContext.formats[definition.fieldType],
                                 };
 

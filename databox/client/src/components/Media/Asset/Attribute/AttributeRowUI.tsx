@@ -3,9 +3,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from '@mui/material';
 import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import CopyAttribute from './CopyAttribute';
+import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import React from 'react';
-import {attributesClasses} from './Attributes';
+import {attributesClasses, OnAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from "../../../../types.ts";
 
@@ -16,6 +16,7 @@ type Props = {
     togglePin: (definitionId: string) => void;
     pinned: boolean;
     formatContext: TAttributeFormatContext;
+    onAnnotations?: OnAnnotations | undefined;
 };
 
 export default function AttributeRowUI({
@@ -25,6 +26,7 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
+    onAnnotations,
 }: Props) {
     const {id, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
@@ -47,7 +49,6 @@ export default function AttributeRowUI({
         value: multiple ? (attribute as Attribute[]).map(a => a.value) : (attribute as Attribute).value,
         highlight: multiple ? undefined : (attribute as Attribute).highlight,
         locale,
-        multiple,
         format: formatContext.formats[fieldType],
     };
 
@@ -98,7 +99,7 @@ export default function AttributeRowUI({
                 )}
             </div>
             <div className={attributesClasses.val}>
-                {multiple && !formatter.supportsMultiple() ? (
+                {multiple ? (
                     <ul className={attributesClasses.list}>
                         {attribute
                             ? (attribute as Attribute[]).map((a, i: number) => {
@@ -106,12 +107,10 @@ export default function AttributeRowUI({
                                     value: a.value,
                                     highlight: a.highlight,
                                     locale: a.locale,
-                                    multiple,
                                     format: formatContext.formats[fieldType],
                                 };
 
                                 const isRtl = isRtlLocale(a.locale);
-
 
                                 return (
                                     <li
@@ -124,6 +123,8 @@ export default function AttributeRowUI({
                                                 }
                                                 : undefined
                                         }
+                                        className={copyToClipBoardContainerClass}
+                                        onMouseEnter={onAnnotations && a.assetAnnotations ? () => onAnnotations(a.assetAnnotations!) : undefined}
                                     >
                                         {formatter.formatValue(formatProps)}
                                         {displayControls && overControls ? (

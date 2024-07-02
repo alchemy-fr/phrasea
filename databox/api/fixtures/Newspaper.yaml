@@ -371,11 +371,13 @@ App\Entity\Core\Attribute:
     definition: '@ad_keywords'
     asset: '@a_*'
     value: '80%? Foo : <word()>'
+    assetAnnotations: '80%? <assetAnnotations()>'
 
   at_kw2_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
     value: '30%? Bar : <word()>'
+    assetAnnotations: '<assetAnnotations()>'
 
   at_ean_{@a_*} (extends attribute_n):
     definition: '@ad_ean'

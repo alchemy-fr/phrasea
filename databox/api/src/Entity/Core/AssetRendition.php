@@ -18,6 +18,7 @@ use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\AssetRenditionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -138,6 +139,13 @@ class AssetRendition extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
 
+    /**
+     * Homothetic and same format has original.
+     */
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $projection = null;
+
     public function getAsset(): Asset
     {
         return $this->asset;
@@ -179,5 +187,14 @@ class AssetRendition extends AbstractUuidEntity
     public function isReady(): bool
     {
         return null !== $this->file;
+    }
+    public function getProjection(): ?bool
+    {
+        return $this->projection;
+    }
+
+    public function setProjection(?bool $projection): void
+    {
+        $this->projection = $projection;
     }
 }

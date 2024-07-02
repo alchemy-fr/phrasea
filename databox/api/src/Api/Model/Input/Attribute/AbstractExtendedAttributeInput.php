@@ -20,9 +20,9 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
     public ?string $originVendorContext = null;
 
     /**
-     * @var array|string
+     * @var array
      */
-    public $coordinates;
+    public $annotations;
 
     /**
      * "valid" | "review_pending" | "declined".
