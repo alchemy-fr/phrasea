@@ -451,6 +451,11 @@ App\Entity\Integration\WorkspaceIntegration:
       rendition: thumbnail
     needs:
       - '@wi_renditions'
+  wi_expose:
+    title: Expose Basket
+    integration: phrasea.expose
+    config:
+      clientId: expose-integration
 
 App\Entity\Integration\WorkspaceSecret:
   aws_access_key_id:

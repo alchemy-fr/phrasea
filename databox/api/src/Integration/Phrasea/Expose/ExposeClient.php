@@ -89,7 +89,7 @@ final readonly class ExposeClient
                     $fieldType,
                     $definition->getSlug(),
                     $definition->getName(),
-                    $definition->isMultiple() ? implode(', ', array_map(fn (Attribute $a): ?string => $a->getValue(), $attribute->getValues())) : $attribute->getValue(),
+                    $definition->isMultiple() ? implode(', ', array_map(fn (Attribute $a): ?string => $a->getValue(), $attribute)) : $attribute->getValue(),
                 );
             }
 
