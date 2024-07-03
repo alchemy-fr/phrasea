@@ -13,11 +13,12 @@ export default function RectAnnotation({
     y1,
     x2,
     y2,
-    b = 2,
+    b = 3,
     c = '#000',
     f,
 }: Props) {
     return <div
+        data-type={'rect'}
         style={{
             position: 'absolute',
             top: `${y1*100}%`,

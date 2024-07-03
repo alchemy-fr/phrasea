@@ -1,5 +1,5 @@
 import {AttributeDefinition, StateSetter} from "../../types";
-import {Box, ListItem, ListItemButton} from "@mui/material";
+import {Box, ListItem, ListItemButton, ListItemIcon} from "@mui/material";
 import {DefinitionValuesIndex} from "./types";
 import {useTranslation} from 'react-i18next';
 import {getAttributeType} from "../Media/Asset/Attribute/types";
@@ -7,6 +7,7 @@ import {useContext} from "react";
 import {AttributeFormatContext} from "../Media/Asset/Attribute/Format/AttributeFormatContext.ts";
 import {AttributeFormatterProps} from "../Media/Asset/Attribute/types/types";
 import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
+import LockIcon from '@mui/icons-material/Lock';
 
 type Props = {
     definitionValues: DefinitionValuesIndex<any>;
@@ -55,6 +56,9 @@ export default function Attributes({
                     selected={definition === def}
                     onClick={() => setDefinition(def)}
                 >
+                    {!def.canEdit ? <ListItemIcon>
+                        <LockIcon/>
+                    </ListItemIcon> : ''}
                     <strong>
                         {def.name}
                     </strong>
@@ -62,8 +66,8 @@ export default function Attributes({
                         {defValue.indeterminate.g ?
                             <span className={indeterminateClassName}>
                                 {indeterminateLabel}
-                            </span> : (def.multiple ? formatter.formatValue(valueFormatterProps) : <ul>
-                                {defValue.value?.map((v: any, i: number) => {
+                            </span> : (!def.multiple ? formatter.formatValue(valueFormatterProps) : <ul>
+                                {defValue.value?.[l]?.map((v: any, i: number) => {
 
                                 return <li key={i}>
                                     {formatter.formatValue({

@@ -48,8 +48,11 @@ export default function ValueDiff({
             >
                 <ListItemText
                     primary={definition.name}
+                    secondaryTypographyProps={{
+                        component: 'div',
+                    }}
                     secondary={
-                        <>
+                        <List>
                             {defActions.map((a, i) => {
                                 const valueFormatterProps: AttributeFormatterProps = {
                                     value: [AttributeBatchActionEnum.Add, AttributeBatchActionEnum.Delete].includes(a.action!) ? [a.value] : a.value,
@@ -84,7 +87,7 @@ export default function ValueDiff({
                                     />
                                 </ListItem>
                             })}
-                        </>
+                        </List>
                     }
                 />
             </ListItem>

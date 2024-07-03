@@ -1,11 +1,5 @@
 import {styled} from "@mui/material/styles";
 
-type Props = {
-    part: number;
-    totalPart: number;
-    width: number;
-};
-
 const Label = styled('div')(({theme}) => ({
     position: 'absolute',
     transform: 'translateY(-50%)',
@@ -16,13 +10,9 @@ const Label = styled('div')(({theme}) => ({
 }));
 
 const Container = styled('div')(({theme}) => ({
-    height: 30,
-    marginLeft: theme.spacing(2)
-}));
-
-const RowContainer = styled('div')(() => ({
     position: 'relative',
-    height: '50%',
+    height: 15,
+    marginLeft: theme.spacing(2),
     fontSize: 12,
 }));
 
@@ -36,52 +26,35 @@ const Progress = styled('div')(({theme}) => ({
     backgroundColor: theme.palette.primary.main,
 }));
 
-const TotalProgress = styled(Progress)(({theme}) => ({
-    backgroundColor: theme.palette.secondary.main,
-}));
-const TotalLabel = styled(Label)(({theme}) => ({
-    color: theme.palette.secondary.main,
-}));
-
-
 export const partPercentageClassName = 'part-percent';
+
+
+type Props = {
+    part: number;
+    width: number;
+};
 
 export default function PartPercentage({
     part,
-    totalPart,
     width,
 }: Props) {
     const textOffset = 45;
 
     return <Container
-        className={partPercentageClassName}
         style={{
             width,
         }}
+        className={partPercentageClassName}
     >
-        <RowContainer>
-            <ProgressContainer style={{
-                width: width - textOffset,
-            }}>
-                <Progress style={{
-                    width: `${part}%`,
-                }}/>
-            </ProgressContainer>
-            <Label>
-                {part}%
-            </Label>
-        </RowContainer>
-        <RowContainer>
-            <ProgressContainer style={{
-                width: width - textOffset,
-            }}>
-                <TotalProgress style={{
-                    width: `${totalPart}%`,
-                }}/>
-            </ProgressContainer>
-            <TotalLabel>
-                {totalPart}%
-            </TotalLabel>
-        </RowContainer>
+        <ProgressContainer style={{
+            width: width - textOffset,
+        }}>
+            <Progress style={{
+                width: `${part}%`,
+            }}/>
+        </ProgressContainer>
+        <Label>
+            {Math.round(part * 10) / 10}%
+        </Label>
     </Container>
 }

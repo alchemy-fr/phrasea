@@ -224,18 +224,12 @@ export interface Basket extends IPermissions {
 export interface BasketAsset {
     id: string;
     asset: Asset;
-    context?:
-        | {
-        clip?: {
-            start?: number;
-            end?: number;
-        };
-    }
-        | undefined;
+    context?: any;
     titleHighlight: string;
     position: number;
     createdAt: string;
     owner?: User;
+    assetAnnotations?: AssetAnnotation[];
 }
 
 export interface Workspace extends IPermissions {

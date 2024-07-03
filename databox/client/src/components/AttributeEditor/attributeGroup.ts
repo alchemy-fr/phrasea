@@ -15,6 +15,7 @@ import {computeAllDefinitionsValues, computeDefinitionValuesHandler} from "./sto
 import {getBatchActions} from "./batchActions.ts";
 import {useModals} from '@alchemy/navigation'
 import SavePreviewDialog from "./SavePreviewDialog.tsx";
+import {useDirtyFormPromptOutsideRouter} from "../Dialog/Tabbed/FormTab.tsx";
 
 type Props<T> = {
     attributeDefinitions: AttributeDefinition[],
@@ -220,6 +221,8 @@ export function useAttributeValues<T>({
         });
 
     }, [index, initialIndex, toKey, definitionIndex, onSaved]);
+
+    useDirtyFormPromptOutsideRouter(history.current > 0);
 
     return {
         inputValueInc: inc,

@@ -120,7 +120,6 @@ export default function ValuesSuggestions<T>({
                         </div>
                         <PartPercentage
                             part={v.part}
-                            totalPart={0} // TODO
                             width={110}
                         />
                     </div>

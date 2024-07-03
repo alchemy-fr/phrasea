@@ -25,6 +25,8 @@ export default function SavePreviewDialog({
     const {closeModal} = useModals();
     const [saving, setSaving] = React.useState(false);
 
+    console.log('actions', actions);
+
     const doSave = async () => {
         if (actions.length > 0) {
             setSaving(true);

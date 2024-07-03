@@ -4,13 +4,13 @@ namespace App\Entity\Traits;
 
 interface AssetAnnotationsInterface
 {
-    // "x", "y", "s"? (point size in pixel), "c"? (border color in hexa)
+    // "x", "y", "c"? (border color in hexa)
     final public const TYPE_POINT = 'point';
 
-    // "x", "y", "d" (diameter), "c"? (border color in hexa), "f"? (fill color in hexa), "b"? (border size in pixel)
+    // "x", "y", "r" (radius in %), "c"? (border color in hexa), "f"? (fill color in hexa)
     final public const TYPE_CIRCLE = 'circle';
 
-    // "x1", "y1", "x2", "y2", "c"? (border color in hexa), "f"? (fill color in hexa), "b"? (border size in pixel)
+    // "x1", "y1", "x2", "y2", "c"? (border color in hexa), "f"? (fill color in hexa)
     final public const TYPE_RECTANGLE = 'rect';
 
     // "t" (time: float in seconds)

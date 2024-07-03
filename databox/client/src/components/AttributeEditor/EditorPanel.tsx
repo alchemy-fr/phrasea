@@ -43,7 +43,7 @@ export default function EditorPanel<T>({
     }, [definition, valueContainer, inputValueInc, locale]);
 
     React.useEffect(() => {
-        setValue(valueContainer.indeterminate[locale] ? undefined : (valueContainer.values[0]?.[locale] ?? ''));
+        setValue(valueContainer.indeterminate[locale] ? null : (valueContainer.values[0]?.[locale] ?? ''));
         setCurrentDefinition(definition);
     }, [definition, subSelection, inputValueInc, locale]);
 
@@ -126,6 +126,7 @@ export default function EditorPanel<T>({
         ) : (
             <AttributeWidget<T>
                 inputRef={inputRef}
+                key={definition.id}
                 id={definition.id}
                 name={definition.name}
                 type={definition.fieldType}

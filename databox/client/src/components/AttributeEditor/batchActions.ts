@@ -138,7 +138,7 @@ export function getBatchActions<T>(
                     };
                     pushUnique(deleteGroups[defId][locale][key].assetIds, assetId);
 
-                    addAttributeIdsToGroup(
+                    addAttributeIdsToDeleteGroup(
                         asset,
                         defId,
                         locale,
@@ -239,7 +239,7 @@ function deleteNonPresent<T>(
             };
             pushUnique(deleteGroups[defId][locale][key].assetIds, asset.id);
 
-            addAttributeIdsToGroup(
+            addAttributeIdsToDeleteGroup(
                 asset,
                 defId,
                 locale,
@@ -251,7 +251,7 @@ function deleteNonPresent<T>(
     });
 }
 
-function addAttributeIdsToGroup<T>(
+function addAttributeIdsToDeleteGroup<T>(
     asset: Asset,
     defId: string,
     locale: string,

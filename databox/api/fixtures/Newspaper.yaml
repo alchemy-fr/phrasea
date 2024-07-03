@@ -367,17 +367,29 @@ App\Entity\Core\Attribute:
     asset: '@a_*'
     value: '<text()>'
 
-  at_kw_{@a_*} (extends attribute_n):
+  at_kw1_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
-    value: '80%? Foo : <word()>'
-    assetAnnotations: '80%? <assetAnnotations()>'
+    value: 'Tag Rectangle'
+    assetAnnotations: '<assetAnnotationsRect()>'
 
   at_kw2_{@a_*} (extends attribute_n):
     definition: '@ad_keywords'
     asset: '@a_*'
-    value: '30%? Bar : <word()>'
-    assetAnnotations: '<assetAnnotations()>'
+    value: 'Tag Circle'
+    assetAnnotations: '<assetAnnotationsCircle()>'
+
+  at_kw3_{@a_*} (extends attribute_n):
+    definition: '@ad_keywords'
+    asset: '@a_*'
+    value: '<word()>'
+    assetAnnotations: '<assetAnnotationsCue()>'
+
+  at_kw4_{@a_*} (extends attribute_n):
+    definition: '@ad_keywords'
+    asset: '@a_*'
+    value: '<word()>'
+    assetAnnotations: '<assetAnnotationsPoint()>'
 
   at_ean_{@a_*} (extends attribute_n):
     definition: '@ad_ean'
