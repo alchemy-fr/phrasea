@@ -6,7 +6,6 @@ import {OnToggle} from "../AssetList/types.ts";
 import {Box, Theme} from "@mui/material";
 import {createSizeTransition, thumbSx} from "../Media/Asset/AssetThumb.tsx";
 import assetClasses from "../AssetList/classes.ts";
-import {scrollbarWidth} from "../../constants.ts";
 
 type Props = {
     assets: Asset[];
@@ -29,13 +28,11 @@ export default function ThumbList({
             let totalHeight = d.thumbSize;
 
             return {
-                overflow: "auto",
-                height: d!.thumbSize + scrollbarWidth,
-                display: 'flex',
                 ...thumbSx(d.thumbSize, theme),
                 px: 2,
                 backgroundColor: theme.palette.common.white,
                 [`.${assetClasses.item}`]: {
+                    float: 'left',
                     'width': d.thumbSize,
                     'height': totalHeight,
                     'transition': createSizeTransition(theme),

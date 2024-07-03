@@ -44,7 +44,7 @@ export default function AttributeEditor({
     const [subSelection, setSubSelection] = React.useState<Asset[]>(assets);
     const [definition, setDefinition] = React.useState<AttributeDefinition | undefined>();
     const [thumbSize, _setThumbSize] = React.useState(200);
-    const thumbsHeight = thumbSize + scrollbarWidth;
+    const [thumbsHeight, setThumbsHeight] = React.useState(thumbSize + scrollbarWidth);
     const [locale, setLocale] = React.useState<string>('en');
     const onSaved = React.useCallback(() => {
         toast.success(t('attribute_editor.saved', 'Saved!'));
@@ -114,15 +114,34 @@ export default function AttributeEditor({
                     setSelection: setSubSelection,
                 }}
             >
-                <div style={{
-                    height: thumbsHeight,
-                }}>
-                    <ThumbList
-                        assets={assets}
-                        onToggle={onToggleAsset}
-                        subSelection={subSelection}
-                    />
-                </div>
+                <Resizable
+                    defaultSize={{
+                        height: thumbsHeight,
+                    }}
+                    onResize={(_e, _direction, ref, _d) => setThumbsHeight((ref as HTMLDivElement)!.clientHeight)}
+                    minHeight={thumbsHeight}
+                    maxHeight={1000}
+                    enable={{
+                        bottom: true,
+                    }}
+                    style={{
+                        borderRight: `1px solid ${theme.palette.divider}`,
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '100%',
+                            overflow: 'auto',
+                            height: thumbsHeight,
+                        }}
+                    >
+                        <ThumbList
+                            assets={assets}
+                            onToggle={onToggleAsset}
+                            subSelection={subSelection}
+                        />
+                    </div>
+                </Resizable>
                 <Box sx={{
                     flexGrow: 1,
                     flexShrink: 1,
@@ -148,6 +167,9 @@ export default function AttributeEditor({
                             }}
                             minWidth={30}
                             maxWidth={1200}
+                            enable={{
+                                right: true,
+                            }}
                             style={{
                                 borderRight: `1px solid ${theme.palette.divider}`,
                             }}
@@ -197,6 +219,9 @@ export default function AttributeEditor({
                             defaultSize={{
                                 width: 500,
                                 height: 'auto',
+                            }}
+                            enable={{
+                                left: true,
                             }}
                             minWidth={30}
                             maxWidth={1200}
