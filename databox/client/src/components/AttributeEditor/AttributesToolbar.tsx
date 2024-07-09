@@ -28,7 +28,7 @@ export default function AttributesToolbar({
     const closeHandler = () => {
         if (hasChanges) {
             openModal(ConfirmDialog, {
-                onConfirm: onClose,
+                onConfirm: async () => onClose(),
                 children: (
                     <>
                         {t(
