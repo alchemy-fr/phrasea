@@ -30,13 +30,7 @@ export default class CodeType extends TextareaType {
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return (
-            <>
-                {value ? this.prettifyCode(value) : (
-                    value
-                )}
-            </>
-        );
+        return <>{value ? this.prettifyCode(value) : value}</>;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

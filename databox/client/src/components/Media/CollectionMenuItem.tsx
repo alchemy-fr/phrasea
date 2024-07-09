@@ -163,7 +163,9 @@ export default function CollectionMenuItem({
                                 >
                                     <AddPhotoAlternateIcon />
                                 </IconButton>
-                            ) : ''}
+                            ) : (
+                                ''
+                            )}
                             {data.capabilities.canEdit && (
                                 <IconButton
                                     title={t(

@@ -1,10 +1,11 @@
-import React, {PropsWithChildren} from "react";
+import React, {PropsWithChildren} from 'react';
 
 type Props = PropsWithChildren<{
     defaultWidth: number;
     minWidth?: number;
     maxWidth?: number;
-}> & React.HTMLAttributes<HTMLDivElement>;
+}> &
+    React.HTMLAttributes<HTMLDivElement>;
 
 export default function Resizable({
     children,
@@ -23,12 +24,12 @@ export default function Resizable({
             const x = e.clientX;
             const w = t.clientWidth;
 
-            const  onMouseMove = (e: MouseEvent) => {
-                width.current = w +x - e.clientX;
+            const onMouseMove = (e: MouseEvent) => {
+                width.current = w + x - e.clientX;
                 t.style.width = `${width.current}px`;
             };
 
-            const  onMouseUp = (_e: MouseEvent) => {
+            const onMouseUp = (_e: MouseEvent) => {
                 ref.current?.removeEventListener('mousemove', onMouseMove);
                 ref.current?.removeEventListener('mouseup', onMouseUp);
             };
@@ -42,18 +43,20 @@ export default function Resizable({
         return () => {
             ref.current?.removeEventListener('mousedown', onMouseDown);
             ref.current?.removeEventListener('mousedown', onMouseDown);
-        }
+        };
     }, [width, ref]);
 
-    return <div
-        {...props}
-        ref={ref}
-        style={{
-            ...style,
-            width: width.current,
-            height: 'auto',
-        }}
-    >
-        {children}
-    </div>
+    return (
+        <div
+            {...props}
+            ref={ref}
+            style={{
+                ...style,
+                width: width.current,
+                height: 'auto',
+            }}
+        >
+            {children}
+        </div>
+    );
 }

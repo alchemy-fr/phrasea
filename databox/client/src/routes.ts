@@ -8,7 +8,7 @@ import AppAuthorizationCodePage from './components/AppAuthorizationCodePage';
 import {compileRoutes} from '@alchemy/navigation';
 import BasketDialog from './components/Dialog/Basket/BasketDialog';
 import BasketViewDialog from './components/Basket/BasketViewDialog';
-import AttributeEditorView from "./components/AttributeEditor/AttributeEditorView.tsx";
+import AttributeEditorView from './components/AttributeEditor/AttributeEditorView.tsx';
 
 const modalRoutes = {
     workspaces: {

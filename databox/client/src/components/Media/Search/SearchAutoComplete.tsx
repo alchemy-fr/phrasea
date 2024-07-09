@@ -1,13 +1,20 @@
-import React, {FormEvent, MouseEventHandler, useContext, useEffect, useRef, useState} from "react";
-import SearchIcon from "@mui/icons-material/Search";
-import {alpha, Button, InputBase} from "@mui/material";
-import AutoComplete from "./AutoComplete.tsx";
-import {GetSources} from "@algolia/autocomplete-core";
-import {getSearchSuggestions, SearchSuggestion} from "../../../api/asset.ts";
-import {ResultContext} from "./ResultContext.tsx";
-import {useTranslation} from "react-i18next";
-import {SearchContext} from "./SearchContext.tsx";
-import {styled} from "@mui/material/styles";
+import React, {
+    FormEvent,
+    MouseEventHandler,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from 'react';
+import SearchIcon from '@mui/icons-material/Search';
+import {alpha, Button, InputBase} from '@mui/material';
+import AutoComplete from './AutoComplete.tsx';
+import {GetSources} from '@algolia/autocomplete-core';
+import {getSearchSuggestions, SearchSuggestion} from '../../../api/asset.ts';
+import {ResultContext} from './ResultContext.tsx';
+import {useTranslation} from 'react-i18next';
+import {SearchContext} from './SearchContext.tsx';
+import {styled} from '@mui/material/styles';
 
 type Props = {};
 
@@ -59,62 +66,62 @@ export default function SearchAutoComplete({}: Props) {
             },
         ];
     }, [search]);
-    return <>
-        <AutoComplete getSources={getSources} queryValue={queryValue}>
-            {autocomplete => {
-                return (
-                    <form
-                        {...(autocomplete.getFormProps({
-                            inputElement: inputRef.current,
-                        }) as any)}
-                        onSubmit={(e: FormEvent<HTMLFormElement>) => {
-                            autocomplete.setIsOpen(false);
-                            onSubmit(e);
-                        }}
-                    >
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                autoFocus={true}
-                                type={'search'}
-                                onChange={e =>
-                                    setQueryValue(e.target.value)
-                                }
-                                inputRef={inputRef}
-                                onClick={onClick}
-                                placeholder="Search…"
-                                onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                                onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                                inputProps={{
-                                    'aria-label': 'search',
-                                    ...(autocomplete.getInputProps({
-                                        inputElement: null,
-                                        onBlur: () => {
-                                            autocomplete.setIsOpen(
-                                                false
-                                            );
-                                        },
-                                    }) as any),
-                                }}
-                            />
-                            <Button
-                                disabled={
-                                    search.query === queryValue &&
-                                    resultContext.loading
-                                }
-                                type={'submit'}
-                                variant={'contained'}
-                            >
-                                {t('search.search_button', 'Search')}
-                            </Button>
-                        </Search>
-                    </form>
-                );
-            }}
-        </AutoComplete>
-    </>
+    return (
+        <>
+            <AutoComplete getSources={getSources} queryValue={queryValue}>
+                {autocomplete => {
+                    return (
+                        <form
+                            {...(autocomplete.getFormProps({
+                                inputElement: inputRef.current,
+                            }) as any)}
+                            onSubmit={(e: FormEvent<HTMLFormElement>) => {
+                                autocomplete.setIsOpen(false);
+                                onSubmit(e);
+                            }}
+                        >
+                            <Search>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <StyledInputBase
+                                    autoFocus={true}
+                                    type={'search'}
+                                    onChange={e =>
+                                        setQueryValue(e.target.value)
+                                    }
+                                    inputRef={inputRef}
+                                    onClick={onClick}
+                                    placeholder="Search…"
+                                    onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                    onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                    inputProps={{
+                                        'aria-label': 'search',
+                                        ...(autocomplete.getInputProps({
+                                            inputElement: null,
+                                            onBlur: () => {
+                                                autocomplete.setIsOpen(false);
+                                            },
+                                        }) as any),
+                                    }}
+                                />
+                                <Button
+                                    disabled={
+                                        search.query === queryValue &&
+                                        resultContext.loading
+                                    }
+                                    type={'submit'}
+                                    variant={'contained'}
+                                >
+                                    {t('search.search_button', 'Search')}
+                                </Button>
+                            </Search>
+                        </form>
+                    );
+                }}
+            </AutoComplete>
+        </>
+    );
 }
 
 const Search = styled('div')(({theme}) => ({

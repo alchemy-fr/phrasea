@@ -1,6 +1,6 @@
-import {Tab, Tabs as BaseTabs} from "@mui/material";
-import React from "react";
-import {TabItem} from "../Dialog/Tabbed/tabTypes.ts";
+import {Tab, Tabs as BaseTabs} from '@mui/material';
+import React from 'react';
+import {TabItem} from '../Dialog/Tabbed/tabTypes.ts';
 
 type Props<P extends Record<string, any>> = {
     tabs: TabItem<P>[];
@@ -32,42 +32,44 @@ export default function Tabs<P extends Record<string, any>>({
         }
     };
 
-    return <>
-        <BaseTabs
-            variant="scrollable"
-            scrollButtons="auto"
-            value={tabIndex}
-            onChange={handleChange}
-            aria-label="Dialog menu"
-        >
-            {tabs.map(t => {
-                return (
-                    <Tab
-                        label={t.title}
-                        id={t.id}
-                        key={t.id}
-                        role={'navigation'}
-                        aria-controls={`tabpanel-${t.id}`}
-                        onClick={
-                            t.onClick
-                                ? t.component
-                                    ? e => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        t.onClick!();
-                                    }
-                                    : t.onClick
-                                : undefined
-                        }
-                    />
-                );
-            })}
-        </BaseTabs>
-        {currentTab && currentTab.component
-            ? React.createElement(currentTab.component, {
-                ...rest,
-                ...currentTab.props,
-            })
-            : ''}
-    </>
+    return (
+        <>
+            <BaseTabs
+                variant="scrollable"
+                scrollButtons="auto"
+                value={tabIndex}
+                onChange={handleChange}
+                aria-label="Dialog menu"
+            >
+                {tabs.map(t => {
+                    return (
+                        <Tab
+                            label={t.title}
+                            id={t.id}
+                            key={t.id}
+                            role={'navigation'}
+                            aria-controls={`tabpanel-${t.id}`}
+                            onClick={
+                                t.onClick
+                                    ? t.component
+                                        ? e => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              t.onClick!();
+                                          }
+                                        : t.onClick
+                                    : undefined
+                            }
+                        />
+                    );
+                })}
+            </BaseTabs>
+            {currentTab && currentTab.component
+                ? React.createElement(currentTab.component, {
+                      ...rest,
+                      ...currentTab.props,
+                  })
+                : ''}
+        </>
+    );
 }

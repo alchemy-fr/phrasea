@@ -1,6 +1,6 @@
-import {Attribute, AttributeDefinition} from "../../../../types.ts";
-import {NO_LOCALE} from "./AttributesEditor.tsx";
-import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts'
+import {Attribute, AttributeDefinition} from '../../../../types.ts';
+import {NO_LOCALE} from './AttributesEditor.tsx';
+import {getBestLocaleOfTranslations} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 type AttributeDefinitionIndex = {
     definition: AttributeDefinition;
@@ -13,17 +13,17 @@ export type AttributeDefinitionIndices = AttributeDefinitionIndex[];
 
 export type AttributeIndex = {
     [definitionId: string]: AttributeDefinitionIndex;
-}
+};
 
 export type AttributeGroup = {
     definition: AttributeDefinition;
     attribute: Attribute | Attribute[];
-}
+};
 
 export function buildAttributesIndex(attributes: Attribute[]): AttributeIndex {
     const index: AttributeIndex = {};
 
-    attributes.forEach((attribute) => {
+    attributes.forEach(attribute => {
         const definition = attribute.definition;
         const definitionId = definition.id;
 

@@ -17,16 +17,18 @@ export default function RectAnnotation({
     c = '#000',
     f,
 }: Props) {
-    return <div
-        data-type={'rect'}
-        style={{
-            position: 'absolute',
-            top: `${y1*100}%`,
-            left: `${x1*100}%`,
-            height: `${(y2-y1)*100}%`,
-            width: `${(x2-x1)*100}%`,
-            backgroundColor: f,
-            border: `${b}px solid ${c}`,
-        }}
-    />
+    return (
+        <div
+            data-type={'rect'}
+            style={{
+                position: 'absolute',
+                top: `${y1 * 100}%`,
+                left: `${x1 * 100}%`,
+                height: `${(y2 - y1) * 100}%`,
+                width: `${(x2 - x1) * 100}%`,
+                backgroundColor: f,
+                border: `${b}px solid ${c}`,
+            }}
+        />
+    );
 }

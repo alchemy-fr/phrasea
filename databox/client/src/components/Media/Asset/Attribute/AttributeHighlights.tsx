@@ -1,5 +1,5 @@
 import reactStringReplace from 'react-string-replace';
-import React, {PropsWithChildren, ReactElement, ReactNode,} from 'react';
+import React, {PropsWithChildren, ReactElement, ReactNode} from 'react';
 import {styled} from '@mui/material/styles';
 import nl2br from 'react-nl2br';
 

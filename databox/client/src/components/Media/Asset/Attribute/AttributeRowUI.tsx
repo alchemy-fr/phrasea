@@ -7,7 +7,7 @@ import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import React from 'react';
 import {attributesClasses, OnAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
-import {Attribute, AttributeDefinition} from "../../../../types.ts";
+import {Attribute, AttributeDefinition} from '../../../../types.ts';
 
 type Props = {
     definition: AttributeDefinition;
@@ -46,7 +46,9 @@ export default function AttributeRowUI({
     const isRtl = locale ? isRtlLocale(locale) : false;
 
     const valueFormatterProps = {
-        value: multiple ? (attribute as Attribute[]).map(a => a.value) : (attribute as Attribute).value,
+        value: multiple
+            ? (attribute as Attribute[]).map(a => a.value)
+            : (attribute as Attribute).value,
         highlight: multiple ? undefined : (attribute as Attribute).highlight,
         locale,
         format: formatContext.formats[fieldType],
@@ -57,8 +59,8 @@ export default function AttributeRowUI({
             style={
                 isRtl
                     ? {
-                        direction: 'rtl',
-                    }
+                          direction: 'rtl',
+                      }
                     : undefined
             }
             onMouseEnter={() => setOverControls(true)}
@@ -72,7 +74,7 @@ export default function AttributeRowUI({
                             <>
                                 {formatContext.hasFormats(fieldType) && (
                                     <IconButton onClick={toggleFormat}>
-                                        <VisibilityIcon/>
+                                        <VisibilityIcon />
                                     </IconButton>
                                 )}
 
@@ -82,9 +84,7 @@ export default function AttributeRowUI({
                                     )}
                                 />
 
-                                <IconButton
-                                    onClick={() => togglePin(id)}
-                                >
+                                <IconButton onClick={() => togglePin(id)}>
                                     <PushPinIcon
                                         color={pinned ? 'success' : undefined}
                                     />
@@ -103,42 +103,52 @@ export default function AttributeRowUI({
                     <ul className={attributesClasses.list}>
                         {attribute
                             ? (attribute as Attribute[]).map((a, i: number) => {
-                                const formatProps = {
-                                    value: a.value,
-                                    highlight: a.highlight,
-                                    locale: a.locale,
-                                    format: formatContext.formats[fieldType],
-                                };
+                                  const formatProps = {
+                                      value: a.value,
+                                      highlight: a.highlight,
+                                      locale: a.locale,
+                                      format: formatContext.formats[fieldType],
+                                  };
 
-                                const isRtl = isRtlLocale(a.locale);
+                                  const isRtl = isRtlLocale(a.locale);
 
-                                return (
-                                    <li
-                                        key={i}
-                                        lang={a.locale}
-                                        style={
-                                            isRtl
-                                                ? {
-                                                    direction: 'rtl',
-                                                }
-                                                : undefined
-                                        }
-                                        className={copyToClipBoardContainerClass}
-                                        onMouseEnter={onAnnotations && a.assetAnnotations ? () => onAnnotations(a.assetAnnotations!) : undefined}
-                                    >
-                                        {formatter.formatValue(formatProps)}
-                                        {displayControls && overControls ? (
-                                            <CopyAttribute
-                                                value={formatter.formatValueAsString(
-                                                    formatProps
-                                                )}
-                                            />
-                                        ) : (
-                                            ''
-                                        )}
-                                    </li>
-                                );
-                            })
+                                  return (
+                                      <li
+                                          key={i}
+                                          lang={a.locale}
+                                          style={
+                                              isRtl
+                                                  ? {
+                                                        direction: 'rtl',
+                                                    }
+                                                  : undefined
+                                          }
+                                          className={
+                                              copyToClipBoardContainerClass
+                                          }
+                                          onMouseEnter={
+                                              onAnnotations &&
+                                              a.assetAnnotations
+                                                  ? () =>
+                                                        onAnnotations(
+                                                            a.assetAnnotations!
+                                                        )
+                                                  : undefined
+                                          }
+                                      >
+                                          {formatter.formatValue(formatProps)}
+                                          {displayControls && overControls ? (
+                                              <CopyAttribute
+                                                  value={formatter.formatValueAsString(
+                                                      formatProps
+                                                  )}
+                                              />
+                                          ) : (
+                                              ''
+                                          )}
+                                      </li>
+                                  );
+                              })
                             : null}
                     </ul>
                 ) : (

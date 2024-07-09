@@ -1,13 +1,18 @@
-import {Asset, AttributeDefinition} from "../../../types.ts";
-import {BatchAttributeIndex, LocalizedAttributeIndex, ToKeyFunc, Values} from "../types.ts";
-import {listsAreSame} from "./helper.ts";
+import {Asset, AttributeDefinition} from '../../../types.ts';
+import {
+    BatchAttributeIndex,
+    LocalizedAttributeIndex,
+    ToKeyFunc,
+    Values,
+} from '../types.ts';
+import {listsAreSame} from './helper.ts';
 
 export function computeValues<T>(
     definition: AttributeDefinition,
     subSelection: Asset[],
     index: BatchAttributeIndex<T>,
     initialIndex: BatchAttributeIndex<T>,
-    toKey: ToKeyFunc<T>,
+    toKey: ToKeyFunc<T>
 ): Values<T> {
     const values: Values<T> = {
         definition,
@@ -21,23 +26,35 @@ export function computeValues<T>(
     const defId = definition.id;
     const allLocales: Record<string, true> = {};
 
-    subSelection.forEach((a) => {
-        function valueIsSame(a: T | T[] | undefined, b: T | T[] | undefined): boolean {
+    subSelection.forEach(a => {
+        function valueIsSame(
+            a: T | T[] | undefined,
+            b: T | T[] | undefined
+        ): boolean {
             if (values.definition.multiple) {
-                return listsAreSame((a ?? []) as T[], (b ?? []) as T[], (v: T) => toKey(values.definition.fieldType, v));
+                return listsAreSame(
+                    (a ?? []) as T[],
+                    (b ?? []) as T[],
+                    (v: T) => toKey(values.definition.fieldType, v)
+                );
             }
 
-            return (a || undefined) === (b || undefined)
+            return (a || undefined) === (b || undefined);
         }
 
         const translations = index[defId][a.id];
 
         if (translations) {
-            Object.keys(translations).forEach((l) => {
+            Object.keys(translations).forEach(l => {
                 allLocales[l] = true;
                 values.indeterminate[l] ??= false;
 
-                if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], translations[l]))) {
+                if (
+                    values.values.some(
+                        (t: LocalizedAttributeIndex<T>) =>
+                            !valueIsSame(t[l], translations[l])
+                    )
+                ) {
                     values.indeterminate[l] = true;
                     values.indeterminate.g = true;
                 }
@@ -46,10 +63,15 @@ export function computeValues<T>(
             values.values.push(translations);
         } else {
             values.values.push({});
-            Object.keys(allLocales).forEach((l) => {
+            Object.keys(allLocales).forEach(l => {
                 values.indeterminate[l] ??= false;
 
-                if (values.values.some((t: LocalizedAttributeIndex<T>) => !valueIsSame(t[l], undefined))) {
+                if (
+                    values.values.some(
+                        (t: LocalizedAttributeIndex<T>) =>
+                            !valueIsSame(t[l], undefined)
+                    )
+                ) {
                     values.indeterminate[l] = true;
                     values.indeterminate.g = true;
                 }

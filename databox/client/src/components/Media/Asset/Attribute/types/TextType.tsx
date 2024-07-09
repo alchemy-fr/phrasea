@@ -1,4 +1,8 @@
-import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps,} from './types';
+import {
+    AttributeFormatterProps,
+    AttributeTypeInstance,
+    AttributeWidgetProps,
+} from './types';
 import {TextField, TextFieldProps} from '@mui/material';
 import {replaceHighlight} from '../AttributeHighlights.tsx';
 import BaseType from './BaseType';
@@ -6,7 +10,8 @@ import React from 'react';
 
 export default class TextType
     extends BaseType
-    implements AttributeTypeInstance<string> {
+    implements AttributeTypeInstance<string>
+{
     renderWidget({
         value,
         onChange,
@@ -28,8 +33,8 @@ export default class TextType
                     readOnly,
                     style: readOnly
                         ? {
-                            cursor: 'not-allowed',
-                        }
+                              cursor: 'not-allowed',
+                          }
                         : undefined,
                 }}
                 inputRef={inputRef}
@@ -49,10 +54,7 @@ export default class TextType
         );
     }
 
-    formatValue({
-        value,
-        highlight,
-    }: AttributeFormatterProps): React.ReactNode {
+    formatValue({value, highlight}: AttributeFormatterProps): React.ReactNode {
         return replaceHighlight(highlight || value);
     }
 

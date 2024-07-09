@@ -5,18 +5,18 @@ import {
     DiffGroupIndex,
     ToKeyFunc,
     ToKeyFuncTypeScoped,
-} from "./types.ts";
-import {NO_LOCALE} from "../Media/Asset/Attribute/AttributesEditor.tsx";
-import {AttributeBatchAction, AttributeBatchActionEnum,} from '../../api/asset';
-import {pushUnique} from "../../utils/array.ts";
-import {Asset, Attribute} from "../../types.ts";
+} from './types.ts';
+import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
+import {AttributeBatchAction, AttributeBatchActionEnum} from '../../api/asset';
+import {pushUnique} from '../../utils/array.ts';
+import {Asset, Attribute} from '../../types.ts';
 
 export function getBatchActions<T>(
     assets: Asset[],
     initialAttributes: BatchAttributeIndex<T>,
     attributes: BatchAttributeIndex<T>,
     definitions: AttributeDefinitionIndex,
-    toKey: ToKeyFunc<T>,
+    toKey: ToKeyFunc<T>
 ): AttributeBatchAction[] {
     const setGroups: DiffGroupIndex<T> = {};
     const addGroups: DiffGroupIndex<T> = {};
@@ -28,14 +28,16 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKeyForType: ToKeyFuncTypeScoped<T> = (v) => toKey(definition.fieldType, v);
+        const toKeyForType: ToKeyFuncTypeScoped<T> = v =>
+            toKey(definition.fieldType, v);
         const av = attributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
             const lv = av[assetId];
             Object.keys(lv).forEach((locale): void => {
                 const currValue = lv[locale];
-                const initialValue = initialAttributes[defId]?.[assetId]?.[locale];
+                const initialValue =
+                    initialAttributes[defId]?.[assetId]?.[locale];
 
                 if (isSame(initialValue, currValue)) {
                     return;
@@ -44,19 +46,27 @@ export function getBatchActions<T>(
                 if (currValue) {
                     if (definition.multiple) {
                         if ((currValue as T[]).length > 0) {
-                            const normalizedInitialValues: T[] = (initialValue as T[]) ?? [];
+                            const normalizedInitialValues: T[] =
+                                (initialValue as T[]) ?? [];
 
                             (currValue as T[]).forEach(v => {
                                 const key = toKeyForType(v);
 
-                                if (!normalizedInitialValues.some((i: T) => toKeyForType(i) === key)) {
+                                if (
+                                    !normalizedInitialValues.some(
+                                        (i: T) => toKeyForType(i) === key
+                                    )
+                                ) {
                                     addGroups[defId] ??= {};
                                     addGroups[defId][locale] ??= {};
                                     addGroups[defId][locale][key] ??= {
                                         assetIds: [],
                                         value: v,
                                     };
-                                    pushUnique(addGroups[defId][locale][key].assetIds, assetId);
+                                    pushUnique(
+                                        addGroups[defId][locale][key].assetIds,
+                                        assetId
+                                    );
                                 }
                             });
 
@@ -78,7 +88,10 @@ export function getBatchActions<T>(
                             assetIds: [],
                             value: currValue,
                         };
-                        pushUnique(setGroups[defId][locale][key].assetIds, assetId);
+                        pushUnique(
+                            setGroups[defId][locale][key].assetIds,
+                            assetId
+                        );
                     }
                 }
             });
@@ -91,7 +104,8 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKeyForType: ToKeyFuncTypeScoped<T> = (v) => toKey(definition.fieldType, v);
+        const toKeyForType: ToKeyFuncTypeScoped<T> = v =>
+            toKey(definition.fieldType, v);
         const av = initialAttributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
@@ -110,12 +124,15 @@ export function getBatchActions<T>(
                         return;
                     }
 
-                    if (currValue !== undefined && (currValue as T[]).length > 0) {
+                    if (
+                        currValue !== undefined &&
+                        (currValue as T[]).length > 0
+                    ) {
                         return;
                     }
 
                     deleteNonPresent(
-                        currValue as T[] ?? [],
+                        (currValue as T[]) ?? [],
                         initialValue as T[],
                         defId,
                         asset,
@@ -136,7 +153,10 @@ export function getBatchActions<T>(
                         attributeIds: [],
                         value: initialValue,
                     };
-                    pushUnique(deleteGroups[defId][locale][key].assetIds, assetId);
+                    pushUnique(
+                        deleteGroups[defId][locale][key].assetIds,
+                        assetId
+                    );
 
                     addAttributeIdsToDeleteGroup(
                         asset,
@@ -144,7 +164,7 @@ export function getBatchActions<T>(
                         locale,
                         key,
                         toKeyForType,
-                        deleteGroups,
+                        deleteGroups
                     );
                 }
             });
@@ -157,7 +177,7 @@ export function getBatchActions<T>(
 function computeActionsFromGroups<T>(
     setGroups: DiffGroupIndex<T>,
     addGroups: DiffGroupIndex<T>,
-    deleteGroups: DiffGroupIndex<T>,
+    deleteGroups: DiffGroupIndex<T>
 ): AttributeBatchAction[] {
     const actions: AttributeBatchAction[] = [];
 
@@ -216,7 +236,6 @@ function computeActionsFromGroups<T>(
     return actions;
 }
 
-
 function deleteNonPresent<T>(
     list: T[],
     referenceList: T[],
@@ -245,7 +264,7 @@ function deleteNonPresent<T>(
                 locale,
                 key,
                 toKeyForType,
-                deleteGroups,
+                deleteGroups
             );
         }
     });
@@ -259,11 +278,15 @@ function addAttributeIdsToDeleteGroup<T>(
     toKeyForType: ToKeyFuncTypeScoped<T>,
     deleteGroups: DiffGroupIndex<T>
 ) {
-    const attributeIds = asset.attributes.filter((a: Attribute): boolean => {
-        return a.definition.id === defId
-            && (a.locale ?? NO_LOCALE) === locale
-            && toKeyForType(a.value) === key;
-    }).map(a => a.id);
+    const attributeIds = asset.attributes
+        .filter((a: Attribute): boolean => {
+            return (
+                a.definition.id === defId &&
+                (a.locale ?? NO_LOCALE) === locale &&
+                toKeyForType(a.value) === key
+            );
+        })
+        .map(a => a.id);
 
     if (attributeIds.length === 0) {
         throw new Error('No attribute found for action');

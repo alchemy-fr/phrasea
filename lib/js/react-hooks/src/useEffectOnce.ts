@@ -1,17 +1,9 @@
 import {useEffect, useRef} from "react";
+import {propsAreSame} from "./utils";
 
-function propsAreSame(a: any[], b: any[]): boolean {
-    for (const i in a) {
-        if (b[i] !== a[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
 
 export default function useEffectOnce(
-    handler: () => void,
+    handler: () => any,
     trackingValues: any[],
 ) {
     const runRef = useRef<boolean>(false);

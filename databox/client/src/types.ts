@@ -190,7 +190,7 @@ export interface Group {
     name: string;
 }
 
-export type CollectionOptionalWorkspace = { workspace?: Workspace } & Omit<
+export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
     Collection,
     'workspace'
 >;
@@ -279,14 +279,14 @@ export enum CollectionOrWorkspace {
 
 export type Ace = (
     | {
-    userType: UserType.Group;
-    group?: Group | null;
-}
+          userType: UserType.Group;
+          group?: Group | null;
+      }
     | {
-    userType: UserType.User;
-    user?: User | null;
-}
-    ) & {
+          userType: UserType.User;
+          user?: User | null;
+      }
+) & {
     id: string;
     mask: number;
     userId: string | null;
@@ -300,7 +300,6 @@ export type AssetOrAssetContainer = {
     id: string;
 };
 
-
 export enum AnnotationType {
     Point = 'point',
     Circle = 'circle',
@@ -312,4 +311,4 @@ export enum AnnotationType {
 export type AssetAnnotation = {
     type: AnnotationType;
     [prop: string]: any;
-}
+};

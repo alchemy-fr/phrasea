@@ -1,17 +1,18 @@
 import {AppDialog} from '@alchemy/phrasea-ui';
 import type {StackedModalProps} from '@alchemy/navigation';
-import {useModals} from '@alchemy/navigation'
+import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
-import ValueDiff, {ValueDiffProps} from "./ValueDiff.tsx";
-import {workspaceAttributeBatchUpdate} from "../../api/asset.ts";
-import React from "react";
-import {Button} from "@mui/material";
-import {LoadingButton} from "@mui/lab";
+import ValueDiff, {ValueDiffProps} from './ValueDiff.tsx';
+import {workspaceAttributeBatchUpdate} from '../../api/asset.ts';
+import React from 'react';
+import {Button} from '@mui/material';
+import {LoadingButton} from '@mui/lab';
 
 type Props = {
     workspaceId: string;
     onSaved: () => void;
-} & ValueDiffProps & StackedModalProps;
+} & ValueDiffProps &
+    StackedModalProps;
 
 export default function SavePreviewDialog({
     open,
@@ -38,33 +39,32 @@ export default function SavePreviewDialog({
                 setSaving(false);
             }
         }
-    }
+    };
 
-    return <AppDialog
-        onClose={closeModal}
-        open={open}
-        modalIndex={modalIndex}
-        title={t('attribute_editor.diff.dialog.title', 'Confirm Changes?')}
-        actions={({onClose}) => <>
-            <Button
-                onClick={onClose}
-            >
-                {t('common.cancel', 'Cancel')}
-            </Button>
-            <LoadingButton
-                loading={saving}
-                disabled={saving}
-                variant={'contained'}
-                onClick={doSave}
-                color={'primary'}
-            >
-                {t('common.save', 'Save')}
-            </LoadingButton>
-        </>}
-    >
-        <ValueDiff
-            actions={actions}
-            {...props}
-        />
-    </AppDialog>
+    return (
+        <AppDialog
+            onClose={closeModal}
+            open={open}
+            modalIndex={modalIndex}
+            title={t('attribute_editor.diff.dialog.title', 'Confirm Changes?')}
+            actions={({onClose}) => (
+                <>
+                    <Button onClick={onClose}>
+                        {t('common.cancel', 'Cancel')}
+                    </Button>
+                    <LoadingButton
+                        loading={saving}
+                        disabled={saving}
+                        variant={'contained'}
+                        onClick={doSave}
+                        color={'primary'}
+                    >
+                        {t('common.save', 'Save')}
+                    </LoadingButton>
+                </>
+            )}
+        >
+            <ValueDiff actions={actions} {...props} />
+        </AppDialog>
+    );
 }

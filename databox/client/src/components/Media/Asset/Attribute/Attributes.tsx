@@ -1,12 +1,15 @@
 import {Asset, AssetAnnotation} from '../../../../types';
-import React, {useContext,} from 'react';
+import React, {useContext} from 'react';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {UserPreferencesContext} from '../../../User/Preferences/UserPreferencesContext';
 import {AttributeFormatContext} from './Format/AttributeFormatContext';
-import {buildAttributesGroupedByDefinition} from "./attributeIndex.ts";
-import {copyToClipBoardClass, copyToClipBoardContainerClass} from "./CopyAttribute.tsx";
+import {buildAttributesGroupedByDefinition} from './attributeIndex.ts';
+import {
+    copyToClipBoardClass,
+    copyToClipBoardContainerClass,
+} from './CopyAttribute.tsx';
 
 export type OnAnnotations = (annotations: AssetAnnotation[]) => void;
 
@@ -17,7 +20,12 @@ type Props = {
     onAnnotations?: OnAnnotations | undefined;
 };
 
-function Attributes({asset, displayControls, pinnedOnly, onAnnotations}: Props) {
+function Attributes({
+    asset,
+    displayControls,
+    pinnedOnly,
+    onAnnotations,
+}: Props) {
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
 
@@ -53,7 +61,9 @@ function Attributes({asset, displayControls, pinnedOnly, onAnnotations}: Props) 
     });
 
     if (pinnedOnly) {
-        attributeGroups = attributeGroups.filter(g => pinnedAttributes.includes(g.definition.id));
+        attributeGroups = attributeGroups.filter(g =>
+            pinnedAttributes.includes(g.definition.id)
+        );
     }
 
     return (

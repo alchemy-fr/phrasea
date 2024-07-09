@@ -1,4 +1,4 @@
-import {styled} from "@mui/material/styles";
+import {styled} from '@mui/material/styles';
 
 const Label = styled('div')(({theme}) => ({
     position: 'absolute',
@@ -28,33 +28,33 @@ const Progress = styled('div')(({theme}) => ({
 
 export const partPercentageClassName = 'part-percent';
 
-
 type Props = {
     part: number;
     width: number;
 };
 
-export default function PartPercentage({
-    part,
-    width,
-}: Props) {
+export default function PartPercentage({part, width}: Props) {
     const textOffset = 45;
 
-    return <Container
-        style={{
-            width,
-        }}
-        className={partPercentageClassName}
-    >
-        <ProgressContainer style={{
-            width: width - textOffset,
-        }}>
-            <Progress style={{
-                width: `${part}%`,
-            }}/>
-        </ProgressContainer>
-        <Label>
-            {Math.round(part * 10) / 10}%
-        </Label>
-    </Container>
+    return (
+        <Container
+            style={{
+                width,
+            }}
+            className={partPercentageClassName}
+        >
+            <ProgressContainer
+                style={{
+                    width: width - textOffset,
+                }}
+            >
+                <Progress
+                    style={{
+                        width: `${part}%`,
+                    }}
+                />
+            </ProgressContainer>
+            <Label>{Math.round(part * 10) / 10}%</Label>
+        </Container>
+    );
 }

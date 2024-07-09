@@ -1,7 +1,11 @@
-import {ToKeyFuncTypeScoped} from "../types";
-import {normalizeList} from "./normalize";
+import {ToKeyFuncTypeScoped} from '../types';
+import {normalizeList} from './normalize';
 
-export function listsAreSame<T>(a: T[], b: T[], toKey: ToKeyFuncTypeScoped<T>): boolean {
+export function listsAreSame<T>(
+    a: T[],
+    b: T[],
+    toKey: ToKeyFuncTypeScoped<T>
+): boolean {
     if (a.length !== b.length) {
         return false;
     }

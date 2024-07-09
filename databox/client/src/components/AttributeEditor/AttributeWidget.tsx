@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
-import {AttributeWidgetProps} from "../Media/Asset/Attribute/types/types";
+import {AttributeWidgetProps} from '../Media/Asset/Attribute/types/types';
 
 type Props<T> = {
     type: string;
@@ -12,9 +12,10 @@ export default function AttributeWidget<T = string>({
     type,
     ...props
 }: Props<T>) {
-    const denormalizeInputValue = (
-        initialValue: T | undefined
-    ) => undefined !== initialValue ? widget.denormalize(initialValue) : initialValue;
+    const denormalizeInputValue = (initialValue: T | undefined) =>
+        undefined !== initialValue
+            ? widget.denormalize(initialValue)
+            : initialValue;
 
     const widget = getAttributeType(type);
     const [value, setValue] = useState<T | undefined>(

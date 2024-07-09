@@ -1,9 +1,10 @@
-import {Asset, AttributeDefinition} from "../../types.ts";
-import {getAssets} from "../../api/asset.ts";
-import {FullPageLoader} from "@alchemy/phrasea-ui";
-import React from "react";
-import {getWorkspaceAttributeDefinitions} from "../../api/attributes.ts";
-import AttributeEditor from "./AttributeEditor.tsx";
+import {Asset, AttributeDefinition} from '../../types.ts';
+import {getAssets} from '../../api/asset.ts';
+import {FullPageLoader} from '@alchemy/phrasea-ui';
+import React from 'react';
+import {getWorkspaceAttributeDefinitions} from '../../api/attributes.ts';
+import AttributeEditor from './AttributeEditor.tsx';
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 
 type Props = {
     ids: string[];
@@ -17,9 +18,14 @@ export default function AttributeEditorLoader({
     onClose,
 }: Props) {
     const [assets, setAssets] = React.useState<Asset[]>();
-    const [attributeDefinitions, setAttributeDefinitions] = React.useState<AttributeDefinition[]>();
+    const [attributeDefinitions, setAttributeDefinitions] =
+        React.useState<AttributeDefinition[]>();
 
-    React.useEffect(() => {
+    const removeFromSelection = React.useCallback((ids: string[]) => {
+        setAssets(p => p!.filter(a => !ids.includes(a.id)));
+    }, []);
+
+    useEffectOnce(() => {
         getAssets({
             ids,
             allLocales: true,
@@ -33,12 +39,15 @@ export default function AttributeEditorLoader({
     }, [ids, workspaceId]);
 
     if (!assets || !attributeDefinitions) {
-        return <FullPageLoader/>
+        return <FullPageLoader />;
     }
 
-    return <AttributeEditor
-        assets={assets}
-        attributeDefinitions={attributeDefinitions}
-        onClose={onClose}
-    />
+    return (
+        <AttributeEditor
+            assets={assets}
+            attributeDefinitions={attributeDefinitions}
+            onClose={onClose}
+            removeFromSelection={removeFromSelection}
+        />
+    );
 }

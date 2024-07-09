@@ -14,10 +14,10 @@ import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
-import {scrollbarWidth} from "../../../constants.ts";
-import AssetAttributes from "./AssetAttributes.tsx";
-import {OnAnnotations} from "./Attribute/Attributes.tsx";
-import AssetAnnotationsOverlay from "./Annotations/AssetAnnotationsOverlay.tsx";
+import {scrollbarWidth} from '../../../constants.ts';
+import AssetAttributes from './AssetAttributes.tsx';
+import {OnAnnotations} from './Attribute/Attributes.tsx';
+import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -43,7 +43,9 @@ export default function AssetView({modalIndex}: Props) {
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
     const closeModal = useCloseModal();
-    const [annotations, setAnnotations] = React.useState<AssetAnnotation[] | undefined>();
+    const [annotations, setAnnotations] = React.useState<
+        AssetAnnotation[] | undefined
+    >();
 
     const [data, setData] = useState<Asset>();
     const [renditions, setRenditions] = useState<AssetRendition[]>();
@@ -66,7 +68,7 @@ export default function AssetView({modalIndex}: Props) {
         })();
     }, [assetId]);
 
-    const onAnnotations = React.useCallback<OnAnnotations>((annotations) => {
+    const onAnnotations = React.useCallback<OnAnnotations>(annotations => {
         setAnnotations(annotations);
     }, []);
 
@@ -93,7 +95,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -163,7 +165,13 @@ export default function AssetView({modalIndex}: Props) {
                                     width: 'fit-content',
                                 }}
                             >
-                                {annotations ? <AssetAnnotationsOverlay annotations={annotations}/> : ''}
+                                {annotations ? (
+                                    <AssetAnnotationsOverlay
+                                        annotations={annotations}
+                                    />
+                                ) : (
+                                    ''
+                                )}
                                 {rendition?.file &&
                                     (!integrationOverlay ||
                                         !integrationOverlay.replace) && (
@@ -194,10 +202,14 @@ export default function AssetView({modalIndex}: Props) {
                                 height: dimensions.height,
                             })}
                         >
-                            {data ? <AssetAttributes
-                                asset={data}
-                                onAnnotations={onAnnotations}
-                            /> : ''}
+                            {data ? (
+                                <AssetAttributes
+                                    asset={data}
+                                    onAnnotations={onAnnotations}
+                                />
+                            ) : (
+                                ''
+                            )}
                             {rendition?.file ? (
                                 <FileIntegrations
                                     key={rendition.file.id}

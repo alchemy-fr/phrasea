@@ -58,7 +58,7 @@ const AppProxy = React.memo(() => {
                                         zIndex: ZIndex.leftPanel,
                                     })}
                                 >
-                                    <LeftPanel/>
+                                    <LeftPanel />
                                 </Box>
                             )}
                             <div
@@ -66,7 +66,7 @@ const AppProxy = React.memo(() => {
                                     flexGrow: 1,
                                 }}
                             >
-                                <AssetSearch/>
+                                <AssetSearch />
                             </div>
                         </div>
                     </DisplayProvider>
@@ -103,8 +103,8 @@ export default function App() {
 
     return (
         <>
-            <ToastContainer/>
-            <AppProxy/>
+            <ToastContainer />
+            <AppProxy />
         </>
     );
 }

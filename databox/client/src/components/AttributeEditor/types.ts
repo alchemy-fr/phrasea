@@ -1,4 +1,4 @@
-import {Asset, AttributeDefinition} from "../../types.ts";
+import {Asset, AttributeDefinition} from '../../types.ts';
 
 export type IndeterminateGroup = {
     g: boolean;
@@ -9,7 +9,7 @@ export type Values<T = any> = {
     indeterminate: IndeterminateGroup;
     values: LocalizedAttributeIndex<T>[];
     originalValues: LocalizedAttributeIndex<T>[];
-}
+};
 
 export type AttributeDefinitionIndex = Record<string, AttributeDefinition>;
 
@@ -39,7 +39,7 @@ export type SuggestionTabProps<T> = {
     subSelection: Asset[];
     locale: string;
     toKey: ToKeyFunc<T>;
-}
+};
 
 export type SetAttributeValueOptions = {
     updateInput?: boolean;
@@ -47,20 +47,23 @@ export type SetAttributeValueOptions = {
     remove?: boolean;
 };
 
-export type SetAttributeValue<T = string> = (value: T | undefined, options?: SetAttributeValueOptions) => void;
+export type SetAttributeValue<T = string> = (
+    value: T | undefined,
+    options?: SetAttributeValueOptions
+) => void;
 
 export type MultiValueValue<T> = {
     value: T;
     part: number;
     key: string;
-}
+};
 
 export type MultiValueIndex<T> = {
     [key: string]: {
         p: number;
         v: T;
     };
-}
+};
 
 export type ToKeyFunc<T = string> = (type: string, v: T) => string;
 
@@ -70,12 +73,12 @@ export type AttributesCommit<T> = {
     index: BatchAttributeIndex<T>;
     subSelection: Asset[];
     definition: AttributeDefinition | undefined;
-}
+};
 
 export type AttributesHistory<T> = {
     current: number;
     history: AttributesCommit<T>[];
-}
+};
 
 export type DiffGroupIndex<T> = {
     [definitionId: string]: {
@@ -87,4 +90,4 @@ export type DiffGroupIndex<T> = {
             };
         };
     };
-}
+};

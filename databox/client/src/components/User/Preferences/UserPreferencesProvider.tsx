@@ -11,7 +11,7 @@ import {CssBaseline, GlobalStyles} from '@mui/material';
 import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
-import {scrollbarWidth} from "../../../constants.ts";
+import {scrollbarWidth} from '../../../constants.ts';
 
 const sessionStorageKey = 'userPrefs';
 

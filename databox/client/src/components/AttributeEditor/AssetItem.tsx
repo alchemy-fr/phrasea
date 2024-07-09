@@ -1,11 +1,11 @@
-import {Asset} from "../../types.ts";
-import AssetItemWrapper from "../AssetList/Layouts/AssetItemWrapper.tsx";
-import assetClasses from "../AssetList/classes.ts";
-import {Checkbox} from "@mui/material";
-import {stopPropagation} from "../../lib/stdFuncs.ts";
-import React from "react";
-import AssetThumb from "../Media/Asset/AssetThumb.tsx";
-import {OnPreviewToggle, OnToggle} from "../AssetList/types.ts";
+import {Asset} from '../../types.ts';
+import AssetItemWrapper from '../AssetList/Layouts/AssetItemWrapper.tsx';
+import assetClasses from '../AssetList/classes.ts';
+import {Checkbox} from '@mui/material';
+import {stopPropagation} from '../../lib/stdFuncs.ts';
+import React from 'react';
+import AssetThumb from '../Media/Asset/AssetThumb.tsx';
+import {OnPreviewToggle, OnToggle} from '../AssetList/types.ts';
 
 type Props = {
     asset: Asset;
@@ -45,21 +45,21 @@ export default function AssetItem({
                 onMouseOver={
                     onPreviewToggle
                         ? e =>
-                            onPreviewToggle(
-                                asset,
-                                true,
-                                e.currentTarget as HTMLElement
-                            )
+                              onPreviewToggle(
+                                  asset,
+                                  true,
+                                  e.currentTarget as HTMLElement
+                              )
                         : undefined
                 }
                 onMouseLeave={
                     onPreviewToggle
                         ? e =>
-                            onPreviewToggle(
-                                asset,
-                                false,
-                                e.currentTarget as HTMLElement
-                            )
+                              onPreviewToggle(
+                                  asset,
+                                  false,
+                                  e.currentTarget as HTMLElement
+                              )
                         : undefined
                 }
             />

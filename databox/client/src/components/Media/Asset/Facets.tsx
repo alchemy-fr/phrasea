@@ -190,5 +190,5 @@ export default function FacetsProxy() {
         return null;
     }
 
-    return <Facets facets={facets}/>
+    return <Facets facets={facets} />;
 }

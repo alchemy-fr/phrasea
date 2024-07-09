@@ -1,4 +1,4 @@
-import React, {MouseEvent, PropsWithChildren} from 'react';
+import React, {MouseEvent, PropsWithChildren, ReactNode} from 'react';
 import {Asset, AssetOrAssetContainer} from '../../types';
 import {ButtonProps} from '@mui/material/Button';
 
@@ -71,8 +71,22 @@ export type LayoutPageProps<Item extends AssetOrAssetContainer> = {
 } & LayoutCommonProps<Item> &
     AssetActions<Item>;
 
+export type ActionsContext<Item extends AssetOrAssetContainer> = {
+    extraActions?: CustomItemAction<Item>[];
+    basket?: boolean;
+    layout?: boolean;
+    export?: boolean;
+    edit?: boolean;
+    share?: boolean;
+    delete?: boolean;
+    open?: boolean;
+    saveAs?: boolean;
+};
+
 export type CustomItemAction<Item extends AssetOrAssetContainer> = {
     name: string;
+    icon?: ReactNode;
+    color?: ButtonProps['color'];
     buttonProps?: ButtonProps;
     labels: {
         single: string;

@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-let listeners:  ((e: KeyboardEvent) => void)[] = [];
+let listeners: ((e: KeyboardEvent) => void)[] = [];
 
 export function useSelectAllKey(handler: () => void, deps: any[]) {
     React.useEffect(() => {

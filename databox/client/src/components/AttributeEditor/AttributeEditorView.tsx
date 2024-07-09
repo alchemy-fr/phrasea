@@ -1,9 +1,9 @@
 import {useLocation} from '@alchemy/navigation';
-import {AppDialog} from "@alchemy/phrasea-ui";
-import RouteDialog from "../Dialog/RouteDialog.tsx";
-import {useCloseModal} from "../Routing/ModalLink.tsx";
-import React from "react";
-import AttributeEditorLoader from "./AttributeEditorLoader.tsx";
+import {AppDialog} from '@alchemy/phrasea-ui';
+import RouteDialog from '../Dialog/RouteDialog.tsx';
+import {useCloseModal} from '../Routing/ModalLink.tsx';
+import React from 'react';
+import AttributeEditorLoader from './AttributeEditorLoader.tsx';
 
 type Props = {};
 

@@ -5,8 +5,8 @@ import RouteDialog from '../RouteDialog';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import type {RouteDefinition, RouteParameters} from '@alchemy/navigation';
 import {AppDialogTitle, BootstrapDialog} from '@alchemy/phrasea-ui';
-import {TabItem} from "./tabTypes.ts";
-import Tabs from "../../Ui/Tabs.tsx";
+import {TabItem} from './tabTypes.ts';
+import Tabs from '../../Ui/Tabs.tsx';
 
 export type DialogTabProps = {
     onClose: () => void;

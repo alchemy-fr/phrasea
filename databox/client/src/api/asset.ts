@@ -1,6 +1,10 @@
 import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute} from '../types';
-import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
+import {
+    ApiCollectionResponse,
+    getAssetsHydraCollection,
+    getHydraCollection,
+} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 
@@ -15,8 +19,8 @@ export interface GetAssetOptions {
     group?: string[] | undefined;
     context?:
         | {
-        position?: string | undefined;
-    }
+              position?: string | undefined;
+          }
         | undefined;
     allLocales?: boolean;
 }
@@ -42,9 +46,9 @@ export async function getAssets(
     const res = options.url
         ? await apiClient.get(options.url, requestConfig)
         : await apiClient.get('/assets', {
-            params: options,
-            ...requestConfig,
-        });
+              params: options,
+              ...requestConfig,
+          });
 
     return {
         ...getAssetsHydraCollection(res.data),
@@ -173,13 +177,15 @@ export async function workspaceAttributeBatchUpdate(
     ).data;
 }
 
-function normalizeActions(actions: AttributeBatchAction[]): AttributeBatchAction[] {
+function normalizeActions(
+    actions: AttributeBatchAction[]
+): AttributeBatchAction[] {
     return actions.map(a => {
         if (a.action === AttributeBatchActionEnum.Delete) {
             return {
                 ...a,
                 value: undefined,
-            }
+            };
         }
 
         return {
@@ -233,11 +239,11 @@ export type AssetApiInput = {
 export type NewAssetPostType = {
     relationship?:
         | {
-        source: string;
-        type: string;
-        sourceFile?: string | undefined;
-        integration?: string | undefined;
-    }
+              source: string;
+              type: string;
+              sourceFile?: string | undefined;
+              integration?: string | undefined;
+          }
         | undefined;
     attributes?: AttributeBatchAction[] | undefined;
 } & AssetApiInput;
