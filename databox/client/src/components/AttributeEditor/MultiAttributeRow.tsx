@@ -4,25 +4,11 @@ import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-    MultiValueIndex,
-    MultiValueValue,
-    SetAttributeValue,
-    ToKeyFunc,
-    Values,
-} from './types.ts';
+import {MultiValueIndex, MultiValueValue, SetAttributeValue, ToKeyFunc, Values,} from './types.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import AttributeWidget from './AttributeWidget.tsx';
-
-export function createNewValue(type: string): any {
-    switch (type) {
-        default:
-        case 'text':
-            return '';
-    }
-}
 
 type Props<T> = {
     id: string;
@@ -51,15 +37,9 @@ export default function MultiAttributeRow<T>({
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
-    const [addNew, setAddNew] = React.useState(false);
     const [newValue, setNewValue] = React.useState<T | undefined>();
     const definitionRef = React.useRef<string>(id);
-
-    const newHandler = React.useCallback(() => {
-        setAddNew(true);
-    }, []);
-
-    const focus = () => inputRef.current?.focus();
+    const [selected, setSelected] = React.useState<string | undefined>();
 
     const addValueHandler = React.useCallback(
         (v: T) => {
@@ -68,14 +48,12 @@ export default function MultiAttributeRow<T>({
                 updateInput: true,
             });
             setNewValue(undefined);
-            focus();
         },
         [setAttributeValue]
     );
 
     const addHandler = React.useCallback(() => {
         addValueHandler(newValue!);
-        focus();
     }, [addValueHandler, newValue]);
 
     const removeValueHandler = React.useCallback(
@@ -84,7 +62,6 @@ export default function MultiAttributeRow<T>({
                 remove: true,
                 updateInput: true,
             });
-            focus();
         },
         [setAttributeValue]
     );
@@ -131,9 +108,11 @@ export default function MultiAttributeRow<T>({
     const [values, setValues] = useState<MultiValueValue<T>[]>(computed ?? []);
 
     const finalValues = definitionRef.current !== id ? (computed ?? []) : values;
+    const finalNewValue = definitionRef.current !== id ? undefined : newValue;
 
     useEffect(() => {
         setValues(computed ?? []);
+        setNewValue(undefined);
         definitionRef.current = id;
     }, [computed, id]);
 
@@ -142,6 +121,36 @@ export default function MultiAttributeRow<T>({
 
     return (
         <FormRow>
+            <AttributeWidget<T>
+                id={id}
+                key={id}
+                name={name}
+                inputRef={inputRef}
+                type={type}
+                isRtl={false}
+                disabled={disabled}
+                required={false}
+                autoFocus={true}
+                value={finalNewValue}
+                onChange={changeNewItemHandler}
+            />
+            <Button
+                sx={{mb: 2}}
+                startIcon={<AddIcon/>}
+                variant="outlined"
+                disabled={readOnly || disabled}
+                color="primary"
+                onClick={addHandler}
+            >
+                {t(
+                    'form.attribute.collection.item_add',
+                    'Add {{name}}',
+                    {
+                        name,
+                    }
+                )}
+            </Button>
+
             {finalValues.map((v: MultiValueValue<T>, i: number) => {
                 const valueFormatterProps: AttributeFormatterProps = {
                     value: v.value,
@@ -150,20 +159,26 @@ export default function MultiAttributeRow<T>({
                 };
 
                 const indeterminate = v.part < 100;
+                const isSelected = selected === v.key;
 
                 return (
                     <Box
                         key={i}
+                        onClick={() => setSelected(v.key)}
                         sx={{
                             display: 'flex',
-                            color: indeterminate ? 'warning.main' : undefined,
                             p: 1,
+                            bgcolor: isSelected ? 'divider' : undefined,
+                            '.vw': {
+                                opacity: indeterminate ? 0.5 : undefined,
+                            }
                         }}
                     >
                         <div
                             style={{
                                 flexGrow: 1,
                             }}
+                            className={'vw'}
                         >
                             {formatter.formatValue(valueFormatterProps)}
                         </div>
@@ -175,71 +190,19 @@ export default function MultiAttributeRow<T>({
                                 onClick={() => addValueHandler(v.value)}
                                 color="success"
                             >
-                                <AddIcon />
+                                <AddIcon/>
                             </IconButton>
                             <IconButton
                                 disabled={readOnly || disabled}
                                 onClick={() => removeValueHandler(v.value)}
                                 color="error"
                             >
-                                <DeleteIcon />
+                                <DeleteIcon/>
                             </IconButton>
                         </div>
                     </Box>
                 );
             })}
-
-            {addNew ? (
-                <>
-                    <AttributeWidget<T>
-                        id={id}
-                        name={name}
-                        inputRef={inputRef}
-                        type={type}
-                        isRtl={false}
-                        disabled={disabled}
-                        required={false}
-                        autoFocus={true}
-                        value={newValue}
-                        onChange={changeNewItemHandler}
-                    />
-                    <Button
-                        sx={{mt: 2}}
-                        startIcon={<AddIcon />}
-                        variant="outlined"
-                        disabled={readOnly || disabled}
-                        color="primary"
-                        onClick={addHandler}
-                    >
-                        {t(
-                            'form.attribute.collection.item_add',
-                            'Add {{name}}',
-                            {
-                                name,
-                            }
-                        )}
-                    </Button>
-                </>
-            ) : (
-                <>
-                    <Button
-                        sx={{mt: 2}}
-                        startIcon={<AddIcon />}
-                        variant="outlined"
-                        disabled={readOnly || disabled}
-                        color="secondary"
-                        onClick={newHandler}
-                    >
-                        {t(
-                            'form.attribute.collection.item_new',
-                            'New {{name}}',
-                            {
-                                name,
-                            }
-                        )}
-                    </Button>
-                </>
-            )}
         </FormRow>
     );
 }

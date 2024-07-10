@@ -1,9 +1,10 @@
 import {SuggestionTabProps} from '../types.ts';
-import {Box, Checkbox, InputLabel, ListItem, ListItemButton, Stack,} from '@mui/material';
-import React from 'react';
+import {Box, Checkbox, InputLabel, ListItem, ListItemButton, Menu, Stack,} from '@mui/material';
+import React, {MouseEventHandler} from 'react';
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from '../PartPercentage.tsx';
 import {getAttributeType} from "../../Media/Asset/Attribute/types";
+import MenuItem from "@mui/material/MenuItem";
 
 type Stats = Record<string, number>;
 
@@ -24,7 +25,19 @@ export default function ValuesSuggestions<T>({
 }: Props<T>) {
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
-    const [displayPercents, setDisplayPercents] = React.useState(true);
+    const [displayPercents, setDisplayPercents] = React.useState(false);
+    const [anchorEl, setAnchorEl] = React.useState<null | {
+        anchor: HTMLElement,
+        value: T;
+    }>();
+    const open = Boolean(anchorEl);
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const toggleDisplayPercents = React.useCallback<MouseEventHandler<HTMLDivElement>>((e) => {
+        e.stopPropagation();
+        setDisplayPercents(p => !p);
+    }, []);
 
     const {distinctValues, lengthRef} = React.useMemo<{
         distinctValues: Value<T>[],
@@ -134,28 +147,40 @@ export default function ValuesSuggestions<T>({
                             'Compare original values'
                         )}
                     </InputLabel>
-                    <InputLabel>
-                        <Checkbox
-                            checked={displayPercents}
-                            onChange={e => setDisplayPercents(e.target.checked)}
-                        />
-                        {t(
-                            'attribute_editor.suggestions.display_percents.label',
-                            'Percentages',
-                        )}
-                    </InputLabel>
                 </Stack>
             </div>
+            <Menu
+                id="context-menu"
+                anchorEl={anchorEl?.anchor}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                }}
+            >
+                <MenuItem onClick={() => {
+                    setAttributeValue(anchorEl!.value, {
+                        updateInput: true,
+                        add: definition.multiple,
+                    });
+                    handleClose();
+                }}>
+                    {t('attribute_editor.suggestions.menu.apply', 'Apply to selected assets')}
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                    {t('attribute_editor.suggestions.menu.select_with_value', 'Select assets having this value')}
+                </MenuItem>
+            </Menu>
             {distinctValues.map((v: Value<T>, index: number) => {
                 return (
                     <ListItem key={index} disablePadding>
                         <ListItemButton
-                            onClick={() =>
-                                setAttributeValue(v.value, {
-                                    updateInput: true,
-                                    add: definition.multiple,
-                                })
-                            }
+                            onClick={(e) => {
+                                setAnchorEl({
+                                    anchor: e.currentTarget,
+                                    value: v.value,
+                                });
+                            }}
                         >
                             <div className={labelWrapperClassName}>
                                 <div
@@ -169,12 +194,16 @@ export default function ValuesSuggestions<T>({
                                             '- empty -'
                                         )}
                                 </div>
-                                <PartPercentage
-                                    part={v.part}
-                                    width={110}
-                                    displayPercents={displayPercents}
-                                    total={lengthRef}
-                                />
+                                <div
+                                    onClick={toggleDisplayPercents}
+                                >
+                                    <PartPercentage
+                                        part={v.part}
+                                        width={110}
+                                        displayPercents={displayPercents}
+                                        total={lengthRef}
+                                    />
+                                </div>
                             </div>
                         </ListItemButton>
                     </ListItem>

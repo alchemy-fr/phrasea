@@ -21,6 +21,7 @@ import AssetList from '../AssetList/AssetList.tsx';
 import {ZIndex} from '../../themes/zIndex.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {AttributeType} from "../../api/attributes.ts";
+import {useTabShortcut} from "./shortcuts.ts";
 
 type Props = {
     assets: Asset[];
@@ -83,6 +84,11 @@ export default function AttributeEditor({
         definition,
         setDefinition,
         onSaved,
+    });
+
+    useTabShortcut({
+        attributeDefinitions,
+        setDefinition,
     });
 
     const pages = React.useMemo(() => [assets], [assets]);
@@ -171,6 +177,7 @@ export default function AttributeEditor({
                         <DisplayProvider
                             thumbSize={defaultThumbSize}
                             displayTitle={false}
+                            displayPreview={false}
                             displayCollections={false}
                             displayTags={false}
                         >

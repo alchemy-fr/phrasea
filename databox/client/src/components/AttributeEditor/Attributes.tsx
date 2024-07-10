@@ -73,22 +73,10 @@ export default function Attributes({
                                     </span>
                                 ) : !def.multiple ? (
                                     formatter.formatValue(valueFormatterProps)
-                                ) : (
-                                    <ul>
-                                        {defValue.value?.[l]?.map(
-                                            (v: any, i: number) => {
-                                                return (
-                                                    <li key={i}>
-                                                        {formatter.formatValue({
-                                                            ...valueFormatterProps,
-                                                            value: v,
-                                                        })}
-                                                    </li>
-                                                );
-                                            }
-                                        )}
-                                    </ul>
-                                )}
+                                ) : <>
+                                    {(defValue.value?.[l]?.length) ?? 0}
+                                    {' values'}
+                                </>}
                             </div>
                         </ListItemButton>
                     </ListItem>
