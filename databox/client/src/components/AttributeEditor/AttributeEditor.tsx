@@ -111,7 +111,6 @@ export default function AttributeEditor({
                     },
                 },
             ],
-            delete: true,
         };
     }, []);
 

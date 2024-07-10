@@ -46,6 +46,8 @@ export default function AttributesToolbar({
                     'Yes, discard'
                 ),
             });
+        } else {
+            onClose();
         }
     };
 

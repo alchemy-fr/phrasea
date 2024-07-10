@@ -59,6 +59,10 @@ export function useAttributeValues<T>({
             a.attributes.forEach(attribute => {
                 const definitionId = attribute.definition.id;
 
+                // Can be undefined due to pagination
+                index[definitionId] ??= {};
+                definitionIndex[definitionId] ??= attribute.definition;
+
                 index[definitionId][a.id] ??= {};
                 const definition = definitionIndex[definitionId];
                 const assetIndex = index[definitionId][a.id];

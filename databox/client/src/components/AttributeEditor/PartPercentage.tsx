@@ -31,10 +31,12 @@ export const partPercentageClassName = 'part-percent';
 type Props = {
     part: number;
     width: number;
+    displayPercents: boolean;
+    total: number;
 };
 
-export default function PartPercentage({part, width}: Props) {
-    const textOffset = 45;
+export default function PartPercentage({part, width, displayPercents, total}: Props) {
+    const textOffset = displayPercents ? 45 : 70;
 
     return (
         <Container
@@ -54,7 +56,9 @@ export default function PartPercentage({part, width}: Props) {
                     }}
                 />
             </ProgressContainer>
-            <Label>{Math.round(part * 10) / 10}%</Label>
+            <Label>
+                {displayPercents ? `${Math.round(part * 10) / 10}%` : `${Math.round(part * total / 100)}/${total}`}
+            </Label>
         </Container>
     );
 }

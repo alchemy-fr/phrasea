@@ -4,7 +4,7 @@ import {
     Checkbox,
     InputLabel,
     ListItem,
-    ListItemButton,
+    ListItemButton, Stack,
 } from '@mui/material';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
@@ -29,8 +29,12 @@ export default function ValuesSuggestions<T>({
 }: Props<T>) {
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
+    const [displayPercents, setDisplayPercents] = React.useState(true);
 
-    const distinctValues = React.useMemo<Value<T>[]>(() => {
+    const {distinctValues, lengthRef} = React.useMemo<{
+        distinctValues: Value<T>[],
+        lengthRef: number;
+    }>(() => {
         const stats: Stats = {};
         const tmpValues = (
             (!useOriginal
@@ -60,7 +64,7 @@ export default function ValuesSuggestions<T>({
             return (b.part ?? 0) - (a.part ?? 0);
         };
 
-        return values
+        const distinctValues = values
             .map((v: T): Value<T> => {
                 const key = norm(v);
 
@@ -80,9 +84,9 @@ export default function ValuesSuggestions<T>({
                 (v: Value<T>): Value<T> => ({
                     ...v,
                     part:
-                        Math.round(
+                        Math.min(100, Math.round(
                             (stats[v.label] / (lengthRef || 1)) * 10000
-                        ) / 100,
+                        ) / 100),
                 })
             )
             .filter(
@@ -90,6 +94,7 @@ export default function ValuesSuggestions<T>({
                     array.findIndex(v => v.label === value.label) === index
             )
             .sort(sortFn);
+        return {distinctValues, lengthRef};
     }, [valueContainer, useOriginal, definition, locale]);
 
     const emptyValueClassName = 'empty-val';
@@ -121,18 +126,30 @@ export default function ValuesSuggestions<T>({
             }}
         >
             <div>
-                <InputLabel>
-                    <Checkbox
-                        checked={useOriginal}
-                        onChange={e => setUseOriginal(e.target.checked)}
-                    />
-                    {t(
-                        'attribute_editor.suggestions.originalValues.label',
-                        'Display original values'
-                    )}
-                </InputLabel>
+                <Stack direction={'row'}>
+                    <InputLabel>
+                        <Checkbox
+                            checked={useOriginal}
+                            onChange={e => setUseOriginal(e.target.checked)}
+                        />
+                        {t(
+                            'attribute_editor.suggestions.originalValues.label',
+                            'Compare original values'
+                        )}
+                    </InputLabel>
+                    <InputLabel>
+                        <Checkbox
+                            checked={displayPercents}
+                            onChange={e => setDisplayPercents(e.target.checked)}
+                        />
+                        {t(
+                            'attribute_editor.suggestions.display_percents.label',
+                            'Percentages',
+                        )}
+                    </InputLabel>
+                </Stack>
             </div>
-            {distinctValues.map((v: Value<T>, index) => {
+            {distinctValues.map((v: Value<T>, index: number) => {
                 return (
                     <ListItem key={index} disablePadding>
                         <ListItemButton
@@ -153,7 +170,12 @@ export default function ValuesSuggestions<T>({
                                             '- empty -'
                                         )}
                                 </div>
-                                <PartPercentage part={v.part} width={110} />
+                                <PartPercentage
+                                    part={v.part}
+                                    width={110}
+                                    displayPercents={displayPercents}
+                                    total={lengthRef}
+                                />
                             </div>
                         </ListItemButton>
                     </ListItem>
