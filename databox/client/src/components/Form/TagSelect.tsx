@@ -6,15 +6,26 @@ import {
     AsyncRSelectProps,
     SelectOption,
 } from '@alchemy/react-form';
+import {WorkspaceContext} from "../../context/WorkspaceContext.tsx";
+import React from "react";
 
-type Props<TFieldValues extends FieldValues> = {
-    workspaceId: string;
-} & AsyncRSelectProps<TFieldValues, false>;
+type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
+    workspaceId?: string;
+    multiple: IsMulti;
+} & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function TagSelect<TFieldValues extends FieldValues>({
-    workspaceId,
+export default function TagSelect<TFieldValues extends FieldValues, IsMulti extends boolean>({
+    workspaceId: wsId,
+    multiple,
     ...rest
-}: Props<TFieldValues>) {
+}: Props<TFieldValues, IsMulti>) {
+    const workspaceContext = React.useContext(WorkspaceContext);
+
+    const workspaceId = wsId ?? workspaceContext?.workspaceId;
+    if (!workspaceId) {
+        throw new Error('Missing workspace context');
+    }
+
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
             await getTags({
@@ -26,6 +37,7 @@ export default function TagSelect<TFieldValues extends FieldValues>({
             .map((t: Tag) => ({
                 value: `${tagNS}/${t.id}`,
                 label: t.nameTranslated,
+                ...t,
             }))
             .filter(i =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())
@@ -33,11 +45,11 @@ export default function TagSelect<TFieldValues extends FieldValues>({
     };
 
     return (
-        <AsyncRSelectWidget<TFieldValues, false>
+        <AsyncRSelectWidget
             cacheId={'tags'}
             {...rest}
             loadOptions={load}
-            isMulti={true as any}
+            isMulti={multiple}
             key={workspaceId}
         />
     );

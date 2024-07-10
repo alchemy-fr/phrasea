@@ -73,6 +73,7 @@ export default function MultiAttributeRow<T>({
     );
 
     const addHandler = React.useCallback(() => {
+        console.log('newValue', newValue);
         addValueHandler(newValue!);
         focus();
     }, [addValueHandler, newValue]);

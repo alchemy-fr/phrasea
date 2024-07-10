@@ -237,6 +237,7 @@ export const UploadForm: FC<{
                                 {t('form.asset.tags.label', 'Tags')}
                             </InputLabel>
                             <TagSelect
+                                multiple={true}
                                 workspaceId={workspaceId}
                                 control={control}
                                 name={'tags'}

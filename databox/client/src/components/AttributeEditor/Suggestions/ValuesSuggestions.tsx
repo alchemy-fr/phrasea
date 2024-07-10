@@ -1,14 +1,9 @@
 import {SuggestionTabProps} from '../types.ts';
-import {
-    Box,
-    Checkbox,
-    InputLabel,
-    ListItem,
-    ListItemButton, Stack,
-} from '@mui/material';
+import {Box, Checkbox, InputLabel, ListItem, ListItemButton, Stack,} from '@mui/material';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from '../PartPercentage.tsx';
+import {getAttributeType} from "../../Media/Asset/Attribute/types";
 
 type Stats = Record<string, number>;
 
@@ -101,6 +96,8 @@ export default function ValuesSuggestions<T>({
     const labelWrapperClassName = 'label-wr';
     const labelClassName = 'label-val';
 
+    const widget = getAttributeType(definition.fieldType);
+
     return (
         <Box
             sx={{
@@ -164,7 +161,9 @@ export default function ValuesSuggestions<T>({
                                 <div
                                     className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}
                                 >
-                                    {v.label ||
+                                    {v.value ? widget.formatValue({
+                                            value: v.value,
+                                        }) :
                                         t(
                                             'attribute_editor.suggestions.no_value',
                                             '- empty -'

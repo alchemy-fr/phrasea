@@ -10,6 +10,7 @@ import HtmlType from './HtmlType';
 import ColorType from './ColorType';
 import GeoPointType from './GeoPointType';
 import DateTimeType from './DateTimeType';
+import TagsType from "./TagsType.tsx";
 
 export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.Boolean]: BooleanType,
@@ -23,6 +24,7 @@ export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.Textarea]: TextareaType,
     [AttributeType.GeoPoint]: GeoPointType,
     [AttributeType.WebVtt]: CodeType,
+    [AttributeType.Tag]: TagsType,
 };
 
 export function getAttributeType(type: string): AttributeTypeInstance<any> {

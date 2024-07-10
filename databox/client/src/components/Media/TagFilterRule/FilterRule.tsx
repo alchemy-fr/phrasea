@@ -169,6 +169,7 @@ export default function FilterRule({
                                     </Trans>
                                 </FormLabel>
                                 <TagSelect
+                                    multiple={true}
                                     name={'include'}
                                     control={control}
                                     workspaceId={workspaceIdForTags}
@@ -198,6 +199,7 @@ export default function FilterRule({
                                     </Trans>
                                 </FormLabel>
                                 <TagSelect
+                                    multiple={true}
                                     name={'exclude'}
                                     control={control}
                                     workspaceId={workspaceIdForTags}

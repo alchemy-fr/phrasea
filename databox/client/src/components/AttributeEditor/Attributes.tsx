@@ -1,5 +1,5 @@
 import {AttributeDefinition, StateSetter} from '../../types';
-import {Box, ListItem, ListItemButton, ListItemIcon} from '@mui/material';
+import {List, ListItem, ListItemButton, ListItemIcon} from '@mui/material';
 import {DefinitionValuesIndex} from './types';
 import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
@@ -34,7 +34,7 @@ export default function Attributes({
     );
 
     return (
-        <Box
+        <List
             sx={{
                 [`.${indeterminateClassName}`]: {
                     color: 'warning.main',
@@ -60,7 +60,7 @@ export default function Attributes({
                         >
                             {!def.canEdit ? (
                                 <ListItemIcon>
-                                    <LockIcon />
+                                    <LockIcon/>
                                 </ListItemIcon>
                             ) : (
                                 ''
@@ -94,6 +94,6 @@ export default function Attributes({
                     </ListItem>
                 );
             })}
-        </Box>
+        </List>
     );
 }

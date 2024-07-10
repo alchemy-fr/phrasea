@@ -20,6 +20,7 @@ import DisplayProvider from '../Media/DisplayProvider.tsx';
 import AssetList from '../AssetList/AssetList.tsx';
 import {ZIndex} from '../../themes/zIndex.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {AttributeType} from "../../api/attributes.ts";
 
 type Props = {
     assets: Asset[];
@@ -30,14 +31,19 @@ type Props = {
 
 export default function AttributeEditor({
     assets,
-    attributeDefinitions,
+    attributeDefinitions: remoteAttributeDefinitions,
     onClose,
     removeFromSelection,
 }: Props) {
     const {t} = useTranslation();
-    const toKey = React.useCallback((_type: string, v: any): string => {
+    const toKey = React.useCallback((type: string, v: any): string => {
         if (!v) {
             return '';
+        }
+
+        switch (type) {
+            case AttributeType.Tag:
+                return v.id;
         }
 
         return v.toString() as string;
@@ -59,6 +65,7 @@ export default function AttributeEditor({
     }, [t, onClose]);
 
     const {
+        attributeDefinitions,
         values,
         definitionValues,
         setValue,
@@ -68,7 +75,7 @@ export default function AttributeEditor({
         redo,
         onSave,
     } = useAttributeValues({
-        attributeDefinitions,
+        attributeDefinitions: remoteAttributeDefinitions,
         assets,
         subSelection,
         setSubSelection,

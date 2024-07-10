@@ -5,6 +5,7 @@ import React from 'react';
 import {getWorkspaceAttributeDefinitions} from '../../api/attributes.ts';
 import AttributeEditor from './AttributeEditor.tsx';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
+import {WorkspaceContext} from "../../context/WorkspaceContext.tsx";
 
 type Props = {
     ids: string[];
@@ -39,15 +40,19 @@ export default function AttributeEditorLoader({
     }, [ids, workspaceId]);
 
     if (!assets || !attributeDefinitions) {
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     return (
-        <AttributeEditor
-            assets={assets}
-            attributeDefinitions={attributeDefinitions}
-            onClose={onClose}
-            removeFromSelection={removeFromSelection}
-        />
+        <WorkspaceContext.Provider value={{
+            workspaceId,
+        }}>
+            <AttributeEditor
+                assets={assets}
+                attributeDefinitions={attributeDefinitions}
+                onClose={onClose}
+                removeFromSelection={removeFromSelection}
+            />
+        </WorkspaceContext.Provider>
     );
 }

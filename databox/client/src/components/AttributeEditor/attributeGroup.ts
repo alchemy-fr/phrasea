@@ -1,4 +1,4 @@
-import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
+import {Asset, AttributeDefinition, StateSetter, Tag} from '../../types.ts';
 import React from 'react';
 import {
     AttributeDefinitionIndex,
@@ -8,7 +8,7 @@ import {
     DefinitionValuesIndex,
     SetAttributeValueOptions,
     ToKeyFunc,
-    Values,
+    Values, ExtraAttributeDefinition, LocalizedAttributeIndex,
 } from './types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor';
 import {computeValues} from './store/values.ts';
@@ -20,6 +20,8 @@ import {getBatchActions} from './batchActions.ts';
 import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
+import {useTranslation} from 'react-i18next';
+import {AttributeType} from "../../api/attributes.ts";
 
 type Props<T> = {
     attributeDefinitions: AttributeDefinition[];
@@ -42,13 +44,27 @@ export function useAttributeValues<T>({
     setDefinition,
     onSaved,
 }: Props<T>) {
+    const {t} = useTranslation();
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
-    const initialIndex = React.useMemo<BatchAttributeIndex<T>>(() => {
+
+    const {initialIndex, finalAttributeDefinitions} = React.useMemo(() => {
         const index: BatchAttributeIndex<T> = {};
         const definitionIndex: AttributeDefinitionIndex = {};
+
+        const finalAttributeDefinitions = [
+            {
+                id: ExtraAttributeDefinition.Tags,
+                fieldType: AttributeType.Tag,
+                name: t('tags.label', 'Tags'),
+                multiple: true,
+                canEdit: true,
+                translatable: false,
+            } as AttributeDefinition,
+            ...attributeDefinitions,
+        ]
 
         attributeDefinitions.forEach(def => {
             index[def.id] ??= {};
@@ -60,8 +76,11 @@ export function useAttributeValues<T>({
                 const definitionId = attribute.definition.id;
 
                 // Can be undefined due to pagination
-                index[definitionId] ??= {};
-                definitionIndex[definitionId] ??= attribute.definition;
+                if (!definitionIndex[definitionId]) {
+                    attributeDefinitions.push(attribute.definition);
+                    definitionIndex[definitionId] = attribute.definition;
+                    index[definitionId] = {};
+                }
 
                 index[definitionId][a.id] ??= {};
                 const definition = definitionIndex[definitionId];
@@ -75,11 +94,25 @@ export function useAttributeValues<T>({
                     assetIndex[locale] = attribute.value;
                 }
             });
+
+            // Add tags
+            index[ExtraAttributeDefinition.Tags] ??= {};
+            (index[ExtraAttributeDefinition.Tags][a.id] as LocalizedAttributeIndex<Tag[]>) ??= {
+                [NO_LOCALE]: [] as Tag[],
+            };
+            const tagList = index[ExtraAttributeDefinition.Tags][a.id][NO_LOCALE] as Tag[];
+            a.tags?.forEach(t => {
+                tagList.push(t);
+            });
         });
+
 
         setDefinitionIndex(definitionIndex);
 
-        return index;
+        return {
+            initialIndex: index,
+            finalAttributeDefinitions,
+        };
     }, [attributeDefinitions, assets]);
 
     const [history, setHistory] = React.useState<AttributesHistory<T>>({
@@ -93,6 +126,27 @@ export function useAttributeValues<T>({
         current: 0,
     });
 
+    React.useEffect(() => {
+        // Update definition in current history
+        setHistory(p => {
+            if (p.current === p.history.length - 1 && p.history[p.current].definition !== definition) {
+                const h = [...p.history];
+
+                h[p.current] = {
+                    ...h[p.current],
+                    definition,
+                };
+
+                return {
+                    ...p,
+                    history: h,
+                }
+            }
+
+            return p;
+        });
+    }, [definition]);
+
     const [index, setIndex] =
         React.useState<BatchAttributeIndex<T>>(initialIndex);
 
@@ -100,7 +154,7 @@ export function useAttributeValues<T>({
         DefinitionValuesIndex<T>
     >(() => {
         return computeAllDefinitionsValues(
-            attributeDefinitions,
+            finalAttributeDefinitions,
             subSelection,
             toKey,
             index
@@ -142,10 +196,12 @@ export function useAttributeValues<T>({
             {add, remove, updateInput}: SetAttributeValueOptions = {}
         ) => {
             const defId = definition!.id;
-            const type = attributeDefinitions.find(
+            const type = finalAttributeDefinitions.find(
                 ad => ad.id === defId
             )!.fieldType;
             const key = value ? toKey(type, value) : '';
+            console.log('key', key);
+            console.log('type', type);
 
             setIndex(p => {
                 const np = {...p};
@@ -224,7 +280,7 @@ export function useAttributeValues<T>({
             setDefinition(definition);
             setDefinitionValues(
                 computeAllDefinitionsValues<T>(
-                    attributeDefinitions,
+                    finalAttributeDefinitions,
                     subSelection,
                     toKey,
                     newIndex
@@ -244,7 +300,7 @@ export function useAttributeValues<T>({
                 );
             }
         },
-        [definition, subSelection, attributeDefinitions]
+        [definition, subSelection, finalAttributeDefinitions]
     );
 
     const undo = React.useCallback(() => {
@@ -291,6 +347,7 @@ export function useAttributeValues<T>({
     useDirtyFormPromptOutsideRouter(history.current > 0);
 
     return {
+        attributeDefinitions: finalAttributeDefinitions,
         inputValueInc: inc,
         values,
         setValue,

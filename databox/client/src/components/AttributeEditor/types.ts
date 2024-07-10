@@ -91,3 +91,7 @@ export type DiffGroupIndex<T> = {
         };
     };
 };
+
+export enum ExtraAttributeDefinition {
+    Tags = 'tags',
+};
