@@ -53,6 +53,7 @@ export default function MultiAttributeRow<T>({
     const formatContext = useContext(AttributeFormatContext);
     const [addNew, setAddNew] = React.useState(false);
     const [newValue, setNewValue] = React.useState<T | undefined>();
+    const definitionRef = React.useRef<string>(id);
 
     const newHandler = React.useCallback(() => {
         setAddNew(true);
@@ -73,7 +74,6 @@ export default function MultiAttributeRow<T>({
     );
 
     const addHandler = React.useCallback(() => {
-        console.log('newValue', newValue);
         addValueHandler(newValue!);
         focus();
     }, [addValueHandler, newValue]);
@@ -89,7 +89,7 @@ export default function MultiAttributeRow<T>({
         [setAttributeValue]
     );
 
-    const ChangeNewItemHandler = React.useCallback(
+    const changeNewItemHandler = React.useCallback(
         (v: T | undefined) => {
             setNewValue(v);
         },
@@ -128,24 +128,21 @@ export default function MultiAttributeRow<T>({
             .sort((a, b) => a.key.localeCompare(b.key));
     }, [valueContainer, locale]);
 
-    const [values, setValues] = useState<MultiValueValue<T>[]>(
-        computed ?? [
-            {
-                value: createNewValue(type),
-                part: 100,
-            },
-        ]
-    );
+    const [values, setValues] = useState<MultiValueValue<T>[]>(computed ?? []);
+
+    const finalValues = definitionRef.current !== id ? (computed ?? []) : values;
 
     useEffect(() => {
         setValues(computed ?? []);
-    }, [computed]);
+        definitionRef.current = id;
+    }, [computed, id]);
+
 
     const formatter = getAttributeType(type);
 
     return (
         <FormRow>
-            {values.map((v: MultiValueValue<T>, i: number) => {
+            {finalValues.map((v: MultiValueValue<T>, i: number) => {
                 const valueFormatterProps: AttributeFormatterProps = {
                     value: v.value,
                     locale,
@@ -204,7 +201,7 @@ export default function MultiAttributeRow<T>({
                         required={false}
                         autoFocus={true}
                         value={newValue}
-                        onChange={ChangeNewItemHandler}
+                        onChange={changeNewItemHandler}
                     />
                     <Button
                         sx={{mt: 2}}
