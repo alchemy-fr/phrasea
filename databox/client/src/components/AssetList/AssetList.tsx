@@ -42,6 +42,7 @@ type Props<Item extends AssetOrAssetContainer> = {
     onOpenDebug?: VoidFunction;
     searchBar?: boolean;
     actionsContext?: ActionsContext<Item>;
+    subSelection?: Item[];
     onSelectionChange?: OnSelectionChange<Item>;
     defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
@@ -60,6 +61,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     defaultSelection = [],
     onOpenDebug,
     onSelectionChange,
+    subSelection,
     itemComponent,
     actionsContext = createDefaultActionsContext(),
     previewZIndex,
@@ -83,6 +85,12 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         pos: PopoverPosition;
         anchorEl: HTMLElement | undefined;
     }>(null);
+
+    React.useEffect(() => {
+        if (subSelection) {
+            setSelectionPrivate(subSelection);
+        }
+    }, [subSelection]);
 
     const setSelection = React.useMemo<StateSetter<Item[]>>(() => {
         if (!onSelectionChange) {

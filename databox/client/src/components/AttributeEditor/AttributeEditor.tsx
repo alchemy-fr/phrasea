@@ -179,6 +179,7 @@ export default function AttributeEditor({
                                 searchBar={false}
                                 pages={pages}
                                 defaultSelection={assets}
+                                subSelection={subSelection}
                                 onSelectionChange={setSubSelection}
                                 previewZIndex={ZIndex.modal + 1}
                                 actionsContext={actionsContext}
