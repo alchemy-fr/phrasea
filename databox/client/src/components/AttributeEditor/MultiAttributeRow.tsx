@@ -4,13 +4,13 @@ import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {MultiValueIndex, MultiValueValue, SetAttributeValue, ToKeyFunc, Values,} from './types.ts';
+import {MultiValueIndex, MultiValueValue, SelectedValue, SetAttributeValue, ToKeyFunc, Values,} from './types.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import classNames from 'classnames';
-import {AttributeDefinition} from "../../types.ts";
+import {AttributeDefinition, StateSetter} from "../../types.ts";
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;
@@ -21,6 +21,8 @@ type Props<T> = {
     locale: string;
     toKey: ToKeyFunc<T>;
     setAttributeValue: SetAttributeValue<T>;
+    selectedValue: SelectedValue | undefined;
+    setSelectedValue: StateSetter<SelectedValue<T> | undefined>;
 };
 
 export default function MultiAttributeRow<T>({
@@ -31,6 +33,8 @@ export default function MultiAttributeRow<T>({
     locale,
     toKey,
     setAttributeValue,
+    selectedValue,
+    setSelectedValue,
 }: Props<T>) {
     const {
         id,
@@ -43,7 +47,6 @@ export default function MultiAttributeRow<T>({
     const formatContext = useContext(AttributeFormatContext);
     const [newValue, setNewValue] = React.useState<T | undefined>();
     const definitionRef = React.useRef<string>(id);
-    const [selected, setSelected] = React.useState<string | undefined>();
 
     const addValueHandler = React.useCallback(
         (v: T) => {
@@ -180,12 +183,15 @@ export default function MultiAttributeRow<T>({
                 };
 
                 const indeterminate = v.part < 100;
-                const isSelected = selected === v.key;
+                const isSelected = selectedValue?.key === v.key;
 
                 return (
                     <Box
                         key={i}
-                        onClick={() => setSelected(p => p === v.key ? undefined : v.key)}
+                        onClick={() => setSelectedValue(p => p && p.key === v.key ? undefined : {
+                            value: v.value,
+                            key: v.key,
+                        })}
                         className={classNames({
                             [itemClassName]: true,
                             indeterminate,

@@ -17,8 +17,6 @@ export default function AssetAnnotationsOverlay({annotations}: Props) {
         [AnnotationType.Circle]: CircleAnnotation,
     };
 
-    console.log('annotations', annotations);
-
     return (
         <div
             style={{

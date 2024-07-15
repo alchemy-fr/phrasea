@@ -29,6 +29,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     loadMore,
     itemToAsset,
     previewZIndex,
+    ...layoutProps
 }: LayoutProps<Item>) {
     const lineHeight = 26;
     const collLineHeight = 32;
@@ -157,6 +158,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         onAddToBasket={onAddToBasket}
                         onOpen={onOpen}
                         selection={selection}
+                        {...layoutProps}
                     />
                 ))}
             </Grid>

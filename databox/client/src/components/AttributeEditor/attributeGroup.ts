@@ -2,20 +2,19 @@ import {Asset, AttributeDefinition, StateSetter, Tag} from '../../types.ts';
 import React from 'react';
 import {
     AttributeDefinitionIndex,
-    BatchAttributeIndex,
     AttributesCommit,
     AttributesHistory,
+    BatchAttributeIndex,
     DefinitionValuesIndex,
+    ExtraAttributeDefinition,
+    LocalizedAttributeIndex,
     SetAttributeValueOptions,
     ToKeyFunc,
-    Values, ExtraAttributeDefinition, LocalizedAttributeIndex,
+    Values,
 } from './types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor';
 import {computeValues} from './store/values.ts';
-import {
-    computeAllDefinitionsValues,
-    computeDefinitionValuesHandler,
-} from './store/definitionValues.ts';
+import {computeAllDefinitionsValues, computeDefinitionValuesHandler,} from './store/definitionValues.ts';
 import {getBatchActions} from './batchActions.ts';
 import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
@@ -193,6 +192,30 @@ export function useAttributeValues<T>({
         reset();
     }, [reset]);
 
+    const postUpdate = React.useCallback((np: BatchAttributeIndex<T>) => {
+        setHistory(ph => ({
+            history: ph.history.slice(0, ph.current + 1).concat([
+                {
+                    index: np,
+                    subSelection,
+                    definition,
+                },
+            ]),
+            current: ph.current + 1,
+        }));
+
+        const values = computeValues<T>(
+            definition!,
+            subSelection,
+            np,
+            initialIndex,
+            toKey
+        );
+        setDefinitionValues(
+            computeDefinitionValuesHandler<T>(definition!, values)
+        );
+    }, [subSelection, initialIndex]);
+
     const setValue = React.useCallback(
         (
             locale: string,
@@ -239,26 +262,7 @@ export function useAttributeValues<T>({
 
                 np[defId] = na;
 
-                setHistory(ph => ({
-                    history: ph.history.slice(0, ph.current + 1).concat([
-                        {
-                            index: np,
-                            subSelection,
-                            definition,
-                        },
-                    ]),
-                    current: ph.current + 1,
-                }));
-                const values = computeValues<T>(
-                    definition!,
-                    subSelection,
-                    np,
-                    initialIndex,
-                    toKey
-                );
-                setDefinitionValues(
-                    computeDefinitionValuesHandler<T>(definition!, values)
-                );
+                postUpdate(np);
 
                 return np;
             });
@@ -267,8 +271,60 @@ export function useAttributeValues<T>({
                 setInc(p => p + 1);
             }
         },
-        [definition, subSelection]
+        [definition, subSelection, postUpdate]
     );
+
+    const toggleValue = React.useCallback((assetId: string, locale: string, value: T, checked: boolean) => {
+        const defId = definition!.id;
+        const attributeDefinition = finalAttributeDefinitions.find(
+            ad => ad.id === defId
+        )!;
+        locale = attributeDefinition.translatable ? locale : NO_LOCALE;
+        const key = value ? toKey(attributeDefinition, value) : '';
+
+        setIndex(p => {
+            const np = {...p};
+            const na = {...p[defId]};
+            const c = {...(na[assetId] ?? {})};
+
+            if (checked) {
+                (c[locale] as T[]) = [
+                    ...((c[locale] ?? []) as T[]),
+                ];
+                if (
+                    !(c[locale] as T[]).some(
+                        i => key === toKey(attributeDefinition, i)
+                    )
+                ) {
+                    (c[locale] as T[]).push(value);
+                }
+            } else {
+                (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
+                (c[locale] as T[]) = (c[locale] as T[]).filter(
+                    i => key !== toKey(attributeDefinition, i)
+                );
+            }
+
+            na[assetId] = c;
+            np[defId] = na;
+
+            postUpdate(np);
+
+            return np;
+        });
+    }, [definition, postUpdate]);
+
+    const hasValue = React.useCallback((asset: Asset, locale: string, key: string): boolean => {
+        if (definition && definition.multiple) {
+            locale = definition.translatable ? locale : NO_LOCALE;
+            const v = index[definition.id]?.[asset.id]?.[locale];
+            if (v) {
+                return (v as T[]).some(iv => toKey(definition, iv) === key);
+            }
+        }
+
+        return false;
+    }, [index, definition])
 
     const applyHistory = React.useCallback(
         (commit: AttributesCommit<T>) => {
@@ -353,6 +409,8 @@ export function useAttributeValues<T>({
         inputValueInc: inc,
         values,
         setValue,
+        hasValue,
+        toggleValue,
         reset,
         index,
         definitionValues,

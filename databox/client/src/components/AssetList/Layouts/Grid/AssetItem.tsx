@@ -9,13 +9,14 @@ import AssetThumb from '../../../Media/Asset/AssetThumb';
 import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights';
 import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
 import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList';
-import {AssetItemProps, OnPreviewToggle} from '../../types';
+import {AssetItemProps, ItemOverlayRenderer, OnPreviewToggle} from '../../types';
 import {Checkbox} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import AssetItemWrapper from '../AssetItemWrapper';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;
+    itemOverlay?: ItemOverlayRenderer<Item>;
 } & AssetItemProps<Item>;
 
 export default function AssetItem<Item extends AssetOrAssetContainer>({
@@ -27,6 +28,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onPreviewToggle,
     onAddToBasket,
     itemComponent,
+    itemOverlay,
 }: Props<Item>) {
     const disabled = !asset.workspace;
 
@@ -132,6 +134,9 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     </div>
                 )}
             </div>
+            {itemOverlay ? itemOverlay({
+                item
+            }) : ''}
         </AssetItemWrapper>
     );
 }

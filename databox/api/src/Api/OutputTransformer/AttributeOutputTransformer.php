@@ -7,8 +7,10 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeOutput;
 use App\Attribute\AttributeTypeRegistry;
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 
 class AttributeOutputTransformer implements OutputTransformerInterface
 {
@@ -36,7 +38,9 @@ class AttributeOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->value = $type->denormalizeValue($data->getValue());
 
-        $output->locale = $data->getLocale();
+        /** @var AttributeDefinition $definition */
+        $definition = $data->getDefinition();
+        $output->locale = $definition->isTranslatable() ? $data->getLocale() : IndexMappingUpdater::NO_LOCALE;
         $output->position = $data->getPosition();
         $output->definition = $data->getDefinition();
 

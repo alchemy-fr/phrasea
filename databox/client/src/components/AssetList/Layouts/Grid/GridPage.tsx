@@ -22,6 +22,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
     toolbarHeight,
     page,
     itemComponent,
+    itemOverlay,
 }: Props<Item>) {
     return (
         <>
@@ -60,6 +61,7 @@ function GridPage<Item extends AssetOrAssetContainer>({
                         >
                             <AssetItem
                                 item={item}
+                                itemOverlay={itemOverlay}
                                 itemComponent={itemComponent}
                                 asset={asset}
                                 onAddToBasket={onAddToBasket}

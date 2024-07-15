@@ -8,7 +8,7 @@ import {
 import {Layout, layouts} from './Layouts';
 import {
     ActionsContext,
-    AssetItemComponent,
+    AssetItemComponent, LayoutCommonProps,
     LayoutProps,
     LoadMoreFunc,
     OnAddToBasket,
@@ -42,12 +42,13 @@ type Props<Item extends AssetOrAssetContainer> = {
     onOpenDebug?: VoidFunction;
     searchBar?: boolean;
     actionsContext?: ActionsContext<Item>;
+    itemOverlay?: LayoutCommonProps<Item>;
     subSelection?: Item[];
     onSelectionChange?: OnSelectionChange<Item>;
     defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
     previewZIndex?: number;
-} & SelectionActionConfigProps;
+} & SelectionActionConfigProps & LayoutCommonProps<Item>;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
     pages,
@@ -64,6 +65,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     subSelection,
     itemComponent,
     actionsContext = createDefaultActionsContext(),
+    itemOverlay,
     previewZIndex,
     layout: defaultLayout,
     selectionContext:
@@ -229,6 +231,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         toolbarHeight,
                         itemComponent,
                         previewZIndex,
+                        itemOverlay,
                     } as LayoutProps<Item>)}
 
                     {anchorElMenu ? (
