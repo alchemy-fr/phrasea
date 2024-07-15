@@ -214,7 +214,7 @@ export function useAttributeValues<T>({
         setDefinitionValues(
             computeDefinitionValuesHandler<T>(definition!, values)
         );
-    }, [subSelection, initialIndex]);
+    }, [definition, subSelection, initialIndex]);
 
     const setValue = React.useCallback(
         (

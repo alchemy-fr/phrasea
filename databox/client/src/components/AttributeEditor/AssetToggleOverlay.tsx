@@ -25,6 +25,7 @@ export default function AssetToggleOverlay({
                 zIndex: 1,
                 bottom: 0,
                 width: '100%',
+                background: `rgb(255,255,255,0.8)`,
             }}
         >
             <IconButton
