@@ -1,10 +1,13 @@
-import {SuggestionTabProps} from '../types.ts';
-import {Box, Checkbox, InputLabel, ListItem, ListItemButton, Menu, Stack,} from '@mui/material';
+import {ExtraAttributeDefinition, SuggestionTabProps} from '../types.ts';
+import {Box, Checkbox, InputLabel, ListItem, ListItemButton, ListItemIcon, Menu, Stack,} from '@mui/material';
 import React, {MouseEventHandler} from 'react';
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from '../PartPercentage.tsx';
 import {getAttributeType} from "../../Media/Asset/Attribute/types";
 import MenuItem from "@mui/material/MenuItem";
+import EditIcon from '@mui/icons-material/Edit';
+import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
+import {NO_LOCALE} from "../../Media/Asset/Attribute/AttributesEditor.tsx";
 
 type Stats = Record<string, number>;
 
@@ -22,6 +25,7 @@ export default function ValuesSuggestions<T>({
     locale,
     toKey,
     subSelection,
+    setSubSelection,
 }: Props<T>) {
     const {t} = useTranslation();
     const [useOriginal, setUseOriginal] = React.useState(false);
@@ -105,6 +109,18 @@ export default function ValuesSuggestions<T>({
         return {distinctValues, lengthRef};
     }, [valueContainer, useOriginal, definition, locale]);
 
+    const selectAssetsWithValue = React.useCallback((value: T) => {
+        const key = toKey(definition, value);
+        setSubSelection(p => {
+            return p.filter(definition.id === ExtraAttributeDefinition.Tags ? (a => a.tags?.some(t => t.id === key)) : (a => a.attributes.some(
+                at =>
+                    at.definition.id === definition.id
+                    && (at.locale ?? NO_LOCALE) === locale
+                    && toKey(definition, at.value) === key
+            )))
+        });
+    }, [locale, definition]);
+
     const emptyValueClassName = 'empty-val';
     const labelWrapperClassName = 'label-wr';
     const labelClassName = 'label-val';
@@ -164,10 +180,20 @@ export default function ValuesSuggestions<T>({
                         add: definition.multiple,
                     });
                     handleClose();
-                }}>
-                    {t('attribute_editor.suggestions.menu.apply', 'Apply to selected assets')}
+                }}
+                >
+                    <ListItemIcon>
+                        <EditIcon />
+                    </ListItemIcon>
+                    {t('attribute_editor.suggestions.menu.apply', 'Set this value to selected assets')}
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
+                <MenuItem onClick={() => {
+                    selectAssetsWithValue(anchorEl!.value);
+                    handleClose();
+                }}>
+                    <ListItemIcon>
+                        <HighlightAltIcon />
+                    </ListItemIcon>
                     {t('attribute_editor.suggestions.menu.select_with_value', 'Select assets having this value')}
                 </MenuItem>
             </Menu>

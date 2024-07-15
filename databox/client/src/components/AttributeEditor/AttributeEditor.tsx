@@ -330,6 +330,7 @@ export default function AttributeEditor({
                                         definition={definition}
                                         setAttributeValue={setAttributeValue}
                                         subSelection={subSelection}
+                                        setSubSelection={setSubSelection}
                                         toKey={toKey}
                                     />
                                 ) : (

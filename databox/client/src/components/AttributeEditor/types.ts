@@ -1,4 +1,4 @@
-import {Asset, AttributeDefinition} from '../../types.ts';
+import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
 
 export type IndeterminateGroup = {
     g: boolean;
@@ -37,6 +37,7 @@ export type SuggestionTabProps<T> = {
     valueContainer: Values;
     setAttributeValue: SetAttributeValue<T>;
     subSelection: Asset[];
+    setSubSelection: StateSetter<Asset[]>;
     locale: string;
     toKey: ToKeyFunc<T>;
 };
