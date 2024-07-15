@@ -16,6 +16,8 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AssetVoter;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -78,8 +80,10 @@ class BatchAttributeManager
 
         foreach ($input->actions as $i => $action) {
             if ($action->definitionId) {
-                $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
-                $this->denyUnlessGranted($definition);
+                if ('tags' !== $action->definitionId) {
+                    $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
+                    $this->denyUnlessGranted($definition);
+                }
             } elseif ($action->name) {
                 $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
                 $this->denyUnlessGranted($definition);
@@ -135,6 +139,11 @@ class BatchAttributeManager
                     }
 
                     if ($action->definitionId) {
+                        if ('tags' === $action->definitionId) {
+                            $this->handleTagAction($action, $ids);
+
+                            continue;
+                        }
                         $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
                     } elseif ($action->name) {
                         $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
@@ -293,6 +302,49 @@ class BatchAttributeManager
             });
         } finally {
             DeferredIndexListener::enable();
+        }
+    }
+
+    private function handleTagAction(AttributeActionInput $action, array $assetIds): void
+    {
+        $assetMeta = $this->em->getClassMetadata(Asset::class);
+        $tagMapping = $assetMeta->getAssociationMapping('tags');
+        $joinTable = $tagMapping['joinTable'];
+        $assetTable = $assetMeta->getTableName();
+        $tagAssociationTable = $joinTable['name'];
+        $assetIdCol = $joinTable['joinColumns'][0]['name'];
+        $tagIdCol = $joinTable['inverseJoinColumns'][0]['name'];
+
+        switch ($action->action) {
+            case self::ACTION_ADD:
+                $query = sprintf(
+                    'INSERT INTO %1$s (%2$s, %3$s) SELECT :tag, a.id FROM %4$s a WHERE a.id IN (:ids) ON CONFLICT DO NOTHING',
+                    $tagAssociationTable,
+                    $tagIdCol,
+                    $assetIdCol,
+                    $assetTable,
+                );
+                $this->em->getConnection()->executeQuery($query, [
+                    'tag' => $action->value,
+                    'ids' => $assetIds,
+                ], [
+                    'tag' => ParameterType::STRING,
+                    'ids' => ArrayParameterType::STRING,
+                ]);
+                break;
+            case self::ACTION_DELETE:
+                $this->em->getConnection()->executeQuery(sprintf(
+                    'DELETE FROM %1$s WHERE %3$s IN (:ids) AND %2$s IN (:tags)',
+                    $tagAssociationTable,
+                    $tagIdCol,
+                    $assetIdCol,
+                ), [
+                    'tags' => $action->ids,
+                    'ids' => $assetIds,
+                ], [
+                    'tags' => ArrayParameterType::STRING,
+                    'ids' => ArrayParameterType::STRING,
+                ]);
         }
     }
 

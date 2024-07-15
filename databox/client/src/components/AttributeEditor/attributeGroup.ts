@@ -54,15 +54,18 @@ export function useAttributeValues<T>({
         const index: BatchAttributeIndex<T> = {};
         const definitionIndex: AttributeDefinitionIndex = {};
 
+        const tagDefinition = {
+            id: ExtraAttributeDefinition.Tags,
+            fieldType: AttributeType.Tag,
+            name: t('tags.label', 'Tags'),
+            entity: true,
+            multiple: true,
+            canEdit: true,
+            translatable: false,
+        } as AttributeDefinition;
+
         const finalAttributeDefinitions = [
-            {
-                id: ExtraAttributeDefinition.Tags,
-                fieldType: AttributeType.Tag,
-                name: t('tags.label', 'Tags'),
-                multiple: true,
-                canEdit: true,
-                translatable: false,
-            } as AttributeDefinition,
+            tagDefinition,
             ...attributeDefinitions,
         ]
 
@@ -70,6 +73,8 @@ export function useAttributeValues<T>({
             index[def.id] ??= {};
             definitionIndex[def.id] = def;
         });
+        index[ExtraAttributeDefinition.Tags] ??= {};
+        definitionIndex[ExtraAttributeDefinition.Tags] = tagDefinition;
 
         assets.forEach(a => {
             a.attributes.forEach(attribute => {
@@ -96,7 +101,6 @@ export function useAttributeValues<T>({
             });
 
             // Add tags
-            index[ExtraAttributeDefinition.Tags] ??= {};
             (index[ExtraAttributeDefinition.Tags][a.id] as LocalizedAttributeIndex<Tag[]>) ??= {
                 [NO_LOCALE]: [] as Tag[],
             };
@@ -196,12 +200,10 @@ export function useAttributeValues<T>({
             {add, remove, updateInput}: SetAttributeValueOptions = {}
         ) => {
             const defId = definition!.id;
-            const type = finalAttributeDefinitions.find(
+            const attributeDefinition = finalAttributeDefinitions.find(
                 ad => ad.id === defId
-            )!.fieldType;
-            const key = value ? toKey(type, value) : '';
-            console.log('key', key);
-            console.log('type', type);
+            )!;
+            const key = value ? toKey(attributeDefinition, value) : '';
 
             setIndex(p => {
                 const np = {...p};
@@ -217,7 +219,7 @@ export function useAttributeValues<T>({
                             ];
                             if (
                                 !(c[locale] as T[]).some(
-                                    i => key === toKey(type, i)
+                                    i => key === toKey(attributeDefinition, i)
                                 )
                             ) {
                                 (c[locale] as T[]).push(value);
@@ -226,7 +228,7 @@ export function useAttributeValues<T>({
                     } else if (remove) {
                         (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
                         (c[locale] as T[]) = (c[locale] as T[]).filter(
-                            i => key !== toKey(type, i)
+                            i => key !== toKey(attributeDefinition, i)
                         );
                     } else {
                         c[locale] = value;

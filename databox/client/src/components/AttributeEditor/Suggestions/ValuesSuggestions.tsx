@@ -59,7 +59,7 @@ export default function ValuesSuggestions<T>({
             values.push(undefined);
         }
 
-        const norm = (v: T) => toKey(definition.fieldType, v);
+        const norm = (v: T) => toKey(definition, v);
         const sortFn = (a: Value<T>, b: Value<T>) => {
             if (a.part === b.part) {
                 return a.label

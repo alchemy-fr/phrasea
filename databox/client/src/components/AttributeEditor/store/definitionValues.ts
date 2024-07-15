@@ -38,7 +38,7 @@ export function computeAllDefinitionsValues<T>(
                     return listsAreSame(
                         (a ?? []) as T[],
                         (b ?? []) as T[],
-                        (v: T) => toKey(values.definition.fieldType, v)
+                        (v: T) => toKey(values.definition, v)
                     );
                 }
 

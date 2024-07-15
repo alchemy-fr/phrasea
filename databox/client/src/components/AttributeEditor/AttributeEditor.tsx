@@ -9,7 +9,7 @@ import DefinitionsSkeleton from './DefinitionsSkeleton.tsx';
 import SuggestionPanel from './Suggestions/SuggestionPanel.tsx';
 import {scrollbarWidth} from '../../constants.ts';
 import EditorPanel from './EditorPanel.tsx';
-import {SetAttributeValue} from './types.ts';
+import {SetAttributeValue, ToKeyFunc} from './types.ts';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import {Resizable} from 're-resizable';
 import {useTranslation} from 'react-i18next';
@@ -20,7 +20,6 @@ import DisplayProvider from '../Media/DisplayProvider.tsx';
 import AssetList from '../AssetList/AssetList.tsx';
 import {ZIndex} from '../../themes/zIndex.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {AttributeType} from "../../api/attributes.ts";
 import {useTabShortcut} from "./shortcuts.ts";
 
 type Props = {
@@ -37,14 +36,13 @@ export default function AttributeEditor({
     removeFromSelection,
 }: Props) {
     const {t} = useTranslation();
-    const toKey = React.useCallback((type: string, v: any): string => {
+    const toKey = React.useCallback<ToKeyFunc<any>>(({entity}, v): string => {
         if (!v) {
             return '';
         }
 
-        switch (type) {
-            case AttributeType.Tag:
-                return v.id;
+        if (entity) {
+            return v.id;
         }
 
         return v.toString() as string;
@@ -55,9 +53,10 @@ export default function AttributeEditor({
     const [definition, setDefinition] = React.useState<
         AttributeDefinition | undefined
     >();
+    const borderWidth = 3;
     const defaultThumbSize = 200;
     const [thumbsHeight, setThumbsHeight] = React.useState(
-        defaultThumbSize + scrollbarWidth
+        defaultThumbSize + scrollbarWidth + borderWidth + 53
     );
     const [locale, setLocale] = React.useState<string>('en');
     const onSaved = React.useCallback(() => {
@@ -136,6 +135,8 @@ export default function AttributeEditor({
         [definition, setValue, definitionLocale]
     );
 
+    const separatorBorderStyle = `${borderWidth}px solid ${theme.palette.divider}`;
+
     return (
         <div
             style={{
@@ -153,7 +154,7 @@ export default function AttributeEditor({
             >
                 <Resizable
                     defaultSize={{
-                        height: thumbsHeight,
+                        height: thumbsHeight + borderWidth,
                     }}
                     onResize={(_e, _direction, ref, _d) =>
                         setThumbsHeight((ref as HTMLDivElement)!.clientHeight)
@@ -164,7 +165,7 @@ export default function AttributeEditor({
                     }}
                     style={{
                         zIndex: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        borderBottom: separatorBorderStyle,
                     }}
                 >
                     <div
@@ -225,7 +226,7 @@ export default function AttributeEditor({
                                 right: true,
                             }}
                             style={{
-                                borderRight: `1px solid ${theme.palette.divider}`,
+                                borderRight: separatorBorderStyle,
                             }}
                         >
                             <div
@@ -255,12 +256,13 @@ export default function AttributeEditor({
                             style={{
                                 position: 'relative',
                                 flexGrow: 1,
-                                borderRight: `1px solid ${theme.palette.divider}`,
+                                borderRight: separatorBorderStyle,
                                 height: '100%',
                             }}
                         >
                             <div
                                 style={{
+                                    zIndex: theme.zIndex.fab,
                                     position: 'absolute',
                                     display: 'flex',
                                     bottom: theme.spacing(3),
@@ -311,7 +313,7 @@ export default function AttributeEditor({
                             minWidth={30}
                             maxWidth={1200}
                             style={{
-                                borderRight: `1px solid ${theme.palette.divider}`,
+                                borderRight: separatorBorderStyle,
                             }}
                         >
                             <div

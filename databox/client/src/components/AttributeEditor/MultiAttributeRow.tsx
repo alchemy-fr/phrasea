@@ -9,11 +9,11 @@ import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import AttributeWidget from './AttributeWidget.tsx';
+import classNames from 'classnames';
+import {AttributeDefinition} from "../../types.ts";
 
 type Props<T> = {
-    id: string;
-    type: string;
-    name: string;
+    attributeDefinition: AttributeDefinition;
     valueContainer: Values;
     disabled: boolean;
     indeterminate?: boolean;
@@ -24,16 +24,20 @@ type Props<T> = {
 };
 
 export default function MultiAttributeRow<T>({
-    id,
-    name,
     valueContainer,
     disabled,
-    type,
+    attributeDefinition,
     readOnly,
     locale,
     toKey,
     setAttributeValue,
 }: Props<T>) {
+    const {
+        id,
+        name,
+        fieldType: type,
+    } = attributeDefinition;
+
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
@@ -81,7 +85,7 @@ export default function MultiAttributeRow<T>({
             const values = translations[locale];
 
             values?.forEach((v: T) => {
-                const k = toKey(type, v);
+                const k = toKey(attributeDefinition, v);
 
                 index[k] ??= {
                     p: 0,
@@ -118,9 +122,26 @@ export default function MultiAttributeRow<T>({
 
 
     const formatter = getAttributeType(type);
+    const itemClassName = 'item';
 
     return (
-        <FormRow>
+        <FormRow sx={{
+            [`.${itemClassName}`]: {
+                display: 'flex',
+                cursor: 'pointer',
+                alignItems: 'center',
+                p: 1,
+            },
+            [`.${itemClassName}.selected`]: {
+                bgcolor: 'divider',
+            },
+            '.vw': {
+                flexGrow: 1,
+            },
+            [`.${itemClassName}.indeterminate .vw`]: {
+                opacity: 0.5,
+            },
+        }}>
             <AttributeWidget<T>
                 id={id}
                 key={id}
@@ -164,20 +185,14 @@ export default function MultiAttributeRow<T>({
                 return (
                     <Box
                         key={i}
-                        onClick={() => setSelected(v.key)}
-                        sx={{
-                            display: 'flex',
-                            p: 1,
-                            bgcolor: isSelected ? 'divider' : undefined,
-                            '.vw': {
-                                opacity: indeterminate ? 0.5 : undefined,
-                            }
-                        }}
+                        onClick={() => setSelected(p => p === v.key ? undefined : v.key)}
+                        className={classNames({
+                            [itemClassName]: true,
+                            indeterminate,
+                            selected: isSelected,
+                        })}
                     >
                         <div
-                            style={{
-                                flexGrow: 1,
-                            }}
                             className={'vw'}
                         >
                             {formatter.formatValue(valueFormatterProps)}
@@ -187,14 +202,20 @@ export default function MultiAttributeRow<T>({
                                 disabled={
                                     !indeterminate || readOnly || disabled
                                 }
-                                onClick={() => addValueHandler(v.value)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    addValueHandler(v.value);
+                                }}
                                 color="success"
                             >
                                 <AddIcon/>
                             </IconButton>
                             <IconButton
                                 disabled={readOnly || disabled}
-                                onClick={() => removeValueHandler(v.value)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeValueHandler(v.value);
+                                }}
                                 color="error"
                             >
                                 <DeleteIcon/>

@@ -62,12 +62,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                     {defActions.map((a, i) => {
                                         const valueFormatterProps: AttributeFormatterProps =
                                             {
-                                                value: [
-                                                    AttributeBatchActionEnum.Add,
-                                                    AttributeBatchActionEnum.Delete,
-                                                ].includes(a.action!)
-                                                    ? [a.value]
-                                                    : a.value,
+                                                value: a.value,
                                                 locale: a.locale,
                                                 format: formatContext.formats[
                                                     definition.fieldType

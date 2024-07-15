@@ -2,7 +2,7 @@ import {isSame} from '../../utils/comparison';
 import {
     AttributeDefinitionIndex,
     BatchAttributeIndex,
-    DiffGroupIndex,
+    DiffGroupIndex, ExtraAttributeDefinition,
     ToKeyFunc,
     ToKeyFuncTypeScoped,
 } from './types.ts';
@@ -29,7 +29,7 @@ export function getBatchActions<T>(
         }
 
         const toKeyForType: ToKeyFuncTypeScoped<T> = v =>
-            toKey(definition.fieldType, v);
+            toKey(definition, v);
         const av = attributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
@@ -105,7 +105,7 @@ export function getBatchActions<T>(
         }
 
         const toKeyForType: ToKeyFuncTypeScoped<T> = v =>
-            toKey(definition.fieldType, v);
+            toKey(definition, v);
         const av = initialAttributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
@@ -278,6 +278,15 @@ function addAttributeIdsToDeleteGroup<T>(
     toKeyForType: ToKeyFuncTypeScoped<T>,
     deleteGroups: DiffGroupIndex<T>
 ) {
+    if (defId === ExtraAttributeDefinition.Tags) {
+        const attributeIds = deleteGroups[defId][locale][key].attributeIds!;
+        if (!attributeIds.includes(key)) {
+            attributeIds.push(key);
+        }
+
+        return;
+    }
+
     const attributeIds = asset.attributes
         .filter((a: Attribute): boolean => {
             return (

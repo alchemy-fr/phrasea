@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Fixture\Faker;
 
-use Faker\Provider\Base as BaseProvider;
 use App\Entity\Traits\AssetAnnotationsInterface;
+use Faker\Provider\Base as BaseProvider;
 
 class AssetAnnotationsFaker extends BaseProvider
 {
@@ -21,8 +21,8 @@ class AssetAnnotationsFaker extends BaseProvider
 
     public function assetAnnotationsCircle(): array
     {
-        $x = rand(5, 100)/100;
-        $y = rand(5, 100)/100;
+        $x = rand(5, 100) / 100;
+        $y = rand(5, 100) / 100;
 
         return [
             [
@@ -37,8 +37,8 @@ class AssetAnnotationsFaker extends BaseProvider
 
     public function assetAnnotationsPoint(): array
     {
-        $x = rand(0, 100)/100;
-        $y = rand(0, 100)/100;
+        $x = rand(0, 100) / 100;
+        $y = rand(0, 100) / 100;
 
         return [
             [
@@ -52,8 +52,8 @@ class AssetAnnotationsFaker extends BaseProvider
 
     public function assetAnnotationsRect(): array
     {
-        $x1 = rand(0, 100)/100;
-        $y1 = rand(0, 100)/100;
+        $x1 = rand(0, 100) / 100;
+        $y1 = rand(0, 100) / 100;
         $x2 = min($x1 * (1 + rand(10, 100) / 100), 1);
         $y2 = min($y1 * (1 + rand(10, 100) / 100), 1);
 
@@ -69,7 +69,8 @@ class AssetAnnotationsFaker extends BaseProvider
         ];
     }
 
-    private function randomColor(): string {
+    private function randomColor(): string
+    {
         $rouge = dechex(rand(0, 255));
         $vert = dechex(rand(0, 255));
         $bleu = dechex(rand(0, 255));
@@ -78,6 +79,6 @@ class AssetAnnotationsFaker extends BaseProvider
         $vert = str_pad($vert, 2, '0', STR_PAD_LEFT);
         $bleu = str_pad($bleu, 2, '0', STR_PAD_LEFT);
 
-        return '#' . $rouge . $vert . $bleu;
+        return '#'.$rouge.$vert.$bleu;
     }
 }

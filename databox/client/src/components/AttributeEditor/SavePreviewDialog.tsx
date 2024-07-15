@@ -20,6 +20,7 @@ export default function SavePreviewDialog({
     workspaceId,
     actions,
     onSaved,
+    definitionIndex,
     ...props
 }: Props) {
     const {t} = useTranslation();
@@ -32,7 +33,10 @@ export default function SavePreviewDialog({
         if (actions.length > 0) {
             setSaving(true);
             try {
-                await workspaceAttributeBatchUpdate(workspaceId, actions);
+                await workspaceAttributeBatchUpdate(workspaceId, actions.map(a => ({
+                    ...a,
+                    value: definitionIndex[a.definitionId!].entity ? a.value?.id : a.value,
+                })));
                 closeModal();
                 onSaved();
             } finally {
@@ -64,7 +68,7 @@ export default function SavePreviewDialog({
                 </>
             )}
         >
-            <ValueDiff actions={actions} {...props} />
+            <ValueDiff actions={actions} definitionIndex={definitionIndex} {...props} />
         </AppDialog>
     );
 }

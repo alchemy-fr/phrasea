@@ -188,6 +188,7 @@ class AssetRendition extends AbstractUuidEntity
     {
         return null !== $this->file;
     }
+
     public function getProjection(): ?bool
     {
         return $this->projection;

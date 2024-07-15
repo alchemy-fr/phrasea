@@ -90,6 +90,7 @@ export interface AttributeDefinition extends IPermissions {
     name: string;
     slug: string;
     fieldType: string;
+    entity: boolean;
     multiple: boolean;
     searchable: boolean;
     suggest: boolean;

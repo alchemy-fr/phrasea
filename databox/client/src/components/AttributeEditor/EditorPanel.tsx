@@ -129,9 +129,7 @@ export default function EditorPanel<T>({
 
             {definition.multiple ? (
                 <MultiAttributeRow
-                    id={definition.id}
-                    name={definition.name}
-                    type={definition.fieldType}
+                    attributeDefinition={definition}
                     setAttributeValue={setAttributeValue}
                     readOnly={readOnly}
                     disabled={disabled}
