@@ -63,6 +63,19 @@ export default function MultiAttributeRow<T>({
         addValueHandler(newValue!);
     }, [addValueHandler, newValue]);
 
+    React.useEffect(() => {
+        const onEnter = (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && newValue) {
+                addHandler();
+            }
+        };
+        window.addEventListener('keydown', onEnter);
+
+        return () => {
+            window.removeEventListener('keydown', onEnter);
+        };
+    }, [addHandler]);
+
     const removeValueHandler = React.useCallback(
         (v: T) => {
             setAttributeValue(v, {
@@ -116,6 +129,7 @@ export default function MultiAttributeRow<T>({
 
     const finalValues = definitionRef.current !== id ? (computed ?? []) : values;
     const finalNewValue = definitionRef.current !== id ? undefined : newValue;
+    const finalSelectedValue = definitionRef.current !== id ? undefined : selectedValue;
 
     useEffect(() => {
         setValues(computed ?? []);
@@ -123,6 +137,9 @@ export default function MultiAttributeRow<T>({
         definitionRef.current = id;
     }, [computed, id]);
 
+    React.useEffect(() => {
+        setSelectedValue(undefined);
+    }, []);
 
     const formatter = getAttributeType(type);
     const itemClassName = 'item';
@@ -183,7 +200,7 @@ export default function MultiAttributeRow<T>({
                 };
 
                 const indeterminate = v.part < 100;
-                const isSelected = selectedValue?.key === v.key;
+                const isSelected = finalSelectedValue?.key === v.key;
 
                 return (
                     <Box

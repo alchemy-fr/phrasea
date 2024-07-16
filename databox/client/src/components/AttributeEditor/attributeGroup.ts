@@ -21,6 +21,7 @@ import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from "../../api/attributes.ts";
+import {deepMerge} from "@alchemy/react-hooks/src/deep.ts";
 
 type Props<T> = {
     attributeDefinitions: AttributeDefinition[];
@@ -49,19 +50,19 @@ export function useAttributeValues<T>({
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
 
+    const tagDefinition = React.useMemo<AttributeDefinition>(() => ({
+        id: ExtraAttributeDefinition.Tags,
+        fieldType: AttributeType.Tag,
+        name: t('tags.label', 'Tags'),
+        entity: true,
+        multiple: true,
+        canEdit: true,
+        translatable: false,
+    } as AttributeDefinition), []);
+
     const {initialIndex, finalAttributeDefinitions} = React.useMemo(() => {
         const index: BatchAttributeIndex<T> = {};
         const definitionIndex: AttributeDefinitionIndex = {};
-
-        const tagDefinition = {
-            id: ExtraAttributeDefinition.Tags,
-            fieldType: AttributeType.Tag,
-            name: t('tags.label', 'Tags'),
-            entity: true,
-            multiple: true,
-            canEdit: true,
-            translatable: false,
-        } as AttributeDefinition;
 
         const finalAttributeDefinitions = [
             tagDefinition,
@@ -132,11 +133,15 @@ export function useAttributeValues<T>({
     React.useEffect(() => {
         // Update definition in current history
         setHistory(p => {
-            if (p.current === p.history.length - 1 && p.history[p.current].definition !== definition) {
+            if (p.current === p.history.length - 1
+                && p.history[p.current].definition !== definition
+                && p.history[p.current].subSelection !== subSelection
+            ) {
                 const h = [...p.history];
 
                 h[p.current] = {
                     ...h[p.current],
+                    subSelection,
                     definition,
                 };
 
@@ -148,7 +153,7 @@ export function useAttributeValues<T>({
 
             return p;
         });
-    }, [definition]);
+    }, [definition, subSelection]);
 
     const [index, setIndex] =
         React.useState<BatchAttributeIndex<T>>(initialIndex);
@@ -314,6 +319,27 @@ export function useAttributeValues<T>({
         });
     }, [definition, postUpdate]);
 
+    const resetSelection = React.useCallback(() => {
+        setIndex(p => {
+            const np = {...p};
+
+            Object.keys(np).forEach(defId => {
+                const na = {...np[defId]};
+
+                subSelection.forEach(({id}) => {
+                    na[id] = deepMerge({}, history.history[0]!.index[defId]?.[id]);
+                    np[defId] = na;
+                });
+
+                np[defId] = na;
+            });
+
+            postUpdate(np);
+
+            return np;
+        });
+    }, [postUpdate, history]);
+
     const hasValue = React.useCallback((asset: Asset, locale: string, key: string): boolean => {
         if (definition && definition.multiple) {
             locale = definition.translatable ? locale : NO_LOCALE;
@@ -417,6 +443,7 @@ export function useAttributeValues<T>({
         history,
         undo: history.current > 0 ? undo : undefined,
         redo: history.current < history.history.length - 1 ? redo : undefined,
+        resetSelection,
         onSave,
     };
 }

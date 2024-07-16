@@ -12,7 +12,9 @@
     "src/useUniqueId.ts",
     "src/useWindowSize.ts",
     "src/useUpdateEffect.ts",
-    "src/useMountEffect.ts"
+    "src/useMountEffect.ts",
+    "src/useElementResize.ts",
+    "src/deep.ts"
   ],
   "peerDependencies": {
     "axios": "^1.6.2",

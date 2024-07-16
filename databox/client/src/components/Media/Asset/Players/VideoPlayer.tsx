@@ -16,7 +16,7 @@ type Progress = {
     loaded: number;
 };
 
-export function getVideoDimensions(
+export function getRatioDimensions(
     dimensions: StrictDimensions,
     ratio: number | undefined
 ): StrictDimensions {
@@ -68,7 +68,7 @@ export default function VideoPlayer({
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
     );
-    const videoDimensions = getVideoDimensions(dimensions, ratio);
+    const videoDimensions = getRatioDimensions(dimensions, ratio);
     const autoPlay = autoPlayable && displayContext?.playVideos;
 
     const onPlay = (e: MouseEvent) => {

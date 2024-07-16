@@ -48,7 +48,6 @@ final readonly class AttributeSplitter
                     $a->setOriginUserId($attribute->getOriginUserId());
                     $a->setOriginVendor($attribute->getOriginVendor());
                     $a->setOriginVendorContext($attribute->getOriginVendorContext());
-                    $a->setTranslationId($attribute->getTranslationId());
                     $a->setValue($p);
 
                     $this->em->persist($a);

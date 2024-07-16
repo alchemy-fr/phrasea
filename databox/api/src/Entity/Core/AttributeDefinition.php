@@ -127,6 +127,10 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
 
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: AttributeItem::TYPE_LENGTH, nullable: true)]
+    private ?string $sourceType = null;
+
     #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $searchable = true;
@@ -428,5 +432,15 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setSuggest(bool $suggest): void
     {
         $this->suggest = $suggest;
+    }
+
+    public function getSourceType(): ?string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(?string $sourceType): void
+    {
+        $this->sourceType = $sourceType;
     }
 }

@@ -33,6 +33,7 @@ export type DefinitionValuesIndex<T> = {
 };
 
 export type SuggestionTabProps<T> = {
+    defaultPanelWidth: number;
     definition: AttributeDefinition;
     valueContainer: Values;
     setAttributeValue: SetAttributeValue<T>;

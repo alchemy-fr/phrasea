@@ -98,29 +98,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     protected ?AttributeDefinition $definition = null;
 
     /**
-     * Unique ID to group translations of the same attribute.
-     */
-    #[ORM\Column(type: UuidType::NAME, nullable: true)]
-    private ?string $translationId = null;
-
-    /**
-     * Unique ID to group translations of the same attribute.
-     */
-    #[ORM\ManyToOne(targetEntity: Attribute::class, inversedBy: 'translations')]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?self $translationOrigin = null;
-
-    /**
-     * Hashed value of the original translated string.
-     */
-    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
-    private ?string $translationOriginHash = null;
-
-    #[ORM\OneToMany(targetEntity: Attribute::class, mappedBy: 'translationOrigin', cascade: ['remove'])]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?DoctrineCollection $translations = null;
-
-    /**
      * Dynamically resolved.
      */
     private ?string $highlight = null;
@@ -174,16 +151,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function getDefinitionId(): string
     {
         return $this->definition->getId();
-    }
-
-    public function getTranslationId(): ?string
-    {
-        return $this->translationId;
-    }
-
-    public function setTranslationId(?string $translationId): void
-    {
-        $this->translationId = $translationId;
     }
 
     public function hasOrigin(): bool
@@ -276,21 +243,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function setHighlight(?string $highlight): void
     {
         $this->highlight = $highlight;
-    }
-
-    public function getTranslationOrigin(): ?Attribute
-    {
-        return $this->translationOrigin;
-    }
-
-    public function getTranslationOriginHash(): ?string
-    {
-        return $this->translationOriginHash;
-    }
-
-    public function setTranslationOriginHash(?string $translationOriginHash): void
-    {
-        $this->translationOriginHash = $translationOriginHash;
     }
 
     public function isLocked(): bool

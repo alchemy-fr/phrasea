@@ -38,12 +38,6 @@ class AttributeOutput extends AbstractUuidOutput
     public string|array|null $highlight;
 
     /**
-     * Unique ID to group translations of the same attribute.
-     */
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, AssetDataTemplate::GROUP_READ])]
-    public ?string $translationId = null;
-
-    /**
      * "human" or "machine".
      */
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]

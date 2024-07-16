@@ -71,6 +71,7 @@ export async function getWorkspaceAttributeDefinitions(
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             workspaceId,
+            limit: 100,
         },
     });
 

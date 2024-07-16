@@ -49,6 +49,7 @@ export default function AttributeEditor({
         return v.toString() as string;
     }, []);
 
+    const defaultSuggestionsPanelWidth = 500;
     const theme = useTheme();
     const [selectedValue, setSelectedValue] = React.useState<SelectedValue | undefined>();
     const [subSelection, setSubSelection] = React.useState<Asset[]>(assets);
@@ -78,6 +79,7 @@ export default function AttributeEditor({
         undo,
         redo,
         onSave,
+        resetSelection,
     } = useAttributeValues({
         attributeDefinitions: remoteAttributeDefinitions,
         assets,
@@ -232,7 +234,6 @@ export default function AttributeEditor({
                                 height: 'auto',
                             }}
                             minWidth={30}
-                            maxWidth={1200}
                             enable={{
                                 right: true,
                             }}
@@ -288,6 +289,7 @@ export default function AttributeEditor({
                                     hasChanges={history.current > 0}
                                     onSave={onSave}
                                     onClose={onClose}
+                                    resetSelection={resetSelection}
                                 />
                             </div>
                             <div
@@ -317,14 +319,13 @@ export default function AttributeEditor({
                         </div>
                         <Resizable
                             defaultSize={{
-                                width: 500,
+                                width: defaultSuggestionsPanelWidth,
                                 height: 'auto',
                             }}
                             enable={{
                                 left: true,
                             }}
                             minWidth={30}
-                            maxWidth={1200}
                             style={{
                                 borderRight: separatorBorderStyle,
                             }}
@@ -336,19 +337,16 @@ export default function AttributeEditor({
                                     overflow: 'auto',
                                 }}
                             >
-                                {definition && values ? (
-                                    <SuggestionPanel
-                                        locale={definitionLocale}
-                                        valueContainer={values}
-                                        definition={definition}
-                                        setAttributeValue={setAttributeValue}
-                                        subSelection={subSelection}
-                                        setSubSelection={setSubSelection}
-                                        toKey={toKey}
-                                    />
-                                ) : (
-                                    ''
-                                )}
+                                <SuggestionPanel
+                                    defaultPanelWidth={defaultSuggestionsPanelWidth}
+                                    locale={definitionLocale}
+                                    valueContainer={values}
+                                    definition={definition}
+                                    setAttributeValue={setAttributeValue}
+                                    subSelection={subSelection}
+                                    setSubSelection={setSubSelection}
+                                    toKey={toKey}
+                                />
                             </div>
                         </Resizable>
                     </Box>
