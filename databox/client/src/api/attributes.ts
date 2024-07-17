@@ -94,6 +94,7 @@ export enum AttributeType {
     Date = 'date',
     DateTime = 'date_time',
     GeoPoint = 'geo_point',
+    Entity = 'entity',
     Html = 'html',
     Ip = 'ip',
     Json = 'json',

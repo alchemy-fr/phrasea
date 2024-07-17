@@ -21,7 +21,6 @@ import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from "../../api/attributes.ts";
-import {deepMerge} from "@alchemy/react-hooks/src/deep.ts";
 
 type Props<T> = {
     attributeDefinitions: AttributeDefinition[];
@@ -319,27 +318,6 @@ export function useAttributeValues<T>({
         });
     }, [definition, postUpdate]);
 
-    const resetSelection = React.useCallback(() => {
-        setIndex(p => {
-            const np = {...p};
-
-            Object.keys(np).forEach(defId => {
-                const na = {...np[defId]};
-
-                subSelection.forEach(({id}) => {
-                    na[id] = deepMerge({}, history.history[0]!.index[defId]?.[id]);
-                    np[defId] = na;
-                });
-
-                np[defId] = na;
-            });
-
-            postUpdate(np);
-
-            return np;
-        });
-    }, [postUpdate, history]);
-
     const hasValue = React.useCallback((asset: Asset, locale: string, key: string): boolean => {
         if (definition && definition.multiple) {
             locale = definition.translatable ? locale : NO_LOCALE;
@@ -443,7 +421,6 @@ export function useAttributeValues<T>({
         history,
         undo: history.current > 0 ? undo : undefined,
         redo: history.current < history.history.length - 1 ? redo : undefined,
-        resetSelection,
         onSave,
     };
 }

@@ -178,6 +178,15 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
     exclude: Tag[];
 }
 
+export type AttributeEntity = {
+    id: string;
+    locale: string;
+    value: string;
+    translations?: Record<string, string>;
+    createdAt: string;
+    updatedAt: string;
+};
+
 export interface Tag extends ApiHydraObjectResponse, WithTranslations {
     id: string;
     name: string;

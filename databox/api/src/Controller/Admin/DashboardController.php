@@ -18,7 +18,7 @@ use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\AttributeItem;
+use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionClass;
@@ -66,7 +66,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Asset', '', Asset::class),
             MenuItem::linkToCrud('File', '', File::class),
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
-            MenuItem::linkToCrud('Attribute Item', '', AttributeItem::class),
+            MenuItem::linkToCrud('Attribute Item', '', AttributeEntity::class),
             MenuItem::linkToCrud('AssetTitleAttribute', '', AssetTitleAttribute::class),
             MenuItem::linkToCrud('AttributeDefinition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('AttributeClass', '', AttributeClass::class),

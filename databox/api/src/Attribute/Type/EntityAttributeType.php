@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\AttributeEntity;
+use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class EntityAttributeType extends TextAttributeType
 {
     public const NAME = 'entity';
+
+    public function __construct(
+        private AttributeEntityRepository $repository,
+    )
+    {
+    }
 
     public static function getName(): string
     {
@@ -25,5 +33,58 @@ class EntityAttributeType extends TextAttributeType
         if (!Uuid::isValid($value)) {
             $context->addViolation('Invalid entity ID');
         }
+    }
+
+    public function normalizeElasticsearchValue(?string $value): ?string
+    {
+        $entity = $this->getEntityFromValue($value);
+        if ($entity instanceof AttributeEntity) {
+            return $entity->getValue();
+        }
+
+        return null;
+    }
+
+    public function normalizeValue($value): ?string
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        if ($value instanceof AttributeEntity) {
+            return $value->getId();
+        }
+
+        return $value;
+    }
+
+    private function getEntityFromValue(?string $value): ?AttributeEntity
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        return $this->repository->find($value);
+    }
+
+    public function denormalizeValue(?string $value): ?array
+    {
+        $entity = $this->getEntityFromValue($value);
+        if (!$entity instanceof AttributeEntity) {
+            return null;
+        }
+
+        $id = $entity->getId();
+        $v = $entity->getValue();
+
+        return [
+            'value' => $id,
+            'label' => $v,
+            'item' => [
+                'id' => $id,
+                'value' => $v,
+                'createdAt' => $entity->getCreatedAt(),
+            ]
+        ];
     }
 }

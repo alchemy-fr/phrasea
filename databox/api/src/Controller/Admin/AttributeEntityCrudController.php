@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\Core\AttributeItem;
+use App\Entity\Core\AttributeEntity;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,11 +13,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class AttributeItemCrudController extends AbstractAdminCrudController
+class AttributeEntityCrudController extends AbstractAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return AttributeItem::class;
+        return AttributeEntity::class;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -38,8 +38,8 @@ class AttributeItemCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('Attribute Item')
-            ->setEntityLabelInPlural('Attribute Items')
+            ->setEntityLabelInSingular('Attribute Entity')
+            ->setEntityLabelInPlural('Attribute Entities')
             ->setSearchFields(['id', 'position', 'type', 'value'])
             ->setPaginatorPageSize(20);
     }

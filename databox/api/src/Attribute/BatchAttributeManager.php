@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use ApiPlatform\Validator\Exception\ValidationException;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChanged;
@@ -24,6 +25,9 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Validator\Context\ExecutionContext;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BatchAttributeManager
 {
@@ -39,11 +43,20 @@ class BatchAttributeManager
         private readonly PostFlushStack $postFlushStack,
         private readonly AttributeManager $attributeManager,
         private readonly DeferredIndexListener $deferredIndexListener,
+        private readonly AttributeTypeRegistry $typeRegistry,
+        private readonly ValidatorInterface $validator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public function validate(string $workspaceId, ?array $assetsId, AssetAttributeBatchUpdateInput $input): void
     {
+        $validationContext = new ExecutionContext(
+            $this->validator,
+            'actions',
+            $this->translator,
+        );
+
         $allAssetIndex = [];
         foreach (($assetsId ?? []) as $id) {
             $allAssetIndex[$id] = true;
@@ -82,6 +95,12 @@ class BatchAttributeManager
             if ($action->definitionId) {
                 if ('tags' !== $action->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
+
+                    if ($action->value) {
+                        $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+                        $type->validate($action->value, $validationContext);
+                    }
+
                     $this->denyUnlessGranted($definition);
                 }
             } elseif ($action->name) {
@@ -100,6 +119,10 @@ class BatchAttributeManager
                     throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
                 }
             }
+        }
+
+        if ($validationContext->getViolations()->count() > 0) {
+            throw new ValidationException($validationContext->getViolations());
         }
     }
 

@@ -128,8 +128,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     private string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
-    #[ORM\Column(type: Types::STRING, length: AttributeItem::TYPE_LENGTH, nullable: true)]
-    private ?string $sourceType = null;
+    #[ORM\Column(type: Types::STRING, length: AttributeEntity::TYPE_LENGTH, nullable: true)]
+    private ?string $entityType = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -434,13 +434,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
         $this->suggest = $suggest;
     }
 
-    public function getSourceType(): ?string
+    public function getEntityType(): ?string
     {
-        return $this->sourceType;
+        return $this->entityType;
     }
 
-    public function setSourceType(?string $sourceType): void
+    public function setEntityType(?string $entityType): void
     {
-        $this->sourceType = $sourceType;
+        $this->entityType = $entityType;
     }
 }

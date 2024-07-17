@@ -1,20 +1,16 @@
-import {Tag} from '../../types';
-import {getTags, tagNS} from '../../api/tag';
+import {AttributeEntity} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectWidget,
-    AsyncRSelectProps,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget, SelectOption,} from '@alchemy/react-form';
 import {WorkspaceContext} from "../../context/WorkspaceContext.tsx";
 import React from "react";
+import {getAttributeEntities} from "../../api/attributeEntity.ts";
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     multiple: IsMulti;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function TagSelect<TFieldValues extends FieldValues, IsMulti extends boolean>({
+export default function AttributeEntitySelect<TFieldValues extends FieldValues, IsMulti extends boolean>({
     workspaceId: wsId,
     multiple,
     ...rest
@@ -28,26 +24,23 @@ export default function TagSelect<TFieldValues extends FieldValues, IsMulti exte
 
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
-            await getTags({
+            await getAttributeEntities({
                 workspace: workspaceId,
                 query: inputValue,
             })
         ).result;
 
         return data
-            .map((t: Tag) => ({
-                value: `${tagNS}/${t.id}`,
-                label: t.nameTranslated,
-                ...t,
-            }))
-            .filter(i =>
-                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
-            );
+            .map((t: AttributeEntity) => ({
+                value: t.id,
+                label: t.value,
+                item: t,
+            }));
     };
 
     return (
         <AsyncRSelectWidget
-            cacheId={'tags'}
+            cacheId={'attribute-items'}
             {...rest}
             loadOptions={load}
             isMulti={multiple}

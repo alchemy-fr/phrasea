@@ -15,4 +15,8 @@ export default abstract class BaseType {
     denormalize(value: any): any {
         return value;
     }
+
+    normalize(value: any): any {
+        return value;
+    }
 }

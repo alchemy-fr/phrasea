@@ -6,7 +6,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import {useModals} from '@alchemy/navigation';
 import ConfirmDialog from '../Ui/ConfirmDialog.tsx';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 type Props = {
     undo: (() => void) | undefined;
@@ -14,7 +13,6 @@ type Props = {
     hasChanges: boolean;
     onSave: () => Promise<void>;
     onClose: () => void;
-    resetSelection: () => void;
 };
 
 export default function AttributesToolbar({
@@ -23,7 +21,6 @@ export default function AttributesToolbar({
     hasChanges,
     onSave,
     onClose,
-    resetSelection,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -93,9 +90,6 @@ export default function AttributesToolbar({
             </IconButton>
             <IconButton disabled={!redo} onClick={redo}>
                 <RedoIcon />
-            </IconButton>
-            <IconButton disabled={!undo} onClick={resetSelection}>
-                <RestartAltIcon />
             </IconButton>
         </Box>
     );

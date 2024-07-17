@@ -71,9 +71,9 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace');
         yield AssociationField::new('class');
         yield TextField::new('fileType');
-        yield TextField::new('sourceType');
         yield ChoiceField::new('fieldType')
             ->setChoices($fileTypeChoices);
+        yield TextField::new('entityType');
         yield BooleanField::new('allowInvalid')
             ->hideOnIndex()
             ->renderAsSwitch(false);

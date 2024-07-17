@@ -13,6 +13,7 @@ field_type:
     date: Date
     date_time: Date & Time
     geo_point: Geo point
+    entity: Entity
 
 privacy:
     secret: Secret

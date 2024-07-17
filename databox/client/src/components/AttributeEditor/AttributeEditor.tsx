@@ -57,7 +57,7 @@ export default function AttributeEditor({
         AttributeDefinition | undefined
     >();
     const borderWidth = 3;
-    const defaultThumbSize = 200;
+    const defaultThumbSize = 128;
     const [thumbsHeight, setThumbsHeight] = React.useState(
         defaultThumbSize + scrollbarWidth + borderWidth + 53
     );
@@ -79,7 +79,6 @@ export default function AttributeEditor({
         undo,
         redo,
         onSave,
-        resetSelection,
     } = useAttributeValues({
         attributeDefinitions: remoteAttributeDefinitions,
         assets,
@@ -289,7 +288,6 @@ export default function AttributeEditor({
                                     hasChanges={history.current > 0}
                                     onSave={onSave}
                                     onClose={onClose}
-                                    resetSelection={resetSelection}
                                 />
                             </div>
                             <div

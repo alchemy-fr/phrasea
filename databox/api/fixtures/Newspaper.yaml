@@ -491,23 +491,24 @@ App\Entity\Integration\WorkspaceSecret:
         name: AWS_ACCESS_KEY_SECRET
         plainValue: xxx
 
-App\Entity\Core\AttributeItem:
-    attr_item_transport_type (template):
+App\Entity\Core\AttributeEntity:
+    attr_entity_transport_type (template):
         type: transport_type
         locale: en
-    att_plane (extends attribute_n):
+        workspace: '@w_newspaper'
+    att_plane (extends attr_entity_transport_type):
         value: Plane
         translations:
             fr: Avion
-    att_bike (extends attribute_n):
+    att_bike (extends attr_entity_transport_type):
         value: Bike
         translations:
             fr: Vélo
-    att_cat (extends attribute_n):
+    att_cat (extends attr_entity_transport_type):
         value: Car
         translations:
             fr: Voiture
-    att_boat (extends attribute_n):
+    att_boat (extends attr_entity_transport_type):
         value: Boat
         translations:
             fr: Bateau

@@ -1,13 +1,12 @@
-import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps} from './types';
-import {FormLabel} from '@mui/material';
+import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps,} from './types';
 import React from 'react';
-import TagSelect from "../../../../Form/TagSelect.tsx";
+import {FormLabel} from "@mui/material";
+import {AttributeEntity} from "../../../../../types.ts";
+import AttributeEntitySelect from "../../../../Form/AttributeEntitySelect.tsx";
 import BaseType from "./BaseType.tsx";
-import TagNode from "../../../../Ui/TagNode.tsx";
-import {Tag} from "../../../../../types.ts";
 
-export default class TagsType extends BaseType
-    implements AttributeTypeInstance<Tag> {
+export default class AttributeEntityType extends BaseType
+    implements AttributeTypeInstance<AttributeEntity> {
     renderWidget({
         value,
         name,
@@ -15,30 +14,30 @@ export default class TagsType extends BaseType
         id,
         readOnly,
         disabled,
-    }: AttributeWidgetProps<Tag>): React.ReactNode {
+    }: AttributeWidgetProps<AttributeEntity>): React.ReactNode {
         return (
             <>
                 <FormLabel>{name}</FormLabel>
-                <TagSelect
+                <AttributeEntitySelect
                     id={id}
                     multiple={false}
                     name={name}
                     disabled={readOnly || disabled}
                     value={value}
                     onChange={(newValue) => {
-                        onChange((newValue || undefined) as Tag | undefined);
+                        onChange((newValue || undefined) as AttributeEntity | undefined);
                     }}
                 />
             </>
         );
     }
 
-    normalize(value: Tag | undefined): string | undefined {
-        return value?.id;
+    normalize(value: AttributeEntity | undefined): string | undefined {
+        return value?.value;
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return <TagNode name={value.name} color={value.color}/>;
+        return <>{value?.label}</>;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

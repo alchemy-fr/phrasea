@@ -96,7 +96,7 @@ export type DiffGroupIndex<T> = {
 
 export enum ExtraAttributeDefinition {
     Tags = 'tags',
-};
+}
 
 export type SelectedValue<T = any> = {
     value: T;
