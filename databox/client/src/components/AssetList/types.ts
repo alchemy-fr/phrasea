@@ -53,7 +53,7 @@ export type AssetItemComponent<Item extends AssetOrAssetContainer> = React.FC<
 
 export type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
     itemOverlay?: ItemOverlayRenderer<Item>;
-}
+};
 
 type LayoutBaseProps<Item extends AssetOrAssetContainer> = {
     itemToAsset?: ItemToAssetFunc<Item> | undefined;
@@ -63,7 +63,7 @@ type LayoutBaseProps<Item extends AssetOrAssetContainer> = {
 } & LayoutCommonProps<Item>;
 
 export type ItemOverlayRenderer<Item extends AssetOrAssetContainer> = (props: {
-    item: Item
+    item: Item;
 }) => ReactNode;
 
 export type LayoutProps<Item extends AssetOrAssetContainer> = {

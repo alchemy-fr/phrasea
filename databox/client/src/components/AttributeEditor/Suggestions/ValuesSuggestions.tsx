@@ -1,13 +1,22 @@
 import {ExtraAttributeDefinition, SuggestionTabProps} from '../types.ts';
-import {Box, Checkbox, InputLabel, ListItem, ListItemButton, ListItemIcon, Menu, Stack,} from '@mui/material';
+import {
+    Box,
+    Checkbox,
+    InputLabel,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    Menu,
+    Stack,
+} from '@mui/material';
 import React, {MouseEventHandler} from 'react';
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from '../PartPercentage.tsx';
-import {getAttributeType} from "../../Media/Asset/Attribute/types";
-import MenuItem from "@mui/material/MenuItem";
+import {getAttributeType} from '../../Media/Asset/Attribute/types';
+import MenuItem from '@mui/material/MenuItem';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
-import {NO_LOCALE} from "../../Media/Asset/Attribute/AttributesEditor.tsx";
+import {NO_LOCALE} from '../../Media/Asset/Attribute/AttributesEditor.tsx';
 
 type Stats = Record<string, number>;
 
@@ -31,20 +40,22 @@ export default function ValuesSuggestions<T>({
     const [useOriginal, setUseOriginal] = React.useState(false);
     const [displayPercents, setDisplayPercents] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | {
-        anchor: HTMLElement,
+        anchor: HTMLElement;
         value: T;
     }>();
     const open = Boolean(anchorEl);
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const toggleDisplayPercents = React.useCallback<MouseEventHandler<HTMLDivElement>>((e) => {
+    const toggleDisplayPercents = React.useCallback<
+        MouseEventHandler<HTMLDivElement>
+    >(e => {
         e.stopPropagation();
         setDisplayPercents(p => !p);
     }, []);
 
     const {distinctValues, lengthRef} = React.useMemo<{
-        distinctValues: Value<T>[],
+        distinctValues: Value<T>[];
         lengthRef: number;
     }>(() => {
         const stats: Stats = {};
@@ -95,10 +106,12 @@ export default function ValuesSuggestions<T>({
             .map(
                 (v: Value<T>): Value<T> => ({
                     ...v,
-                    part:
-                        Math.min(100, Math.round(
+                    part: Math.min(
+                        100,
+                        Math.round(
                             (stats[v.label] / (lengthRef || 1)) * 10000
-                        ) / 100),
+                        ) / 100
+                    ),
                 })
             )
             .filter(
@@ -109,17 +122,25 @@ export default function ValuesSuggestions<T>({
         return {distinctValues, lengthRef};
     }, [valueContainer, useOriginal, definition, locale]);
 
-    const selectAssetsWithValue = React.useCallback((value: T) => {
-        const key = toKey(definition, value);
-        setSubSelection(p => {
-            return p.filter(definition.id === ExtraAttributeDefinition.Tags ? (a => a.tags?.some(t => t.id === key)) : (a => a.attributes.some(
-                at =>
-                    at.definition.id === definition.id
-                    && (at.locale ?? NO_LOCALE) === locale
-                    && toKey(definition, at.value) === key
-            )))
-        });
-    }, [locale, definition]);
+    const selectAssetsWithValue = React.useCallback(
+        (value: T) => {
+            const key = toKey(definition, value);
+            setSubSelection(p => {
+                return p.filter(
+                    definition.id === ExtraAttributeDefinition.Tags
+                        ? a => a.tags?.some(t => t.id === key)
+                        : a =>
+                              a.attributes.some(
+                                  at =>
+                                      at.definition.id === definition.id &&
+                                      (at.locale ?? NO_LOCALE) === locale &&
+                                      toKey(definition, at.value) === key
+                              )
+                );
+            });
+        },
+        [locale, definition]
+    );
 
     const emptyValueClassName = 'empty-val';
     const labelWrapperClassName = 'label-wr';
@@ -174,34 +195,43 @@ export default function ValuesSuggestions<T>({
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={() => {
-                    setAttributeValue(anchorEl!.value, {
-                        updateInput: true,
-                        add: definition.multiple,
-                    });
-                    handleClose();
-                }}
+                <MenuItem
+                    onClick={() => {
+                        setAttributeValue(anchorEl!.value, {
+                            updateInput: true,
+                            add: definition.multiple,
+                        });
+                        handleClose();
+                    }}
                 >
                     <ListItemIcon>
                         <EditIcon />
                     </ListItemIcon>
-                    {t('attribute_editor.suggestions.menu.apply', 'Set this value to selected assets')}
+                    {t(
+                        'attribute_editor.suggestions.menu.apply',
+                        'Set this value to selected assets'
+                    )}
                 </MenuItem>
-                <MenuItem onClick={() => {
-                    selectAssetsWithValue(anchorEl!.value);
-                    handleClose();
-                }}>
+                <MenuItem
+                    onClick={() => {
+                        selectAssetsWithValue(anchorEl!.value);
+                        handleClose();
+                    }}
+                >
                     <ListItemIcon>
                         <HighlightAltIcon />
                     </ListItemIcon>
-                    {t('attribute_editor.suggestions.menu.select_with_value', 'Select assets having this value')}
+                    {t(
+                        'attribute_editor.suggestions.menu.select_with_value',
+                        'Select assets having this value'
+                    )}
                 </MenuItem>
             </Menu>
             {distinctValues.map((v: Value<T>, index: number) => {
                 return (
                     <ListItem key={index} disablePadding>
                         <ListItemButton
-                            onClick={(e) => {
+                            onClick={e => {
                                 setAnchorEl({
                                     anchor: e.currentTarget,
                                     value: v.value,
@@ -212,17 +242,16 @@ export default function ValuesSuggestions<T>({
                                 <div
                                     className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}
                                 >
-                                    {v.value ? widget.formatValue({
-                                            value: v.value,
-                                        }) :
-                                        t(
-                                            'attribute_editor.suggestions.no_value',
-                                            '- empty -'
-                                        )}
+                                    {v.value
+                                        ? widget.formatValue({
+                                              value: v.value,
+                                          })
+                                        : t(
+                                              'attribute_editor.suggestions.no_value',
+                                              '- empty -'
+                                          )}
                                 </div>
-                                <div
-                                    onClick={toggleDisplayPercents}
-                                >
+                                <div onClick={toggleDisplayPercents}>
                                     <PartPercentage
                                         part={v.part}
                                         width={110}

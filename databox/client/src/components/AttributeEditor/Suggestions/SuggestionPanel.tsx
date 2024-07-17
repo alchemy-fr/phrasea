@@ -4,10 +4,13 @@ import ValuesSuggestions from './ValuesSuggestions.tsx';
 import Tabs from '../../Ui/Tabs.tsx';
 import {TabItem} from '../../Dialog/Tabbed/tabTypes.ts';
 import {useTranslation} from 'react-i18next';
-import Preview from "./Preview.tsx";
-import {Optional} from "../../../utils/types.ts";
+import Preview from './Preview.tsx';
+import {Optional} from '../../../utils/types.ts';
 
-type Props<T> = {} & Optional<SuggestionTabProps<T>, "definition" | "valueContainer">;
+type Props<T> = {} & Optional<
+    SuggestionTabProps<T>,
+    'definition' | 'valueContainer'
+>;
 
 export default function SuggestionPanel<T = string>(props: Props<T>) {
     const {t} = useTranslation();
@@ -36,7 +39,7 @@ export default function SuggestionPanel<T = string>(props: Props<T>) {
                 tabs={tabs}
                 currentTabId={tab}
                 onTabChange={id => setTab(id)}
-                {...props as SuggestionTabProps<T>}
+                {...(props as SuggestionTabProps<T>)}
             />
         </>
     );

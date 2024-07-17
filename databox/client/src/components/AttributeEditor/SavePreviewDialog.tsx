@@ -9,7 +9,7 @@ import {Button} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 import {FormError} from '@alchemy/react-form';
 import {getApiResponseError} from '@alchemy/api';
-import {getAttributeType} from "../Media/Asset/Attribute/types";
+import {getAttributeType} from '../Media/Asset/Attribute/types';
 
 type Props = {
     workspaceId: string;
@@ -35,14 +35,19 @@ export default function SavePreviewDialog({
         if (actions.length > 0) {
             setSaving(true);
             try {
-                await workspaceAttributeBatchUpdate(workspaceId, actions.map(a => {
-                    const widget = getAttributeType(definitionIndex[a.definitionId!].fieldType);
+                await workspaceAttributeBatchUpdate(
+                    workspaceId,
+                    actions.map(a => {
+                        const widget = getAttributeType(
+                            definitionIndex[a.definitionId!].fieldType
+                        );
 
-                    return ({
-                        ...a,
-                        value: widget.normalize(a.value),
-                    });
-                }));
+                        return {
+                            ...a,
+                            value: widget.normalize(a.value),
+                        };
+                    })
+                );
                 closeModal();
                 onSaved();
             } catch (e: any) {
@@ -81,10 +86,12 @@ export default function SavePreviewDialog({
                 </>
             )}
         >
-            <ValueDiff actions={actions} definitionIndex={definitionIndex} {...props} />
-            {error ? <FormError>
-                {error}
-            </FormError> : ''}
+            <ValueDiff
+                actions={actions}
+                definitionIndex={definitionIndex}
+                {...props}
+            />
+            {error ? <FormError>{error}</FormError> : ''}
         </AppDialog>
     );
 }

@@ -4,4 +4,5 @@ export type TWorkspaceContextContext = {
     workspaceId: string;
 };
 
-export const WorkspaceContext = React.createContext<TWorkspaceContextContext | null>(null);
+export const WorkspaceContext =
+    React.createContext<TWorkspaceContextContext | null>(null);

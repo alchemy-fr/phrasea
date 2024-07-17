@@ -21,7 +21,6 @@ use App\Api\Processor\BatchAttributeUpdateProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
 use App\Entity\Traits\AssetAnnotationsTrait;
 use App\Repository\Core\AttributeRepository;
-use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;

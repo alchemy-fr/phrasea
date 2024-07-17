@@ -2,7 +2,8 @@ import {Asset, AttributeDefinition} from '../../../types.ts';
 import {
     BatchAttributeIndex,
     LocalizedAttributeIndex,
-    ToKeyFunc, ToKeyFuncTypeScoped,
+    ToKeyFunc,
+    ToKeyFuncTypeScoped,
     Values,
 } from '../types.ts';
 import {listsAreSame} from './helper.ts';
@@ -26,7 +27,8 @@ export function computeValues<T>(
     const defId = definition.id;
     const allLocales: Record<string, true> = {};
 
-    const toKeyForType: ToKeyFuncTypeScoped<T> = (v: T) => toKey(values.definition, v);
+    const toKeyForType: ToKeyFuncTypeScoped<T> = (v: T) =>
+        toKey(values.definition, v);
 
     subSelection.forEach(a => {
         function valueIsSame(
@@ -62,7 +64,13 @@ export function computeValues<T>(
                 }
             });
 
-            values.values.push(normalizeLocaleValues(values.definition.multiple, translations, toKeyForType));
+            values.values.push(
+                normalizeLocaleValues(
+                    values.definition.multiple,
+                    translations,
+                    toKeyForType
+                )
+            );
         } else {
             values.values.push({});
             Object.keys(allLocales).forEach(l => {
@@ -81,7 +89,13 @@ export function computeValues<T>(
         }
 
         if (initialIndex[defId][a.id]) {
-            values.originalValues.push(normalizeLocaleValues(values.definition.multiple, initialIndex[defId][a.id], toKeyForType));
+            values.originalValues.push(
+                normalizeLocaleValues(
+                    values.definition.multiple,
+                    initialIndex[defId][a.id],
+                    toKeyForType
+                )
+            );
         } else {
             values.originalValues.push({});
         }
@@ -90,21 +104,26 @@ export function computeValues<T>(
     return values;
 }
 
-function normalizeLocaleValues<T>(multiple: boolean, index: LocalizedAttributeIndex<T>, toKey: ToKeyFuncTypeScoped<T>): LocalizedAttributeIndex<T> {
+function normalizeLocaleValues<T>(
+    multiple: boolean,
+    index: LocalizedAttributeIndex<T>,
+    toKey: ToKeyFuncTypeScoped<T>
+): LocalizedAttributeIndex<T> {
     if (!multiple) {
         return index;
     }
 
-    Object.keys(index).map((locale) => {
+    Object.keys(index).map(locale => {
         if (index[locale]) {
-            (index[locale] as T[]) = (index[locale] as T[])
-                .filter(
-                    (value, index, array) => {
-                        const key = toKey(value);
+            (index[locale] as T[]) = (index[locale] as T[]).filter(
+                (value, index, array) => {
+                    const key = toKey(value);
 
-                        return array.findIndex((v: T) => toKey(v) === key) === index;
-                    }
-                )
+                    return (
+                        array.findIndex((v: T) => toKey(v) === key) === index
+                    );
+                }
+            );
         }
     });
 

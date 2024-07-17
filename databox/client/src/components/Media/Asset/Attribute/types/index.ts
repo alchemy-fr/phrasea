@@ -10,8 +10,8 @@ import HtmlType from './HtmlType';
 import ColorType from './ColorType';
 import GeoPointType from './GeoPointType';
 import DateTimeType from './DateTimeType';
-import TagsType from "./TagsType.tsx";
-import AttributeEntityType from "./AttributeEntityType.tsx";
+import TagsType from './TagsType.tsx';
+import AttributeEntityType from './AttributeEntityType.tsx';
 
 export const types: Record<string, AttributeTypeClass> = {
     [AttributeType.Boolean]: BooleanType,

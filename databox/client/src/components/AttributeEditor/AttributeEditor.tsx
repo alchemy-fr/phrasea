@@ -20,8 +20,8 @@ import DisplayProvider from '../Media/DisplayProvider.tsx';
 import AssetList from '../AssetList/AssetList.tsx';
 import {ZIndex} from '../../themes/zIndex.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {useTabShortcut} from "./shortcuts.ts";
-import AssetToggleOverlay from "./AssetToggleOverlay.tsx";
+import {useTabShortcut} from './shortcuts.ts';
+import AssetToggleOverlay from './AssetToggleOverlay.tsx';
 
 type Props = {
     assets: Asset[];
@@ -51,7 +51,9 @@ export default function AttributeEditor({
 
     const defaultSuggestionsPanelWidth = 500;
     const theme = useTheme();
-    const [selectedValue, setSelectedValue] = React.useState<SelectedValue | undefined>();
+    const [selectedValue, setSelectedValue] = React.useState<
+        SelectedValue | undefined
+    >();
     const [subSelection, setSubSelection] = React.useState<Asset[]>(assets);
     const [definition, setDefinition] = React.useState<
         AttributeDefinition | undefined
@@ -196,13 +198,41 @@ export default function AttributeEditor({
                                 onSelectionChange={setSubSelection}
                                 previewZIndex={ZIndex.modal + 1}
                                 actionsContext={actionsContext}
-                                itemOverlay={definition && definition.multiple && selectedValue ? ({item}: {item: Asset}) => {
-                                    return <AssetToggleOverlay
-                                        onAdd={() => toggleValue(item.id, locale, selectedValue!.value, true)}
-                                        onRemove={() => toggleValue(item.id, locale, selectedValue!.value, false)}
-                                        checked={hasValue(item, locale, selectedValue!.key)}
-                                    />;
-                                } : undefined}
+                                itemOverlay={
+                                    definition &&
+                                    definition.multiple &&
+                                    selectedValue
+                                        ? ({item}: {item: Asset}) => {
+                                              return (
+                                                  <AssetToggleOverlay
+                                                      onAdd={() =>
+                                                          toggleValue(
+                                                              item.id,
+                                                              locale,
+                                                              selectedValue!
+                                                                  .value,
+                                                              true
+                                                          )
+                                                      }
+                                                      onRemove={() =>
+                                                          toggleValue(
+                                                              item.id,
+                                                              locale,
+                                                              selectedValue!
+                                                                  .value,
+                                                              false
+                                                          )
+                                                      }
+                                                      checked={hasValue(
+                                                          item,
+                                                          locale,
+                                                          selectedValue!.key
+                                                      )}
+                                                  />
+                                              );
+                                          }
+                                        : undefined
+                                }
                             />
                         </DisplayProvider>
                     </div>
@@ -336,7 +366,9 @@ export default function AttributeEditor({
                                 }}
                             >
                                 <SuggestionPanel
-                                    defaultPanelWidth={defaultSuggestionsPanelWidth}
+                                    defaultPanelWidth={
+                                        defaultSuggestionsPanelWidth
+                                    }
                                     locale={definitionLocale}
                                     valueContainer={values}
                                     definition={definition}

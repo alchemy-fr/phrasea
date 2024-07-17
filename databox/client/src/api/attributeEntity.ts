@@ -21,13 +21,18 @@ export async function getAttributeEntities(
     return getHydraCollection<AttributeEntity>(res.data);
 }
 
-export async function postAttributeEntity(data: Partial<AttributeEntity>): Promise<AttributeEntity> {
+export async function postAttributeEntity(
+    data: Partial<AttributeEntity>
+): Promise<AttributeEntity> {
     const res = await apiClient.post(attributeEntityNS, data);
 
     return res.data;
 }
 
-export async function putAttributeEntity(id: string, data: Partial<AttributeEntity>): Promise<AttributeEntity> {
+export async function putAttributeEntity(
+    id: string,
+    data: Partial<AttributeEntity>
+): Promise<AttributeEntity> {
     const res = await apiClient.put(`${attributeEntityNS}/${id}`, data);
 
     return res.data;

@@ -1,13 +1,19 @@
-import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps} from './types';
+import {
+    AttributeFormatterProps,
+    AttributeTypeInstance,
+    AttributeWidgetProps,
+} from './types';
 import {FormLabel} from '@mui/material';
 import React from 'react';
-import TagSelect from "../../../../Form/TagSelect.tsx";
-import BaseType from "./BaseType.tsx";
-import TagNode from "../../../../Ui/TagNode.tsx";
-import {Tag} from "../../../../../types.ts";
+import TagSelect from '../../../../Form/TagSelect.tsx';
+import BaseType from './BaseType.tsx';
+import TagNode from '../../../../Ui/TagNode.tsx';
+import {Tag} from '../../../../../types.ts';
 
-export default class TagsType extends BaseType
-    implements AttributeTypeInstance<Tag> {
+export default class TagsType
+    extends BaseType
+    implements AttributeTypeInstance<Tag>
+{
     renderWidget({
         value,
         name,
@@ -25,7 +31,7 @@ export default class TagsType extends BaseType
                     name={name}
                     disabled={readOnly || disabled}
                     value={value}
-                    onChange={(newValue) => {
+                    onChange={newValue => {
                         onChange((newValue || undefined) as Tag | undefined);
                     }}
                 />
@@ -38,7 +44,7 @@ export default class TagsType extends BaseType
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return <TagNode name={value.name} color={value.color}/>;
+        return <TagNode name={value.name} color={value.color} />;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {

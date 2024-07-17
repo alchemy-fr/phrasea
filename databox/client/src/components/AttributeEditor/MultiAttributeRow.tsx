@@ -4,13 +4,20 @@ import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {MultiValueIndex, MultiValueValue, SelectedValue, SetAttributeValue, ToKeyFunc, Values,} from './types.ts';
+import {
+    MultiValueIndex,
+    MultiValueValue,
+    SelectedValue,
+    SetAttributeValue,
+    ToKeyFunc,
+    Values,
+} from './types.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {AttributeFormatterProps} from '../Media/Asset/Attribute/types/types';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import classNames from 'classnames';
-import {AttributeDefinition, StateSetter} from "../../types.ts";
+import {AttributeDefinition, StateSetter} from '../../types.ts';
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;
@@ -36,11 +43,7 @@ export default function MultiAttributeRow<T>({
     selectedValue,
     setSelectedValue,
 }: Props<T>) {
-    const {
-        id,
-        name,
-        fieldType: type,
-    } = attributeDefinition;
+    const {id, name, fieldType: type} = attributeDefinition;
 
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t} = useTranslation();
@@ -127,9 +130,10 @@ export default function MultiAttributeRow<T>({
 
     const [values, setValues] = useState<MultiValueValue<T>[]>(computed ?? []);
 
-    const finalValues = definitionRef.current !== id ? (computed ?? []) : values;
+    const finalValues = definitionRef.current !== id ? computed ?? [] : values;
     const finalNewValue = definitionRef.current !== id ? undefined : newValue;
-    const finalSelectedValue = definitionRef.current !== id ? undefined : selectedValue;
+    const finalSelectedValue =
+        definitionRef.current !== id ? undefined : selectedValue;
 
     useEffect(() => {
         setValues(computed ?? []);
@@ -145,23 +149,25 @@ export default function MultiAttributeRow<T>({
     const itemClassName = 'item';
 
     return (
-        <FormRow sx={{
-            [`.${itemClassName}`]: {
-                display: 'flex',
-                cursor: 'pointer',
-                alignItems: 'center',
-                p: 1,
-            },
-            [`.${itemClassName}.selected`]: {
-                bgcolor: 'divider',
-            },
-            '.vw': {
-                flexGrow: 1,
-            },
-            [`.${itemClassName}.indeterminate .vw`]: {
-                opacity: 0.5,
-            },
-        }}>
+        <FormRow
+            sx={{
+                [`.${itemClassName}`]: {
+                    display: 'flex',
+                    cursor: 'pointer',
+                    alignItems: 'center',
+                    p: 1,
+                },
+                [`.${itemClassName}.selected`]: {
+                    bgcolor: 'divider',
+                },
+                '.vw': {
+                    flexGrow: 1,
+                },
+                [`.${itemClassName}.indeterminate .vw`]: {
+                    opacity: 0.5,
+                },
+            }}
+        >
             <AttributeWidget<T>
                 id={id}
                 key={id}
@@ -177,19 +183,15 @@ export default function MultiAttributeRow<T>({
             />
             <Button
                 sx={{mb: 2}}
-                startIcon={<AddIcon/>}
+                startIcon={<AddIcon />}
                 variant="outlined"
                 disabled={readOnly || disabled}
                 color="primary"
                 onClick={addHandler}
             >
-                {t(
-                    'form.attribute.collection.item_add',
-                    'Add {{name}}',
-                    {
-                        name,
-                    }
-                )}
+                {t('form.attribute.collection.item_add', 'Add {{name}}', {
+                    name,
+                })}
             </Button>
 
             {finalValues.map((v: MultiValueValue<T>, i: number) => {
@@ -205,19 +207,23 @@ export default function MultiAttributeRow<T>({
                 return (
                     <Box
                         key={i}
-                        onClick={() => setSelectedValue(p => p && p.key === v.key ? undefined : {
-                            value: v.value,
-                            key: v.key,
-                        })}
+                        onClick={() =>
+                            setSelectedValue(p =>
+                                p && p.key === v.key
+                                    ? undefined
+                                    : {
+                                          value: v.value,
+                                          key: v.key,
+                                      }
+                            )
+                        }
                         className={classNames({
                             [itemClassName]: true,
                             indeterminate,
                             selected: isSelected,
                         })}
                     >
-                        <div
-                            className={'vw'}
-                        >
+                        <div className={'vw'}>
                             {formatter.formatValue(valueFormatterProps)}
                         </div>
                         <div style={{}}>
@@ -225,23 +231,23 @@ export default function MultiAttributeRow<T>({
                                 disabled={
                                     !indeterminate || readOnly || disabled
                                 }
-                                onClick={(e) => {
+                                onClick={e => {
                                     e.stopPropagation();
                                     addValueHandler(v.value);
                                 }}
                                 color="success"
                             >
-                                <AddIcon/>
+                                <AddIcon />
                             </IconButton>
                             <IconButton
                                 disabled={readOnly || disabled}
-                                onClick={(e) => {
+                                onClick={e => {
                                     e.stopPropagation();
                                     removeValueHandler(v.value);
                                 }}
                                 color="error"
                             >
-                                <DeleteIcon/>
+                                <DeleteIcon />
                             </IconButton>
                         </div>
                     </Box>

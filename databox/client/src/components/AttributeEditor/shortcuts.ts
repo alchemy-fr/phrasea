@@ -1,15 +1,12 @@
-import React from "react";
-import {AttributeDefinition, StateSetter} from "../../types.ts";
+import React from 'react';
+import {AttributeDefinition, StateSetter} from '../../types.ts';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];
     setDefinition: StateSetter<AttributeDefinition | undefined>;
-}
+};
 
-export function useTabShortcut({
-    attributeDefinitions,
-    setDefinition,
-}: Props) {
+export function useTabShortcut({attributeDefinitions, setDefinition}: Props) {
     React.useEffect(() => {
         const onTab = (e: KeyboardEvent) => {
             if (e.key === 'Tab') {
@@ -17,10 +14,17 @@ export function useTabShortcut({
 
                 setDefinition(p => {
                     if (p) {
-                        const index = attributeDefinitions.findIndex(ad => ad.id === p?.id);
+                        const index = attributeDefinitions.findIndex(
+                            ad => ad.id === p?.id
+                        );
 
                         if (index >= 0) {
-                            return attributeDefinitions[(attributeDefinitions.length + index + (e.shiftKey ? -1 : 1)) % attributeDefinitions.length];
+                            return attributeDefinitions[
+                                (attributeDefinitions.length +
+                                    index +
+                                    (e.shiftKey ? -1 : 1)) %
+                                    attributeDefinitions.length
+                            ];
                         }
                     }
 
@@ -33,6 +37,6 @@ export function useTabShortcut({
 
         return () => {
             window.removeEventListener('keydown', onTab);
-        }
+        };
     }, [attributeDefinitions]);
 }

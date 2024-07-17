@@ -8,7 +8,8 @@ import {
 import {Layout, layouts} from './Layouts';
 import {
     ActionsContext,
-    AssetItemComponent, LayoutCommonProps,
+    AssetItemComponent,
+    LayoutCommonProps,
     LayoutProps,
     LoadMoreFunc,
     OnAddToBasket,
@@ -48,7 +49,8 @@ type Props<Item extends AssetOrAssetContainer> = {
     defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
     previewZIndex?: number;
-} & SelectionActionConfigProps & LayoutCommonProps<Item>;
+} & SelectionActionConfigProps &
+    LayoutCommonProps<Item>;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
     pages,

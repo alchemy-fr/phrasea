@@ -6,19 +6,18 @@ import {
     AsyncRSelectProps,
     SelectOption,
 } from '@alchemy/react-form';
-import {WorkspaceContext} from "../../context/WorkspaceContext.tsx";
-import React from "react";
+import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
+import React from 'react';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     multiple: IsMulti;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function TagSelect<TFieldValues extends FieldValues, IsMulti extends boolean>({
-    workspaceId: wsId,
-    multiple,
-    ...rest
-}: Props<TFieldValues, IsMulti>) {
+export default function TagSelect<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+>({workspaceId: wsId, multiple, ...rest}: Props<TFieldValues, IsMulti>) {
     const workspaceContext = React.useContext(WorkspaceContext);
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;

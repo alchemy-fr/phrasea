@@ -46,11 +46,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
 class AttributeEntity extends AbstractUuidEntity
 {
-    const TYPE_LENGTH = 100;
-
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    public const TYPE_LENGTH = 100;
 
     final public const GROUP_READ = 'attr-entity:read';
     final public const GROUP_LIST = 'attr-entity:index';

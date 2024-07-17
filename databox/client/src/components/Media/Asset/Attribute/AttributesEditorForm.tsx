@@ -7,7 +7,7 @@ import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
 import {FormRow} from '@alchemy/react-form';
 import React from 'react';
-import {WorkspaceContext} from "../../../../context/WorkspaceContext.tsx";
+import {WorkspaceContext} from '../../../../context/WorkspaceContext.tsx';
 
 type Props = {
     workspaceId: string;

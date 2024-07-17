@@ -9,7 +9,11 @@ import AssetThumb from '../../../Media/Asset/AssetThumb';
 import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights';
 import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
 import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList';
-import {AssetItemProps, ItemOverlayRenderer, OnPreviewToggle} from '../../types';
+import {
+    AssetItemProps,
+    ItemOverlayRenderer,
+    OnPreviewToggle,
+} from '../../types';
 import {Checkbox} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import AssetItemWrapper from '../AssetItemWrapper';
@@ -134,9 +138,11 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     </div>
                 )}
             </div>
-            {itemOverlay ? itemOverlay({
-                item
-            }) : ''}
+            {itemOverlay
+                ? itemOverlay({
+                      item,
+                  })
+                : ''}
         </AssetItemWrapper>
     );
 }

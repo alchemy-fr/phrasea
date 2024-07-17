@@ -15,8 +15,7 @@ class EntityAttributeType extends TextAttributeType
 
     public function __construct(
         private AttributeEntityRepository $repository,
-    )
-    {
+    ) {
     }
 
     public static function getName(): string
@@ -84,7 +83,7 @@ class EntityAttributeType extends TextAttributeType
                 'id' => $id,
                 'value' => $v,
                 'createdAt' => $entity->getCreatedAt(),
-            ]
+            ],
         ];
     }
 }

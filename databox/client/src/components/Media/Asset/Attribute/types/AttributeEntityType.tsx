@@ -1,12 +1,18 @@
-import {AttributeFormatterProps, AttributeTypeInstance, AttributeWidgetProps,} from './types';
+import {
+    AttributeFormatterProps,
+    AttributeTypeInstance,
+    AttributeWidgetProps,
+} from './types';
 import React from 'react';
-import {FormLabel} from "@mui/material";
-import {AttributeEntity} from "../../../../../types.ts";
-import AttributeEntitySelect from "../../../../Form/AttributeEntitySelect.tsx";
-import BaseType from "./BaseType.tsx";
+import {FormLabel} from '@mui/material';
+import {AttributeEntity} from '../../../../../types.ts';
+import AttributeEntitySelect from '../../../../Form/AttributeEntitySelect.tsx';
+import BaseType from './BaseType.tsx';
 
-export default class AttributeEntityType extends BaseType
-    implements AttributeTypeInstance<AttributeEntity> {
+export default class AttributeEntityType
+    extends BaseType
+    implements AttributeTypeInstance<AttributeEntity>
+{
     renderWidget({
         value,
         name,
@@ -24,8 +30,12 @@ export default class AttributeEntityType extends BaseType
                     name={name}
                     disabled={readOnly || disabled}
                     value={value}
-                    onChange={(newValue) => {
-                        onChange((newValue || undefined) as AttributeEntity | undefined);
+                    onChange={newValue => {
+                        onChange(
+                            (newValue || undefined) as
+                                | AttributeEntity
+                                | undefined
+                        );
                     }}
                 />
             </>

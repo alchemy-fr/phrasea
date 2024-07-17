@@ -60,7 +60,7 @@ export default function Attributes({
                         >
                             {!def.canEdit ? (
                                 <ListItemIcon>
-                                    <LockIcon/>
+                                    <LockIcon />
                                 </ListItemIcon>
                             ) : (
                                 ''
@@ -73,10 +73,12 @@ export default function Attributes({
                                     </span>
                                 ) : !def.multiple ? (
                                     formatter.formatValue(valueFormatterProps)
-                                ) : <>
-                                    {(defValue.value?.[l]?.length) ?? 0}
-                                    {' values'}
-                                </>}
+                                ) : (
+                                    <>
+                                        {defValue.value?.[l]?.length ?? 0}
+                                        {' values'}
+                                    </>
+                                )}
                             </div>
                         </ListItemButton>
                     </ListItem>
