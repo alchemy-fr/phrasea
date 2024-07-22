@@ -37,6 +37,7 @@ export type SuggestionTabProps<T> = {
     definition: AttributeDefinition;
     valueContainer: Values;
     setAttributeValue: SetAttributeValue<T>;
+    assets: Asset[];
     subSelection: Asset[];
     setSubSelection: StateSetter<Asset[]>;
     locale: string;

@@ -1,4 +1,4 @@
-import {ExtraAttributeDefinition, SuggestionTabProps} from '../types.ts';
+import {SuggestionTabProps} from '../types.ts';
 import {
     Box,
     Checkbox,
@@ -33,6 +33,7 @@ export default function ValuesSuggestions<T>({
     definition,
     locale,
     createToKey,
+    assets,
     subSelection,
     setSubSelection,
 }: Props<T>) {
@@ -124,22 +125,19 @@ export default function ValuesSuggestions<T>({
 
     const selectAssetsWithValue = React.useCallback(
         (value: T) => {
-
             const toKey = createToKey(definition.fieldType);
             const key = toKey(value);
-            setSubSelection(p => {
-                return p.filter(
-                    definition.id === ExtraAttributeDefinition.Tags
-                        ? a => a.tags?.some(t => t.id === key)
-                        : a =>
-                              a.attributes.some(
-                                  at =>
-                                      at.definition.id === definition.id &&
-                                      (at.locale ?? NO_LOCALE) === locale &&
-                                      toKey(at.value) === key
-                              )
-                );
-            });
+
+            setSubSelection(assets.filter(
+                a =>
+                    a.attributes.some(
+                        at => {
+                            return at.definition.id === definition.id &&
+                                (at.locale ?? NO_LOCALE) === locale &&
+                                toKey(at.value) === key;
+                        }
+                    )
+            ));
         },
         [locale, definition]
     );

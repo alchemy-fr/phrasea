@@ -124,8 +124,6 @@ export default function AttributeEditor({
 
     const setAttributeValue = React.useCallback<SetAttributeValue>(
         (value, options) => {
-            console.log('value', value);
-            console.log('definition', definition);
             if (definition) {
                 setValue(definitionLocale, value, options);
             }
@@ -365,6 +363,7 @@ export default function AttributeEditor({
                                     definition={definition}
                                     setAttributeValue={setAttributeValue}
                                     subSelection={subSelection}
+                                    assets={assets}
                                     setSubSelection={setSubSelection}
                                     createToKey={createToKey}
                                 />

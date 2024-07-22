@@ -58,6 +58,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return false;
     }
 
+    public function supportsTranslations(): bool
+    {
+        return false;
+    }
+
     public function getGroupValueLabel($value): ?string
     {
         if (null === $value) {

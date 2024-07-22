@@ -266,8 +266,6 @@ export function useAttributeValues<T>({
                 subSelection.forEach(a => {
                     const c = {...(na[a.id] ?? {})};
 
-                    console.log('add', add, value);
-
                     if (add) {
                         if (value) {
                             (c[locale] as T[]) = [
@@ -278,8 +276,6 @@ export function useAttributeValues<T>({
                                     i => key === toKey(i)
                                 )
                             ) {
-                                console.log('OK');
-
                                 (c[locale] as T[]).push(value);
                             }
                         }

@@ -72,14 +72,16 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
-            foreach ($definitionIndex->getLocales() as $l => $a) {
-                $definition = $definitionIndex->getDefinition();
-                $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+            $definition = $definitionIndex->getDefinition();
+            $isMultiple = $definition->isMultiple();
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+            $fieldName = null;
 
+            foreach ($definitionIndex->getLocales() as $l => $a) {
                 $v = null;
-                if ($definition->isMultiple()) {
+                if ($isMultiple) {
                     if (!empty($a)) {
-                        $v = array_map(fn (Attribute $v): string => $type->normalizeElasticsearchValue($v->getValue()), $a);
+                        $v = array_map(fn (Attribute $v): string|array => $type->normalizeElasticsearchValue($v->getValue()), $a);
                     }
                 } else {
                     $v = $a->getValue();
@@ -92,8 +94,25 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                     null !== $v
                     && (!is_array($v) || !empty($v))
                 ) {
-                    $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-                    $data[$l][$fieldName] = $v;
+                    $fieldName = $fieldName ?? $this->fieldNameResolver->getFieldNameFromDefinition($definition);
+
+                    if ($type->supportsTranslations()) {
+                        if ($isMultiple) {
+                            foreach ($v as $item) {
+                                foreach ($item as $locale => $translation) {
+                                    $data[$locale][$fieldName] ??= [];
+                                    $data[$locale][$fieldName][] = $translation;
+                                }
+                            }
+
+                        } else {
+                            foreach ($v as $locale => $translation) {
+                                $data[$locale][$fieldName] = $translation;
+                            }
+                        }
+                    } else {
+                        $data[$l][$fieldName] = $v;
+                    }
                 }
             }
         }

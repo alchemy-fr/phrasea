@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -39,10 +40,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
             self::GROUP_LIST,
         ],
     ],
+    provider: AttributeEntityCollectionProvider::class,
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
+#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 #[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
 class AttributeEntity extends AbstractUuidEntity
 {

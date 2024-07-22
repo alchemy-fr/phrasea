@@ -23,6 +23,11 @@ class EntityAttributeType extends TextAttributeType
         return self::NAME;
     }
 
+    public function supportsTranslations(): bool
+    {
+        return true;
+    }
+
     public function validate($value, ExecutionContextInterface $context): void
     {
         if (null === $value) {
@@ -34,11 +39,14 @@ class EntityAttributeType extends TextAttributeType
         }
     }
 
-    public function normalizeElasticsearchValue(?string $value): ?string
+    public function normalizeElasticsearchValue(?string $value): string|array|null
     {
         $entity = $this->getEntityFromValue($value);
         if ($entity instanceof AttributeEntity) {
-            return $entity->getValue();
+            $locales = $entity->getTranslations() ?? [];
+            $locales[$entity->getLocale()] = $entity->getValue();
+
+            return $locales;
         }
 
         return null;

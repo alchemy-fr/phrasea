@@ -62,6 +62,8 @@ interface AttributeTypeInterface
 
     public function supportsSuggest(): bool;
 
+    public function supportsTranslations(): bool;
+
     public function validate($value, ExecutionContextInterface $context): void;
 
     public function getAggregationField(): ?string;
