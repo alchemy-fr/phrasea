@@ -6,7 +6,7 @@ import {
 import React from 'react';
 import {FormLabel} from '@mui/material';
 import {AttributeEntity} from '../../../../../types.ts';
-import AttributeEntitySelect from '../../../../Form/AttributeEntitySelect.tsx';
+import AttributeEntitySelect, {AttributeEntityOption} from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
 
 export default class AttributeEntityType
@@ -29,12 +29,12 @@ export default class AttributeEntityType
                     multiple={false}
                     name={name}
                     disabled={readOnly || disabled}
-                    value={value}
+                    value={value?.id}
                     onChange={newValue => {
                         onChange(
-                            (newValue || undefined) as
-                                | AttributeEntity
-                                | undefined
+                            ((newValue || undefined) as
+                                | AttributeEntityOption
+                                | undefined)?.item
                         );
                     }}
                 />
@@ -43,14 +43,14 @@ export default class AttributeEntityType
     }
 
     normalize(value: AttributeEntity | undefined): string | undefined {
-        return value?.value;
+        return value?.id;
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
-        return <>{value?.label}</>;
+        return <>{value?.value}</>;
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.label;
+        return value?.value;
     }
 }

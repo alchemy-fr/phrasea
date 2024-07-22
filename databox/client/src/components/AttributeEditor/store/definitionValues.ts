@@ -3,7 +3,7 @@ import {
     BatchAttributeIndex,
     DefinitionValuesIndex,
     LocalizedAttributeIndex,
-    ToKeyFunc,
+    CreateToKeyFunc,
     Values,
 } from '../types';
 import {listsAreSame} from './helper';
@@ -11,7 +11,7 @@ import {listsAreSame} from './helper';
 export function computeAllDefinitionsValues<T>(
     attributeDefinitions: AttributeDefinition[],
     subSelection: Asset[],
-    toKey: ToKeyFunc<T>,
+    createToKey: CreateToKeyFunc<T>,
     index: BatchAttributeIndex<T>
 ) {
     const tree: DefinitionValuesIndex<T> = {};
@@ -29,6 +29,8 @@ export function computeAllDefinitionsValues<T>(
 
         const allLocales: Record<string, true> = {};
 
+        const toKey = createToKey(values.definition.fieldType);
+
         subSelection.forEach(a => {
             function valueIsSame(
                 a: T | T[] | undefined,
@@ -38,7 +40,7 @@ export function computeAllDefinitionsValues<T>(
                     return listsAreSame(
                         (a ?? []) as T[],
                         (b ?? []) as T[],
-                        (v: T) => toKey(values.definition, v)
+                        toKey
                     );
                 }
 

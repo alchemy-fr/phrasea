@@ -1,4 +1,4 @@
-FROM maven:3.9.3-amazoncorretto-8 as spi-builder
+FROM maven:3.9.3-amazoncorretto-8 AS spi-builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 RUN mvn clean package
 
 
-FROM quay.io/keycloak/keycloak:22.0.1 as builder
+FROM quay.io/keycloak/keycloak:22.0.1 AS builder
 
 COPY --from=spi-builder /app/group-uuid-pmapper/target/group-uuid-pmapper.jar /opt/keycloak/providers/
 COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-dependencies.jar /opt/keycloak/providers/
@@ -23,7 +23,7 @@ RUN /opt/keycloak/bin/kc.sh build \
 COPY themes/phrasea /opt/keycloak/themes/phrasea
 
 
-FROM quay.io/keycloak/keycloak:22.0.1 as keycloak
+FROM quay.io/keycloak/keycloak:22.0.1 AS keycloak
 
 ENV KC_SPI_THEME_DEFAULT=phrasea
 

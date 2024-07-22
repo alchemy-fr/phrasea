@@ -82,6 +82,9 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                                     </Avatar>
                                                 </ListItemAvatar>
                                                 <ListItemText
+                                                    secondaryTypographyProps={{
+                                                        component: 'span',
+                                                    }}
                                                     secondary={
                                                         <>
                                                             <Typography

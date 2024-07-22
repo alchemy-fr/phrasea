@@ -9,7 +9,7 @@ import DefinitionsSkeleton from './DefinitionsSkeleton.tsx';
 import SuggestionPanel from './Suggestions/SuggestionPanel.tsx';
 import {scrollbarWidth} from '../../constants.ts';
 import EditorPanel from './EditorPanel.tsx';
-import {SelectedValue, SetAttributeValue, ToKeyFunc} from './types.ts';
+import {SelectedValue, SetAttributeValue} from './types.ts';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import {Resizable} from 're-resizable';
 import {useTranslation} from 'react-i18next';
@@ -37,17 +37,6 @@ export default function AttributeEditor({
     removeFromSelection,
 }: Props) {
     const {t} = useTranslation();
-    const toKey = React.useCallback<ToKeyFunc<any>>(({entity}, v): string => {
-        if (!v) {
-            return '';
-        }
-
-        if (entity) {
-            return v.id;
-        }
-
-        return v.toString() as string;
-    }, []);
 
     const defaultSuggestionsPanelWidth = 500;
     const theme = useTheme();
@@ -81,12 +70,12 @@ export default function AttributeEditor({
         undo,
         redo,
         onSave,
+        createToKey,
     } = useAttributeValues({
         attributeDefinitions: remoteAttributeDefinitions,
         assets,
         subSelection,
         setSubSelection,
-        toKey,
         definition,
         setDefinition,
         onSaved,
@@ -135,6 +124,8 @@ export default function AttributeEditor({
 
     const setAttributeValue = React.useCallback<SetAttributeValue>(
         (value, options) => {
+            console.log('value', value);
+            console.log('definition', definition);
             if (definition) {
                 setValue(definitionLocale, value, options);
             }
@@ -338,7 +329,7 @@ export default function AttributeEditor({
                                         setLocale={setLocale}
                                         locale={definitionLocale}
                                         setAttributeValue={setAttributeValue}
-                                        toKey={toKey}
+                                        createToKey={createToKey}
                                     />
                                 ) : (
                                     ''
@@ -375,7 +366,7 @@ export default function AttributeEditor({
                                     setAttributeValue={setAttributeValue}
                                     subSelection={subSelection}
                                     setSubSelection={setSubSelection}
-                                    toKey={toKey}
+                                    createToKey={createToKey}
                                 />
                             </div>
                         </Resizable>

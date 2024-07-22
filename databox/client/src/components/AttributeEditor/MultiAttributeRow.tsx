@@ -9,7 +9,7 @@ import {
     MultiValueValue,
     SelectedValue,
     SetAttributeValue,
-    ToKeyFunc,
+    CreateToKeyFunc,
     Values,
 } from './types.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
@@ -26,7 +26,7 @@ type Props<T> = {
     indeterminate?: boolean;
     readOnly?: boolean;
     locale: string;
-    toKey: ToKeyFunc<T>;
+    createToKey: CreateToKeyFunc<T>;
     setAttributeValue: SetAttributeValue<T>;
     selectedValue: SelectedValue | undefined;
     setSelectedValue: StateSetter<SelectedValue<T> | undefined>;
@@ -38,7 +38,7 @@ export default function MultiAttributeRow<T>({
     attributeDefinition,
     readOnly,
     locale,
-    toKey,
+    createToKey,
     setAttributeValue,
     selectedValue,
     setSelectedValue,
@@ -99,12 +99,13 @@ export default function MultiAttributeRow<T>({
     const computed = React.useMemo<MultiValueValue<T>[]>(() => {
         const index: MultiValueIndex<T> = {};
         const length = valueContainer.values.length;
+        const toKey = createToKey(attributeDefinition.fieldType);
 
         valueContainer.values.forEach(translations => {
             const values = translations[locale];
 
             values?.forEach((v: T) => {
-                const k = toKey(attributeDefinition, v);
+                const k = toKey(v);
 
                 index[k] ??= {
                     p: 0,
@@ -126,7 +127,7 @@ export default function MultiAttributeRow<T>({
             })
             .sort((a, b) => a.part - b.part)
             .sort((a, b) => a.key.localeCompare(b.key));
-    }, [valueContainer, locale]);
+    }, [valueContainer, locale, attributeDefinition]);
 
     const [values, setValues] = useState<MultiValueValue<T>[]>(computed ?? []);
 
@@ -185,7 +186,7 @@ export default function MultiAttributeRow<T>({
                 sx={{mb: 2}}
                 startIcon={<AddIcon />}
                 variant="outlined"
-                disabled={readOnly || disabled}
+                disabled={readOnly || disabled || !newValue}
                 color="primary"
                 onClick={addHandler}
             >

@@ -77,13 +77,9 @@ class EntityAttributeType extends TextAttributeType
         $v = $entity->getValue();
 
         return [
-            'value' => $id,
-            'label' => $v,
-            'item' => [
-                'id' => $id,
-                'value' => $v,
-                'createdAt' => $entity->getCreatedAt(),
-            ],
+            'id' => $id,
+            'value' => $v,
+            'createdAt' => $entity->getCreatedAt(),
         ];
     }
 }

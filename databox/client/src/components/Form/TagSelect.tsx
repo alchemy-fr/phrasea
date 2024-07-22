@@ -37,8 +37,8 @@ export default function TagSelect<
             .map((t: Tag) => ({
                 value: `${tagNS}/${t.id}`,
                 label: t.nameTranslated,
-                ...t,
-            }))
+                item: t,
+            } as TagOptions))
             .filter(i =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())
             );
@@ -54,3 +54,7 @@ export default function TagSelect<
         />
     );
 }
+
+export type TagOptions = {
+    item: Tag;
+} & SelectOption;

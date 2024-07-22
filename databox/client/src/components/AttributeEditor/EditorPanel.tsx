@@ -1,7 +1,7 @@
 import React from 'react';
 import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
 import {Alert, Box, Tab, Tabs} from '@mui/material';
-import {SelectedValue, SetAttributeValue, ToKeyFunc, Values} from './types.ts';
+import {SelectedValue, SetAttributeValue, CreateToKeyFunc, Values} from './types.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import Flag from '../Ui/Flag.tsx';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
@@ -16,7 +16,7 @@ type Props<T> = {
     inputValueInc: number;
     locale: string;
     setLocale: StateSetter<string>;
-    toKey: ToKeyFunc<T>;
+    createToKey: CreateToKeyFunc<T>;
     selectedValue: SelectedValue | undefined;
     setSelectedValue: StateSetter<SelectedValue | undefined>;
 };
@@ -29,7 +29,7 @@ export default function EditorPanel<T>({
     inputValueInc,
     locale,
     setLocale,
-    toKey,
+    createToKey,
     selectedValue,
     setSelectedValue,
 }: Props<T>) {
@@ -139,7 +139,7 @@ export default function EditorPanel<T>({
                     disabled={disabled}
                     valueContainer={valueContainer}
                     locale={locale}
-                    toKey={toKey}
+                    createToKey={createToKey}
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}
                 />

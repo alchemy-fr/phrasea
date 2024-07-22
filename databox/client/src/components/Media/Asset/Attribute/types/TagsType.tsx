@@ -5,7 +5,7 @@ import {
 } from './types';
 import {FormLabel} from '@mui/material';
 import React from 'react';
-import TagSelect from '../../../../Form/TagSelect.tsx';
+import TagSelect, {TagOptions} from '../../../../Form/TagSelect.tsx';
 import BaseType from './BaseType.tsx';
 import TagNode from '../../../../Ui/TagNode.tsx';
 import {Tag} from '../../../../../types.ts';
@@ -30,9 +30,9 @@ export default class TagsType
                     multiple={false}
                     name={name}
                     disabled={readOnly || disabled}
-                    value={value}
+                    value={value?.['@id']}
                     onChange={newValue => {
-                        onChange((newValue || undefined) as Tag | undefined);
+                        onChange(((newValue || undefined) as TagOptions | undefined)?.item);
                     }}
                 />
             </>
@@ -48,6 +48,6 @@ export default class TagsType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.label;
+        return value?.name;
     }
 }

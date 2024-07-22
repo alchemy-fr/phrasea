@@ -50,3 +50,7 @@ export default function AttributeEntitySelect<
         />
     );
 }
+
+export type AttributeEntityOption = {
+    item: AttributeEntity;
+} & SelectOption;

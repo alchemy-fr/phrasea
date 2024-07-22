@@ -4,7 +4,7 @@ import {
     BatchAttributeIndex,
     DiffGroupIndex,
     ExtraAttributeDefinition,
-    ToKeyFunc,
+    CreateToKeyFunc,
     ToKeyFuncTypeScoped,
 } from './types.ts';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
@@ -17,7 +17,7 @@ export function getBatchActions<T>(
     initialAttributes: BatchAttributeIndex<T>,
     attributes: BatchAttributeIndex<T>,
     definitions: AttributeDefinitionIndex,
-    toKey: ToKeyFunc<T>
+    createToKey: CreateToKeyFunc<T>
 ): AttributeBatchAction[] {
     const setGroups: DiffGroupIndex<T> = {};
     const addGroups: DiffGroupIndex<T> = {};
@@ -29,7 +29,7 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKeyForType: ToKeyFuncTypeScoped<T> = v => toKey(definition, v);
+        const toKey: ToKeyFuncTypeScoped<T> = createToKey(definition.fieldType);
         const av = attributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
@@ -50,11 +50,11 @@ export function getBatchActions<T>(
                                 (initialValue as T[]) ?? [];
 
                             (currValue as T[]).forEach(v => {
-                                const key = toKeyForType(v);
+                                const key = toKey(v);
 
                                 if (
                                     !normalizedInitialValues.some(
-                                        (i: T) => toKeyForType(i) === key
+                                        (i: T) => toKey(i) === key
                                     )
                                 ) {
                                     addGroups[defId] ??= {};
@@ -76,12 +76,12 @@ export function getBatchActions<T>(
                                 defId,
                                 asset,
                                 locale,
-                                toKeyForType,
+                                toKey,
                                 deleteGroups
                             );
                         }
                     } else {
-                        const key = toKeyForType(currValue);
+                        const key = toKey(currValue);
                         setGroups[defId] ??= {};
                         setGroups[defId][locale] ??= {};
                         setGroups[defId][locale][key] ??= {
@@ -104,7 +104,7 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKeyForType: ToKeyFuncTypeScoped<T> = v => toKey(definition, v);
+        const toKeyForType = createToKey(definition.fieldType);
         const av = initialAttributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;

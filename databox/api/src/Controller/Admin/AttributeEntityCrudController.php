@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -47,6 +48,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
+        yield AssociationField::new('workspace');
         yield TextField::new('type');
         yield TextField::new('locale');
         yield TextField::new('value');

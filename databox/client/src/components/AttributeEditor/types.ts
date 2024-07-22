@@ -40,7 +40,7 @@ export type SuggestionTabProps<T> = {
     subSelection: Asset[];
     setSubSelection: StateSetter<Asset[]>;
     locale: string;
-    toKey: ToKeyFunc<T>;
+    createToKey: CreateToKeyFunc<T>;
 };
 
 export type SetAttributeValueOptions = {
@@ -67,10 +67,9 @@ export type MultiValueIndex<T> = {
     };
 };
 
-export type ToKeyFunc<T = string> = (
-    attributeDefinition: AttributeDefinition,
-    v: T
-) => string;
+export type CreateToKeyFunc<T = string> = (
+    fieldType: string
+) => ToKeyFuncTypeScoped<T>;
 
 export type ToKeyFuncTypeScoped<T> = (v: T) => string;
 

@@ -32,7 +32,7 @@ export default function ValuesSuggestions<T>({
     setAttributeValue,
     definition,
     locale,
-    toKey,
+    createToKey,
     subSelection,
     setSubSelection,
 }: Props<T>) {
@@ -74,7 +74,7 @@ export default function ValuesSuggestions<T>({
             values.push(undefined);
         }
 
-        const norm = (v: T) => toKey(definition, v);
+        const norm = createToKey(definition.fieldType);
         const sortFn = (a: Value<T>, b: Value<T>) => {
             if (a.part === b.part) {
                 return a.label
@@ -124,7 +124,9 @@ export default function ValuesSuggestions<T>({
 
     const selectAssetsWithValue = React.useCallback(
         (value: T) => {
-            const key = toKey(definition, value);
+
+            const toKey = createToKey(definition.fieldType);
+            const key = toKey(value);
             setSubSelection(p => {
                 return p.filter(
                     definition.id === ExtraAttributeDefinition.Tags
@@ -134,7 +136,7 @@ export default function ValuesSuggestions<T>({
                                   at =>
                                       at.definition.id === definition.id &&
                                       (at.locale ?? NO_LOCALE) === locale &&
-                                      toKey(definition, at.value) === key
+                                      toKey(at.value) === key
                               )
                 );
             });

@@ -2,7 +2,7 @@ import {Asset, AttributeDefinition} from '../../../types.ts';
 import {
     BatchAttributeIndex,
     LocalizedAttributeIndex,
-    ToKeyFunc,
+    CreateToKeyFunc,
     ToKeyFuncTypeScoped,
     Values,
 } from '../types.ts';
@@ -13,7 +13,7 @@ export function computeValues<T>(
     subSelection: Asset[],
     index: BatchAttributeIndex<T>,
     initialIndex: BatchAttributeIndex<T>,
-    toKey: ToKeyFunc<T>
+    createToKey: CreateToKeyFunc<T>
 ): Values<T> {
     const values: Values<T> = {
         definition,
@@ -27,8 +27,7 @@ export function computeValues<T>(
     const defId = definition.id;
     const allLocales: Record<string, true> = {};
 
-    const toKeyForType: ToKeyFuncTypeScoped<T> = (v: T) =>
-        toKey(values.definition, v);
+    const toKey: ToKeyFuncTypeScoped<T> = createToKey(values.definition.fieldType);
 
     subSelection.forEach(a => {
         function valueIsSame(
@@ -39,7 +38,7 @@ export function computeValues<T>(
                 return listsAreSame(
                     (a ?? []) as T[],
                     (b ?? []) as T[],
-                    (v: T) => toKeyForType(v)
+                    (v: T) => toKey(v)
                 );
             }
 
@@ -68,7 +67,7 @@ export function computeValues<T>(
                 normalizeLocaleValues(
                     values.definition.multiple,
                     translations,
-                    toKeyForType
+                    toKey
                 )
             );
         } else {
@@ -93,7 +92,7 @@ export function computeValues<T>(
                 normalizeLocaleValues(
                     values.definition.multiple,
                     initialIndex[defId][a.id],
-                    toKeyForType
+                    toKey
                 )
             );
         } else {

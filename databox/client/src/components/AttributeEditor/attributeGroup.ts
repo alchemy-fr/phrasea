@@ -9,7 +9,7 @@ import {
     ExtraAttributeDefinition,
     LocalizedAttributeIndex,
     SetAttributeValueOptions,
-    ToKeyFunc,
+    CreateToKeyFunc,
     Values,
 } from './types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor';
@@ -24,13 +24,13 @@ import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from '../../api/attributes.ts';
+import {getAttributeType} from "../Media/Asset/Attribute/types";
 
-type Props<T> = {
+type Props = {
     attributeDefinitions: AttributeDefinition[];
     assets: Asset[];
     subSelection: Asset[];
     setSubSelection: StateSetter<Asset[]>;
-    toKey: ToKeyFunc<T>;
     definition: AttributeDefinition | undefined;
     setDefinition: StateSetter<AttributeDefinition | undefined>;
     onSaved: () => void;
@@ -41,16 +41,27 @@ export function useAttributeValues<T>({
     assets,
     subSelection,
     setSubSelection,
-    toKey,
     definition,
     setDefinition,
     onSaved,
-}: Props<T>) {
+}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
+
+    const createToKey = React.useCallback<CreateToKeyFunc<any>>((fieldType) => {
+        const type = getAttributeType(fieldType);
+
+        return (v: any) => {
+            if (!v) {
+                return '';
+            }
+
+            return type.normalize(v)?.toString();
+        };
+    }, []);
 
     const tagDefinition = React.useMemo<AttributeDefinition>(
         () =>
@@ -143,9 +154,9 @@ export function useAttributeValues<T>({
         // Update definition in current history
         setHistory(p => {
             if (
-                p.current === p.history.length - 1 &&
-                p.history[p.current].definition !== definition &&
-                p.history[p.current].subSelection !== subSelection
+                p.current === p.history.length - 1 && (
+                p.history[p.current].definition !== definition ||
+                p.history[p.current].subSelection !== subSelection)
             ) {
                 const h = [...p.history];
 
@@ -174,7 +185,7 @@ export function useAttributeValues<T>({
         return computeAllDefinitionsValues(
             finalAttributeDefinitions,
             subSelection,
-            toKey,
+            createToKey,
             index
         );
     }, [initialIndex, subSelection]);
@@ -194,7 +205,7 @@ export function useAttributeValues<T>({
                 subSelection,
                 index,
                 initialIndex,
-                toKey
+                createToKey
             );
         }
     }, [definition, index, subSelection]);
@@ -225,7 +236,7 @@ export function useAttributeValues<T>({
                 subSelection,
                 np,
                 initialIndex,
-                toKey
+                createToKey
             );
             setDefinitionValues(
                 computeDefinitionValuesHandler<T>(definition!, values)
@@ -244,7 +255,9 @@ export function useAttributeValues<T>({
             const attributeDefinition = finalAttributeDefinitions.find(
                 ad => ad.id === defId
             )!;
-            const key = value ? toKey(attributeDefinition, value) : '';
+
+            const toKey = createToKey(attributeDefinition.fieldType);
+            const key = value ? toKey(value) : '';
 
             setIndex(p => {
                 const np = {...p};
@@ -253,6 +266,8 @@ export function useAttributeValues<T>({
                 subSelection.forEach(a => {
                     const c = {...(na[a.id] ?? {})};
 
+                    console.log('add', add, value);
+
                     if (add) {
                         if (value) {
                             (c[locale] as T[]) = [
@@ -260,16 +275,18 @@ export function useAttributeValues<T>({
                             ];
                             if (
                                 !(c[locale] as T[]).some(
-                                    i => key === toKey(attributeDefinition, i)
+                                    i => key === toKey(i)
                                 )
                             ) {
+                                console.log('OK');
+
                                 (c[locale] as T[]).push(value);
                             }
                         }
                     } else if (remove) {
                         (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
                         (c[locale] as T[]) = (c[locale] as T[]).filter(
-                            i => key !== toKey(attributeDefinition, i)
+                            i => key !== toKey(i)
                         );
                     } else {
                         c[locale] = value;
@@ -299,7 +316,9 @@ export function useAttributeValues<T>({
                 ad => ad.id === defId
             )!;
             locale = attributeDefinition.translatable ? locale : NO_LOCALE;
-            const key = value ? toKey(attributeDefinition, value) : '';
+
+            const toKey = createToKey(attributeDefinition.fieldType);
+            const key = value ? toKey(value) : '';
 
             setIndex(p => {
                 const np = {...p};
@@ -310,7 +329,7 @@ export function useAttributeValues<T>({
                     (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
                     if (
                         !(c[locale] as T[]).some(
-                            i => key === toKey(attributeDefinition, i)
+                            i => key === toKey(i)
                         )
                     ) {
                         (c[locale] as T[]).push(value);
@@ -318,7 +337,7 @@ export function useAttributeValues<T>({
                 } else {
                     (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
                     (c[locale] as T[]) = (c[locale] as T[]).filter(
-                        i => key !== toKey(attributeDefinition, i)
+                        i => key !== toKey(i)
                     );
                 }
 
@@ -338,8 +357,9 @@ export function useAttributeValues<T>({
             if (definition && definition.multiple) {
                 locale = definition.translatable ? locale : NO_LOCALE;
                 const v = index[definition.id]?.[asset.id]?.[locale];
+                const toKey = createToKey(definition.fieldType);
                 if (v) {
-                    return (v as T[]).some(iv => toKey(definition, iv) === key);
+                    return (v as T[]).some(iv => toKey(iv) === key);
                 }
             }
 
@@ -362,7 +382,7 @@ export function useAttributeValues<T>({
                 computeAllDefinitionsValues<T>(
                     finalAttributeDefinitions,
                     subSelection,
-                    toKey,
+                    createToKey,
                     newIndex
                 )
             );
@@ -373,7 +393,7 @@ export function useAttributeValues<T>({
                     subSelection,
                     newIndex,
                     initialIndex,
-                    toKey
+                    createToKey
                 );
                 setDefinitionValues(
                     computeDefinitionValuesHandler<T>(definition!, values)
@@ -413,7 +433,7 @@ export function useAttributeValues<T>({
             initialIndex,
             index,
             definitionIndex,
-            toKey
+            createToKey
         );
 
         openModal(SavePreviewDialog, {
@@ -440,5 +460,6 @@ export function useAttributeValues<T>({
         undo: history.current > 0 ? undo : undefined,
         redo: history.current < history.history.length - 1 ? redo : undefined,
         onSave,
+        createToKey,
     };
 }
