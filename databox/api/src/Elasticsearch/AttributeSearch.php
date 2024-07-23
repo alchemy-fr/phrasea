@@ -62,7 +62,7 @@ class AttributeSearch
             ];
 
             $boost = $d['searchBoost'] ?? 1;
-            $trIndex = $type->isLocaleAware() && $d['translatable'] ? 1 : 0;
+            $trIndex = $type->isLocaleAware() && ($d['translatable'] || $type->supportsTranslations()) ? 1 : 0;
 
             if ($d['allowed']) {
                 $groups[$fieldName]['w'][$boost] ??= [

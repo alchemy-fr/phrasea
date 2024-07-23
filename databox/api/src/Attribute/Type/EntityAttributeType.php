@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
@@ -14,7 +16,7 @@ class EntityAttributeType extends TextAttributeType
     public const NAME = 'entity';
 
     public function __construct(
-        private AttributeEntityRepository $repository,
+        private readonly AttributeEntityRepository $repository,
     ) {
     }
 
@@ -43,13 +45,25 @@ class EntityAttributeType extends TextAttributeType
     {
         $entity = $this->getEntityFromValue($value);
         if ($entity instanceof AttributeEntity) {
-            $locales = $entity->getTranslations() ?? [];
-            $locales[$entity->getLocale()] = $entity->getValue();
+            $locales = array_merge($entity->getTranslations() ?? [], [
+                $entity->getLocale() ?? IndexMappingUpdater::NO_LOCALE => $entity->getValue(),
+            ]);
+            $entityId = $entity->getId();
 
-            return $locales;
+            return array_map(function ($v) use ($entityId): array {
+                return [
+                    'id' => $entityId,
+                    'value' => $v,
+                ];
+            }, $locales);
         }
 
         return null;
+    }
+
+    public function getElasticSearchSubField(): ?string
+    {
+        return 'value';
     }
 
     public function normalizeValue($value): ?string
@@ -90,4 +104,23 @@ class EntityAttributeType extends TextAttributeType
             'createdAt' => $entity->getCreatedAt(),
         ];
     }
+
+    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    {
+        $mapping = parent::getElasticSearchMapping($locale, $definition);
+
+        return [
+            'type' => 'object',
+            'properties' => [
+                'value' => [
+                    ...$mapping,
+                    'type' => $this->getElasticSearchType(),
+                ],
+                'id' => [
+                    'type' => 'keyword',
+                ]
+            ]
+        ];
+    }
+
 }
