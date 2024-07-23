@@ -259,13 +259,11 @@ services:
   keycloak:
     command:
       - 'start-dev'
-      - '--hostname-strict-https=false'
       - '--spi-connections-http-client-default-disable-trust-manager=true'
 
   keycloak2:
     command:
       - 'start-dev'
-      - '--hostname-strict-https=false'
 
   cypress:
     entrypoint: ""
