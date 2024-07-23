@@ -69,7 +69,6 @@ export function useAttributeValues<T>({
                 id: ExtraAttributeDefinition.Tags,
                 fieldType: AttributeType.Tag,
                 name: t('tags.label', 'Tags'),
-                entity: true,
                 multiple: true,
                 canEdit: true,
                 translatable: false,

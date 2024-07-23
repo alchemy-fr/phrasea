@@ -18,6 +18,7 @@ type Option = {
     label: string;
     value: string;
     image?: React.ElementType | React.FC;
+    item?: object | undefined;
 };
 export type {Option as SelectOption};
 

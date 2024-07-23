@@ -20,6 +20,7 @@ export default class AttributeEntityType
         id,
         readOnly,
         disabled,
+        options,
     }: AttributeWidgetProps<AttributeEntity>): React.ReactNode {
         return (
             <>
@@ -27,6 +28,7 @@ export default class AttributeEntityType
                 <AttributeEntitySelect
                     id={id}
                     multiple={false}
+                    type={options.type}
                     name={name}
                     disabled={readOnly || disabled}
                     value={value?.id}

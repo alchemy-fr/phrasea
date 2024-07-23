@@ -40,6 +40,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?string $entityType = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

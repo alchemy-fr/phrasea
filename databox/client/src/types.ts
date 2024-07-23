@@ -90,7 +90,7 @@ export interface AttributeDefinition extends IPermissions {
     name: string;
     slug: string;
     fieldType: string;
-    entity: boolean;
+    entityType?: string | undefined;
     multiple: boolean;
     searchable: boolean;
     suggest: boolean;
@@ -180,6 +180,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 
 export type AttributeEntity = {
     id: string;
+    type: string;
     locale: string;
     value: string;
     translations?: Record<string, string>;

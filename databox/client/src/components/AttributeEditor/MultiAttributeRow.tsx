@@ -18,6 +18,7 @@ import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeF
 import AttributeWidget from './AttributeWidget.tsx';
 import classNames from 'classnames';
 import {AttributeDefinition, StateSetter} from '../../types.ts';
+import {createWidgetOptionsFromDefinition} from "../Media/Asset/Attribute/AttributeWidget.tsx";
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;
@@ -181,6 +182,7 @@ export default function MultiAttributeRow<T>({
                 autoFocus={true}
                 value={finalNewValue}
                 onChange={changeNewItemHandler}
+                options={createWidgetOptionsFromDefinition(attributeDefinition)}
             />
             <Button
                 sx={{mb: 2}}

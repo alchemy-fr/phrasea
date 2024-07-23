@@ -253,6 +253,7 @@ export default function AsyncRSelectWidget<
                 const newValue = (
                     isMulti ? [option] : option
                 ) as OnChangeValue<SelectOption, IsMulti>;
+                updateLastOptions([newValue]);
                 setValue(newValue);
                 onChangeProp &&
                 onChangeProp(newValue, {

@@ -6,6 +6,7 @@ import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {AttributeWidgetOptions} from "./types/types";
 
 type Props = {
     id: string;
@@ -17,6 +18,7 @@ type Props = {
     disabled: boolean;
     indeterminate?: boolean;
     readOnly?: boolean;
+    options: AttributeWidgetOptions;
 };
 
 const deferred = 0;
@@ -31,6 +33,7 @@ export default function MultiAttributeRow({
     type,
     indeterminate,
     readOnly,
+    options,
 }: Props) {
     const {t} = useTranslation();
     const [values, setValues] = useState<AttrValue<string | number>[]>(
@@ -105,6 +108,7 @@ export default function MultiAttributeRow({
                                     changeHandler(i, v);
                                 }}
                                 id={`${id}_${i}`}
+                                options={options}
                             />
                             <Button
                                 startIcon={<DeleteIcon />}

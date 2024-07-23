@@ -6,6 +6,7 @@ const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
     query?: string;
+    type: string;
     workspace: string;
 };
 
@@ -22,9 +23,13 @@ export async function getAttributeEntities(
 }
 
 export async function postAttributeEntity(
+    workspaceId: string,
     data: Partial<AttributeEntity>
 ): Promise<AttributeEntity> {
-    const res = await apiClient.post(attributeEntityNS, data);
+    const res = await apiClient.post(attributeEntityNS, {
+        ...data,
+        workspace: `/workspaces/${workspaceId}`,
+    });
 
     return res.data;
 }

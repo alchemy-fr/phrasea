@@ -2,22 +2,29 @@ import {AttributeEntity} from '../../types';
 import {FieldValues} from 'react-hook-form';
 import {
     AsyncRSelectProps,
-    AsyncRSelectWidget,
+    AsyncRSelectWidget, RSelectOnCreate,
     SelectOption,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
 import {getAttributeEntities} from '../../api/attributeEntity.ts';
+import {useModals} from '@alchemy/navigation'
+import CreateAttributeEntityDialog from "../AttributeEntity/CreateAttributeEntityDialog.tsx";
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     multiple: IsMulti;
+    allowNew?: boolean;
+    type: string;
 } & AsyncRSelectProps<TFieldValues, IsMulti>;
 
 export default function AttributeEntitySelect<
     TFieldValues extends FieldValues,
     IsMulti extends boolean,
->({workspaceId: wsId, multiple, ...rest}: Props<TFieldValues, IsMulti>) {
+>({workspaceId: wsId, multiple,
+    type,
+    allowNew = true, ...rest}: Props<TFieldValues, IsMulti>) {
+    const {openModal} = useModals();
     const workspaceContext = React.useContext(WorkspaceContext);
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
@@ -25,10 +32,29 @@ export default function AttributeEntitySelect<
         throw new Error('Missing workspace context');
     }
 
+    const onCreate: RSelectOnCreate | undefined = allowNew
+        ? (inputValue, onCreate) => {
+            openModal(CreateAttributeEntityDialog, {
+                value: inputValue,
+                type,
+                workspaceId,
+                onCreate: (d: AttributeEntity) => {
+                    console.log('d', d);
+                    onCreate({
+                        label: d.value,
+                        value: d.id,
+                        item: d,
+                    });
+                },
+            });
+        }
+        : undefined;
+
     const load = async (inputValue: string): Promise<SelectOption[]> => {
         const data = (
             await getAttributeEntities({
                 workspace: workspaceId,
+                type,
                 query: inputValue,
             })
         ).result;
@@ -47,6 +73,7 @@ export default function AttributeEntitySelect<
             loadOptions={load}
             isMulti={multiple}
             key={workspaceId}
+            onCreate={onCreate}
         />
     );
 }

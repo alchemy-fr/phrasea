@@ -1,6 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {AttrValue, createNewValue} from './AttributesEditor';
 import {getAttributeType} from './types';
+import {AttributeWidgetOptions} from "./types/types";
+import {AttributeDefinition} from "../../../../types.ts";
 
 type Props = {
     id: string;
@@ -14,6 +16,7 @@ type Props = {
     autoFocus?: boolean;
     isRtl: boolean;
     onChange: (value: AttrValue<string | number>) => void;
+    options: AttributeWidgetOptions;
 };
 
 export default function AttributeWidget({
@@ -28,6 +31,7 @@ export default function AttributeWidget({
     type,
     indeterminate,
     readOnly,
+    options,
 }: Props) {
     const denormalizeInputValue = (
         initialValue: AttrValue<string | number> | undefined
@@ -82,7 +86,14 @@ export default function AttributeWidget({
                 indeterminate,
                 autoFocus,
                 disabled,
+                options,
             })}
         </>
     );
+}
+
+export function createWidgetOptionsFromDefinition(definition: AttributeDefinition): AttributeWidgetOptions {
+    return {
+        type: definition.entityType,
+    };
 }

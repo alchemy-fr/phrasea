@@ -1,6 +1,8 @@
 import {AttributeFormat} from '../Format/AttributeFormatContext';
 import React from 'react';
 
+export type AttributeWidgetOptions = Record<string, any>;
+
 export type AttributeWidgetProps<T> = {
     id: string;
     name: string;
@@ -13,6 +15,7 @@ export type AttributeWidgetProps<T> = {
     isRtl?: boolean;
     indeterminate?: boolean;
     inputRef?: React.Ref<HTMLInputElement>;
+    options: AttributeWidgetOptions;
 };
 
 export type AttributeFormat = string;
