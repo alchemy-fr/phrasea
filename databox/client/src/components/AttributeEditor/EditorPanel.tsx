@@ -7,6 +7,7 @@ import Flag from '../Ui/Flag.tsx';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import MultiAttributeRow from './MultiAttributeRow.tsx';
 import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
+import {createWidgetOptionsFromDefinition} from "../Media/Asset/Attribute/AttributeWidget.tsx";
 
 type Props<T> = {
     definition: AttributeDefinition;
@@ -158,6 +159,7 @@ export default function EditorPanel<T>({
                     required={false}
                     autoFocus={true}
                     onChange={changeHandler}
+                    options={createWidgetOptionsFromDefinition(definition)}
                 />
             )}
         </Box>

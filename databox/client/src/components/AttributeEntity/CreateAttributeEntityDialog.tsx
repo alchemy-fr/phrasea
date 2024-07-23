@@ -9,6 +9,7 @@ import {postAttributeEntity} from "../../api/attributeEntity.ts";
 import {toast} from "react-toastify";
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from "../Form/RemoteErrors.tsx";
+import TranslatableAttributeTabs from "../Media/Asset/Attribute/TranslatableAttributeTabs.tsx";
 
 type Props = {
     value: string;
@@ -98,6 +99,7 @@ export default function CreateAttributeEntityDialog({
                     />
                     <FormFieldErrors field={'value'} errors={errors}/>
                 </FormRow>
+
                 <RemoteErrors errors={remoteErrors} />
             </form>
         </AppDialog>

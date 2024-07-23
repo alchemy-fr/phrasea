@@ -179,9 +179,7 @@ export default function AsyncRSelectWidget<
                                         ?.value;
 
                                 updateLastOptions([option]);
-
                                 onChange(v);
-
                                 onChangeProp &&
                                 onChangeProp(newValue, {
                                     action: 'select-option',
@@ -253,7 +251,7 @@ export default function AsyncRSelectWidget<
                 const newValue = (
                     isMulti ? [option] : option
                 ) as OnChangeValue<SelectOption, IsMulti>;
-                updateLastOptions([newValue]);
+                updateLastOptions([option]);
                 setValue(newValue);
                 onChangeProp &&
                 onChangeProp(newValue, {
