@@ -344,7 +344,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 id={'edit'}
                                 onClick={onEdit}
                                 startIcon={<EditIcon />}
-                                disabled={!canEdit}
+                                disabled={!canEdit || (selection.length > 0 && !canEditAttributes)}
                                 actions={[
                                     {
                                         id: 'move',
