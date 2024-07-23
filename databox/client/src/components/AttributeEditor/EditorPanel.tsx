@@ -1,13 +1,18 @@
 import React from 'react';
 import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
 import {Alert, Box, Tab, Tabs} from '@mui/material';
-import {SelectedValue, SetAttributeValue, CreateToKeyFunc, Values} from './types.ts';
+import {
+    SelectedValue,
+    SetAttributeValue,
+    CreateToKeyFunc,
+    Values,
+} from './types.ts';
 import AttributeWidget from './AttributeWidget.tsx';
 import Flag from '../Ui/Flag.tsx';
 import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import MultiAttributeRow from './MultiAttributeRow.tsx';
 import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
-import {createWidgetOptionsFromDefinition} from "../Media/Asset/Attribute/AttributeWidget.tsx";
+import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/AttributeWidget.tsx';
 
 type Props<T> = {
     definition: AttributeDefinition;

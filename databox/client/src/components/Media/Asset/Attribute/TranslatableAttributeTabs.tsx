@@ -11,7 +11,7 @@ import AttributeWidget from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
-import {AttributeWidgetOptions} from "./types/types";
+import {AttributeWidgetOptions} from './types/types';
 
 function TabPanel({
     children,

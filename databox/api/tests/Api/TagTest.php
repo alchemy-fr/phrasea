@@ -16,7 +16,22 @@ class TagTest extends AbstractSearchTestCase
     {
         $limit = 10;
         self::enableFixtures();
-        $response = static::createClient()->request('GET', '/tags?limit='.$limit, [
+
+        $client = static::createClient();
+        $client->request('GET', '/tags?limit='.$limit, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $response = $client->request('GET', '/tags?limit='.$limit, [
+            'query' => [
+                'limit' => $limit,
+                'workspace' => $this->findIriBy(Workspace::class, [
+                    'slug' => 'test-workspace',
+                ]),
+            ],
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
@@ -31,7 +46,6 @@ class TagTest extends AbstractSearchTestCase
             '@type' => 'hydra:Collection',
             'hydra:totalItems' => $resultCount,
             'hydra:view' => [
-                '@id' => '/tags?limit='.$limit,
                 '@type' => 'hydra:PartialCollectionView',
             ],
         ]);

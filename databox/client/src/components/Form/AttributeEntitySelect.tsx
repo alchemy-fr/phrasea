@@ -2,14 +2,15 @@ import {AttributeEntity} from '../../types';
 import {FieldValues} from 'react-hook-form';
 import {
     AsyncRSelectProps,
-    AsyncRSelectWidget, RSelectOnCreate,
+    AsyncRSelectWidget,
+    RSelectOnCreate,
     SelectOption,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
 import {getAttributeEntities} from '../../api/attributeEntity.ts';
-import {useModals} from '@alchemy/navigation'
-import CreateAttributeEntityDialog from "../AttributeEntity/CreateAttributeEntityDialog.tsx";
+import {useModals} from '@alchemy/navigation';
+import CreateAttributeEntityDialog from '../AttributeEntity/CreateAttributeEntityDialog.tsx';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
@@ -21,9 +22,13 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
 export default function AttributeEntitySelect<
     TFieldValues extends FieldValues,
     IsMulti extends boolean,
->({workspaceId: wsId, multiple,
+>({
+    workspaceId: wsId,
+    multiple,
     type,
-    allowNew = true, ...rest}: Props<TFieldValues, IsMulti>) {
+    allowNew = true,
+    ...rest
+}: Props<TFieldValues, IsMulti>) {
     const {openModal} = useModals();
     const workspaceContext = React.useContext(WorkspaceContext);
 
@@ -34,20 +39,20 @@ export default function AttributeEntitySelect<
 
     const onCreate: RSelectOnCreate | undefined = allowNew
         ? (inputValue, onCreate) => {
-            openModal(CreateAttributeEntityDialog, {
-                value: inputValue,
-                type,
-                workspaceId,
-                onCreate: (d: AttributeEntity) => {
-                    console.log('d', d);
-                    onCreate({
-                        label: d.value,
-                        value: d.id,
-                        item: d,
-                    });
-                },
-            });
-        }
+              openModal(CreateAttributeEntityDialog, {
+                  value: inputValue,
+                  type,
+                  workspaceId,
+                  onCreate: (d: AttributeEntity) => {
+                      console.log('d', d);
+                      onCreate({
+                          label: d.value,
+                          value: d.id,
+                          item: d,
+                      });
+                  },
+              });
+          }
         : undefined;
 
     const load = async (inputValue: string): Promise<SelectOption[]> => {

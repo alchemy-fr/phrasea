@@ -27,7 +27,9 @@ export function computeValues<T>(
     const defId = definition.id;
     const allLocales: Record<string, true> = {};
 
-    const toKey: ToKeyFuncTypeScoped<T> = createToKey(values.definition.fieldType);
+    const toKey: ToKeyFuncTypeScoped<T> = createToKey(
+        values.definition.fieldType
+    );
 
     subSelection.forEach(a => {
         function valueIsSame(

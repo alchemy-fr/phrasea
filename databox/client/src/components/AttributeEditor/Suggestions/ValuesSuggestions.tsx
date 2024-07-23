@@ -128,16 +128,17 @@ export default function ValuesSuggestions<T>({
             const toKey = createToKey(definition.fieldType);
             const key = toKey(value);
 
-            setSubSelection(assets.filter(
-                a =>
-                    a.attributes.some(
-                        at => {
-                            return at.definition.id === definition.id &&
-                                (at.locale ?? NO_LOCALE) === locale &&
-                                toKey(at.value) === key;
-                        }
-                    )
-            ));
+            setSubSelection(
+                assets.filter(a =>
+                    a.attributes.some(at => {
+                        return (
+                            at.definition.id === definition.id &&
+                            (at.locale ?? NO_LOCALE) === locale &&
+                            toKey(at.value) === key
+                        );
+                    })
+                )
+            );
         },
         [locale, definition]
     );

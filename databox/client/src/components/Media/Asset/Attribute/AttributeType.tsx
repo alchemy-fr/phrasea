@@ -1,4 +1,6 @@
-import AttributeWidget, {createWidgetOptionsFromDefinition} from './AttributeWidget';
+import AttributeWidget, {
+    createWidgetOptionsFromDefinition,
+} from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {
     AttrValue,
@@ -99,7 +101,6 @@ export default function AttributeType({
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}
                     options={createWidgetOptionsFromDefinition(definition)}
-
                 />
             ) : (
                 <AttributeWidget

@@ -32,7 +32,10 @@ export default class TagsType
                     disabled={readOnly || disabled}
                     value={value?.['@id']}
                     onChange={newValue => {
-                        onChange(((newValue || undefined) as TagOptions | undefined)?.item);
+                        onChange(
+                            ((newValue || undefined) as TagOptions | undefined)
+                                ?.item
+                        );
                     }}
                 />
             </>

@@ -6,7 +6,9 @@ import {
 import React from 'react';
 import {FormLabel} from '@mui/material';
 import {AttributeEntity} from '../../../../../types.ts';
-import AttributeEntitySelect, {AttributeEntityOption} from '../../../../Form/AttributeEntitySelect.tsx';
+import AttributeEntitySelect, {
+    AttributeEntityOption,
+} from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
 
 export default class AttributeEntityType
@@ -34,9 +36,11 @@ export default class AttributeEntityType
                     value={value?.id}
                     onChange={newValue => {
                         onChange(
-                            ((newValue || undefined) as
-                                | AttributeEntityOption
-                                | undefined)?.item
+                            (
+                                (newValue || undefined) as
+                                    | AttributeEntityOption
+                                    | undefined
+                            )?.item
                         );
                     }}
                 />

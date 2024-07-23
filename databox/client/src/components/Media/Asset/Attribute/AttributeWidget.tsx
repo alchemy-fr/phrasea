@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {AttrValue, createNewValue} from './AttributesEditor';
 import {getAttributeType} from './types';
-import {AttributeWidgetOptions} from "./types/types";
-import {AttributeDefinition} from "../../../../types.ts";
+import {AttributeWidgetOptions} from './types/types';
+import {AttributeDefinition} from '../../../../types.ts';
 
 type Props = {
     id: string;
@@ -92,7 +92,9 @@ export default function AttributeWidget({
     );
 }
 
-export function createWidgetOptionsFromDefinition(definition: AttributeDefinition): AttributeWidgetOptions {
+export function createWidgetOptionsFromDefinition(
+    definition: AttributeDefinition
+): AttributeWidgetOptions {
     return {
         type: definition.entityType,
     };

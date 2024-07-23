@@ -6,7 +6,7 @@ import {FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {AttributeWidgetOptions} from "./types/types";
+import {AttributeWidgetOptions} from './types/types';
 
 type Props = {
     id: string;

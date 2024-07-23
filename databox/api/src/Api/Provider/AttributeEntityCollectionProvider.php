@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
+use App\Api\EntityIriConverter;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Elasticsearch\AttributeEntitySearch;
 use App\Entity\Core\Workspace;
@@ -20,8 +20,8 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
 
     public function __construct(
         private readonly AttributeEntitySearch $search,
-    )
-    {
+        private readonly EntityIriConverter $entityIriConverter,
+    ) {
     }
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
@@ -30,7 +30,8 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('Missing workspace');
         }
-        $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
+
+        $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
 
         $queryString = $context['filters']['query'] ?? null;

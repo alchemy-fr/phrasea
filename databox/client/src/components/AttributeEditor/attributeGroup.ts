@@ -24,7 +24,7 @@ import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from '../../api/attributes.ts';
-import {getAttributeType} from "../Media/Asset/Attribute/types";
+import {getAttributeType} from '../Media/Asset/Attribute/types';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];
@@ -51,7 +51,7 @@ export function useAttributeValues<T>({
     const [definitionIndex, setDefinitionIndex] =
         React.useState<AttributeDefinitionIndex>({});
 
-    const createToKey = React.useCallback<CreateToKeyFunc<any>>((fieldType) => {
+    const createToKey = React.useCallback<CreateToKeyFunc<any>>(fieldType => {
         const type = getAttributeType(fieldType);
 
         return (v: any) => {
@@ -153,9 +153,9 @@ export function useAttributeValues<T>({
         // Update definition in current history
         setHistory(p => {
             if (
-                p.current === p.history.length - 1 && (
-                p.history[p.current].definition !== definition ||
-                p.history[p.current].subSelection !== subSelection)
+                p.current === p.history.length - 1 &&
+                (p.history[p.current].definition !== definition ||
+                    p.history[p.current].subSelection !== subSelection)
             ) {
                 const h = [...p.history];
 
@@ -271,9 +271,7 @@ export function useAttributeValues<T>({
                                 ...((c[locale] ?? []) as T[]),
                             ];
                             if (
-                                !(c[locale] as T[]).some(
-                                    i => key === toKey(i)
-                                )
+                                !(c[locale] as T[]).some(i => key === toKey(i))
                             ) {
                                 (c[locale] as T[]).push(value);
                             }
@@ -322,11 +320,7 @@ export function useAttributeValues<T>({
 
                 if (checked) {
                     (c[locale] as T[]) = [...((c[locale] ?? []) as T[])];
-                    if (
-                        !(c[locale] as T[]).some(
-                            i => key === toKey(i)
-                        )
-                    ) {
+                    if (!(c[locale] as T[]).some(i => key === toKey(i))) {
                         (c[locale] as T[]).push(value);
                     }
                 } else {

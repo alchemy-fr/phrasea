@@ -18,7 +18,7 @@ import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeF
 import AttributeWidget from './AttributeWidget.tsx';
 import classNames from 'classnames';
 import {AttributeDefinition, StateSetter} from '../../types.ts';
-import {createWidgetOptionsFromDefinition} from "../Media/Asset/Attribute/AttributeWidget.tsx";
+import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/AttributeWidget.tsx';
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;

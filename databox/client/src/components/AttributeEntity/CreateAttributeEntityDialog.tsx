@@ -1,15 +1,18 @@
-import {AttributeEntity} from "../../types.ts";
-import {useTranslation} from "react-i18next";
+import {AttributeEntity} from '../../types.ts';
+import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {StackedModalProps, useInRouterDirtyFormPrompt, useModals} from '@alchemy/navigation';
-import {Button, TextField} from "@mui/material";
-import {LoadingButton} from "@mui/lab";
+import {
+    StackedModalProps,
+    useInRouterDirtyFormPrompt,
+    useModals,
+} from '@alchemy/navigation';
+import {Button, TextField} from '@mui/material';
+import {LoadingButton} from '@mui/lab';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
-import {postAttributeEntity} from "../../api/attributeEntity.ts";
-import {toast} from "react-toastify";
+import {postAttributeEntity} from '../../api/attributeEntity.ts';
+import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
-import RemoteErrors from "../Form/RemoteErrors.tsx";
-import TranslatableAttributeTabs from "../Media/Asset/Attribute/TranslatableAttributeTabs.tsx";
+import RemoteErrors from '../Form/RemoteErrors.tsx';
 
 type Props = {
     value: string;
@@ -36,12 +39,12 @@ export default function CreateAttributeEntityDialog({
         forbidNavigation,
         handleSubmit,
         register,
-        formState: {errors}
+        formState: {errors},
     } = useFormSubmit<AttributeEntity>({
         defaultValues: {
             value,
         },
-        onSubmit: async (data) => {
+        onSubmit: async data => {
             return await postAttributeEntity(workspaceId, {
                 ...data,
                 type,
@@ -51,10 +54,7 @@ export default function CreateAttributeEntityDialog({
             onCreate(data);
 
             toast.success(
-                t(
-                    'attribute_entity.form.created',
-                    'Item created!'
-                ) as string
+                t('attribute_entity.form.created', 'Item created!') as string
             );
             closeModal();
         },
@@ -97,11 +97,11 @@ export default function CreateAttributeEntityDialog({
                             required: true,
                         })}
                     />
-                    <FormFieldErrors field={'value'} errors={errors}/>
+                    <FormFieldErrors field={'value'} errors={errors} />
                 </FormRow>
 
                 <RemoteErrors errors={remoteErrors} />
             </form>
         </AppDialog>
-);
+    );
 }

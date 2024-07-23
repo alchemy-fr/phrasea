@@ -34,11 +34,14 @@ export default function TagSelect<
         ).result;
 
         return data
-            .map((t: Tag) => ({
-                value: `${tagNS}/${t.id}`,
-                label: t.nameTranslated,
-                item: t,
-            } as TagOptions))
+            .map(
+                (t: Tag) =>
+                    ({
+                        value: `${tagNS}/${t.id}`,
+                        label: t.nameTranslated,
+                        item: t,
+                    }) as TagOptions
+            )
             .filter(i =>
                 i.label.toLowerCase().includes((inputValue || '').toLowerCase())
             );
