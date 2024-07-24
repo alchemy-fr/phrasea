@@ -256,15 +256,6 @@ services:
     ports:
       - 127.0.0.1:${DB_DEV_PORT}:5432
 
-  keycloak:
-    command:
-      - 'start-dev'
-      - '--spi-connections-http-client-default-disable-trust-manager=true'
-
-  keycloak2:
-    command:
-      - 'start-dev'
-
   cypress:
     entrypoint: ""
     command: npx cypress open --e2e --browser chrome --project ./

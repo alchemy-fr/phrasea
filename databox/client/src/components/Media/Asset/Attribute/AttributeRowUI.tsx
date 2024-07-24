@@ -137,7 +137,7 @@ export default function AttributeRowUI({
                                           }
                                       >
                                           {formatter.formatValue(formatProps)}
-                                          {displayControls && overControls ? (
+                                          {displayControls ? (
                                               <CopyAttribute
                                                   value={formatter.formatValueAsString(
                                                       formatProps

@@ -8,11 +8,13 @@ import {
 } from '@alchemy/navigation';
 import {Button, TextField} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, KeyTranslationsWidget, getNonEmptyTranslations} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
+import React from "react";
+import Flag from "../Ui/Flag.tsx";
 
 type Props = {
     value: string;
@@ -34,6 +36,7 @@ export default function CreateAttributeEntityDialog({
     const formId = 'attr-entity';
 
     const {
+        control,
         submitting,
         remoteErrors,
         forbidNavigation,
@@ -45,8 +48,13 @@ export default function CreateAttributeEntityDialog({
             value,
         },
         onSubmit: async data => {
-            return await postAttributeEntity(workspaceId, {
+            const d = {
                 ...data,
+                translations: getNonEmptyTranslations(data.translations)
+            };
+
+            return await postAttributeEntity(workspaceId, {
+                ...d,
                 type,
             });
         },
@@ -98,6 +106,24 @@ export default function CreateAttributeEntityDialog({
                         })}
                     />
                     <FormFieldErrors field={'value'} errors={errors} />
+                </FormRow>
+
+                <FormRow>
+                    <KeyTranslationsWidget
+                        renderLocale={l => {
+                            return <Flag
+                                sx={{
+                                    mr: 1,
+                                }}
+                                locale={l}
+                            />
+                        }}
+                        locales={['en', 'fr', 'it']} // TODO set workspace locales
+                        name={'translations'}
+                        control={control}
+                        errors={errors}
+                        register={register}
+                    />
                 </FormRow>
 
                 <RemoteErrors errors={remoteErrors} />

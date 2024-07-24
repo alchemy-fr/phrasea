@@ -13,6 +13,8 @@ import AsyncRSelectWidget, {AsyncRSelectProps, RSelectOnCreate} from "./src/Asyn
 import RSelectWidget, {RSelectProps, SelectOption} from "./src/RSelectWidget";
 import SwitchWidget from "./src/Widget/SwitchWidget";
 import CheckboxWidget from "./src/Widget/CheckboxWidget";
+import KeyTranslationsWidget, {getNonEmptyTranslations} from "./src/Translations/KeyTranslationsWidget";
+
 export {
     CollectionWidget,
     ColorPicker,
@@ -23,12 +25,14 @@ export {
     FormSection,
     SortableCollectionWidget,
     TranslationsWidget,
+    KeyTranslationsWidget,
     TranslatedField,
     LoadingButton,
     AsyncRSelectWidget,
     RSelectWidget,
     SwitchWidget,
     CheckboxWidget,
+    getNonEmptyTranslations,
 };
 
 export type {
