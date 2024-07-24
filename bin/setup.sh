@@ -107,8 +107,7 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 "
 
 docker compose restart keycloak
-docker compose run --rm dockerize -wait http://keycloak:9000/health/ready -timeout 200s || docker compose logs keycloak
-docker inspect build-keycloak-1 # TODO remove
+docker compose run --rm dockerize -wait http://keycloak:9000/health/ready -timeout 200s
 
 PRESETS=""
 for p in $@; do
