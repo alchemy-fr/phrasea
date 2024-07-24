@@ -920,12 +920,12 @@ services:
       target: keycloak
     command:
       - 'start'
+      - '--optimized'
     networks:
       - internal
     environment:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN
-      - KC_HEALTH_ENABLED=true
       - KEYCLOAK_ADMIN_PASSWORD
       - KC_HOSTNAME=keycloak.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
       - KC_DB_USERNAME=${POSTGRES_USER}
@@ -941,9 +941,10 @@ services:
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
-    image: quay.io/keycloak/keycloak:22.0.1
+    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
     command:
       - 'start'
+      - '--optimized'
     networks:
       - internal
     profiles:
