@@ -11,7 +11,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\File\FileMetadataAccessorWrapper;
-use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -36,7 +36,7 @@ class InitialAttributeValuesResolver
     {
         $attributes = [];
 
-        /** @var AttributeDefinitionRepositoryInterface $repo */
+        /** @var AttributeDefinitionRepository $repo */
         $repo = $this->em->getRepository(AttributeDefinition::class);
 
         $definitions = $repo->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());

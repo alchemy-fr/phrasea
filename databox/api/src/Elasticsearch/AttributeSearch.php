@@ -10,7 +10,7 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
-use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
@@ -319,8 +319,8 @@ class AttributeSearch
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes($userId, $groupIds, [
-                AttributeDefinitionRepositoryInterface::OPT_FACET_ENABLED => true,
-                AttributeDefinitionRepositoryInterface::OPT_TYPES => $facetTypes,
+                AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
+                AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
             ]);
 
         $facets = [];

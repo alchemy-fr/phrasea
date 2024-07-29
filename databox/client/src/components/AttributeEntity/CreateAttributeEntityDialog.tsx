@@ -13,7 +13,6 @@ import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
-import React from "react";
 import Flag from "../Ui/Flag.tsx";
 
 type Props = {
@@ -50,7 +49,7 @@ export default function CreateAttributeEntityDialog({
         onSubmit: async data => {
             const d = {
                 ...data,
-                translations: getNonEmptyTranslations(data.translations)
+                translations: getNonEmptyTranslations(data.translations ?? {})
             };
 
             return await postAttributeEntity(workspaceId, {

@@ -44,8 +44,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
+#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
+    'workspace',
+    'type',
+])]
 #[ORM\Index(columns: ['type'], name: 'attr_entity_type_idx')]
 class AttributeEntity extends AbstractUuidEntity
 {
@@ -58,6 +60,7 @@ class AttributeEntity extends AbstractUuidEntity
     final public const GROUP_LIST = 'attr-entity:index';
 
     #[ORM\Column(type: Types::STRING, length: self::TYPE_LENGTH, nullable: false)]
+    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
     private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]

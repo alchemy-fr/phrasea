@@ -55,7 +55,10 @@ final readonly class IndexMappingUpdater
             ],
         ], $type->getElasticSearchMapping($locale, $definition));
 
-        if ($mapping['type'] === 'object') {
+        if (in_array($mapping['type'], [
+            'object',
+            'nested',
+        ], true)) {
             unset($mapping['meta']);
         }
 
@@ -120,7 +123,7 @@ final readonly class IndexMappingUpdater
             }
         };
 
-        if ($type->isLocaleAware() && $definition->isTranslatable()) {
+        if ($type->isLocaleAware() && ($definition->isTranslatable() || $type->supportsTranslations())) {
             foreach ($workspace->getEnabledLocales() as $locale) {
                 $assign($locale);
             }

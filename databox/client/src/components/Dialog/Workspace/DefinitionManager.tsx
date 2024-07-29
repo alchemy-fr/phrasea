@@ -259,6 +259,10 @@ export default function DefinitionManager<D extends DefinitionBase>({
                     item: undefined,
                     list: (p.list || []).filter(i => i.id !== item.id),
                 }));
+                setItemState({
+                    item: undefined,
+                    loading: false,
+                });
                 handleDelete(item.id);
             }
         }

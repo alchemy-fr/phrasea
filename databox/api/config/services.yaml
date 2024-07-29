@@ -22,6 +22,8 @@ services:
             ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
+            Elastica\Index $assetIndex: '@fos_elastica.index.asset'
+            Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:
@@ -78,12 +80,6 @@ services:
             $configManager: '@fos_elastica.config_manager'
             $mappingBuilder: '@fos_elastica.mapping_builder'
 
-    App\Elasticsearch\IndexCleaner:
-        arguments:
-            $client: '@fos_elastica.client'
-            $collectionIndex: '@fos_elastica.index.collection'
-            $assetIndex: '@fos_elastica.index.asset'
-
     fos_elastica.elastica_to_model_transformer.prototype.orm:
         class: App\Elasticsearch\Transformer\AppElasticaToModelTransformer
         abstract: true
@@ -97,9 +93,6 @@ services:
     hydra_meta.normalizer:
         class:  App\Serializer\HydraMetaNormalizer
         public: true
-
-    App\Repository\Cache\AttributeDefinitionRepositoryMemoryCachedDecorator:
-        decorates: 'App\Repository\Core\AttributeDefinitionRepository'
 
     App\Api\Serializer\GroupNormalizerContextBuilder:
         decorates: 'alchemy_webhook.normalizer.context_builder'

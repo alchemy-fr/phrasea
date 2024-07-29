@@ -38,6 +38,11 @@ class AttributeEntitySearch extends AbstractSearch
             $filterQuery->addMust($match);
         }
 
+        $type = trim($options['type'] ?? '');
+        if (!empty($type)) {
+            $filterQuery->addFilter(new Query\Term(['type' => $type]));
+        }
+
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
             $limit = $maxLimit;

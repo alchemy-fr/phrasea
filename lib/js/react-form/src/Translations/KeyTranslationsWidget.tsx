@@ -22,7 +22,7 @@ type Props<TFieldValues extends { translations: KeyTranslations }> = {
 
 export default function KeyTranslationsWidget<
     TFieldValues extends { translations: KeyTranslations },
->({name, control, register, errors, inputProps, locales, renderLocale}: Props<TFieldValues>) {
+>({name, register, errors, inputProps, locales, renderLocale}: Props<TFieldValues>) {
     const {t} = useTranslation();
 
     const path = name;

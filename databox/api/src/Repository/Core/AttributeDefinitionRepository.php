@@ -11,8 +11,13 @@ use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
+class AttributeDefinitionRepository extends ServiceEntityRepository
 {
+    public const OPT_TYPES = 'types';
+    public const OPT_SKIP_PERMS = 'skip_perms';
+    public const OPT_FACET_ENABLED = 'facet_enabled';
+    public const OPT_SUGGEST_ENABLED = 'suggest_enabled';
+
     use SecurityAwareTrait;
 
     public function __construct(ManagerRegistry $registry)
@@ -190,6 +195,18 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getWorkspaceDefinitionOfType(string $workspaceId, string $type): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.fieldType = :type')
+            ->setParameter('workspace', $workspaceId)
+            ->setParameter('type', $type)
             ->getQuery()
             ->getResult();
     }
