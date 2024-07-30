@@ -1,4 +1,3 @@
-import React from 'react';
 import {AttributeEntity, Workspace} from '../../../types';
 import {
     deleteAttributeEntity,

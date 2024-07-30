@@ -35,7 +35,6 @@ export default function CreateAttributeEntityDialog({
     const formId = 'attr-entity';
 
     const {
-        control,
         submitting,
         remoteErrors,
         forbidNavigation,
@@ -119,7 +118,6 @@ export default function CreateAttributeEntityDialog({
                         }}
                         locales={['en', 'fr', 'it']} // TODO set workspace locales
                         name={'translations'}
-                        control={control}
                         errors={errors}
                         register={register}
                     />

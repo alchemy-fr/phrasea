@@ -4,14 +4,13 @@ import {TextFieldProps} from '@mui/material/TextField/TextField';
 import FormRow from "../FormRow";
 import FormFieldErrors from "../FormFieldErrors";
 import React, {ReactNode} from "react";
-import {Control, FieldErrors, UseFormRegister} from "react-hook-form";
+import {FieldErrors, UseFormRegister} from "react-hook-form";
 
 type KeyTranslations = {
     [locale: string]: string;
 }
 
 type Props<TFieldValues extends { translations: KeyTranslations }> = {
-    control: Control<TFieldValues>;
     register: UseFormRegister<TFieldValues>;
     inputProps?: TextFieldProps;
     locales: string[];

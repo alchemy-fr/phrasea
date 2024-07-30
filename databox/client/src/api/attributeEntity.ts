@@ -6,7 +6,7 @@ const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
     query?: string;
-    type: string;
+    type?: string;
     workspace: string;
 };
 
