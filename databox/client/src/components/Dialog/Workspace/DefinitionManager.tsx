@@ -33,6 +33,7 @@ import SortableList, {
 } from '../../Ui/Sortable/SortableList';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DefaultValues} from 'react-hook-form';
+import {Workspace} from "../../../types.ts";
 
 type DefinitionBase = ApiHydraObjectResponse & {id: string};
 
@@ -42,7 +43,7 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
 
 export type DefinitionItemFormProps<D extends DefinitionBase> = {
     usedFormSubmit: UseFormSubmitReturn<D>;
-    workspaceId: string;
+    workspace: Workspace;
 } & DefinitionItemProps<D>;
 
 type ListState<D extends DefinitionBase> = {
@@ -99,7 +100,7 @@ type Props<D extends DefinitionBase> = {
     newLabel: string;
     handleSave: (data: D) => Promise<D>;
     handleDelete?: (id: string) => Promise<void>;
-    workspaceId: string;
+    workspace: Workspace;
     onSort?: OnSort;
     normalizeData?: (data: D) => D;
 };
@@ -115,7 +116,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
     minHeight,
     newLabel,
     handleSave,
-    workspaceId,
+    workspace,
     onSort,
     normalizeData,
 }: Props<D>) {
@@ -424,7 +425,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 data: item === 'new' ? (newItem as D) : item!,
                                 key: item === 'new' ? 'new' : item!.id,
                                 usedFormSubmit,
-                                workspaceId,
+                                workspace,
                             })}
                         </form>
                     )}

@@ -29,7 +29,7 @@ function Item({
         reset,
         formState: {errors},
     },
-    workspaceId,
+    workspace,
 }: DefinitionItemFormProps<RenditionDefinition>) {
     const {t} = useTranslation();
 
@@ -56,7 +56,7 @@ function Item({
                         disabled={submitting}
                         name={'class'}
                         control={control}
-                        workspaceId={workspaceId}
+                        workspaceId={workspace.id}
                     />
                     <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
@@ -189,7 +189,7 @@ export default function RenditionDefinitionManager({
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceRenditionDefinitions(workspace.id)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}

@@ -1,4 +1,4 @@
-import {AttributeEntity} from '../../types.ts';
+import {AttributeEntity, Workspace} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {
@@ -14,6 +14,8 @@ import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
 import Flag from "../Ui/Flag.tsx";
+import {getWorkspace} from "../../api/workspace.ts";
+import React from "react";
 
 type Props = {
     value: string;
@@ -31,8 +33,13 @@ export default function CreateAttributeEntityDialog({
     onCreate,
 }: Props) {
     const {t} = useTranslation();
+    const [workspace, setWorkspace] = React.useState<Workspace>();
     const {closeModal} = useModals();
     const formId = 'attr-entity';
+
+    React.useEffect(() => {
+        getWorkspace(workspaceId).then(w => setWorkspace(w));
+    }, [workspaceId]);
 
     const {
         submitting,
@@ -116,7 +123,7 @@ export default function CreateAttributeEntityDialog({
                                 locale={l}
                             />
                         }}
-                        locales={['en', 'fr', 'it']} // TODO set workspace locales
+                        locales={workspace?.enabledLocales ?? []}
                         name={'translations'}
                         errors={errors}
                         register={register}

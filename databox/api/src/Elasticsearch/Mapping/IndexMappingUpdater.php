@@ -12,6 +12,7 @@ use FOS\ElasticaBundle\Elastica\Index;
 
 final readonly class IndexMappingUpdater
 {
+    final public const ATTRIBUTES_FIELD = 'attributes';
     final public const NO_LOCALE = '_';
 
     public function __construct(
@@ -26,12 +27,12 @@ final readonly class IndexMappingUpdater
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
         $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-        $mapping['properties']['attributes'] ??= [
+        $mapping['properties'][self::ATTRIBUTES_FIELD] ??= [
             'type' => 'object',
             'properties' => [],
         ];
 
-        $properties = &$mapping['properties']['attributes']['properties'];
+        $properties = &$mapping['properties'][self::ATTRIBUTES_FIELD]['properties'];
 
         $properties[$locale] ??= [
             'type' => 'object',
@@ -69,11 +70,11 @@ final readonly class IndexMappingUpdater
     {
         $mapping = $this->index->getMapping();
 
-        $attributes = $mapping['properties']['attributes']['properties'] ?? [];
+        $attributes = $mapping['properties'][self::ATTRIBUTES_FIELD]['properties'] ?? [];
 
         $newMapping = [
             'properties' => [
-                'attributes' => [
+                self::ATTRIBUTES_FIELD => [
                     'type' => 'object',
                     'properties' => [],
                 ],
@@ -123,12 +124,11 @@ final readonly class IndexMappingUpdater
             }
         };
 
+        $assign(self::NO_LOCALE);
         if ($type->isLocaleAware() && ($definition->isTranslatable() || $type->supportsTranslations())) {
             foreach ($workspace->getEnabledLocales() as $locale) {
                 $assign($locale);
             }
-        } else {
-            $assign(self::NO_LOCALE);
         }
 
         return $upsert;

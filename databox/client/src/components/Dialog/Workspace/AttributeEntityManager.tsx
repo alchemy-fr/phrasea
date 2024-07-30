@@ -6,14 +6,16 @@ import {
     putAttributeEntity,
 } from '../../../api/attributeEntity';
 import {ListItemText, TextField,} from '@mui/material';
-import {FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow, KeyTranslationsWidget} from '@alchemy/react-form';
 import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps,} from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
+import Flag from "../../Ui/Flag.tsx";
 
 let lastType = '';
 
 function Item({
     usedFormSubmit,
+    workspace,
 }: DefinitionItemFormProps<AttributeEntity>) {
     const {t} = useTranslation();
 
@@ -41,6 +43,23 @@ function Item({
                 />
                 <FormFieldErrors field={'value'} errors={errors}/>
             </FormRow>
+            <FormRow>
+                <KeyTranslationsWidget
+                    renderLocale={l => {
+                        return <Flag
+                            sx={{
+                                mr: 1,
+                            }}
+                            locale={l}
+                        />
+                    }}
+                    locales={workspace.enabledLocales ?? []}
+                    name={'translations'}
+                    errors={errors}
+                    register={register}
+                />
+            </FormRow>
+
         </>
     );
 }
@@ -93,7 +112,7 @@ export default function AttributeEntityManager({
             load={() => getAttributeEntities({
                 workspace: workspace.id,
             }).then(r => r.result)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}

@@ -90,7 +90,7 @@ class AttributeSearch
                 ];
                 $trKey = array_keys($group['w'][$firstBoost])[0];
                 $st = array_keys($group['w'][$firstBoost][$trKey])[0];
-                $fieldName = sprintf('attributes.%s.%s', $trKey ? '{l}' : '_', $f);
+                $fieldName = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $trKey ? '{l}' : '_', $f);
 
                 $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
                     'st' => $st,
@@ -109,7 +109,7 @@ class AttributeSearch
                                 'b' => $boost,
                                 'fields' => [],
                             ];
-                            $fieldName = sprintf('attributes.%s.%s', $tr ? '{l}' : '_', $f);
+                            $fieldName = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
                                 'st' => $st,
                                 'b' => $boost,
@@ -328,7 +328,7 @@ class AttributeSearch
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
             $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-            $field = sprintf('attributes.%s.%s', $l, $fieldName);
+            $field = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $l, $fieldName);
 
             if (isset($facets[$field])) {
                 continue;

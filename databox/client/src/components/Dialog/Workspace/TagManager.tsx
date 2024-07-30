@@ -150,7 +150,7 @@ export default function TagManager({
                 }).then(r => r.result)
             }
             loadItem={id => getTag(id)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}

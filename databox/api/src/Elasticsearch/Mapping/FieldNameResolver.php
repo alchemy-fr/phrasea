@@ -45,7 +45,7 @@ final readonly class FieldNameResolver
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];
-            $f = sprintf('attributes._.%s', $info['field']);
+            $f = sprintf('%s._.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $info['field']);
             if (null !== $subField = $type->getAggregationField()) {
                 $f .= '.'.$subField;
             }

@@ -15,7 +15,7 @@ use App\Repository\Core\AttributeEntityRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class AttributeEntityUpdateHandler
+final readonly class AttributeEntityDeleteHandler
 {
     public function __construct(
         private ElasticSearchClient $elasticSearchClient,
@@ -26,7 +26,7 @@ final readonly class AttributeEntityUpdateHandler
     {
     }
 
-    public function __invoke(AttributeEntityUpdate $message): void
+    public function __invoke(AttributeEntityDelete $message): void
     {
         /** @var AttributeEntity $attributeEntity */
         $id = $message->getId();
@@ -36,15 +36,16 @@ final readonly class AttributeEntityUpdateHandler
             EntityAttributeType::getName(),
         );
 
+        $locales = array_unique(array_merge(
+            [$attributeEntity->getLocale()],
+            array_keys($attributeEntity->getTranslations()),
+        ));
+
         $fields = [];
-        $calls = [];
-        $params = [];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            foreach ($message->getChanges() as $locale => $change) {
+            foreach ($locales as $locale) {
                 $fields[] = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $locale, $fieldName);
-                $params[$locale] = $change;
-                $calls[$locale] = sprintf('up(ctx._source.%3$s.%1$s.%2$s, params[\'_id\'], params[\'%1$s\']);', $locale, $fieldName, IndexMappingUpdater::ATTRIBUTES_FIELD);
             }
         }
 
@@ -63,27 +64,24 @@ final readonly class AttributeEntityUpdateHandler
             ],
             [
                 'source' => <<<EOF
-void up(def x, def id, def n) {
+void del(def x, def id) {
     if (x instanceof List) {
-        for (item in x) {
-            if (item['id'] == id) {
-                item['value'] = n;
-            }
-        }
+        x.removeIf(item -> item['id'] == id);
         return;
     }
     if (!(x instanceof Map)) {
         return;
     }
     if (x['id'] == id) {
-        x['value'] = n;
+        x = null;
     }
 }
-
-EOF.implode("\n", $calls),
-                'params' => array_merge($params, [
-                    '_id' => $id,
-                ]),
+EOF.implode("\n", array_map(function (string $field): string {
+        return 'del(ctx._source.'.$field.', params[\'id\']);';
+                    }, $fields)),
+                'params' => [
+                    'id' => $id,
+                ],
                 'lang' => 'painless',
             ]
         );

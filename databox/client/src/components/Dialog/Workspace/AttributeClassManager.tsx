@@ -158,7 +158,7 @@ export default function AttributeClassManager({
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceAttributeClasses(workspace.id)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}
