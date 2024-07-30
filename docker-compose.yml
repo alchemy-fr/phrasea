@@ -1017,6 +1017,7 @@ services:
       - DEFAULT_ADMIN_PASSWORD
       - INDEXER_DATABOX_CLIENT_ID
       - INDEXER_DATABOX_CLIENT_SECRET
+      - PHRASEA_DOMAIN
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:

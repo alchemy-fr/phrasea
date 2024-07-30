@@ -123,7 +123,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
 
         $defaultAdmin = $this->keycloakManager->createUser([
             'username' => getenv('DEFAULT_ADMIN_USERNAME'),
+            'email' => getenv('DEFAULT_ADMIN_USERNAME').'@'.getenv('PHRASEA_DOMAIN'),
             'enabled' => true,
+            'firstName' => 'Admin',
+            'lastName' => 'Admin',
             'credentials' => [[
                 'type' => 'password',
                 'value' => getenv('DEFAULT_ADMIN_PASSWORD'),
