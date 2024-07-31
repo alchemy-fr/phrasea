@@ -6,9 +6,8 @@ import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssetThumb from '../../../Media/Asset/AssetThumb';
-import Attributes, {
-    replaceHighlight,
-} from '../../../Media/Asset/Attribute/Attributes';
+import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights.tsx';
+import Attributes from '../../../Media/Asset/Attribute/Attributes';
 import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
 import AssetCollectionList from '../../../Media/Asset/Widgets/AssetCollectionList';
 import {AssetItemProps, OnPreviewToggle} from '../../types';

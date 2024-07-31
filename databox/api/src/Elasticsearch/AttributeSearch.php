@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\DateTimeAttributeType;
-use App\Attribute\Type\KeywordAttributeType;
-use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeDefinition;
-use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Aggregation;
 use Elastica\Aggregation\Missing;
@@ -65,7 +62,7 @@ class AttributeSearch
             ];
 
             $boost = $d['searchBoost'] ?? 1;
-            $trIndex = $type->isLocaleAware() && $d['translatable'] ? 1 : 0;
+            $trIndex = $type->isLocaleAware() && ($d['translatable'] || $type->supportsTranslations()) ? 1 : 0;
 
             if ($d['allowed']) {
                 $groups[$fieldName]['w'][$boost] ??= [
@@ -93,7 +90,7 @@ class AttributeSearch
                 ];
                 $trKey = array_keys($group['w'][$firstBoost])[0];
                 $st = array_keys($group['w'][$firstBoost][$trKey])[0];
-                $fieldName = sprintf('attributes.%s.%s', $trKey ? '{l}' : '_', $f);
+                $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $trKey ? '{l}' : '_', $f);
 
                 $clusters[self::GROUP_ALL]['fields'][$fieldName] = [
                     'st' => $st,
@@ -112,7 +109,7 @@ class AttributeSearch
                                 'b' => $boost,
                                 'fields' => [],
                             ];
-                            $fieldName = sprintf('attributes.%s.%s', $tr ? '{l}' : '_', $f);
+                            $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $tr ? '{l}' : '_', $f);
                             $clusters[$uk]['fields'][$fieldName] = [
                                 'st' => $st,
                                 'b' => $boost,
@@ -322,16 +319,16 @@ class AttributeSearch
         /** @var AttributeDefinition[] $attributeDefinitions */
         $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes($userId, $groupIds, [
-                AttributeDefinitionRepositoryInterface::OPT_FACET_ENABLED => true,
-                AttributeDefinitionRepositoryInterface::OPT_TYPES => $facetTypes,
+                AttributeDefinitionRepository::OPT_FACET_ENABLED => true,
+                AttributeDefinitionRepository::OPT_TYPES => $facetTypes,
             ]);
 
         $facets = [];
         foreach ($attributeDefinitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $type = $this->typeRegistry->getStrictType($definition->getFieldType());
-            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : IndexMappingUpdater::NO_LOCALE;
-            $field = sprintf('attributes.%s.%s', $l, $fieldName);
+            $l = $type->isLocaleAware() && $definition->isTranslatable() ? $language : AttributeInterface::NO_LOCALE;
+            $field = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $l, $fieldName);
 
             if (isset($facets[$field])) {
                 continue;

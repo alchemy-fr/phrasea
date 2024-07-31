@@ -32,7 +32,7 @@ final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface
         $asset = DoctrineUtil::findStrict($this->em, Asset::class, $uriVariables['id']);
         $this->denyAccessUnlessGranted(AssetVoter::EDIT_ATTRIBUTES, $asset);
 
-        $this->batchAttributeManager->validate([$asset->getId()], $data);
+        $this->batchAttributeManager->validate($asset->getWorkspaceId(), [$asset->getId()], $data);
 
         $this->batchAttributeManager->handleBatch(
             $asset->getWorkspaceId(),

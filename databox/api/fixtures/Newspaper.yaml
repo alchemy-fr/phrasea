@@ -1,459 +1,545 @@
 App\Entity\Core\Workspace:
-  w_newspaper:
-    name: Newspaper
-    slug: newspaper
-    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    w_newspaper:
+        name: Newspaper
+        slug: newspaper
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        enabledLocales:
+            - en
+            - fr
 
 App\Entity\Core\AttributeClass:
-  attribute_class_n (template):
-    workspace: '@w_newspaper'
+    attribute_class_n (template):
+        workspace: '@w_newspaper'
 
-  n_ac_public (extends attribute_class_n):
-    name: Public
-    public: true
-    editable: true
-  n_ac_business (extends attribute_class_n):
-    name: Business field
-    public: false
-    editable: false
+    n_ac_public (extends attribute_class_n):
+        name: Public
+        public: true
+        editable: true
+    n_ac_business (extends attribute_class_n):
+        name: Business field
+        public: false
+        editable: false
 
 App\Entity\Core\AttributeDefinition:
-  attribute_definition_n (template):
-    workspace: '@w_newspaper'
+    attribute_definition_n (template):
+        workspace: '@w_newspaper'
 
-  ad_desc (extends attribute_definition_n):
-    name: Description
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"metadata\", \"value\": \"XMP-dc:Description\"}"
-    position: 0
-  ad_keywords (extends attribute_definition_n):
-    name: Keywords
-    multiple: true
-    facetEnabled: true
-    suggest: true
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"metadata\", \"value\": \"IPTC:Keywords\"}"
-    position: 1
-  ad_author (extends attribute_definition_n):
-    name: Author
-    multiple: false
-    facetEnabled: true
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}\"}"
-    position: 2
-  ad_image_size (extends attribute_definition_n):
-    name: Image Size
-    multiple: false
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
-    position: 2
-  ad_country (extends attribute_definition_n):
-    name: Country
-    multiple: false
-    facetEnabled: true
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:Country-PrimaryLocationName').value ?? file.metadata('XMP-photoshop:Country').value }}\"}"
-    position: 2
-  ad_city (extends attribute_definition_n):
-    name: City
-    multiple: false
-    facetEnabled: true
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:City').value ?? file.metadata('XMP-photoshop:City').value }}\"}"
-    position: 3
-  ad_creation_date (extends attribute_definition_n):
-    name: CreationDate
-    multiple: false
-    facetEnabled: false
-    class: '@n_ac_public'
-    initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}\"}"
-    position: 4
-  ad_admin_note (extends attribute_definition_n):
-    name: Admin notes
-    class: '@n_ac_business'
-    position: 5
-  ad_vtt (extends attribute_definition_n):
-    name: WebVTT
-    fieldType: code
-    class: '@n_ac_business'
-    translatable: true
-    position: 6
-  ad_date (extends attribute_definition_n):
-    name: Date
-    fieldType: date
-    facetEnabled: true
-    sortable: true
-    class: '@n_ac_public'
-    position: 7
-  ad_datetime (extends attribute_definition_n):
-    name: 'Date & Time'
-    fieldType: date_time
-    facetEnabled: true
-    sortable: true
-    class: '@n_ac_public'
-    position: 8
-  ad_languages (extends attribute_definition_n):
-    name: Languages
-    facetEnabled: true
-    multiple: true
-    class: '@n_ac_public'
-    position: 9
-  ad_watermark (extends attribute_definition_n):
-    name: Watermark
-    class: '@n_ac_public'
-    position: 10
-  ad_blurhash (extends attribute_definition_n):
-    name: Blurhash
-    class: '@n_ac_public'
-    position: 10
-  ad_ean (extends attribute_definition_n):
-      name: EAN
-      facetEnabled: true
-      suggest: true
-      class: '@n_ac_public'
-      position: 11
-  ad_number (extends attribute_definition_n):
-      name: 'Number'
-      fieldType: number
-      facetEnabled: true
-      sortable: true
-      suggest: true
-      class: '@n_ac_public'
-      position: 12
+    ad_desc (extends attribute_definition_n):
+        name: Description
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"metadata\", \"value\": \"XMP-dc:Description\"}"
+        position: 0
+    ad_keywords (extends attribute_definition_n):
+        name: Keywords
+        multiple: true
+        facetEnabled: true
+        suggest: true
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"metadata\", \"value\": \"IPTC:Keywords\"}"
+        position: 1
+    ad_author (extends attribute_definition_n):
+        name: Author
+        multiple: false
+        facetEnabled: true
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}\"}"
+        position: 2
+    ad_image_size (extends attribute_definition_n):
+        name: Image Size
+        multiple: false
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:ImageSize').value }}\"}"
+        position: 2
+    ad_country (extends attribute_definition_n):
+        name: Country
+        multiple: false
+        facetEnabled: true
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:Country-PrimaryLocationName').value ?? file.metadata('XMP-photoshop:Country').value }}\"}"
+        position: 2
+    ad_city (extends attribute_definition_n):
+        name: City
+        multiple: false
+        facetEnabled: true
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('IPTC:City').value ?? file.metadata('XMP-photoshop:City').value }}\"}"
+        position: 3
+    ad_creation_date (extends attribute_definition_n):
+        name: CreationDate
+        multiple: false
+        facetEnabled: false
+        class: '@n_ac_public'
+        initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}\"}"
+        position: 4
+    ad_admin_note (extends attribute_definition_n):
+        name: Admin notes
+        class: '@n_ac_business'
+        position: 5
+    ad_vtt (extends attribute_definition_n):
+        name: WebVTT
+        fieldType: code
+        class: '@n_ac_business'
+        translatable: true
+        position: 6
+    ad_date (extends attribute_definition_n):
+        name: Date
+        fieldType: date
+        facetEnabled: true
+        sortable: true
+        class: '@n_ac_public'
+        position: 7
+    ad_datetime (extends attribute_definition_n):
+        name: 'Date & Time'
+        fieldType: date_time
+        facetEnabled: true
+        sortable: true
+        class: '@n_ac_public'
+        position: 8
+    ad_languages (extends attribute_definition_n):
+        name: Languages
+        facetEnabled: true
+        multiple: true
+        class: '@n_ac_public'
+        position: 9
+    ad_watermark (extends attribute_definition_n):
+        name: Watermark
+        class: '@n_ac_public'
+        position: 10
+    ad_blurhash (extends attribute_definition_n):
+        name: Blurhash
+        class: '@n_ac_public'
+        position: 10
+    ad_ean (extends attribute_definition_n):
+        name: EAN
+        facetEnabled: true
+        suggest: true
+        class: '@n_ac_public'
+        position: 11
+    ad_number (extends attribute_definition_n):
+        name: 'Number'
+        fieldType: number
+        facetEnabled: true
+        sortable: true
+        suggest: true
+        class: '@n_ac_public'
+        position: 12
+    ad_transport_type (extends attribute_definition_n):
+        name: 'Transport Type'
+        fieldType: entity
+        entityType: transport_type
+        facetEnabled: true
+        sortable: true
+        suggest: true
+        class: '@n_ac_public'
+        position: 13
+    ad_seasons (extends attribute_definition_n):
+        name: 'Seasons'
+        fieldType: entity
+        entityType: season
+        facetEnabled: true
+        multiple: true
+        sortable: true
+        suggest: true
+        class: '@n_ac_public'
+        position: 14
 
 App\Entity\Core\RenditionClass:
-  rendition_class_n (template):
-    workspace: '@w_newspaper'
+    rendition_class_n (template):
+        workspace: '@w_newspaper'
 
-  n_rc_public (extends rendition_class_n):
-    name: Public
-    public: true
-  n_rc_restricted (extends rendition_class_n):
-    name: Restricted
-    public: false
+    n_rc_public (extends rendition_class_n):
+        name: Public
+        public: true
+    n_rc_restricted (extends rendition_class_n):
+        name: Restricted
+        public: false
 
 App\Entity\Core\RenditionDefinition:
-  rendition_definition_n (template):
-    workspace: '@w_newspaper'
+    rendition_definition_n (template):
+        workspace: '@w_newspaper'
 
-  n_rd_original (extends rendition_definition_n):
-    name: original
-    class: '@n_rc_public'
-    pickSourceFile: true
-    useAsOriginal: true
-  n_rd_preview (extends rendition_definition_n):
-    name: preview
-    class: '@n_rc_public'
-    useAsPreview: true
-  n_rd_thumbnail (extends rendition_definition_n):
-    name: thumbnail
-    class: '@n_rc_public'
-    useAsThumbnail: true
-  n_rd_preview_mobile (extends rendition_definition_n):
-    name: preview_mobile
-    class: '@n_rc_public'
-    useAsPreview: true
-    priority: 1
-  n_rd_thumbnail_mobile (extends rendition_definition_n):
-    name: thumbnail_mobile
-    class: '@n_rc_public'
-    useAsThumbnail: true
-    priority: 1
-  n_rd_thumbnailActive (extends rendition_definition_n):
-    name: thumbnailActive
-    class: '@n_rc_public'
-    useAsThumbnailActive: true
+    n_rd_original (extends rendition_definition_n):
+        name: original
+        class: '@n_rc_public'
+        pickSourceFile: true
+        useAsOriginal: true
+    n_rd_preview (extends rendition_definition_n):
+        name: preview
+        class: '@n_rc_public'
+        useAsPreview: true
+    n_rd_thumbnail (extends rendition_definition_n):
+        name: thumbnail
+        class: '@n_rc_public'
+        useAsThumbnail: true
+    n_rd_preview_mobile (extends rendition_definition_n):
+        name: preview_mobile
+        class: '@n_rc_public'
+        useAsPreview: true
+        priority: 1
+    n_rd_thumbnail_mobile (extends rendition_definition_n):
+        name: thumbnail_mobile
+        class: '@n_rc_public'
+        useAsThumbnail: true
+        priority: 1
+    n_rd_thumbnailActive (extends rendition_definition_n):
+        name: thumbnailActive
+        class: '@n_rc_public'
+        useAsThumbnailActive: true
 
 # Groups:
 # reporter_sport_football_league
-#   - alice
-#   - harry
+#     - alice
+#     - harry
 # reporter_sport_football_worldcup
-#   - bob
+#     - bob
 # reporter_sport_football
-#   - jack
+#     - jack
 # reporter_sport_tennis
-#   - amelia
-#   - harry
-#   - oliver
+#     - amelia
+#     - harry
+#     - oliver
 # reporter_entertainment
-#   - ava
+#     - ava
 # admin_newspaper
-#   - oliver
+#     - oliver
 # No group:
-#   - john_doe
-#   - super_user
+#     - john_doe
+#     - super_user
 
 # Collections hierarchy:
 # sport
-#   football
-#     league
-#     worldcup
-#   rugby
-#   tennis
+#     football
+#         league
+#         worldcup
+#     rugby
+#     tennis
 # entertainment
-#   public_videos
-#     movies
-#     series
-#     tv_shows
-#   archives
-#     movies
-#     series
-#     tv_shows
+#     public_videos
+#         movies
+#         series
+#         tv_shows
+#     archives
+#         movies
+#         series
+#         tv_shows
 # others
 
 App\Entity\Core\Collection:
-  collection_n (template):
-    workspace: '@w_newspaper'
-    ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    collection_n (template):
+        workspace: '@w_newspaper'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
 
-  c_n_special_chars (extends collection_n):
-    title: 'D&D \@][ \<ap>++"='
+    c_n_special_chars (extends collection_n):
+        title: 'D&D \@][ \<ap>++"='
 
-  c_n_{sport, entertainment} (extends collection_n):
-    title: '<ucwords($current)>'
+    c_n_{sport, entertainment} (extends collection_n):
+        title: '<ucwords($current)>'
 
-  c_n_sport_{football, rugby, tennis} (extends collection_n):
-    parent: '@c_n_sport'
-    title: '<ucwords($current)>'
+    c_n_sport_{football, rugby, tennis} (extends collection_n):
+        parent: '@c_n_sport'
+        title: '<ucwords($current)>'
 
-  c_n_sport_football_{league, worldcup} (extends collection_n):
-    parent: '@c_n_sport_football'
-    title: '<ucwords($current)>'
+    c_n_sport_football_{league, worldcup} (extends collection_n):
+        parent: '@c_n_sport_football'
+        title: '<ucwords($current)>'
 
-  c_n_entertainment_{archives} (extends collection_n):
-    parent: '@c_n_entertainment'
-    title: '<ucwords($current)>'
+    c_n_entertainment_{archives} (extends collection_n):
+        parent: '@c_n_entertainment'
+        title: '<ucwords($current)>'
 
-  c_n_entertainment_{public_videos} (extends collection_n):
-    ownerId: <keycloakUser("alice")>
-    privacy: 3
-    parent: '@c_n_entertainment'
-    title: '<ucwords($current)>'
+    c_n_entertainment_{public_videos} (extends collection_n):
+        ownerId: <keycloakUser("alice")>
+        privacy: 3
+        parent: '@c_n_entertainment'
+        title: '<ucwords($current)>'
 
-  c_n_entertainment_public_videos_{movies, series, shows} (extends collection_n):
-    ownerId: <keycloakUser("alice")>
-    parent: '@c_n_entertainment_public_videos'
-    title: '<ucwords($current)>'
+    c_n_entertainment_public_videos_{movies, series, shows} (extends collection_n):
+        ownerId: <keycloakUser("alice")>
+        parent: '@c_n_entertainment_public_videos'
+        title: '<ucwords($current)>'
 
-  c_n_entertainment_archives_{movies, series, shows} (extends collection_n):
-    ownerId: <keycloakUser("alice")>
-    parent: '@c_n_entertainment_archives'
-    title: '<ucwords($current)>'
+    c_n_entertainment_archives_{movies, series, shows} (extends collection_n):
+        ownerId: <keycloakUser("alice")>
+        parent: '@c_n_entertainment_archives'
+        title: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
-  asset_n (template):
-    workspace: '@w_newspaper'
-    privacy: '<numberBetween(1, 5)>'
-    __calls:
-      - addToCollection: ['@c_n_*']
-      - addTag (80%?): ['@tag_*']
-      - addTag (50%?): ['@tag_*']
-      - addToCollection (80%?): ['@c_n_sport', true]
-      - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true]
-      - addToCollection (80%?): ['@c_n_entertainment_archives_series', true]
+    asset_n (template):
+        workspace: '@w_newspaper'
+        privacy: '<numberBetween(1, 5)>'
+        __calls:
+            - addToCollection: ['@c_n_*']
+            - addTag (80%?): ['@tag_*']
+            - addTag (50%?): ['@tag_*']
+            - addToCollection (80%?): ['@c_n_sport', true]
+            - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true]
+            - addToCollection (80%?): ['@c_n_entertainment_archives_series', true]
 
-  a_img{1..50} (extends asset_n):
-    title: 'Image #<ucwords($current)>'
-    ownerId: <keycloakUser("bob")>
-    source: '@f_img_o<current()>'
-  a_audio{1..10} (extends asset_n):
-    title: 'Audio #<ucwords($current)>'
-    ownerId: <keycloakUser("bob")>
-    source: '@f_audio_o<current()>'
-  a_video{1..10} (extends asset_n):
-    title: 'Video #<ucwords($current)>'
-    ownerId: <keycloakUser("alice")>
-    source: '@f_video_o<current()>'
-  a_pdf{1..10} (extends asset_n):
-    title: 'PDF #<ucwords($current)>'
-    ownerId: <keycloakUser("jack")>
-    source: '@f_pdf_o<current()>'
+    a_img{1..50} (extends asset_n):
+        title: 'Image #<ucwords($current)>'
+        ownerId: <keycloakUser("bob")>
+        source: '@f_img_o<current()>'
+    a_audio{1..10} (extends asset_n):
+        title: 'Audio #<ucwords($current)>'
+        ownerId: <keycloakUser("bob")>
+        source: '@f_audio_o<current()>'
+    a_video{1..10} (extends asset_n):
+        title: 'Video #<ucwords($current)>'
+        ownerId: <keycloakUser("alice")>
+        source: '@f_video_o<current()>'
+    a_pdf{1..10} (extends asset_n):
+        title: 'PDF #<ucwords($current)>'
+        ownerId: <keycloakUser("jack")>
+        source: '@f_pdf_o<current()>'
 
 App\Entity\Core\File:
-  file (template):
-    workspace: '@w_newspaper'
-    storage: s3_main
-    pathPublic: '95%? true : false'
+    file (template):
+        workspace: '@w_newspaper'
+        storage: s3_main
+        pathPublic: '95%? true : false'
 
-  f_img_o{1..50} (extends file):
-    type: image/jpeg
-    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
-  f_img_p{1..50} (extends file):
-    type: image/jpeg
-    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
-  f_img_t{1..50} (extends file):
-    type: image/jpeg
-    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
-  f_img_ta{1..10} (extends file):
-    type: image/jpeg
-    path: '<imageUrlRandomRatio(@w_newspaper->id, <current()> + 1, 200)>'
-  f_audio_o{1..10} (extends file):
-    type: audio/mp3
-    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
-  f_audio_t{1..10} (extends file):
-    type: audio/mp3
-    path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
-  f_video_o{1..10} (extends file):
-    type: video/mp4
-    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
-  f_video_p{1..10} (extends file):
-    type: video/mp4
-    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
-  f_video_t{1..10} (extends file):
-    type: video/mp4
-    path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
-  f_pdf_o{1..10} (extends file):
-    type: application/pdf
-    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
-  f_pdf_p{1..10} (extends file):
-    type: application/pdf
-    path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
+    f_img_o{1..50} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 1000)>'
+    f_img_p{1..50} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 500)>'
+    f_img_t{1..50} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()>, 200)>'
+    f_img_ta{1..10} (extends file):
+        type: image/jpeg
+        path: '<imageUrlRandomRatio(@w_newspaper->id, <current()> + 1, 200)>'
+    f_audio_o{1..10} (extends file):
+        type: audio/mp3
+        path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
+    f_audio_t{1..10} (extends file):
+        type: audio/mp3
+        path: '<randomMedia(@w_newspaper->id, "mp3", <current()>)>'
+    f_video_o{1..10} (extends file):
+        type: video/mp4
+        path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+    f_video_p{1..10} (extends file):
+        type: video/mp4
+        path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+    f_video_t{1..10} (extends file):
+        type: video/mp4
+        path: '<randomMedia(@w_newspaper->id, "mp4", <current()>)>'
+    f_pdf_o{1..10} (extends file):
+        type: application/pdf
+        path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
+    f_pdf_p{1..10} (extends file):
+        type: application/pdf
+        path: '<randomMedia(@w_newspaper->id, "pdf", <current()>)>'
 
 App\Entity\Core\AssetRendition:
-  asset_rendition_n (template):
+    asset_rendition_n (template):
 
-  ar_img_o{1..50} (extends asset_rendition_n):
-    definition: '@n_rd_original'
-    file: '@f_img_o<current()>'
-    asset: '@a_img<current()>'
-  ar_img_p{1..50} (extends asset_rendition_n):
-    definition: '@n_rd_preview'
-    file: '@f_img_p<current()>'
-    asset: '@a_img<current()>'
-  ar_img_t{1..50} (extends asset_rendition_n):
-    definition: '@n_rd_thumbnail'
-    file: '@f_img_t<current()>'
-    asset: '@a_img<current()>'
-  ar_img_ta{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_thumbnailActive'
-    file: '@f_img_ta<current()>'
-    asset: '@a_img<current()>'
-  ar_audio_o{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_original'
-    file: '@f_audio_o<current()>'
-    asset: '@a_audio<current()>'
-  ar_audio_t{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_thumbnail'
-    file: '@f_audio_t<current()>'
-    asset: '@a_audio<current()>'
-  ar_video_o{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_original'
-    file: '@f_video_o<current()>'
-    asset: '@a_video<current()>'
-  ar_video_p{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_preview'
-    file: '@f_video_p<current()>'
-    asset: '@a_video<current()>'
-  ar_video_t{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_thumbnail'
-    file: '@f_video_t<current()>'
-    asset: '@a_video<current()>'
-  ar_pdf_o{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_original'
-    file: '@f_pdf_o<current()>'
-    asset: '@a_pdf<current()>'
-  ar_pdf_p{1..10} (extends asset_rendition_n):
-    definition: '@n_rd_preview'
-    file: '@f_pdf_p<current()>'
-    asset: '@a_pdf<current()>'
+    ar_img_o{1..50} (extends asset_rendition_n):
+        definition: '@n_rd_original'
+        file: '@f_img_o<current()>'
+        asset: '@a_img<current()>'
+    ar_img_p{1..50} (extends asset_rendition_n):
+        definition: '@n_rd_preview'
+        file: '@f_img_p<current()>'
+        asset: '@a_img<current()>'
+    ar_img_t{1..50} (extends asset_rendition_n):
+        definition: '@n_rd_thumbnail'
+        file: '@f_img_t<current()>'
+        asset: '@a_img<current()>'
+    ar_img_ta{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_thumbnailActive'
+        file: '@f_img_ta<current()>'
+        asset: '@a_img<current()>'
+    ar_audio_o{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_original'
+        file: '@f_audio_o<current()>'
+        asset: '@a_audio<current()>'
+    ar_audio_t{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_thumbnail'
+        file: '@f_audio_t<current()>'
+        asset: '@a_audio<current()>'
+    ar_video_o{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_original'
+        file: '@f_video_o<current()>'
+        asset: '@a_video<current()>'
+    ar_video_p{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_preview'
+        file: '@f_video_p<current()>'
+        asset: '@a_video<current()>'
+    ar_video_t{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_thumbnail'
+        file: '@f_video_t<current()>'
+        asset: '@a_video<current()>'
+    ar_pdf_o{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_original'
+        file: '@f_pdf_o<current()>'
+        asset: '@a_pdf<current()>'
+    ar_pdf_p{1..10} (extends asset_rendition_n):
+        definition: '@n_rd_preview'
+        file: '@f_pdf_p<current()>'
+        asset: '@a_pdf<current()>'
 
 App\Entity\Core\Attribute:
-  attribute_n (template):
-    origin: 0
+    attribute_n (template):
+        origin: 0
 
-  at_desc_{@a_*} (extends attribute_n):
-    definition: '@ad_desc'
-    asset: '@a_*'
-    value: '<text()>'
+    at_desc_{@a_*} (extends attribute_n):
+        definition: '@ad_desc'
+        asset: '@a_*'
+        value: '<text()>'
 
-  at_kw_{@a_*} (extends attribute_n):
-    definition: '@ad_keywords'
-    asset: '@a_*'
-    value: '50%? PDF : <word()>'
+    at_kw1_{@a_*} (extends attribute_n):
+        definition: '@ad_keywords'
+        asset: '@a_*'
+        value: 'Tag Rectangle'
+        assetAnnotations: '<assetAnnotationsRect()>'
 
-  at_ean_{@a_*} (extends attribute_n):
-    definition: '@ad_ean'
-    asset: '@a_*'
-    value: '<ean()>'
+    at_kw2_{@a_*} (extends attribute_n):
+        definition: '@ad_keywords'
+        asset: '@a_*'
+        value: 'Tag Circle'
+        assetAnnotations: '<assetAnnotationsCircle()>'
 
-  at_city_{@a_*} (extends attribute_n):
-    definition: '@ad_city'
-    asset: '@a_*'
-    value: '<city()>'
+    at_kw3_{@a_*} (extends attribute_n):
+        definition: '@ad_keywords'
+        asset: '@a_*'
+        value: '<word()>'
+        assetAnnotations: '<assetAnnotationsCue()>'
 
-  at_country_{@a_*} (extends attribute_n):
-    definition: '@ad_country'
-    asset: '@a_*'
-    value: '<country()>'
+    at_kw4_{@a_*} (extends attribute_n):
+        definition: '@ad_keywords'
+        asset: '@a_*'
+        value: '<word()>'
+        assetAnnotations: '<assetAnnotationsPoint()>'
 
-  at_date_{@a_*} (extends attribute_n):
-    __factory:
-      'App\Fixture\DateFixtureFactory::createDateAttribute':
-        - '<dateTimeBetween("-200 days", "now")>'
-    definition: '@ad_date'
-    asset: '@a_*'
+    at_ean_{@a_*} (extends attribute_n):
+        definition: '@ad_ean'
+        asset: '@a_*'
+        value: '<ean()>'
 
-  at_datetime_{@a_*} (extends attribute_n):
-    __factory:
-      'App\Fixture\DateFixtureFactory::createDateTimeAttribute':
-        - '<dateTimeBetween("-3 days", "now")>'
-    definition: '@ad_datetime'
-    asset: '@a_*'
+    at_city_{@a_*} (extends attribute_n):
+        definition: '@ad_city'
+        asset: '@a_*'
+        value: '<city()>'
+
+    at_country_{@a_*} (extends attribute_n):
+        definition: '@ad_country'
+        asset: '@a_*'
+        value: '<country()>'
+
+    at_date_{@a_*} (extends attribute_n):
+        __factory:
+            'App\Fixture\DateFixtureFactory::createDateAttribute':
+                - '<dateTimeBetween("-200 days", "now")>'
+        definition: '@ad_date'
+        asset: '@a_*'
+
+    at_datetime_{@a_*} (extends attribute_n):
+        __factory:
+            'App\Fixture\DateFixtureFactory::createDateTimeAttribute':
+                - '<dateTimeBetween("-3 days", "now")>'
+        definition: '@ad_datetime'
+        asset: '@a_*'
 
 App\Entity\Core\Tag:
-  tag_offline:
-    name: offline
-    color: '#FF0000'
-    workspace: '@w_newspaper'
+    tag_offline:
+        name: offline
+        color: '#FF0000'
+        workspace: '@w_newspaper'
 
-  tag_online:
-    name: online
-    color: '#7EF284'
-    workspace: '@w_newspaper'
+    tag_online:
+        name: online
+        color: '#7EF284'
+        workspace: '@w_newspaper'
 
-  tag_{embargo_it, embargo_fr}:
-    name: '<current()>'
-    workspace: '@w_newspaper'
+    tag_{embargo_it, embargo_fr}:
+        name: '<current()>'
+        workspace: '@w_newspaper'
 
 App\Entity\Integration\WorkspaceIntegration:
-  wi_toast_ui:
-    title: ToastUI
-    integration: tui.photo-editor
-    workspace: '@w_newspaper'
-  wi_renditions:
-    integration: phraseanet.renditions
-    workspace: '@w_newspaper'
-    config:
-      databoxId: 1
-      method: api
-      renditions:
-          - thumbnail
-          - preview
-  wi_watermark:
-    integration: core.watermark
-    workspace: '@w_newspaper'
-    config:
-      attributeName: watermark
-      applyToRenditions:
-        - thumbnail
-    needs:
-      - '@wi_renditions'
-  wi_blurhash:
-    integration: blurhash
-    workspace: '@w_newspaper'
-    config:
-      rendition: thumbnail
-    needs:
-      - '@wi_renditions'
+    wi_toast_ui:
+        title: ToastUI
+        integration: tui.photo-editor
+        workspace: '@w_newspaper'
+    wi_renditions:
+        integration: phraseanet.renditions
+        workspace: '@w_newspaper'
+        config:
+            databoxId: 1
+            method: api
+            renditions:
+                    - thumbnail
+                    - preview
+    wi_watermark:
+        integration: core.watermark
+        workspace: '@w_newspaper'
+        config:
+            attributeName: watermark
+            applyToRenditions:
+                - thumbnail
+        needs:
+            - '@wi_renditions'
+    wi_blurhash:
+        integration: blurhash
+        workspace: '@w_newspaper'
+        config:
+            rendition: thumbnail
+        needs:
+            - '@wi_renditions'
+    wi_expose:
+        title: Expose Basket
+        integration: phrasea.expose
+        config:
+            clientId: expose-integration
 
 App\Entity\Integration\WorkspaceSecret:
-  aws_access_key_id:
-    workspace: '@w_newspaper'
-    name: AWS_ACCESS_KEY_ID
-    plainValue: xxx
+    aws_access_key_id:
+        workspace: '@w_newspaper'
+        name: AWS_ACCESS_KEY_ID
+        plainValue: xxx
 
-  aws_access_key_secret:
-    workspace: '@w_newspaper'
-    name: AWS_ACCESS_KEY_SECRET
-    plainValue: xxx
+    aws_access_key_secret:
+        workspace: '@w_newspaper'
+        name: AWS_ACCESS_KEY_SECRET
+        plainValue: xxx
+
+App\Entity\Core\AttributeEntity:
+    attr_entity_transport_type (template):
+        type: transport_type
+        workspace: '@w_newspaper'
+    att_plane (extends attr_entity_transport_type):
+        value: Plane
+        translations:
+            fr: Avion
+    att_bike (extends attr_entity_transport_type):
+        value: Bike
+        translations:
+            fr: Vélo
+    att_cat (extends attr_entity_transport_type):
+        value: Car
+        translations:
+            fr: Voiture
+    att_boat (extends attr_entity_transport_type):
+        value: Boat
+        translations:
+            fr: Bateau
+    attr_entity_season (template):
+        type: season
+        workspace: '@w_newspaper'
+    att_winter (extends attr_entity_season):
+        value: Winter
+        translations:
+            fr: Hiver
+    att_spring (extends attr_entity_season):
+        value: Spring
+        translations:
+            fr: Printemps
+    att_summer (extends attr_entity_season):
+        value: Summer
+        translations:
+            fr: Été
+    att_autumn (extends attr_entity_season):
+        value: Autumn
+        translations:
+            fr: Automne

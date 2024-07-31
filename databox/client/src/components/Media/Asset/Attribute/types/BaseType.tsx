@@ -12,11 +12,11 @@ export default abstract class BaseType {
         }
     }
 
-    supportsMultiple() {
-        return false;
+    denormalize(value: any): any {
+        return value;
     }
 
-    denormalize(value: any): any {
+    normalize(value: any): any {
         return value;
     }
 }

@@ -61,10 +61,12 @@ export interface Asset
 
 type AttrValue = any;
 
+type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
+
 export interface Attribute extends IPermissions {
     id: string;
     definition: AttributeDefinition;
-    origin: 'human' | 'machine';
+    origin: AttributeOrigin;
     multiple: boolean;
     originVendor?: string;
     locale?: string | undefined;
@@ -72,6 +74,7 @@ export interface Attribute extends IPermissions {
     originVendorContext?: string;
     value: AttrValue;
     highlight: AttrValue;
+    assetAnnotations?: AssetAnnotation[];
 }
 
 export interface AssetFileVersion {
@@ -87,6 +90,7 @@ export interface AttributeDefinition extends IPermissions {
     name: string;
     slug: string;
     fieldType: string;
+    entityType?: string | undefined;
     multiple: boolean;
     searchable: boolean;
     suggest: boolean;
@@ -174,6 +178,20 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
     exclude: Tag[];
 }
 
+type KeyTranslations = {
+    [locale: string]: string;
+}
+
+export type AttributeEntity = {
+    id: string;
+    type: string;
+    locale: string;
+    value: string;
+    translations: KeyTranslations;
+    createdAt: string;
+    updatedAt: string;
+} & ApiHydraObjectResponse;
+
 export interface Tag extends ApiHydraObjectResponse, WithTranslations {
     id: string;
     name: string;
@@ -221,18 +239,12 @@ export interface Basket extends IPermissions {
 export interface BasketAsset {
     id: string;
     asset: Asset;
-    context?:
-        | {
-              clip?: {
-                  start?: number;
-                  end?: number;
-              };
-          }
-        | undefined;
+    context?: any;
     titleHighlight: string;
     position: number;
     createdAt: string;
     owner?: User;
+    assetAnnotations?: AssetAnnotation[];
 }
 
 export interface Workspace extends IPermissions {
@@ -301,4 +313,17 @@ export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
 export type AssetOrAssetContainer = {
     id: string;
+};
+
+export enum AnnotationType {
+    Point = 'point',
+    Circle = 'circle',
+    Rect = 'rect',
+    Cue = 'cue',
+    TimeRange = 'time_range',
+}
+
+export type AssetAnnotation = {
+    type: AnnotationType;
+    [prop: string]: any;
 };

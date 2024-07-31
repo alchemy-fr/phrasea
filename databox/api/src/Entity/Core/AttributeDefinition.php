@@ -16,9 +16,9 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Provider\AttributeDefinitionCollectionProvider;
+use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -123,9 +123,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     private ?string $fileType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     private string $fieldType = TextAttributeType::NAME;
+
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[ORM\Column(type: Types::STRING, length: AttributeEntity::TYPE_LENGTH, nullable: true)]
+    private ?string $entityType = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
@@ -239,12 +243,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     public function setFallbackAll(?string $fallback): void
     {
-        $this->fallback[IndexMappingUpdater::NO_LOCALE] = $fallback;
+        $this->fallback[AttributeInterface::NO_LOCALE] = $fallback;
     }
 
     public function getFallbackAll(): ?string
     {
-        return $this->fallback[IndexMappingUpdater::NO_LOCALE] ?? null;
+        return $this->fallback[AttributeInterface::NO_LOCALE] ?? null;
     }
 
     public function getFallbackEN(): ?string
@@ -384,12 +388,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     public function getInitialValuesAll(): ?string
     {
-        return $this->initialValues[IndexMappingUpdater::NO_LOCALE] ?? null;
+        return $this->initialValues[AttributeInterface::NO_LOCALE] ?? null;
     }
 
     public function setInitialValuesAll(?string $initializer): void
     {
-        $this->initialValues[IndexMappingUpdater::NO_LOCALE] = $initializer;
+        $this->initialValues[AttributeInterface::NO_LOCALE] = $initializer;
         $this->normalizeInitialValues();
     }
 
@@ -428,5 +432,15 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     public function setSuggest(bool $suggest): void
     {
         $this->suggest = $suggest;
+    }
+
+    public function getEntityType(): ?string
+    {
+        return $this->entityType;
+    }
+
+    public function setEntityType(?string $entityType): void
+    {
+        $this->entityType = $entityType;
     }
 }

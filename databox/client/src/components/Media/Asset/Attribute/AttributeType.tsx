@@ -1,4 +1,6 @@
-import AttributeWidget from './AttributeWidget';
+import AttributeWidget, {
+    createWidgetOptionsFromDefinition,
+} from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {
     AttrValue,
@@ -75,6 +77,7 @@ export default function AttributeType({
                         attributes={attributes}
                         readOnly={readOnly}
                         disabled={disabled}
+                        options={createWidgetOptionsFromDefinition(definition)}
                     />
                 </FormRow>
             </>
@@ -97,6 +100,7 @@ export default function AttributeType({
                     }
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}
+                    options={createWidgetOptionsFromDefinition(definition)}
                 />
             ) : (
                 <AttributeWidget
@@ -115,6 +119,7 @@ export default function AttributeType({
                     type={definition.fieldType}
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}
+                    options={createWidgetOptionsFromDefinition(definition)}
                 />
             )}
         </FormRow>

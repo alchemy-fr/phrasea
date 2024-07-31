@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Asset\Attribute;
 
+use App\Asset\Attribute\Index\AttributeIndex;
+use App\Attribute\AttributeInterface;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
-use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -20,80 +20,45 @@ readonly class AttributesResolver
         private EntityManagerInterface $em,
         private FieldNameResolver $fieldNameResolver,
         private FallbackResolver $fallbackResolver,
-        private Security $security
+        private Security $security,
     ) {
     }
 
-    /**
-     * @return array<string, array<string, Attribute>>
-     */
-    public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): array
+    public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
     {
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
-            ->getAssetAttributes($asset);
+            ->getAssetAttributes($asset->getId());
 
-        $groupedByDef = $this->groupAttributesByLocale($attributes, $applyPermissions);
-
-        return $this->resolveFallbacks($asset, $groupedByDef);
-    }
-
-    /**
-     * @param AbstractBaseAttribute[] $attributes
-     *
-     * @return array<string, array<string, AbstractBaseAttribute>>
-     */
-    public function groupAttributesByLocale(iterable $attributes, bool $applyPermissions): array
-    {
-        $disallowedDefinitions = [];
-
-        /** @var array<string, array<string, Attribute>> $groupedByDef */
-        $groupedByDef = [];
-        foreach ($attributes as $attribute) {
-            $def = $attribute->getDefinition();
-            $k = $def->getId();
-            $locale = $attribute->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
-
-            if (!isset($groupedByDef[$k][$locale])) {
-                if (!isset($groupedByDef[$k])) {
-                    $groupedByDef[$k] = [];
-                }
-
-                $groupedByDef[$k][$locale] = clone $attribute;
-                $attribute->setValues(null); // Reset values aggregation
-
-                if ($applyPermissions
-                    && !isset($disallowedDefinitions[$k])
-                ) {
-                    assert($attribute instanceof Attribute);
-                    $disallowedDefinitions[$k] = !$this->security->isGranted(AbstractVoter::READ, $attribute);
-                }
-            }
-
-            $groupAttr = $groupedByDef[$k][$locale];
-
-            if ($def->isMultiple()) {
-                $values = $groupAttr->getValues() ?? [];
-                $values[] = $attribute->getValue();
-                $groupAttr->setValues($values);
-            }
-        }
-        unset($attributes);
+        $index = $this->buildIndex($attributes);
+        $this->resolveFallbacks($asset, $index);
 
         if ($applyPermissions) {
-            $disallowedDefinitions = array_filter($disallowedDefinitions, fn (bool $v): bool => $v);
-            $groupedByDef = array_diff_key($groupedByDef, $disallowedDefinitions);
+            foreach ($index->getDefinitions() as $definitionIndex) {
+                $definition = $definitionIndex->getDefinition();
+                if (!$this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)) {
+                    $index->removeDefinition($definition->getId());
+                }
+            }
         }
 
-        return $groupedByDef;
+        return $index;
     }
 
     /**
-     * @param array<string, array<string, Attribute>> $attributes
-     *
-     * @return array<string, array<string, Attribute>>
+     * @param Attribute[] $attributes
      */
-    private function resolveFallbacks(Asset $asset, array $attributes): array
+    private function buildIndex(array $attributes): AttributeIndex
+    {
+        $index = new AttributeIndex();
+        foreach ($attributes as $attribute) {
+            $index->addAttribute($attribute);
+        }
+
+        return $index;
+    }
+
+    private function resolveFallbacks(Asset $asset, AttributeIndex $attributes): void
     {
         /** @var AttributeDefinition[] $fbDefinitions */
         $fbDefinitions = $this->em
@@ -106,7 +71,7 @@ readonly class AttributesResolver
             $fallbacks = $definition->getFallback();
             if (null !== $fallbacks) {
                 foreach ($fallbacks as $locale => $fb) {
-                    if (!isset($attributes[$k][$locale])) {
+                    if (null === $attributes->getAttribute($k, $locale)) {
                         $attr = $this->fallbackResolver->resolveAttrFallback(
                             $asset,
                             $locale,
@@ -114,47 +79,37 @@ readonly class AttributesResolver
                             $attributes
                         );
                         if (null !== $attr) {
-                            $attributes[$k][$locale] = $attr;
+                            $attributes->addAttribute($attr);
                         }
                     }
                 }
             }
         }
-
-        return $attributes;
     }
 
+    /**
+     * @param Attribute[] $attributes
+     */
     public function assignHighlight(array $attributes, array $highlights): void
     {
-        foreach ($attributes as $_attrs) {
-            foreach ($_attrs as $locale => $attribute) {
-                $f = $this->fieldNameResolver->getFieldNameFromDefinition($attribute->getDefinition());
+        foreach ($attributes as $attribute) {
+            $locale = $attribute->getLocale() ?? AttributeInterface::NO_LOCALE;
+            $definition = $attribute->getDefinition();
+            $f = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
 
-                $fieldName = sprintf('attributes.%s.%s', $locale, $f);
+            $fieldName = sprintf('attributes.%s.%s', $locale, $f);
 
-                if ($h = ($highlights[$fieldName] ?? null)) {
-                    if ($attribute->getDefinition()->isMultiple()) {
-                        $values = $attribute->getValues();
-                        $newValues = [];
-
-                        foreach ($values as $v) {
-                            $found = false;
-                            foreach ($highlights[$fieldName] as $hlValue) {
-                                if (preg_replace('#\[hl](.*)\[/hl]#', '$1', (string) $hlValue) === $v) {
-                                    $found = true;
-                                    $newValues[] = $hlValue;
-                                    break;
-                                }
-                            }
-                            if (!$found) {
-                                $newValues[] = $v;
-                            }
+            if ($h = ($highlights[$fieldName] ?? null)) {
+                if ($definition->isMultiple()) {
+                    $v = $attribute->getValue();
+                    foreach ($h as $hlValue) {
+                        if (preg_replace('#\[hl](.*)\[/hl]#', '$1', (string) $hlValue) === $v) {
+                            $attribute->setHighlight($hlValue);
+                            break;
                         }
-
-                        $attribute->setHighlights($newValues);
-                    } else {
-                        $attribute->setHighlight(reset($h));
                     }
+                } else {
+                    $attribute->setHighlight(reset($h));
                 }
             }
         }

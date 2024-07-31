@@ -15,8 +15,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class ESPopulateHandler
 {
-    final public const EVENT = 'es_populate';
-
     public function __construct(
         private KernelInterface $kernel,
         private EntityManagerInterface $em,

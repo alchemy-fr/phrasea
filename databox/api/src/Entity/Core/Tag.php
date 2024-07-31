@@ -14,12 +14,14 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
+use App\Api\Provider\TagCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Entity\TranslatableInterface;
+use App\Repository\Core\TagRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -59,10 +61,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ]],
     input: TagInput::class,
     output: TagOutput::class,
+    provider: TagCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'ws_name_uniq', columns: ['workspace_id', 'name'])]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable
 {

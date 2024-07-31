@@ -7,7 +7,7 @@ import {
     Menu,
     MenuItem,
 } from '@mui/material';
-import {Asset, AssetOrAssetContainer} from '../../types';
+import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,6 +23,7 @@ import {useNavigateToModal} from '../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
 import {modalRoutes} from '../../routes';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import {ActionsContext, ReloadFunc} from './types.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     anchorPosition: PopoverPosition;
@@ -30,13 +31,20 @@ type Props<Item extends AssetOrAssetContainer> = {
     asset: Asset;
     item: Item;
     onClose: () => void;
+    actionsContext: ActionsContext<Item>;
+    reload?: ReloadFunc;
+    setSelection?: StateSetter<Item[]>;
 };
 
 export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     asset,
+    item,
     anchorPosition,
     anchorEl,
     onClose,
+    actionsContext,
+    reload,
+    setSelection,
 }: Props<Item>) {
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
@@ -111,15 +119,15 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     invisible: true,
                 }}
             >
-                {original && (
+                {actionsContext.open && original && (
                     <MenuItem onClick={() => onOpen(original.id)}>
                         <ListItemIcon>
-                            <FileOpenIcon fontSize="small" />
+                            <FileOpenIcon />
                         </ListItemIcon>
                         <ListItemText primary="Open" />
                     </MenuItem>
                 )}
-                {asset.source && (
+                {actionsContext.saveAs && asset.source ? (
                     <SaveAsButton
                         Component={MenuItem}
                         asset={asset}
@@ -135,12 +143,14 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <ArrowDropDownIcon />
                         </ListItemIcon>
                     </SaveAsButton>
+                ) : (
+                    ''
                 )}
                 {original?.file?.alternateUrls &&
                     original.file.alternateUrls.map(a => (
                         <MenuItem key={a.type} onClick={() => openUrl(a.url)}>
                             <ListItemIcon>
-                                <LinkIcon fontSize="small" />
+                                <LinkIcon />
                             </ListItemIcon>
                             <ListItemText primary={a.label || a.type} />
                         </MenuItem>
@@ -148,41 +158,81 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                 {original?.file?.url && (
                     <MenuItem onClick={onDownload}>
                         <ListItemIcon>
-                            <CloudDownloadIcon fontSize="small" />
+                            <CloudDownloadIcon />
                         </ListItemIcon>
                         <ListItemText primary="Download" />
                     </MenuItem>
                 )}
-                <MenuItem
-                    disabled={!capabilities.canEdit}
-                    onClick={capabilities.canEdit ? onEdit : undefined}
-                >
-                    <ListItemIcon>
-                        <EditIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Edit" />
-                </MenuItem>
-                <MenuItem
-                    disabled={!capabilities.canEditAttributes}
-                    onClick={
-                        capabilities.canEditAttributes ? onEditAttr : undefined
-                    }
-                >
-                    <ListItemIcon>
-                        <EditIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Edit attributes" />
-                </MenuItem>
+                {actionsContext.edit ? (
+                    <MenuItem
+                        disabled={!capabilities.canEdit}
+                        onClick={capabilities.canEdit ? onEdit : undefined}
+                    >
+                        <ListItemIcon>
+                            <EditIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Edit" />
+                    </MenuItem>
+                ) : (
+                    ''
+                )}
+                {actionsContext.edit ? (
+                    <MenuItem
+                        disabled={!capabilities.canEditAttributes}
+                        onClick={
+                            capabilities.canEditAttributes
+                                ? onEditAttr
+                                : undefined
+                        }
+                    >
+                        <ListItemIcon>
+                            <EditIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Edit attributes" />
+                    </MenuItem>
+                ) : (
+                    ''
+                )}
                 <Divider key={'d'} />
-                <MenuItem
-                    disabled={!capabilities.canDelete}
-                    onClick={capabilities.canDelete ? onDelete : undefined}
-                >
-                    <ListItemIcon>
-                        <DeleteIcon fontSize="small" color={'error'} />
-                    </ListItemIcon>
-                    <ListItemText primary="Delete" />
-                </MenuItem>
+                {actionsContext.delete ? (
+                    <MenuItem
+                        disabled={!capabilities.canDelete}
+                        onClick={capabilities.canDelete ? onDelete : undefined}
+                    >
+                        <ListItemIcon>
+                            <DeleteIcon color={'error'} />
+                        </ListItemIcon>
+                        <ListItemText primary="Delete" />
+                    </MenuItem>
+                ) : (
+                    ''
+                )}
+                {actionsContext.extraActions?.map(a => {
+                    return (
+                        <MenuItem
+                            key={a.name}
+                            color={a.color}
+                            disabled={a.disabled ?? false}
+                            onClick={async () => {
+                                onClose();
+                                await a.apply([item]);
+                                if (a.reload && reload) {
+                                    reload();
+                                }
+                                if (a.resetSelection && setSelection) {
+                                    setSelection([]);
+                                }
+                            }}
+                        >
+                            {a.icon ? (
+                                <ListItemIcon>{a.icon}</ListItemIcon>
+                            ) : (
+                                ''
+                            )}
+                            {a.labels.single}
+                        </MenuItem>
+                    );
+                })}
             </Menu>
         </ClickAwayListener>
     );

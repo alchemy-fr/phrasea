@@ -71,6 +71,7 @@ export async function getWorkspaceAttributeDefinitions(
     const res = await apiClient.get(attributeDefinitionNS, {
         params: {
             workspaceId,
+            limit: 100,
         },
     });
 
@@ -93,6 +94,7 @@ export enum AttributeType {
     Date = 'date',
     DateTime = 'date_time',
     GeoPoint = 'geo_point',
+    Entity = 'entity',
     Html = 'html',
     Ip = 'ip',
     Json = 'json',
@@ -100,4 +102,5 @@ export enum AttributeType {
     Text = 'text',
     Textarea = 'textarea',
     WebVtt = 'web_vtt',
+    Tag = 'tag',
 }

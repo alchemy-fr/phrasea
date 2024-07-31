@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Entity\Core\AttributeDefinition;
-use App\Repository\Core\AttributeDefinitionRepositoryInterface;
+use App\Repository\Core\AttributeDefinitionRepository;
 use Elastica\Collapse;
 use Elastica\Query;
 use Elastica\Result;
@@ -54,7 +54,7 @@ class SuggestionSearch extends AbstractSearch
         /** @var AttributeDefinition[] $suggestAttributes */
         $suggestAttributes = $this->em->getRepository(AttributeDefinition::class)
             ->getSearchableAttributes($userId, $groupIds, [
-                AttributeDefinitionRepositoryInterface::OPT_SUGGEST_ENABLED => true,
+                AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true,
             ]);
 
         $definitionNames = [];

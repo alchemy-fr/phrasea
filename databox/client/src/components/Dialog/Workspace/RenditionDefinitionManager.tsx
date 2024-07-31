@@ -15,7 +15,7 @@ import {
     putRenditionDefinition,
 } from '../../../api/rendition';
 import RenditionClassSelect from '../../Form/RenditionClassSelect';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
@@ -29,7 +29,7 @@ function Item({
         reset,
         formState: {errors},
     },
-    workspaceId,
+    workspace,
 }: DefinitionItemFormProps<RenditionDefinition>) {
     const {t} = useTranslation();
 
@@ -56,7 +56,7 @@ function Item({
                         disabled={submitting}
                         name={'class'}
                         control={control}
-                        workspaceId={workspaceId}
+                        workspaceId={workspace.id}
                     />
                     <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
@@ -189,7 +189,7 @@ export default function RenditionDefinitionManager({
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceRenditionDefinitions(workspace.id)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}

@@ -30,7 +30,10 @@ export default class GeoPointType extends TextType {
         return `${value.lat}, ${value.lng}`;
     }
 
-    renderWidget({value, ...rest}: AttributeWidgetProps): React.ReactNode {
+    renderWidget({
+        value,
+        ...rest
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return super.renderWidget({
             value: this.denormalizeValue(value),
             ...rest,

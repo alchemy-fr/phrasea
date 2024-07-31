@@ -7,8 +7,9 @@ import {
 } from '../../context/AssetSelectionContext';
 import {Layout, layouts} from './Layouts';
 import {
+    ActionsContext,
     AssetItemComponent,
-    CustomItemAction,
+    LayoutCommonProps,
     LayoutProps,
     LoadMoreFunc,
     OnAddToBasket,
@@ -25,6 +26,9 @@ import assetClasses from './classes';
 import AssetContextMenu from './AssetContextMenu';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
 import {SelectionActionConfigProps} from './Toolbar/SelectionActions';
+import {useSelectAllKey} from '../../hooks/useSelectAllKey.ts';
+import {createDefaultActionsContext} from './actionContext.ts';
+import useUpdateEffect from '@alchemy/react-hooks/src/useUpdateEffect';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -38,11 +42,15 @@ type Props<Item extends AssetOrAssetContainer> = {
     reload?: ReloadFunc;
     onOpenDebug?: VoidFunction;
     searchBar?: boolean;
-    actions?: CustomItemAction<Item>[];
+    actionsContext?: ActionsContext<Item>;
+    itemOverlay?: LayoutCommonProps<Item>;
+    subSelection?: Item[];
     onSelectionChange?: OnSelectionChange<Item>;
+    defaultSelection?: Item[];
     itemComponent?: AssetItemComponent<Item>;
     previewZIndex?: number;
-} & SelectionActionConfigProps;
+} & SelectionActionConfigProps &
+    LayoutCommonProps<Item>;
 
 export default function AssetList<Item extends AssetOrAssetContainer>({
     pages,
@@ -53,10 +61,13 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     loadMore,
     reload,
     searchBar,
+    defaultSelection = [],
     onOpenDebug,
     onSelectionChange,
+    subSelection,
     itemComponent,
-    actions,
+    actionsContext = createDefaultActionsContext(),
+    itemOverlay,
     previewZIndex,
     layout: defaultLayout,
     selectionContext:
@@ -65,7 +76,8 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         >,
     ...selectionActionsProps
 }: Props<Item>) {
-    const [selection, setSelectionPrivate] = React.useState<Item[]>([]);
+    const [selection, setSelectionPrivate] =
+        React.useState<Item[]>(defaultSelection);
     const [layout, setLayout] = React.useState<Layout>(
         defaultLayout ?? Layout.Grid
     );
@@ -77,6 +89,12 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         pos: PopoverPosition;
         anchorEl: HTMLElement | undefined;
     }>(null);
+
+    React.useEffect(() => {
+        if (subSelection) {
+            setSelectionPrivate(subSelection);
+        }
+    }, [subSelection]);
 
     const setSelection = React.useMemo<StateSetter<Item[]>>(() => {
         if (!onSelectionChange) {
@@ -94,7 +112,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         };
     }, [onSelectionChange, setSelectionPrivate]);
 
-    React.useEffect(() => {
+    useUpdateEffect(() => {
         setSelectionPrivate([]);
     }, [pages[0]]);
 
@@ -116,30 +134,8 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         };
     }, [listRef.current]);
 
-    React.useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.ctrlKey && e.key === 'a') {
-                const activeElement = document.activeElement;
-                if (
-                    activeElement &&
-                    ['input', 'select', 'button', 'textarea'].includes(
-                        activeElement.tagName.toLowerCase()
-                    ) &&
-                    (activeElement as HTMLInputElement).type !== 'checkbox'
-                ) {
-                    return;
-                }
-
-                e.preventDefault();
-                e.stopPropagation();
-                setSelection(pages.flat());
-            }
-        };
-        window.addEventListener('keydown', handler);
-
-        return () => {
-            window.removeEventListener('keydown', handler);
-        };
+    useSelectAllKey(() => {
+        setSelection(pages.flat());
     }, [pages]);
 
     const onContextMenuOpen = React.useCallback<OnContextMenuOpen<Item>>(
@@ -179,13 +175,14 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
 
     const addToCurrent = useBasketStore(state => state.addToCurrent);
 
-    const onAddToBasket = React.useCallback<OnAddToBasket>(
-        (asset, e): void => {
-            e?.preventDefault();
-            addToCurrent([asset]);
-        },
-        [addToCurrent]
-    );
+    const onAddToBasket = React.useMemo<OnAddToBasket | undefined>(() => {
+        if (actionsContext.basket) {
+            return (asset, e): void => {
+                e?.preventDefault();
+                addToCurrent([asset]);
+            };
+        }
+    }, [addToCurrent, actionsContext.basket]);
 
     return (
         <div
@@ -220,7 +217,7 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         onOpenDebug={onOpenDebug}
                         selectionContext={SelectionContext}
                         searchBar={searchBar}
-                        actions={actions}
+                        actionsContext={actionsContext}
                         {...selectionActionsProps}
                     />
 
@@ -236,15 +233,19 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         toolbarHeight,
                         itemComponent,
                         previewZIndex,
+                        itemOverlay,
                     } as LayoutProps<Item>)}
 
                     {anchorElMenu ? (
                         <AssetContextMenu
+                            actionsContext={actionsContext}
                             item={anchorElMenu.item}
                             asset={anchorElMenu.asset}
                             anchorPosition={anchorElMenu.pos}
                             anchorEl={anchorElMenu.anchorEl}
                             onClose={() => setAnchorElMenu(null)}
+                            reload={reload}
+                            setSelection={setSelection}
                         />
                     ) : (
                         ''

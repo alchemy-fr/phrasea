@@ -5,7 +5,7 @@ import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
-import {ZIndex} from "../../themes/zIndex.ts";
+import {ZIndex} from '../../themes/zIndex.ts';
 
 type Props = {
     anchorEl: HTMLElement | undefined;

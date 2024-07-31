@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Asset\Attribute;
 
+use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
@@ -17,22 +18,16 @@ class AssetTitleResolver
     {
     }
 
-    /**
-     * @param array<string, array<string, Attribute>> $attributes
-     */
-    public function resolveTitle(Asset $asset, array $attributes, array $preferredLocales): Attribute|string|null
+    public function resolveTitle(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null
     {
         if (empty($asset->getTitle()) || $this->hasTitleOverride($asset->getWorkspaceId())) {
             $titleAttrs = $this->getTitleAttributes($asset->getWorkspaceId());
             foreach ($titleAttrs as $attrTitle) {
-                foreach ($attributes as $_attrs) {
-                    foreach ($preferredLocales as $l) {
-                        if (isset($_attrs[$l])) {
-                            $attribute = $_attrs[$l];
-                            if ($attribute->getDefinition()->getId() === $attrTitle->getDefinition()->getId()) {
-                                return $attribute;
-                            }
-                        }
+                $definitionId = $attrTitle->getDefinition()->getId();
+
+                foreach ($preferredLocales as $l) {
+                    if (null !== $attribute = $attributesIndex->getAttribute($definitionId, $l)) {
+                        return $attribute;
                     }
                 }
             }

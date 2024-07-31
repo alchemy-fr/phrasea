@@ -21,7 +21,7 @@ import DefinitionManager, {
 } from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
-import CheckboxWidget from '../../Form/CheckboxWidget';
+import {CheckboxWidget} from '@alchemy/react-form';
 import AttributeClassSelect from '../../Form/AttributeClassSelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {fieldTypesIcons} from '../../../lib/icons';
@@ -30,7 +30,7 @@ import {toast} from 'react-toastify';
 
 function Item({
     usedFormSubmit,
-    workspaceId,
+    workspace,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
 
@@ -87,7 +87,7 @@ function Item({
                         disabled={submitting}
                         name={'class'}
                         control={control}
-                        workspaceId={workspaceId}
+                        workspaceId={workspace.id}
                     />
                     <FormFieldErrors field={'class'} errors={errors} />
                 </FormGroup>
@@ -218,7 +218,7 @@ export default function AttributeDefinitionManager({
             itemComponent={Item}
             listComponent={ListItem}
             load={() => getWorkspaceAttributeDefinitions(workspace.id)}
-            workspaceId={workspace.id}
+            workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}
             createNewItem={createNewItem}

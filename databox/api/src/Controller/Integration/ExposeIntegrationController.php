@@ -41,7 +41,6 @@ class ExposeIntegrationController extends AbstractController
         );
     }
 
-
     #[Route(path: '/{integrationId}/proxy/publications', name: 'proxy_publications')]
     public function publicationsProxy(
         string $integrationId,

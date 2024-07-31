@@ -89,27 +89,16 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
         ], $context)) {
-            $attributes = $this->attributesResolver->resolveAssetAttributes($data, true);
+            $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
+            $attributes = $attributesIndex->getFlattenAttributes();
 
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
-            $indexByAttrName = [];
-            $preferredAttributes = [];
-            foreach ($attributes as $_attrs) {
-                foreach ($preferredLocales as $l) {
-                    if (isset($_attrs[$l]) && null !== $_attrs[$l]->getValue()) {
-                        $preferredAttributes[] = $_attrs[$l];
-                        $key = $this->fieldNameResolver->getFieldNameFromDefinition($_attrs[$l]->getDefinition());
-                        $indexByAttrName[$key] = $_attrs[$l]->getValue();
-                        continue 2;
-                    }
-                }
-            }
-            $output->setAttributes($preferredAttributes);
+            $output->setAttributes($attributes);
 
             $output->setTitle($data->getTitle());
-            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributes, $preferredLocales);
+            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributesIndex, $preferredLocales);
             if ($titleAttribute instanceof Attribute) {
                 $output->setResolvedTitle($titleAttribute->getValue());
                 $output->setTitleHighlight($titleAttribute->getHighlight());
@@ -122,7 +111,21 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             $groupBy = $context['groupBy'][0] ?? null;
             if (null !== $groupBy) {
-                $groupValue = $this->getGroupValue($groupBy, $data, $indexByAttrName[$groupBy] ?? null);
+                $indexValue = null;
+                foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
+                    if ($groupBy === $this->fieldNameResolver->getFieldNameFromDefinition($definitionIndex->getDefinition())) {
+                        foreach ($preferredLocales as $l) {
+                            if (null !== $attr = $definitionIndex->getAttribute($l)) {
+                                $indexValue = $attr->getValue();
+                                break 2;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                $groupValue = $this->getGroupValue($groupBy, $data, $indexValue);
                 $groupKey = $groupValue->getKey();
 
                 if ($this->lastGroupKey !== $groupKey) {

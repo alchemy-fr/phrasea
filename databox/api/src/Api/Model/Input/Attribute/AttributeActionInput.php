@@ -12,6 +12,18 @@ class AttributeActionInput extends AbstractExtendedAttributeInput
     public ?string $id = null;
 
     /**
+     * Attribute IDs.
+     */
+    public ?array $ids = null;
+
+    /**
+     * Asset IDs.
+     *
+     * @var string[]
+     */
+    public ?array $assets = null;
+
+    /**
      * Available actions:
      *  - "set"
      *  - "add"

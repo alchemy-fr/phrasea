@@ -5,9 +5,8 @@ namespace App\Integration\Phrasea\Expose;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\IntegrationConfig;
@@ -67,8 +66,8 @@ final readonly class ExposeClient
 
     public function postAsset(IntegrationConfig $config, IntegrationToken $integrationToken, string $publicationId, Asset $asset, array $extraData = []): void
     {
-        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, true);
-        $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributes, []);
+        $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
+        $resolvedTitleAttr = $this->assetTitleResolver->resolveTitle($asset, $attributesIndex, []);
         if ($resolvedTitleAttr instanceof Attribute) {
             $resolvedTitle = $resolvedTitleAttr->getValue();
         } else {
@@ -76,34 +75,32 @@ final readonly class ExposeClient
         }
 
         $descriptionTranslations = [];
-        if (!empty($attributes)) {
-            foreach ($attributes as $defAttrs) {
-                $attrTranslations = [];
+        foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
+            $attrTranslations = [];
 
-                foreach ($defAttrs as $locale => $attribute) {
-                    $attributeDefinition = $attribute->getDefinition();
-                    $fieldType = $attributeDefinition->getFieldType();
+            foreach ($definitionIndex->getLocales() as $locale => $attribute) {
+                $definition = $definitionIndex->getDefinition();
+                $fieldType = $definition->getFieldType();
 
-                    $attrTranslations[$locale] = sprintf(
-                        '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
+                $attrTranslations[$locale] = sprintf(
+                    '  <dt class="field-title field-type-%1$s field-name-%2$s">%3$s</dt>
   <dd class="value field-type-%1$s field-name-%2$s">%4$s</dd>
 ',
-                        $fieldType,
-                        $attributeDefinition->getSlug(),
-                        $attributeDefinition->getName(),
-                        $attributeDefinition->isMultiple() ? implode(', ', $attribute->getValues()) : $attribute->getValue(),
-                    );
-                }
+                    $fieldType,
+                    $definition->getSlug(),
+                    $definition->getName(),
+                    $definition->isMultiple() ? implode(', ', array_map(fn (Attribute $a): ?string => $a->getValue(), $attribute)) : $attribute->getValue(),
+                );
+            }
 
-                // adding fallback if not set
-                if (!isset($attrTranslations[IndexMappingUpdater::NO_LOCALE])) {
-                    $attrTranslations[IndexMappingUpdater::NO_LOCALE] = reset($attrTranslations);
-                }
+            // adding fallback if not set
+            if (!isset($attrTranslations[AttributeInterface::NO_LOCALE])) {
+                $attrTranslations[AttributeInterface::NO_LOCALE] = reset($attrTranslations);
+            }
 
-                foreach ($attrTranslations as $locale => $translation) {
-                    $descriptionTranslations[$locale] ??= [];
-                    $descriptionTranslations[$locale][] = $translation;
-                }
+            foreach ($attrTranslations as $locale => $translation) {
+                $descriptionTranslations[$locale] ??= [];
+                $descriptionTranslations[$locale][] = $translation;
             }
         }
 
@@ -115,9 +112,9 @@ final readonly class ExposeClient
 %s</dl>', implode("\n", $ltr));
             }, $descriptionTranslations);
 
-            if (isset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE])) {
-                $description = $descriptionTranslations[IndexMappingUpdater::NO_LOCALE];
-                unset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE]);
+            if (isset($descriptionTranslations[AttributeInterface::NO_LOCALE])) {
+                $description = $descriptionTranslations[AttributeInterface::NO_LOCALE];
+                unset($descriptionTranslations[AttributeInterface::NO_LOCALE]);
             } else {
                 $description = array_shift($descriptionTranslations);
             }
@@ -163,7 +160,7 @@ final readonly class ExposeClient
             foreach ([
                 'preview',
                 'thumbnail',
-                     ] as $renditionName) {
+            ] as $renditionName) {
                 if (null !== $rendition = $this->renditionManager->getAssetRenditionUsedAs($renditionName, $asset->getId())) {
                     $file = $rendition->getFile();
                     $subDefFetchedFile = $this->fileFetcher->getFile($file);
@@ -171,17 +168,17 @@ final readonly class ExposeClient
                         $subDefResponse = $this->create($config, $integrationToken)
                             ->request('POST', '/sub-definitions', [
                                 'json' => [
-                                    'asset_id'          => $exposeAssetId,
-                                    'name'              => $renditionName,
-                                    'use_as_preview'    => 'preview' === $renditionName,
-                                    'use_as_thumbnail'    => 'thumbnail' === $renditionName,
-                                    'use_as_poster'    => 'poster' === $renditionName,
+                                    'asset_id' => $exposeAssetId,
+                                    'name' => $renditionName,
+                                    'use_as_preview' => 'preview' === $renditionName,
+                                    'use_as_thumbnail' => 'thumbnail' === $renditionName,
+                                    'use_as_poster' => 'poster' === $renditionName,
                                     'upload' => [
                                         'type' => $file->getType(),
                                         'size' => $file->getSize(),
                                         'name' => $file->getOriginalName(),
 
-                                    ]
+                                    ],
                                 ],
                             ])
                             ->toArray()

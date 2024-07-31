@@ -14,6 +14,7 @@ import {
 } from '@alchemy/react-auth';
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
+import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider.tsx';
 
 type Props = {};
 
@@ -21,15 +22,18 @@ export default function Root({}: Props) {
     return (
         <AuthenticationProvider oauthClient={oauthClient}>
             <MatomoUser />
-            <UserPreferencesProvider>
-                <RouterProvider
-                    routes={routes}
-                    options={{
-                        RouteProxyComponent: RouteProxy,
-                        WrapperComponent: WrapperComponent,
-                    }}
-                />
-            </UserPreferencesProvider>
+
+            <AttributeFormatProvider>
+                <UserPreferencesProvider>
+                    <RouterProvider
+                        routes={routes}
+                        options={{
+                            RouteProxyComponent: RouteProxy,
+                            WrapperComponent: WrapperComponent,
+                        }}
+                    />
+                </UserPreferencesProvider>
+            </AttributeFormatProvider>
         </AuthenticationProvider>
     );
 }
@@ -39,7 +43,11 @@ function WrapperComponent({children}: RouteWrapperProps) {
         <>
             <ModalStack>
                 <SessionExpireContainer />
-                <OverlayOutlet routes={modalRoutes} queryParam={'_m'} />
+                <OverlayOutlet
+                    routes={modalRoutes}
+                    queryParam={'_m'}
+                    RouteProxyComponent={RouteProxy}
+                />
                 <MatomoRouteWrapper>{children}</MatomoRouteWrapper>
             </ModalStack>
         </>

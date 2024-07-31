@@ -310,6 +310,68 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
+        attribute_entity:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            text: *text_analyzer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%attribute_entity_%kernel.environment%"
+            properties:
+                type:
+                    type: keyword
+                value:
+                    type: text
+                    analyzer: text
+                    fields:
+                        suggest:
+                            type: search_as_you_type
+                            doc_values: false
+                            max_shingle_size: 3
+                        raw:
+                            type: keyword
+                workspaceId:
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Core\AttributeEntity
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
+        tag:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            text: *text_analyzer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%tag_%kernel.environment%"
+            properties:
+                name:
+                    type: text
+                    analyzer: text
+                    fields:
+                        suggest:
+                            type: search_as_you_type
+                            doc_values: false
+                            max_shingle_size: 3
+                        raw:
+                            type: keyword
+                workspaceId:
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Core\Tag
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
 when@dev:
     parameters:
         elastica.use_alias: false

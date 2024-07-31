@@ -40,6 +40,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?string $entityType = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $searchable = true;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
@@ -48,10 +51,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $translatable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
     public bool $multiple = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

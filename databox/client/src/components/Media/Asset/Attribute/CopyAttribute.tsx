@@ -2,11 +2,12 @@ import {IconButton} from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CopyToClipboard from '../../../../lib/CopyToClipboard';
 
+export const copyToClipBoardClass = 'ctcb';
+export const copyToClipBoardContainerClass = 'ctcb-wr';
+
 type Props = {
     value: string | undefined;
 };
-
-export const copyToClipBoardClass = 'ctcb';
 
 export default function CopyAttribute({value}: Props) {
     return (

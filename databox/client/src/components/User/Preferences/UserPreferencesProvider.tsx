@@ -11,6 +11,7 @@ import {CssBaseline, GlobalStyles} from '@mui/material';
 import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
+import {scrollbarWidth} from '../../../constants.ts';
 
 const sessionStorageKey = 'userPrefs';
 
@@ -74,8 +75,6 @@ export default function UserPreferencesProvider({children}: Props) {
         };
     }, [preferences, updatePreference]);
 
-    const scrollbarWidth = 8;
-
     return (
         <UserPreferencesContext.Provider value={value}>
             <ThemeEditorProvider
@@ -89,6 +88,7 @@ export default function UserPreferencesProvider({children}: Props) {
                         '*': {
                             '*::-webkit-scrollbar': {
                                 width: scrollbarWidth,
+                                height: scrollbarWidth,
                             },
                             '*::-webkit-scrollbar-track': {
                                 borderRadius: 10,

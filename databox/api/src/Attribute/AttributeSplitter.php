@@ -42,13 +42,12 @@ final readonly class AttributeSplitter
                     $a->setLocale($attribute->getLocale());
                     $a->setAsset($attribute->getAsset());
                     $a->setConfidence($attribute->getConfidence());
-                    $a->setCoordinates($attribute->getCoordinates());
+                    $a->setAssetAnnotations($attribute->getAssetAnnotations());
                     $a->setOrigin($attribute->getOrigin());
                     $a->setStatus($attribute->getStatus());
                     $a->setOriginUserId($attribute->getOriginUserId());
                     $a->setOriginVendor($attribute->getOriginVendor());
                     $a->setOriginVendorContext($attribute->getOriginVendorContext());
-                    $a->setTranslationId($attribute->getTranslationId());
                     $a->setValue($p);
 
                     $this->em->persist($a);

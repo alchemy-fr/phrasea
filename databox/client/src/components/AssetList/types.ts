@@ -1,4 +1,4 @@
-import React, {MouseEvent, PropsWithChildren} from 'react';
+import React, {MouseEvent, PropsWithChildren, ReactNode} from 'react';
 import {Asset, AssetOrAssetContainer} from '../../types';
 import {ButtonProps} from '@mui/material/Button';
 
@@ -37,7 +37,7 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
 };
 
 export type AssetItemProps<Item extends AssetOrAssetContainer> = {
-    itemComponent: AssetItemComponent<Item> | undefined;
+    itemComponent?: AssetItemComponent<Item> | undefined;
     item: Item;
     asset: Asset;
     selected: boolean;
@@ -51,28 +51,50 @@ export type AssetItemComponent<Item extends AssetOrAssetContainer> = React.FC<
     AssetItemCustomComponentProps<Item>
 >;
 
-type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
+export type LayoutCommonProps<Item extends AssetOrAssetContainer> = {
+    itemOverlay?: ItemOverlayRenderer<Item>;
+};
+
+type LayoutBaseProps<Item extends AssetOrAssetContainer> = {
     itemToAsset?: ItemToAssetFunc<Item> | undefined;
     itemComponent: AssetItemComponent<Item> | undefined;
     selection: Item[];
     toolbarHeight: number;
-};
+} & LayoutCommonProps<Item>;
+
+export type ItemOverlayRenderer<Item extends AssetOrAssetContainer> = (props: {
+    item: Item;
+}) => ReactNode;
 
 export type LayoutProps<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
     loadMore?: LoadMoreFunc;
     previewZIndex: number | undefined;
-} & LayoutCommonProps<Item> &
+} & LayoutBaseProps<Item> &
     AssetActions<Item>;
 
 export type LayoutPageProps<Item extends AssetOrAssetContainer> = {
     items: Item[];
     page: number;
-} & LayoutCommonProps<Item> &
+} & LayoutBaseProps<Item> &
     AssetActions<Item>;
+
+export type ActionsContext<Item extends AssetOrAssetContainer> = {
+    extraActions?: CustomItemAction<Item>[];
+    basket?: boolean;
+    layout?: boolean;
+    export?: boolean;
+    edit?: boolean;
+    share?: boolean;
+    delete?: boolean;
+    open?: boolean;
+    saveAs?: boolean;
+};
 
 export type CustomItemAction<Item extends AssetOrAssetContainer> = {
     name: string;
+    icon?: ReactNode;
+    color?: ButtonProps['color'];
     buttonProps?: ButtonProps;
     labels: {
         single: string;

@@ -18,8 +18,11 @@ interface AttributeTypeInterface
     public static function getName(): string;
 
     public function getElasticSearchType(): string;
+
     public function getElasticSearchSubField(): ?string;
+
     public function getElasticSearchSearchType(): ?SearchType;
+
     public function supportsElasticSearchFuzziness(): bool;
 
     public function getFacetType(): string;
@@ -58,6 +61,8 @@ interface AttributeTypeInterface
     public function isLocaleAware(): bool;
 
     public function supportsSuggest(): bool;
+
+    public function supportsTranslations(): bool;
 
     public function validate($value, ExecutionContextInterface $context): void;
 

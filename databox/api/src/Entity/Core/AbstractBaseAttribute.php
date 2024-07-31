@@ -25,11 +25,6 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     private ?string $value = null;
 
-    /**
-     * Resolved by PHP.
-     */
-    private ?array $values = null;
-
     public function getValue(): ?string
     {
         return $this->value;
@@ -73,15 +68,5 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-    }
-
-    public function getValues(): ?array
-    {
-        return $this->values;
-    }
-
-    public function setValues(?array $values): void
-    {
-        $this->values = $values;
     }
 }

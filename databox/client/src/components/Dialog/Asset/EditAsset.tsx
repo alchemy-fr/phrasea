@@ -83,6 +83,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
                             {t('form.asset.tags.label', 'Tags')}
                         </InputLabel>
                         <TagSelect
+                            multiple={true}
                             workspaceId={data.workspace.id}
                             control={control}
                             name={'tags'}

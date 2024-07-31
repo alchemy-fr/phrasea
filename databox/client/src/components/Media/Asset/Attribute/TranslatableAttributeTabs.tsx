@@ -11,6 +11,7 @@ import AttributeWidget from './AttributeWidget';
 import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
+import {AttributeWidgetOptions} from './types/types';
 
 function TabPanel({
     children,
@@ -43,6 +44,7 @@ type Props = {
         v: AttrValue<string | number> | AttrValue<string | number>[] | undefined
     ) => void;
     readOnly?: boolean;
+    options: AttributeWidgetOptions;
 };
 
 export default function TranslatableAttributeTabs({
@@ -54,6 +56,7 @@ export default function TranslatableAttributeTabs({
     changeHandler,
     attributes,
     readOnly,
+    options,
 }: Props) {
     const locales = React.useMemo<string[]>(() => {
         const l = [...definition.locales!];
@@ -137,6 +140,7 @@ export default function TranslatableAttributeTabs({
                                     changeHandler(locale, values)
                                 }
                                 id={definition.id}
+                                options={options}
                             />
                         ) : (
                             <AttributeWidget
@@ -154,6 +158,7 @@ export default function TranslatableAttributeTabs({
                                 required={false}
                                 onChange={v => changeHandler(locale, v)}
                                 id={definition.id}
+                                options={options}
                             />
                         )}
                     </TabPanel>

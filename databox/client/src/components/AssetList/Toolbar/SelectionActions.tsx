@@ -34,7 +34,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
 import BasketSwitcher from '../../Basket/BasketSwitcher';
 import {Layout} from '../Layouts';
-import {CustomItemAction, ReloadFunc} from '../types';
+import {ActionsContext, ReloadFunc} from '../types';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
@@ -62,14 +62,14 @@ export type SelectionActionConfigProps = {
 
 export type SelectionActionsProps<Item extends AssetOrAssetContainer> = {
     layout: Layout;
-    setLayout: StateSetter<Layout>;
+    setLayout?: StateSetter<Layout>;
     loading: boolean;
     total?: number;
     pages: Item[][];
     reload?: ReloadFunc;
     onOpenDebug?: VoidFunction;
     selectionContext: Context<TSelectionContext<Item>>;
-    actions?: CustomItemAction<Item>[];
+    actionsContext: ActionsContext<Item>;
 } & SelectionActionConfigProps;
 
 export default function SelectionActions<Item extends AssetOrAssetContainer>({
@@ -80,7 +80,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     pages,
     reload,
     onOpenDebug,
-    actions,
+    actionsContext,
     noActions,
     selectionContext,
     itemLabel = 'result',
@@ -122,6 +122,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         let canMove = false;
         let canShare = false;
         let wsId: string | undefined = undefined;
+
+        function filterEditableAttributes(asset: Asset): boolean {
+            return asset.capabilities.canEditAttributes;
+        }
 
         const selectedAssets = itemToAsset
             ? selection.map(itemToAsset)
@@ -174,7 +178,18 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit is coming soon...');
+                navigateToModal(
+                    modalRoutes.attributesBatchEdit,
+                    {},
+                    {
+                        state: {
+                            selection: selectedAssets
+                                .filter(filterEditableAttributes)
+                                .map(a => a.id),
+                            workspaceId: selectedAssets[0].workspace.id,
+                        },
+                    }
+                );
             }
         };
 
@@ -185,16 +200,27 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     id: selectedAssets[0].id,
                 });
             } else {
-                alert('Multi edit attributes is coming soon...');
+                navigateToModal(
+                    modalRoutes.attributesBatchEdit,
+                    {},
+                    {
+                        state: {
+                            selection: selectedAssets
+                                .filter(filterEditableAttributes)
+                                .map(a => a.id),
+                            workspaceId: selectedAssets[0].workspace.id,
+                        },
+                    }
+                );
             }
         };
 
         const download = canDownload
             ? () => {
-                openModal(ExportAssetsDialog, {
-                    assets: selectedAssets,
-                });
-            }
+                  openModal(ExportAssetsDialog, {
+                      assets: selectedAssets,
+                  });
+              }
             : undefined;
 
         return {
@@ -294,75 +320,93 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
                 {!noActions ? (
                     <>
-                        {isAuthenticated() ? (
+                        {actionsContext.basket && isAuthenticated() ? (
                             <BasketSwitcher
                                 selectionContext={selectionContext}
                             />
                         ) : (
                             ''
                         )}
-                        <LoadingButton
-                            disabled={!canDownload}
-                            variant={'contained'}
-                            onClick={download}
-                            startIcon={<FileDownloadIcon />}
-                        >
-                            {t('asset_actions.export', 'Export')}
-                        </LoadingButton>
-                        <GroupButton
-                            id={'edit'}
-                            onClick={onEdit}
-                            startIcon={<EditIcon />}
-                            disabled={!canEdit}
-                            actions={[
-                                {
-                                    id: 'move',
-                                    label: t('asset_actions.move', 'Move'),
-                                    onClick: onMove,
-                                    disabled: !canMove,
-                                    startIcon: <DriveFileMoveIcon />,
-                                },
-                                {
-                                    id: 'edit_attrs',
-                                    label: t(
-                                        'asset_actions.edit_attributes',
-                                        'Edit attributes'
-                                    ),
-                                    onClick: onEditAttributes,
-                                    disabled: !canEditAttributes,
-                                    startIcon: <TextSnippetIcon />,
-                                },
-                                {
-                                    id: 'copy',
-                                    label: t('asset_actions.copy', 'Copy'),
-                                    onClick: onCopy,
-                                    disabled: !canShare,
-                                    startIcon: <FileCopyIcon />,
-                                },
-                            ]}
-                        >
-                            {t('asset_actions.edit', 'Edit')}
-                        </GroupButton>
-                        <Button
-                            disabled={!canShare}
-                            variant={'contained'}
-                            startIcon={<ShareIcon />}
-                        >
-                            {t('asset_actions.share', 'Share')}
-                        </Button>
-                        <Button
-                            disabled={!canDelete}
-                            color={'error'}
-                            onClick={onDelete}
-                            variant={'contained'}
-                            startIcon={<DeleteForeverIcon />}
-                        >
-                            {t('asset_actions.delete', 'Delete')}
-                        </Button>
-                        {actions?.map(a => {
+                        {actionsContext.export ? (
+                            <LoadingButton
+                                disabled={!canDownload}
+                                variant={'contained'}
+                                onClick={download}
+                                startIcon={<FileDownloadIcon />}
+                            >
+                                {t('asset_actions.export', 'Export')}
+                            </LoadingButton>
+                        ) : (
+                            ''
+                        )}
+                        {actionsContext.edit ? (
+                            <GroupButton
+                                id={'edit'}
+                                onClick={onEdit}
+                                startIcon={<EditIcon />}
+                                disabled={!canEdit || (selection.length > 0 && !canEditAttributes)}
+                                actions={[
+                                    {
+                                        id: 'move',
+                                        label: t('asset_actions.move', 'Move'),
+                                        onClick: onMove,
+                                        disabled: !canMove,
+                                        startIcon: <DriveFileMoveIcon />,
+                                    },
+                                    {
+                                        id: 'edit_attrs',
+                                        label: t(
+                                            'asset_actions.edit_attributes',
+                                            'Edit attributes'
+                                        ),
+                                        onClick: onEditAttributes,
+                                        disabled: !canEditAttributes,
+                                        startIcon: <TextSnippetIcon />,
+                                    },
+                                    {
+                                        id: 'copy',
+                                        label: t('asset_actions.copy', 'Copy'),
+                                        onClick: onCopy,
+                                        disabled: !canShare,
+                                        startIcon: <FileCopyIcon />,
+                                    },
+                                ]}
+                            >
+                                {t('asset_actions.edit', 'Edit')}
+                            </GroupButton>
+                        ) : (
+                            ''
+                        )}
+                        {actionsContext.share ? (
+                            <Button
+                                disabled={!canShare}
+                                variant={'contained'}
+                                startIcon={<ShareIcon />}
+                            >
+                                {t('asset_actions.share', 'Share')}
+                            </Button>
+                        ) : (
+                            ''
+                        )}
+                        {actionsContext.delete ? (
+                            <Button
+                                disabled={!canDelete}
+                                color={'error'}
+                                onClick={onDelete}
+                                variant={'contained'}
+                                startIcon={<DeleteForeverIcon />}
+                            >
+                                {t('asset_actions.delete', 'Delete')}
+                            </Button>
+                        ) : (
+                            ''
+                        )}
+                        {actionsContext.extraActions?.map(a => {
                             return (
                                 <Button
                                     key={a.name}
+                                    startIcon={a.icon}
+                                    color={a.color}
                                     {...(a.buttonProps ?? {})}
                                     disabled={
                                         selection.length === 0 || a.disabled
@@ -428,45 +472,55 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     orientation="vertical"
                     sx={{mx: 0.5, my: 1}}
                 />
-                <StyledToggleButtonGroup
-                    value={layout}
-                    exclusive
-                    onChange={(_e, newValue) => {
-                        if (newValue) {
-                            setLayout(newValue);
-                        }
-                    }}
-                >
-                    <TooltipToggleButton
-                        tooltipProps={{
-                            title: t('layout.view.grid', 'Grid View'),
-                        }}
-                        value={Layout.Grid}
-                    >
-                        <GridViewIcon />
-                    </TooltipToggleButton>
-                    <TooltipToggleButton
-                        tooltipProps={{
-                            title: t('layout.view.list', 'List View'),
-                        }}
-                        value={Layout.List}
-                    >
-                        <ViewListIcon />
-                    </TooltipToggleButton>
-                    <TooltipToggleButton
-                        tooltipProps={{
-                            title: t('layout.view.masonry', 'Masonry View'),
-                        }}
-                        value={Layout.Masonry}
-                    >
-                        <ViewQuiltIcon />
-                    </TooltipToggleButton>
-                </StyledToggleButtonGroup>
-                <Divider
-                    flexItem
-                    orientation="vertical"
-                    sx={{mx: 0.5, my: 1}}
-                />
+                {actionsContext.layout && setLayout ? (
+                    <>
+                        <StyledToggleButtonGroup
+                            value={layout}
+                            exclusive
+                            onChange={(_e, newValue) => {
+                                if (newValue) {
+                                    setLayout!(newValue);
+                                }
+                            }}
+                        >
+                            <TooltipToggleButton
+                                tooltipProps={{
+                                    title: t('layout.view.grid', 'Grid View'),
+                                }}
+                                value={Layout.Grid}
+                            >
+                                <GridViewIcon />
+                            </TooltipToggleButton>
+                            <TooltipToggleButton
+                                tooltipProps={{
+                                    title: t('layout.view.list', 'List View'),
+                                }}
+                                value={Layout.List}
+                            >
+                                <ViewListIcon />
+                            </TooltipToggleButton>
+                            <TooltipToggleButton
+                                tooltipProps={{
+                                    title: t(
+                                        'layout.view.masonry',
+                                        'Masonry View'
+                                    ),
+                                }}
+                                value={Layout.Masonry}
+                            >
+                                <ViewQuiltIcon />
+                            </TooltipToggleButton>
+                        </StyledToggleButtonGroup>
+                        <Divider
+                            flexItem
+                            orientation="vertical"
+                            sx={{mx: 0.5, my: 1}}
+                        />
+                    </>
+                ) : (
+                    ''
+                )}
+
                 <DisplayOptionsMenu />
             </Paper>
         </Box>

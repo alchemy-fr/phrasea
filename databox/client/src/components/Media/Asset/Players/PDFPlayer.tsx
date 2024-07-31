@@ -1,7 +1,7 @@
 import {useCallback, useContext, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
-import {getVideoDimensions} from './VideoPlayer';
+import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -18,7 +18,7 @@ export default function PDFPlayer({
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
     );
-    const pdfDimensions = getVideoDimensions(dimensions, ratio);
+    const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
             pdf.getPage(1).then((page: any) => {

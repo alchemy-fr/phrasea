@@ -157,13 +157,7 @@ function FacetGroup({facet, name}: FacetGroupProps) {
     );
 }
 
-function Facets() {
-    const {facets} = useContext(ResultContext);
-
-    if (!facets) {
-        return null;
-    }
-
+const Facets = React.memo(function ({facets}: {facets: TFacets}) {
     return (
         <List
             disablePadding
@@ -187,6 +181,14 @@ function Facets() {
                 ))}
         </List>
     );
-}
+});
 
-export default React.memo(Facets);
+export default function FacetsProxy() {
+    const {facets} = useContext(ResultContext);
+
+    if (!facets) {
+        return null;
+    }
+
+    return <Facets facets={facets} />;
+}

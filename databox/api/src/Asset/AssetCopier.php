@@ -107,7 +107,7 @@ class AssetCopier
 
         if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
             $attributes = $this->em->getRepository(Attribute::class)
-                ->getAssetAttributes($asset);
+                ->getAssetAttributes($asset->getId());
 
             foreach ($attributes as $attr) {
                 $this->copyAttribute($attr, $copy);
@@ -135,7 +135,7 @@ class AssetCopier
         $copy->setValue($attribute->getValue());
         $copy->setConfidence($attribute->getConfidence());
         $copy->setCreatedAt($attribute->getCreatedAt());
-        $copy->setCoordinates($attribute->getCoordinates());
+        $copy->setAssetAnnotations($attribute->getAssetAnnotations());
         $copy->setLocale($attribute->getLocale());
         $copy->setOriginUserId($attribute->getOriginUserId());
         $copy->setOriginVendor($attribute->getOriginVendor());

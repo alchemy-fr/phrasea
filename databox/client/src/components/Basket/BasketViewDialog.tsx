@@ -21,9 +21,10 @@ import BasketsPanel from './BasketsPanel';
 import {leftPanelWidth} from '../../themes/base';
 import {ZIndex} from '../../themes/zIndex';
 import Box from '@mui/material/Box';
-import {OnOpen} from '../AssetList/types';
+import {ActionsContext, OnOpen} from '../AssetList/types';
 import {modalRoutes} from '../../routes';
 import BasketItem from './BasketItem';
+import {createDefaultActionsContext} from '../AssetList/actionContext.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -67,6 +68,35 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
         getBasket(id!).then(setData);
         loadItems();
     }, [loadItems, id]);
+
+    const actionsContext = React.useMemo<ActionsContext<BasketAsset>>(() => {
+        return {
+            ...createDefaultActionsContext(),
+            extraActions: [
+                {
+                    name: 'removeFromBasket',
+                    labels: {
+                        multi: 'Remove from basket',
+                        single: 'Remove from basket',
+                    },
+                    color: 'warning',
+                    icon: <DeleteIcon />,
+                    buttonProps: {
+                        variant: 'contained',
+                    },
+                    reload: true,
+                    resetSelection: true,
+                    disabled: !data?.capabilities.canEdit,
+                    apply: async items => {
+                        await removeFromBasket(
+                            id!,
+                            items.map(i => i.id)
+                        );
+                    },
+                },
+            ],
+        };
+    }, [removeFromBasket]);
 
     const itemToAsset = (item: BasketAsset) => item.asset;
 
@@ -121,29 +151,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             total={pagination.total}
                             onOpen={onOpen}
                             previewZIndex={ZIndex.modal + 1}
-                            actions={[
-                                {
-                                    name: 'removeFromBasket',
-                                    labels: {
-                                        multi: 'Remove from basket',
-                                        single: 'Remove from basket',
-                                    },
-                                    buttonProps: {
-                                        color: 'warning',
-                                        variant: 'contained',
-                                        startIcon: <DeleteIcon />,
-                                    },
-                                    reload: true,
-                                    resetSelection: true,
-                                    disabled: !data?.capabilities.canEdit,
-                                    apply: async items => {
-                                        await removeFromBasket(
-                                            id!,
-                                            items.map(i => i.id)
-                                        );
-                                    },
-                                },
-                            ]}
+                            actionsContext={actionsContext}
                         />
                     </div>
                 </div>

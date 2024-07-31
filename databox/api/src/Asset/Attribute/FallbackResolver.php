@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Asset\Attribute;
 
+use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -39,33 +40,30 @@ class FallbackResolver
         return $this->indexByName;
     }
 
-    /**
-     * @param array<string, array<string, Attribute>> $attributes
-     */
     public function resolveAttrFallback(
         Asset $asset,
         string $locale,
         AttributeDefinition $definition,
-        array &$attributes
+        AttributeIndex $attributesIndex
     ): ?Attribute {
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
         if (!empty($fallbacks[$locale])) {
-            if (!isset($attributes[$definition->getId()][$locale])) {
+            if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
                 $fallbackValue = $this->resolveFallback($fallbacks[$locale], [
                     'file' => $asset->getSource(),
                     'asset' => $asset,
-                    'attr' => new DynamicAttributeBag($attributes, $definitionsIndex, function (AttributeDefinition $depDef) use (
+                    'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
                         $asset,
-                        &$attributes,
+                        $attributesIndex,
                         $locale
                     ): ?Attribute {
                         return $this->resolveAttrFallback(
                             $asset,
                             $locale,
                             $depDef,
-                            $attributes
+                            $attributesIndex
                         );
                     }, $locale),
                 ]);
@@ -79,11 +77,7 @@ class FallbackResolver
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
                 $attribute->setValue($fallbackValue);
 
-                if ($definition->isMultiple()) {
-                    $attribute->setValues([$fallbackValue]);
-                }
-
-                $attributes[$definition->getId()][$locale] = $attribute;
+                $attributesIndex->addAttribute($attribute);
 
                 return $attribute;
             }

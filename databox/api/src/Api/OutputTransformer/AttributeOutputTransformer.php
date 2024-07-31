@@ -6,9 +6,11 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeOutput;
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 
 class AttributeOutputTransformer implements OutputTransformerInterface
 {
@@ -34,24 +36,24 @@ class AttributeOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $values = $data->getValues();
-        $output->value = $values ? array_map(fn (?string $v) => $type->denormalizeValue($v), $data->getValues()) : $type->denormalizeValue($data->getValue());
-        $output->multiple = null !== $values;
+        $output->value = $type->denormalizeValue($data->getValue());
 
-        $output->locale = $data->getLocale();
+        /** @var AttributeDefinition $definition */
+        $definition = $data->getDefinition();
+        $output->locale = $definition->isTranslatable() ? $data->getLocale() : AttributeInterface::NO_LOCALE;
         $output->position = $data->getPosition();
         $output->definition = $data->getDefinition();
 
         if ($data instanceof Attribute) {
             $output->asset = $data->getAsset();
-            $output->highlight = $data->getHighlights() ?? $data->getHighlight();
+            $output->highlight = $data->getHighlight();
             $output->origin = $data->getOriginLabel();
             $output->originUserId = $data->getOriginUserId();
             $output->originVendor = $data->getOriginVendor();
             $output->originVendorContext = $data->getOriginVendorContext();
             $output->status = $data->getStatusLabel();
             $output->confidence = $data->getConfidence();
-            $output->coordinates = $data->getCoordinates();
+            $output->assetAnnotations = $data->getAssetAnnotations();
         }
 
         return $output;

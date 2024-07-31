@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use App\Asset\Attribute\AttributesResolver;
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
@@ -41,7 +43,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             $document->set($key, $value);
         }
 
-        $document->set('attributes', $this->compileAttributes($asset));
+        $document->set(AttributeInterface::ATTRIBUTES_FIELD, $this->compileAttributes($asset));
         $document->set('renditions', $this->compileRenditions($asset));
     }
 
@@ -68,22 +70,22 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
     {
         $data = [];
 
-        $attributes = $this->attributesResolver->resolveAssetAttributes($asset, false);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
-        foreach ($attributes as $_attrs) {
-            foreach ($_attrs as $l => $a) {
-                $definition = $a->getDefinition();
+        foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
+            $definition = $definitionIndex->getDefinition();
+            $isMultiple = $definition->isMultiple();
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+            $fieldName = null;
 
-                $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
-
-                if ($definition->isMultiple()) {
-                    $v = $a->getValues();
-                    if (!empty($v)) {
-                        $v = array_map(fn (string $v): string => $type->normalizeElasticsearchValue($v), $v);
+            foreach ($definitionIndex->getLocales() as $l => $a) {
+                $v = null;
+                if ($isMultiple) {
+                    if (!empty($a)) {
+                        $v = array_map(fn (Attribute $v): string|array => $type->normalizeElasticsearchValue($v->getValue()), $a);
                     }
                 } else {
                     $v = $a->getValue();
-
                     if (null !== $v) {
                         $v = $type->normalizeElasticsearchValue($v);
                     }
@@ -93,8 +95,25 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                     null !== $v
                     && (!is_array($v) || !empty($v))
                 ) {
-                    $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-                    $data[$l][$fieldName] = $v;
+                    $fieldName = $fieldName ?? $this->fieldNameResolver->getFieldNameFromDefinition($definition);
+
+                    if ($type->supportsTranslations()) {
+                        if ($isMultiple) {
+                            foreach ($v as $item) {
+                                foreach ($item as $locale => $translation) {
+                                    $data[$locale][$fieldName] ??= [];
+                                    $data[$locale][$fieldName][] = $translation;
+                                }
+                            }
+
+                        } else {
+                            foreach ($v as $locale => $translation) {
+                                $data[$locale][$fieldName] = $translation;
+                            }
+                        }
+                    } else {
+                        $data[$l][$fieldName] = $v;
+                    }
                 }
             }
         }

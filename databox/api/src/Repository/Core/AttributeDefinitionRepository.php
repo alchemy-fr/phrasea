@@ -7,13 +7,18 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class AttributeDefinitionRepository extends ServiceEntityRepository implements AttributeDefinitionRepositoryInterface
+class AttributeDefinitionRepository extends ServiceEntityRepository
 {
     use SecurityAwareTrait;
+    public const OPT_TYPES = 'types';
+    public const OPT_SKIP_PERMS = 'skip_perms';
+    public const OPT_FACET_ENABLED = 'facet_enabled';
+    public const OPT_SUGGEST_ENABLED = 'suggest_enabled';
 
     public function __construct(ManagerRegistry $registry)
     {
@@ -162,6 +167,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->getOneOrNullResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
         return $this
@@ -173,6 +181,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->getResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceInitializeDefinitions(string $workspaceId): array
     {
         return $this
@@ -184,12 +195,32 @@ class AttributeDefinitionRepository extends ServiceEntityRepository implements A
             ->getResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceDefinitionOfEntity(string $workspaceId, string $entityType): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.fieldType = :t')
+            ->andWhere('d.entityType = :etype')
+            ->setParameter('workspace', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('etype', $entityType)
             ->getQuery()
             ->getResult();
     }

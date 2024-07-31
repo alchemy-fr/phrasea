@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
-import {Asset, AssetRendition} from '../../../types';
+import {Asset, AssetAnnotation, AssetRendition} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
@@ -14,6 +14,10 @@ import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
 import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
+import {scrollbarWidth} from '../../../constants.ts';
+import AssetAttributes from './AssetAttributes.tsx';
+import {OnAnnotations} from './Attribute/Attributes.tsx';
+import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -31,17 +35,17 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
     replace?: boolean
 ) => void;
 
-const menuWidth = 300;
-
-const headerHeight = 60;
-const scrollBarDelta = 8;
-
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
+    const menuWidth = 300;
+    const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
     const closeModal = useCloseModal();
+    const [annotations, setAnnotations] = React.useState<
+        AssetAnnotation[] | undefined
+    >();
 
     const [data, setData] = useState<Asset>();
     const [renditions, setRenditions] = useState<AssetRendition[]>();
@@ -64,6 +68,10 @@ export default function AssetView({modalIndex}: Props) {
         })();
     }, [assetId]);
 
+    const onAnnotations = React.useCallback<OnAnnotations>(annotations => {
+        setAnnotations(annotations);
+    }, []);
+
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] =
         useState<IntegrationOverlay>();
@@ -81,7 +89,7 @@ export default function AssetView({modalIndex}: Props) {
 
     const dimensions = useMemo<Dimensions>(() => {
         return {
-            width: winSize.innerWidth - menuWidth - scrollBarDelta,
+            width: winSize.innerWidth - menuWidth - scrollbarWidth,
             height: winSize.innerHeight - headerHeight - 2,
         };
     }, [winSize]);
@@ -147,8 +155,8 @@ export default function AssetView({modalIndex}: Props) {
                             sx={{
                                 overflowY: 'auto',
                                 height: dimensions.height,
-                                width: dimensions.width + scrollBarDelta,
-                                maxWidth: dimensions.width + scrollBarDelta,
+                                width: dimensions.width + scrollbarWidth,
+                                maxWidth: dimensions.width + scrollbarWidth,
                             }}
                         >
                             <div
@@ -157,6 +165,13 @@ export default function AssetView({modalIndex}: Props) {
                                     width: 'fit-content',
                                 }}
                             >
+                                {annotations ? (
+                                    <AssetAnnotationsOverlay
+                                        annotations={annotations}
+                                    />
+                                ) : (
+                                    ''
+                                )}
                                 {rendition?.file &&
                                     (!integrationOverlay ||
                                         !integrationOverlay.replace) && (
@@ -187,6 +202,14 @@ export default function AssetView({modalIndex}: Props) {
                                 height: dimensions.height,
                             })}
                         >
+                            {data ? (
+                                <AssetAttributes
+                                    asset={data}
+                                    onAnnotations={onAnnotations}
+                                />
+                            ) : (
+                                ''
+                            )}
                             {rendition?.file ? (
                                 <FileIntegrations
                                     key={rendition.file.id}

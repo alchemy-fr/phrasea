@@ -16,6 +16,7 @@ import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
+import AttributeEntityManager from "./AttributeEntityManager.tsx";
 
 type Props = {};
 
@@ -87,6 +88,18 @@ export default function WorkspaceDialog({}: Props) {
                     title: t('workspace.manage.tag_rules.title', 'Tag rules'),
                     component: TagRulesTab,
                     id: 'tag-rules',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t(
+                        'workspace.manage.attribute_entity.title',
+                        'Entities'
+                    ),
+                    component: AttributeEntityManager,
+                    id: 'attribute-entity',
                     props: {
                         data,
                     },

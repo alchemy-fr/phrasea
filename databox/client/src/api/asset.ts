@@ -12,6 +12,7 @@ export interface GetAssetOptions {
     url?: string;
     query?: string;
     workspaces?: string[];
+    ids?: string[];
     parents?: string[];
     filters?: any;
     order?: Record<string, 'asc' | 'desc'>;
@@ -21,6 +22,7 @@ export interface GetAssetOptions {
               position?: string | undefined;
           }
         | undefined;
+    allLocales?: boolean;
 }
 
 export type ESDebug = {
@@ -133,6 +135,8 @@ export enum AttributeBatchActionEnum {
 export type AttributeBatchAction = {
     action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;
+    ids?: string[] | undefined;
+    assets?: string[] | undefined;
     value?: any | undefined;
     definitionId?: string | undefined;
     locale?: string | undefined;
@@ -143,16 +147,7 @@ export async function attributeBatchUpdate(
     assetId: string | string[],
     actions: AttributeBatchAction[]
 ): Promise<Asset> {
-    actions = actions.map(a => {
-        if (a.action === 'delete') {
-            return a;
-        }
-
-        return {
-            ...a,
-            origin: 'human',
-        };
-    });
+    actions = normalizeActions(actions);
 
     if (typeof assetId === 'string') {
         return (
@@ -168,6 +163,36 @@ export async function attributeBatchUpdate(
             })
         ).data;
     }
+}
+
+export async function workspaceAttributeBatchUpdate(
+    workspaceId: string,
+    actions: AttributeBatchAction[]
+): Promise<Asset> {
+    return (
+        await apiClient.post(`/attributes/batch-update`, {
+            workspaceId,
+            actions: normalizeActions(actions),
+        })
+    ).data;
+}
+
+function normalizeActions(
+    actions: AttributeBatchAction[]
+): AttributeBatchAction[] {
+    return actions.map(a => {
+        if (a.action === AttributeBatchActionEnum.Delete) {
+            return {
+                ...a,
+                value: undefined,
+            };
+        }
+
+        return {
+            ...a,
+            origin: 'human',
+        };
+    });
 }
 
 export async function deleteAssetAttribute(id: string): Promise<void> {

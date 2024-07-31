@@ -7,6 +7,7 @@ import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
 import {FormRow} from '@alchemy/react-form';
 import React from 'react';
+import {WorkspaceContext} from '../../../../context/WorkspaceContext.tsx';
 
 type Props = {
     workspaceId: string;
@@ -68,49 +69,55 @@ export default function AttributesEditorForm({
 
     return (
         <>
-            <FormTab
-                formId={'a'}
-                onSave={onSave}
-                onClose={onClose}
-                minHeight={minHeight}
-                loading={saving}
+            <WorkspaceContext.Provider
+                value={{
+                    workspaceId,
+                }}
             >
-                {attributes && definitionIndex ? (
-                    <AttributesEditor
-                        attributes={attributes}
-                        definitions={definitionIndex}
-                        disabled={saving}
-                        onChangeHandler={onChangeHandler}
-                    />
-                ) : (
-                    <>
-                        {[0, 1, 2].map(x => (
-                            <React.Fragment key={x}>
-                                <FormRow>
-                                    <FormLabel>
+                <FormTab
+                    formId={'a'}
+                    onSave={onSave}
+                    onClose={onClose}
+                    minHeight={minHeight}
+                    loading={saving}
+                >
+                    {attributes && definitionIndex ? (
+                        <AttributesEditor
+                            attributes={attributes}
+                            definitions={definitionIndex}
+                            disabled={saving}
+                            onChangeHandler={onChangeHandler}
+                        />
+                    ) : (
+                        <>
+                            {[0, 1, 2].map(x => (
+                                <React.Fragment key={x}>
+                                    <FormRow>
+                                        <FormLabel>
+                                            <Skeleton
+                                                width={'200'}
+                                                variant={'text'}
+                                                style={{
+                                                    display: 'inline-block',
+                                                    width: '200px',
+                                                }}
+                                            />
+                                        </FormLabel>
                                         <Skeleton
-                                            width={'200'}
-                                            variant={'text'}
-                                            style={{
-                                                display: 'inline-block',
-                                                width: '200px',
+                                            width={'100%'}
+                                            height={56}
+                                            variant={'rectangular'}
+                                            sx={{
+                                                mb: 2,
                                             }}
                                         />
-                                    </FormLabel>
-                                    <Skeleton
-                                        width={'100%'}
-                                        height={56}
-                                        variant={'rectangular'}
-                                        sx={{
-                                            mb: 2,
-                                        }}
-                                    />
-                                </FormRow>
-                            </React.Fragment>
-                        ))}
-                    </>
-                )}
-            </FormTab>
+                                    </FormRow>
+                                </React.Fragment>
+                            ))}
+                        </>
+                    )}
+                </FormTab>
+            </WorkspaceContext.Provider>
         </>
     );
 }

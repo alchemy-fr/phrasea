@@ -3,15 +3,14 @@ import {
     AttributeTypeInstance,
     AttributeWidgetProps,
 } from './types';
-import {Box, TextField, TextFieldProps} from '@mui/material';
-import {replaceHighlight} from '../Attributes';
+import {TextField, TextFieldProps} from '@mui/material';
+import {replaceHighlight} from '../AttributeHighlights.tsx';
 import BaseType from './BaseType';
-import CopyAttribute, {copyToClipBoardClass} from '../CopyAttribute';
 import React from 'react';
 
 export default class TextType
     extends BaseType
-    implements AttributeTypeInstance
+    implements AttributeTypeInstance<string>
 {
     renderWidget({
         value,
@@ -24,7 +23,8 @@ export default class TextType
         autoFocus,
         isRtl,
         indeterminate,
-    }: AttributeWidgetProps): React.ReactNode {
+        inputRef,
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <TextField
                 {...this.getFieldProps()}
@@ -37,6 +37,7 @@ export default class TextType
                           }
                         : undefined,
                 }}
+                inputRef={inputRef}
                 fullWidth
                 disabled={readOnly || disabled}
                 label={name}
@@ -53,48 +54,12 @@ export default class TextType
         );
     }
 
-    formatValue({
-        value,
-        highlight,
-        multiple,
-    }: AttributeFormatterProps): React.ReactNode {
-        const finalValue = highlight || value;
-
-        return (
-            <>
-                {finalValue && multiple ? (
-                    <Box
-                        component={'ul'}
-                        sx={{
-                            [`.${copyToClipBoardClass}`]: {
-                                visibility: 'hidden',
-                                ml: 2,
-                            },
-                            [`li:hover .${copyToClipBoardClass}`]: {
-                                visibility: 'visible',
-                            },
-                        }}
-                    >
-                        {finalValue.map((v: any, i: number) => (
-                            <li key={i}>
-                                {replaceHighlight(v)}
-                                <CopyAttribute value={value[i]} />
-                            </li>
-                        ))}
-                    </Box>
-                ) : (
-                    replaceHighlight(finalValue)
-                )}
-            </>
-        );
+    formatValue({value, highlight}: AttributeFormatterProps): React.ReactNode {
+        return replaceHighlight(highlight || value);
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
         return value.toString();
-    }
-
-    supportsMultiple(): boolean {
-        return true;
     }
 
     public getFieldProps(): TextFieldProps {
