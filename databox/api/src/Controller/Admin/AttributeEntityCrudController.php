@@ -32,7 +32,6 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add('type')
-            ->add('locale')
         ;
     }
 
@@ -50,7 +49,6 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         yield IdField::new();
         yield AssociationField::new('workspace');
         yield TextField::new('type');
-        yield TextField::new('locale');
         yield TextField::new('value');
         yield JsonField::new('translations');
         yield DateTimeField::new('createdAt')

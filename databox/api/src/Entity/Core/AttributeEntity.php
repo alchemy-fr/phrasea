@@ -22,6 +22,7 @@ use App\Repository\Core\AttributeEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ApiResource(
     shortName: 'attribute-entity',
@@ -61,15 +62,13 @@ class AttributeEntity extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::STRING, length: self::TYPE_LENGTH, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[NotBlank]
     private ?string $type = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]
+    #[NotBlank]
     private ?string $value = null;
-
-    #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
-    #[Groups([self::GROUP_LIST, self::GROUP_READ])]
-    private ?string $locale = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
@@ -96,16 +95,6 @@ class AttributeEntity extends AbstractUuidEntity
     public function setValue(?string $value): void
     {
         $this->value = $value;
-    }
-
-    public function getLocale(): ?string
-    {
-        return $this->locale;
-    }
-
-    public function setLocale(?string $locale): void
-    {
-        $this->locale = $locale;
     }
 
     public function getPosition(): int

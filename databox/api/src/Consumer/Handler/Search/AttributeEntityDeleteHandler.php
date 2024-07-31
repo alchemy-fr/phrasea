@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
-use Alchemy\CoreBundle\Util\DoctrineUtil;
-use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
-use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
-use App\Repository\Core\AttributeEntityRepository;
+use App\Repository\Core\AttributeRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -20,7 +17,7 @@ final readonly class AttributeEntityDeleteHandler
     public function __construct(
         private ElasticSearchClient $elasticSearchClient,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
-        private AttributeEntityRepository $attributeEntityRepository,
+        private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
     )
     {
@@ -28,26 +25,35 @@ final readonly class AttributeEntityDeleteHandler
 
     public function __invoke(AttributeEntityDelete $message): void
     {
-        /** @var AttributeEntity $attributeEntity */
         $id = $message->getId();
-        $attributeEntity = DoctrineUtil::findStrictByRepo($this->attributeEntityRepository, $id);
-        $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfType(
-            $attributeEntity->getWorkspaceId(),
-            EntityAttributeType::getName(),
+
+        $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
+            $message->getWorkspaceId(),
+            $message->getType(),
         );
 
-        $locales = array_unique(array_merge(
-            [$attributeEntity->getLocale()],
-            array_keys($attributeEntity->getTranslations()),
-        ));
+        if (empty($definitions)) {
+            return;
+        }
 
         $fields = [];
+        $calls = [];
+        $params = [];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            foreach ($locales as $locale) {
-                $fields[] = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $locale, $fieldName);
-            }
+            $fields[sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, IndexMappingUpdater::NO_LOCALE, $fieldName)] = true;
+            $calls[] = sprintf(
+                'del(ctx._source.%2$s, \'%1$s\', params[\'_id\']);',
+                $fieldName,
+                IndexMappingUpdater::ATTRIBUTES_FIELD
+            );
         }
+
+        $this->attributeRepository->deleteByAttributeEntity(
+            $message->getId(),
+            $message->getWorkspaceId(),
+            $message->getType()
+        );
 
         $this->elasticSearchClient->updateByQuery(
             'asset',
@@ -59,29 +65,30 @@ final readonly class AttributeEntityDeleteHandler
                                 $field.'.id' => $id,
                             ],
                         ];
-                    }, $fields),
+                    }, array_keys($fields)),
                 ],
             ],
             [
                 'source' => <<<EOF
-void del(def x, def id) {
-    if (x instanceof List) {
-        x.removeIf(item -> item['id'] == id);
-        return;
-    }
-    if (!(x instanceof Map)) {
-        return;
-    }
-    if (x['id'] == id) {
-        x = null;
+void del(HashMap c, String name, String id) {
+    if (c instanceof Map) {
+        for (def entry : c.entrySet()) {
+            String locale = entry.getKey();
+
+            def field = c[locale].get(name);
+            if (field instanceof List) {
+                field.removeIf(item -> item['id'] == id);
+            } else if (field instanceof Map) {
+                c[locale].remove(name);
+            }
+        }
     }
 }
-EOF.implode("\n", array_map(function (string $field): string {
-        return 'del(ctx._source.'.$field.', params[\'id\']);';
-                    }, $fields)),
-                'params' => [
-                    'id' => $id,
-                ],
+
+EOF.implode("\n", $calls),
+                'params' => array_merge($params, [
+                    '_id' => $id,
+                ]),
                 'lang' => 'painless',
             ]
         );

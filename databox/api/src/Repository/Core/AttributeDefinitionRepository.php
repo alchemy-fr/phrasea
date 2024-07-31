@@ -7,6 +7,7 @@ namespace App\Repository\Core;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -167,6 +168,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
         return $this
@@ -178,6 +182,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceInitializeDefinitions(string $workspaceId): array
     {
         return $this
@@ -189,6 +196,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return AttributeDefinition[]
+     */
     public function getWorkspaceDefinitions(string $workspaceId): array
     {
         return $this
@@ -199,14 +209,19 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getWorkspaceDefinitionOfType(string $workspaceId, string $type): array
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceDefinitionOfEntity(string $workspaceId, string $entityType): array
     {
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.fieldType = :type')
+            ->andWhere('d.fieldType = :t')
+            ->andWhere('d.entityType = :etype')
             ->setParameter('workspace', $workspaceId)
-            ->setParameter('type', $type)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('etype', $entityType)
             ->getQuery()
             ->getResult();
     }

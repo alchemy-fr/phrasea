@@ -40,7 +40,6 @@ class CommitCrudController extends AbstractAdminCrudController
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->add(Crud::PAGE_INDEX, $triggerAgainAction);
     }
 
@@ -61,7 +60,8 @@ class CommitCrudController extends AbstractAdminCrudController
         yield $this->userChoiceField->create('userId', 'User');
         yield TextField::new('token')
             ->hideOnIndex();
-        yield BooleanField::new('acknowledged')->renderAsSwitch(false);
+        yield BooleanField::new('acknowledged')
+            ->renderAsSwitch(false);
         yield TextField::new('notifyEmail')
             ->hideOnIndex();
         yield IntegerField::new('totalSize')
@@ -72,8 +72,10 @@ class CommitCrudController extends AbstractAdminCrudController
         yield JsonField::new('options')
             ->hideOnIndex();
         yield TextField::new('locale');
-        yield DateTimeField::new('acknowledgedAt');
-        yield DateTimeField::new('createdAt');
+        yield DateTimeField::new('acknowledgedAt')
+            ->hideOnForm();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
         yield AssociationField::new('assets')
             ->hideOnForm();
     }

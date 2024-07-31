@@ -42,12 +42,10 @@ export default function KeyTranslationsWidget<
                             <div>
                                 <TextField
                                     label={t(
-                                        'lib.form.translations.value.label',
+                                        'lib.form.translations.translation.label',
                                         {
                                             defaultValue: 'Translation {{locale}}',
-                                            values: {
-                                                locale: l,
-                                            }
+                                            locale: l.toUpperCase(),
                                         })}
                                     {...register(
                                         `${path}.${l}` as any,

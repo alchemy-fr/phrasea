@@ -6,8 +6,10 @@ namespace App\Repository\Core;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -107,5 +109,31 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->setParameter('types', $types);
 
         return $queryBuilder;
+    }
+
+    public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityType): void
+    {
+        $expr = $this->_em->getExpressionBuilder();
+        $this
+            ->createQueryBuilder('t')
+            ->delete()
+            ->andWhere( $expr->in(
+                't.id',
+                $this
+                    ->createQueryBuilder('a')
+                    ->select('a.id')
+                    ->innerJoin('a.definition', 'd')
+                    ->andWhere('d.workspace = :workspace')
+                    ->andWhere('d.fieldType = :t')
+                    ->andWhere('d.entityType = :etype')
+                    ->andWhere('a.value = :id')
+                    ->getDQL()
+            ))
+            ->setParameter('workspace', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('etype', $entityType)
+            ->setParameter('id', $entityId)
+            ->getQuery()
+            ->execute();
     }
 }

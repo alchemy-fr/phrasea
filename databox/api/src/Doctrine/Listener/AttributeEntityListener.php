@@ -32,7 +32,7 @@ final readonly class AttributeEntityListener implements EventSubscriber
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 $changes = [];
                 if ($changeSet['value'] ?? false) {
-                    $changes[$entityUpdate->getLocale() ?? IndexMappingUpdater::NO_LOCALE] = $changeSet['value'][1];
+                    $changes[IndexMappingUpdater::NO_LOCALE] = $changeSet['value'][1];
                 }
                 if ($changeSet['translations'] ?? false) {
                     [$old, $new] = $changeSet['translations'];
@@ -55,6 +55,8 @@ final readonly class AttributeEntityListener implements EventSubscriber
             if ($entity instanceof AttributeEntity) {
                 $this->postFlushStack->addBusMessage(new AttributeEntityDelete(
                     $entity->getId(),
+                    $entity->getType(),
+                    $entity->getWorkspaceId(),
                 ));
             }
         }

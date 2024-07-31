@@ -46,16 +46,19 @@ class EntityAttributeType extends TextAttributeType
         $entity = $this->getEntityFromValue($value);
         if ($entity instanceof AttributeEntity) {
             $locales = array_merge($entity->getTranslations() ?? [], [
-                $entity->getLocale() ?? IndexMappingUpdater::NO_LOCALE => $entity->getValue(),
+                IndexMappingUpdater::NO_LOCALE => $entity->getValue(),
             ]);
             $entityId = $entity->getId();
 
-            return array_map(function ($v) use ($entityId): array {
+            return array_filter(array_map(function ($v) use ($entityId): ?array {
+                if (empty($v)) {
+                    return null;
+                }
                 return [
                     'id' => $entityId,
                     'value' => $v,
                 ];
-            }, $locales);
+            }, $locales));
         }
 
         return null;

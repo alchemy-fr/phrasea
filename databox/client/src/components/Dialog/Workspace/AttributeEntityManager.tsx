@@ -43,7 +43,7 @@ function Item({
                 />
                 <FormFieldErrors field={'value'} errors={errors}/>
             </FormRow>
-            <FormRow>
+            {(workspace.enabledLocales ?? []).length > 0 ? <FormRow>
                 <KeyTranslationsWidget
                     renderLocale={l => {
                         return <Flag
@@ -58,8 +58,7 @@ function Item({
                     errors={errors}
                     register={register}
                 />
-            </FormRow>
-
+            </FormRow> : ''}
         </>
     );
 }

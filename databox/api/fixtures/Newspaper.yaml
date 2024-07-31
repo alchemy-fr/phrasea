@@ -3,6 +3,9 @@ App\Entity\Core\Workspace:
         name: Newspaper
         slug: newspaper
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        enabledLocales:
+            - en
+            - fr
 
 App\Entity\Core\AttributeClass:
     attribute_class_n (template):
@@ -129,6 +132,16 @@ App\Entity\Core\AttributeDefinition:
         suggest: true
         class: '@n_ac_public'
         position: 13
+    ad_seasons (extends attribute_definition_n):
+        name: 'Seasons'
+        fieldType: entity
+        entityType: season
+        facetEnabled: true
+        multiple: true
+        sortable: true
+        suggest: true
+        class: '@n_ac_public'
+        position: 14
 
 App\Entity\Core\RenditionClass:
     rendition_class_n (template):
@@ -494,7 +507,6 @@ App\Entity\Integration\WorkspaceSecret:
 App\Entity\Core\AttributeEntity:
     attr_entity_transport_type (template):
         type: transport_type
-        locale: en
         workspace: '@w_newspaper'
     att_plane (extends attr_entity_transport_type):
         value: Plane
@@ -512,3 +524,22 @@ App\Entity\Core\AttributeEntity:
         value: Boat
         translations:
             fr: Bateau
+    attr_entity_season (template):
+        type: season
+        workspace: '@w_newspaper'
+    att_winter (extends attr_entity_season):
+        value: Winter
+        translations:
+            fr: Hiver
+    att_spring (extends attr_entity_season):
+        value: Spring
+        translations:
+            fr: Printemps
+    att_summer (extends attr_entity_season):
+        value: Summer
+        translations:
+            fr: Été
+    att_autumn (extends attr_entity_season):
+        value: Autumn
+        translations:
+            fr: Automne

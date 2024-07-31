@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Mapping\IndexMappingUpdater;
@@ -31,9 +30,9 @@ final readonly class AttributeEntityUpdateHandler
         /** @var AttributeEntity $attributeEntity */
         $id = $message->getId();
         $attributeEntity = DoctrineUtil::findStrictByRepo($this->attributeEntityRepository, $id);
-        $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfType(
+        $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
             $attributeEntity->getWorkspaceId(),
-            EntityAttributeType::getName(),
+            $attributeEntity->getType(),
         );
 
         $fields = [];
@@ -42,9 +41,15 @@ final readonly class AttributeEntityUpdateHandler
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             foreach ($message->getChanges() as $locale => $change) {
-                $fields[] = sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $locale, $fieldName);
+                $fields[sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, IndexMappingUpdater::NO_LOCALE, $fieldName)] = true;
                 $params[$locale] = $change;
-                $calls[$locale] = sprintf('up(ctx._source.%3$s.%1$s.%2$s, params[\'_id\'], params[\'%1$s\']);', $locale, $fieldName, IndexMappingUpdater::ATTRIBUTES_FIELD);
+                $calls[$locale] = sprintf(
+                    'up(ctx._source.%3$s, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'], %4$s);',
+                    $locale,
+                    $fieldName,
+                    IndexMappingUpdater::ATTRIBUTES_FIELD,
+                    $definition->isMultiple() ? 'true' : 'false',
+                );
             }
         }
 
@@ -58,25 +63,66 @@ final readonly class AttributeEntityUpdateHandler
                                 $field.'.id' => $id,
                             ],
                         ];
-                    }, $fields),
+                    }, array_keys($fields)),
                 ],
             ],
             [
                 'source' => <<<EOF
-void up(def x, def id, def n) {
-    if (x instanceof List) {
-        for (item in x) {
+void up(HashMap attrs, String locale, String name, String id, String n, boolean m) {
+    if (attrs == null) {
+        attrs = [:];
+    }
+    HashMap node = attrs.get(locale);
+    if (!(node instanceof Map)) {
+        node = attrs[locale] = [:];
+    }
+    def field = node.get(name);
+
+    if (m) {
+        if (!(field instanceof List)) {
+            field = node[name] = [];
+        }
+        for (item in field) {
             if (item['id'] == id) {
-                item['value'] = n;
+                if (!n.isEmpty()) {
+                    item['value'] = n;
+                } else {
+                    field.remove(field.indexOf(item));
+                }
+                return;
+            }
+        }
+
+        if (!n.isEmpty()) {
+            def ref = attrs['_']?.get(name);
+            if (ref instanceof List) {
+                for (item in ref) {
+                    if (item['id'] == id) {
+                        field.add(["id": id, "value": n]);
+                        return;
+                    }
+                }
             }
         }
         return;
     }
-    if (!(x instanceof Map)) {
-        return;
-    }
-    if (x['id'] == id) {
-        x['value'] = n;
+
+    if (field instanceof Map) {
+        if (field['id'] == id) {
+            if (!n.isEmpty()) {
+                field['value'] = n;
+            } else {
+                node.remove(name);
+            }
+        }
+    } else if (!n.isEmpty()) {
+        def ref = attrs['_']?.get(name);
+
+        if (ref instanceof Map) {
+            if (ref['id'] == id) {
+                node[name] = ["id": id, "value": n];
+            }
+        }
     }
 }
 
