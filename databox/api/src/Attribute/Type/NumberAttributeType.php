@@ -19,7 +19,7 @@ class NumberAttributeType extends AbstractAttributeType
         return self::NAME;
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
         return [
             'fields' => [

@@ -66,7 +66,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'date';
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
         return [
             'fields' => [
