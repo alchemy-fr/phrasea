@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Search;
 
+use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -19,8 +19,7 @@ final readonly class AttributeEntityDeleteHandler
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
-    )
-    {
+    ) {
     }
 
     public function __invoke(AttributeEntityDelete $message): void
@@ -41,11 +40,11 @@ final readonly class AttributeEntityDeleteHandler
         $params = [];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            $fields[sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, IndexMappingUpdater::NO_LOCALE, $fieldName)] = true;
+            $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
             $calls[] = sprintf(
                 'del(ctx._source.%2$s, \'%1$s\', params[\'_id\']);',
                 $fieldName,
-                IndexMappingUpdater::ATTRIBUTES_FIELD
+                AttributeInterface::ATTRIBUTES_FIELD
             );
         }
 

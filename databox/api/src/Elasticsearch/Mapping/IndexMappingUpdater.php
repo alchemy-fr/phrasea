@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Mapping;
 
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
@@ -12,9 +13,6 @@ use FOS\ElasticaBundle\Elastica\Index;
 
 final readonly class IndexMappingUpdater
 {
-    final public const ATTRIBUTES_FIELD = 'attributes';
-    final public const NO_LOCALE = '_';
-
     public function __construct(
         private ElasticsearchClient $client,
         private Index $index,
@@ -27,12 +25,12 @@ final readonly class IndexMappingUpdater
     public function assignAttributeToMapping(array &$mapping, string $locale, AttributeDefinition $definition): void
     {
         $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-        $mapping['properties'][self::ATTRIBUTES_FIELD] ??= [
+        $mapping['properties'][AttributeInterface::ATTRIBUTES_FIELD] ??= [
             'type' => 'object',
             'properties' => [],
         ];
 
-        $properties = &$mapping['properties'][self::ATTRIBUTES_FIELD]['properties'];
+        $properties = &$mapping['properties'][AttributeInterface::ATTRIBUTES_FIELD]['properties'];
 
         $properties[$locale] ??= [
             'type' => 'object',
@@ -70,11 +68,11 @@ final readonly class IndexMappingUpdater
     {
         $mapping = $this->index->getMapping();
 
-        $attributes = $mapping['properties'][self::ATTRIBUTES_FIELD]['properties'] ?? [];
+        $attributes = $mapping['properties'][AttributeInterface::ATTRIBUTES_FIELD]['properties'] ?? [];
 
         $newMapping = [
             'properties' => [
-                self::ATTRIBUTES_FIELD => [
+                AttributeInterface::ATTRIBUTES_FIELD => [
                     'type' => 'object',
                     'properties' => [],
                 ],
@@ -124,7 +122,7 @@ final readonly class IndexMappingUpdater
             }
         };
 
-        $assign(self::NO_LOCALE);
+        $assign(AttributeInterface::NO_LOCALE);
         if ($type->isLocaleAware() && ($definition->isTranslatable() || $type->supportsTranslations())) {
             foreach ($workspace->getEnabledLocales() as $locale) {
                 $assign($locale);

@@ -14,12 +14,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class AttributeDefinitionRepository extends ServiceEntityRepository
 {
+    use SecurityAwareTrait;
     public const OPT_TYPES = 'types';
     public const OPT_SKIP_PERMS = 'skip_perms';
     public const OPT_FACET_ENABLED = 'facet_enabled';
     public const OPT_SUGGEST_ENABLED = 'suggest_enabled';
-
-    use SecurityAwareTrait;
 
     public function __construct(ManagerRegistry $registry)
     {

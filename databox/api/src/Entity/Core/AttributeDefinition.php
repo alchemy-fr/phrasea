@@ -16,9 +16,9 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Provider\AttributeDefinitionCollectionProvider;
+use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -243,12 +243,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     public function setFallbackAll(?string $fallback): void
     {
-        $this->fallback[IndexMappingUpdater::NO_LOCALE] = $fallback;
+        $this->fallback[AttributeInterface::NO_LOCALE] = $fallback;
     }
 
     public function getFallbackAll(): ?string
     {
-        return $this->fallback[IndexMappingUpdater::NO_LOCALE] ?? null;
+        return $this->fallback[AttributeInterface::NO_LOCALE] ?? null;
     }
 
     public function getFallbackEN(): ?string
@@ -388,12 +388,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
 
     public function getInitialValuesAll(): ?string
     {
-        return $this->initialValues[IndexMappingUpdater::NO_LOCALE] ?? null;
+        return $this->initialValues[AttributeInterface::NO_LOCALE] ?? null;
     }
 
     public function setInitialValuesAll(?string $initializer): void
     {
-        $this->initialValues[IndexMappingUpdater::NO_LOCALE] = $initializer;
+        $this->initialValues[AttributeInterface::NO_LOCALE] = $initializer;
         $this->normalizeInitialValues();
     }
 

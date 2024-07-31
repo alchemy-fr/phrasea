@@ -2,7 +2,7 @@
 
 namespace App\Asset\Attribute\Index;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 
@@ -29,7 +29,7 @@ final class DefinitionIndex
 
     public function addAttribute(Attribute $attribute): void
     {
-        $locale = $attribute->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
+        $locale = $attribute->getLocale() ?? AttributeInterface::NO_LOCALE;
 
         if ($this->definition->isMultiple()) {
             $this->locales[$locale] ??= [];

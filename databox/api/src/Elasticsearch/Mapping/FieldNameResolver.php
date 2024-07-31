@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Mapping;
 
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\Facet\FacetRegistry;
@@ -45,7 +46,7 @@ final readonly class FieldNameResolver
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];
-            $f = sprintf('%s._.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, $info['field']);
+            $f = sprintf('%s._.%s', AttributeInterface::ATTRIBUTES_FIELD, $info['field']);
             if (null !== $subField = $type->getAggregationField()) {
                 $f .= '.'.$subField;
             }

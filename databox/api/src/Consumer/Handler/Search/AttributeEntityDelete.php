@@ -11,8 +11,7 @@ final readonly class AttributeEntityDelete
         private string $id,
         private string $type,
         private string $wId,
-    )
-    {
+    ) {
     }
 
     public function getId(): string

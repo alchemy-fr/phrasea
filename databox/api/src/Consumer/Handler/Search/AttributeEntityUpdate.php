@@ -10,8 +10,7 @@ final readonly class AttributeEntityUpdate
     public function __construct(
         private string $id,
         private array $changes,
-    )
-    {
+    ) {
     }
 
     public function getId(): string

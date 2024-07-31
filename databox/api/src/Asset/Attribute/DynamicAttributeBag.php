@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Asset\Attribute;
 
 use App\Asset\Attribute\Index\AttributeIndex;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 
@@ -24,7 +24,7 @@ class DynamicAttributeBag
         string $locale
     ) {
         $this->resolve = $resolve;
-        $this->locales = array_unique([$locale, IndexMappingUpdater::NO_LOCALE]);
+        $this->locales = array_unique([$locale, AttributeInterface::NO_LOCALE]);
     }
 
     public function __call(string $name, $args): ?string

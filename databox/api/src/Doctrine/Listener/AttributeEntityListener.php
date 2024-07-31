@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
+use App\Attribute\AttributeInterface;
 use App\Consumer\Handler\Search\AttributeEntityDelete;
 use App\Consumer\Handler\Search\AttributeEntityUpdate;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeEntity;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
@@ -19,8 +19,7 @@ final readonly class AttributeEntityListener implements EventSubscriber
 {
     public function __construct(
         private PostFlushStack $postFlushStack,
-    )
-    {
+    ) {
     }
 
     public function onFlush(OnFlushEventArgs $args): void
@@ -32,7 +31,7 @@ final readonly class AttributeEntityListener implements EventSubscriber
                 $changeSet = $uow->getEntityChangeSet($entityUpdate);
                 $changes = [];
                 if ($changeSet['value'] ?? false) {
-                    $changes[IndexMappingUpdater::NO_LOCALE] = $changeSet['value'][1];
+                    $changes[AttributeInterface::NO_LOCALE] = $changeSet['value'][1];
                 }
                 if ($changeSet['translations'] ?? false) {
                     [$old, $new] = $changeSet['translations'];

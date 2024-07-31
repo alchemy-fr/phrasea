@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Elasticsearch\Listener;
 
 use App\Asset\Attribute\AttributesResolver;
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -43,7 +43,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             $document->set($key, $value);
         }
 
-        $document->set(IndexMappingUpdater::ATTRIBUTES_FIELD, $this->compileAttributes($asset));
+        $document->set(AttributeInterface::ATTRIBUTES_FIELD, $this->compileAttributes($asset));
         $document->set('renditions', $this->compileRenditions($asset));
     }
 

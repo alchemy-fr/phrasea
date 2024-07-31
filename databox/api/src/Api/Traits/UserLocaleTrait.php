@@ -2,7 +2,7 @@
 
 namespace App\Api\Traits;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Workspace;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -25,7 +25,7 @@ trait UserLocaleTrait
     {
         $userLocales = $this->getUserLocales();
 
-        return array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [IndexMappingUpdater::NO_LOCALE])));
+        return array_unique(array_filter(array_merge($userLocales, $workspace->getLocaleFallbacks(), [AttributeInterface::NO_LOCALE])));
     }
 
     #[Required]

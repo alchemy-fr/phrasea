@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
@@ -46,7 +46,7 @@ class EntityAttributeType extends TextAttributeType
         $entity = $this->getEntityFromValue($value);
         if ($entity instanceof AttributeEntity) {
             $locales = array_merge($entity->getTranslations() ?? [], [
-                IndexMappingUpdater::NO_LOCALE => $entity->getValue(),
+                AttributeInterface::NO_LOCALE => $entity->getValue(),
             ]);
             $entityId = $entity->getId();
 
@@ -54,6 +54,7 @@ class EntityAttributeType extends TextAttributeType
                 if (empty($v)) {
                     return null;
                 }
+
                 return [
                     'id' => $entityId,
                     'value' => $v,
@@ -121,9 +122,8 @@ class EntityAttributeType extends TextAttributeType
                 ],
                 'id' => [
                     'type' => 'keyword',
-                ]
-            ]
+                ],
+            ],
         ];
     }
-
 }

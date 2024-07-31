@@ -5,7 +5,7 @@ namespace App\Integration\Phrasea\Expose;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
@@ -94,8 +94,8 @@ final readonly class ExposeClient
             }
 
             // adding fallback if not set
-            if (!isset($attrTranslations[IndexMappingUpdater::NO_LOCALE])) {
-                $attrTranslations[IndexMappingUpdater::NO_LOCALE] = reset($attrTranslations);
+            if (!isset($attrTranslations[AttributeInterface::NO_LOCALE])) {
+                $attrTranslations[AttributeInterface::NO_LOCALE] = reset($attrTranslations);
             }
 
             foreach ($attrTranslations as $locale => $translation) {
@@ -112,9 +112,9 @@ final readonly class ExposeClient
 %s</dl>', implode("\n", $ltr));
             }, $descriptionTranslations);
 
-            if (isset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE])) {
-                $description = $descriptionTranslations[IndexMappingUpdater::NO_LOCALE];
-                unset($descriptionTranslations[IndexMappingUpdater::NO_LOCALE]);
+            if (isset($descriptionTranslations[AttributeInterface::NO_LOCALE])) {
+                $description = $descriptionTranslations[AttributeInterface::NO_LOCALE];
+                unset($descriptionTranslations[AttributeInterface::NO_LOCALE]);
             } else {
                 $description = array_shift($descriptionTranslations);
             }

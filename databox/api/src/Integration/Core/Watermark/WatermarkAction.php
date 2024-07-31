@@ -7,8 +7,8 @@ namespace App\Integration\Core\Watermark;
 use Alchemy\Workflow\Executor\RunContext;
 use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
+use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeManager;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Image\ImageManagerFactory;
@@ -44,7 +44,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         $attrDef = $this->attributeManager->getAttributeDefinitionBySlug($asset->getWorkspaceId(), $attrName)
             ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $attrName, $asset->getWorkspaceId()));
 
-        $text = $attributeIndex->getAttribute($attrDef->getId(), IndexMappingUpdater::NO_LOCALE)?->getValue();
+        $text = $attributeIndex->getAttribute($attrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue();
 
         if (empty($text)) {
             return;

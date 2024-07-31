@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
@@ -21,8 +21,7 @@ final readonly class AttributeEntityUpdateHandler
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeEntityRepository $attributeEntityRepository,
         private FieldNameResolver $fieldNameResolver,
-    )
-    {
+    ) {
     }
 
     public function __invoke(AttributeEntityUpdate $message): void
@@ -41,13 +40,13 @@ final readonly class AttributeEntityUpdateHandler
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             foreach ($message->getChanges() as $locale => $change) {
-                $fields[sprintf('%s.%s.%s', IndexMappingUpdater::ATTRIBUTES_FIELD, IndexMappingUpdater::NO_LOCALE, $fieldName)] = true;
+                $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
                 $params[$locale] = $change;
                 $calls[$locale] = sprintf(
                     'up(ctx._source.%3$s, \'%1$s\', \'%2$s\', params[\'_id\'], params[\'%1$s\'], %4$s);',
                     $locale,
                     $fieldName,
-                    IndexMappingUpdater::ATTRIBUTES_FIELD,
+                    AttributeInterface::ATTRIBUTES_FIELD,
                     $definition->isMultiple() ? 'true' : 'false',
                 );
             }

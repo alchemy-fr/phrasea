@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Asset\Attribute;
 
 use App\Asset\Attribute\Index\AttributeIndex;
+use App\Attribute\AttributeInterface;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -93,7 +93,7 @@ readonly class AttributesResolver
     public function assignHighlight(array $attributes, array $highlights): void
     {
         foreach ($attributes as $attribute) {
-            $locale = $attribute->getLocale() ?? IndexMappingUpdater::NO_LOCALE;
+            $locale = $attribute->getLocale() ?? AttributeInterface::NO_LOCALE;
             $definition = $attribute->getDefinition();
             $f = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
 

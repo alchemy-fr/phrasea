@@ -9,7 +9,6 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -117,7 +116,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
         $this
             ->createQueryBuilder('t')
             ->delete()
-            ->andWhere( $expr->in(
+            ->andWhere($expr->in(
                 't.id',
                 $this
                     ->createQueryBuilder('a')

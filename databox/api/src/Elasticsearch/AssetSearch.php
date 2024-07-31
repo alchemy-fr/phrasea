@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
+use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
@@ -134,7 +134,7 @@ class AssetSearch extends AbstractSearch
                     'fragment_size' => 255,
                     'number_of_fragments' => 1,
                 ],
-                IndexMappingUpdater::ATTRIBUTES_FIELD.'.*' => [
+                AttributeInterface::ATTRIBUTES_FIELD.'.*' => [
                     'number_of_fragments' => 20,
                 ],
             ],
