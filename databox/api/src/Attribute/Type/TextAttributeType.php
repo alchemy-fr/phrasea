@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use App\Attribute\AttributeLocaleInterface;
 use App\Elasticsearch\SearchType;
 use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
@@ -40,71 +41,32 @@ class TextAttributeType extends AbstractAttributeType
         return new Query\Terms($field, $value);
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
-        $mapping = [];
-
-        if (true
-            // TODO Should always provision keyword?
-            || $definition->isFacetEnabled()) {
-            $mapping['fields'] = [
+        $mapping = [
+            'fields' => [
                 'raw' => [
                     'type' => 'keyword',
-                    'ignore_above' => 500,
+                    'ignore_above' => 256,
                 ],
-            ];
-        }
-
-        $locales = [
-            'ar' => 'arabic',
-            'bg' => 'bulgarian',
-            'bn' => 'bengali',
-            'ca' => 'catalan',
-            'ch' => 'cjk',
-            'ckb' => 'sorani',
-            'cs' => 'czech',
-            'da' => 'danish',
-            'de' => 'german',
-            'el' => 'greek',
-            'en' => 'english',
-            'es' => 'spanish',
-            'et' => 'estonian',
-            'eu' => 'basque',
-            'fa' => 'persian',
-            'fi' => 'finnish',
-            'fr' => 'french',
-            'ga' => 'irish',
-            'gl' => 'galician',
-            'hi' => 'hindi',
-            'hu' => 'hungarian',
-            'hy' => 'armenian',
-            'id' => 'indonesian',
-            'it' => 'italian',
-            'ja' => 'cjk',
-            'ko' => 'cjk',
-            'lt' => 'lithuanian',
-            'lv' => 'latvian',
-            'nl' => 'dutch',
-            'no' => 'norwegian',
-            'pt' => 'portuguese',
-            'pt_BR' => 'brazilian',
-            'ro' => 'romanian',
-            'ru' => 'russian',
-            'sv' => 'swedish',
-            'th' => 'thai',
-            'tr' => 'turkish',
+            ],
         ];
 
         $language = LocaleUtil::extractLanguageFromLocale($locale);
-        if (isset($locales[$locale])) {
-            $mapping['analyzer'] = $locales[$locale];
-        } elseif (isset($locales[$language])) {
-            $mapping['analyzer'] = $locales[$language];
+        if (isset(AttributeLocaleInterface::LOCALES[$locale])) {
+            $mapping['analyzer'] = AttributeLocaleInterface::LOCALES[$locale];
+        } elseif (isset(AttributeLocaleInterface::LOCALES[$language])) {
+            $mapping['analyzer'] = AttributeLocaleInterface::LOCALES[$language];
         } else {
             $mapping['analyzer'] = 'text';
         }
 
         return $mapping;
+    }
+
+    public function isMappingLocaleAware(): bool
+    {
+        return $this->isLocaleAware();
     }
 
     public function isLocaleAware(): bool

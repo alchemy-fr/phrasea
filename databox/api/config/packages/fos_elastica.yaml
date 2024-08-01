@@ -68,7 +68,7 @@ fos_elastica:
                             analyzer: partial_words
                             search_analyzer: text
                             term_vector: with_positions_offsets
-                attributes:
+                !php/const App\Attribute\AttributeInterface::ATTRIBUTES_FIELD:
                     type: object
                 referenceCollectionId:
                     type: keyword

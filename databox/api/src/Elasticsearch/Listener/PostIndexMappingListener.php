@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
-use App\Elasticsearch\Mapping\IndexMappingUpdater;
-use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\Workspace;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Elasticsearch\Mapping\IndexMappingTemplatesMaker;
 use FOS\ElasticaBundle\Event\PostIndexMappingBuildEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class PostIndexMappingListener implements EventSubscriberInterface
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private IndexMappingUpdater $indexMappingUpdater,
+        private IndexMappingTemplatesMaker $indexMappingUpdater,
     ) {
     }
 
@@ -26,19 +22,7 @@ readonly class PostIndexMappingListener implements EventSubscriberInterface
         }
 
         $mapping = $event->getMapping();
-
-        $workspaces = $this->em->getRepository(Workspace::class)->findAll();
-        foreach ($workspaces as $workspace) {
-            /** @var AttributeDefinition[] $attributeDefinitions */
-            $attributeDefinitions = $this->em->getRepository(AttributeDefinition::class)
-                ->findBy([
-                    'workspace' => $workspace->getId(),
-                ]);
-
-            foreach ($attributeDefinitions as $definition) {
-                $this->indexMappingUpdater->assignAttributeDefinitionToMapping($mapping, $definition);
-            }
-        }
+        $mapping['dynamic_templates'] = $this->indexMappingUpdater->getAssetDynamicTemplates();
 
         $event->setMapping($mapping);
     }

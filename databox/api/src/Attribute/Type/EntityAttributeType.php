@@ -109,19 +109,19 @@ class EntityAttributeType extends TextAttributeType
         ];
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
-        $mapping = parent::getElasticSearchMapping($locale, $definition);
+        $mapping = parent::getElasticSearchMapping($locale);
 
         return [
             'type' => 'object',
             'properties' => [
+                'id' => [
+                    'type' => 'keyword',
+                ],
                 'value' => [
                     ...$mapping,
                     'type' => $this->getElasticSearchType(),
-                ],
-                'id' => [
-                    'type' => 'keyword',
                 ],
             ],
         ];
