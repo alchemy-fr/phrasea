@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "d74d4697c0bfec3d6139f44d086b30218e01d74e"
+                "reference": "a79f8df76410bc741cb780608576ed7c0c34801b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/d74d4697c0bfec3d6139f44d086b30218e01d74e",
-                "reference": "d74d4697c0bfec3d6139f44d086b30218e01d74e",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/a79f8df76410bc741cb780608576ed7c0c34801b",
+                "reference": "a79f8df76410bc741cb780608576ed7c0c34801b",
                 "shasum": ""
             },
             "require": {
@@ -56,11 +56,11 @@
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
                 "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
             },
-            "time": "2024-05-28T15:25:46+00:00"
+            "time": "2024-08-10T14:32:57+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +175,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -290,7 +290,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -342,7 +342,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -465,7 +465,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -520,7 +520,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -572,7 +572,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -629,7 +629,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -699,7 +699,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -13969,7 +13969,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-639-basket-expose",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

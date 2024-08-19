@@ -27,6 +27,7 @@ type Options = {
     httpClient?: HttpClient;
     scope?: string | undefined;
     cookiesOptions?: CookieStorageOptions['cookiesOptions'];
+    autoRefreshToken?: boolean;
 };
 
 export type {Options as OAuthClientOptions};
@@ -45,10 +46,12 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private readonly storage: IStorage;
     private tokensCache: AuthTokens | undefined;
     private sessionTimeout: ReturnType<typeof setTimeout> | undefined;
+    private autoRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly tokenStorageKey: string = 'token';
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
     public sessionHasExpired: boolean = false;
+    public autoRefreshToken: boolean = false;
 
     constructor({
         clientId,
@@ -59,6 +62,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         httpClient,
         scope,
         cookiesOptions,
+        autoRefreshToken,
     }: Options) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -69,6 +73,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
+        this.autoRefreshToken = autoRefreshToken ?? false;
     }
 
     public isTokenPersisted(): boolean {
@@ -273,10 +278,20 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private handleSessionTimeout(tokens: AuthTokens): void {
         this.clearSessionTimeout();
 
-        if (tokens.refreshExpiresIn && tokens.refreshExpiresIn < 604800) {
+        if (tokens.refreshExpiresIn
+            && tokens.refreshExpiresIn < 604800 // prevent too long setTimeout
+        ) {
             this.sessionTimeout = setTimeout(() => {
                 this.sessionExpired();
             }, tokens.refreshExpiresIn * 1000);
+
+            if (this.autoRefreshToken) {
+                this.autoRefreshTimeout = setTimeout(() => {
+                    if (!document.hidden) {
+                        this.getTokenFromRefreshToken();
+                    }
+                }, tokens.refreshExpiresIn * 1000 - 10000);
+            }
         }
     }
 
@@ -289,10 +304,8 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     private clearSessionTimeout(): void {
-        if (this.sessionTimeout) {
-            clearTimeout(this.sessionTimeout);
-            this.sessionTimeout = undefined;
-        }
+        clearTimeout(this.sessionTimeout);
+        clearTimeout(this.autoRefreshTimeout);
     }
 
     private createAuthTokensFromResponse(res: TokenResponse): AuthTokens {
