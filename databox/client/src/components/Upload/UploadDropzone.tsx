@@ -30,14 +30,13 @@ export function useAccept(): Accept | undefined {
     }, []);
 }
 
-type Props = {
-    onDrop: DropzoneOptions['onDrop'];
-};
+type Props = DropzoneOptions;
 
-export default function UploadDropzone({onDrop}: Props) {
+export default function UploadDropzone({onDrop, ...rest}: Props) {
     const accept = useAccept();
 
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
+        ...rest,
         onDrop,
         accept,
         noClick: true,

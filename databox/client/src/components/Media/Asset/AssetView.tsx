@@ -18,6 +18,7 @@ import {scrollbarWidth} from '../../../constants.ts';
 import AssetAttributes from './AssetAttributes.tsx';
 import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
+import AssetViewActions from "./Actions/AssetViewActions.tsx";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -95,7 +96,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -139,6 +140,10 @@ export default function AssetView({modalIndex}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
+                            <AssetViewActions
+                                asset={data!}
+                                file={rendition?.file}
+                            />
                         </>
                     }
                     onClose={onClose}

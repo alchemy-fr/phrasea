@@ -10,8 +10,7 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
-import {FormFieldErrors} from '@alchemy/react-form';
-import {FormRow} from '@alchemy/react-form';
+import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {postAsset} from '../../../../api/asset';
 
 type FormData = {
@@ -89,7 +88,7 @@ export default function SaveFileAsNewAssetDialog({
             open={open}
             loading={submitting}
             formId={formId}
-            submitIcon={<FileCopyIcon />}
+            submitIcon={<FileCopyIcon/>}
             submitLabel={'Save'}
         >
             <Typography sx={{mb: 3}}>{``}</Typography>
@@ -102,7 +101,7 @@ export default function SaveFileAsNewAssetDialog({
                         fullWidth={true}
                         {...register('title')}
                     />
-                    <FormFieldErrors field={'title'} errors={errors} />
+                    <FormFieldErrors field={'title'} errors={errors}/>
                 </FormRow>
                 <FormRow>
                     <CollectionTreeWidget
@@ -120,10 +119,10 @@ export default function SaveFileAsNewAssetDialog({
                         required={true}
                         workspaceId={asset.workspace.id}
                     />
-                    <FormFieldErrors field={'destination'} errors={errors} />
+                    <FormFieldErrors field={'destination'} errors={errors}/>
                 </FormRow>
             </form>
-            <RemoteErrors errors={remoteErrors} />
+            <RemoteErrors errors={remoteErrors}/>
         </FormDialog>
     );
 }
