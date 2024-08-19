@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Integration\Aws\Rekognition;
 
+use App\Integration\IntegrationConfig;
 use Aws\Rekognition\RekognitionClient;
 
-class AwsRekognitionClient
+final readonly class AwsRekognitionClient
 {
-    private function createClient(array $options): RekognitionClient
+    private function createClient(IntegrationConfig $options): RekognitionClient
     {
         return new RekognitionClient([
             'region' => $options['region'],
@@ -20,7 +21,7 @@ class AwsRekognitionClient
         ]);
     }
 
-    public function getImageLabels(string $path, array $options): array
+    public function getImageLabels(string $path, IntegrationConfig $options): array
     {
         $client = $this->createClient($options);
 
@@ -33,7 +34,7 @@ class AwsRekognitionClient
         return $res->toArray();
     }
 
-    public function getImageTexts(string $path, array $options): array
+    public function getImageTexts(string $path, IntegrationConfig $options): array
     {
         $client = $this->createClient($options);
 
@@ -46,7 +47,7 @@ class AwsRekognitionClient
         return $res->toArray();
     }
 
-    public function getImageFaces(string $path, array $options): array
+    public function getImageFaces(string $path, IntegrationConfig $options): array
     {
         $client = $this->createClient($options);
 
