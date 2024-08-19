@@ -56,9 +56,9 @@ class CollectionPathAttributeType extends AbstractAttributeType
         return new Query\Terms($field, $value);
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
-        throw new \LogicException('Should never be called');
+        return null;
     }
 
     public function isLocaleAware(): bool

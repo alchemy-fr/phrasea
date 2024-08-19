@@ -29,9 +29,14 @@ final readonly class FieldNameResolver
 
         return sprintf('%s_%s_%s',
             $slug,
-            str_replace('_', '-', $type::getName()),
+            $this->normalizeTypeNameForField($type::getName()),
             $isMultiple ? 'm' : 's'
         );
+    }
+
+    public function normalizeTypeNameForField(string $type): string
+    {
+        return str_replace('_', '-', $type);
     }
 
     /**

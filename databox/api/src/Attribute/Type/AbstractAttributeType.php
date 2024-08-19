@@ -48,6 +48,11 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return ESFacetInterface::TYPE_TEXT;
     }
 
+    public function isMappingLocaleAware(): bool
+    {
+        return false;
+    }
+
     public function isLocaleAware(): bool
     {
         return false;
@@ -72,7 +77,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return (string) $value;
     }
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array
+    public function getElasticSearchMapping(string $locale): ?array
     {
         return [];
     }

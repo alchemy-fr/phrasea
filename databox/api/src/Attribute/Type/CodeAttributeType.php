@@ -10,4 +10,9 @@ class CodeAttributeType extends TextareaAttributeType
     {
         return 'code';
     }
+
+    public function isMappingLocaleAware(): bool
+    {
+        return false;
+    }
 }

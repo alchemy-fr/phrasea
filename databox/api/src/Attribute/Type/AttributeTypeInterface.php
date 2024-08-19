@@ -31,7 +31,7 @@ interface AttributeTypeInterface
 
     public function supportsAggregation(): bool;
 
-    public function getElasticSearchMapping(string $locale, AttributeDefinition $definition): array;
+    public function getElasticSearchMapping(string $locale): ?array;
 
     /**
      * Normalize value for database.
@@ -58,6 +58,7 @@ interface AttributeTypeInterface
      */
     public function normalizeElasticsearchValue(?string $value);
 
+    public function isMappingLocaleAware(): bool;
     public function isLocaleAware(): bool;
 
     public function supportsSuggest(): bool;
