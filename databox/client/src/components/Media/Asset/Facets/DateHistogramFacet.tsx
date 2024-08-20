@@ -22,7 +22,7 @@ import {AttributeType} from '../../../../api/attributes';
 
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const {attrFilters, setAttrFilter, removeAttrFilter} =
-        useContext(SearchContext);
+        useContext(SearchContext)!;
     const attrFilterIndex = attrFilters.findIndex(_f => _f.a === name);
     const attrFilter =
         attrFilterIndex >= 0 ? attrFilters[attrFilterIndex] : undefined;

@@ -28,7 +28,7 @@ export function useCancelRequestCallback<
     const controller = useRef<AbortController | null>(null);
 
     const callback = useCallback(async (props?: P | undefined) => {
-        if (controller.current && process.env.NODE_ENV !== 'development') {
+        if (controller.current && !import.meta.env.DEV) {
             controller.current!.abort();
         }
 

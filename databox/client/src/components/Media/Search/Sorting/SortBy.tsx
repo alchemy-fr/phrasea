@@ -9,7 +9,7 @@ import {ResultContext} from '../ResultContext';
 type Props = {};
 
 export default function SortBy({}: Props) {
-    const search = useContext(SearchContext);
+    const search = useContext(SearchContext)!;
     const resultContext = useContext(ResultContext);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);

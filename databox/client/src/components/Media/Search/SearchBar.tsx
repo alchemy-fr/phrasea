@@ -10,7 +10,7 @@ import SearchAutoComplete from './SearchAutoComplete.tsx';
 type Props = {};
 
 export default function SearchBar({}: Props) {
-    const search = useContext(SearchContext);
+    const search = useContext(SearchContext)!;
 
     return (
         <Box

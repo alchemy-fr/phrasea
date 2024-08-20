@@ -1,11 +1,4 @@
-import React, {
-    FormEvent,
-    MouseEventHandler,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import React, {FormEvent, MouseEventHandler, useContext, useRef,} from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import {alpha, Button, InputBase} from '@mui/material';
 import AutoComplete from './AutoComplete.tsx';
@@ -19,16 +12,11 @@ import {styled} from '@mui/material/styles';
 type Props = {};
 
 export default function SearchAutoComplete({}: Props) {
-    const search = useContext(SearchContext);
-
+    const search = useContext(SearchContext)!;
     const resultContext = useContext(ResultContext);
-    const [queryValue, setQueryValue] = useState('');
+    const {inputQuery, setInputQuery} = search;
     const inputRef = useRef<HTMLInputElement>(null);
     const {t} = useTranslation();
-
-    useEffect(() => {
-        setQueryValue(search.query);
-    }, [search.query]);
 
     const onClick: MouseEventHandler<HTMLInputElement> = () => {
         if (search.query) {
@@ -42,7 +30,7 @@ export default function SearchAutoComplete({}: Props) {
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
-        search.setQuery(queryValue, true);
+        search.setQuery(inputQuery.current || '', true);
     };
 
     const getSources = React.useCallback<GetSources<SearchSuggestion>>(() => {
@@ -52,7 +40,7 @@ export default function SearchAutoComplete({}: Props) {
                 onSelect: ({item, setQuery}) => {
                     const newQuery = `"${item.name}"`;
                     setQuery(newQuery);
-                    setQueryValue(newQuery);
+                    setInputQuery(newQuery);
                     search.setQuery(newQuery, true);
                 },
                 getItems({query}) {
@@ -68,7 +56,7 @@ export default function SearchAutoComplete({}: Props) {
     }, [search]);
     return (
         <>
-            <AutoComplete getSources={getSources} queryValue={queryValue}>
+            <AutoComplete getSources={getSources} queryValue={inputQuery.current || ''}>
                 {autocomplete => {
                     return (
                         <form
@@ -82,13 +70,13 @@ export default function SearchAutoComplete({}: Props) {
                         >
                             <Search>
                                 <SearchIconWrapper>
-                                    <SearchIcon />
+                                    <SearchIcon/>
                                 </SearchIconWrapper>
                                 <StyledInputBase
                                     autoFocus={true}
                                     type={'search'}
                                     onChange={e =>
-                                        setQueryValue(e.target.value)
+                                        setInputQuery(e.target.value)
                                     }
                                     inputRef={inputRef}
                                     onClick={onClick}
@@ -107,7 +95,7 @@ export default function SearchAutoComplete({}: Props) {
                                 />
                                 <Button
                                     disabled={
-                                        search.query === queryValue &&
+                                        search.query === inputQuery.current &&
                                         resultContext.loading
                                     }
                                     type={'submit'}
