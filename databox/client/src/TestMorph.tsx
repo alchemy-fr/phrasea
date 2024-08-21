@@ -4,6 +4,8 @@ type Props = {};
 
 export default function TestMorph({}: Props) {
     const {t} = useTranslation();
+
+    // @ts-expect-error Unused
     const _a = {
         'Hello': 'you!',
     };

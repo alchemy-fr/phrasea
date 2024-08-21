@@ -1,6 +1,6 @@
 ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
-FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} as client-build
+FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS client-build
 
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./lib/js ./lib/js
@@ -17,7 +17,7 @@ RUN NODE_OPTIONS="--max-old-space-size=8192" && pnpm build
 
 ############
 
-FROM nginx:1.17.6-alpine as client-nginx
+FROM nginx:1.17.6-alpine AS client-nginx
 
 COPY --from=client-build /srv/workspace/databox/client/dist /var/app
 COPY ./databox/client/docker/nginx/conf.d /etc/nginx/conf.d

@@ -28,7 +28,7 @@ FROM ${REGISTRY_NAMESPACE}nginx-fpm-base:${BASE_TAG} AS api-nginx
 COPY --from=api-php /srv/app/public /srv/app/public
 ENV FPM_HOSTNAME=notify-api-php
 
-FROM api-php as worker
+FROM api-php AS worker
 
 ENV PHP_MEMORY_LIMIT=1G \
     WORKER_PRIORITIES=p1 \
