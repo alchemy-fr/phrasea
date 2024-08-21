@@ -110,7 +110,10 @@ function findTextNodes(node: Node): TextNode[] {
             '%',
             ':',
         ].includes(v)) {
-            textNodes.push(node);
+            const parent = node.getParent();
+            if (!Node.isJsxElement(parent) || parent.getStructure().name !== 'Trans') {
+                textNodes.push(node);
+            }
         }
     }
 
@@ -130,12 +133,8 @@ function debug(node: Node, componentName: string, depth: number = 0): string {
     });
 
     if (Node.isJsxText(node)) {
-        // node.replaceWithText(`t('key', \`${node.print()}\`)`);
         d += ` = ${node.print().trim()}`;
-
-        node.replaceWithText(`{t('key', \`${node.print().trim()}\`)}`);
     }
-
 
     return d;
 }
