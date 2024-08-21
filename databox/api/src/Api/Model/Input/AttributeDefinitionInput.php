@@ -32,6 +32,11 @@ class AttributeDefinitionInput
     public $fieldType;
 
     /**
+     * @var string|null
+     */
+    public $entityType;
+
+    /**
      * @var string
      */
     public $fileType;

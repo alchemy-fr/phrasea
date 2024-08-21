@@ -34,7 +34,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
     const {id, name, capabilities} = data;
 
     const {t} = useTranslation();
-    const searchContext = useContext(SearchContext);
+    const searchContext = useContext(SearchContext)!;
     const {openModal} = useModals();
     const selected = searchContext.workspaces.includes(id);
     const [expanded, setExpanded] = React.useState(false);

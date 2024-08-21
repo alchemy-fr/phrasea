@@ -64,6 +64,9 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->fieldType) {
             $object->setFieldType($data->fieldType);
         }
+        if (null !== $data->entityType) {
+            $object->setEntityType($data->entityType);
+        }
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);
         }

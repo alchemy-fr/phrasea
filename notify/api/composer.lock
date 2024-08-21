@@ -127,7 +127,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
-                "reference": "b6e5bab760df488fc888e76f2e62f2e61b9e6a05"
+                "reference": "bf824969aadb1bb8c70225c023ab65d5e3bb5bbe"
             },
             "require": {
                 "php": "^8.2",
@@ -139,7 +139,11 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "phpunit/phpunit": "^9.5",
+                "pusher/pusher-php-server": "^7.2.4",
                 "rector/rector": "^1.0.4"
+            },
+            "suggest": {
+                "pusher/pusher-php-server": "^7.2.4"
             },
             "type": "symfony-bundle",
             "autoload": {

@@ -41,6 +41,10 @@ class RenditionInputTransformer extends AbstractFileInputTransformer
             $object = $this->renditionManager->getOrCreateRendition($asset, $definition);
         }
 
+        if (!$object->getDefinition()->isSubstitutable()) {
+            throw new BadRequestHttpException(sprintf('Cannot substitute rendition "%s"', $object->getDefinition()->getName()));
+        }
+
         $workspace = $object->getAsset()->getWorkspace();
 
         if (null !== $file = $this->handleSource($data->sourceFile, $workspace)) {

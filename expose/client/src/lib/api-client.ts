@@ -9,6 +9,7 @@ export const keycloakClient = new KeycloakClient({
     cookiesOptions: {
         sameSite: 'none',
     },
+    autoRefreshToken: true,
 });
 
 export const oauthClient = keycloakClient.client;

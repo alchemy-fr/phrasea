@@ -9,6 +9,7 @@ import {
     DefinitionIndex,
     NO_LOCALE,
 } from './AttributesEditor';
+import {getAttributeType} from "./types";
 
 export function getBatchActions(
     attributes: AttributeIndex<string | number>,
@@ -135,5 +136,14 @@ export function getBatchActions(
         });
     }
 
-    return actions;
+    return actions.map(a => {
+        const widget = getAttributeType(
+            definitions[a.definitionId!].fieldType
+        );
+
+        return {
+            ...a,
+            value: widget.normalize(a.value),
+        };
+    });
 }

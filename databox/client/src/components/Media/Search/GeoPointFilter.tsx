@@ -9,7 +9,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 type Props = {};
 
 export default function GeoPointFilter({}: Props) {
-    const search = useContext(SearchContext);
+    const search = useContext(SearchContext)!;
     const resultContext = useContext(ResultContext);
     const [enabled, setEnabled] = React.useState(!!search.geolocation);
 

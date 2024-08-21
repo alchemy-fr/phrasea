@@ -10,7 +10,6 @@ import {Attribute, AttributeDefinition} from '../../../../types';
 import {getWorkspaceAttributeDefinitions} from '../../../../api/attributes';
 import {getAssetAttributes} from '../../../../api/asset';
 import {getBatchActions} from './BatchActions';
-import {getAttributeType} from './types';
 
 export function useAttributeEditor({
     workspaceId,
@@ -117,22 +116,12 @@ export function useAttributeEditor({
             setAttributes(attributeIndex);
         };
 
-        const getActions = () => {
-            return getBatchActions(
+        const getActions = () =>
+            getBatchActions(
                 attributes!,
                 state!.definitionIndex,
                 state!.remoteAttributes
-            ).map(a => {
-                const widget = getAttributeType(
-                    state!.definitionIndex[a.definitionId!].fieldType
-                );
-
-                return {
-                    ...a,
-                    value: widget.normalize(a.value),
-                };
-            });
-        };
+            );
 
         return {
             definitionIndex: state?.definitionIndex,

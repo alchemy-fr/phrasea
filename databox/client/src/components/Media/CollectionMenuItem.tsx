@@ -49,7 +49,7 @@ export default function CollectionMenuItem({
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const searchContext = useContext(SearchContext);
+    const searchContext = useContext(SearchContext)!;
     const authContext = useAuth();
     const [expanded, setExpanded] = useState<boolean>(false);
     const [childrenLoaded, setChildrenLoaded] = React.useState(false);

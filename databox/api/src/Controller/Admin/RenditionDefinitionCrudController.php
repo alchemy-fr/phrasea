@@ -56,8 +56,10 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield TextField::new('key')
             ->hideOnIndex()
         ;
+        yield Field::new('substitutable')
+            ->hideOnIndex();
         yield Field::new('pickSourceFile')
-        ->hideOnIndex();
+            ->hideOnIndex();
         yield BooleanField::new('useAsOriginal');
         yield BooleanField::new('useAsPreview');
         yield BooleanField::new('useAsThumbnail');
