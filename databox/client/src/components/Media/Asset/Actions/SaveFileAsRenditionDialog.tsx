@@ -69,12 +69,12 @@ export default function SaveFileAsRenditionDialog({
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
-            submitLabel={'Save'}
+            submitLabel={t('common.save', `Save`)}
         >
             <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <FormGroup>
-                        <FormLabel>Rendition to add or replace</FormLabel>
+                        <FormLabel>{t('save_file_as_rendition_dialog.rendition_to_add_or_replace', `Rendition to add or replace`)}</FormLabel>
                         <RenditionDefinitionSelect
                             disabled={submitting}
                             name={'definition'}

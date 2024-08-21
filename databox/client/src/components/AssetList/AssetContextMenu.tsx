@@ -24,6 +24,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import {modalRoutes} from '../../routes';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {ActionsContext, ReloadFunc} from './types.ts';
+import { useTranslation } from 'react-i18next';
 
 type Props<Item extends AssetOrAssetContainer> = {
     anchorPosition: PopoverPosition;
@@ -46,6 +47,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     reload,
     setSelection,
 }: Props<Item>) {
+    const {t} = useTranslation();
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
     const resultContext = useContext(ResultContext);
@@ -137,7 +139,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <ListItemIcon>
                             <SaveIcon />
                         </ListItemIcon>
-                        <ListItemText primary={'Save as'} />
+                        <ListItemText primary={t('save_as.label', `Save as`)} />
 
                         <ListItemIcon>
                             <ArrowDropDownIcon />

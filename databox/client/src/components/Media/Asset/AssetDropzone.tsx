@@ -6,8 +6,10 @@ import {retrieveImageFromClipboardAsBlob} from '../../../lib/ImagePaste';
 import {useModals} from '@alchemy/navigation';
 import {useAccept} from '../../Upload/UploadDropzone';
 import {useAuth} from '@alchemy/react-auth';
+import { useTranslation } from 'react-i18next';
 
 export default function AssetDropzone({children}: PropsWithChildren<{}>) {
+    const {t} = useTranslation();
     const authContext = useAuth();
     const {openModal} = useModals();
 
@@ -67,8 +69,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
                     open={true}
                 >
                     <Typography typography={'h2'}>
-                        Drop the files here ...
-                    </Typography>
+                        {t('asset_dropzone.drop_the_files_here', `Drop the files here ...`)}</Typography>
                 </Backdrop>
             )}
             {children}

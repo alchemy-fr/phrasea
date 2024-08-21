@@ -6,6 +6,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
 import PersonIcon from '@mui/icons-material/Person';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     id: string;
@@ -13,29 +14,30 @@ type Props = {
 } & DialogTabProps;
 
 export default function InfoCollection({data, onClose, minHeight}: Props) {
+    const {t} = useTranslation();
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <MenuList>
                 <InfoRow
-                    label={'ID'}
+                    label={t('collection.info.id', `ID`)}
                     value={data.id}
                     copyValue={data.id}
                     icon={<KeyIcon />}
                 />
                 <Divider />
                 <InfoRow
-                    label={'Owner'}
+                    label={t('collection.info.owner', `Owner`)}
                     value={data.owner?.username ?? data.owner?.id ?? '-'}
                     copyValue={data.owner?.id}
                     icon={<PersonIcon />}
                 />
                 <InfoRow
-                    label={'Creation date'}
+                    label={t('collection.info.creation_date', `Creation date`)}
                     value={data.createdAt}
                     icon={<EventIcon />}
                 />
                 <InfoRow
-                    label={'Modification date'}
+                    label={t('collection.info.modification_date', `Modification date`)}
                     value={data.updatedAt}
                     icon={<EventIcon />}
                 />

@@ -27,6 +27,7 @@ import {
 import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
 import {AssetIntegrationActionsProps} from '../types.ts';
+import { useTranslation } from 'react-i18next';
 
 function ImageOverlay({
     labels,
@@ -161,6 +162,7 @@ export default function AwsRekognitionAssetEditorActions({
     setIntegrationOverlay,
     enableInc,
 }: Props) {
+    const {t} = useTranslation();
     const [running, setRunning] = useState<DetectType | undefined>();
     const [labels, setLabels] = useState<LabelsData | undefined>();
     const [texts, setTexts] = useState<TextsData | undefined>();
@@ -226,8 +228,7 @@ export default function AwsRekognitionAssetEditorActions({
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >
-                        Detect image labels
-                    </Button>
+                        {t('aws_rekognition.actions.detect_image_labels', `Detect image labels`)}</Button>
                 </IntegrationPanelContent>
             )}
             {config.texts.enabled && !texts && (
@@ -238,8 +239,7 @@ export default function AwsRekognitionAssetEditorActions({
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >
-                        Detect texts
-                    </Button>
+                        {t('aws_rekognition.actions.detect_texts', `Detect texts`)}</Button>
                 </IntegrationPanelContent>
             )}
             {config.faces.enabled && !faces && (
@@ -250,14 +250,13 @@ export default function AwsRekognitionAssetEditorActions({
                         variant={'contained'}
                         startIcon={<ImageSearchIcon />}
                     >
-                        Detect faces
-                    </Button>
+                        {t('aws_rekognition.actions.detect_faces', `Detect faces`)}</Button>
                 </IntegrationPanelContent>
             )}
             {labels && (
                 <div>
                     <List component="div" disablePadding>
-                        <ListSubheader>Labels</ListSubheader>
+                        <ListSubheader>{t('aws_rekognition.actions.labels', `Labels`)}</ListSubheader>
                         {labels.Labels.map(l => {
                             return (
                                 <ListItemButton key={l.Name}>
@@ -285,10 +284,10 @@ export default function AwsRekognitionAssetEditorActions({
             {texts && (
                 <div>
                     <List component="div" disablePadding>
-                        <ListSubheader>Text</ListSubheader>
+                        <ListSubheader>{t('aws_rekognition.actions.text', `Text`)}</ListSubheader>
                         {texts.TextDetections.length === 0 && (
                             <ListItem>
-                                <ListItemText>No text detected</ListItemText>
+                                <ListItemText>{t('aws_rekognition.actions.no_text_detected', `No text detected`)}</ListItemText>
                             </ListItem>
                         )}
                         {texts.TextDetections.map(l => {
@@ -313,17 +312,17 @@ export default function AwsRekognitionAssetEditorActions({
             {faces && (
                 <div>
                     <List component="div" disablePadding>
-                        <ListSubheader>Faces</ListSubheader>
+                        <ListSubheader>{t('aws_rekognition.actions.faces', `Faces`)}</ListSubheader>
                         {faces.FaceDetails.length === 0 && (
                             <ListItem>
-                                <ListItemText>No face detected</ListItemText>
+                                <ListItemText>{t('aws_rekognition.actions.no_face_detected', `No face detected`)}</ListItemText>
                             </ListItem>
                         )}
                         {faces.FaceDetails.map((l, i) => {
                             return (
                                 <ListItemButton key={i}>
                                     <ListItemText>
-                                        Face #{i + 1}{' '}
+                                        {t('aws_rekognition.actions.face', `Face #`)}{i + 1}{' '}
                                         <small>
                                             (
                                             <ValueConfidence

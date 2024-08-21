@@ -14,6 +14,7 @@ import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Asset, File, IntegrationData} from '../../../types';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -32,6 +33,7 @@ export default function FileItem({
     onOpen,
     onDelete,
 }: Props) {
+    const {t} = useTranslation();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [deleting, setDeleting] = React.useState(false);
@@ -80,7 +82,7 @@ export default function FileItem({
                     <ListItemIcon>
                         <DeleteIcon />
                     </ListItemIcon>
-                    <ListItemText>Delete</ListItemText>
+                    <ListItemText>{t('common.delete', `Delete`)}</ListItemText>
                 </MenuItem>
 
                 <Divider />

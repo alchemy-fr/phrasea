@@ -7,6 +7,7 @@ import {CircularProgress, SxProps} from '@mui/material';
 import classNames from 'classnames';
 import {alpha, Theme} from '@mui/material/styles';
 import {videoPlayerSx} from './Players/VideoPlayer.tsx';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -22,10 +23,11 @@ function AssetThumb({
     },
     ...domAttrs
 }: Props) {
+    const {t} = useTranslation();
     let thumb: ReactNode | undefined;
 
     if (pendingSourceFile) {
-        thumb = <CircularProgress title={'Uploading...'} />;
+        thumb = <CircularProgress title={t('common.uploading', `Uploading...`)} />;
     } else if (thumbnail?.file) {
         thumb = (
             <FilePlayer

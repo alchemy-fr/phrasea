@@ -1,12 +1,14 @@
+import { useTranslation } from 'react-i18next';
+
 type Props = {};
 
 export default function TestMorph({}: Props) {
-    const a = {
+    const {t} = useTranslation();
+    const _a = {
         'Hello': 'you!',
     };
 
     return <>
-        OK
-        <div title={'The title'}></div>
+        {t('test_morph.ok', `OK`)}<div title={t('test_morph.the_title', `The title`)}></div>
     </>
 }

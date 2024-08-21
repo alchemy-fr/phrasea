@@ -12,6 +12,7 @@ type Props = {
 } & StackedModalProps;
 
 function Metric({n}: {n: number}) {
+    const {t} = useTranslation();
     return (
         <Chip
             label={
@@ -25,8 +26,7 @@ function Metric({n}: {n: number}) {
                     >
                         {n}
                     </Box>
-                    ms
-                </>
+                    {t('metric.ms', `ms`)}</>
             }
         />
     );
@@ -42,11 +42,11 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
             open={open}
             title={
                 <>
-                    Search Debug |{' '}
+                    {t('debug_es_modal.search_debug', `Search Debug |`)}{' '}
                     <small>
-                        Elasticsearch response time:{' '}
+                        {t('debug_es_modal.elasticsearch_response_time', `Elasticsearch response time:`)}{' '}
                         <Metric n={Math.round(debug.esQueryTime * 1000)} /> |
-                        Total response time:{' '}
+                        {t('debug_es_modal.total_response_time', `Total response time:`)}{' '}
                         <Metric
                             n={
                                 Math.round(debug.totalResponseTime * 1000) /
@@ -75,8 +75,7 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
                                     );
                                 }}
                             >
-                                Copy
-                            </Button>
+                                {t('common.copy', `Copy`)}</Button>
                         )}
                     </CopyToClipboard>
                     <Button

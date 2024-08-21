@@ -123,8 +123,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                         loading={loading}
                         disabled={loading}
                     >
-                        Authorize
-                    </LoadingButton>
+                        {t('expose_basket_integration.authorize', `Authorize`)}</LoadingButton>
                 </div>
             ) : (
                 ''
@@ -137,8 +136,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                     color={'primary'}
                     variant={'contained'}
                 >
-                    Sync with a Publication
-                </Button>
+                    {t('expose_basket_integration.sync_with_a_publication', `Sync with a Publication`)}</Button>
             ) : (
                 ''
             )}
@@ -169,8 +167,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                         syncForced.includes(d.id)
                                     }
                                 >
-                                    Force Sync
-                                </LoadingButton>
+                                    {t('expose_basket_integration.force_sync', `Force Sync`)}</LoadingButton>
 
                                 <LoadingButton
                                     sx={{
@@ -181,8 +178,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                     startIcon={<DeleteIcon />}
                                     disabled={!hasValidToken}
                                 >
-                                    Delete
-                                </LoadingButton>
+                                    {t('common.delete', `Delete`)}</LoadingButton>
                                 <Typography variant="body2">
                                     {syncState ? (
                                         <>

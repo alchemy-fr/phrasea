@@ -8,6 +8,7 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import {putAsset} from '../../../../api/asset';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -20,6 +21,7 @@ export default function ReplaceAssetWithFileDialog({
     open,
     modalIndex,
 }: Props) {
+    const {t} = useTranslation();
     const {closeModal} = useModals();
 
     const {handleSubmit, remoteErrors, submitting, forbidNavigation} =
@@ -47,7 +49,7 @@ export default function ReplaceAssetWithFileDialog({
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
-            submitLabel={'Replace'}
+            submitLabel={t('asset.replace.label', `Replace`)}
         >
             <Typography sx={{mb: 3}}>
                 {`Please confirm replacing asset.`}

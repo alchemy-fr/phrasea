@@ -100,7 +100,7 @@ export default function FilterRule({
                     p: 2,
                 }}
             >
-                <div className="col-md-12">Rule applies for:</div>
+                <div className="col-md-12">{t('filter_rule.rule_applies_for', `Rule applies for:`)}</div>
                 <Grid container spacing={2}>
                     {data?.id ? (
                         <Grid item md={12}>
@@ -140,7 +140,7 @@ export default function FilterRule({
                                 </FormRow>
                             </Grid>
                             <Grid item md={2}>
-                                <b>or</b>
+                                <b>{t('filter_rule.or', `or`)}</b>
                             </Grid>
                             <Grid item md={5}>
                                 <FormRow>
@@ -222,14 +222,14 @@ export default function FilterRule({
                     </Grid>
                     <Grid item md={12}>
                         <Button className={'btn-primary'} type={'submit'}>
-                            Save
+                            {t('common.save', `Save`)}
                         </Button>{' '}
                         <Button
                             className={'btn-secondary'}
                             color={'warning'}
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('common.cancel', `Cancel`)}
                         </Button>{' '}
                         {data?.id && (
                             <Button
@@ -239,7 +239,7 @@ export default function FilterRule({
                                 color={'error'}
                                 onClick={deleteClick}
                             >
-                                Delete
+                                {t('common.delete', `Delete`)}
                             </Button>
                         )}
                     </Grid>

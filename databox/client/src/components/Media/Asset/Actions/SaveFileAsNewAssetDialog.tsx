@@ -90,7 +90,7 @@ export default function SaveFileAsNewAssetDialog({
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
-            submitLabel={'Save'}
+            submitLabel={t('common.save', `Save`)}
         >
             <Typography sx={{mb: 3}}>{``}</Typography>
             <form id={formId} onSubmit={handleSubmit}>
