@@ -526,7 +526,7 @@ importers:
         version: 1.71.1
       sass-loader:
         specifier: ^8.0.2
-        version: 8.0.2(sass@1.71.1)(webpack@5.91.0)
+        version: 8.0.2(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7))
       universal-cookie:
         specifier: ^4.0.4
         version: 4.0.4
@@ -579,6 +579,9 @@ importers:
       i18next-scanner-typescript:
         specifier: ^1.2.0
         version: 1.2.0
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.4.7)(@types/node@18.19.24)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -1322,7 +1325,10 @@ importers:
         version: 1.71.1
       sass-loader:
         specifier: ^13.3.3
-        version: 13.3.3(sass@1.71.1)(webpack@5.91.0)
+        version: 13.3.3(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7))
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.4.7)(@types/node@18.19.24)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -23885,21 +23891,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  sass-loader@13.3.3(sass@1.71.1)(webpack@5.91.0):
+  sass-loader@13.3.3(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       neo-async: 2.6.2
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
     optionalDependencies:
       sass: 1.71.1
 
-  sass-loader@8.0.2(sass@1.71.1)(webpack@5.91.0):
+  sass-loader@8.0.2(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       clone-deep: 4.0.1
       loader-utils: 1.4.2
       neo-async: 2.6.2
       schema-utils: 2.7.1
       semver: 6.3.1
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
     optionalDependencies:
       sass: 1.71.1
 
@@ -24588,14 +24594,16 @@ snapshots:
     dependencies:
       execa: 0.7.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.91.0):
+  terser-webpack-plugin@5.3.10(@swc/core@1.4.7)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.30.3
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
+    optionalDependencies:
+      '@swc/core': 1.4.7
 
   terser@5.30.3:
     dependencies:
@@ -25509,7 +25517,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.1: {}
 
-  webpack@5.91.0:
+  webpack@5.91.0(@swc/core@1.4.7):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.5
@@ -25532,7 +25540,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.91.0)
+      terser-webpack-plugin: 5.3.10(@swc/core@1.4.7)(webpack@5.91.0(@swc/core@1.4.7))
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:

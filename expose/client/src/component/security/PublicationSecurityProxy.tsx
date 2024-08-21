@@ -73,5 +73,5 @@ export default function PublicationSecurityProxy({
         });
     }
 
-    return <div>Sorry! You cannot access this publication.</div>;
+    return <div>{t('publication_security_proxy.sorry_you_cannot_access_this_publication', `Sorry! You cannot access this publication.`)}</div>;
 }
