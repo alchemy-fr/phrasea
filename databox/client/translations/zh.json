@@ -1,1 +1,780 @@
-{}
+{
+  "acl": {
+    "delete": "__STRING_NOT_TRANSLATED__",
+    "form": {
+      "group_select": {
+        "placeholder": "__STRING_NOT_TRANSLATED__"
+      },
+      "user_select": {
+        "placeholder": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "table": {
+      "cols": {
+        "user_group": "__STRING_NOT_TRANSLATED__"
+      }
+    }
+  },
+  "asset": {
+    "delete": {
+      "confirm": {
+        "message_many_0": "__STRING_NOT_TRANSLATED__",
+        "message_one": "__STRING_NOT_TRANSLATED__",
+        "title": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "info": {
+      "date_added": "__STRING_NOT_TRANSLATED__",
+      "id": "__STRING_NOT_TRANSLATED__",
+      "last_attribute_modification_date": "__STRING_NOT_TRANSLATED__",
+      "last_modification_date": "__STRING_NOT_TRANSLATED__",
+      "owner": "__STRING_NOT_TRANSLATED__"
+    },
+    "manage": {
+      "acl": {
+        "title": "__STRING_NOT_TRANSLATED__",
+        "versions": "__STRING_NOT_TRANSLATED__"
+      },
+      "attributes": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "edit": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "info": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "open": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "operations": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "renditions": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "operations": {
+      "last_asset_workflows": "__STRING_NOT_TRANSLATED__",
+      "trigger_workflow_again": "__STRING_NOT_TRANSLATED__",
+      "view": "__STRING_NOT_TRANSLATED__",
+      "you_need_to_run_integrations_again": "__STRING_NOT_TRANSLATED__"
+    },
+    "replace": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "view": {
+      "attributes": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "asset_actions": {
+    "copy": "__STRING_NOT_TRANSLATED__",
+    "delete": "__STRING_NOT_TRANSLATED__",
+    "edit": "__STRING_NOT_TRANSLATED__",
+    "edit_attributes": "__STRING_NOT_TRANSLATED__",
+    "export": "__STRING_NOT_TRANSLATED__",
+    "move": "__STRING_NOT_TRANSLATED__",
+    "select_all": "__STRING_NOT_TRANSLATED__",
+    "share": "__STRING_NOT_TRANSLATED__",
+    "unselect_all": "__STRING_NOT_TRANSLATED__"
+  },
+  "asset_dropzone": {
+    "drop_the_files_here": "__STRING_NOT_TRANSLATED__"
+  },
+  "asset_view": {
+    "edit_asset": "__STRING_NOT_TRANSLATED__"
+  },
+  "attribute": {
+    "editor": {
+      "tabs": {
+        "preview": {
+          "no_asset": "__STRING_NOT_TRANSLATED__",
+          "title": "__STRING_NOT_TRANSLATED__"
+        },
+        "values": {
+          "title": "__STRING_NOT_TRANSLATED__"
+        }
+      }
+    }
+  },
+  "attribute_class": {
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "attribute_definitions": {
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "attribute_editor": {
+    "cancel": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "definitions": {
+      "indeterminate": "__STRING_NOT_TRANSLATED__"
+    },
+    "diff": {
+      "dialog": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "discard_changes": {
+      "confirm": "__STRING_NOT_TRANSLATED__",
+      "desc": "__STRING_NOT_TRANSLATED__",
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "save": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "saved": "__STRING_NOT_TRANSLATED__",
+    "suggestions": {
+      "menu": {
+        "apply": "__STRING_NOT_TRANSLATED__",
+        "select_with_value": "__STRING_NOT_TRANSLATED__"
+      },
+      "no_value": "__STRING_NOT_TRANSLATED__",
+      "originalValues": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    }
+  },
+  "attribute_entity": {
+    "dialog": {
+      "create": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "form": {
+      "created": "__STRING_NOT_TRANSLATED__"
+    },
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "aws_rekognition": {
+    "actions": {
+      "detect_faces": "__STRING_NOT_TRANSLATED__",
+      "detect_image_labels": "__STRING_NOT_TRANSLATED__",
+      "detect_texts": "__STRING_NOT_TRANSLATED__",
+      "face": "__STRING_NOT_TRANSLATED__",
+      "faces": "__STRING_NOT_TRANSLATED__",
+      "labels": "__STRING_NOT_TRANSLATED__",
+      "no_face_detected": "__STRING_NOT_TRANSLATED__",
+      "no_text_detected": "__STRING_NOT_TRANSLATED__",
+      "text": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "basket": {
+    "choose_modal": {
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "create_button": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "default": {
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "info": {
+      "creation_date": "__STRING_NOT_TRANSLATED__",
+      "id": "__STRING_NOT_TRANSLATED__",
+      "modification_date": "__STRING_NOT_TRANSLATED__",
+      "owner": "__STRING_NOT_TRANSLATED__"
+    },
+    "item": {
+      "edit": "__STRING_NOT_TRANSLATED__"
+    },
+    "manage": {
+      "acl": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "edit": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "info": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "integrations": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "operations": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "basket_delete": {
+    "confirm": "__STRING_NOT_TRANSLATED__",
+    "title": "__STRING_NOT_TRANSLATED__"
+  },
+  "change_theme": {
+    "save": "__STRING_NOT_TRANSLATED__",
+    "title": "__STRING_NOT_TRANSLATED__"
+  },
+  "chip": {
+    "editable": "__STRING_NOT_TRANSLATED__",
+    "private": "__STRING_NOT_TRANSLATED__",
+    "public": "__STRING_NOT_TRANSLATED__",
+    "read_only": "__STRING_NOT_TRANSLATED__"
+  },
+  "collection": {
+    "info": {
+      "creation_date": "__STRING_NOT_TRANSLATED__",
+      "id": "__STRING_NOT_TRANSLATED__",
+      "modification_date": "__STRING_NOT_TRANSLATED__",
+      "owner": "__STRING_NOT_TRANSLATED__"
+    },
+    "item": {
+      "create_asset": "__STRING_NOT_TRANSLATED__",
+      "create_collection": "__STRING_NOT_TRANSLATED__",
+      "edit": "__STRING_NOT_TRANSLATED__"
+    },
+    "manage": {
+      "acl": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "edit": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "info": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "operations": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "tag_rules": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "collection_delete": {
+    "confirm": "__STRING_NOT_TRANSLATED__",
+    "title": "__STRING_NOT_TRANSLATED__"
+  },
+  "collection_move": {
+    "intro": "__STRING_NOT_TRANSLATED__",
+    "title": "__STRING_NOT_TRANSLATED__"
+  },
+  "common": {
+    "cancel": "__STRING_NOT_TRANSLATED__",
+    "copy": "__STRING_NOT_TRANSLATED__",
+    "databox": "__STRING_NOT_TRANSLATED__",
+    "delete": "__STRING_NOT_TRANSLATED__",
+    "item_sorted": "__STRING_NOT_TRANSLATED__",
+    "loading": "__STRING_NOT_TRANSLATED__",
+    "no": "__STRING_NOT_TRANSLATED__",
+    "remove": "__STRING_NOT_TRANSLATED__",
+    "save": "__STRING_NOT_TRANSLATED__",
+    "search": {
+      "placeholder": "__STRING_NOT_TRANSLATED__",
+      "submit": "__STRING_NOT_TRANSLATED__"
+    },
+    "uploading": "__STRING_NOT_TRANSLATED__",
+    "yes": "__STRING_NOT_TRANSLATED__"
+  },
+  "copy_assets": {
+    "dialog": {
+      "intro": "__STRING_NOT_TRANSLATED__",
+      "submit": "__STRING_NOT_TRANSLATED__",
+      "title_0": "__STRING_NOT_TRANSLATED__"
+    },
+    "form": {
+      "by_reference": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "with_attributes": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "with_tags": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    }
+  },
+  "copy_toclipboard": {
+    "copied": "__STRING_NOT_TRANSLATED__"
+  },
+  "danger_zone": "__STRING_NOT_TRANSLATED__",
+  "date_histogram_facet": {
+    "clear_filter": "__STRING_NOT_TRANSLATED__"
+  },
+  "debug_es_modal": {
+    "elasticsearch_response_time": "__STRING_NOT_TRANSLATED__",
+    "search_debug": "__STRING_NOT_TRANSLATED__",
+    "total_response_time": "__STRING_NOT_TRANSLATED__"
+  },
+  "definition_manager": {
+    "confirm_delete": "__STRING_NOT_TRANSLATED__",
+    "saved": "__STRING_NOT_TRANSLATED__"
+  },
+  "delete": {
+    "basket": {
+      "confirmed": "__STRING_NOT_TRANSLATED__"
+    },
+    "collection": {
+      "confirmed": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "dialog": {
+    "apply": "__STRING_NOT_TRANSLATED__",
+    "cancel": "__STRING_NOT_TRANSLATED__",
+    "close": "__STRING_NOT_TRANSLATED__",
+    "confirm": "__STRING_NOT_TRANSLATED__",
+    "confirm_text_type": {
+      "intro": "__STRING_NOT_TRANSLATED__",
+      "placeholder": "__STRING_NOT_TRANSLATED__"
+    },
+    "reset": "__STRING_NOT_TRANSLATED__",
+    "save": "__STRING_NOT_TRANSLATED__"
+  },
+  "export": {
+    "dialog": {
+      "intro": "__STRING_NOT_TRANSLATED__",
+      "submit": "__STRING_NOT_TRANSLATED__",
+      "title_0": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "expose_basket_integration": {
+    "authorize": "__STRING_NOT_TRANSLATED__",
+    "force_sync": "__STRING_NOT_TRANSLATED__",
+    "sync_with_a_publication": "__STRING_NOT_TRANSLATED__"
+  },
+  "face_detail_tooltip": {
+    "age_range": "__STRING_NOT_TRANSLATED__",
+    "eyeglasses": "__STRING_NOT_TRANSLATED__",
+    "eyes_open": "__STRING_NOT_TRANSLATED__",
+    "gender": "__STRING_NOT_TRANSLATED__",
+    "has_a_beard": "__STRING_NOT_TRANSLATED__",
+    "mouth_open": "__STRING_NOT_TRANSLATED__",
+    "mustache": "__STRING_NOT_TRANSLATED__",
+    "smiling": "__STRING_NOT_TRANSLATED__"
+  },
+  "file_player": {
+    "unsupported_format": "__STRING_NOT_TRANSLATED__"
+  },
+  "filter_rule": {
+    "exclude": {
+      "helper": "__STRING_NOT_TRANSLATED__"
+    },
+    "group": "__STRING_NOT_TRANSLATED__",
+    "include": {
+      "helper": "__STRING_NOT_TRANSLATED__"
+    },
+    "or": "__STRING_NOT_TRANSLATED__",
+    "rule_applies_for": "__STRING_NOT_TRANSLATED__",
+    "user": "__STRING_NOT_TRANSLATED__"
+  },
+  "form": {
+    "asset": {
+      "tags": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "templates": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "asset_create": {
+      "title": "__STRING_NOT_TRANSLATED__",
+      "title_with_parent": "__STRING_NOT_TRANSLATED__"
+    },
+    "asset_edit": {
+      "success": "__STRING_NOT_TRANSLATED__"
+    },
+    "attribute": {
+      "collection": {
+        "item_add": "__STRING_NOT_TRANSLATED__",
+        "item_remove": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "attribute_class": {
+      "editable": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "name": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "public": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "attribute_definition": {
+      "allowInvalid": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "class": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "field_type": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "multiple": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "name": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "searchable": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "slug": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "suggest": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "translatable": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "attribute_entity": {
+      "type": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "value": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "basket": {
+      "description": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "basket_create": {
+      "success": "__STRING_NOT_TRANSLATED__",
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "basket_edit": {
+      "success": "__STRING_NOT_TRANSLATED__"
+    },
+    "collection": {
+      "title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "collection_create": {
+      "success": "__STRING_NOT_TRANSLATED__",
+      "title": "__STRING_NOT_TRANSLATED__",
+      "title_with_parent": "__STRING_NOT_TRANSLATED__"
+    },
+    "collection_edit": {
+      "success": "__STRING_NOT_TRANSLATED__"
+    },
+    "collection_move": {
+      "success": "__STRING_NOT_TRANSLATED__"
+    },
+    "copy_assets": {
+      "asset_not_linkable": {
+        "other_ws": "__STRING_NOT_TRANSLATED__",
+        "permission": "__STRING_NOT_TRANSLATED__",
+        "select_for_hard_copy": "__STRING_NOT_TRANSLATED__"
+      },
+      "destination": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "move_assets": {
+      "destination": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "permissions": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "privacy": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    },
+    "profile": {
+      "firstName": {
+        "translate": {
+          "title": "__STRING_NOT_TRANSLATED__"
+        }
+      }
+    },
+    "rendition_class": {
+      "name": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "public": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "rendition_definition": {
+      "class": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "name": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "pickSourceFile": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "useAsOriginal": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "useAsPreview": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "useAsThumbnail": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "useAsThumbnailActive": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "save_as": {
+      "destination": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "tag": {
+      "color": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "name": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "upload": {
+      "destination": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "submit": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "success": "__STRING_NOT_TRANSLATED__",
+      "title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "workspace": {
+      "fallback_locales": {
+        "add": "__STRING_NOT_TRANSLATED__",
+        "label": "__STRING_NOT_TRANSLATED__",
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "locales": {
+        "add": "__STRING_NOT_TRANSLATED__",
+        "label": "__STRING_NOT_TRANSLATED__",
+        "placeholder": "__STRING_NOT_TRANSLATED__",
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "public": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "workspace_edit": {
+      "success": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "integration": {
+    "expose": {
+      "create_pub": {
+        "submit": "__STRING_NOT_TRANSLATED__",
+        "success": "__STRING_NOT_TRANSLATED__",
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "form": {
+        "description": "__STRING_NOT_TRANSLATED__",
+        "enabled": "__STRING_NOT_TRANSLATED__",
+        "parent": "__STRING_NOT_TRANSLATED__",
+        "profile": "__STRING_NOT_TRANSLATED__",
+        "slug": "__STRING_NOT_TRANSLATED__",
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "sync": {
+        "event": {
+          "sync-complete": "__STRING_NOT_TRANSLATED__"
+        }
+      }
+    }
+  },
+  "layout": {
+    "options": {
+      "collections_count": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "display_collections": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "display_previews_hover": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "display_tags": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "display_title": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "more": "__STRING_NOT_TRANSLATED__",
+      "play_preview_videos": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "tags_count": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "thumb_size": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      },
+      "title_rows": {
+        "label": "__STRING_NOT_TRANSLATED__"
+      }
+    },
+    "previews_locked": "__STRING_NOT_TRANSLATED__",
+    "previews_unlocked": "__STRING_NOT_TRANSLATED__",
+    "view": {
+      "grid": "__STRING_NOT_TRANSLATED__",
+      "list": "__STRING_NOT_TRANSLATED__",
+      "masonry": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "load_more": {
+    "button": {
+      "load_more": "__STRING_NOT_TRANSLATED__",
+      "loading": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "menu": {
+    "change_theme": "__STRING_NOT_TRANSLATED__",
+    "sign_in": "__STRING_NOT_TRANSLATED__",
+    "theme_editor": "__STRING_NOT_TRANSLATED__"
+  },
+  "metric": {
+    "ms": "__STRING_NOT_TRANSLATED__"
+  },
+  "modal": {
+    "close": "__STRING_NOT_TRANSLATED__"
+  },
+  "move_assets": {
+    "dialog": {
+      "intro": "__STRING_NOT_TRANSLATED__",
+      "submit": "__STRING_NOT_TRANSLATED__",
+      "title_0": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "not_found": {
+    "back_home": "__STRING_NOT_TRANSLATED__",
+    "content": "__STRING_NOT_TRANSLATED__",
+    "title": "__STRING_NOT_TRANSLATED__"
+  },
+  "pagination": {
+    "load_more_collections": "__STRING_NOT_TRANSLATED__"
+  },
+  "permission_table": {
+    "actions": "__STRING_NOT_TRANSLATED__"
+  },
+  "privacy": {
+    "no_access": "__STRING_NOT_TRANSLATED__",
+    "private": "__STRING_NOT_TRANSLATED__",
+    "private_in_workspace": "__STRING_NOT_TRANSLATED__",
+    "public": "__STRING_NOT_TRANSLATED__",
+    "public_for_users": "__STRING_NOT_TRANSLATED__",
+    "public_in_workspace": "__STRING_NOT_TRANSLATED__",
+    "secret": "__STRING_NOT_TRANSLATED__"
+  },
+  "remove_bgasset_editor_actions": {
+    "remove_bg": "__STRING_NOT_TRANSLATED__",
+    "use_slider_to_compare": "__STRING_NOT_TRANSLATED__"
+  },
+  "rendition_class": {
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "rendition_definitions": {
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "renditions": {
+    "download": "__STRING_NOT_TRANSLATED__"
+  },
+  "save_as": {
+    "label": "__STRING_NOT_TRANSLATED__"
+  },
+  "save_as_template_form": {
+    "save_values_as_template_for_reuse": "__STRING_NOT_TRANSLATED__",
+    "template_name": "__STRING_NOT_TRANSLATED__"
+  },
+  "save_file_as_rendition_dialog": {
+    "rendition_to_add_or_replace": "__STRING_NOT_TRANSLATED__"
+  },
+  "search": {
+    "search_button": "__STRING_NOT_TRANSLATED__",
+    "sort_by": {
+      "title": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "sort_by": {
+    "sort_by": "__STRING_NOT_TRANSLATED__"
+  },
+  "tags": {
+    "label": "__STRING_NOT_TRANSLATED__",
+    "new": {
+      "label": "__STRING_NOT_TRANSLATED__"
+    }
+  },
+  "tuiphoto_editor": {
+    "file_name": "__STRING_NOT_TRANSLATED__",
+    "open_recent": "__STRING_NOT_TRANSLATED__",
+    "original": "__STRING_NOT_TRANSLATED__",
+    "save": "__STRING_NOT_TRANSLATED__",
+    "save_as": "__STRING_NOT_TRANSLATED__"
+  },
+  "upload_dropzone": {
+    "drag_n_drop_some_files_here_or_click_to_select_files": "__STRING_NOT_TRANSLATED__"
+  },
+  "workspace": {
+    "info": {
+      "creation_date": "__STRING_NOT_TRANSLATED__",
+      "id": "__STRING_NOT_TRANSLATED__"
+    },
+    "item": {
+      "create_collection": "__STRING_NOT_TRANSLATED__",
+      "edit": "__STRING_NOT_TRANSLATED__"
+    },
+    "manage": {
+      "acl": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "attribute_class": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "attribute_definitions": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "attribute_entity": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "edit": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "info": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "rendition_class": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "rendition_definition": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "tag_rules": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "tags": {
+        "title": "__STRING_NOT_TRANSLATED__"
+      },
+      "title": "__STRING_NOT_TRANSLATED__"
+    },
+    "no_locale_defined": "__STRING_NOT_TRANSLATED__"
+  }
+}

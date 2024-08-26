@@ -642,6 +642,7 @@
   },
   "load_more": {
     "button": {
+      "load_more": "Load more",
       "loading": "Loading..."
     }
   },
