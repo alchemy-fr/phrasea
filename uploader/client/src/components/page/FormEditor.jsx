@@ -131,7 +131,7 @@ export default class FormEditor extends Component {
                                                 rows="20"
                                                 value={
                                                     loading
-                                                        ? 'Loading...'
+                                                        ? 'Loading…'
                                                         : value
                                                 }
                                                 disabled={loading}
@@ -160,7 +160,7 @@ export default class FormEditor extends Component {
                                 </div>
                                 <div className="col">
                                     {loading ? (
-                                        'Loading...'
+                                        'Loading…'
                                     ) : (
                                         <FormPreview schema={value} />
                                     )}

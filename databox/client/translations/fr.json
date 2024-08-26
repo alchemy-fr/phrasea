@@ -24,6 +24,13 @@
         "title": "Confirmer la suppression"
       }
     },
+    "info": {
+      "date_added": "Date Added",
+      "id": "ID",
+      "last_attribute_modification_date": "Last attribute modification date",
+      "last_modification_date": "Last Modification date",
+      "owner": "Owner"
+    },
     "manage": {
       "acl": {
         "title": "Permissions",
@@ -38,6 +45,9 @@
       "info": {
         "title": "Infos"
       },
+      "open": {
+        "title": "Open"
+      },
       "operations": {
         "title": "Opérations"
       },
@@ -45,6 +55,18 @@
         "title": "Renditions"
       },
       "title": "Gérer l'actif {{name}}"
+    },
+    "operations": {
+      "last_asset_workflows": "Last asset workflows",
+      "trigger_workflow_again": "Trigger workflow again",
+      "view": "View",
+      "you_need_to_run_integrations_again": "You need to run integrations again?"
+    },
+    "replace": {
+      "label": "Replace"
+    },
+    "view": {
+      "attributes": "Asset Attributes"
     }
   },
   "asset_actions": {
@@ -58,6 +80,25 @@
     "share": "Partager",
     "unselect_all": "Désélectionner tout"
   },
+  "asset_dropzone": {
+    "drop_the_files_here": "Drop the files here ..."
+  },
+  "asset_view": {
+    "edit_asset": "Edit asset"
+  },
+  "attribute": {
+    "editor": {
+      "tabs": {
+        "preview": {
+          "no_asset": "No asset selected",
+          "title": "Preview"
+        },
+        "values": {
+          "title": "Values"
+        }
+      }
+    }
+  },
   "attribute_class": {
     "new": {
       "label": "Nouvelle classe"
@@ -66,6 +107,64 @@
   "attribute_definitions": {
     "new": {
       "label": "Nouvel attribut"
+    }
+  },
+  "attribute_editor": {
+    "cancel": {
+      "label": "Cancel"
+    },
+    "definitions": {
+      "indeterminate": "Indeterminate"
+    },
+    "diff": {
+      "dialog": {
+        "title": "Confirm Changes?"
+      }
+    },
+    "discard_changes": {
+      "confirm": "Yes, discard",
+      "desc": "All the changes you've made on assets are not applied and will be discarded.",
+      "title": "Discard changes?"
+    },
+    "save": {
+      "label": "Save"
+    },
+    "saved": "Saved!",
+    "suggestions": {
+      "menu": {
+        "apply": "Set this value to selected assets",
+        "select_with_value": "Select assets having this value"
+      },
+      "no_value": "- empty -",
+      "originalValues": {
+        "label": "Compare original values"
+      }
+    }
+  },
+  "attribute_entity": {
+    "dialog": {
+      "create": {
+        "title": "New Item"
+      }
+    },
+    "form": {
+      "created": "Item created!"
+    },
+    "new": {
+      "label": "New Entity"
+    }
+  },
+  "aws_rekognition": {
+    "actions": {
+      "detect_faces": "Detect faces",
+      "detect_image_labels": "Detect image labels",
+      "detect_texts": "Detect texts",
+      "face": "Face #",
+      "faces": "Faces",
+      "labels": "Labels",
+      "no_face_detected": "No face detected",
+      "no_text_detected": "No text detected",
+      "text": "Text"
     }
   },
   "basket": {
@@ -77,6 +176,12 @@
     },
     "default": {
       "title": "Mon panier"
+    },
+    "info": {
+      "creation_date": "Creation date",
+      "id": "ID",
+      "modification_date": "Modification date",
+      "owner": "Owner"
     },
     "item": {
       "edit": "Modifier ce panier"
@@ -91,11 +196,18 @@
       "info": {
         "title": "Infos"
       },
+      "integrations": {
+        "title": "Integrations"
+      },
+      "operations": {
+        "title": "Operations"
+      },
       "title": "Gérer le panier {{name}}"
     }
   },
   "basket_delete": {
-    "confirm": "Êtes-vous sûr de vouloir supprimer ce panier ?"
+    "confirm": "Êtes-vous sûr de vouloir supprimer ce panier ?",
+    "title": "Delete Basket"
   },
   "change_theme": {
     "save": "Enregistrer",
@@ -108,6 +220,12 @@
     "read_only": "Lecture seule"
   },
   "collection": {
+    "info": {
+      "creation_date": "Creation date",
+      "id": "ID",
+      "modification_date": "Modification date",
+      "owner": "Owner"
+    },
     "item": {
       "create_asset": "Ajouter un nouvel actif à la collection",
       "create_collection": "Créer une nouvelle collection dans celle-ci",
@@ -133,20 +251,29 @@
     }
   },
   "collection_delete": {
-    "confirm": "Êtes-vous sûr de vouloir supprimer cette collection ?"
+    "confirm": "Êtes-vous sûr de vouloir supprimer cette collection ?",
+    "title": "Delete collection"
   },
   "collection_move": {
     "intro": "Sélectionnez la destination où déplacer cette collection :",
     "title": "Déplacer la collection"
   },
   "common": {
+    "cancel": "Cancel",
+    "copy": "Copy",
+    "databox": "Databox",
     "delete": "Supprimer",
     "item_sorted": "Ordre enregistré !",
     "loading": "Chargement...",
+    "no": "No",
+    "remove": "Remove",
+    "save": "Save",
     "search": {
       "placeholder": "Rechercher...",
       "submit": "Rechercher"
-    }
+    },
+    "uploading": "Uploading...",
+    "yes": "Yes"
   },
   "copy_assets": {
     "dialog": {
@@ -171,6 +298,14 @@
     "copied": "Copié dans le presse-papiers !"
   },
   "danger_zone": "Zone dangereuse",
+  "date_histogram_facet": {
+    "clear_filter": "Clear filter"
+  },
+  "debug_es_modal": {
+    "elasticsearch_response_time": "Elasticsearch response time:",
+    "search_debug": "Search Debug |",
+    "total_response_time": "Total response time:"
+  },
   "definition_manager": {
     "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet élément ?",
     "saved": "Définition enregistrée !"
@@ -189,7 +324,6 @@
     "close": "Fermer",
     "confirm": "Confirmer",
     "confirm_text_type": {
-      "default": "Confirmer",
       "intro": "Veuillez taper \"{{ text }}\" pour confirmer :",
       "placeholder": "Taper \"{{ text }}\""
     },
@@ -204,6 +338,24 @@
       "title_plural": "Exporter {{count}} actifs"
     }
   },
+  "expose_basket_integration": {
+    "authorize": "Authorize",
+    "force_sync": "Force Sync",
+    "sync_with_a_publication": "Sync with a Publication"
+  },
+  "face_detail_tooltip": {
+    "age_range": "Age range",
+    "eyeglasses": "Eyeglasses",
+    "eyes_open": "Eyes Open",
+    "gender": "Gender",
+    "has_a_beard": "Has a beard",
+    "mouth_open": "Mouth Open",
+    "mustache": "Mustache",
+    "smiling": "Smiling"
+  },
+  "file_player": {
+    "unsupported_format": "Unsupported format"
+  },
   "filter_rule": {
     "exclude": {
       "helper": "Les actifs dans ce {{type}} ne seront visibles que s'ils ne contiennent PAS ces tags."
@@ -212,6 +364,8 @@
     "include": {
       "helper": "Les actifs dans ce {{type}} ne seront visibles que s'ils contiennent ces tags."
     },
+    "or": "or",
+    "rule_applies_for": "Rule applies for:",
     "user": "Utilisateur"
   },
   "form": {
@@ -277,6 +431,14 @@
       },
       "translatable": {
         "label": "Traduisible"
+      }
+    },
+    "attribute_entity": {
+      "type": {
+        "label": "Type"
+      },
+      "value": {
+        "label": "Value"
       }
     },
     "basket": {
@@ -417,6 +579,28 @@
       "success": "Espace de travail édité !"
     }
   },
+  "integration": {
+    "expose": {
+      "create_pub": {
+        "submit": "Create & Sync",
+        "success": "Publication has been created and will be synced",
+        "title": "Create Publication"
+      },
+      "form": {
+        "description": "Description",
+        "enabled": "Enabled",
+        "parent": "Parent Publication",
+        "profile": "Publication Profile",
+        "slug": "Identitier",
+        "title": "Publication Title"
+      },
+      "sync": {
+        "event": {
+          "sync-complete": "Sync in progress…"
+        }
+      }
+    }
+  },
   "layout": {
     "options": {
       "collections_count": {
@@ -466,6 +650,9 @@
     "sign_in": "Se connecter",
     "theme_editor": "Éditeur de thème"
   },
+  "metric": {
+    "ms": "ms"
+  },
   "modal": {
     "close": "Fermer"
   },
@@ -482,6 +669,12 @@
     "content": "La page que vous recherchez n'existe pas ou a été supprimée",
     "title": "Page non trouvée"
   },
+  "pagination": {
+    "load_more_collections": "Load more collections"
+  },
+  "permission_table": {
+    "actions": "Actions"
+  },
   "privacy": {
     "no_access": "Pas d'accès",
     "private": "Privé",
@@ -490,6 +683,10 @@
     "public_for_users": "Public pour les utilisateurs",
     "public_in_workspace": "Public dans l'espace de travail",
     "secret": "Secret"
+  },
+  "remove_bgasset_editor_actions": {
+    "remove_bg": "Remove BG",
+    "use_slider_to_compare": "Use slider to compare"
   },
   "rendition_class": {
     "new": {
@@ -504,18 +701,46 @@
   "renditions": {
     "download": "Télécharger"
   },
+  "save_as": {
+    "label": "Save as"
+  },
+  "save_as_template_form": {
+    "save_values_as_template_for_reuse": "Save values as template for reuse",
+    "template_name": "Template name"
+  },
+  "save_file_as_rendition_dialog": {
+    "rendition_to_add_or_replace": "Rendition to add or replace"
+  },
   "search": {
     "search_button": "Rechercher",
     "sort_by": {
       "title": "Trier par"
     }
   },
+  "sort_by": {
+    "sort_by": "Sort by"
+  },
   "tags": {
+    "label": "Tags",
     "new": {
       "label": "Nouveau tag"
     }
   },
+  "tuiphoto_editor": {
+    "file_name": "File name",
+    "open_recent": "Open recent",
+    "original": "Original",
+    "save": "Save",
+    "save_as": "Save as"
+  },
+  "upload_dropzone": {
+    "drag_n_drop_some_files_here_or_click_to_select_files": "Drag 'n' drop some files here, or click to select files"
+  },
   "workspace": {
+    "info": {
+      "creation_date": "Creation date",
+      "id": "ID"
+    },
     "item": {
       "create_collection": "Ajouter une collection dans cet espace de travail",
       "edit": "Modifier cet espace de travail"
@@ -529,6 +754,9 @@
       },
       "attribute_definitions": {
         "title": "Attributs"
+      },
+      "attribute_entity": {
+        "title": "Entities"
       },
       "edit": {
         "title": "Modifier"
@@ -549,6 +777,7 @@
         "title": "Tags"
       },
       "title": "Gérer l'espace de travail {{name}}"
-    }
+    },
+    "no_locale_defined": "No locale defined in this workspace"
   }
 }

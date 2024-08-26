@@ -124,7 +124,7 @@ function BasketsPanel({selected}: Props) {
                         type={'search'}
                         placeholder={t(
                             'common.search.placeholder',
-                            'Search...'
+                            'Search…'
                         )}
                     />
                     <LoadingButton

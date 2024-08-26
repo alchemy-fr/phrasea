@@ -467,7 +467,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                             </span>
                         </>
                     ) : (
-                        t('common.loading', 'Loading...')
+                        t('common.loading', 'Loading…')
                     )}
                 </Box>
                 <Divider

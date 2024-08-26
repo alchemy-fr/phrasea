@@ -84,7 +84,7 @@ export default class TagRules extends PureComponent<Props, State> {
     render() {
         const {rules, newRule, editRule, users, groups} = this.state;
         if (rules === undefined) {
-            return 'Loading rules...';
+            return 'Loading rules…';
         }
 
         const disabledUsers = rules.filter(r => !!r.userId).map(r => r.userId!);
