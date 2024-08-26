@@ -9,7 +9,7 @@ import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 function RemoveBgComparison({
     left,
@@ -88,7 +88,12 @@ export default function RemoveBGAssetEditorActions({
     if (bgRemovedFile) {
         return (
             <IntegrationPanelContent>
-                <Typography sx={{mb: 3}}>{t('remove_bgasset_editor_actions.use_slider_to_compare', `Use slider to compare`)}</Typography>
+                <Typography sx={{mb: 3}}>
+                    {t(
+                        'remove_bgasset_editor_actions.use_slider_to_compare',
+                        `Use slider to compare`
+                    )}
+                </Typography>
 
                 <SaveAsButton
                     asset={asset}
@@ -107,7 +112,8 @@ export default function RemoveBGAssetEditorActions({
                 disabled={running}
                 variant={'contained'}
             >
-                {t('remove_bgasset_editor_actions.remove_bg', `Remove BG`)}</Button>
+                {t('remove_bgasset_editor_actions.remove_bg', `Remove BG`)}
+            </Button>
         </IntegrationPanelContent>
     );
 }

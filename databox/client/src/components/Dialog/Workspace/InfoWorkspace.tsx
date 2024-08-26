@@ -5,7 +5,7 @@ import {Divider, MenuList} from '@mui/material';
 import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     id: string;

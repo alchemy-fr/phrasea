@@ -100,7 +100,9 @@ export default function FilterRule({
                     p: 2,
                 }}
             >
-                <div className="col-md-12">{t('filter_rule.rule_applies_for', `Rule applies for:`)}</div>
+                <div className="col-md-12">
+                    {t('filter_rule.rule_applies_for', `Rule applies for:`)}
+                </div>
                 <Grid container spacing={2}>
                     {data?.id ? (
                         <Grid item md={12}>

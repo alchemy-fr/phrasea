@@ -78,7 +78,8 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            {t('common.databox', `Databox`)}</Typography>
+                            {t('common.databox', `Databox`)}
+                        </Typography>
 
                         <Box
                             sx={{
@@ -111,7 +112,8 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            {t('common.databox', `Databox`)}</Typography>
+                            {t('common.databox', `Databox`)}
+                        </Typography>
                         <Box
                             sx={{
                                 flexGrow: 1,

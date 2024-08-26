@@ -26,7 +26,8 @@ function Metric({n}: {n: number}) {
                     >
                         {n}
                     </Box>
-                    {t('metric.ms', `ms`)}</>
+                    {t('metric.ms', `ms`)}
+                </>
             }
         />
     );
@@ -44,9 +45,15 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
                 <>
                     {t('debug_es_modal.search_debug', `Search Debug |`)}{' '}
                     <small>
-                        {t('debug_es_modal.elasticsearch_response_time', `Elasticsearch response time:`)}{' '}
+                        {t(
+                            'debug_es_modal.elasticsearch_response_time',
+                            `Elasticsearch response time:`
+                        )}{' '}
                         <Metric n={Math.round(debug.esQueryTime * 1000)} /> |
-                        {t('debug_es_modal.total_response_time', `Total response time:`)}{' '}
+                        {t(
+                            'debug_es_modal.total_response_time',
+                            `Total response time:`
+                        )}{' '}
                         <Metric
                             n={
                                 Math.round(debug.totalResponseTime * 1000) /
@@ -75,7 +82,8 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
                                     );
                                 }}
                             >
-                                {t('common.copy', `Copy`)}</Button>
+                                {t('common.copy', `Copy`)}
+                            </Button>
                         )}
                     </CopyToClipboard>
                     <Button

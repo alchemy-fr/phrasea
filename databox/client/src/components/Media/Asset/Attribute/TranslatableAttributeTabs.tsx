@@ -12,7 +12,7 @@ import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
 import {AttributeWidgetOptions} from './types/types';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 function TabPanel({
     children,
@@ -75,7 +75,11 @@ export default function TranslatableAttributeTabs({
     if (locales.length === 0) {
         return (
             <Alert severity={'warning'}>
-                {t('workspace.no_locale_defined', `No locale defined in this workspace`)}</Alert>
+                {t(
+                    'workspace.no_locale_defined',
+                    `No locale defined in this workspace`
+                )}
+            </Alert>
         );
     }
 

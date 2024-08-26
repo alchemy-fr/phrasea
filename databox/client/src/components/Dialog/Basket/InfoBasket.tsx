@@ -6,7 +6,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
 import PersonIcon from '@mui/icons-material/Person';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     id: string;
@@ -37,7 +37,10 @@ export default function InfoBasket({data, onClose, minHeight}: Props) {
                     icon={<EventIcon />}
                 />
                 <InfoRow
-                    label={t('basket.info.modification_date', `Modification date`)}
+                    label={t(
+                        'basket.info.modification_date',
+                        `Modification date`
+                    )}
                     value={data.updatedAt}
                     icon={<EventIcon />}
                 />

@@ -16,7 +16,7 @@ import RenditionDefinitionManager from './RenditionDefinitionManager';
 import InfoWorkspace from './InfoWorkspace';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
-import AttributeEntityManager from "./AttributeEntityManager.tsx";
+import AttributeEntityManager from './AttributeEntityManager.tsx';
 
 type Props = {};
 

@@ -1,6 +1,6 @@
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {CircularProgress, ListItemButton, ListItemIcon} from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     onLoadMore: () => void;
@@ -18,6 +18,7 @@ export default function LoadMoreCollections({onLoadMore, loading}: Props) {
             >
                 {loading ? <CircularProgress size={20} /> : <MoreHorizIcon />}
             </ListItemIcon>
-            {t('pagination.load_more_collections', `Load more collections`)}</ListItemButton>
+            {t('pagination.load_more_collections', `Load more collections`)}
+        </ListItemButton>
     );
 }

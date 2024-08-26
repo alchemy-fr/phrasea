@@ -25,7 +25,7 @@ import FileItem from './FileItem';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -168,7 +168,9 @@ export default function TUIPhotoEditor({
     return (
         <>
             <IntegrationPanelContent>
-                <Typography>{t('tuiphoto_editor.save_as', `Save as`)}</Typography>
+                <Typography>
+                    {t('tuiphoto_editor.save_as', `Save as`)}
+                </Typography>
                 <TextField
                     value={fileName}
                     onChange={e => {
@@ -187,12 +189,15 @@ export default function TUIPhotoEditor({
                     disabled={!canEdit || !fileName}
                     loading={saving}
                 >
-                    {t('tuiphoto_editor.save', `Save`)}</LoadingButton>
+                    {t('tuiphoto_editor.save', `Save`)}
+                </LoadingButton>
             </IntegrationPanelContent>
 
             {data!.pages.length > 0 && (
                 <List>
-                    <ListSubheader>{t('tuiphoto_editor.open_recent', `Open recent`)}</ListSubheader>
+                    <ListSubheader>
+                        {t('tuiphoto_editor.open_recent', `Open recent`)}
+                    </ListSubheader>
                     <ListItemButton
                         selected={selectedFile?.id === file.id}
                         onClick={() => onOpen(file!, '')}
@@ -200,7 +205,9 @@ export default function TUIPhotoEditor({
                         <ListItemIcon>
                             <FileOpenIcon />
                         </ListItemIcon>
-                        <ListItemText>{t('tuiphoto_editor.original', `Original`)}</ListItemText>
+                        <ListItemText>
+                            {t('tuiphoto_editor.original', `Original`)}
+                        </ListItemText>
                     </ListItemButton>
 
                     {data!.pages.flat().map(d => {

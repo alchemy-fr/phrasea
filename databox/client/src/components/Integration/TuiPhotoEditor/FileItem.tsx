@@ -14,7 +14,7 @@ import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Asset, File, IntegrationData} from '../../../types';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;

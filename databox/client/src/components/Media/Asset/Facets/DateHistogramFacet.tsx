@@ -19,7 +19,7 @@ import {
 import moment from 'moment';
 import {SearchContext} from '../../Search/SearchContext';
 import {AttributeType} from '../../../../api/attributes';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
     const {t} = useTranslation();
@@ -146,7 +146,11 @@ export default function DateHistogramFacet({facet, name}: FacetGroupProps) {
                                         removeAttrFilter(attrFilterIndex)
                                     }
                                 >
-                                    {t('date_histogram_facet.clear_filter', `Clear filter`)}</Button>
+                                    {t(
+                                        'date_histogram_facet.clear_filter',
+                                        `Clear filter`
+                                    )}
+                                </Button>
                             </ListItemSecondaryAction>
                         )}
                     </ListItem>

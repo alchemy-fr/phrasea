@@ -4,7 +4,7 @@ import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
 import {Dimensions, FileWithUrl} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     file: File;
@@ -76,7 +76,8 @@ export default function FilePlayer({
                         height: '100%',
                     }}
                 >
-                    {t('file_player.unsupported_format', `Unsupported format`)}</div>
+                    {t('file_player.unsupported_format', `Unsupported format`)}
+                </div>
             );
     }
 }

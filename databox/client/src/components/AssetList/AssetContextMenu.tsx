@@ -24,7 +24,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import {modalRoutes} from '../../routes';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {ActionsContext, ReloadFunc} from './types.ts';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props<Item extends AssetOrAssetContainer> = {
     anchorPosition: PopoverPosition;

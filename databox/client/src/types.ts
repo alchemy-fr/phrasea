@@ -180,7 +180,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 
 type KeyTranslations = {
     [locale: string]: string;
-}
+};
 
 export type AttributeEntity = {
     id: string;

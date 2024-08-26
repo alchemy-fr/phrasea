@@ -11,7 +11,7 @@ import moment from 'moment';
 import {Workflow, workflowStatuses} from '@alchemy/visual-workflow';
 import React from 'react';
 import {modalRoutes} from '../../../routes';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Asset;
@@ -68,17 +68,31 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <Section>
-                <Intro>{t('asset.operations.you_need_to_run_integrations_again', `You need to run integrations again?`)}</Intro>
+                <Intro>
+                    {t(
+                        'asset.operations.you_need_to_run_integrations_again',
+                        `You need to run integrations again?`
+                    )}
+                </Intro>
                 <Button
                     onClick={triggerWorkflow}
                     disabled={workflowTriggered}
                     startIcon={<PowerSettingsNewIcon />}
                     variant={'contained'}
                 >
-                    {t('asset.operations.trigger_workflow_again', `Trigger workflow again`)}</Button>
+                    {t(
+                        'asset.operations.trigger_workflow_again',
+                        `Trigger workflow again`
+                    )}
+                </Button>
             </Section>
             <Section>
-                <Intro>{t('asset.operations.last_asset_workflows', `Last asset workflows`)}</Intro>
+                <Intro>
+                    {t(
+                        'asset.operations.last_asset_workflows',
+                        `Last asset workflows`
+                    )}
+                </Intro>
                 {workflows?.map(w => (
                     <Stack
                         key={w.id}
@@ -112,7 +126,8 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 id: w.id,
                             }}
                         >
-                            {t('asset.operations.view', `View`)}</Button>
+                            {t('asset.operations.view', `View`)}
+                        </Button>
                     </Stack>
                 ))}
             </Section>

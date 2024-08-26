@@ -5,7 +5,7 @@ import {Grid, Paper} from '@mui/material';
 import byteSize from 'byte-size';
 
 import {thumbSx} from '../Media/Asset/AssetThumb.tsx';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 const size = 100;
 
@@ -58,7 +58,8 @@ export default function FileCard({file, onRemove}: Props) {
                         {byteSize(file.size).toString()} • {file.type}
                     </Typography>
                     <Button size="small" color="error" onClick={onRemove}>
-                        {t('common.remove', `Remove`)}</Button>
+                        {t('common.remove', `Remove`)}
+                    </Button>
                 </Grid>
             </Grid>
         </Paper>

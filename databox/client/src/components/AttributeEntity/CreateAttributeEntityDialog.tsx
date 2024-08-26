@@ -8,14 +8,19 @@ import {
 } from '@alchemy/navigation';
 import {Button, TextField} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
-import {FormFieldErrors, FormRow, KeyTranslationsWidget, getNonEmptyTranslations} from '@alchemy/react-form';
+import {
+    FormFieldErrors,
+    FormRow,
+    KeyTranslationsWidget,
+    getNonEmptyTranslations,
+} from '@alchemy/react-form';
 import {postAttributeEntity} from '../../api/attributeEntity.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
-import Flag from "../Ui/Flag.tsx";
-import {getWorkspace} from "../../api/workspace.ts";
-import React from "react";
+import Flag from '../Ui/Flag.tsx';
+import {getWorkspace} from '../../api/workspace.ts';
+import React from 'react';
 
 type Props = {
     value: string;
@@ -55,7 +60,7 @@ export default function CreateAttributeEntityDialog({
         onSubmit: async data => {
             const d = {
                 ...data,
-                translations: getNonEmptyTranslations(data.translations ?? {})
+                translations: getNonEmptyTranslations(data.translations ?? {}),
             };
 
             return await postAttributeEntity(workspaceId, {
@@ -116,12 +121,14 @@ export default function CreateAttributeEntityDialog({
                 <FormRow>
                     <KeyTranslationsWidget
                         renderLocale={l => {
-                            return <Flag
-                                sx={{
-                                    mr: 1,
-                                }}
-                                locale={l}
-                            />
+                            return (
+                                <Flag
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                    locale={l}
+                                />
+                            );
                         }}
                         locales={workspace?.enabledLocales ?? []}
                         name={'translations'}

@@ -93,7 +93,9 @@ export default function PermissionTable({
                             </th>
                         );
                     })}
-                    <th className={'a'}>{t('permission_table.actions', `Actions`)}</th>
+                    <th className={'a'}>
+                        {t('permission_table.actions', `Actions`)}
+                    </th>
                 </tr>
             </thead>
             <tbody>

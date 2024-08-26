@@ -13,7 +13,7 @@ import {NO_LOCALE} from '../Media/Asset/Attribute/AttributesEditor.tsx';
 import MultiAttributeRow from './MultiAttributeRow.tsx';
 import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/AttributeWidget.tsx';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props<T> = {
     definition: AttributeDefinition;
@@ -94,7 +94,11 @@ export default function EditorPanel<T>({
     if (definition.translatable && locales!.length === 0) {
         return (
             <Alert severity={'warning'}>
-                {t('workspace.no_locale_defined', `No locale defined in this workspace`)}</Alert>
+                {t(
+                    'workspace.no_locale_defined',
+                    `No locale defined in this workspace`
+                )}
+            </Alert>
         );
     }
 

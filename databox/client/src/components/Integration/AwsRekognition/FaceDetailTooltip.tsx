@@ -2,7 +2,7 @@ import {ReactNode} from 'react';
 import {FaceDetail, TValueConfidence} from './types';
 import {Chip} from '@mui/material';
 import ValueConfidence from './ValueConfidence';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     detail: FaceDetail;
@@ -27,9 +27,17 @@ function BooleanAssertion({
             value={
                 <>
                     {value.Value ? (
-                        <Chip size={'small'} color={'success'} label={t('common.yes', `Yes`)} />
+                        <Chip
+                            size={'small'}
+                            color={'success'}
+                            label={t('common.yes', `Yes`)}
+                        />
                     ) : (
-                        <Chip size={'small'} color={'error'} label={t('common.no', `No`)} />
+                        <Chip
+                            size={'small'}
+                            color={'error'}
+                            label={t('common.no', `No`)}
+                        />
                     )}{' '}
                     (<ValueConfidence confidence={value.Confidence} />)
                 </>
@@ -76,12 +84,30 @@ export default function FaceDetailTooltip({detail, title}: Props) {
                     }
                 />
             )}
-            <BooleanAssertion title={t('face_detail_tooltip.has_a_beard', `Has a beard`)} value={detail.Beard} />
-            <BooleanAssertion title={t('face_detail_tooltip.smiling', `Smiling`)} value={detail.Smile} />
-            <BooleanAssertion title={t('face_detail_tooltip.eyes_open', `Eyes Open`)} value={detail.EyesOpen} />
-            <BooleanAssertion title={t('face_detail_tooltip.eyeglasses', `Eyeglasses`)} value={detail.Eyeglasses} />
-            <BooleanAssertion title={t('face_detail_tooltip.mouth_open', `Mouth Open`)} value={detail.MouthOpen} />
-            <BooleanAssertion title={t('face_detail_tooltip.mustache', `Mustache`)} value={detail.Mustache} />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.has_a_beard', `Has a beard`)}
+                value={detail.Beard}
+            />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.smiling', `Smiling`)}
+                value={detail.Smile}
+            />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.eyes_open', `Eyes Open`)}
+                value={detail.EyesOpen}
+            />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.eyeglasses', `Eyeglasses`)}
+                value={detail.Eyeglasses}
+            />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.mouth_open', `Mouth Open`)}
+                value={detail.MouthOpen}
+            />
+            <BooleanAssertion
+                title={t('face_detail_tooltip.mustache', `Mustache`)}
+                value={detail.Mustache}
+            />
         </>
     );
 }

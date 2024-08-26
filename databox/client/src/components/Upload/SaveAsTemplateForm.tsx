@@ -12,7 +12,7 @@ import {SwitchWidget} from '@alchemy/react-form';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {FormFieldErrors} from '@alchemy/react-form';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     usedAssetDataTemplateOptions: ReturnType<
@@ -50,13 +50,20 @@ export default function SaveAsTemplateForm({
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography>
                             <Checkbox checked={saveAsTemplate} />
-                            {t('save_as_template_form.save_values_as_template_for_reuse', `Save values as template for reuse`)}</Typography>
+                            {t(
+                                'save_as_template_form.save_values_as_template_for_reuse',
+                                `Save values as template for reuse`
+                            )}
+                        </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <FormRow>
                             <TextField
                                 error={Boolean(errors.name)}
-                                label={t('save_as_template_form.template_name', `Template name`)}
+                                label={t(
+                                    'save_as_template_form.template_name',
+                                    `Template name`
+                                )}
                                 InputLabelProps={{shrink: true}}
                                 placeholder={`My template...`}
                                 required={true}
