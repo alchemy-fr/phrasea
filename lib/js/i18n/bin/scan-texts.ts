@@ -84,6 +84,10 @@ function findTextNodes(node: Node): TextNode[] {
     const textNodes: TextNode[] = [];
 
     node.getChildren().forEach(c => {
+        if (Node.isJsxElement(c) && c.getStructure().name === 'Trans') {
+            return;
+        }
+
         for (const n of findTextNodes(c)) {
             textNodes.push(n);
         }
@@ -103,6 +107,7 @@ function findTextNodes(node: Node): TextNode[] {
             '[',
             ']',
             '-',
+            '|',
             '/',
             '+',
             '•',
