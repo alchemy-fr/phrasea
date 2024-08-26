@@ -122,10 +122,7 @@ function BasketsPanel({selected}: Props) {
                         onChange={e => setSearchQuery(e.target.value)}
                         size={'small'}
                         type={'search'}
-                        placeholder={t(
-                            'common.search.placeholder',
-                            'Search…'
-                        )}
+                        placeholder={t('common.search.placeholder', 'Search…')}
                     />
                     <LoadingButton
                         variant={'contained'}

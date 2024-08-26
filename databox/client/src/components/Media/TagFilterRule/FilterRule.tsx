@@ -2,7 +2,8 @@ import TagSelect from '../../Form/TagSelect';
 import GroupSelect from '../../Form/GroupSelect';
 import UserSelect from '../../Form/UserSelect';
 import {
-    Button, Chip,
+    Button,
+    Chip,
     FormGroup,
     FormHelperText,
     FormLabel,
@@ -17,13 +18,13 @@ import {
     saveTagFilterRule,
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
-import {Group, TagFilterRule, User} from '../../../types';
+import { TagFilterRule} from '../../../types';
 import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
 import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {
     id?: string | undefined;
-} & Omit<TagFilterRule, "id">;
+} & Omit<TagFilterRule, 'id'>;
 
 export type TagFilterRuleType = 'workspace' | 'collection';
 
@@ -99,7 +100,11 @@ export default function FilterRule({
                         <Grid item md={12}>
                             <FormRow>
                                 <Chip
-                                    icon={data.groupName ? <GroupIcon/> : undefined}
+                                    icon={
+                                        data.groupName ? (
+                                            <GroupIcon />
+                                        ) : undefined
+                                    }
                                     label={data.username ?? data.groupName}
                                 />
                             </FormRow>

@@ -14,8 +14,7 @@ class TagFilterRuleOutputProcessor implements OutputTransformerInterface
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly GroupRepository $groupRepository,
-    )
-    {
+    ) {
     }
 
     public function supports(string $outputClass, object $data): bool

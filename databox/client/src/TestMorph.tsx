@@ -1,4 +1,4 @@
-import {Typography} from "@mui/material";
+import {Typography} from '@mui/material';
 
 type Props = {};
 
@@ -14,7 +14,9 @@ export default function TestMorph({}: Props) {
             OK
             <div title={'The title'} alt={`Template Literal`}></div>
             <Trans>Already translated</Trans>
-            <Trans>Already <b>bold</b>.</Trans>
+            <Trans>
+                Already <b>bold</b>.
+            </Trans>
         </>
     );
 }

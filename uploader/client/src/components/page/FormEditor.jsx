@@ -130,9 +130,7 @@ export default class FormEditor extends Component {
                                                 as="textarea"
                                                 rows="20"
                                                 value={
-                                                    loading
-                                                        ? 'Loading…'
-                                                        : value
+                                                    loading ? 'Loading…' : value
                                                 }
                                                 disabled={loading}
                                                 onChange={this.handleChange}
