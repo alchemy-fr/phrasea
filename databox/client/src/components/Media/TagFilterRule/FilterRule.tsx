@@ -2,7 +2,7 @@ import TagSelect from '../../Form/TagSelect';
 import GroupSelect from '../../Form/GroupSelect';
 import UserSelect from '../../Form/UserSelect';
 import {
-    Button,
+    Button, Chip,
     FormGroup,
     FormHelperText,
     FormLabel,
@@ -17,18 +17,13 @@ import {
     saveTagFilterRule,
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
-import {Group, User} from '../../../types';
+import {Group, TagFilterRule, User} from '../../../types';
 import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
+import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {
     id?: string | undefined;
-    userId?: string | undefined;
-    groupId?: string | undefined;
-    include: string[];
-    exclude: string[];
-};
-
-export type {FilterRule as FilterRuleProps};
+} & Omit<TagFilterRule, "id">;
 
 export type TagFilterRuleType = 'workspace' | 'collection';
 
@@ -43,8 +38,6 @@ type Props = {
     workspaceId?: string;
     collectionId?: string;
     workspaceIdForTags: string;
-    users?: User[];
-    groups?: Group[];
 };
 
 export default function FilterRule({
@@ -55,8 +48,6 @@ export default function FilterRule({
     type,
     onDelete,
     onCancel,
-    users,
-    groups,
     workspaceId,
     collectionId,
     workspaceIdForTags,
@@ -107,20 +98,10 @@ export default function FilterRule({
                     {data?.id ? (
                         <Grid item md={12}>
                             <FormRow>
-                                <b>
-                                    {data.userId &&
-                                        `User ${
-                                            users!.find(
-                                                i => i.id === data.userId
-                                            )?.username
-                                        }`}
-                                    {data.groupId &&
-                                        `Group ${
-                                            groups!.find(
-                                                i => i.id === data.groupId
-                                            )?.name
-                                        }`}
-                                </b>
+                                <Chip
+                                    icon={data.groupName ? <GroupIcon/> : undefined}
+                                    label={data.username ?? data.groupName}
+                                />
                             </FormRow>
                         </Grid>
                     ) : (
