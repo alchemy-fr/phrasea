@@ -18,13 +18,15 @@ import {
     saveTagFilterRule,
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
-import { TagFilterRule} from '../../../types';
+import {TagFilterRule} from '../../../types';
 import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
 import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {
     id?: string | undefined;
-} & Omit<TagFilterRule, 'id'>;
+    include: string[];
+    exclude: string[];
+} & Omit<TagFilterRule, 'id' | 'include' | 'exclude'>;
 
 export type TagFilterRuleType = 'workspace' | 'collection';
 
