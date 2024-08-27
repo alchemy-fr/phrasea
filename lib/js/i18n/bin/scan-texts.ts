@@ -10,8 +10,13 @@ import {
 } from "ts-morph";
 
 const project = new Project();
-// project.addSourceFilesAtPaths("src/**/*{.ts,.tsx}");
-project.addSourceFileAtPath("src/TestMorph.tsx");
+
+project.addSourceFilesAtPaths([
+    "src/**/*{.ts,.tsx}",
+    "!src/TestMorph.tsx"
+]);
+// project.addSourceFileAtPath("src/TestMorph.tsx");
+
 project.manipulationSettings.set({
     quoteKind: QuoteKind.Single,
     indentationText: IndentationText.FourSpaces,
@@ -36,7 +41,7 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
     const fns = sourceFile.getFunctions();
 
     fns.forEach(fn => {
-        console.log(debug(fn, fn.getName() ?? 'anon'));
+        // console.log(debug(fn, fn.getName() ?? 'anon'));
 
         const textNodes = findTextNodes(fn);
 
@@ -83,8 +88,8 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
             });
         }
 
-        // sourceFile.save();
-        console.log(sourceFile.print());
+        sourceFile.save();
+        // console.log(sourceFile.print());
     }
 });
 
