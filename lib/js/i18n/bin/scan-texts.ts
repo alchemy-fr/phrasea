@@ -103,7 +103,7 @@ type TextNode = JsxText | StringLiteral | NoSubstitutionTemplateLiteral;
 
 function findTextNodes(node: Node, depth: number = 0): TextNode[] {
     if (debugEnabled) {
-        console.log(`${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxText(node) ? ` = ${node.print().trim()}` : ''}`);
+        console.log(`${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`);
     }
     const textNodes: TextNode[] = [];
 
@@ -115,6 +115,10 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
 
     children.forEach(c => {
         if (Node.isJsxElement(c) && c.getStructure().name === 'Trans') {
+            return;
+        }
+
+        if (Node.isIndexedAccessTypeNode(node)) {
             return;
         }
 

@@ -19,6 +19,9 @@ export default function TestMorph({}: Props) {
         }
     };
 
+    // @ts-expect-error Unused
+    const eventHandler = (_e: HTMLElementEventMap['scroll']) => {};
+
     return (
         <>
             <Typography variant={'h2'}>{'Tag rules'}</Typography>
