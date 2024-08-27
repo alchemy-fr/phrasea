@@ -1,12 +1,15 @@
 import {
-    IndentationText, JsxAttribute, JsxAttributeName, JsxNamespacedNameStructure,
+    IndentationText,
+    JsxAttributeName,
     JsxText,
     Node,
     NoSubstitutionTemplateLiteral,
-    Project, PropertyAssignment, PropertyName,
+    Project,
+    PropertyName,
     QuoteKind,
     SourceFile,
-    StringLiteral, SyntaxKind
+    StringLiteral,
+    SyntaxKind
 } from "ts-morph";
 
 const debugEnabled = false;
@@ -40,7 +43,7 @@ function normalizeKey(key: string): string {
         .replace(/_{2,}/g, '_')
         .replace(/_$/, '')
         .replace(/^_/, '')
-    ;
+        ;
 }
 
 sourceFiles.forEach((sourceFile: SourceFile) => {
@@ -129,16 +132,11 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
             return;
         }
 
-        if (Node.isVariableDeclaration(node) && [
-            'data',
-            'd',
-        ].includes(resolveName(node.getNameNode()))) {
+        if (Node.isVariableDeclaration(node) && !isAllowedVariableName(resolveName(node.getNameNode()))) {
             return;
         }
 
-        if (Node.isCallExpression(node) && [
-            't',
-        ].includes(resolveName(node.getChildAtIndex(0)))) {
+        if (Node.isCallExpression(node) && !isAllowedFunctionName(resolveName(node.getChildAtIndex(0)))) {
             return;
         }
 
@@ -185,50 +183,70 @@ function resolveName(node: Node): string {
 }
 
 function isAllowedAttribute(node: JsxAttributeName | PropertyName): boolean {
-    const name = resolveName(node);
-
-    return ![
-        'class',
-        'className',
-        'key',
-        'direction',
-        'sx',
-        'style',
-        'transform',
-        'mouseEvent',
-        'id',
-        'anchorReference',
-        'Content-Type',
-        'content-type',
-        'accept',
-        'Accept',
-    ].includes(name);
+    return isAllowed([
+        /^(aria|class|anchor)/,
+        /Class(Name)?$/,
+        /(Id|Sx|Url)$/,
+        /^(min|max)(Width|Height)$/,
+        /^(field|placement|sx|key|color|role|loadingPosition|height|variant|width|style|modifiers|transform|direction|orientation|alignItems|valueLabelDisplay|component|mouseEvent|id|position|origin|padding|transition|background)$/,
+        /content-type/i,
+        /accept/i,
+        /url/i,
+    ], resolveName(node));
 }
 
 function isAllowedText(txt: string): boolean {
-    if (!txt) {
-        return false;
-    }
-
-    const blacklist: RegExp[] = [
+    return isAllowed([
         /^h[1-6]$/,
-        /^(primary|secondary|default|warning|error|info)$/,
+        /^(primary|secondary|default|warning|error|info|success)$/,
         /^(small|large)$/,
         /^(string|object|number)$/,
+        /^(submit)$/,
         /^(contained|outlined)$/,
         /^(lg|md|sm|xs)$/,
         /^(nowrap|inherit)$/,
         /^(item|key|row|column|left|right|top|bottom|text)$/,
-        /^onMouse(Down|Up|Click)$/,
+        /^onMouse(Down|Up|Click|Move)$/,
         /^onKey(Down|Up|Press)$/,
+        /^key(down|up|press)$/,
+        /^mouse(down|up|press|move)$/,
         /^anchor(Position|El)$/,
         /^[()\[\]\-|/+•#%:]$/,
         /^\//,
         /^debug/,
-    ];
+        /^\d+(px|r?em|%)$/,
+        /^#(\d{3}|\d{6})$/,
+    ], txt);
+}
+
+function isAllowedFunctionName(name: string): boolean {
+    return isAllowed([
+        /^t$/,
+        /^has/,
+        /^(watch|register)$/,
+        /^NumberFormat$/,
+        /^useState$/,
+        /^(debug|append|log)/,
+    ], name.replace(/^(.+\.)+/, ''));
+}
+
+function isAllowedVariableName(name: string): boolean {
+    return isAllowed([
+        /^(data|d)$/,
+        /^(aria|class|anchor)/,
+        /(Id|Sx)$/,
+        /Class(es|Name)?$/,
+        /^class/,
+    ], name);
+}
+
+function isAllowed(blacklist: RegExp[], str: string): boolean {
+    if (!str) {
+        return false;
+    }
 
     for (const reg of blacklist) {
-        if (reg.test(txt)) {
+        if (str.match(reg)) {
             return false;
         }
     }

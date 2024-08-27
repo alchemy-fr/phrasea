@@ -17,6 +17,10 @@ type T = PropsWithChildren<Pick<
 export default function TestMorph({}: Props) {
     const {t} = useTranslation();
 
+    if (t.hasOwnProperty('ws')) {
+        console.log('Bonjour');
+    }
+
     // @ts-expect-error Unused
     const _a = {
         Hello: 'you!',
