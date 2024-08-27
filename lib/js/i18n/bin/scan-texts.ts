@@ -6,19 +6,22 @@ import {
     Project,
     QuoteKind,
     SourceFile,
-    StringLiteral
+    StringLiteral, SyntaxKind
 } from "ts-morph";
 
-const debugEnabled = false;
+const debugEnabled = true;
+// const testFile = 'src/TestMorph.tsx';
+const testFile = 'src/components/AssetList/Layouts/AssetItemWrapper.tsx';
+
 
 const project = new Project();
 
 if (debugEnabled) {
-    project.addSourceFileAtPath("src/TestMorph.tsx");
+    project.addSourceFileAtPath(testFile);
 } else {
     project.addSourceFilesAtPaths([
-        "src/**/*{.ts,.tsx}",
-        "!src/TestMorph.tsx"
+        'src/**/*{.ts,.tsx}',
+        `!${testFile}`,
     ]);
 }
 
@@ -118,7 +121,10 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
             return;
         }
 
-        if (Node.isIndexedAccessTypeNode(node)) {
+        if ([
+            SyntaxKind.TypeReference,
+            SyntaxKind.IndexedAccessType,
+        ].includes(node.getKind())) {
             return;
         }
 

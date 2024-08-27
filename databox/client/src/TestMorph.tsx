@@ -1,7 +1,18 @@
 import {Typography} from '@mui/material';
 import {Trans} from "react-i18next";
+import {PropsWithChildren} from "react";
 
 type Props = {};
+
+type A = {
+    a: string;
+    b: boolean;
+}
+// @ts-expect-error Unused
+type T = PropsWithChildren<Pick<
+    A,
+    'b' | 'a'
+>>;
 
 export default function TestMorph({}: Props) {
     // @ts-expect-error Unused
