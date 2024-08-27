@@ -1,17 +1,17 @@
 import {
-    IndentationText,
+    IndentationText, JsxAttribute, JsxAttributeName, JsxNamespacedNameStructure,
     JsxText,
     Node,
     NoSubstitutionTemplateLiteral,
-    Project,
+    Project, PropertyAssignment, PropertyName,
     QuoteKind,
     SourceFile,
     StringLiteral, SyntaxKind
 } from "ts-morph";
 
-const debugEnabled = true;
-// const testFile = 'src/TestMorph.tsx';
-const testFile = 'src/components/AssetList/Layouts/AssetItemWrapper.tsx';
+const debugEnabled = false;
+const testFile = 'src/TestMorph.tsx';
+// const testFile = 'src/api/clearAssociation.ts';
 
 
 const project = new Project();
@@ -124,13 +124,21 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
         if ([
             SyntaxKind.TypeReference,
             SyntaxKind.IndexedAccessType,
+            SyntaxKind.BinaryExpression,
+            SyntaxKind.ElementAccessExpression,
         ].includes(node.getKind())) {
+            return;
+        }
+
+        if (Node.isVariableDeclaration(node) && [
+            'data',
+        ].includes(resolveName(node.getNameNode()))) {
             return;
         }
 
         if (
             (Node.isJsxAttribute(node) || Node.isPropertyAssignment(node))
-            && !isAllowedAttribute(node.getNameNode().getText())) {
+            && !isAllowedAttribute(node.getNameNode())) {
             return;
         }
 
@@ -153,7 +161,26 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
     return textNodes;
 }
 
-function isAllowedAttribute(attrName: string): boolean {
+function resolveName(node: Node): string {
+    if (Node.isIdentifier(node)) {
+        return node.getText();
+    }
+    if (Node.isStringLiteral(node)) {
+        return node.getLiteralText();
+    }
+    if (Node.isNoSubstitutionTemplateLiteral(node)) {
+        return node.getLiteralText();
+    }
+    if (Node.isComputedPropertyName(node)) {
+        return resolveName(node.getChildAtIndex(1));
+    }
+
+    return node.getText();
+}
+
+function isAllowedAttribute(node: JsxAttributeName | PropertyName): boolean {
+    const name = resolveName(node);
+
     return ![
         'class',
         'className',
@@ -165,7 +192,11 @@ function isAllowedAttribute(attrName: string): boolean {
         'mouseEvent',
         'id',
         'anchorReference',
-    ].includes(attrName);
+        'Content-Type',
+        'content-type',
+        'accept',
+        'Accept',
+    ].includes(name);
 }
 
 function isAllowedText(txt: string): boolean {
@@ -177,6 +208,7 @@ function isAllowedText(txt: string): boolean {
         /^h[1-6]$/,
         /^(primary|secondary|default|warning|error|info)$/,
         /^(small|large)$/,
+        /^(string|object|number)$/,
         /^(contained|outlined)$/,
         /^(lg|md|sm|xs)$/,
         /^(nowrap|inherit)$/,
@@ -186,6 +218,7 @@ function isAllowedText(txt: string): boolean {
         /^anchor(Position|El)$/,
         /^[()\[\]\-|/+•#%:]$/,
         /^\//,
+        /^debug/,
     ];
 
     for (const reg of blacklist) {

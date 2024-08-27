@@ -32,6 +32,15 @@ export default function TestMorph({}: Props) {
 
     // @ts-expect-error Unused
     const eventHandler = (_e: HTMLElementEventMap['scroll']) => {
+        const data = {
+            foo: 'bar',
+        };
+
+        const otherData = {
+            foo: 'bar',
+        };
+
+        console.log('debug', data['foo']);
     };
 
     return (
