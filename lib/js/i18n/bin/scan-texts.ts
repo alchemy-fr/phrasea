@@ -1,8 +1,17 @@
-import {IndentationText, JsxText, Node, Project, QuoteKind, SourceFile, StringLiteral} from "ts-morph";
+import {
+    IndentationText,
+    JsxText,
+    Node,
+    NoSubstitutionTemplateLiteral,
+    Project,
+    QuoteKind,
+    SourceFile,
+    StringLiteral
+} from "ts-morph";
 
 const project = new Project();
-project.addSourceFilesAtPaths("src/**/*{.ts,.tsx}");
-// project.addSourceFileAtPath("src/TestMorph.tsx");
+// project.addSourceFilesAtPaths("src/**/*{.ts,.tsx}");
+project.addSourceFileAtPath("src/TestMorph.tsx");
 project.manipulationSettings.set({
     quoteKind: QuoteKind.Single,
     indentationText: IndentationText.FourSpaces,
@@ -27,7 +36,7 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
     const fns = sourceFile.getFunctions();
 
     fns.forEach(fn => {
-        // console.log(debug(fn, fn.getName() ?? 'anon'));
+        console.log(debug(fn, fn.getName() ?? 'anon'));
 
         const textNodes = findTextNodes(fn);
 
@@ -74,11 +83,12 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
             });
         }
 
-        sourceFile.save();
+        // sourceFile.save();
+        console.log(sourceFile.print());
     }
 });
 
-type TextNode = JsxText | StringLiteral;
+type TextNode = JsxText | StringLiteral | NoSubstitutionTemplateLiteral;
 
 function findTextNodes(node: Node): TextNode[] {
     const textNodes: TextNode[] = [];
@@ -93,38 +103,39 @@ function findTextNodes(node: Node): TextNode[] {
         }
     });
 
-    if (Node.isStringLiteral(node) && Node.isJsxExpression(node.getParent())) {
+    if (
+        Node.isNoSubstitutionTemplateLiteral(node)
+        || (Node.isStringLiteral(node) && Node.isJsxExpression(node.getParent()))
+        || Node.isJsxText(node)
+    ) {
         const v = node.getLiteralText().trim();
-        if (v && /^[A-Z]/.test(v)) {
+        if (isAllowedText(v)) {
             textNodes.push(node);
-        }
-    } else if (Node.isJsxText(node)) {
-        const v = node.getLiteralText().trim();
-
-        if (v && ![
-            '(',
-            ')',
-            '[',
-            ']',
-            '-',
-            '|',
-            '/',
-            '+',
-            '•',
-            '#',
-            '%',
-            ':',
-        ].includes(v)) {
-            const parent = node.getParent();
-            if (!Node.isJsxElement(parent) || parent.getStructure().name !== 'Trans') {
-                textNodes.push(node);
-            }
         }
     }
 
     return textNodes;
 }
 
+function isAllowedText(txt: string): boolean {
+    if (!txt) {
+        return false;
+    }
+
+    const blacklist: RegExp[] = [
+        /^h[1-6]$/,
+        /^(primary|secondary|default|warning|error|info)$/,
+        /^[()\[\]\-|/+•#%:]$/,
+    ];
+
+    for (const reg of blacklist) {
+        if (reg.test(txt)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 function debug(node: Node, componentName: string, depth: number = 0): string {
     let d = '';
