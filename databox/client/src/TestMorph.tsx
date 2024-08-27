@@ -20,13 +20,18 @@ export default function TestMorph({}: Props) {
     };
 
     // @ts-expect-error Unused
-    const eventHandler = (_e: HTMLElementEventMap['scroll']) => {};
+    const eventHandler = (_e: HTMLElementEventMap['scroll']) => {
+    };
 
     return (
         <>
             <Typography variant={'h2'}>{'Tag rules'}</Typography>
             OK
-            <div title={'The title'} data-alt={`Template Literal`}></div>
+            <div
+                title={'The title'}
+                data-alt={`Template Literal`}
+                data-test="A text"
+            ></div>
             <Trans>Already translated</Trans>
             <Trans>
                 Already <b>bold</b>.

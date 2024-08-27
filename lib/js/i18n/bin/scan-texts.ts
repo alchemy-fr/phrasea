@@ -9,7 +9,7 @@ import {
     StringLiteral
 } from "ts-morph";
 
-const debugEnabled = true;
+const debugEnabled = false;
 
 const project = new Project();
 
@@ -67,7 +67,7 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
             const value = textNode.getLiteralText().trim();
             const key = `${normalizeKey(fn.getName() ?? 'anonymous')}.${normalizeKey(value)}`;
 
-            if (Node.isJsxText(textNode)) {
+            if (Node.isJsxText(textNode) || Node.isJsxAttribute(textNode.getParent())) {
                 textNode.replaceWithText(`{t('${key}', \`${value}\`)}`);
             } else {
                 textNode.replaceWithText(`t('${key}', \`${value}\`)`);
@@ -156,6 +156,9 @@ function isAllowedAttribute(attrName: string): boolean {
         'sx',
         'style',
         'transform',
+        'mouseEvent',
+        'id',
+        'anchorReference',
     ].includes(attrName);
 }
 
@@ -172,6 +175,9 @@ function isAllowedText(txt: string): boolean {
         /^(lg|md|sm|xs)$/,
         /^(nowrap|inherit)$/,
         /^(item|key|row|column|left|right|top|bottom|text)$/,
+        /^onMouse(Down|Up|Click)$/,
+        /^onKey(Down|Up|Press)$/,
+        /^anchor(Position|El)$/,
         /^[()\[\]\-|/+•#%:]$/,
         /^\//,
     ];
