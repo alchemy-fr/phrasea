@@ -9,13 +9,18 @@ import {
     StringLiteral
 } from "ts-morph";
 
+const debugEnabled = true;
+
 const project = new Project();
 
-project.addSourceFilesAtPaths([
-    "src/**/*{.ts,.tsx}",
-    "!src/TestMorph.tsx"
-]);
-// project.addSourceFileAtPath("src/TestMorph.tsx");
+if (debugEnabled) {
+    project.addSourceFileAtPath("src/TestMorph.tsx");
+} else {
+    project.addSourceFilesAtPaths([
+        "src/**/*{.ts,.tsx}",
+        "!src/TestMorph.tsx"
+    ]);
+}
 
 project.manipulationSettings.set({
     quoteKind: QuoteKind.Single,
@@ -41,8 +46,6 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
     const fns = sourceFile.getFunctions();
 
     fns.forEach(fn => {
-        // console.log(debug(fn, fn.getName() ?? 'anon'));
-
         const textNodes = findTextNodes(fn);
 
         let hasTranslationHook = false;
@@ -88,14 +91,20 @@ sourceFiles.forEach((sourceFile: SourceFile) => {
             });
         }
 
-        sourceFile.save();
-        // console.log(sourceFile.print());
+        if (debugEnabled) {
+            console.log(sourceFile.print());
+        } else {
+            sourceFile.save();
+        }
     }
 });
 
 type TextNode = JsxText | StringLiteral | NoSubstitutionTemplateLiteral;
 
-function findTextNodes(node: Node): TextNode[] {
+function findTextNodes(node: Node, depth: number = 0): TextNode[] {
+    if (debugEnabled) {
+        console.log(`${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxText(node) ? ` = ${node.print().trim()}` : ''}`);
+    }
     const textNodes: TextNode[] = [];
 
     node.getChildren().forEach(c => {
@@ -103,14 +112,20 @@ function findTextNodes(node: Node): TextNode[] {
             return;
         }
 
-        for (const n of findTextNodes(c)) {
+        if (
+            (Node.isJsxAttribute(node) || Node.isPropertyAssignment(node))
+            && !isAllowedAttribute(node.getNameNode().getText())) {
+            return;
+        }
+
+        for (const n of findTextNodes(c, depth + 1)) {
             textNodes.push(n);
         }
     });
 
     if (
         Node.isNoSubstitutionTemplateLiteral(node)
-        || (Node.isStringLiteral(node) && Node.isJsxExpression(node.getParent()))
+        || Node.isStringLiteral(node)
         || Node.isJsxText(node)
     ) {
         const v = node.getLiteralText().trim();
@@ -122,6 +137,18 @@ function findTextNodes(node: Node): TextNode[] {
     return textNodes;
 }
 
+function isAllowedAttribute(attrName: string): boolean {
+    return ![
+        'class',
+        'className',
+        'key',
+        'direction',
+        'sx',
+        'style',
+        'transform',
+    ].includes(attrName);
+}
+
 function isAllowedText(txt: string): boolean {
     if (!txt) {
         return false;
@@ -130,7 +157,13 @@ function isAllowedText(txt: string): boolean {
     const blacklist: RegExp[] = [
         /^h[1-6]$/,
         /^(primary|secondary|default|warning|error|info)$/,
+        /^(small|large)$/,
+        /^(contained|outlined)$/,
+        /^(lg|md|sm|xs)$/,
+        /^(nowrap|inherit)$/,
+        /^(item|key|row|column|left|right|top|bottom|text)$/,
         /^[()\[\]\-|/+•#%:]$/,
+        /^\//,
     ];
 
     for (const reg of blacklist) {
@@ -140,22 +173,4 @@ function isAllowedText(txt: string): boolean {
     }
 
     return true;
-}
-
-function debug(node: Node, componentName: string, depth: number = 0): string {
-    let d = '';
-    for (let i = 0; i < depth; i++) {
-        d += '  ';
-    }
-    d += node.getKindName();
-
-    node.getChildren().forEach(c => {
-        d += "\n" + debug(c, componentName, depth + 1);
-    });
-
-    if (Node.isJsxText(node)) {
-        d += ` = ${node.print().trim()}`;
-    }
-
-    return d;
 }

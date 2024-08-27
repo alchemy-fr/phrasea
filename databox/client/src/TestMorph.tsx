@@ -7,6 +7,7 @@ export default function TestMorph({}: Props) {
     // @ts-expect-error Unused
     const _a = {
         Hello: 'you!',
+        key: 'untranslated_key',
     };
 
     return (
