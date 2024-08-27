@@ -13,7 +13,6 @@ const debugEnabled = false;
 const testFile = 'src/TestMorph.tsx';
 // const testFile = 'src/api/clearAssociation.ts';
 
-
 const project = new Project();
 
 if (debugEnabled) {
@@ -132,7 +131,14 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
 
         if (Node.isVariableDeclaration(node) && [
             'data',
+            'd',
         ].includes(resolveName(node.getNameNode()))) {
+            return;
+        }
+
+        if (Node.isCallExpression(node) && [
+            't',
+        ].includes(resolveName(node.getChildAtIndex(0)))) {
             return;
         }
 

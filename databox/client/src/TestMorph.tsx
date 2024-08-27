@@ -1,5 +1,5 @@
 import {Typography} from '@mui/material';
-import {Trans} from "react-i18next";
+import {Trans, useTranslation} from "react-i18next";
 import {PropsWithChildren} from "react";
 
 type Props = {};
@@ -15,6 +15,8 @@ type T = PropsWithChildren<Pick<
 >>;
 
 export default function TestMorph({}: Props) {
+    const {t} = useTranslation();
+
     // @ts-expect-error Unused
     const _a = {
         Hello: 'you!',
@@ -47,6 +49,7 @@ export default function TestMorph({}: Props) {
         <>
             <Typography variant={'h2'}>{'Tag rules'}</Typography>
             OK
+            {t('foo', 'bar')}
             <div
                 title={'The title'}
                 data-alt={`Template Literal`}
