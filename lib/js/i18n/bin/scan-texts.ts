@@ -107,7 +107,13 @@ function findTextNodes(node: Node, depth: number = 0): TextNode[] {
     }
     const textNodes: TextNode[] = [];
 
-    node.getChildren().forEach(c => {
+    let children = node.getChildren();
+
+    if (Node.isPropertyAssignment(node)) {
+        children = children.slice(1);
+    }
+
+    children.forEach(c => {
         if (Node.isJsxElement(c) && c.getStructure().name === 'Trans') {
             return;
         }
