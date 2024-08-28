@@ -42,6 +42,7 @@ export default function TestMorph({}: Props) {
             foo: 'bar',
         };
 
+        // @ts-expect-error Unused
         const otherData = {
             foo: 'bar',
         };
