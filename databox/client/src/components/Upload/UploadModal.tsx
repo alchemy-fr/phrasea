@@ -138,7 +138,7 @@ export default function UploadModal({
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
-                    tags: (data.tags as string[]),
+                    tags: (data.tags as unknown as string[]),
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle()
