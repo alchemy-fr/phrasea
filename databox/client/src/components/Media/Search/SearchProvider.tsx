@@ -33,13 +33,23 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
     const {query, filters, sortBy, geolocation} = hashToQuery(hash);
+    const inputQuery = React.useRef<string>('');
+
+    const setInputQuery = React.useCallback((query: string) => {
+        inputQuery.current = query;
+    }, [inputQuery]);
+
     const resolvedSortBy = getResolvedSortBy(sortBy);
+
+    React.useEffect(() => {
+        setInputQuery(query);
+    }, [query]);
 
     const setAttrFilters = useCallback(
         (handler: (prev: Filters) => Filters, newQuery?: string): boolean => {
             return setHash(
                 queryToHash(
-                    newQuery ?? query,
+                    newQuery ?? inputQuery.current ?? query,
                     handler(filters),
                     sortBy,
                     geolocation
@@ -263,11 +273,13 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         .map(f => f.v as LabelledBucketValue[])
         .flat()
         .map((v: LabelledBucketValue) => v.value) as string[];
+
     const workspaces = filters
         .filter(f => f.a === BuiltInFilter.Workspace && !f.i)
         .map(f => f.v as LabelledBucketValue[])
         .flat()
         .map((v: LabelledBucketValue) => v.value) as string[];
+
     return (
         <SearchContext.Provider
             value={{
@@ -282,6 +294,8 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 attrFilters: filters,
                 query,
                 setQuery,
+                inputQuery,
+                setInputQuery,
                 searchChecksum: JSON.stringify({
                     query,
                     filters,

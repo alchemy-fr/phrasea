@@ -1,6 +1,7 @@
 import React from 'react';
 import {AttributeClass, AttributeDefinition, Workspace} from '../../../types';
 import {
+    AttributeType,
     deleteAttributeDefinition,
     getWorkspaceAttributeDefinitions,
     postAttributeDefinition,
@@ -38,8 +39,11 @@ function Item({
         register,
         submitting,
         control,
+        watch,
         formState: {errors},
     } = usedFormSubmit;
+
+    const fieldType = watch('fieldType');
 
     return (
         <>
@@ -78,6 +82,14 @@ function Item({
                     <FormFieldErrors field={'fieldType'} errors={errors} />
                 </FormGroup>
             </FormRow>
+            {fieldType === AttributeType.Entity ? <FormRow>
+                <TextField
+                    label={t('form.attribute_definition.entityType.label', 'Entity Type')}
+                    {...register('entityType')}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'entityType'} errors={errors} />
+            </FormRow> : ''}
             <FormRow>
                 <FormGroup>
                     <FormLabel>

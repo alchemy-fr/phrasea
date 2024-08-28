@@ -118,6 +118,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $substitutable = true;
+
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
+    #[ORM\Column(type: Types::BOOLEAN)]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
     private bool $pickSourceFile = false;
 
@@ -295,5 +299,15 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function isSubstitutable(): bool
+    {
+        return $this->substitutable;
+    }
+
+    public function setSubstitutable(bool $substitutable): void
+    {
+        $this->substitutable = $substitutable;
     }
 }

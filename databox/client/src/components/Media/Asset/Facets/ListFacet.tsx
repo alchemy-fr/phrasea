@@ -15,7 +15,7 @@ type Props = {
 } & FacetGroupProps;
 
 export default function ListFacet({facet, name, itemComponent}: Props) {
-    const {attrFilters, toggleAttrFilter} = useContext(SearchContext);
+    const {attrFilters, toggleAttrFilter} = useContext(SearchContext)!;
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
     const {type} = facet.meta;
 

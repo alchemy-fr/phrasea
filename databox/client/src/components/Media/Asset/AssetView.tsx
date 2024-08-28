@@ -18,7 +18,7 @@ import {scrollbarWidth} from '../../../constants.ts';
 import AssetAttributes from './AssetAttributes.tsx';
 import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
-import {useTranslation} from 'react-i18next';
+import AssetViewActions from "./Actions/AssetViewActions.tsx";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -39,7 +39,6 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
-    const {t} = useTranslation();
     const menuWidth = 300;
     const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
@@ -97,7 +96,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -125,8 +124,7 @@ export default function AssetView({modalIndex}: Props) {
                     fullScreen={true}
                     title={
                         <>
-                            {t('asset_view.edit_asset', `Edit asset`)}
-                            <b>{data.resolvedTitle}</b>
+                            Edit asset <b>{data.resolvedTitle}</b>
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}
@@ -142,6 +140,10 @@ export default function AssetView({modalIndex}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
+                            <AssetViewActions
+                                asset={data!}
+                                file={rendition?.file}
+                            />
                         </>
                     }
                     onClose={onClose}

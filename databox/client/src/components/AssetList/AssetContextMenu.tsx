@@ -1,30 +1,17 @@
-import {useContext} from 'react';
-import {
-    ClickAwayListener,
-    Divider,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-} from '@mui/material';
+import {ClickAwayListener, Divider, ListItemIcon, ListItemText, Menu, MenuItem,} from '@mui/material';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import LinkIcon from '@mui/icons-material/Link';
+import {useTranslation} from 'react-i18next';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import {PopoverPosition} from '@mui/material/Popover/Popover';
-import DeleteAssetsConfirm from '../Media/Asset/Actions/DeleteAssetsConfirm';
-import {ResultContext} from '../Media/Search/ResultContext';
-import ExportAssetsDialog from '../Media/Asset/Actions/ExportAssetsDialog';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import {useModals} from '@alchemy/navigation';
 import SaveAsButton from '../Media/Asset/Actions/SaveAsButton';
-import {useNavigateToModal} from '../Routing/ModalLink';
 import SaveIcon from '@mui/icons-material/Save';
-import {modalRoutes} from '../../routes';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {ActionsContext, ReloadFunc} from './types.ts';
-import {useTranslation} from 'react-i18next';
+import {useAssetActions} from "../../hooks/useAssetActions.ts";
 
 type Props<Item extends AssetOrAssetContainer> = {
     anchorPosition: PopoverPosition;
@@ -48,51 +35,16 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     setSelection,
 }: Props<Item>) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
-    const navigateToModal = useNavigateToModal();
-    const resultContext = useContext(ResultContext);
-    const {id, original, capabilities} = asset;
+    const {id, original} = asset;
 
-    const onDelete = () => {
-        openModal(DeleteAssetsConfirm, {
-            assetIds: [id],
-            onDelete: () => {
-                resultContext.reload();
-            },
-        });
-        onClose();
-    };
-
-    const onDownload = () => {
-        openModal(ExportAssetsDialog, {
-            assets: [asset],
-        });
-        onClose();
-    };
-
-    const onOpen = (renditionId: string) => {
-        navigateToModal(modalRoutes.assets.routes.view, {
-            id: asset.id,
-            renditionId,
-        });
-        onClose();
-    };
-
-    const onEdit = () => {
-        navigateToModal(modalRoutes.assets.routes.manage, {
-            tab: 'edit',
-            id: asset.id,
-        });
-        onClose();
-    };
-
-    const onEditAttr = () => {
-        navigateToModal(modalRoutes.assets.routes.manage, {
-            tab: 'attributes',
-            id: asset.id,
-        });
-        onClose();
-    };
+    const {
+        onDelete,
+        onOpen,
+        onDownload,
+        onEdit,
+        onEditAttr,
+        can,
+    } = useAssetActions({asset, onAction: onClose, actionsContext});
 
     const openUrl = (url: string) => {
         document.location.href = url;
@@ -121,28 +73,31 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     invisible: true,
                 }}
             >
-                {actionsContext.open && original && (
-                    <MenuItem onClick={() => onOpen(original.id)}>
+                {can.open && (
+                    <MenuItem onClick={() => onOpen(original!.id)}>
                         <ListItemIcon>
-                            <FileOpenIcon />
+                            <FileOpenIcon/>
                         </ListItemIcon>
-                        <ListItemText primary="Open" />
+                        <ListItemText primary={t(
+                            'asset_actions.open',
+                            'Open'
+                        )}/>
                     </MenuItem>
                 )}
-                {actionsContext.saveAs && asset.source ? (
+                {can.saveAs ? (
                     <SaveAsButton
                         Component={MenuItem}
                         asset={asset}
-                        file={asset.source}
+                        file={asset.source!}
                         variant={'text'}
                     >
                         <ListItemIcon>
-                            <SaveIcon />
+                            <SaveIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={t('save_as.label', `Save as`)} />
+                        <ListItemText primary={'Save as'}/>
 
                         <ListItemIcon>
-                            <ArrowDropDownIcon />
+                            <ArrowDropDownIcon/>
                         </ListItemIcon>
                     </SaveAsButton>
                 ) : (
@@ -152,59 +107,68 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     original.file.alternateUrls.map(a => (
                         <MenuItem key={a.type} onClick={() => openUrl(a.url)}>
                             <ListItemIcon>
-                                <LinkIcon />
+                                <LinkIcon/>
                             </ListItemIcon>
-                            <ListItemText primary={a.label || a.type} />
+                            <ListItemText primary={a.label || a.type}/>
                         </MenuItem>
                     ))}
-                {original?.file?.url && (
+                {can.download && (
                     <MenuItem onClick={onDownload}>
                         <ListItemIcon>
-                            <CloudDownloadIcon />
+                            <CloudDownloadIcon/>
                         </ListItemIcon>
-                        <ListItemText primary="Download" />
+                        <ListItemText primary={t(
+                            'asset_actions.download',
+                            'Download'
+                        )}/>
                     </MenuItem>
                 )}
                 {actionsContext.edit ? (
                     <MenuItem
-                        disabled={!capabilities.canEdit}
-                        onClick={capabilities.canEdit ? onEdit : undefined}
+                        disabled={!can.edit}
+                        onClick={can.edit ? onEdit : undefined}
                     >
                         <ListItemIcon>
-                            <EditIcon />
+                            <EditIcon/>
                         </ListItemIcon>
-                        <ListItemText primary="Edit" />
+                        <ListItemText primary={t(
+                            'asset_actions.edit',
+                            'Edit'
+                        )}/>
                     </MenuItem>
                 ) : (
                     ''
                 )}
                 {actionsContext.edit ? (
                     <MenuItem
-                        disabled={!capabilities.canEditAttributes}
+                        disabled={!can.editAttributes}
                         onClick={
-                            capabilities.canEditAttributes
+                            can.editAttributes
                                 ? onEditAttr
                                 : undefined
                         }
                     >
                         <ListItemIcon>
-                            <EditIcon />
+                            <EditIcon/>
                         </ListItemIcon>
-                        <ListItemText primary="Edit attributes" />
+                        <ListItemText primary={t(
+                            'asset_actions.edit_attributes',
+                            'Edit attributes'
+                        )}/>
                     </MenuItem>
                 ) : (
                     ''
                 )}
-                <Divider key={'d'} />
+                <Divider key={'d'}/>
                 {actionsContext.delete ? (
                     <MenuItem
-                        disabled={!capabilities.canDelete}
-                        onClick={capabilities.canDelete ? onDelete : undefined}
+                        disabled={!can.delete}
+                        onClick={can.delete ? onDelete : undefined}
                     >
                         <ListItemIcon>
-                            <DeleteIcon color={'error'} />
+                            <DeleteIcon color={'error'}/>
                         </ListItemIcon>
-                        <ListItemText primary="Delete" />
+                        <ListItemText primary="Delete"/>
                     </MenuItem>
                 ) : (
                     ''

@@ -19,6 +19,7 @@ import {FC, PropsWithChildren} from 'react';
 type Props = PropsWithChildren<{
     variant?: ButtonProps['variant'];
     Component?: FC<any>;
+    componentProps?: ButtonProps;
 }> &
     BaseSaveAsProps;
 
@@ -27,6 +28,7 @@ export default function SaveAsButton({
     asset,
     children,
     Component = Button,
+    componentProps = {},
     ...saveAsProps
 }: Props) {
     const [open, setOpen] = React.useState(false);
@@ -82,9 +84,8 @@ export default function SaveAsButton({
         setOpen(false);
     };
 
-    const componentProps: ButtonProps = {};
     if (Component === Button) {
-        (componentProps as ButtonProps).endIcon = <ArrowDropDownIcon />;
+        componentProps.endIcon = <ArrowDropDownIcon />;
     }
 
     return (

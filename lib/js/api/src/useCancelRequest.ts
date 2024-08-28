@@ -8,9 +8,10 @@ type UserCancelRequestHandler<P extends Record<string, any>, R = any> = (
 
 export default function useCancelRequest<R = any>(
     handler: UserCancelRequestHandler<{}, R>,
+    isDevEnv: boolean,
     deps: DependencyList,
 ) {
-    const {callback, controller} = useCancelRequestCallback(handler, deps);
+    const {callback, controller} = useCancelRequestCallback(handler, isDevEnv, deps);
 
     useEffect(() => {
         callback();
@@ -24,11 +25,11 @@ export default function useCancelRequest<R = any>(
 export function useCancelRequestCallback<
     P extends Record<string, any>,
     R = any,
->(handler: UserCancelRequestHandler<P, R>, deps: DependencyList) {
+>(handler: UserCancelRequestHandler<P, R>, isDevEnv: boolean, deps: DependencyList) {
     const controller = useRef<AbortController | null>(null);
 
     const callback = useCallback(async (props?: P | undefined) => {
-        if (controller.current && process.env.NODE_ENV !== 'development') {
+        if (!isDevEnv && controller.current) {
             controller.current!.abort();
         }
 

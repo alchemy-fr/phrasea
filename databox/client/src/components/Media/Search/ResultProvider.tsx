@@ -86,7 +86,7 @@ type State = {
 type Props = PropsWithChildren<{}>;
 
 export default function ResultProvider({children}: Props) {
-    const searchContext = useContext(SearchContext);
+    const searchContext = useContext(SearchContext)!;
 
     const [state, setState] = useState<State>({
         pages: [],

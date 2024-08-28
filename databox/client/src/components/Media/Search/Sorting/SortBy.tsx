@@ -5,13 +5,11 @@ import SortByChip from '../SortByChip';
 import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
 import {ResultContext} from '../ResultContext';
-import {useTranslation} from 'react-i18next';
 
 type Props = {};
 
 export default function SortBy({}: Props) {
-    const {t} = useTranslation();
-    const search = useContext(SearchContext);
+    const search = useContext(SearchContext)!;
     const resultContext = useContext(ResultContext);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
@@ -34,7 +32,7 @@ export default function SortBy({}: Props) {
                                 verticalAlign: 'middle',
                             }}
                         />
-                        {t('sort_by.sort_by', `Sort by`)}
+                        Sort by
                         <>
                             {search.sortBy.map((o, i) => (
                                 <SortByChip key={i} {...o} />

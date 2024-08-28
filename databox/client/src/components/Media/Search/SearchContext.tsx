@@ -1,6 +1,6 @@
 import {FacetType, ResolvedBucketValue} from '../Asset/Facets';
 import {Filters, FilterType, SortBy} from './Filter';
-import React from 'react';
+import React, {RefObject} from 'react';
 
 export type TSearchContext = {
     workspaceId?: string;
@@ -18,6 +18,8 @@ export type TSearchContext = {
     workspaces: string[];
     query: string;
     setQuery: (query: string, force?: boolean) => void;
+    inputQuery: RefObject<string>;
+    setInputQuery: (query: string) => void;
     geolocation?: string | undefined;
     setGeoLocation: (position: string | undefined) => void;
     setAttrFilter: (
@@ -43,21 +45,4 @@ export type TSearchContext = {
     reloadInc: number;
 };
 
-export const SearchContext = React.createContext<TSearchContext>({
-    query: '',
-    attrFilters: [],
-    sortBy: [],
-    collections: [],
-    workspaces: [],
-    selectCollection: () => {},
-    selectWorkspace: () => {},
-    setQuery: () => {},
-    setAttrFilter: () => {},
-    toggleAttrFilter: () => {},
-    removeAttrFilter: () => {},
-    invertAttrFilter: () => {},
-    setSortBy: () => {},
-    reset: () => {},
-    setGeoLocation: () => {},
-    reloadInc: 0,
-});
+export const SearchContext = React.createContext<TSearchContext | undefined>(undefined);
