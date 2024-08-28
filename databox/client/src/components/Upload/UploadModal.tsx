@@ -20,7 +20,6 @@ import {
     postAssetDataTemplate,
     putAssetDataTemplate,
 } from '../../api/templates';
-import {getBatchActions} from '../Media/Asset/Attribute/BatchActions';
 import {
     StackedModalProps,
     useModals,
@@ -28,6 +27,7 @@ import {
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
+import {getAttributeList} from "../Media/Asset/Attribute/AttributeListData.ts";
 
 type FileWrapper = {
     id: string;
@@ -95,7 +95,7 @@ export default function UploadModal({
             }
 
             const attributes = usedAttributeEditor.attributes
-                ? getBatchActions(
+                ? getAttributeList(
                       usedAttributeEditor.attributes,
                       usedAttributeEditor.definitionIndex!
                   )
@@ -138,7 +138,7 @@ export default function UploadModal({
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
-                    tags: data.tags.map(t => t['@id']),
+                    tags: (data.tags as string[]),
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle()

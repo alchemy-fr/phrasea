@@ -31,14 +31,14 @@ export function getBatchActions(
             }
 
             if (currValue) {
-                const removeC = remoteAttrs
+                const remoteC = remoteAttrs
                     ? (remoteAttrs[defId] as {[locale: string]: AttrValue[]})
                     : undefined;
-                const removeV = removeC
-                    ? (removeC[locale] as AttrValue[])
+                const remoteV = remoteC
+                    ? (remoteC[locale] as AttrValue[])
                     : undefined;
                 if (currValue instanceof Array) {
-                    if (!removeC) {
+                    if (!remoteC) {
                         actions.push({
                             action: AttributeBatchActionEnum.Set,
                             definitionId: defId,
@@ -48,7 +48,7 @@ export function getBatchActions(
                     } else {
                         currValue.forEach((v: AttrValue<string | number>) => {
                             if (v.value !== undefined) {
-                                const found = removeV?.find(
+                                const found = remoteV?.find(
                                     _v => _v.id === v.id
                                 );
                                 if (!found) {
