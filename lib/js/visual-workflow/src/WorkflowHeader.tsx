@@ -88,7 +88,11 @@ export default function WorkflowHeader({
                 >
                     Refresh
                 </LoadingButton>}
-                {onCancel && workflow.status !== WorkflowStatus.Cancelled && <LoadingButton
+                {onCancel && ![
+                    WorkflowStatus.Cancelled,
+                    WorkflowStatus.Failure,
+                    WorkflowStatus.Success,
+                ].includes(workflow.status) && <LoadingButton
                     disabled={cancelling}
                     loading={cancelling}
                     color={'warning'}

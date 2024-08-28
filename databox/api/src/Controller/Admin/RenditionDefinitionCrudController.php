@@ -51,6 +51,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name');
+        yield AssociationField::new('parent');
         yield AssociationField::new('class');
         yield AssociationField::new('workspace');
         yield TextField::new('key')

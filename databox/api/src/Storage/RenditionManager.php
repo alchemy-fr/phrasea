@@ -146,6 +146,16 @@ class RenditionManager
         return $definition;
     }
 
+    public function getRenditionDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findBy([
+                'workspace' => $workspaceId,
+            ]);
+    }
+
     public function getRenditionDefinitionById(Workspace $workspace, string $id): RenditionDefinition
     {
         $definition = $this

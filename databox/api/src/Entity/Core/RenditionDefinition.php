@@ -97,6 +97,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    protected ?self $parent = null;
+
     /**
      * Unique key by workspace. Used to prevent duplicates.
      */
@@ -309,5 +313,15 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     public function setSubstitutable(bool $substitutable): void
     {
         $this->substitutable = $substitutable;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): void
+    {
+        $this->parent = $parent;
     }
 }

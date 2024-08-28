@@ -199,7 +199,9 @@ readonly class WorkflowOrchestrator
                     if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
                         $this->stateRepository->removeJobState($workflowId, $jobId);
 
-                        $jobsToTrigger[] = $jobId;
+                        if (!$run->getJob()->isDisabled()) {
+                            $jobsToTrigger[] = $jobId;
+                        }
                     }
                 } finally {
                     if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
@@ -248,6 +250,10 @@ readonly class WorkflowOrchestrator
             foreach ($stage->getRuns() as $run) {
                 $job = $run->getJob();
                 $jobId = $job->getId();
+
+                if ($job->isDisabled()) {
+                    continue;
+                }
 
                 $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
                 if (null === $jobState) {

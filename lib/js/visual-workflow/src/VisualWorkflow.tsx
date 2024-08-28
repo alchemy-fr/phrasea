@@ -64,7 +64,7 @@ export default function VisualWorkflow({
                         y: nodeYPadding * (1 + jIndex * 2) + nodeHeight * jIndex,
                     },
                     data: nodeData,
-                    className: 'job-node',
+                    className: `job-node ${nodeData.disabled ? 'job-node-disabled' : ''}`,
                     style: {
                         height: nodeHeight,
                         width: nodeWith,
