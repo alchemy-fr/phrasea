@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from 'react';
 import {flagIcons} from './flagIcons';
 import {Icon, IconProps} from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     locale: string;

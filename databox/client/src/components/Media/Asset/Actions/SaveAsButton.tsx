@@ -15,6 +15,7 @@ import ReplaceAssetWithFileDialog from './ReplaceAssetWithFileDialog';
 import SaveFileAsRenditionDialog from './SaveFileAsRenditionDialog';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import {FC, PropsWithChildren} from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = PropsWithChildren<{
     variant?: ButtonProps['variant'];
@@ -31,24 +32,25 @@ export default function SaveAsButton({
     componentProps = {},
     ...saveAsProps
 }: Props) {
+    const {t} = useTranslation();
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const {openModal} = useModals();
 
     const options = [
         {
-            title: `New asset`,
+            title: t('save_as_button.new_asset', `New asset`),
             component: SaveFileAsNewAssetDialog,
         },
         {
-            title: `Rendition`,
+            title: t('save_as_button.rendition', `Rendition`),
             component: SaveFileAsRenditionDialog,
         },
     ];
 
     if (asset.source?.id !== file.id) {
         options.push({
-            title: `Replace asset source`,
+            title: t('save_as_button.replace_asset_source', `Replace asset source`),
             component: ReplaceAssetWithFileDialog,
         });
     }

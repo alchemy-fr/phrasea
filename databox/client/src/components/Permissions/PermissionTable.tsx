@@ -124,6 +124,7 @@ export default function PermissionTable({
 }
 
 function getUserName(p: Ace): string | undefined {
+    const {t} = useTranslation();
     const userId = p.userId;
 
     if (p.userType === UserType.User) {
@@ -131,12 +132,12 @@ function getUserName(p: Ace): string | undefined {
             return p.user?.username ?? 'User not found';
         }
 
-        return 'All users';
+        return t('get_user_name.all_users', `All users`);
     } else if (p.userType === UserType.Group) {
         if (userId) {
             return p.group?.name ?? 'Group not found';
         }
 
-        return 'All groups';
+        return t('get_user_name.all_groups', `All groups`);
     }
 }

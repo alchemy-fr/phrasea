@@ -73,7 +73,7 @@ export default function SaveFileAsNewAssetDialog({
             });
         },
         onSuccess: () => {
-            toast.success(`File is saved`);
+            toast.success(t('save_file_as_new_asset_dialog.file_is_saved', `File is saved`));
             closeModal();
         },
     });
@@ -84,12 +84,12 @@ export default function SaveFileAsNewAssetDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={`Save file as new asset`}
+            title={t('save_file_as_new_asset_dialog.save_file_as_new_asset', `Save file as new asset`)}
             open={open}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon/>}
-            submitLabel={'Save'}
+            submitLabel={t('save_file_as_new_asset_dialog.save', `Save`)}
         >
             <Typography sx={{mb: 3}}>{``}</Typography>
             <form id={formId} onSubmit={handleSubmit}>

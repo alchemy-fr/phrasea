@@ -40,7 +40,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     const triggerWorkflow = async () => {
         setWorkflowTriggered(true);
         await triggerAssetWorkflow(data.id);
-        toast.success('Workflow is starting!');
+        toast.success(t('operations_asset.workflow_is_starting', `Workflow is starting!`));
 
         getWorkflows(data.id).then(setWorkflows);
     };

@@ -146,7 +146,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             loading={pagination.loading}
                             itemToAsset={itemToAsset}
                             loadMore={loadMore}
-                            itemLabel={'item'}
+                            itemLabel={t('basket_view_dialog.item', `item`)}
                             selectionContext={BasketSelectionContext}
                             total={pagination.total}
                             onOpen={onOpen}

@@ -94,7 +94,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <ListItemIcon>
                             <SaveIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={'Save as'}/>
+                        <ListItemText primary={t('asset_context_menu.save_as', `Save as`)}/>
 
                         <ListItemIcon>
                             <ArrowDropDownIcon/>
@@ -168,7 +168,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <ListItemIcon>
                             <DeleteIcon color={'error'}/>
                         </ListItemIcon>
-                        <ListItemText primary="Delete"/>
+                        <ListItemText primary={t('asset_context_menu.delete', `Delete`)}/>
                     </MenuItem>
                 ) : (
                     ''

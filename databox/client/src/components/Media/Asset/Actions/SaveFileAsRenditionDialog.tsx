@@ -53,7 +53,7 @@ export default function SaveFileAsRenditionDialog({
             });
         },
         onSuccess: () => {
-            toast.success(`Rendition has been saved`);
+            toast.success(t('save_file_as_rendition_dialog.rendition_has_been_saved', `Rendition has been saved`));
             closeModal();
         },
     });
@@ -63,7 +63,7 @@ export default function SaveFileAsRenditionDialog({
 
     return (
         <FormDialog
-            title={`Save file as asset rendition`}
+            title={t('save_file_as_rendition_dialog.save_file_as_asset_rendition', `Save file as asset rendition`)}
             open={open}
             modalIndex={modalIndex}
             loading={submitting}

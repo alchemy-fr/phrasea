@@ -76,7 +76,7 @@ export default function Attributes({
                                 ) : (
                                     <>
                                         {defValue.value?.[l]?.length ?? 0}
-                                        {' values'}
+                                        {t('attributes.values', `values`)}
                                     </>
                                 )}
                             </div>

@@ -114,7 +114,7 @@ export default function CopyAssetsDialog({
             );
         },
         onSuccess: () => {
-            toast.success(`Assets were copied`);
+            toast.success(t('copy_assets_dialog.assets_were_copied', `Assets were copied`));
             closeModal();
             onComplete();
         },

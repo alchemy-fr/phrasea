@@ -15,6 +15,7 @@ import {
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider.tsx';
+import { useTranslation } from 'react-i18next';
 
 type Props = {};
 
@@ -39,13 +40,14 @@ export default function Root({}: Props) {
 }
 
 function WrapperComponent({children}: RouteWrapperProps) {
+    const {t} = useTranslation();
     return (
         <>
             <ModalStack>
                 <SessionExpireContainer />
                 <OverlayOutlet
                     routes={modalRoutes}
-                    queryParam={'_m'}
+                    queryParam={t('wrapper_component.m', `_m`)}
                     RouteProxyComponent={RouteProxy}
                 />
                 <MatomoRouteWrapper>{children}</MatomoRouteWrapper>

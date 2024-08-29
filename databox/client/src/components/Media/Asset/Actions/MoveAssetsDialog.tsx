@@ -43,7 +43,7 @@ export default function MoveAssetsDialog({
     } = useFormSubmit({
         onSubmit: (data: FormData) => moveAssets(assetIds, data.destination),
         onSuccess: () => {
-            toast.success(`Assets were moved`);
+            toast.success(t('move_assets_dialog.assets_were_moved', `Assets were moved`));
             closeModal();
             onComplete();
         },

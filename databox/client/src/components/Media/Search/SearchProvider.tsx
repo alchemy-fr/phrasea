@@ -9,20 +9,22 @@ import {
 import {FilterEntry, Filters, FilterType, SortBy} from './Filter';
 import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
+import { useTranslation } from 'react-i18next';
 
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
+    const {t} = useTranslation();
     return sortBy.length > 0
         ? sortBy
         : [
               {
                   a: BuiltInFilter.Score,
-                  t: 'Relevance',
+                  t: t('get_resolved_sort_by.relevance', `Relevance`),
                   w: 1,
                   g: false,
               },
               {
                   a: BuiltInFilter.CreatedAt,
-                  t: 'Date Added',
+                  t: t('get_resolved_sort_by.date_added', `Date Added`),
                   w: 1,
                   g: false,
               },

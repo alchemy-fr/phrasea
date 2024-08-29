@@ -229,8 +229,8 @@ export default function EditSortBy({onClose}: Props) {
                         label={
                             <ListItem disableGutters={true}>
                                 <ListItemText
-                                    primary={`Group by sections`}
-                                    secondary={`Add group separators between results`}
+                                    primary={t('edit_sort_by.group_by_sections', `Group by sections`)}
+                                    secondary={t('edit_sort_by.add_group_separators_between_results', `Add group separators between results`)}
                                 ></ListItemText>
                             </ListItem>
                         }

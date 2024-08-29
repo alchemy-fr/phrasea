@@ -7,6 +7,7 @@ import {
     useCloseOverlay,
     useNavigateToOverlay,
 } from '@alchemy/navigation';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     route: RouteDefinition;

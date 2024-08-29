@@ -73,7 +73,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     actionsContext,
     noActions,
     selectionContext,
-    itemLabel = 'result',
+    itemLabel = t('selection_actions.result', `result`),
 }: SelectionActionsProps<Item>) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
@@ -450,7 +450,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 style={{cursor: 'pointer'}}
                                 onClick={onOpenDebug}
                             >
-                                {` ${itemLabel}${total > 1 ? 's' : ''}`}
+                                {` ${itemLabel}${total > 1 ? t('selection_actions.s', `s`) : ''}`}
                             </span>
                         </>
                     ) : (

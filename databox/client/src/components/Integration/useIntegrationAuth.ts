@@ -5,12 +5,14 @@ import config from '../../config.ts';
 import {getIntegrationTokens} from '../../api/integrations.ts';
 import {WorkspaceIntegration} from '../../types.ts';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     integration: WorkspaceIntegration;
 };
 
 export function useIntegrationAuth({integration}: Props) {
+    const {t} = useTranslation();
     const {loading, getToken} = useOneTimeToken(apiClient);
     const [tokens, setTokens] = React.useState(integration.tokens);
     const [loadingTokens, setLoadingTokens] = React.useState(false);
@@ -22,7 +24,7 @@ export function useIntegrationAuth({integration}: Props) {
             url: `${config.baseUrl}/integrations/${
                 integration.id
             }/auth?token=${encodeURIComponent(token)}`,
-            title: 'Auth',
+            title: t('use_integration_auth.auth', `Auth`),
         });
 
         const handleClosed = async () => {

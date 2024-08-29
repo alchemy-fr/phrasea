@@ -18,7 +18,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
             const authenticated = Boolean(authContext.user);
             if (!authenticated) {
                 window.alert(
-                    'You must be authenticated in order to upload new files'
+                    t('asset_dropzone.you_must_be_authenticated_in_order_to_upload_new_files', `You must be authenticated in order to upload new files`)
                 );
                 return;
             }

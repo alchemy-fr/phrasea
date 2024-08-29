@@ -77,7 +77,7 @@ export default function FilterRule({
     };
 
     const deleteClick = async () => {
-        if (!window.confirm('Confirm delete this rule?')) {
+        if (!window.confirm(t('filter_rule.confirm_delete_this_rule', `Confirm delete this rule?`))) {
             return;
         }
 

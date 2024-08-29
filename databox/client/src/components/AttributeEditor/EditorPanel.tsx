@@ -102,7 +102,7 @@ export default function EditorPanel<T>({
         );
     }
 
-    const humanLocale = (l: string) => (l === NO_LOCALE ? `Untranslated` : l);
+    const humanLocale = (l: string) => (l === NO_LOCALE ? t('editor_panel.untranslated', `Untranslated`) : l);
 
     const readOnly = !definition.canEdit;
 

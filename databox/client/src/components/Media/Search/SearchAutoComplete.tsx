@@ -80,7 +80,7 @@ export default function SearchAutoComplete({}: Props) {
                                     }
                                     inputRef={inputRef}
                                     onClick={onClick}
-                                    placeholder="Search…"
+                                    placeholder={t('search_auto_complete.search', `Search…`)}
                                     onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                                     onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                                     inputProps={{

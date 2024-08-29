@@ -20,6 +20,7 @@ import EditableCollectionTree, {
     nodeNewPrefix,
 } from './EditableTree';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import { useTranslation } from 'react-i18next';
 
 const nodeSeparator = '|';
 
@@ -240,6 +241,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     disabled,
     isSelectable,
 }: Props<IsMulti>) {
+    const {t} = useTranslation();
     const [workspaces, setWorkspaces] = useState<Workspace[]>();
 
     const [newCollectionPath, setNewCollectionPath] =

@@ -2,6 +2,7 @@ import AceEditor, {IAceEditorProps} from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     prettify?: (code: string) => string;
@@ -14,6 +15,7 @@ export default function CodeEditor({
     mode,
     ...rest
 }: Props) {
+    const {t} = useTranslation();
     const [value, setValue] = React.useState<string | undefined>();
 
     React.useEffect(() => {

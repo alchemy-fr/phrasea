@@ -33,7 +33,7 @@ export default function ReplaceAssetWithFileDialog({
                 });
             },
             onSuccess: () => {
-                toast.success(`Asset has been replaced`);
+                toast.success(t('replace_asset_with_file_dialog.asset_has_been_replaced', `Asset has been replaced`));
                 closeModal();
             },
         });
@@ -44,7 +44,7 @@ export default function ReplaceAssetWithFileDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={`Replace asset with file`}
+            title={t('replace_asset_with_file_dialog.replace_asset_with_file', `Replace asset with file`)}
             open={open}
             loading={submitting}
             formId={formId}
@@ -52,7 +52,7 @@ export default function ReplaceAssetWithFileDialog({
             submitLabel={t('asset.replace.label', `Replace`)}
         >
             <Typography sx={{mb: 3}}>
-                {`Please confirm replacing asset.`}
+                {t('replace_asset_with_file_dialog.please_confirm_replacing_asset', `Please confirm replacing asset.`)}
             </Typography>
             <form id={formId} onSubmit={handleSubmit}></form>
             <RemoteErrors errors={remoteErrors} />

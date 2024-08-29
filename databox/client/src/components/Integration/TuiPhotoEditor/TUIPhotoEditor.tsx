@@ -115,7 +115,7 @@ export default function TUIPhotoEditor({
                         file.id
                     )
                 );
-                toast.success('Saved!');
+                toast.success(t('tuiphoto_editor.saved', `Saved!`));
                 loadData();
             } finally {
                 setSaving(false);

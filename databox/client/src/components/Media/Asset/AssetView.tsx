@@ -19,6 +19,7 @@ import AssetAttributes from './AssetAttributes.tsx';
 import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from "./Actions/AssetViewActions.tsx";
+import { useTranslation } from 'react-i18next';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -39,6 +40,7 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
+    const {t} = useTranslation();
     const menuWidth = 300;
     const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
@@ -124,7 +126,7 @@ export default function AssetView({modalIndex}: Props) {
                     fullScreen={true}
                     title={
                         <>
-                            Edit asset <b>{data.resolvedTitle}</b>
+                            {t('asset_view.edit_asset', `Edit asset`)}<b>{data.resolvedTitle}</b>
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}

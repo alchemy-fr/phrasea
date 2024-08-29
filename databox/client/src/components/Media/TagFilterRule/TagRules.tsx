@@ -17,6 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import {tagNS} from '../../../api/tag';
 import FullPageLoader from '../../Ui/FullPageLoader.tsx';
 import GroupIcon from '@mui/icons-material/Group';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     id: string;
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export default function TagRules({type, workspaceId, id}: Props) {
+    const {t} = useTranslation();
     const [rules, setRules] = React.useState<TagFilterRule[]>();
     const [newRule, setNewRule] = React.useState(false);
     const [editRule, setEditRule] = React.useState<string | undefined>();
@@ -69,7 +71,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
 
     return (
         <>
-            <Typography variant={'h2'}>{'Tag rules'}</Typography>
+            <Typography variant={'h2'}>{t('tag_rules.tag_rules', `Tag rules`)}</Typography>
             <div>
                 {newRule && (
                     <FilterRule
@@ -166,7 +168,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                             </span>
                                         </Grid>
                                         <Grid item md={1}>
-                                            <Tooltip title={`Edit this rule`}>
+                                            <Tooltip title={t('tag_rules.edit_this_rule', `Edit this rule`)}>
                                                 <IconButton
                                                     onClick={() =>
                                                         onEditRule(r.id)

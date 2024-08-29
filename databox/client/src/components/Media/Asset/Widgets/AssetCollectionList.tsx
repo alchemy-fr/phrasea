@@ -3,6 +3,7 @@ import {Collection, Workspace} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import {CollectionChip, WorkspaceChip} from '../../../Ui/Chips';
 import assetClasses from '../../../AssetList/classes';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     workspace?: Workspace;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function AssetCollectionList({workspace, collections}: Props) {
+    const {t} = useTranslation();
     const {collectionsLimit, displayCollections} = useContext(DisplayContext)!;
 
     if (!displayCollections) {
@@ -23,8 +25,8 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     const rest = collections.length - (collectionsLimit - 1);
     const others =
         collectionsLimit > 1
-            ? `+ ${rest} other${rest > 1 ? 's' : ''}`
-            : `${rest} collection${rest > 1 ? 's' : ''}`;
+            ? `+ ${rest} other${rest > 1 ? t('asset_collection_list.s', `s`) : ''}`
+            : `${rest} collection${rest > 1 ? t('asset_collection_list.s', `s`) : ''}`;
 
     const chips =
         collections.length <= collectionsLimit

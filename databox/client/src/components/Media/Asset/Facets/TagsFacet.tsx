@@ -8,6 +8,7 @@ import {
 import {FacetGroupProps} from '../Facets';
 import {ListFacetItemProps} from './TextFacetItem';
 import ListFacet from './ListFacet';
+import { useTranslation } from 'react-i18next';
 
 function TagFacetItem({
     onClick,

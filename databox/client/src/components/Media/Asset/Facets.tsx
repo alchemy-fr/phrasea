@@ -16,6 +16,7 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
+import { useTranslation } from 'react-i18next';
 
 export type BucketValue = string | number | boolean;
 
@@ -67,6 +68,7 @@ export function extractLabelValueFromKey(
     type: FilterType | undefined,
     format?: AttributeFormat
 ): LabelledBucketValue {
+    const {t} = useTranslation();
     // eslint-disable-next-line no-prototype-builtins
     if (typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
@@ -74,7 +76,7 @@ export function extractLabelValueFromKey(
 
     if ('missing' === type) {
         return {
-            label: 'Missing',
+            label: t('extract_label_value_from_key.missing', `Missing`),
             value: '__missing__',
         };
     }
@@ -124,6 +126,7 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
     t: TagsFacet,
 };
+
 
 function FacetGroup({facet, name}: FacetGroupProps) {
     const [open, setOpen] = useState(true);

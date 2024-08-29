@@ -261,7 +261,8 @@ export default function UploadModal({
 }
 
 function createPastedImageTitle(): string {
+    const {t} = useTranslation();
     const m = moment();
 
-    return `Pasted-image-${m.format('YYYY-MM-DD_HH-mm-ss')}`;
+    return `Pasted-image-${m.format(t('create_pasted_image_title.yyyy_mm_dd_hh_mm_ss', `YYYY-MM-DD_HH-mm-ss`))}`;
 }

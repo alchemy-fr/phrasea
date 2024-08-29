@@ -19,6 +19,7 @@ function RemoveBgComparison({
     left: string;
     right: string;
 } & IntegrationOverlayCommonProps) {
+
     return (
         <div
             style={{
