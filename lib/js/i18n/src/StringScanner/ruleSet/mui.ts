@@ -1,9 +1,12 @@
 import {Rule} from "../types";
-import {ChainedMatcherRule} from "../Rules/rules";
+import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
     JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
-    JsxElementNameRuleMatcher, LiteralValueRuleMatcher
+    JsxElementNameRuleMatcher,
+    LiteralValueRuleMatcher,
+    VariableNameRuleMatcher,
+    VariableOrJsxAttributeOrPropertyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 
 export const muiRules: Rule[] = [
@@ -21,19 +24,30 @@ export const muiRules: Rule[] = [
     new ChainedMatcherRule(
         "MUI Variant rule",
         [
-            new JsxAttributeNameRuleMatcher([
+            new JsxAttributeOrPropertyNameRuleMatcher([
                 /^variant$/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(h[1-6]|body\d?)$/i,
+                /^(h[1-6]|body\d?|contained|outlined|text)$/i,
             ])
         ]
     ),
     new ChainedMatcherRule(
         "MUI Colors rule",
         [
-            new JsxAttributeNameRuleMatcher([
-                /color/i,
+            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+                /(color|severity)/i,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^(primary|secondary|default|warning|error|info|success)$/,
+            ])
+        ]
+    ),
+    new ChainedMatcherRule(
+        "MUI Colors rule",
+        [
+            new VariableNameRuleMatcher([
+                /(color|severity)/i,
             ]),
             new LiteralValueRuleMatcher([
                 /^(primary|secondary|default|warning|error|info|success)$/,
@@ -43,12 +57,18 @@ export const muiRules: Rule[] = [
     new ChainedMatcherRule(
         "MUI Sizes rule",
         [
-            new JsxAttributeNameRuleMatcher([
+            new JsxAttributeOrPropertyNameRuleMatcher([
                 /size/i,
             ]),
             new LiteralValueRuleMatcher([
                 /^(small|large|xl|md|sm|xs)$/,
             ])
         ]
+    ),
+    new MatcherRule(
+        "MUI attributes",
+        new JsxAttributeOrPropertyNameRuleMatcher([
+            /wrap/i,
+        ]),
     ),
 ];

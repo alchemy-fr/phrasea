@@ -6,14 +6,16 @@ import {
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
     PropertyNameRuleMatcher,
-    VariableNameRuleMatcher
+    VariableNameRuleMatcher, VariableOrJsxAttributeOrPropertyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 import {muiRules} from "./mui";
 import {coreRules} from "./core";
+import {styleRules} from "./style";
 
 export const defaultRules: Rule[] = [
     ...coreRules,
     ...muiRules,
+    ...styleRules,
     new MatcherRule(
         "Skip Trans JSX element",
         new JsxElementNameRuleMatcher([/^Trans$/]),
@@ -23,16 +25,6 @@ export const defaultRules: Rule[] = [
         new LiteralValueRuleMatcher([
             /^[()\[\]\-|/+•#%:]$/, // single punctionation
             /^#(\d{3}|\d{6})$/, // color
-        ]),
-    ),
-    new MatcherRule(
-        "Skip unwanted variables",
-        new VariableNameRuleMatcher([
-            /^(data|d)$/,
-            /^(aria|class|anchor)/,
-            /(Id|Sx)$/,
-            /Class(es|Name)?$/,
-            /^class/,
         ]),
     ),
     new MatcherRule("Skip unwanted functions", new FunctionCallNameRuleMatcher([
@@ -55,12 +47,12 @@ export const defaultRules: Rule[] = [
             arguments: [0],
         } as SkipArgumentsRuleConstraint]
     ),
-
     new MatcherRule(
-        "Skip unwanted attributes",
-        new JsxAttributeOrPropertyNameRuleMatcher([
+        "Skip unwanted variables or attributes",
+        new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            /^(data|d)$/,
+            /^class/,
             /^(aria|class|anchor)/,
-            /Class(Name)?$/,
             /(Id|Sx|Ur[il])$/,
             /^(min|max)(Width|Height)$/,
             /^(field|placement|sx|key|color|role|loadingPosition|height|width|style|modifiers|transform|direction|orientation|alignItems|valueLabelDisplay|component|mouseEvent|id|position|origin|padding|transition|background)$/,
@@ -99,9 +91,17 @@ export const defaultRules: Rule[] = [
                 /^[a-z-]+$/,
             ])
         ],
-        [{
-            type: RuleConstraintType.SkipArguments,
-            arguments: [0],
-        } as SkipArgumentsRuleConstraint]
+    ),
+    new ChainedMatcherRule(
+        "Type or Key keyword",
+        [
+            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+                /^(type|key)$/,
+                /^(add|append|has|remove|delete)/,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^[a-z-]+$/,
+            ])
+        ],
     ),
 ];

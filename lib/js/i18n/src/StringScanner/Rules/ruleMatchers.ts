@@ -57,6 +57,13 @@ export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMat
     }
 }
 
+export class VariableOrJsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        return new VariableNameRuleMatcher(this.regexp).getNodeValue(node)
+            || new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(node);
+    }
+}
+
 export class VariableNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         if (Node.isVariableDeclaration(node)) {
