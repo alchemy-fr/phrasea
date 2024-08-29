@@ -1,7 +1,6 @@
 import {Rule} from "../types";
 import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
-    JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
@@ -15,6 +14,7 @@ export const muiRules: Rule[] = [
         [
             new JsxElementNameRuleMatcher([
                 /(Icon|Loading)?Button/,
+                /^Skeleton$/,
             ]),
             new JsxAttributeOrPropertyNameRuleMatcher([
                 /^(variant)$/,

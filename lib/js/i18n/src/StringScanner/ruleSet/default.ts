@@ -2,17 +2,18 @@ import {ChainedMatcherRule, MatcherRule,} from "../Rules/rules";
 import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
 import {
     FunctionCallNameRuleMatcher,
-    JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
     PropertyNameRuleMatcher,
-    VariableNameRuleMatcher, VariableOrJsxAttributeOrPropertyNameRuleMatcher
+    VariableOrJsxAttributeOrPropertyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 import {muiRules} from "./mui";
 import {coreRules} from "./core";
 import {styleRules} from "./style";
+import {phraseaRules} from "./phrasea";
 
 export const defaultRules: Rule[] = [
+    ...phraseaRules,
     ...coreRules,
     ...muiRules,
     ...styleRules,
@@ -77,7 +78,7 @@ export const defaultRules: Rule[] = [
             ]),
             new LiteralValueRuleMatcher([
                 /^\//,
-                /[a-z-]+/,
+                /[a-z-_\d]+/,
             ])
         ]
     ),
@@ -85,7 +86,7 @@ export const defaultRules: Rule[] = [
         "Collection calls",
         [
             new FunctionCallNameRuleMatcher([
-                /^(get|has)$/,
+                /^(get|has|set)/,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
