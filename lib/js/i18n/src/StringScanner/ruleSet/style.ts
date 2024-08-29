@@ -1,6 +1,7 @@
 import {Rule} from "../types";
 import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
+    FunctionCallNameRuleMatcher,
     JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher, LiteralValueRuleMatcher
@@ -28,5 +29,11 @@ export const styleRules: Rule[] = [
                 /^(button|submit|reset|search)$/i,
             ])
         ]
+    ),
+    new MatcherRule(
+        "DOM",
+        new FunctionCallNameRuleMatcher([
+            /^(createElement)$/i,
+        ]),
     ),
 ];

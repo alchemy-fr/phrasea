@@ -1,7 +1,6 @@
-import {MatcherRule} from "../Rules/rules";
+import {createSkipFirstArgConstraint, MatcherRule} from "../Rules/rules";
 import {OneOfNodeTypeRuleMatcher} from "../Rules/ruleMatchers";
 import {SyntaxKind} from "ts-morph";
-import {RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
 
 export const coreRules: MatcherRule[] = [
     new MatcherRule(
@@ -9,10 +8,7 @@ export const coreRules: MatcherRule[] = [
         new OneOfNodeTypeRuleMatcher([
             SyntaxKind.PropertyAssignment,
         ]),
-        [{
-            type: RuleConstraintType.SkipArguments,
-            arguments: [0],
-        } as SkipArgumentsRuleConstraint]
+        [createSkipFirstArgConstraint()]
     ),
     new MatcherRule(
         "Skip unwanted nodes",

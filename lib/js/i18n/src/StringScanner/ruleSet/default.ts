@@ -82,11 +82,17 @@ export const defaultRules: Rule[] = [
             ])
         ]
     ),
+    new MatcherRule(
+        "Formatting calls",
+        new FunctionCallNameRuleMatcher([
+            /^(format)$/,
+        ]),
+    ),
     new ChainedMatcherRule(
         "Collection calls",
         [
             new FunctionCallNameRuleMatcher([
-                /^(get|has|set)/,
+                /^(get|has|set|update)/,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
@@ -98,7 +104,7 @@ export const defaultRules: Rule[] = [
         "Type or Key keyword",
         [
             new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
-                /(type|key)$/,
+                /(type|key)$/i,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([

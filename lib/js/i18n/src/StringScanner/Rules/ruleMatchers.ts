@@ -1,4 +1,4 @@
-import {Node, SyntaxKind} from "ts-morph";
+import {FunctionDeclarationStructure, Node, SyntaxKind} from "ts-morph";
 import {resolveName} from "../nodeUtils";
 import {RuleMatcher} from "../types";
 
@@ -22,6 +22,14 @@ export class FunctionCallNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         if (Node.isCallExpression(node)) {
             return resolveName(node.getChildAtIndex(0)).replace(/^(.+\.)+/, '');
+        }
+    }
+}
+
+export class FunctionDeclarationNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        if (Node.isFunctionDeclaration(node)) {
+            return (node.getStructure() as FunctionDeclarationStructure).name;
         }
     }
 }

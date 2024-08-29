@@ -1,8 +1,11 @@
 import {Rule} from "../types";
-import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
+import {ChainedMatcherRule, createSkipFirstArgConstraint, MatcherRule} from "../Rules/rules";
 import {
-    FunctionCallNameRuleMatcher, JsxAttributeNameRuleMatcher,
-    JsxAttributeOrPropertyNameRuleMatcher, JsxElementNameRuleMatcher, LiteralValueRuleMatcher,
+    FunctionCallNameRuleMatcher,
+    JsxAttributeNameRuleMatcher,
+    JsxAttributeOrPropertyNameRuleMatcher,
+    JsxElementNameRuleMatcher,
+    LiteralValueRuleMatcher,
     VariableOrJsxAttributeOrPropertyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 
@@ -63,5 +66,21 @@ export const phraseaRules: Rule[] = [
                 /^[a-z-_\d]+$/,
             ]),
         ]
+    ),
+    new ChainedMatcherRule(
+        "Keys",
+        [
+            new FunctionCallNameRuleMatcher([
+                /^includes$/,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^[a-z-_\d]+$/,
+            ]),
+        ]
+    ),
+    new MatcherRule('updatePreference', new FunctionCallNameRuleMatcher([
+            /^updatePreference$/,
+        ]),
+        [createSkipFirstArgConstraint()],
     ),
 ];

@@ -1,6 +1,7 @@
 import {Rule} from "../types";
 import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
+    FunctionDeclarationNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
@@ -28,7 +29,7 @@ export const muiRules: Rule[] = [
                 /^variant$/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(h[1-6]|body\d?|contained|outlined|text|standard)$/i,
+                /^(h[1-6]|body\d?|contained|outlined|text|standard|dense)$/i,
             ])
         ]
     ),
@@ -69,6 +70,12 @@ export const muiRules: Rule[] = [
         "MUI attributes",
         new JsxAttributeOrPropertyNameRuleMatcher([
             /wrap/i,
+        ]),
+    ),
+    new MatcherRule(
+        "SX builder",
+        new FunctionDeclarationNameRuleMatcher([
+            /Sx$/,
         ]),
     ),
 ];

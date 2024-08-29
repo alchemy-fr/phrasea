@@ -2,7 +2,7 @@ import {
     Rule,
     RuleConstraint,
     RuleConstraintType,
-    RuleMatcher,
+    RuleMatcher, SkipArgumentsRuleConstraint,
     SkipRuleConstraint,
     SubRuleRuleConstraint
 } from "../types";
@@ -55,4 +55,9 @@ export class ChainedMatcherRule implements Rule {
 
         return [];
     }
+}
+
+export function createSkipFirstArgConstraint(): SkipArgumentsRuleConstraint
+{
+    return {type: RuleConstraintType.SkipArguments, arguments: [0]};
 }
