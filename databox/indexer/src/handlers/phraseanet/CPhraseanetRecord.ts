@@ -73,7 +73,7 @@ class CPhraseanetRecordBase {
         this.mime_type = r.mime_type;
         this.created_on = r.created_on;
         this.updated_on = r.updated_on;
-        r.metadata.map(m => {
+        (r.metadata ?? []).map(m => {
             if (m.value.trim() !== '') {
                 if (!this.metadata[m.name]) {
                     this.metadata[m.name] =
@@ -92,7 +92,7 @@ class CPhraseanetRecordBase {
             this.metadata[k].value = this.metadata[k].values.join(' ; ');
         }
 
-        r.subdefs.map(s => {
+        (r.subdefs ?? []).map(s => {
             this.csubdefs[s.name] = new CPhraseanetSubdef(s);
         });
     }
