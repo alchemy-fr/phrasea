@@ -1,5 +1,5 @@
 import {ChainedMatcherRule, MatcherRule,} from "../Rules/rules";
-import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
+import {Rule, RuleConstraintType, SkipChildrenRuleConstraint} from "../types";
 import {
     ClassInstantiationNameRuleMatcher,
     FunctionCallNameRuleMatcher,
@@ -48,9 +48,9 @@ export const defaultRules: Rule[] = [
             /^(append|add)/,
         ]),
         [{
-            type: RuleConstraintType.SkipArguments,
-            arguments: [0],
-        } as SkipArgumentsRuleConstraint]
+            type: RuleConstraintType.skipChildren,
+            positions: [0],
+        } as SkipChildrenRuleConstraint]
     ),
     new MatcherRule(
         "Skip unwanted variables or attributes",

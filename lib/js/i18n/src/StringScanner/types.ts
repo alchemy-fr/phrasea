@@ -8,7 +8,8 @@ export interface RuleMatcher {
 
 export enum RuleConstraintType {
     Skip = "skip",
-    SkipArguments = "skip_arguments",
+    skipChildren = "skip_children",
+    skipArguments = "skip_arguments",
     SubRule = "sub_rule",
 }
 
@@ -20,8 +21,13 @@ export interface SkipRuleConstraint extends RuleConstraint {
     type: RuleConstraintType.Skip;
 }
 
+export interface SkipChildrenRuleConstraint extends RuleConstraint {
+    type: RuleConstraintType.skipChildren;
+    positions: number[];
+}
+
 export interface SkipArgumentsRuleConstraint extends RuleConstraint {
-    type: RuleConstraintType.SkipArguments;
+    type: RuleConstraintType.skipArguments;
     arguments: number[];
 }
 

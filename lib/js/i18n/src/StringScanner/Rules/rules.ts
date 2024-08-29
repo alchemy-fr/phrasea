@@ -2,7 +2,7 @@ import {
     Rule,
     RuleConstraint,
     RuleConstraintType,
-    RuleMatcher, SkipArgumentsRuleConstraint,
+    RuleMatcher, SkipArgumentsRuleConstraint, SkipChildrenRuleConstraint,
     SkipRuleConstraint,
     SubRuleRuleConstraint
 } from "../types";
@@ -57,13 +57,22 @@ export class ChainedMatcherRule implements Rule {
     }
 }
 
-export function createSkipFirstArgConstraint(): SkipArgumentsRuleConstraint
+export function createSkipFirstChildConstraint(): SkipChildrenRuleConstraint
 {
-    return createSkipArgsConstraint([0]);
+    return createSkipChildrenConstraint([0]);
 }
 
-
-export function createSkipArgsConstraint(args: number[]): SkipArgumentsRuleConstraint
+export function createSkipChildrenConstraint(positions: number[]): SkipChildrenRuleConstraint
 {
-    return {type: RuleConstraintType.SkipArguments, arguments: args};
+    return {type: RuleConstraintType.skipChildren, positions: positions};
+}
+
+export function createSkipFirstArgumentConstraint(): SkipArgumentsRuleConstraint
+{
+    return createSkipArgumentsConstraint([0]);
+}
+
+export function createSkipArgumentsConstraint(args: number[]): SkipArgumentsRuleConstraint
+{
+    return {type: RuleConstraintType.skipArguments, arguments: args};
 }

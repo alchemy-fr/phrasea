@@ -1,9 +1,15 @@
-import {IndentationText, Node, Project, QuoteKind, SourceFile} from "ts-morph";
+import {IndentationText, Node, Project, QuoteKind, SourceFile, SyntaxKind, ts} from "ts-morph";
 import {normalizeKey} from "./keyNormalizer";
-import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint, SubRuleRuleConstraint, TextNode} from "./types";
+import {
+    Rule,
+    RuleConstraintType,
+    SkipArgumentsRuleConstraint,
+    SkipChildrenRuleConstraint,
+    SubRuleRuleConstraint,
+    TextNode
+} from "./types";
 import {defaultRules} from "./ruleSet/default";
 import {removeElementsAtPositions} from "./arrayUtil";
-import {resolveName} from "./nodeUtils";
 
 type Options = {
     debug?: boolean;
@@ -120,9 +126,29 @@ export default class StringScanner {
             return textNodes;
         }
 
-        const argsToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.SkipArguments) as SkipArgumentsRuleConstraint[])
-            .map((c) => c.arguments).flat();
-        const filteredChildren = removeElementsAtPositions(argsToSkip, children);
+        const childrenToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.skipChildren) as SkipChildrenRuleConstraint[])
+            .map((c) => c.positions).flat();
+        if (childrenToSkip.length > 0) {
+            if (this.options.debug) {
+                console.log(`Skipping children: ${childrenToSkip.join(', ')}`);
+            }
+        }
+        let filteredChildren = removeElementsAtPositions(childrenToSkip, children);
+
+        if (Node.isCallExpression(node)) {
+            const argsToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.skipArguments) as SkipArgumentsRuleConstraint[])
+                .map((c) => c.arguments).flat();
+            if (argsToSkip.length > 0) {
+                if (this.options.debug) {
+                    console.log(`Skipping arguments: ${argsToSkip.join(', ')}`);
+                }
+            }
+            filteredChildren = removeElementsAtPositions(argsToSkip, node
+                .getChildAtIndex(2)
+                .getChildren()
+                .filter(c => c.getKind() !== SyntaxKind.CommaToken)
+            );
+        }
 
         const subRules = contextRules.concat((constraints
             .filter(c => c.type === RuleConstraintType.SubRule) as SubRuleRuleConstraint[])
