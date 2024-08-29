@@ -1,6 +1,7 @@
 import {ChainedMatcherRule, MatcherRule,} from "../Rules/rules";
 import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
 import {
+    ClassInstantiationNameRuleMatcher,
     FunctionCallNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
@@ -32,9 +33,12 @@ export const defaultRules: Rule[] = [
             /^(debug|log)/,
             /^t$/,
             /^(watch|register)$/,
-            /^NumberFormat$/,
             /^useState$/,
             /^hasOwnProperty$/,
+        ]),
+    ),
+    new MatcherRule("Skip unwanted functions", new ClassInstantiationNameRuleMatcher([
+            /^Intl.NumberFormat/,
         ]),
     ),
     new MatcherRule(
@@ -81,12 +85,6 @@ export const defaultRules: Rule[] = [
                 /[a-z-_\d]+/,
             ])
         ]
-    ),
-    new MatcherRule(
-        "Formatting calls",
-        new FunctionCallNameRuleMatcher([
-            /^(format)$/,
-        ]),
     ),
     new ChainedMatcherRule(
         "Collection calls",

@@ -1,6 +1,6 @@
 import StringScanner from "../src/StringScanner/StringScanner";
 
-const debugEnabled = false;
+const debugEnabled = true;
 const testFile = 'src/TestMorph.tsx';
 // const testFile = 'src/api/clearAssociation.ts';
 

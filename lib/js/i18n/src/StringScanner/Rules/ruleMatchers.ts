@@ -25,6 +25,20 @@ export class FunctionCallNameRuleMatcher extends BlacklistRegexRuleMatcher {
         }
     }
 }
+export class ClassInstantiationNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        if (Node.isNewExpression(node)) {
+            return node.getChildAtIndex(1).getText();
+        }
+    }
+}
+
+export class FunctionCallOrClassNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        return new FunctionCallNameRuleMatcher(this.regexp).getNodeValue(node)
+            || new ClassInstantiationNameRuleMatcher(this.regexp).getNodeValue(node);
+    }
+}
 
 export class FunctionDeclarationNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {

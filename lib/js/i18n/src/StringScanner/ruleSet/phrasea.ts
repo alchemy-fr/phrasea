@@ -83,4 +83,10 @@ export const phraseaRules: Rule[] = [
         ]),
         [createSkipFirstArgConstraint()],
     ),
+    // new MatcherRule(
+    //     "Formatting calls",
+    //     new FunctionCallNameRuleMatcher([
+    //         /^(format)$/,
+    //     ]),
+    // ),
 ];

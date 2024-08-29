@@ -1,4 +1,4 @@
-import {createSkipFirstArgConstraint, MatcherRule} from "../Rules/rules";
+import {createSkipArgsConstraint, createSkipFirstArgConstraint, MatcherRule} from "../Rules/rules";
 import {OneOfNodeTypeRuleMatcher} from "../Rules/ruleMatchers";
 import {SyntaxKind} from "ts-morph";
 
@@ -9,6 +9,20 @@ export const coreRules: MatcherRule[] = [
             SyntaxKind.PropertyAssignment,
         ]),
         [createSkipFirstArgConstraint()]
+    ),
+    new MatcherRule(
+        "Skip switch clause",
+        new OneOfNodeTypeRuleMatcher([
+            SyntaxKind.SwitchStatement,
+        ]),
+        [createSkipArgsConstraint([2])]
+    ),
+    new MatcherRule(
+        "Skip case clause",
+        new OneOfNodeTypeRuleMatcher([
+            SyntaxKind.CaseClause,
+        ]),
+        [createSkipArgsConstraint([1])]
     ),
     new MatcherRule(
         "Skip unwanted nodes",

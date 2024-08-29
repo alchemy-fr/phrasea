@@ -59,5 +59,11 @@ export class ChainedMatcherRule implements Rule {
 
 export function createSkipFirstArgConstraint(): SkipArgumentsRuleConstraint
 {
-    return {type: RuleConstraintType.SkipArguments, arguments: [0]};
+    return createSkipArgsConstraint([0]);
+}
+
+
+export function createSkipArgsConstraint(args: number[]): SkipArgumentsRuleConstraint
+{
+    return {type: RuleConstraintType.SkipArguments, arguments: args};
 }
