@@ -58,12 +58,14 @@ export const defaultRules: Rule[] = [
             /^(data|d)$/,
             /Class(es|Name)?$/,
             /^class/,
+            /^aspectRatio$/,
             /^(aria|class|anchor)/,
             /(Id|Sx|Ur[il])$/,
-            /^(min|max)(Width|Height)$/,
+            /^(min|max)(Width|Height)$/i,
             /^(field|placement|sx|key|color|role|loadingPosition|height|width|style|modifiers|transform|direction|orientation|alignItems|valueLabelDisplay|component|mouseEvent|id|position|origin|padding|transition|background)$/,
             /accept/i,
             /ur[il]/i,
+            /crossOrigin/i,
         ]),
     ),
     new MatcherRule(
@@ -102,7 +104,7 @@ export const defaultRules: Rule[] = [
         "Type or Key keyword",
         [
             new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
-                /(type|key)$/i,
+                /(type|key|value)$/i,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([

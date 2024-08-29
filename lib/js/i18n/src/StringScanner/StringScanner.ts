@@ -10,6 +10,7 @@ import {
 } from "./types";
 import {defaultRules} from "./ruleSet/default";
 import {removeElementsAtPositions} from "./arrayUtil";
+import {getCallExpressionSyntaxList, getFilteredFunctionCallArguments} from "./nodeUtils";
 
 type Options = {
     debug?: boolean;
@@ -143,11 +144,7 @@ export default class StringScanner {
                     console.log(`Skipping arguments: ${argsToSkip.join(', ')}`);
                 }
             }
-            filteredChildren = removeElementsAtPositions(argsToSkip, node
-                .getChildAtIndex(2)
-                .getChildren()
-                .filter(c => c.getKind() !== SyntaxKind.CommaToken)
-            );
+            filteredChildren = getFilteredFunctionCallArguments(node, argsToSkip);
         }
 
         const subRules = contextRules.concat((constraints

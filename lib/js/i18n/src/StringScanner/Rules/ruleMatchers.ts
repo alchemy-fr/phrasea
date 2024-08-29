@@ -72,6 +72,18 @@ export class JsxAttributeNameRuleMatcher extends BlacklistRegexRuleMatcher {
     }
 }
 
+export class BindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        if (Node.isBindingNamed(node)) {
+            const name = node.getName();
+            if (!name.startsWith('{')) {
+                console.log('name', name);
+                return name;
+            }
+        }
+    }
+}
+
 export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         return new JsxAttributeNameRuleMatcher(this.regexp).getNodeValue(node)
@@ -82,7 +94,9 @@ export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMat
 export class VariableOrJsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         return new VariableNameRuleMatcher(this.regexp).getNodeValue(node)
-            || new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(node);
+            || new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(node)
+            || new BindingNameRuleMatcher(this.regexp).getNodeValue(node)
+        ;
     }
 }
 

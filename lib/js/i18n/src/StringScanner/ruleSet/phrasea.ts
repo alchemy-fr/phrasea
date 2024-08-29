@@ -5,7 +5,7 @@ import {
     MatcherRule
 } from "../Rules/rules";
 import {
-    ClassInstantiationNameRuleMatcher,
+    ClassInstantiationNameRuleMatcher, FullFunctionCallNameRuleMatcher,
     FunctionCallNameRuleMatcher,
     JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
@@ -92,6 +92,30 @@ export const phraseaRules: Rule[] = [
         "Errors",
         new ClassInstantiationNameRuleMatcher([
             /^(Error)$/,
+        ]),
+    ),
+    new MatcherRule(
+        "console.x",
+        new FullFunctionCallNameRuleMatcher([
+            /^console\.(error|info|debug|trace)$/,
+        ]),
+    ),
+    new MatcherRule(
+        "Moment",
+        new FullFunctionCallNameRuleMatcher([
+            /^(m(oment)?).format$/,
+        ]),
+    ),
+    new MatcherRule(
+        "Unwanted functions",
+        new FunctionCallNameRuleMatcher([
+            /^(toggleAttrFilter|useNavigateToOverlay)$/,
+        ]),
+    ),
+    new MatcherRule(
+        "Moment",
+        new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            /^theme$/,
         ]),
     ),
 ];

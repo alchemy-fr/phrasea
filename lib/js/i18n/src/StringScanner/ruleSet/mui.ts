@@ -23,13 +23,46 @@ export const muiRules: Rule[] = [
         ]
     ),
     new ChainedMatcherRule(
-        "MUI Variant rule",
+        "MUI Checkbox",
+        [
+            new JsxElementNameRuleMatcher([
+                /^Checkbox$/,
+            ]),
+            new JsxAttributeOrPropertyNameRuleMatcher([
+                /^edge$/,
+            ])
+        ]
+    ),
+    new ChainedMatcherRule(
+        "MUI Collapse",
+        [
+            new JsxElementNameRuleMatcher([
+                /^Collapse$/,
+            ]),
+            new JsxAttributeOrPropertyNameRuleMatcher([
+                /^timeout$/,
+            ])
+        ]
+    ),
+    new ChainedMatcherRule(
+        "MUI Variant",
         [
             new JsxAttributeOrPropertyNameRuleMatcher([
                 /^variant$/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(h[1-6]|body\d?|contained|outlined|text|standard|dense)$/i,
+                /^(h[1-6]|body\d?|caption|contained|outlined|text|standard|dense)$/i,
+            ])
+        ]
+    ),
+    new ChainedMatcherRule(
+        "MUI Placement",
+        [
+            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+                /placement$/i,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^(end|start|top|bottom|left|right)$/i,
             ])
         ]
     ),
@@ -62,7 +95,7 @@ export const muiRules: Rule[] = [
                 /size/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(small|large|xl|md|sm|xs)$/,
+                /^(medium|small|large|xl|md|sm|xs)$/,
             ])
         ]
     ),

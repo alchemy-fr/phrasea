@@ -1,7 +1,7 @@
 import {Rule} from "../types";
 import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
-    FunctionCallNameRuleMatcher,
+    FunctionCallNameRuleMatcher, FunctionDeclarationNameRuleMatcher,
     JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher, LiteralValueRuleMatcher
@@ -34,6 +34,12 @@ export const styleRules: Rule[] = [
         "DOM",
         new FunctionCallNameRuleMatcher([
             /^(createElement)$/i,
+        ]),
+    ),
+    new MatcherRule(
+        "Style builder",
+        new FunctionDeclarationNameRuleMatcher([
+            /Style$/,
         ]),
     ),
 ];
