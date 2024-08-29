@@ -23,6 +23,8 @@ export const phraseaRules: Rule[] = [
         [
             new JsxElementNameRuleMatcher([
                 /(Widget|Field)$/,
+                /^Controller$/,
+                /.+Select$/,
             ]),
             new JsxAttributeNameRuleMatcher([
                 /^name$/,
@@ -45,6 +47,17 @@ export const phraseaRules: Rule[] = [
         [
             new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
                 /^tab$/,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^[a-z-_\d]+$/,
+            ]),
+        ]
+    ),
+    new ChainedMatcherRule(
+        "Run actions",
+        [
+            new FunctionCallNameRuleMatcher([
+                /^run/,
             ]),
             new LiteralValueRuleMatcher([
                 /^[a-z-_\d]+$/,

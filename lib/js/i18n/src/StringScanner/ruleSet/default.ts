@@ -98,7 +98,7 @@ export const defaultRules: Rule[] = [
         "Type or Key keyword",
         [
             new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
-                /^(type|key)$/,
+                /(type|key)$/,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([

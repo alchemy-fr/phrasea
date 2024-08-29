@@ -28,7 +28,7 @@ export const muiRules: Rule[] = [
                 /^variant$/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(h[1-6]|body\d?|contained|outlined|text)$/i,
+                /^(h[1-6]|body\d?|contained|outlined|text|standard)$/i,
             ])
         ]
     ),
