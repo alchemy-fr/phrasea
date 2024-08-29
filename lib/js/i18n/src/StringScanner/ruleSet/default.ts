@@ -87,5 +87,21 @@ export const defaultRules: Rule[] = [
                 /[a-z-]+/,
             ])
         ]
-    )
+    ),
+    new ChainedMatcherRule(
+        "Collection calls",
+        [
+            new FunctionCallNameRuleMatcher([
+                /^(get|has)$/,
+                /^(add|append|has|remove|delete)/,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^[a-z-]+$/,
+            ])
+        ],
+        [{
+            type: RuleConstraintType.SkipArguments,
+            arguments: [0],
+        } as SkipArgumentsRuleConstraint]
+    ),
 ];
