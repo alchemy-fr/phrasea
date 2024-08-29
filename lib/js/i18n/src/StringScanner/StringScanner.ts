@@ -1,25 +1,19 @@
-import {IndentationText, Node, Project, QuoteKind, SourceFile, SyntaxKind} from "ts-morph";
+import {IndentationText, Node, Project, QuoteKind, SourceFile} from "ts-morph";
 import {normalizeKey} from "./keyNormalizer";
-import {Rule, TextNode} from "./types";
-import {
-    isAllowedAttribute,
-    isAllowedFunctionName,
-    isAllowedText,
-    isAllowedVariableName,
-    resolveName
-} from "./nodeUtils";
+import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint, SubRuleRuleConstraint, TextNode} from "./types";
 import {defaultRules} from "./defaultRules";
+import {removeElementsAtPositions} from "./arrayUtil";
 
 type Options = {
     debug?: boolean;
     dryRun?: boolean;
     testFile?: string;
-    exclusionRules?: Rule[];
+    rules?: Rule[];
 }
 
 type ResolvedOptions = {
-    exclusionRules: Rule[];
-} & Omit<Options, "exclusionRules">;
+    rules: Rule[];
+} & Omit<Options, "rules">;
 
 export default class StringScanner {
     options: Readonly<ResolvedOptions>;
@@ -30,7 +24,7 @@ export default class StringScanner {
 
         this.options = {
             ...options,
-            exclusionRules: options.exclusionRules ?? defaultRules,
+            rules: options.rules ?? defaultRules,
         };
 
         this.project.manipulationSettings.set({
@@ -111,24 +105,30 @@ export default class StringScanner {
         });
     }
 
-    findTextNodes(node: Node, depth: number = 0): TextNode[] {
+    findTextNodes(node: Node, depth: number = 0, contextRules: Rule[] = []): TextNode[] {
         if (this.options.debug) {
             console.log(`${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`);
         }
         const textNodes: TextNode[] = [];
+        const children = node.getChildren();
 
-        let children = node.getChildren();
+        const rules = this.options.rules.concat(contextRules);
 
-        if (Node.isPropertyAssignment(node)) {
-            children = children.slice(1);
+        const constraints = rules.map(r => r.getConstraints(node)).flat();
+        if (constraints.some(c => c.type === RuleConstraintType.Skip)) {
+            return textNodes;
         }
 
-        children.forEach(c => {
-            if (this.options.exclusionRules.some(r => r.matches(c))) {
-                return;
-            }
+        const argsToSkip: number[] = (constraints.filter(c => c.type === RuleConstraintType.SkipArguments) as SkipArgumentsRuleConstraint[])
+            .map((c) => c.arguments).flat();
+        const filteredChildren = removeElementsAtPositions(argsToSkip, children);
 
-            for (const n of this.findTextNodes(c, depth + 1)) {
+        const subRules = contextRules.concat((constraints
+            .filter(c => c.type === RuleConstraintType.SubRule) as SubRuleRuleConstraint[])
+            .map(c => c.rules).flat());
+
+        filteredChildren.forEach(c => {
+            for (const n of this.findTextNodes(c, depth + 1, subRules)) {
                 textNodes.push(n);
             }
         });
@@ -139,7 +139,7 @@ export default class StringScanner {
             || Node.isJsxText(node)
         ) {
             const v = node.getLiteralText().trim();
-            if (isAllowedText(v)) {
+            if (v) {
                 textNodes.push(node);
             }
         }

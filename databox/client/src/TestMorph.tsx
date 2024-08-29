@@ -1,4 +1,4 @@
-import {Typography} from '@mui/material';
+import {Button, Typography} from '@mui/material';
 import {Trans, useTranslation} from "react-i18next";
 import {PropsWithChildren} from "react";
 
@@ -47,7 +47,7 @@ export default function TestMorph({}: Props) {
             foo: 'bar',
         };
 
-        console.log('debug', data['foo']);
+        console.log('debug', data['foo'], 'XX');
     };
 
     return (
@@ -60,6 +60,11 @@ export default function TestMorph({}: Props) {
                 data-alt={`Template Literal`}
                 data-test="A text"
             ></div>
+            <Button
+                variant={'text'}
+            >
+                submit
+            </Button>
             <Trans>Already translated</Trans>
             <Trans>
                 Already <b>bold</b>.
