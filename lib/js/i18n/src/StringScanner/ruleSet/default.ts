@@ -1,4 +1,4 @@
-import {MatcherRule,} from "../Rules/rules";
+import {ChainedMatcherRule, MatcherRule,} from "../Rules/rules";
 import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
 import {
     FunctionCallNameRuleMatcher,
@@ -68,7 +68,6 @@ export const defaultRules: Rule[] = [
             /ur[il]/i,
         ]),
     ),
-
     new MatcherRule(
         "Skip unwanted object properties",
         new PropertyNameRuleMatcher([
@@ -77,4 +76,16 @@ export const defaultRules: Rule[] = [
             /url/i,
         ]),
     ),
+    new ChainedMatcherRule(
+        "API calls",
+        [
+            new FunctionCallNameRuleMatcher([
+                /^(get|post|put|delete|patch)$/,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^\//,
+                /[a-z-]+/,
+            ])
+        ]
+    )
 ];
