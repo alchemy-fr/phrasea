@@ -3,6 +3,7 @@ import {normalizeKey} from "./keyNormalizer";
 import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint, SubRuleRuleConstraint, TextNode} from "./types";
 import {defaultRules} from "./ruleSet/default";
 import {removeElementsAtPositions} from "./arrayUtil";
+import {resolveName} from "./nodeUtils";
 
 type Options = {
     debug?: boolean;
@@ -107,7 +108,7 @@ export default class StringScanner {
 
     findTextNodes(node: Node, depth: number = 0, contextRules: Rule[] = []): TextNode[] {
         if (this.options.debug) {
-            console.log(`${'  '.repeat(depth)}${node.getKindName()}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`);
+            console.log(`${'  '.repeat(depth)}${node.getKindName()}${(Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node)) ? ` <${node.getStructure().name}>` : ''}${Node.isJsxText(node) || Node.isStringLiteral(node) ? ` = ${node.print().trim()}` : ''}`);
         }
         const textNodes: TextNode[] = [];
         const children = node.getChildren();

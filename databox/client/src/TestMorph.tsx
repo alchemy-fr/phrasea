@@ -69,6 +69,9 @@ export default function TestMorph({}: Props) {
             <Trans>
                 Already <b>bold</b>.
             </Trans>
+            <TextField
+                name={'toto'}
+            />
         </>
     );
 }

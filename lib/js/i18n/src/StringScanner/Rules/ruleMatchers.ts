@@ -84,7 +84,7 @@ export class LiteralValueRuleMatcher extends BlacklistRegexRuleMatcher {
 
 export class JsxElementNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
-        if (Node.isJsxElement(node)) {
+        if (Node.isJsxElement(node) || Node.isJsxSelfClosingElement(node)) {
             return node.getStructure().name;
         }
     }

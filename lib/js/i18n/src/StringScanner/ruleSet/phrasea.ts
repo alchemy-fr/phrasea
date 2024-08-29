@@ -1,7 +1,7 @@
 import {Rule} from "../types";
 import {ChainedMatcherRule, MatcherRule} from "../Rules/rules";
 import {
-    FunctionCallNameRuleMatcher,
+    FunctionCallNameRuleMatcher, JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher, JsxElementNameRuleMatcher, LiteralValueRuleMatcher,
     VariableOrJsxAttributeOrPropertyNameRuleMatcher
 } from "../Rules/ruleMatchers";
@@ -24,7 +24,7 @@ export const phraseaRules: Rule[] = [
             new JsxElementNameRuleMatcher([
                 /(Widget|Field)$/,
             ]),
-            new JsxAttributeOrPropertyNameRuleMatcher([
+            new JsxAttributeNameRuleMatcher([
                 /^name$/,
             ]),
         ]
