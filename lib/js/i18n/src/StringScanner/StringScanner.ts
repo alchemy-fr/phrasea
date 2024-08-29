@@ -1,7 +1,7 @@
 import {IndentationText, Node, Project, QuoteKind, SourceFile} from "ts-morph";
 import {normalizeKey} from "./keyNormalizer";
 import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint, SubRuleRuleConstraint, TextNode} from "./types";
-import {defaultRules} from "./defaultRules";
+import {defaultRules} from "./ruleSet/default";
 import {removeElementsAtPositions} from "./arrayUtil";
 
 type Options = {

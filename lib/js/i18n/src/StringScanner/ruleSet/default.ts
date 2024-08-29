@@ -1,38 +1,15 @@
-import {MatcherRule,} from "./Rules/rules";
-import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "./types";
-import {SyntaxKind} from "ts-morph";
+import {MatcherRule,} from "../Rules/rules";
+import {Rule, RuleConstraintType, SkipArgumentsRuleConstraint} from "../types";
 import {
     FunctionCallNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
-    OneOfNodeTypeRuleMatcher,
     PropertyNameRuleMatcher,
     VariableNameRuleMatcher
-} from "./Rules/ruleMatchers";
-import {muiRules} from "./ruleSet/muiRules";
-
-const coreRules: MatcherRule[] = [
-    new MatcherRule(
-        "Skip key in property assignment",
-        new OneOfNodeTypeRuleMatcher([
-            SyntaxKind.PropertyAssignment,
-        ]),
-        [{
-            type: RuleConstraintType.SkipArguments,
-            arguments: [0],
-        } as SkipArgumentsRuleConstraint]
-    ),
-    new MatcherRule(
-        "Skip unwanted nodes",
-        new OneOfNodeTypeRuleMatcher([
-            SyntaxKind.TypeReference,
-            SyntaxKind.IndexedAccessType,
-            SyntaxKind.BinaryExpression,
-            SyntaxKind.ElementAccessExpression,
-        ]),
-    ),
-];
+} from "../Rules/ruleMatchers";
+import {muiRules} from "./mui";
+import {coreRules} from "./core";
 
 export const defaultRules: Rule[] = [
     ...coreRules,

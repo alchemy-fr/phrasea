@@ -3,7 +3,7 @@ import {ChainedMatcherRule} from "../Rules/rules";
 import {
     JsxAttributeNameRuleMatcher,
     JsxAttributeOrPropertyNameRuleMatcher,
-    JsxElementNameRuleMatcher
+    JsxElementNameRuleMatcher, LiteralValueRuleMatcher
 } from "../Rules/ruleMatchers";
 
 export const muiRules: Rule[] = [
@@ -19,13 +19,13 @@ export const muiRules: Rule[] = [
         ]
     ),
     new ChainedMatcherRule(
-        "MUI Colors rule",
+        "MUI Variant rule",
         [
             new JsxAttributeNameRuleMatcher([
-                /color/i,
+                /^variant$/i,
             ]),
-            new JsxAttributeOrPropertyNameRuleMatcher([
-                /^(primary|secondary|default|warning|error|info|success)$/,
+            new LiteralValueRuleMatcher([
+                /^(h[1-6]|body\d?)$/i,
             ])
         ]
     ),
@@ -33,10 +33,10 @@ export const muiRules: Rule[] = [
         "MUI Colors rule",
         [
             new JsxAttributeNameRuleMatcher([
-                /variant/i,
+                /color/i,
             ]),
-            new JsxAttributeOrPropertyNameRuleMatcher([
-                /^(h[1-6]|body\d?)$/,
+            new LiteralValueRuleMatcher([
+                /^(primary|secondary|default|warning|error|info|success)$/,
             ])
         ]
     ),
@@ -46,7 +46,7 @@ export const muiRules: Rule[] = [
             new JsxAttributeNameRuleMatcher([
                 /size/i,
             ]),
-            new JsxAttributeOrPropertyNameRuleMatcher([
+            new LiteralValueRuleMatcher([
                 /^(small|large|xl|md|sm|xs)$/,
             ])
         ]
