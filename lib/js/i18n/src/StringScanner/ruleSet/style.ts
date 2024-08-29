@@ -11,7 +11,7 @@ export const styleRules: Rule[] = [
         "Styles",
         [
             new JsxAttributeOrPropertyNameRuleMatcher([
-                /^(align|position)$/i,
+                /(align|position)/i,
             ]),
             new LiteralValueRuleMatcher([
                 /^(left|right|bottom|top)$/i,

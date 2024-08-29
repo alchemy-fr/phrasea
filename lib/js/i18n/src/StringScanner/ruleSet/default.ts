@@ -51,6 +51,7 @@ export const defaultRules: Rule[] = [
         "Skip unwanted variables or attributes",
         new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
             /^(data|d)$/,
+            /Class(es|Name)?$/,
             /^class/,
             /^(aria|class|anchor)/,
             /(Id|Sx|Ur[il])$/,
