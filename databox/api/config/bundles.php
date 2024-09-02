@@ -28,6 +28,7 @@ return [
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
     Alchemy\MetadataManipulatorBundle\AlchemyMetadataManipulatorBundle::class => ['all' => true],
     Alchemy\WorkflowBundle\AlchemyWorkflowBundle::class => ['all' => true],
+    Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
     Alchemy\ESBundle\AlchemyESBundle::class => ['all' => true],
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['prod' => true],

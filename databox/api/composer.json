@@ -105,6 +105,20 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/rendition-factory",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/rendition-factory-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
@@ -125,6 +139,8 @@
         "alchemy/test-bundle": "*",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
+        "alchemy/rendition-factory": "@dev",
+        "alchemy/rendition-factory-bundle": "@dev",
         "api-platform/core": "^3.2.7",
         "arthem/object-reference-bundle": "dev-master",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",

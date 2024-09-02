@@ -1,0 +1,51 @@
+{
+  "name": "alchemy/rendition-factory-bundle",
+  "type": "symfony-bundle",
+  "description": "Alchemy Rendition Factory bundle",
+  "keywords": [],
+  "homepage": "https://www.alchemy.fr/",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../rendition-factory",
+      "options": {
+        "symlink": true
+      }
+    }
+  ],
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "symfony/framework-bundle": "^6",
+    "symfony/monolog-bundle": "^3.5",
+    "symfony/config": "^6.3",
+    "ramsey/uuid": "^4.2",
+    "alchemy/rendition-factory": "@dev"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "rector": "vendor/bin/rector",
+    "cs": "vendor/bin/php-cs-fixer fix",
+    "test": "echo 'This project has no test...'"
+  },
+  "autoload": {
+    "psr-4": {
+      "Alchemy\\RenditionFactoryBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Alchemy\\RenditionFactoryBundle\\Tests\\": "/Tests/"
+    }
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.17",
+    "phpunit/phpunit": "^9.5",
+    "rector/rector": "^1.0.4"
+  }
+}

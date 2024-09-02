@@ -105,6 +105,20 @@
             "options": {
                 "symlink": true
             }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/rendition-factory",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../../lib/php/rendition-factory-bundle",
+            "options": {
+                "symlink": true
+            }
         }
     ],
     "require": {
