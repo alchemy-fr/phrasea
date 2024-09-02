@@ -1,7 +1,7 @@
 import {Rule} from "../types";
 import {
     ChainedMatcherRule,
-    createSkipFirstArgumentConstraint,
+    createSkipFirstArgumentConstraint, identifierRegex,
     MatcherRule
 } from "../Rules/rules";
 import {
@@ -11,14 +11,14 @@ import {
     JsxAttributeOrPropertyNameRuleMatcher,
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
-    VariableOrJsxAttributeOrPropertyNameRuleMatcher
+    AnyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 
 export const phraseaRules: Rule[] = [
     new ChainedMatcherRule(
         "Actions",
         [
-            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            new AnyNameRuleMatcher([
                 /action/,
             ]),
             new JsxAttributeOrPropertyNameRuleMatcher([
@@ -53,11 +53,11 @@ export const phraseaRules: Rule[] = [
     new ChainedMatcherRule(
         "Tabs",
         [
-            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            new AnyNameRuleMatcher([
                 /^tab$/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[\da-z_-]+$/,
+                identifierRegex,
             ]),
         ]
     ),
@@ -68,7 +68,7 @@ export const phraseaRules: Rule[] = [
                 /^run/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[\da-z_-]+$/,
+                identifierRegex,
             ]),
         ]
     ),
@@ -114,7 +114,7 @@ export const phraseaRules: Rule[] = [
     ),
     new MatcherRule(
         "Moment",
-        new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+        new AnyNameRuleMatcher([
             /^theme$/,
         ]),
     ),

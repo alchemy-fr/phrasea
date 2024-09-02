@@ -83,6 +83,15 @@ export class BindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
     }
 }
 
+
+export class IdentifierNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        if (Node.isIdentifier(node)) {
+            return node.getText();
+        }
+    }
+}
+
 export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         return new JsxAttributeNameRuleMatcher(this.regexp).getNodeValue(node)
@@ -90,7 +99,7 @@ export class JsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMat
     }
 }
 
-export class VariableOrJsxAttributeOrPropertyNameRuleMatcher extends BlacklistRegexRuleMatcher {
+export class JsxAttributeOrPropertyOrVariableOrBindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         return new VariableNameRuleMatcher(this.regexp).getNodeValue(node)
             || new JsxAttributeOrPropertyNameRuleMatcher(this.regexp).getNodeValue(node)
@@ -98,6 +107,15 @@ export class VariableOrJsxAttributeOrPropertyNameRuleMatcher extends BlacklistRe
         ;
     }
 }
+
+export class AnyNameRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        return new JsxAttributeOrPropertyOrVariableOrBindingNameRuleMatcher(this.regexp).getNodeValue(node)
+            || new VariableComparisonRuleMatcher(this.regexp).getNodeValue(node)
+        ;
+    }
+}
+
 
 export class VariableNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
@@ -131,5 +149,26 @@ export class OneOfNodeTypeRuleMatcher implements RuleMatcher {
 
     matches(node: Node): boolean {
         return this.syntaxKinds.includes(node.getKind());
+    }
+}
+
+export class LiteralInBinaryExpressionRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        const nodeValue = new LiteralValueRuleMatcher(this.regexp).getNodeValue(node);
+
+        if (nodeValue && node.getParent()?.getKind() === SyntaxKind.BinaryExpression) {
+            return nodeValue;
+        }
+    }
+}
+
+export class VariableComparisonRuleMatcher extends BlacklistRegexRuleMatcher {
+    getNodeValue(node: Node): string | undefined {
+        if (node.getKind() === SyntaxKind.BinaryExpression) {
+            const first = node.getChildAtIndex(0);
+            if (first) {
+                return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(first);
+            }
+        }
     }
 }

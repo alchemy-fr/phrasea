@@ -1,4 +1,4 @@
-import {ChainedMatcherRule, MatcherRule,} from "../Rules/rules";
+import {ChainedMatcherRule, identifierRegex, MatcherRule,} from "../Rules/rules";
 import {Rule, RuleConstraintType, SkipChildrenRuleConstraint} from "../types";
 import {
     ClassInstantiationNameRuleMatcher,
@@ -6,7 +6,7 @@ import {
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
     PropertyNameRuleMatcher,
-    VariableOrJsxAttributeOrPropertyNameRuleMatcher
+    AnyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 import {muiRules} from "./mui";
 import {coreRules} from "./core";
@@ -56,7 +56,7 @@ export const defaultRules: Rule[] = [
     ),
     new MatcherRule(
         "Skip unwanted variables or attributes",
-        new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+        new AnyNameRuleMatcher([
             /^(data|d)$/,
             /Class(es|Name)?$/,
             /^class/,
@@ -92,7 +92,7 @@ export const defaultRules: Rule[] = [
             ]),
             new LiteralValueRuleMatcher([
                 /^\//,
-                /[\da-z_-]+/,
+                identifierRegex,
             ])
         ]
     ),
@@ -104,19 +104,19 @@ export const defaultRules: Rule[] = [
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[\da-z_-]+$/,
+                identifierRegex,
             ])
         ],
     ),
     new ChainedMatcherRule(
         "Type or Key keyword",
         [
-            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            new AnyNameRuleMatcher([
                 /(type|key|value)$/i,
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[\da-z_-]+$/,
+                identifierRegex,
             ])
         ],
     ),

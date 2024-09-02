@@ -6,7 +6,7 @@ import {
     JsxElementNameRuleMatcher,
     LiteralValueRuleMatcher,
     VariableNameRuleMatcher,
-    VariableOrJsxAttributeOrPropertyNameRuleMatcher
+    AnyNameRuleMatcher
 } from "../Rules/ruleMatchers";
 
 export const muiRules: Rule[] = [
@@ -58,7 +58,7 @@ export const muiRules: Rule[] = [
     new ChainedMatcherRule(
         "MUI Placement",
         [
-            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            new AnyNameRuleMatcher([
                 /placement$/i,
             ]),
             new LiteralValueRuleMatcher([
@@ -69,7 +69,7 @@ export const muiRules: Rule[] = [
     new ChainedMatcherRule(
         "MUI Colors rule",
         [
-            new VariableOrJsxAttributeOrPropertyNameRuleMatcher([
+            new AnyNameRuleMatcher([
                 /(color|severity)/i,
             ]),
             new LiteralValueRuleMatcher([

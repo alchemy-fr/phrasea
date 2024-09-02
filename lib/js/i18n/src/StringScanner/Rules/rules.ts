@@ -76,3 +76,5 @@ export function createSkipArgumentsConstraint(args: number[]): SkipArgumentsRule
 {
     return {type: RuleConstraintType.skipArguments, arguments: args};
 }
+
+export const identifierRegex = /^[a-z_]+[\da-z_-]*$/;
