@@ -5,7 +5,7 @@ import {
     ListItemText,
 } from '@mui/material';
 import {LabelledBucketValue} from '../Facets';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     onClick: () => void;

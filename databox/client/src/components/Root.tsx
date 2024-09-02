@@ -15,7 +15,7 @@ import {
 import {modalRoutes, routes} from '../routes';
 import RouteProxy from './Routing/RouteProxy';
 import AttributeFormatProvider from './Media/Asset/Attribute/Format/AttributeFormatProvider.tsx';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {};
 

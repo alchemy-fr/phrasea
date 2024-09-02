@@ -27,7 +27,7 @@ import {
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
-import {getAttributeList} from "../Media/Asset/Attribute/AttributeListData.ts";
+import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 
 type FileWrapper = {
     id: string;
@@ -138,7 +138,7 @@ export default function UploadModal({
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
-                    tags: (data.tags as unknown as string[]),
+                    tags: data.tags as unknown as string[],
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle()

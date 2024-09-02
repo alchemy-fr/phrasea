@@ -20,7 +20,7 @@ import EditableCollectionTree, {
     nodeNewPrefix,
 } from './EditableTree';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 const nodeSeparator = '|';
 

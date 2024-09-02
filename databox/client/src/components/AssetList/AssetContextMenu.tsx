@@ -1,4 +1,11 @@
-import {ClickAwayListener, Divider, ListItemIcon, ListItemText, Menu, MenuItem,} from '@mui/material';
+import {
+    ClickAwayListener,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+} from '@mui/material';
 import {Asset, AssetOrAssetContainer, StateSetter} from '../../types';
 import LinkIcon from '@mui/icons-material/Link';
 import {useTranslation} from 'react-i18next';
@@ -11,7 +18,7 @@ import SaveAsButton from '../Media/Asset/Actions/SaveAsButton';
 import SaveIcon from '@mui/icons-material/Save';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import {ActionsContext, ReloadFunc} from './types.ts';
-import {useAssetActions} from "../../hooks/useAssetActions.ts";
+import {useAssetActions} from '../../hooks/useAssetActions.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     anchorPosition: PopoverPosition;
@@ -37,14 +44,8 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     const {t} = useTranslation();
     const {id, original} = asset;
 
-    const {
-        onDelete,
-        onOpen,
-        onDownload,
-        onEdit,
-        onEditAttr,
-        can,
-    } = useAssetActions({asset, onAction: onClose, actionsContext});
+    const {onDelete, onOpen, onDownload, onEdit, onEditAttr, can} =
+        useAssetActions({asset, onAction: onClose, actionsContext});
 
     const openUrl = (url: string) => {
         document.location.href = url;
@@ -76,12 +77,11 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                 {can.open && (
                     <MenuItem onClick={() => onOpen(original!.id)}>
                         <ListItemIcon>
-                            <FileOpenIcon/>
+                            <FileOpenIcon />
                         </ListItemIcon>
-                        <ListItemText primary={t(
-                            'asset_actions.open',
-                            'Open'
-                        )}/>
+                        <ListItemText
+                            primary={t('asset_actions.open', 'Open')}
+                        />
                     </MenuItem>
                 )}
                 {can.saveAs ? (
@@ -92,12 +92,14 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         variant={'text'}
                     >
                         <ListItemIcon>
-                            <SaveIcon/>
+                            <SaveIcon />
                         </ListItemIcon>
-                        <ListItemText primary={t('asset_context_menu.save_as', `Save as`)}/>
+                        <ListItemText
+                            primary={t('asset_context_menu.save_as', `Save as`)}
+                        />
 
                         <ListItemIcon>
-                            <ArrowDropDownIcon/>
+                            <ArrowDropDownIcon />
                         </ListItemIcon>
                     </SaveAsButton>
                 ) : (
@@ -107,20 +109,19 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     original.file.alternateUrls.map(a => (
                         <MenuItem key={a.type} onClick={() => openUrl(a.url)}>
                             <ListItemIcon>
-                                <LinkIcon/>
+                                <LinkIcon />
                             </ListItemIcon>
-                            <ListItemText primary={a.label || a.type}/>
+                            <ListItemText primary={a.label || a.type} />
                         </MenuItem>
                     ))}
                 {can.download && (
                     <MenuItem onClick={onDownload}>
                         <ListItemIcon>
-                            <CloudDownloadIcon/>
+                            <CloudDownloadIcon />
                         </ListItemIcon>
-                        <ListItemText primary={t(
-                            'asset_actions.download',
-                            'Download'
-                        )}/>
+                        <ListItemText
+                            primary={t('asset_actions.download', 'Download')}
+                        />
                     </MenuItem>
                 )}
                 {actionsContext.edit ? (
@@ -129,12 +130,11 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         onClick={can.edit ? onEdit : undefined}
                     >
                         <ListItemIcon>
-                            <EditIcon/>
+                            <EditIcon />
                         </ListItemIcon>
-                        <ListItemText primary={t(
-                            'asset_actions.edit',
-                            'Edit'
-                        )}/>
+                        <ListItemText
+                            primary={t('asset_actions.edit', 'Edit')}
+                        />
                     </MenuItem>
                 ) : (
                     ''
@@ -142,33 +142,33 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                 {actionsContext.edit ? (
                     <MenuItem
                         disabled={!can.editAttributes}
-                        onClick={
-                            can.editAttributes
-                                ? onEditAttr
-                                : undefined
-                        }
+                        onClick={can.editAttributes ? onEditAttr : undefined}
                     >
                         <ListItemIcon>
-                            <EditIcon/>
+                            <EditIcon />
                         </ListItemIcon>
-                        <ListItemText primary={t(
-                            'asset_actions.edit_attributes',
-                            'Edit attributes'
-                        )}/>
+                        <ListItemText
+                            primary={t(
+                                'asset_actions.edit_attributes',
+                                'Edit attributes'
+                            )}
+                        />
                     </MenuItem>
                 ) : (
                     ''
                 )}
-                <Divider key={'d'}/>
+                <Divider key={'d'} />
                 {actionsContext.delete ? (
                     <MenuItem
                         disabled={!can.delete}
                         onClick={can.delete ? onDelete : undefined}
                     >
                         <ListItemIcon>
-                            <DeleteIcon color={'error'}/>
+                            <DeleteIcon color={'error'} />
                         </ListItemIcon>
-                        <ListItemText primary={t('asset_context_menu.delete', `Delete`)}/>
+                        <ListItemText
+                            primary={t('asset_context_menu.delete', `Delete`)}
+                        />
                     </MenuItem>
                 ) : (
                     ''

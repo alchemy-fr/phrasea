@@ -83,7 +83,10 @@ export default function TranslatableAttributeTabs({
         );
     }
 
-    const humanLocale = (l: string) => (l === NO_LOCALE ? t('translatable_attribute_tabs.untranslated', `Untranslated`) : l);
+    const humanLocale = (l: string) =>
+        l === NO_LOCALE
+            ? t('translatable_attribute_tabs.untranslated', `Untranslated`)
+            : l;
 
     return (
         <>

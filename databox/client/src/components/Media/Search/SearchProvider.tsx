@@ -9,7 +9,7 @@ import {
 import {FilterEntry, Filters, FilterType, SortBy} from './Filter';
 import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
     const {t} = useTranslation();
@@ -37,9 +37,12 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
     const {query, filters, sortBy, geolocation} = hashToQuery(hash);
     const inputQuery = React.useRef<string>('');
 
-    const setInputQuery = React.useCallback((query: string) => {
-        inputQuery.current = query;
-    }, [inputQuery]);
+    const setInputQuery = React.useCallback(
+        (query: string) => {
+            inputQuery.current = query;
+        },
+        [inputQuery]
+    );
 
     const resolvedSortBy = getResolvedSortBy(sortBy);
 

@@ -45,4 +45,6 @@ export type TSearchContext = {
     reloadInc: number;
 };
 
-export const SearchContext = React.createContext<TSearchContext | undefined>(undefined);
+export const SearchContext = React.createContext<TSearchContext | undefined>(
+    undefined
+);

@@ -5,7 +5,7 @@ import config from '../../config.ts';
 import {getIntegrationTokens} from '../../api/integrations.ts';
 import {WorkspaceIntegration} from '../../types.ts';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     integration: WorkspaceIntegration;

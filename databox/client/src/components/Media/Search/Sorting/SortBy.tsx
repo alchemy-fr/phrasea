@@ -5,7 +5,7 @@ import SortByChip from '../SortByChip';
 import EditSortBy from './EditSortBy';
 import {SearchContext} from '../SearchContext';
 import {ResultContext} from '../ResultContext';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {};
 
@@ -34,7 +34,8 @@ export default function SortBy({}: Props) {
                                 verticalAlign: 'middle',
                             }}
                         />
-                        {t('sort_by.sort_by', `Sort by`)}<>
+                        {t('sort_by.sort_by', `Sort by`)}
+                        <>
                             {search.sortBy.map((o, i) => (
                                 <SortByChip key={i} {...o} />
                             ))}

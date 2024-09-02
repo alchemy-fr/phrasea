@@ -16,7 +16,8 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import {TFunction} from 'i18next';
 
 export type BucketValue = string | number | boolean;
 
@@ -64,11 +65,11 @@ export type Facet = {
 export type TFacets = Record<string, Facet>;
 
 export function extractLabelValueFromKey(
+    t: TFunction,
     key: ResolvedBucketValue,
     type: FilterType | undefined,
     format?: AttributeFormat
 ): LabelledBucketValue {
-    const {t} = useTranslation();
     // eslint-disable-next-line no-prototype-builtins
     if (typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
@@ -76,17 +77,17 @@ export function extractLabelValueFromKey(
 
     if ('missing' === type) {
         return {
-            label: t('extract_label_value_from_key.missing', `Missing`),
+            label: t('facets.missing', `Missing`),
             value: '__missing__',
         };
     }
 
     type = type ?? AttributeType.Text;
-    const t = getAttributeType(type);
+    const at = getAttributeType(type);
 
     if ([AttributeType.DateTime, AttributeType.Date].includes(type)) {
         return {
-            label: t.formatValueAsString({
+            label: at.formatValueAsString({
                 value: key,
                 format,
             })!,
@@ -94,7 +95,7 @@ export function extractLabelValueFromKey(
         };
     } else if (type === AttributeType.Boolean) {
         return {
-            label: t.formatValueAsString({
+            label: at.formatValueAsString({
                 value: !!key,
                 format,
             })!,
@@ -103,7 +104,7 @@ export function extractLabelValueFromKey(
     }
 
     return {
-        label: t.formatValueAsString({
+        label: at.formatValueAsString({
             value: key as string,
             format,
         })!,
@@ -126,7 +127,6 @@ const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
 const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
     t: TagsFacet,
 };
-
 
 function FacetGroup({facet, name}: FacetGroupProps) {
     const [open, setOpen] = useState(true);

@@ -28,7 +28,6 @@ export default function FilePlayer({
     const {t} = useTranslation();
     const mainType = getFileTypeFromMIMEType(file.type);
 
-
     if (!file.url) {
         return <AssetFileIcon file={file} />;
     }

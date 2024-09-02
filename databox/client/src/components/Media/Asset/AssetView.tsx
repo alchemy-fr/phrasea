@@ -18,8 +18,8 @@ import {scrollbarWidth} from '../../../constants.ts';
 import AssetAttributes from './AssetAttributes.tsx';
 import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
-import AssetViewActions from "./Actions/AssetViewActions.tsx";
-import { useTranslation } from 'react-i18next';
+import AssetViewActions from './Actions/AssetViewActions.tsx';
+import {useTranslation} from 'react-i18next';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -98,7 +98,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!data || !renditions) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -126,7 +126,8 @@ export default function AssetView({modalIndex}: Props) {
                     fullScreen={true}
                     title={
                         <>
-                            {t('asset_view.edit_asset', `Edit asset`)}<b>{data.resolvedTitle}</b>
+                            {t('asset_view.edit_asset', `Edit asset`)}
+                            <b>{data.resolvedTitle}</b>
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}

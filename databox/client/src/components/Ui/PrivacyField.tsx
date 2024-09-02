@@ -46,7 +46,6 @@ function getKeyValue(value: string): number {
 }
 
 function getFields(value: number): [string, boolean, boolean] {
-
     switch (value) {
         default:
         case 0:

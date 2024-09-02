@@ -12,7 +12,7 @@ import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 const sessionStorageKey = 'userPrefs';
 
@@ -105,10 +105,22 @@ export default function UserPreferencesProvider({children}: Props) {
                         },
                         [`.${Classes.ellipsisText} .MuiListItemText-secondary`]:
                             {
-                                textOverflow: t('user_preferences_provider.ellipsis', `ellipsis`),
-                                wordBreak: t('user_preferences_provider.break_all', `break-all`),
-                                overflow: t('user_preferences_provider.hidden', `hidden`),
-                                whiteSpace: t('user_preferences_provider.nowrap', `nowrap`),
+                                textOverflow: t(
+                                    'user_preferences_provider.ellipsis',
+                                    `ellipsis`
+                                ),
+                                wordBreak: t(
+                                    'user_preferences_provider.break_all',
+                                    `break-all`
+                                ),
+                                overflow: t(
+                                    'user_preferences_provider.hidden',
+                                    `hidden`
+                                ),
+                                whiteSpace: t(
+                                    'user_preferences_provider.nowrap',
+                                    `nowrap`
+                                ),
                             },
                     })}
                 />

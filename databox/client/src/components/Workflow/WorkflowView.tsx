@@ -11,7 +11,7 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useChannelRegistration} from '../../lib/pusher.ts';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {};
 

@@ -82,14 +82,21 @@ function Item({
                     <FormFieldErrors field={'fieldType'} errors={errors} />
                 </FormGroup>
             </FormRow>
-            {fieldType === AttributeType.Entity ? <FormRow>
-                <TextField
-                    label={t('form.attribute_definition.entityType.label', 'Entity Type')}
-                    {...register('entityType')}
-                    disabled={submitting}
-                />
-                <FormFieldErrors field={'entityType'} errors={errors} />
-            </FormRow> : ''}
+            {fieldType === AttributeType.Entity ? (
+                <FormRow>
+                    <TextField
+                        label={t(
+                            'form.attribute_definition.entityType.label',
+                            'Entity Type'
+                        )}
+                        {...register('entityType')}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'entityType'} errors={errors} />
+                </FormRow>
+            ) : (
+                ''
+            )}
             <FormRow>
                 <FormGroup>
                     <FormLabel>

@@ -1,18 +1,15 @@
 import {Button, Typography} from '@mui/material';
-import {Trans, useTranslation} from "react-i18next";
-import {PropsWithChildren} from "react";
+import {Trans, useTranslation} from 'react-i18next';
+import {PropsWithChildren} from 'react';
 
 type Props = {};
 
 type A = {
     a: string;
     b: boolean;
-}
+};
 // @ts-expect-error Unused
-type T = PropsWithChildren<Pick<
-    A,
-    'b' | 'a'
->>;
+type T = PropsWithChildren<Pick<A, 'b' | 'a'>>;
 
 export default function TestMorph({}: Props) {
     const {t} = useTranslation();
@@ -23,17 +20,17 @@ export default function TestMorph({}: Props) {
 
     // @ts-expect-error Unused
     const _a = {
-        Hello: 'you!',
+        'Hello': 'you!',
         'Hello2': 'you!',
         ['Hello3']: 'you!',
         'Content-Type': 'the value',
-        key: 'untranslated_key',
-        sub: {
+        'key': 'untranslated_key',
+        'sub': {
             Yeah: 'yo!',
-            'Yeah2': 'yo!',
+            Yeah2: 'yo!',
             ['Yeah3']: 'yo!',
             key: 'untranslated_key',
-        }
+        },
     };
 
     // @ts-expect-error Unused
@@ -60,18 +57,12 @@ export default function TestMorph({}: Props) {
                 data-alt={`Template Literal`}
                 data-test="A text"
             ></div>
-            <Button
-                variant={'text'}
-            >
-                submit
-            </Button>
+            <Button variant={'text'}>submit</Button>
             <Trans>Already translated</Trans>
             <Trans>
                 Already <b>bold</b>.
             </Trans>
-            <TextField
-                name={'toto'}
-            />
+            <TextField name={'toto'} />
         </>
     );
 }

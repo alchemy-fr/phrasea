@@ -76,8 +76,14 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                 {
                     name: 'removeFromBasket',
                     labels: {
-                        multi: t('basket_view_dialog.remove_from_basket', `Remove from basket`),
-                        single: t('basket_view_dialog.remove_from_basket', `Remove from basket`),
+                        multi: t(
+                            'basket_view_dialog.remove_from_basket',
+                            `Remove from basket`
+                        ),
+                        single: t(
+                            'basket_view_dialog.remove_from_basket',
+                            `Remove from basket`
+                        ),
                     },
                     color: 'warning',
                     icon: <DeleteIcon />,

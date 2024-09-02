@@ -23,7 +23,7 @@ import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
 import {useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
-import {WorkspaceContext} from "../../context/WorkspaceContext.tsx";
+import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 
 export type UploadData = {
     destination: Collection;
@@ -261,7 +261,9 @@ export const UploadForm: FC<{
                         workspaceId,
                     }}
                 >
-                    <UploadAttributes usedAttributeEditor={usedAttributeEditor} />
+                    <UploadAttributes
+                        usedAttributeEditor={usedAttributeEditor}
+                    />
                 </WorkspaceContext.Provider>
             )}
 

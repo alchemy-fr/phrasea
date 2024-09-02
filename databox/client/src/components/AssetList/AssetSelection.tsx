@@ -4,7 +4,7 @@ import AssetList from './AssetList';
 import DisplayProvider from '../Media/DisplayProvider';
 import {Layout} from './Layouts';
 import {OnSelectionChange} from './types';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     assets: Asset[];

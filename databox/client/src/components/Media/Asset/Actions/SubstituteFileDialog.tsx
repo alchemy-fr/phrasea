@@ -4,13 +4,12 @@ import {Asset} from '../../../../types';
 import {Typography} from '@mui/material';
 import FormDialog from '../../../Dialog/FormDialog';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import UploadDropzone from "../../../Upload/UploadDropzone.tsx";
+import UploadDropzone from '../../../Upload/UploadDropzone.tsx';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 type Props = {
     asset: Asset;
 } & StackedModalProps;
-
 
 export default function SubstituteFileDialog({open, modalIndex}: Props) {
     const {t} = useTranslation();
@@ -34,19 +33,13 @@ export default function SubstituteFileDialog({open, modalIndex}: Props) {
             title={t('substitute_file.dialog.title', 'Substitute File')}
             loading={loading}
             formId={'sub'}
-            submitIcon={<CloudUploadIcon/>}
+            submitIcon={<CloudUploadIcon />}
             submitLabel={t('substitute_file.dialog.submit', 'Substitute')}
         >
             <Typography sx={{mb: 3}}>
-                {t(
-                    'substitute_file.dialog.intro',
-                    'Drop Here'
-                )}
+                {t('substitute_file.dialog.intro', 'Drop Here')}
             </Typography>
-            <UploadDropzone
-                onDrop={onDrop}
-                multiple={false}
-            />
+            <UploadDropzone onDrop={onDrop} multiple={false} />
         </FormDialog>
     );
 }

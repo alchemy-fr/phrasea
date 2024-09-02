@@ -73,9 +73,15 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
     const deleteSync = async (id: string) => {
         openModal(ConfirmDialog, {
             confirmLabel: t('expose_basket_integration.ok', `OK`),
-            title: t('expose_basket_integration.stop_synchronization', `Stop synchronization?`),
+            title: t(
+                'expose_basket_integration.stop_synchronization',
+                `Stop synchronization?`
+            ),
             options: {
-                deletePublication: t('expose_basket_integration.also_delete_the_publication', `Also delete the Publication`),
+                deletePublication: t(
+                    'expose_basket_integration.also_delete_the_publication',
+                    `Also delete the Publication`
+                ),
             },
             onConfirm: async ({deletePublication}) => {
                 setDeleting(id);

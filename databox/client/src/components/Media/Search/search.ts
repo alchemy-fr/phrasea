@@ -5,8 +5,7 @@ import {
     ResolvedBucketValue,
 } from '../Asset/Facets';
 import {AttributeType} from '../../../api/attributes';
-import { useTranslation } from 'react-i18next';
-
+import {useTranslation} from 'react-i18next';
 
 const specSep = ';';
 const arraySep = ',';

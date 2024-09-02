@@ -265,7 +265,6 @@ export default function CollectionMenuItem({
                 </ListItemButton>
             </ListItem>
 
-
             <Collapse
                 in={expanded && childCount > 0}
                 timeout="auto"

@@ -1,7 +1,7 @@
 import {AxiosError} from 'axios';
 import {UseFormGetValues, UseFormSetError} from 'react-hook-form';
 import {Path, FieldValues} from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Violation = {
     code: number | null;

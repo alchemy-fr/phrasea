@@ -73,7 +73,12 @@ export default function SaveFileAsNewAssetDialog({
             });
         },
         onSuccess: () => {
-            toast.success(t('save_file_as_new_asset_dialog.file_is_saved', `File is saved`));
+            toast.success(
+                t(
+                    'save_file_as_new_asset_dialog.file_is_saved',
+                    `File is saved`
+                )
+            );
             closeModal();
         },
     });
@@ -84,11 +89,14 @@ export default function SaveFileAsNewAssetDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={t('save_file_as_new_asset_dialog.save_file_as_new_asset', `Save file as new asset`)}
+            title={t(
+                'save_file_as_new_asset_dialog.save_file_as_new_asset',
+                `Save file as new asset`
+            )}
             open={open}
             loading={submitting}
             formId={formId}
-            submitIcon={<FileCopyIcon/>}
+            submitIcon={<FileCopyIcon />}
             submitLabel={t('save_file_as_new_asset_dialog.save', `Save`)}
         >
             <Typography sx={{mb: 3}}>{``}</Typography>
@@ -101,7 +109,7 @@ export default function SaveFileAsNewAssetDialog({
                         fullWidth={true}
                         {...register('title')}
                     />
-                    <FormFieldErrors field={'title'} errors={errors}/>
+                    <FormFieldErrors field={'title'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <CollectionTreeWidget
@@ -119,10 +127,10 @@ export default function SaveFileAsNewAssetDialog({
                         required={true}
                         workspaceId={asset.workspace.id}
                     />
-                    <FormFieldErrors field={'destination'} errors={errors}/>
+                    <FormFieldErrors field={'destination'} errors={errors} />
                 </FormRow>
             </form>
-            <RemoteErrors errors={remoteErrors}/>
+            <RemoteErrors errors={remoteErrors} />
         </FormDialog>
     );
 }

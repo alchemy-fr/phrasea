@@ -73,7 +73,6 @@ function AssetThumb({
     );
 }
 
-
 export default React.memo(AssetThumb);
 
 export function createThumbActiveStyle(): SxProps {

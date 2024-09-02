@@ -3,7 +3,7 @@ import {Tag} from '../../../../types';
 import {DisplayContext} from '../../DisplayContext';
 import TagNode, {tagClassName} from '../../../Ui/TagNode';
 import assetClasses from '../../../AssetList/classes';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     tags: Tag[];

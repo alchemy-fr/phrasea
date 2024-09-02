@@ -5,7 +5,7 @@ import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import {grey} from '@mui/material/colors';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 export type OnChangeHandler = (
     sortBy: SortBy,
@@ -75,7 +75,9 @@ export default function SortByRow({sortBy, onChange}: Props) {
                         onChange(sortBy, true, Math.abs(sortBy.w - 1) as 0 | 1)
                     }
                 >
-                    {isDesc ? t('sort_by_row.descendant', `Descendant`) : t('sort_by_row.ascendant', `Ascendant`)}
+                    {isDesc
+                        ? t('sort_by_row.descendant', `Descendant`)
+                        : t('sort_by_row.ascendant', `Ascendant`)}
                 </span>
             </td>
             <td>
