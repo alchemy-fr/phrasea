@@ -30,6 +30,7 @@ lib/php/test-bundle
 lib/php/webhook-bundle
 lib/php/workflow
 lib/php/workflow-bundle
+lib/php/rendition-factory
 "
 
 JS_LIBS="
