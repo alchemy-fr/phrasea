@@ -88,6 +88,8 @@ export class IdentifierNameRuleMatcher extends BlacklistRegexRuleMatcher {
     getNodeValue(node: Node): string | undefined {
         if (Node.isIdentifier(node)) {
             return node.getText();
+        } else if (Node.isPropertyAccessExpression(node)) {
+            return new IdentifierNameRuleMatcher(this.regexp).getNodeValue(node.getChildAtIndex(2));
         }
     }
 }

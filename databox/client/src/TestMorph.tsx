@@ -14,6 +14,10 @@ type T = PropsWithChildren<Pick<A, 'b' | 'a'>>;
 export default function TestMorph({}: Props) {
     const {t} = useTranslation();
 
+    if (e.key === 'Enter') {}
+    if (key === 'Enter') {}
+    if (typeof a === 'undefined') {}
+
     if (t.hasOwnProperty('ws')) {
         console.log('Bonjour');
     }
