@@ -74,7 +74,7 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
                     <Typography typography={'h2'}>
                         {t(
                             'asset_dropzone.drop_the_files_here',
-                            `Drop the files here ...`
+                            `Drop the files here…`
                         )}
                     </Typography>
                 </Backdrop>

@@ -28,7 +28,7 @@ function AssetThumb({
 
     if (pendingSourceFile) {
         thumb = (
-            <CircularProgress title={t('common.uploading', `Uploading...`)} />
+            <CircularProgress title={t('common.uploading', `Uploading…`)} />
         );
     } else if (thumbnail?.file) {
         thumb = (

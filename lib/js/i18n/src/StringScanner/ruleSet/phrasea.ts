@@ -134,6 +134,8 @@ export const phraseaRules: Rule[] = [
         "Unwanted string",
         new LiteralValueRuleMatcher([
             /^(secret|public|private|width|height)$/,
+            /^_(updated?|created?)$/,
+            /^_m$/,
         ]),
     ),
 ];

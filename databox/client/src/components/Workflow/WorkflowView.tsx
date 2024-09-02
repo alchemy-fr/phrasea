@@ -11,14 +11,12 @@ import {
 import RouteDialog from '../Dialog/RouteDialog';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useChannelRegistration} from '../../lib/pusher.ts';
-import {useTranslation} from 'react-i18next';
 
 type Props = {};
 
 const headerHeight = 78;
 
 export default function WorkflowView({}: Props) {
-    const {t} = useTranslation();
     const {id} = useParams();
     const [data, setData] = useState<Workflow>();
 
@@ -48,7 +46,7 @@ export default function WorkflowView({}: Props) {
 
     useChannelRegistration(
         `workflow-${id}`,
-        t('workflow_view.job_update', `job_update`),
+        'job_update',
         () => {
             onRefresh();
         },

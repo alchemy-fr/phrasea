@@ -67,7 +67,7 @@ export default function SaveAsTemplateForm({
                                 InputLabelProps={{shrink: true}}
                                 placeholder={t(
                                     'save_as_template_form.my_template',
-                                    `My template...`
+                                    `My template…`
                                 )}
                                 required={true}
                                 {...register('name', {

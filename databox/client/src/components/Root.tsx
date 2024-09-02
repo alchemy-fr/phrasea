@@ -47,7 +47,7 @@ function WrapperComponent({children}: RouteWrapperProps) {
                 <SessionExpireContainer />
                 <OverlayOutlet
                     routes={modalRoutes}
-                    queryParam={t('wrapper_component.m', `_m`)}
+                    queryParam={'_m'}
                     RouteProxyComponent={RouteProxy}
                 />
                 <MatomoRouteWrapper>{children}</MatomoRouteWrapper>

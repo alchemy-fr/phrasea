@@ -12,7 +12,6 @@ import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
-import {useTranslation} from 'react-i18next';
 
 const sessionStorageKey = 'userPrefs';
 
@@ -29,7 +28,6 @@ function getFromStorage(): UserPreferences {
 type Props = PropsWithChildren<{}>;
 
 export default function UserPreferencesProvider({children}: Props) {
-    const {t} = useTranslation();
     const [preferences, setPreferences] =
         React.useState<UserPreferences>(getFromStorage());
     const {user} = useAuth();
@@ -105,22 +103,10 @@ export default function UserPreferencesProvider({children}: Props) {
                         },
                         [`.${Classes.ellipsisText} .MuiListItemText-secondary`]:
                             {
-                                textOverflow: t(
-                                    'user_preferences_provider.ellipsis',
-                                    `ellipsis`
-                                ),
-                                wordBreak: t(
-                                    'user_preferences_provider.break_all',
-                                    `break-all`
-                                ),
-                                overflow: t(
-                                    'user_preferences_provider.hidden',
-                                    `hidden`
-                                ),
-                                whiteSpace: t(
-                                    'user_preferences_provider.nowrap',
-                                    `nowrap`
-                                ),
+                                textOverflow: 'ellipsis',
+                                wordBreak: 'break-all',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
                             },
                     })}
                 />

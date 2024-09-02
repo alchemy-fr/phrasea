@@ -29,8 +29,9 @@ export default function AssetTagList({tags}: Props) {
     const rest = tags.length - (tagsLimit - 1);
     const others =
         tagsLimit > 1
-            ? `+ ${rest} other${rest > 1 ? t('asset_tag_list.s', `s`) : ''}`
-            : `${rest} tag${rest > 1 ? t('asset_tag_list.s', `s`) : ''}`;
+            ? t('asset.tag_list.others', `+ {{total}} others`, {total: rest})
+            : t('asset.tag_list.tags', `+ {{total}} tag`, {total: rest})
+        ;
 
     const chips =
         tags.length <= tagsLimit

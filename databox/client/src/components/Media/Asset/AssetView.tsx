@@ -126,8 +126,10 @@ export default function AssetView({modalIndex}: Props) {
                     fullScreen={true}
                     title={
                         <>
-                            {t('asset_view.edit_asset', `Edit asset`)}
-                            <b>{data.resolvedTitle}</b>
+                            {t('asset_view.edit_asset', {
+                                defaultValue: 'Edit asset <strong>{{name}}</strong>',
+                                name: data.resolvedTitle,
+                            })}
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}

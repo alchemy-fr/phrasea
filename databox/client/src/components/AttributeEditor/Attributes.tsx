@@ -75,8 +75,10 @@ export default function Attributes({
                                     formatter.formatValue(valueFormatterProps)
                                 ) : (
                                     <>
-                                        {defValue.value?.[l]?.length ?? 0}
-                                        {t('attributes.values', `values`)}
+                                        {t('attributes.values', {
+                                            defaultValue: '{{count} values',
+                                            count: defValue.value?.[l]?.length ?? 0
+                                        })}
                                     </>
                                 )}
                             </div>

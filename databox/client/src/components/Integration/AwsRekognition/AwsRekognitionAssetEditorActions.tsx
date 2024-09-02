@@ -28,6 +28,7 @@ import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
 import {AssetIntegrationActionsProps} from '../types.ts';
 import {useTranslation} from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 function ImageOverlay({
     labels,
@@ -38,6 +39,8 @@ function ImageOverlay({
     texts: TextDetection[] | undefined;
     faces: FaceDetail[] | undefined;
 } & IntegrationOverlayCommonProps) {
+    const {t} = useTranslation();
+
     return (
         <div>
             {labels &&
@@ -114,7 +117,10 @@ function ImageOverlay({
                             title={
                                 <FaceDetailTooltip
                                     detail={i}
-                                    title={`Face #${k + 1}`}
+                                    title={t('aws_rekognition.actions.face_n', {
+                                        defaultValue: `Face #{{n}}`,
+                                        n: k + 1,
+                                    })}
                                 />
                             }
                             arrow
@@ -350,11 +356,11 @@ export default function AwsRekognitionAssetEditorActions({
                             return (
                                 <ListItemButton key={i}>
                                     <ListItemText>
-                                        {t(
-                                            'aws_rekognition.actions.face',
-                                            `Face #`
-                                        )}
-                                        {i + 1}{' '}
+                                        {t('aws_rekognition.actions.face_n', {
+                                            defaultValue: `Face #{{n}}`,
+                                            n: i + 1,
+                                        })}
+                                        {' '}
                                         <small>
                                             (
                                             <ValueConfidence

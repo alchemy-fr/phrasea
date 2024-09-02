@@ -48,9 +48,15 @@ export const styleRules: Rule[] = [
         ]),
     ),
     new MatcherRule(
+        "Style JSX Attribute",
+        new JsxAttributeNameRuleMatcher([
+            /^(styles?)$/i,
+        ]),
+    ),
+    new MatcherRule(
         "Style builder",
         new FunctionDeclarationNameRuleMatcher([
-            /Style$/,
+            /Styles?$/,
         ]),
     ),
 ];

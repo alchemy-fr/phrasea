@@ -70,20 +70,18 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
     }, [loadItems, id]);
 
     const actionsContext = React.useMemo<ActionsContext<BasketAsset>>(() => {
+        const label = t(
+            'basket_view_dialog.remove_from_basket',
+            `Remove from basket`
+        );
         return {
             ...createDefaultActionsContext(),
             extraActions: [
                 {
                     name: 'removeFromBasket',
                     labels: {
-                        multi: t(
-                            'basket_view_dialog.remove_from_basket',
-                            `Remove from basket`
-                        ),
-                        single: t(
-                            'basket_view_dialog.remove_from_basket',
-                            `Remove from basket`
-                        ),
+                        multi: label,
+                        single: label,
                     },
                     color: 'warning',
                     icon: <DeleteIcon />,

@@ -25,8 +25,8 @@ export default function AssetCollectionList({workspace, collections}: Props) {
     const rest = collections.length - (collectionsLimit - 1);
     const others =
         collectionsLimit > 1
-            ? `+ ${rest} other${rest > 1 ? t('asset_collection_list.s', `s`) : ''}`
-            : `${rest} collection${rest > 1 ? t('asset_collection_list.s', `s`) : ''}`;
+            ? t('asset.collection_list.others',  `+ {{count}} others`, {count: rest})
+            : t('asset.collection_list.collections',  `+ {{count}} collection`, {count: rest});
 
     const chips =
         collections.length <= collectionsLimit

@@ -43,7 +43,7 @@ export default function DebugEsModal({debug, open, modalIndex}: Props) {
             open={open}
             title={
                 <>
-                    {t('debug_es_modal.search_debug', `Search Debug |`)}{' '}
+                    {t('debug_es_modal.search_debug', `Search Debug`)}{' | '}
                     <small>
                         {t(
                             'debug_es_modal.elasticsearch_response_time',

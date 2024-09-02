@@ -14,8 +14,10 @@ export default function UploadForm({target, files, onSubmit, onCancel}: Props) {
     return (
         <>
             <p>
-                {files.length}{' '}
-                {t('upload_form.selected_files', `selected files.`)}
+                {t('upload_form.selected_files', {
+                    defaultValue: '{{count}} selected files',
+                    count: files.length,
+                })}
             </p>
 
             <AssetForm

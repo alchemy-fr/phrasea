@@ -80,7 +80,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <FileOpenIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('asset_actions.open', 'Open')}
+                            primary={t('asset.actions.open', 'Open')}
                         />
                     </MenuItem>
                 )}
@@ -95,7 +95,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <SaveIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('asset_context_menu.save_as', `Save as`)}
+                            primary={t('asset.actions.save_as', `Save as`)}
                         />
 
                         <ListItemIcon>
@@ -120,7 +120,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <CloudDownloadIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('asset_actions.download', 'Download')}
+                            primary={t('asset.actions.download', 'Download')}
                         />
                     </MenuItem>
                 )}
@@ -133,7 +133,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <EditIcon />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('asset_actions.edit', 'Edit')}
+                            primary={t('asset.actions.edit', 'Edit')}
                         />
                     </MenuItem>
                 ) : (
@@ -149,7 +149,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         </ListItemIcon>
                         <ListItemText
                             primary={t(
-                                'asset_actions.edit_attributes',
+                                'asset.actions.edit_attributes',
                                 'Edit attributes'
                             )}
                         />
@@ -167,7 +167,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                             <DeleteIcon color={'error'} />
                         </ListItemIcon>
                         <ListItemText
-                            primary={t('asset_context_menu.delete', `Delete`)}
+                            primary={t('asset.actions.delete', `Delete`)}
                         />
                     </MenuItem>
                 ) : (

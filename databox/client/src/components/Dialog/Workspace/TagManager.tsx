@@ -58,7 +58,7 @@ function Item({
                         'form.profile.firstName.translate.title',
                         'Translate Tag'
                     )}
-                    onUpdate={createSaveTranslations(t('item.name', `name`))}
+                    onUpdate={createSaveTranslations('name')}
                 >
                     <TextField
                         label={t('form.tag.name.label', 'Name')}

@@ -37,7 +37,10 @@ function formatFilterTitle(
     t: TFunction
 ): string {
     if (type === 'missing') {
-        return `${title} is missing`; // TODO
+        return t('filter.is_missing', {
+            defaultValue: '{{title}} is missing',
+            title,
+        });
     }
 
     switch (widget) {
@@ -45,7 +48,7 @@ function formatFilterTitle(
         case FacetType.Text:
             return `${title} = "${value
                 .map(v => extractLabelValueFromKey(v, type).label)
-                .join(t('format_filter_title.or', `" or "`))}"`;
+                .join(`" ${t('common.or', `or`)} "`)}"`;
         case FacetType.DateRange:
             return `${title} between ${
                 extractLabelValueFromKey(value[0], type, DateFormats.Long).label
