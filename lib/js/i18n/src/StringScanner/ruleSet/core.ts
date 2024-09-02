@@ -29,7 +29,6 @@ export const coreRules: MatcherRule[] = [
         new OneOfNodeTypeRuleMatcher([
             SyntaxKind.TypeReference,
             SyntaxKind.IndexedAccessType,
-            SyntaxKind.BinaryExpression,
             SyntaxKind.ElementAccessExpression,
         ]),
     ),

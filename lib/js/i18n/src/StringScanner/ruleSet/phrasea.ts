@@ -57,7 +57,7 @@ export const phraseaRules: Rule[] = [
                 /^tab$/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[a-z-_\d]+$/,
+                /^[\da-z_-]+$/,
             ]),
         ]
     ),
@@ -68,7 +68,7 @@ export const phraseaRules: Rule[] = [
                 /^run/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[a-z-_\d]+$/,
+                /^[\da-z_-]+$/,
             ]),
         ]
     ),

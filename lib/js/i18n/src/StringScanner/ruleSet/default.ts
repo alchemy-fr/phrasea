@@ -92,7 +92,7 @@ export const defaultRules: Rule[] = [
             ]),
             new LiteralValueRuleMatcher([
                 /^\//,
-                /[a-z-_\d]+/,
+                /[\da-z_-]+/,
             ])
         ]
     ),
@@ -104,7 +104,7 @@ export const defaultRules: Rule[] = [
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[a-z-]+$/,
+                /^[\da-z_-]+$/,
             ])
         ],
     ),
@@ -116,7 +116,7 @@ export const defaultRules: Rule[] = [
                 /^(add|append|has|remove|delete)/,
             ]),
             new LiteralValueRuleMatcher([
-                /^[a-z-]+$/,
+                /^[\da-z_-]+$/,
             ])
         ],
     ),
