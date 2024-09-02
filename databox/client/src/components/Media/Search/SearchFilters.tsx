@@ -9,7 +9,7 @@ import {AttributeType} from '../../../api/attributes';
 import {DateFormats} from '../Asset/Attribute/types/DateType';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import type {TFunction} from 'i18next';
+import type {TFunction} from '@alchemy/i18n';
 
 type FilterProps = {
     onInvert: () => void;

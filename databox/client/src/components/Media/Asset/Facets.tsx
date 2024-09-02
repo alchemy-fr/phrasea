@@ -16,8 +16,7 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
-import {useTranslation} from 'react-i18next';
-import {TFunction} from 'i18next';
+import {TFunction} from '@alchemy/i18n';
 
 export type BucketValue = string | number | boolean;
 

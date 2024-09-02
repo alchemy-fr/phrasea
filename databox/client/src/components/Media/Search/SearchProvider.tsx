@@ -216,7 +216,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 const tf = f[key];
                 if (
                     tf.v.find(
-                        v => extractLabelValueFromKey(v, type).value === value
+                        v => extractLabelValueFromKey(t, v, type).value === value
                     )
                 ) {
                     if (tf.v.length === 1) {
@@ -224,7 +224,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     } else {
                         tf.v = tf.v.filter(
                             v =>
-                                extractLabelValueFromKey(v, type).value !==
+                                extractLabelValueFromKey(t, v, type).value !==
                                 value
                         );
                     }

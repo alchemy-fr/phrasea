@@ -1,7 +1,6 @@
 import {Tab, Tabs as BaseTabs} from '@mui/material';
 import React from 'react';
 import {TabItem} from '../Dialog/Tabbed/tabTypes.ts';
-import {useTranslation} from 'react-i18next';
 
 type Props<P extends Record<string, any>> = {
     tabs: TabItem<P>[];
@@ -17,7 +16,6 @@ export default function Tabs<P extends Record<string, any>>({
     onNoTab,
     ...rest
 }: Props<P>) {
-    const {t} = useTranslation();
     const tabs = configTabs.filter(t => t.enabled ?? true);
     const tabIndex = tabs.findIndex(t => t.id === currentTabId);
     const currentTab = tabIndex >= 0 ? tabs[tabIndex] : undefined;
