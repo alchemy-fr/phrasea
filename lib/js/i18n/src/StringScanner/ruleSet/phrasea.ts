@@ -109,7 +109,7 @@ export const phraseaRules: Rule[] = [
     new MatcherRule(
         "Unwanted functions",
         new FunctionCallNameRuleMatcher([
-            /^(toggleAttrFilter|useNavigateToOverlay)$/,
+            /^(startsWith|join|split|toggleAttrFilter|useNavigateToOverlay)$/,
         ]),
     ),
     new MatcherRule(
