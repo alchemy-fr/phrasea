@@ -44,14 +44,14 @@ function formatFilterTitle(
         default:
         case FacetType.Text:
             return `${title} = "${value
-                .map(v => extractLabelValueFromKey(t, v, type).label)
+                .map(v => extractLabelValueFromKey(v, type).label)
                 .join(t('format_filter_title.or', `" or "`))}"`;
         case FacetType.DateRange:
             return `${title} between ${
-                extractLabelValueFromKey(t, value[0], type, DateFormats.Long)
+                extractLabelValueFromKey(value[0], type, DateFormats.Long)
                     .label
             } and ${
-                extractLabelValueFromKey(t, value[1], type, DateFormats.Long)
+                extractLabelValueFromKey(value[1], type, DateFormats.Long)
                     .label
             }`;
     }
@@ -62,10 +62,9 @@ function formatFilterLabel(
     type: FilterType | undefined,
     title: string,
     value: ResolvedBucketValue[],
-    t: TFunction
 ): string {
     if (type === AttributeType.Boolean) {
-        return `${title}: ${extractLabelValueFromKey(t, value[0], type).label}`;
+        return `${title}: ${extractLabelValueFromKey(value[0], type).label}`;
     }
 
     if (type === 'missing') {
@@ -76,15 +75,15 @@ function formatFilterLabel(
         default:
             return value
                 .map(s =>
-                    truncate(extractLabelValueFromKey(t, s, type).label, 15)
+                    truncate(extractLabelValueFromKey(s, type).label, 15)
                 )
                 .join(', ');
         case FacetType.DateRange:
             return `${
-                extractLabelValueFromKey(t, value[0], type, DateFormats.Short)
+                extractLabelValueFromKey(value[0], type, DateFormats.Short)
                     .label
             } - ${
-                extractLabelValueFromKey(t, value[1], type, DateFormats.Short)
+                extractLabelValueFromKey(value[1], type, DateFormats.Short)
                     .label
             }`;
     }
@@ -98,8 +97,8 @@ function Filter({t: type, x, i, v, w, onInvert, onDelete}: FilterProps) {
                 mb: 1,
                 mr: 1,
             }}
-            title={`${i ? t('filter.not', `Not`) : ''}${formatFilterTitle(w, x, type, v, t)}`}
-            label={`${i ? t('filter.not', `Not`) : ''}${formatFilterLabel(w, x, type, v, t)}`}
+            title={`${i ? t('filter.not', `Not `) : ''}${formatFilterTitle(w, x, type, v, t)}`}
+            label={`${i ? t('filter.not', `Not `) : ''}${formatFilterLabel(w, x, type, v)}`}
             onDelete={onDelete}
             onClick={onInvert}
             color={i ? 'error' : 'primary'}

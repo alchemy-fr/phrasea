@@ -32,6 +32,7 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
 }
 
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
+    const {t} = useTranslation();
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
     const {query, filters, sortBy, geolocation} = hashToQuery(hash);
@@ -88,7 +89,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     return next.concat([
                         {
                             a: BuiltInFilter.Workspace,
-                            t: 'Workspaces',
+                            t: t('search_provider.workspaces', `Workspaces`),
                             v: [
                                 {
                                     label: title!,
@@ -126,7 +127,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     return next.concat([
                         {
                             a: BuiltInFilter.Collection,
-                            t: 'Collections',
+                            t: t('search_provider.collections', `Collections`),
                             v: [
                                 {
                                     label: title!,
@@ -216,7 +217,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                 const tf = f[key];
                 if (
                     tf.v.find(
-                        v => extractLabelValueFromKey(t, v, type).value === value
+                        v => extractLabelValueFromKey(v, type).value === value
                     )
                 ) {
                     if (tf.v.length === 1) {
@@ -224,7 +225,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     } else {
                         tf.v = tf.v.filter(
                             v =>
-                                extractLabelValueFromKey(t, v, type).value !==
+                                extractLabelValueFromKey(v, type).value !==
                                 value
                         );
                     }

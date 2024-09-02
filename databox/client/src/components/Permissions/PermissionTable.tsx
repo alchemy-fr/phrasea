@@ -129,13 +129,13 @@ function getUserName(p: Ace): string | undefined {
 
     if (p.userType === UserType.User) {
         if (userId) {
-            return p.user?.username ?? 'User not found';
+            return p.user?.username ?? t('get_user_name.user_not_found', `User not found`);
         }
 
         return t('get_user_name.all_users', `All users`);
     } else if (p.userType === UserType.Group) {
         if (userId) {
-            return p.group?.name ?? 'Group not found';
+            return p.group?.name ?? t('get_user_name.group_not_found', `Group not found`);
         }
 
         return t('get_user_name.all_groups', `All groups`);

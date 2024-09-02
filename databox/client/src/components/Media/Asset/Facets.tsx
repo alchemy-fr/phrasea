@@ -16,7 +16,6 @@ import {getAttributeType} from './Attribute/types';
 import {FilterType} from '../Search/Filter';
 import {AttributeFormat} from './Attribute/types/types';
 import TagsFacet from './Facets/TagsFacet';
-import {TFunction} from '@alchemy/i18n';
 
 export type BucketValue = string | number | boolean;
 
@@ -64,7 +63,6 @@ export type Facet = {
 export type TFacets = Record<string, Facet>;
 
 export function extractLabelValueFromKey(
-    t: TFunction,
     key: ResolvedBucketValue,
     type: FilterType | undefined,
     format?: AttributeFormat
@@ -76,7 +74,7 @@ export function extractLabelValueFromKey(
 
     if ('missing' === type) {
         return {
-            label: t('facets.missing', `Missing`),
+            label: `Missing`,
             value: '__missing__',
         };
     }

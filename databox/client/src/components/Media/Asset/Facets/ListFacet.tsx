@@ -9,6 +9,7 @@ import {
 import {extractLabelValueFromKey, FacetGroupProps} from '../Facets';
 import {SearchContext} from '../../Search/SearchContext';
 import {ListFacetItemProps} from './TextFacetItem';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     itemComponent: React.FC<ListFacetItemProps>;
@@ -18,6 +19,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const {attrFilters, toggleAttrFilter} = useContext(SearchContext)!;
     const attrFilter = attrFilters.find(_f => _f.a === name && !_f.i);
     const {type} = facet.meta;
+    const {t} = useTranslation();
 
     const missingOnClick = () => {
         toggleAttrFilter(name, 'missing', '', facet.meta.title);
@@ -64,7 +66,10 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
                 {facet.missing_count ? (
                     <ListItemButton onClick={missingOnClick}>
                         <ListItemText
-                            secondary={`Missing (${facet.missing_count})`}
+                            secondary={t('facets.missing_with_total', {
+                                defaultValue: `Missing ({{total}})`,
+                                total: facet.missing_count,
+                            })}
                             secondaryTypographyProps={{
                                 color: 'info',
                             }}

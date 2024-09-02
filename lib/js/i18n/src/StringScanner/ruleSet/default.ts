@@ -68,6 +68,7 @@ export const defaultRules: Rule[] = [
             /accept/i,
             /ur[il]/i,
             /crossOrigin/i,
+            /^data-testid$/i,
         ]),
     ),
     new MatcherRule(

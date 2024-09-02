@@ -105,7 +105,7 @@ export default function SaveAsButton({
                 ref={anchorRef}
                 {...componentProps}
             >
-                {children ?? 'Save as'}
+                {children ?? t('save_as_button.save_as', `Save as`)}
             </Component>
             <Popper
                 sx={theme => ({

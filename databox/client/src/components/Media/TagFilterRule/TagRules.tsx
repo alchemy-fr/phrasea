@@ -95,8 +95,7 @@ export default function TagRules({type, workspaceId, id}: Props) {
                             color={'primary'}
                             onClick={addRule}
                         >
-                            New rule
-                        </Button>
+                            {t('tag_rules.new_rule', `New rule`)}</Button>
                     </div>
                 )}
                 <div>

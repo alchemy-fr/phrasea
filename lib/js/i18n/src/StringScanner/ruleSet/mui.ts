@@ -51,7 +51,18 @@ export const muiRules: Rule[] = [
                 /^variant$/i,
             ]),
             new LiteralValueRuleMatcher([
-                /^(h[1-6]|body\d?|subtitle\d?|caption|contained|outlined|text|standard|dense|scrollable|auto)$/i,
+                /^(contained|outlined|text|standard|dense|scrollable|auto|buffer|indeterminate)$/i,
+            ])
+        ]
+    ),
+    new ChainedMatcherRule(
+        "MUI typography",
+        [
+            new JsxAttributeOrPropertyNameRuleMatcher([
+                /^(variant|typography)$/i,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^(h[1-6]|body\d?|subtitle\d?|caption)$/i,
             ])
         ]
     ),

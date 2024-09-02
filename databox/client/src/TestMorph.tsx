@@ -1,4 +1,4 @@
-import {Button, Typography} from '@mui/material';
+import {Button, TextField, Typography} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import {PropsWithChildren} from 'react';
 
@@ -14,8 +14,11 @@ type T = PropsWithChildren<Pick<A, 'b' | 'a'>>;
 export default function TestMorph({}: Props) {
     const {t} = useTranslation();
 
+    // @ts-expect-error undefined
     if (e.key === 'Enter') {}
+    // @ts-expect-error undefined
     if (key === 'Enter') {}
+    // @ts-expect-error undefined
     if (typeof a === 'undefined') {}
 
     if (t.hasOwnProperty('ws')) {

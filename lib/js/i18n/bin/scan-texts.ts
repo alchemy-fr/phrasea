@@ -1,6 +1,6 @@
 import StringScanner from "../src/StringScanner/StringScanner";
 
-const debugEnabled = true;
+const debugEnabled = false;
 const testFile = 'src/TestMorph.tsx';
 
 const scanner = new StringScanner({
