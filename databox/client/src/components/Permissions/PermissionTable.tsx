@@ -8,6 +8,7 @@ import {useTranslation} from 'react-i18next';
 import {AclPermission, aclPermissions} from '../Acl/acl';
 import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
+import type {TFunction} from '@alchemy/i18n';
 
 import PermissionRowSkeleton from './PermissionRowSkeleton';
 
@@ -114,7 +115,7 @@ export default function PermissionTable({
                             permissions={columns}
                             onMaskChange={onMaskChange}
                             onDelete={onDelete}
-                            userName={getUserName(p)}
+                            userName={getUserName(p, t)}
                             key={p.id || `${p.userId}::${p.userType}`}
                         />
                     ))}
@@ -123,19 +124,24 @@ export default function PermissionTable({
     );
 }
 
-function getUserName(p: Ace): string | undefined {
-    const {t} = useTranslation();
+function getUserName(p: Ace, t: TFunction): string | undefined {
     const userId = p.userId;
 
     if (p.userType === UserType.User) {
         if (userId) {
-            return p.user?.username ?? t('get_user_name.user_not_found', `User not found`);
+            return (
+                p.user?.username ??
+                t('get_user_name.user_not_found', `User not found`)
+            );
         }
 
         return t('get_user_name.all_users', `All users`);
     } else if (p.userType === UserType.Group) {
         if (userId) {
-            return p.group?.name ?? t('get_user_name.group_not_found', `Group not found`);
+            return (
+                p.group?.name ??
+                t('get_user_name.group_not_found', `Group not found`)
+            );
         }
 
         return t('get_user_name.all_groups', `All groups`);

@@ -1,4 +1,3 @@
-
 export enum FileTypeEnum {
     Unknown,
     Document,

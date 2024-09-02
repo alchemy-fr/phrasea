@@ -15,11 +15,14 @@ export default function TestMorph({}: Props) {
     const {t} = useTranslation();
 
     // @ts-expect-error undefined
-    if (e.key === 'Enter') {}
+    if (e.key === 'Enter') {
+    }
     // @ts-expect-error undefined
-    if (key === 'Enter') {}
+    if (key === 'Enter') {
+    }
     // @ts-expect-error undefined
-    if (typeof a === 'undefined') {}
+    if (typeof a === 'undefined') {
+    }
 
     if (t.hasOwnProperty('ws')) {
         console.log('Bonjour');

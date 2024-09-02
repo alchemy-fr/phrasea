@@ -7,7 +7,7 @@ import {
     AssetFileVersionCard,
     AssetFileVersionSkeleton,
 } from './AssetFileVersion';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Asset;

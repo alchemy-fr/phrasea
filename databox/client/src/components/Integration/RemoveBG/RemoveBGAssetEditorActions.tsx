@@ -98,11 +98,13 @@ export default function RemoveBGAssetEditorActions({
                 <SaveAsButton
                     asset={asset}
                     file={bgRemovedFile}
-                    suggestedTitle={t('remove_bgasset_editor_actions.bg_removed',
+                    suggestedTitle={t(
+                        'remove_bgasset_editor_actions.bg_removed',
                         {
                             defaultValue: `{{title}} - BG removed`,
                             title: asset.resolvedTitle,
-                        })}
+                        }
+                    )}
                 />
             </IntegrationPanelContent>
         );

@@ -48,11 +48,9 @@ function formatFilterTitle(
                 .join(t('format_filter_title.or', `" or "`))}"`;
         case FacetType.DateRange:
             return `${title} between ${
-                extractLabelValueFromKey(value[0], type, DateFormats.Long)
-                    .label
+                extractLabelValueFromKey(value[0], type, DateFormats.Long).label
             } and ${
-                extractLabelValueFromKey(value[1], type, DateFormats.Long)
-                    .label
+                extractLabelValueFromKey(value[1], type, DateFormats.Long).label
             }`;
     }
 }
@@ -61,7 +59,7 @@ function formatFilterLabel(
     widget: FacetType | undefined,
     type: FilterType | undefined,
     title: string,
-    value: ResolvedBucketValue[],
+    value: ResolvedBucketValue[]
 ): string {
     if (type === AttributeType.Boolean) {
         return `${title}: ${extractLabelValueFromKey(value[0], type).label}`;
@@ -74,9 +72,7 @@ function formatFilterLabel(
     switch (widget) {
         default:
             return value
-                .map(s =>
-                    truncate(extractLabelValueFromKey(s, type).label, 15)
-                )
+                .map(s => truncate(extractLabelValueFromKey(s, type).label, 15))
                 .join(', ');
         case FacetType.DateRange:
             return `${
