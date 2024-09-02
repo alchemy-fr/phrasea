@@ -77,7 +77,6 @@ export class BindingNameRuleMatcher extends BlacklistRegexRuleMatcher {
         if (Node.isBindingNamed(node)) {
             const name = node.getName();
             if (!name.startsWith('{')) {
-                console.log('name', name);
                 return name;
             }
         }

@@ -1,4 +1,4 @@
-import {IndentationText, Node, Project, QuoteKind, SourceFile, SyntaxKind, ts} from "ts-morph";
+import {IndentationText, Node, Project, QuoteKind, SourceFile} from "ts-morph";
 import {normalizeKey} from "./keyNormalizer";
 import {
     Rule,
@@ -10,7 +10,7 @@ import {
 } from "./types";
 import {defaultRules} from "./ruleSet/default";
 import {removeElementsAtPositions} from "./arrayUtil";
-import {getCallExpressionSyntaxList, getFilteredFunctionCallArguments} from "./nodeUtils";
+import {getFilteredFunctionCallArguments} from "./nodeUtils";
 
 type Options = {
     debug?: boolean;

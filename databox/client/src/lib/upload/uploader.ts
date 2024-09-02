@@ -12,6 +12,7 @@ import {
     postMultipleAssets,
 } from '../../api/asset';
 import {v4 as uuidv4} from 'uuid';
+import { useTranslation } from 'react-i18next';
 
 type InputFile = {
     title?: string;

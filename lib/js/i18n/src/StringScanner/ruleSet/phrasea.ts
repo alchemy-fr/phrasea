@@ -118,4 +118,22 @@ export const phraseaRules: Rule[] = [
             /^theme$/,
         ]),
     ),
+    new MatcherRule(
+        "Underscore keys",
+        new LiteralValueRuleMatcher([
+            /^_/,
+        ]),
+    ),
+    new MatcherRule(
+        "Special characters",
+        new LiteralValueRuleMatcher([
+            /^%\d+$/,
+        ]),
+    ),
+    new MatcherRule(
+        "Unwanted string",
+        new LiteralValueRuleMatcher([
+            /^(secret|public|private)$/,
+        ]),
+    ),
 ];

@@ -104,8 +104,8 @@ export default function AttributeEditor({
                 {
                     name: 'removeFromSelection',
                     labels: {
-                        multi: 'Remove from selection',
-                        single: 'Remove from selection',
+                        multi: t('attribute_editor.remove_from_selection', `Remove from selection`),
+                        single: t('attribute_editor.remove_from_selection', `Remove from selection`),
                     },
                     icon: <DeleteIcon />,
                     color: 'warning',

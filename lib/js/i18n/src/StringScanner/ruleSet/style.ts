@@ -30,6 +30,17 @@ export const styleRules: Rule[] = [
             ])
         ]
     ),
+    new ChainedMatcherRule(
+        "Scroll",
+        [
+            new JsxAttributeOrPropertyNameRuleMatcher([
+                /(scroll)/i,
+            ]),
+            new LiteralValueRuleMatcher([
+                /^(auto|scrollable)$/i,
+            ])
+        ]
+    ),
     new MatcherRule(
         "DOM",
         new FunctionCallNameRuleMatcher([

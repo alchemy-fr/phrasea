@@ -25,8 +25,10 @@ export const defaultRules: Rule[] = [
     new MatcherRule(
         "Skip unwanted strings",
         new LiteralValueRuleMatcher([
-            /^[()\[\]\-|/+•#%:]$/, // single punctionation
-            /^#(\d{3}|\d{6})$/, // color
+            /^[()\[\]\-|/+•#%:]$/, // single punctuation
+            /^#([A-F\d]{3}|[A-F\d]{6})$/i, // color
+            /^\d+$/, // number
+            /^[,;]\s*$/, // separator
         ]),
     ),
     new MatcherRule("Skip unwanted functions", new FunctionCallNameRuleMatcher([
@@ -74,6 +76,12 @@ export const defaultRules: Rule[] = [
             /content-type/i,
             /accept/i,
             /url/i,
+        ]),
+    ),
+    new MatcherRule(
+        "querySelector",
+        new FunctionCallNameRuleMatcher([
+            /^querySelector/i,
         ]),
     ),
     new ChainedMatcherRule(
