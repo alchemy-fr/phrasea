@@ -28,7 +28,6 @@ import FaceDetailTooltip from './FaceDetailTooltip';
 import ValueConfidence from './ValueConfidence';
 import {AssetIntegrationActionsProps} from '../types.ts';
 import {useTranslation} from 'react-i18next';
-import {useTranslation} from 'react-i18next';
 
 function ImageOverlay({
     labels,
