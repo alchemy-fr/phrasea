@@ -146,6 +146,12 @@ class AssetRendition extends AbstractUuidEntity
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $projection = null;
 
+    /**
+     * Hash based on the build process.
+     */
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
+    private ?string $buildHash = null;
+
     public function getAsset(): Asset
     {
         return $this->asset;
@@ -197,5 +203,15 @@ class AssetRendition extends AbstractUuidEntity
     public function setProjection(?bool $projection): void
     {
         $this->projection = $projection;
+    }
+
+    public function getBuildHash(): ?string
+    {
+        return $this->buildHash;
+    }
+
+    public function setBuildHash(?string $buildHash): void
+    {
+        $this->buildHash = $buildHash;
     }
 }

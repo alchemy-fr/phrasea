@@ -15,7 +15,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 abstract class AbstractIntegrationAction implements IfActionInterface
 {
     private IntegrationManager $integrationManager;
-    private EntityManagerInterface $em;
+    protected EntityManagerInterface $em;
     private ExpressionParser $expressionParser;
 
     /**

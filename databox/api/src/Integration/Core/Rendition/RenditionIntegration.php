@@ -27,12 +27,14 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         $jobs = [];
 
         foreach ($definitions as $definition) {
-            $jobs[$definition->getId()] = WorkflowHelper::createIntegrationJob(
+            $j = WorkflowHelper::createIntegrationJob(
                 $config,
                 RenditionBuildAction::class,
                 RenditionBuildAction::JOB_ID.':'.$definition->getId(),
                 $definition->getName(),
             );
+            $j->getWith()->offsetSet('definition', $definition->getId());
+            $jobs[$definition->getId()] = $j;
         }
 
         foreach ($definitions as $definition) {

@@ -64,6 +64,19 @@ class RenditionManager
 
     public function getOrCreateRendition(Asset $asset, RenditionDefinition $definition): AssetRendition
     {
+        if (null !== $assetRendition = $this->getAssetRenditionByDefinition($asset, $definition)) {
+            return $assetRendition;
+        }
+
+        $rendition = new AssetRendition();
+        $rendition->setAsset($asset);
+        $rendition->setDefinition($definition);
+
+        return $rendition;
+    }
+
+    public function getAssetRenditionByDefinition(Asset $asset, RenditionDefinition $definition): ?AssetRendition
+    {
         $renditions = $asset->getRenditions();
         $collectionReady = !$renditions instanceof PersistentCollection || $renditions->isInitialized();
         if ($collectionReady) {
@@ -87,12 +100,6 @@ class RenditionManager
                 return $rendition;
             }
         }
-
-        $rendition = new AssetRendition();
-        $rendition->setAsset($asset);
-        $rendition->setDefinition($definition);
-
-        return $rendition;
     }
 
     public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition

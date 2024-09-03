@@ -19,7 +19,6 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
         private readonly MetadataManipulator $metadataManipulator,
         private readonly MetadataNormalizer $metadataNormalizer,
         private readonly FileFetcher $fileFetcher,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 

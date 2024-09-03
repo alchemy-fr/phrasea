@@ -28,7 +28,6 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         private readonly RenditionManager $renditionManager,
         private readonly AttributeManager $attributeManager,
         private readonly FileManager $fileManager,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 
