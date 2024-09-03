@@ -114,7 +114,7 @@ export async function createAsset(
         attributes: attributes,
         tags: tags,
         generateRenditions: false,
-        renditions: record.subdefs
+        renditions: (record.subdefs ?? [])
             .map(s => {
                 const defName = renditionDefinitionMapping[s.name] || s.name;
 
