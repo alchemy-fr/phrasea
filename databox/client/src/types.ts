@@ -124,6 +124,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     parent?: RenditionDefinition | string | undefined | null;
     class: AttributeClass | string | null;
     workspace: Workspace | string;
+    definition: string;
     pickSourceFile?: boolean;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;

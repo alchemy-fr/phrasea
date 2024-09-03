@@ -167,6 +167,7 @@ function Item({
                         label={t('form.rendition_definition.definition.label', 'Build definition')}
                         name={'definition'}
                         disabled={submitting}
+                        mode={'yaml'}
                     />
                     <FormFieldErrors field={'definition'} errors={errors} />
                 </FormRow>
