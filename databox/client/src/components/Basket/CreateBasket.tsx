@@ -14,8 +14,8 @@ type Props = {
 } & StackedModalProps;
 
 export default function CreateBasket({modalIndex, open, onCreate}: Props) {
-    const {closeModal} = useModals();
     const {t} = useTranslation();
+    const {closeModal} = useModals();
     const addBasket = useBasketStore(state => state.addBasket);
 
     const usedFormSubmit = useFormSubmit<Basket>({

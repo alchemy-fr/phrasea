@@ -10,9 +10,9 @@ import {FilterEntry, Filters, FilterType, SortBy} from './Filter';
 import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
 import {useTranslation} from 'react-i18next';
+import type {TFunction} from '@alchemy/i18n';
 
-export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
-    const {t} = useTranslation();
+export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
     return sortBy.length > 0
         ? sortBy
         : [
@@ -45,7 +45,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
         [inputQuery]
     );
 
-    const resolvedSortBy = getResolvedSortBy(sortBy);
+    const resolvedSortBy = getResolvedSortBy(sortBy, t);
 
     React.useEffect(() => {
         setInputQuery(query);

@@ -20,12 +20,12 @@ type Props<Item extends AssetOrAssetContainer> = {
 export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
     selectionContext,
 }: Props<Item>) {
+    const {t} = useTranslation();
     const current = useBasketStore(state => state.current);
     const addToCurrent = useBasketStore(state => state.addToCurrent);
     const loadingCurrent = useBasketStore(state => state.loadingCurrent);
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
-    const {t} = useTranslation();
     const {selection, itemToAsset, setSelection} = useContext(selectionContext);
     const hasSelection = selection.length > 0;
 

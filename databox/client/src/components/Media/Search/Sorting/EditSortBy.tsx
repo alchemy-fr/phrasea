@@ -56,7 +56,7 @@ export default function EditSortBy({onClose}: Props) {
 
     const list = useMemo<TogglableSortBy[]>(() => {
         const l: TogglableSortBy[] = [];
-        getResolvedSortBy(sortBy).forEach(s => {
+        getResolvedSortBy(sortBy, t).forEach(s => {
             l.push({
                 ...s,
                 id: s.a,
