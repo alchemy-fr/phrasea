@@ -5,11 +5,18 @@ import {
     postAttributeEntity,
     putAttributeEntity,
 } from '../../../api/attributeEntity';
-import {ListItemText, TextField,} from '@mui/material';
-import {FormFieldErrors, FormRow, KeyTranslationsWidget} from '@alchemy/react-form';
-import DefinitionManager, {DefinitionItemFormProps, DefinitionItemProps,} from './DefinitionManager';
+import {ListItemText, TextField} from '@mui/material';
+import {
+    FormFieldErrors,
+    FormRow,
+    KeyTranslationsWidget,
+} from '@alchemy/react-form';
+import DefinitionManager, {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+} from './DefinitionManager';
 import {useTranslation} from 'react-i18next';
-import Flag from "../../Ui/Flag.tsx";
+import Flag from '../../Ui/Flag.tsx';
 
 let lastType = '';
 
@@ -33,7 +40,7 @@ function Item({
                     {...register('type')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'type'} errors={errors}/>
+                <FormFieldErrors field={'type'} errors={errors} />
             </FormRow>
             <FormRow>
                 <TextField
@@ -41,24 +48,30 @@ function Item({
                     {...register('value')}
                     disabled={submitting}
                 />
-                <FormFieldErrors field={'value'} errors={errors}/>
+                <FormFieldErrors field={'value'} errors={errors} />
             </FormRow>
-            {(workspace.enabledLocales ?? []).length > 0 ? <FormRow>
-                <KeyTranslationsWidget
-                    renderLocale={l => {
-                        return <Flag
-                            sx={{
-                                mr: 1,
-                            }}
-                            locale={l}
-                        />
-                    }}
-                    locales={workspace.enabledLocales ?? []}
-                    name={'translations'}
-                    errors={errors}
-                    register={register}
-                />
-            </FormRow> : ''}
+            {(workspace.enabledLocales ?? []).length > 0 ? (
+                <FormRow>
+                    <KeyTranslationsWidget
+                        renderLocale={l => {
+                            return (
+                                <Flag
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                    locale={l}
+                                />
+                            );
+                        }}
+                        locales={workspace.enabledLocales ?? []}
+                        name={'translations'}
+                        errors={errors}
+                        register={register}
+                    />
+                </FormRow>
+            ) : (
+                ''
+            )}
         </>
     );
 }
@@ -66,7 +79,7 @@ function Item({
 function ListItem({data}: DefinitionItemProps<AttributeEntity>) {
     return (
         <>
-            <ListItemText primary={data.value}/>
+            <ListItemText primary={data.value} />
         </>
     );
 }
@@ -108,9 +121,11 @@ export default function AttributeEntityManager({
         <DefinitionManager
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getAttributeEntities({
-                workspace: workspace.id,
-            }).then(r => r.result)}
+            load={() =>
+                getAttributeEntities({
+                    workspace: workspace.id,
+                }).then(r => r.result)
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

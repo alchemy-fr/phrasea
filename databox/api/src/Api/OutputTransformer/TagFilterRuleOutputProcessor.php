@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
+use Alchemy\AuthBundle\Repository\GroupRepository;
+use Alchemy\AuthBundle\Repository\UserRepository;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Entity\Core\TagFilterRule;
 
 class TagFilterRuleOutputProcessor implements OutputTransformerInterface
 {
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly GroupRepository $groupRepository,
+    ) {
+    }
+
     public function supports(string $outputClass, object $data): bool
     {
         return TagFilterRuleOutput::class === $outputClass && $data instanceof TagFilterRule;
@@ -36,6 +44,15 @@ class TagFilterRuleOutputProcessor implements OutputTransformerInterface
 
         $output->setInclude($data->getInclude()->getValues());
         $output->setExclude($data->getExclude()->getValues());
+
+        if (null !== $output->getUserId()) {
+            $user = $this->userRepository->getUser($output->getUserId());
+            $output->setUsername($user ? $user['username'] : 'User not found');
+        }
+        if (null !== $output->getGroupId()) {
+            $group = $this->groupRepository->getGroup($output->getGroupId());
+            $output->setGroupName($group ? $group['name'] : 'Group not found');
+        }
 
         return $output;
     }

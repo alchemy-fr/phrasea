@@ -343,6 +343,9 @@ importers:
       ts-jest:
         specifier: ^23.10.5
         version: 23.10.5(jest@23.6.0)
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.4.7)(@types/node@18.19.24)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -523,7 +526,7 @@ importers:
         version: 1.71.1
       sass-loader:
         specifier: ^8.0.2
-        version: 8.0.2(sass@1.71.1)(webpack@5.91.0)
+        version: 8.0.2(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7))
       universal-cookie:
         specifier: ^4.0.4
         version: 4.0.4
@@ -576,6 +579,9 @@ importers:
       i18next-scanner-typescript:
         specifier: ^1.2.0
         version: 1.2.0
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.4.7)(@types/node@18.19.24)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -690,6 +696,9 @@ importers:
       react-i18next:
         specifier: ^14.1.1
         version: 14.1.1(i18next@23.11.4)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      ts-morph:
+        specifier: ^23.0.0
+        version: 23.0.0
 
   lib/js/liform-react:
     dependencies:
@@ -1316,7 +1325,10 @@ importers:
         version: 1.71.1
       sass-loader:
         specifier: ^13.3.3
-        version: 13.3.3(sass@1.71.1)(webpack@5.91.0)
+        version: 13.3.3(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7))
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.4.7)(@types/node@18.19.24)(typescript@5.4.2)
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
@@ -4119,6 +4131,9 @@ packages:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
 
+  '@ts-morph/common@0.24.0':
+    resolution: {integrity: sha512-c1xMmNHWpNselmpIqursHeOHHBTIsJLbB+NuovbTTRCNiTLEr/U9dbJ8qy0jd/O2x5pc3seWuOUN5R2IoOTp8A==}
+
   '@tsconfig/node10@1.0.9':
     resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
 
@@ -5692,6 +5707,9 @@ packages:
   co@4.6.0:
     resolution: {integrity: sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
+
+  code-block-writer@13.0.2:
+    resolution: {integrity: sha512-XfXzAGiStXSmCIwrkdfvc7FS5Dtj8yelCtyOf2p2skCAfvLd6zu0rGzuS9NSCO3bq1JKpFZ7tbKdKlcd5occQA==}
 
   code-point-at@1.1.0:
     resolution: {integrity: sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==}
@@ -9017,6 +9035,10 @@ packages:
     resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
     engines: {node: '>=16 || 14 >=14.17'}
 
+  minimatch@9.0.5:
+    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
   minimist-options@3.0.2:
     resolution: {integrity: sha512-FyBrT/d0d4+uiZRbqznPXqw3IpZZG3gl3wKWiX784FycUKVwBt0uLBFkQrtE4tZOrgo78nZp2jnKz3L65T5LdQ==}
     engines: {node: '>= 4'}
@@ -9072,6 +9094,11 @@ packages:
 
   mkdirp@2.1.6:
     resolution: {integrity: sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  mkdirp@3.0.1:
+    resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -11668,6 +11695,9 @@ packages:
     hasBin: true
     peerDependencies:
       jest: '>=22 <24'
+
+  ts-morph@23.0.0:
+    resolution: {integrity: sha512-FcvFx7a9E8TUe6T3ShihXJLiJOiqyafzFKUO4aqIHDUCIvADdGNShcbc2W5PMr3LerXRv7mafvFZ9lRENxJmug==}
 
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
@@ -16085,6 +16115,13 @@ snapshots:
 
   '@trysound/sax@0.2.0': {}
 
+  '@ts-morph/common@0.24.0':
+    dependencies:
+      fast-glob: 3.3.2
+      minimatch: 9.0.5
+      mkdirp: 3.0.1
+      path-browserify: 1.0.1
+
   '@tsconfig/node10@1.0.9': {}
 
   '@tsconfig/node12@1.0.11': {}
@@ -17939,6 +17976,8 @@ snapshots:
   clsx@2.1.0: {}
 
   co@4.6.0: {}
+
+  code-block-writer@13.0.2: {}
 
   code-point-at@1.1.0: {}
 
@@ -21995,6 +22034,10 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.1
 
+  minimatch@9.0.5:
+    dependencies:
+      brace-expansion: 2.0.1
+
   minimist-options@3.0.2:
     dependencies:
       arrify: 1.0.1
@@ -22056,6 +22099,8 @@ snapshots:
   mkdirp@1.0.4: {}
 
   mkdirp@2.1.6: {}
+
+  mkdirp@3.0.1: {}
 
   modify-values@1.0.1: {}
 
@@ -23846,21 +23891,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  sass-loader@13.3.3(sass@1.71.1)(webpack@5.91.0):
+  sass-loader@13.3.3(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       neo-async: 2.6.2
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
     optionalDependencies:
       sass: 1.71.1
 
-  sass-loader@8.0.2(sass@1.71.1)(webpack@5.91.0):
+  sass-loader@8.0.2(sass@1.71.1)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       clone-deep: 4.0.1
       loader-utils: 1.4.2
       neo-async: 2.6.2
       schema-utils: 2.7.1
       semver: 6.3.1
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
     optionalDependencies:
       sass: 1.71.1
 
@@ -24549,14 +24594,16 @@ snapshots:
     dependencies:
       execa: 0.7.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.91.0):
+  terser-webpack-plugin@5.3.10(@swc/core@1.4.7)(webpack@5.91.0(@swc/core@1.4.7)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.30.3
-      webpack: 5.91.0
+      webpack: 5.91.0(@swc/core@1.4.7)
+    optionalDependencies:
+      '@swc/core': 1.4.7
 
   terser@5.30.3:
     dependencies:
@@ -24732,6 +24779,11 @@ snapshots:
       resolve: 1.22.8
       semver: 5.7.2
       yargs-parser: 10.1.0
+
+  ts-morph@23.0.0:
+    dependencies:
+      '@ts-morph/common': 0.24.0
+      code-block-writer: 13.0.2
 
   ts-node@10.9.2(@swc/core@1.4.7)(@types/node@10.17.60)(typescript@5.4.2):
     dependencies:
@@ -25465,7 +25517,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.1: {}
 
-  webpack@5.91.0:
+  webpack@5.91.0(@swc/core@1.4.7):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.5
@@ -25488,7 +25540,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.91.0)
+      terser-webpack-plugin: 5.3.10(@swc/core@1.4.7)(webpack@5.91.0(@swc/core@1.4.7))
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:

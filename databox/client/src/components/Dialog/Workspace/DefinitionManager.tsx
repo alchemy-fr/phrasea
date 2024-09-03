@@ -33,7 +33,7 @@ import SortableList, {
 } from '../../Ui/Sortable/SortableList';
 import {useDirtyFormPrompt} from '../Tabbed/FormTab';
 import {DefaultValues} from 'react-hook-form';
-import {Workspace} from "../../../types.ts";
+import {Workspace} from '../../../types.ts';
 
 type DefinitionBase = ApiHydraObjectResponse & {id: string};
 

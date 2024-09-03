@@ -72,10 +72,16 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
 
     const deleteSync = async (id: string) => {
         openModal(ConfirmDialog, {
-            confirmLabel: 'OK',
-            title: 'Stop synchronization?',
+            confirmLabel: t('expose_basket_integration.ok', `OK`),
+            title: t(
+                'expose_basket_integration.stop_synchronization',
+                `Stop synchronization?`
+            ),
             options: {
-                deletePublication: `Also delete the Publication`,
+                deletePublication: t(
+                    'expose_basket_integration.also_delete_the_publication',
+                    `Also delete the Publication`
+                ),
             },
             onConfirm: async ({deletePublication}) => {
                 setDeleting(id);
@@ -123,7 +129,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                         loading={loading}
                         disabled={loading}
                     >
-                        Authorize
+                        {t('expose_basket_integration.authorize', `Authorize`)}
                     </LoadingButton>
                 </div>
             ) : (
@@ -137,7 +143,10 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                     color={'primary'}
                     variant={'contained'}
                 >
-                    Sync with a Publication
+                    {t(
+                        'expose_basket_integration.sync_with_a_publication',
+                        `Sync with a Publication`
+                    )}
                 </Button>
             ) : (
                 ''
@@ -169,7 +178,10 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                         syncForced.includes(d.id)
                                     }
                                 >
-                                    Force Sync
+                                    {t(
+                                        'expose_basket_integration.force_sync',
+                                        `Force Sync`
+                                    )}
                                 </LoadingButton>
 
                                 <LoadingButton
@@ -181,7 +193,7 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
                                     startIcon={<DeleteIcon />}
                                     disabled={!hasValidToken}
                                 >
-                                    Delete
+                                    {t('common.delete', `Delete`)}
                                 </LoadingButton>
                                 <Typography variant="body2">
                                     {syncState ? (

@@ -34,7 +34,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 
 
-FROM api-php as worker
+FROM api-php AS worker
 
 ENV PHP_MEMORY_LIMIT=1G \
     WORKER_PRIORITIES=p1 \

@@ -7,6 +7,7 @@ import {
     AssetFileVersionCard,
     AssetFileVersionSkeleton,
 } from './AssetFileVersion';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Asset;
@@ -18,6 +19,7 @@ const maxDimensions = {
 };
 
 export default function AssetFileVersions({data, onClose, minHeight}: Props) {
+    const {t} = useTranslation();
     const [versions, setVersions] = useState<AssetFileVersion[]>();
 
     useEffect(() => {
@@ -37,7 +39,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                         file: data.source,
                         asset: data,
                         id: 'current',
-                        name: 'Current',
+                        name: t('asset_file_versions.current', `Current`),
                         createdAt: '',
                     }}
                     dimensions={maxDimensions}

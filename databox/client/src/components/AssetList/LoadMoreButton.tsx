@@ -57,8 +57,8 @@ export default function LoadMoreButton<Item extends AssetOrAssetContainer>({
                 color="secondary"
             >
                 {loading
-                    ? t('load_more.button.loading', 'Loading...')
-                    : t('load_more.button.loading', 'Load more')}
+                    ? t('load_more.button.loading', 'Loading…')
+                    : t('load_more.button.load_more', 'Load more')}
             </LoadingButton>
         </Box>
     );

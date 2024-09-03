@@ -171,7 +171,9 @@ export interface IPermissions<E extends Record<string, boolean> = {}>
 export interface TagFilterRule extends ApiHydraObjectResponse {
     id: string;
     userId?: string;
+    username?: string;
     groupId?: string;
+    groupName?: string;
     workspaceId?: string;
     collectionId?: string;
     include: Tag[];
@@ -180,7 +182,7 @@ export interface TagFilterRule extends ApiHydraObjectResponse {
 
 type KeyTranslations = {
     [locale: string]: string;
-}
+};
 
 export type AttributeEntity = {
     id: string;

@@ -9,6 +9,7 @@ import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
+import {useTranslation} from 'react-i18next';
 
 function RemoveBgComparison({
     left,
@@ -44,6 +45,7 @@ export default function RemoveBGAssetEditorActions({
     setIntegrationOverlay,
     enableInc,
 }: Props) {
+    const {t} = useTranslation();
     const [running, setRunning] = useState(false);
     const {data, load: loadData} = useIntegrationData({
         objectType: ObjectType.File,
@@ -86,12 +88,23 @@ export default function RemoveBGAssetEditorActions({
     if (bgRemovedFile) {
         return (
             <IntegrationPanelContent>
-                <Typography sx={{mb: 3}}>Use slider to compare</Typography>
+                <Typography sx={{mb: 3}}>
+                    {t(
+                        'remove_bgasset_editor_actions.use_slider_to_compare',
+                        `Use slider to compare`
+                    )}
+                </Typography>
 
                 <SaveAsButton
                     asset={asset}
                     file={bgRemovedFile}
-                    suggestedTitle={asset.resolvedTitle + ' - BG removed'}
+                    suggestedTitle={t(
+                        'remove_bgasset_editor_actions.bg_removed',
+                        {
+                            defaultValue: `{{title}} - BG removed`,
+                            title: asset.resolvedTitle,
+                        }
+                    )}
                 />
             </IntegrationPanelContent>
         );
@@ -105,7 +118,7 @@ export default function RemoveBGAssetEditorActions({
                 disabled={running}
                 variant={'contained'}
             >
-                Remove BG
+                {t('remove_bgasset_editor_actions.remove_bg', `Remove BG`)}
             </Button>
         </IntegrationPanelContent>
     );

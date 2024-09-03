@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query;

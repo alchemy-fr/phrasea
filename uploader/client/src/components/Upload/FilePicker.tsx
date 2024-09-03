@@ -9,6 +9,7 @@ import {StateSetter, Target, UploadedFile} from '../../types.ts';
 import {getPath, Link} from '@alchemy/navigation';
 import AssetUpload from '../AssetUpload';
 import {Button} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     target: Target;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
+    const {t} = useTranslation();
     const allowedTypes = config.allowedTypes;
     const {maxFileSize, maxFileCount, maxCommitSize} = config;
 
@@ -121,8 +123,10 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
                                     </div>
                                 ) : (
                                     <p>
-                                        Drag 'n' drop some files here, or click
-                                        to select files
+                                        {t(
+                                            'file_picker.drag_n_drop_some_files_here_or_click_to_select_files',
+                                            `Drag 'n' drop some files here, or click to select files`
+                                        )}
                                     </p>
                                 )}
                             </div>
@@ -155,7 +159,7 @@ export default function FilePicker({target, files, setFiles, onSubmit}: Props) {
                     disabled={!canSubmit}
                     variant={'contained'}
                 >
-                    Next
+                    {t('file_picker.next', `Next`)}
                 </Button>
 
                 <hr />

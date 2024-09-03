@@ -158,6 +158,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                     </ListItemButton>
                 </ListItem>
             </ListSubheader>
+
             <Collapse
                 in={expanded && pager && pager.items.length > 0}
                 timeout="auto"

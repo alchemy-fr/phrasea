@@ -7,7 +7,6 @@ namespace App\Attribute\Type;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeLocaleInterface;
 use App\Elasticsearch\SearchType;
-use App\Entity\Core\AttributeDefinition;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;

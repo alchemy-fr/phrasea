@@ -6,7 +6,6 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
-use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\Range;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;

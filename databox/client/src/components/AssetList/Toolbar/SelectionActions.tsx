@@ -1,5 +1,14 @@
 import {Context, useCallback, useContext, useMemo} from 'react';
-import {Badge, Box, Button, Checkbox, Divider, Paper, ToggleButtonGroup, Tooltip,} from '@mui/material';
+import {
+    Badge,
+    Box,
+    Button,
+    Checkbox,
+    Divider,
+    Paper,
+    ToggleButtonGroup,
+    Tooltip,
+} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -73,7 +82,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     actionsContext,
     noActions,
     selectionContext,
-    itemLabel = 'result',
+    itemLabel,
 }: SelectionActionsProps<Item>) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
@@ -85,7 +94,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
     const allSelected =
         hasSelection &&
         selectionLength ===
-        pages.reduce((currentCount, row) => currentCount + row.length, 0);
+            pages.reduce((currentCount, row) => currentCount + row.length, 0);
 
     const toggleSelectAll = useCallback(() => {
         setSelection(previous => (previous.length > 0 ? [] : pages.flat()));
@@ -207,10 +216,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
 
         const download = canDownload
             ? () => {
-                openModal(ExportAssetsDialog, {
-                    assets: selectedAssets,
-                });
-            }
+                  openModal(ExportAssetsDialog, {
+                      assets: selectedAssets,
+                  });
+              }
             : undefined;
 
         return {
@@ -322,7 +331,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 disabled={!canDownload}
                                 variant={'contained'}
                                 onClick={download}
-                                startIcon={<FileDownloadIcon/>}
+                                startIcon={<FileDownloadIcon />}
                             >
                                 {t('asset_actions.export', 'Export')}
                             </Button>
@@ -333,15 +342,18 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                             <GroupButton
                                 id={'edit'}
                                 onClick={onEdit}
-                                startIcon={<EditIcon/>}
-                                disabled={!canEdit || (selection.length > 0 && !canEditAttributes)}
+                                startIcon={<EditIcon />}
+                                disabled={
+                                    !canEdit ||
+                                    (selection.length > 0 && !canEditAttributes)
+                                }
                                 actions={[
                                     {
                                         id: 'move',
                                         label: t('asset_actions.move', 'Move'),
                                         onClick: onMove,
                                         disabled: !canMove,
-                                        startIcon: <DriveFileMoveIcon/>,
+                                        startIcon: <DriveFileMoveIcon />,
                                     },
                                     {
                                         id: 'edit_attrs',
@@ -351,14 +363,14 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                         ),
                                         onClick: onEditAttributes,
                                         disabled: !canEditAttributes,
-                                        startIcon: <TextSnippetIcon/>,
+                                        startIcon: <TextSnippetIcon />,
                                     },
                                     {
                                         id: 'copy',
                                         label: t('asset_actions.copy', 'Copy'),
                                         onClick: onCopy,
                                         disabled: !canShare,
-                                        startIcon: <FileCopyIcon/>,
+                                        startIcon: <FileCopyIcon />,
                                     },
                                 ]}
                             >
@@ -371,7 +383,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                             <Button
                                 disabled={!canShare}
                                 variant={'contained'}
-                                startIcon={<ShareIcon/>}
+                                startIcon={<ShareIcon />}
                             >
                                 {t('asset_actions.share', 'Share')}
                             </Button>
@@ -384,7 +396,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 color={'error'}
                                 onClick={onDelete}
                                 variant={'contained'}
-                                startIcon={<DeleteForeverIcon/>}
+                                startIcon={<DeleteForeverIcon />}
                             >
                                 {t('asset_actions.delete', 'Delete')}
                             </Button>
@@ -450,11 +462,11 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 style={{cursor: 'pointer'}}
                                 onClick={onOpenDebug}
                             >
-                                {` ${itemLabel}${total > 1 ? 's' : ''}`}
+                                {` ${itemLabel ?? t('selection_actions.result', `result`)}${total > 1 ? t('selection_actions.s', `s`) : ''}`}
                             </span>
                         </>
                     ) : (
-                        t('common.loading', 'Loading...')
+                        t('common.loading', 'Loading…')
                     )}
                 </Box>
                 <Divider
@@ -479,7 +491,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 }}
                                 value={Layout.Grid}
                             >
-                                <GridViewIcon/>
+                                <GridViewIcon />
                             </TooltipToggleButton>
                             <TooltipToggleButton
                                 tooltipProps={{
@@ -487,7 +499,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 }}
                                 value={Layout.List}
                             >
-                                <ViewListIcon/>
+                                <ViewListIcon />
                             </TooltipToggleButton>
                             <TooltipToggleButton
                                 tooltipProps={{
@@ -498,7 +510,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 }}
                                 value={Layout.Masonry}
                             >
-                                <ViewQuiltIcon/>
+                                <ViewQuiltIcon />
                             </TooltipToggleButton>
                         </StyledToggleButtonGroup>
                         <Divider
@@ -511,7 +523,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                     ''
                 )}
 
-                <DisplayOptionsMenu/>
+                <DisplayOptionsMenu />
             </Paper>
         </Box>
     );

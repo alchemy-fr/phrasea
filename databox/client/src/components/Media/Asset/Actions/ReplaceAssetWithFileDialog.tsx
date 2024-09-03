@@ -8,6 +8,7 @@ import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import {putAsset} from '../../../../api/asset';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -20,6 +21,7 @@ export default function ReplaceAssetWithFileDialog({
     open,
     modalIndex,
 }: Props) {
+    const {t} = useTranslation();
     const {closeModal} = useModals();
 
     const {handleSubmit, remoteErrors, submitting, forbidNavigation} =
@@ -31,7 +33,12 @@ export default function ReplaceAssetWithFileDialog({
                 });
             },
             onSuccess: () => {
-                toast.success(`Asset has been replaced`);
+                toast.success(
+                    t(
+                        'replace_asset_with_file_dialog.asset_has_been_replaced',
+                        `Asset has been replaced`
+                    )
+                );
                 closeModal();
             },
         });
@@ -42,15 +49,21 @@ export default function ReplaceAssetWithFileDialog({
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={`Replace asset with file`}
+            title={t(
+                'replace_asset_with_file_dialog.replace_asset_with_file',
+                `Replace asset with file`
+            )}
             open={open}
             loading={submitting}
             formId={formId}
             submitIcon={<FileCopyIcon />}
-            submitLabel={'Replace'}
+            submitLabel={t('asset.replace.label', `Replace`)}
         >
             <Typography sx={{mb: 3}}>
-                {`Please confirm replacing asset.`}
+                {t(
+                    'replace_asset_with_file_dialog.please_confirm_replacing_asset',
+                    `Please confirm replacing asset.`
+                )}
             </Typography>
             <form id={formId} onSubmit={handleSubmit}></form>
             <RemoteErrors errors={remoteErrors} />

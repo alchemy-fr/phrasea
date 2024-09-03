@@ -12,6 +12,7 @@ import {AttributeDefinition} from '../../../../types';
 import {TabPanelProps} from '@mui/lab';
 import React from 'react';
 import {AttributeWidgetOptions} from './types/types';
+import {useTranslation} from 'react-i18next';
 
 function TabPanel({
     children,
@@ -58,6 +59,7 @@ export default function TranslatableAttributeTabs({
     readOnly,
     options,
 }: Props) {
+    const {t} = useTranslation();
     const locales = React.useMemo<string[]>(() => {
         const l = [...definition.locales!];
         // eslint-disable-next-line no-prototype-builtins
@@ -73,12 +75,18 @@ export default function TranslatableAttributeTabs({
     if (locales.length === 0) {
         return (
             <Alert severity={'warning'}>
-                No locale defined in this workspace
+                {t(
+                    'workspace.no_locale_defined',
+                    `No locale defined in this workspace`
+                )}
             </Alert>
         );
     }
 
-    const humanLocale = (l: string) => (l === NO_LOCALE ? `Untranslated` : l);
+    const humanLocale = (l: string) =>
+        l === NO_LOCALE
+            ? t('translatable_attribute_tabs.untranslated', `Untranslated`)
+            : l;
 
     return (
         <>

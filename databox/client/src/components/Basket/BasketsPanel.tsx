@@ -31,6 +31,7 @@ type Props = {
 };
 
 function BasketsPanel({selected}: Props) {
+    const {t} = useTranslation();
     const baskets = useBasketStore(state => state.baskets);
     const loading = useBasketStore(state => state.loading);
     const loadMore = useBasketStore(state => state.loadMore);
@@ -38,7 +39,6 @@ function BasketsPanel({selected}: Props) {
     const load = useBasketStore(state => state.load);
     const deleteBasket = useBasketStore(state => state.deleteBasket);
     const {openModal} = useModals();
-    const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
 
     const [searchQuery, setSearchQuery] = React.useState<string>('');
@@ -122,10 +122,7 @@ function BasketsPanel({selected}: Props) {
                         onChange={e => setSearchQuery(e.target.value)}
                         size={'small'}
                         type={'search'}
-                        placeholder={t(
-                            'common.search.placeholder',
-                            'Search...'
-                        )}
+                        placeholder={t('common.search.placeholder', 'Search…')}
                     />
                     <LoadingButton
                         variant={'contained'}

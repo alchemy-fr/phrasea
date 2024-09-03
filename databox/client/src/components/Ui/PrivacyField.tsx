@@ -173,7 +173,10 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                             onChange={handleWSOnlyChange}
                         />
                     }
-                    label={`Only visible to workspace`}
+                    label={t(
+                        'privacy_field.only_visible_to_workspace',
+                        `Only visible to workspace`
+                    )}
                     labelPlacement="end"
                 />
             )}
@@ -186,7 +189,10 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                             onChange={handleAuthChange}
                         />
                     }
-                    label={`User must be authenticated`}
+                    label={t(
+                        'privacy_field.user_must_be_authenticated',
+                        `User must be authenticated`
+                    )}
                     labelPlacement="end"
                 />
             )}

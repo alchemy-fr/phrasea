@@ -78,7 +78,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            Databox
+                            {t('common.databox', `Databox`)}
                         </Typography>
 
                         <Box
@@ -95,7 +95,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 onClick={onToggleLeftPanel}
                                 color="inherit"
                             >
-                                <MenuIcon/>
+                                <MenuIcon />
                             </IconButton>
                         </Box>
                         <Typography
@@ -112,7 +112,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            Databox
+                            {t('common.databox', `Databox`)}
                         </Typography>
                         <Box
                             sx={{
@@ -141,7 +141,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                             }}
                                         >
                                             <ListItemIcon>
-                                                <ColorLensIcon/>
+                                                <ColorLensIcon />
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={t(
@@ -160,7 +160,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                                         forwardedContexts: [
                                                             {
                                                                 context:
-                                                                ThemeEditorContext,
+                                                                    ThemeEditorContext,
                                                                 value: themeEditorContext,
                                                             },
                                                         ],
@@ -170,7 +170,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                             }}
                                         >
                                             <ListItemIcon>
-                                                <ColorLensIcon/>
+                                                <ColorLensIcon />
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={t(

@@ -1,4 +1,4 @@
-import React, {FormEvent, MouseEventHandler, useContext, useRef,} from 'react';
+import React, {FormEvent, MouseEventHandler, useContext, useRef} from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import {alpha, Button, InputBase} from '@mui/material';
 import AutoComplete from './AutoComplete.tsx';
@@ -56,7 +56,10 @@ export default function SearchAutoComplete({}: Props) {
     }, [search]);
     return (
         <>
-            <AutoComplete getSources={getSources} queryValue={inputQuery.current || ''}>
+            <AutoComplete
+                getSources={getSources}
+                queryValue={inputQuery.current || ''}
+            >
                 {autocomplete => {
                     return (
                         <form
@@ -70,7 +73,7 @@ export default function SearchAutoComplete({}: Props) {
                         >
                             <Search>
                                 <SearchIconWrapper>
-                                    <SearchIcon/>
+                                    <SearchIcon />
                                 </SearchIconWrapper>
                                 <StyledInputBase
                                     autoFocus={true}
@@ -80,7 +83,10 @@ export default function SearchAutoComplete({}: Props) {
                                     }
                                     inputRef={inputRef}
                                     onClick={onClick}
-                                    placeholder="Search…"
+                                    placeholder={t(
+                                        'search_auto_complete.search',
+                                        `Search…`
+                                    )}
                                     onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                                     onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                                     inputProps={{

@@ -74,17 +74,17 @@ export function extractLabelValueFromKey(
 
     if ('missing' === type) {
         return {
-            label: 'Missing',
+            label: `Missing`,
             value: '__missing__',
         };
     }
 
     type = type ?? AttributeType.Text;
-    const t = getAttributeType(type);
+    const at = getAttributeType(type);
 
     if ([AttributeType.DateTime, AttributeType.Date].includes(type)) {
         return {
-            label: t.formatValueAsString({
+            label: at.formatValueAsString({
                 value: key,
                 format,
             })!,
@@ -92,7 +92,7 @@ export function extractLabelValueFromKey(
         };
     } else if (type === AttributeType.Boolean) {
         return {
-            label: t.formatValueAsString({
+            label: at.formatValueAsString({
                 value: !!key,
                 format,
             })!,
@@ -101,7 +101,7 @@ export function extractLabelValueFromKey(
     }
 
     return {
-        label: t.formatValueAsString({
+        label: at.formatValueAsString({
             value: key as string,
             format,
         })!,

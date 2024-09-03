@@ -9,20 +9,22 @@ import {
 import {FilterEntry, Filters, FilterType, SortBy} from './Filter';
 import {BuiltInFilter, hashToQuery, queryToHash} from './search';
 import useHash from '../../../lib/useHash';
+import {useTranslation} from 'react-i18next';
+import type {TFunction} from '@alchemy/i18n';
 
-export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
+export function getResolvedSortBy(sortBy: SortBy[], t: TFunction): SortBy[] {
     return sortBy.length > 0
         ? sortBy
         : [
               {
                   a: BuiltInFilter.Score,
-                  t: 'Relevance',
+                  t: t('get_resolved_sort_by.relevance', `Relevance`),
                   w: 1,
                   g: false,
               },
               {
                   a: BuiltInFilter.CreatedAt,
-                  t: 'Date Added',
+                  t: t('get_resolved_sort_by.date_added', `Date Added`),
                   w: 1,
                   g: false,
               },
@@ -30,16 +32,20 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
 }
 
 export default function SearchProvider({children}: PropsWithChildren<{}>) {
+    const {t} = useTranslation();
     const [hash, setHash] = useHash();
     const [reloadInc, setReloadInc] = useState(0);
     const {query, filters, sortBy, geolocation} = hashToQuery(hash);
     const inputQuery = React.useRef<string>('');
 
-    const setInputQuery = React.useCallback((query: string) => {
-        inputQuery.current = query;
-    }, [inputQuery]);
+    const setInputQuery = React.useCallback(
+        (query: string) => {
+            inputQuery.current = query;
+        },
+        [inputQuery]
+    );
 
-    const resolvedSortBy = getResolvedSortBy(sortBy);
+    const resolvedSortBy = getResolvedSortBy(sortBy, t);
 
     React.useEffect(() => {
         setInputQuery(query);
@@ -83,7 +89,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     return next.concat([
                         {
                             a: BuiltInFilter.Workspace,
-                            t: 'Workspaces',
+                            t: t('search_provider.workspaces', `Workspaces`),
                             v: [
                                 {
                                     label: title!,
@@ -121,7 +127,7 @@ export default function SearchProvider({children}: PropsWithChildren<{}>) {
                     return next.concat([
                         {
                             a: BuiltInFilter.Collection,
-                            t: 'Collections',
+                            t: t('search_provider.collections', `Collections`),
                             v: [
                                 {
                                     label: title!,

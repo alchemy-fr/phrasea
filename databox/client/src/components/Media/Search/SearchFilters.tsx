@@ -8,6 +8,8 @@ import {
 import {AttributeType} from '../../../api/attributes';
 import {DateFormats} from '../Asset/Attribute/types/DateType';
 import React from 'react';
+import {useTranslation} from 'react-i18next';
+import type {TFunction} from '@alchemy/i18n';
 
 type FilterProps = {
     onInvert: () => void;
@@ -31,10 +33,14 @@ function formatFilterTitle(
     widget: FacetType | undefined,
     type: FilterType | undefined,
     title: string,
-    value: ResolvedBucketValue[]
+    value: ResolvedBucketValue[],
+    t: TFunction
 ): string {
     if (type === 'missing') {
-        return `${title} is missing`;
+        return t('filter.is_missing', {
+            defaultValue: '{{title}} is missing',
+            title,
+        });
     }
 
     switch (widget) {
@@ -42,7 +48,7 @@ function formatFilterTitle(
         case FacetType.Text:
             return `${title} = "${value
                 .map(v => extractLabelValueFromKey(v, type).label)
-                .join('" or "')}"`;
+                .join(`" ${t('common.or', `or`)} "`)}"`;
         case FacetType.DateRange:
             return `${title} between ${
                 extractLabelValueFromKey(value[0], type, DateFormats.Long).label
@@ -82,15 +88,16 @@ function formatFilterLabel(
     }
 }
 
-function Filter({t, x, i, v, w, onInvert, onDelete}: FilterProps) {
+function Filter({t: type, x, i, v, w, onInvert, onDelete}: FilterProps) {
+    const {t} = useTranslation();
     return (
         <Chip
             sx={{
                 mb: 1,
                 mr: 1,
             }}
-            title={`${i ? 'Not ' : ''}${formatFilterTitle(w, x, t, v)}`}
-            label={`${i ? 'Not ' : ''}${formatFilterLabel(w, x, t, v)}`}
+            title={`${i ? t('filter.not', `Not `) : ''}${formatFilterTitle(w, x, type, v, t)}`}
+            label={`${i ? t('filter.not', `Not `) : ''}${formatFilterLabel(w, x, type, v)}`}
             onDelete={onDelete}
             onClick={onInvert}
             color={i ? 'error' : 'primary'}

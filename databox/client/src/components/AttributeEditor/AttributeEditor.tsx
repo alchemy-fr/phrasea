@@ -99,13 +99,17 @@ export default function AttributeEditor({
     const definitionLocale = definition?.translatable ? locale : NO_LOCALE;
 
     const actionsContext = React.useMemo<ActionsContext<Asset>>(() => {
+        const removeFromSelectionLabel = t(
+            'attribute_editor.remove_from_selection',
+            `Remove from selection`
+        );
         return {
             extraActions: [
                 {
                     name: 'removeFromSelection',
                     labels: {
-                        multi: 'Remove from selection',
-                        single: 'Remove from selection',
+                        multi: removeFromSelectionLabel,
+                        single: removeFromSelectionLabel,
                     },
                     icon: <DeleteIcon />,
                     color: 'warning',

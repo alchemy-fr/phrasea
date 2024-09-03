@@ -9,6 +9,7 @@ import {
 } from 'react-image-magnifiers/dist';
 import {Asset} from '../../../types';
 import {getTranslatedTitle} from '../../../i18n.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
@@ -23,6 +24,7 @@ export default function AssetProxy({
     isCurrent,
     fluid,
 }: Props) {
+    const {t} = useTranslation();
     const containerRef = React.useRef<HTMLDivElement | null>(null);
     const videoRef = React.useRef<any>();
     const {pushInstruction} = useMatomo();
@@ -94,7 +96,14 @@ export default function AssetProxy({
             break;
         case MediaType.Unknown:
         default:
-            content = <div>Unsupported media type</div>;
+            content = (
+                <div>
+                    {t(
+                        'asset_proxy.unsupported_media_type',
+                        `Unsupported media type`
+                    )}
+                </div>
+            );
             break;
     }
 

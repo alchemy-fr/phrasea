@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use App\Entity\Core\AttributeDefinition;
 use Elastica\Query\AbstractQuery;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -59,6 +58,7 @@ interface AttributeTypeInterface
     public function normalizeElasticsearchValue(?string $value);
 
     public function isMappingLocaleAware(): bool;
+
     public function isLocaleAware(): bool;
 
     public function supportsSuggest(): bool;

@@ -3,6 +3,7 @@ import GroupSelect from '../../Form/GroupSelect';
 import UserSelect from '../../Form/UserSelect';
 import {
     Button,
+    Chip,
     FormGroup,
     FormHelperText,
     FormLabel,
@@ -17,18 +18,15 @@ import {
     saveTagFilterRule,
 } from '../../../api/tag-filter-rule';
 import {FormFieldErrors} from '@alchemy/react-form';
-import {Group, User} from '../../../types';
+import {TagFilterRule} from '../../../types';
 import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
+import GroupIcon from '@mui/icons-material/Group';
 
 type FilterRule = {
     id?: string | undefined;
-    userId?: string | undefined;
-    groupId?: string | undefined;
     include: string[];
     exclude: string[];
-};
-
-export type {FilterRule as FilterRuleProps};
+} & Omit<TagFilterRule, 'id' | 'include' | 'exclude'>;
 
 export type TagFilterRuleType = 'workspace' | 'collection';
 
@@ -43,8 +41,6 @@ type Props = {
     workspaceId?: string;
     collectionId?: string;
     workspaceIdForTags: string;
-    users?: User[];
-    groups?: Group[];
 };
 
 export default function FilterRule({
@@ -55,8 +51,6 @@ export default function FilterRule({
     type,
     onDelete,
     onCancel,
-    users,
-    groups,
     workspaceId,
     collectionId,
     workspaceIdForTags,
@@ -83,7 +77,14 @@ export default function FilterRule({
     };
 
     const deleteClick = async () => {
-        if (!window.confirm('Confirm delete this rule?')) {
+        if (
+            !window.confirm(
+                t(
+                    'filter_rule.confirm_delete_this_rule',
+                    `Confirm delete this rule?`
+                )
+            )
+        ) {
             return;
         }
 
@@ -100,25 +101,21 @@ export default function FilterRule({
                     p: 2,
                 }}
             >
-                <div className="col-md-12">Rule applies for:</div>
+                <div className="col-md-12">
+                    {t('filter_rule.rule_applies_for', `Rule applies for:`)}
+                </div>
                 <Grid container spacing={2}>
                     {data?.id ? (
                         <Grid item md={12}>
                             <FormRow>
-                                <b>
-                                    {data.userId &&
-                                        `User ${
-                                            users!.find(
-                                                i => i.id === data.userId
-                                            )?.username
-                                        }`}
-                                    {data.groupId &&
-                                        `Group ${
-                                            groups!.find(
-                                                i => i.id === data.groupId
-                                            )?.name
-                                        }`}
-                                </b>
+                                <Chip
+                                    icon={
+                                        data.groupName ? (
+                                            <GroupIcon />
+                                        ) : undefined
+                                    }
+                                    label={data.username ?? data.groupName}
+                                />
                             </FormRow>
                         </Grid>
                     ) : (
@@ -140,7 +137,7 @@ export default function FilterRule({
                                 </FormRow>
                             </Grid>
                             <Grid item md={2}>
-                                <b>or</b>
+                                <b>{t('filter_rule.or', `or`)}</b>
                             </Grid>
                             <Grid item md={5}>
                                 <FormRow>
@@ -222,14 +219,14 @@ export default function FilterRule({
                     </Grid>
                     <Grid item md={12}>
                         <Button className={'btn-primary'} type={'submit'}>
-                            Save
+                            {t('common.save', `Save`)}
                         </Button>{' '}
                         <Button
                             className={'btn-secondary'}
                             color={'warning'}
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('common.cancel', `Cancel`)}
                         </Button>{' '}
                         {data?.id && (
                             <Button
@@ -239,7 +236,7 @@ export default function FilterRule({
                                 color={'error'}
                                 onClick={deleteClick}
                             >
-                                Delete
+                                {t('common.delete', `Delete`)}
                             </Button>
                         )}
                     </Grid>

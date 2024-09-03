@@ -14,9 +14,14 @@ class TagFilterRuleOutput extends AbstractUuidOutput
 
     #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $userId = null;
+    #[Groups([TagFilterRule::GROUP_READ])]
+    private ?string $username = null;
 
     #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $groupId = null;
+
+    #[Groups([TagFilterRule::GROUP_READ])]
+    private ?string $groupName = null;
 
     #[Groups([TagFilterRule::GROUP_READ])]
     private ?string $workspaceId = null;
@@ -88,5 +93,25 @@ class TagFilterRuleOutput extends AbstractUuidOutput
     public function setExclude(?array $exclude): void
     {
         $this->exclude = $exclude;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(?string $username): void
+    {
+        $this->username = $username;
+    }
+
+    public function getGroupName(): ?string
+    {
+        return $this->groupName;
+    }
+
+    public function setGroupName(?string $groupName): void
+    {
+        $this->groupName = $groupName;
     }
 }

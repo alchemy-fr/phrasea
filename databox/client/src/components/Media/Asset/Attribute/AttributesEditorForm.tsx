@@ -8,6 +8,7 @@ import {useAttributeEditor} from './useAttributeEditor';
 import {FormRow} from '@alchemy/react-form';
 import React from 'react';
 import {WorkspaceContext} from '../../../../context/WorkspaceContext.tsx';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     workspaceId: string;
@@ -23,6 +24,7 @@ export default function AttributesEditorForm({
     onClose,
     minHeight,
 }: Props) {
+    const {t} = useTranslation();
     const {
         getActions,
         onChangeHandler,
@@ -46,7 +48,13 @@ export default function AttributesEditorForm({
             }
             await reloadAssetAttributes(assetId as string);
 
-            toast.success('Attributes saved!', {});
+            toast.success(
+                t(
+                    'attributes_editor_form.attributes_saved',
+                    `Attributes saved!`
+                ),
+                {}
+            );
 
             setSaving(false);
 

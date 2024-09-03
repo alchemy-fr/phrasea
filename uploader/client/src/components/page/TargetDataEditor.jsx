@@ -143,7 +143,7 @@ export default class TargetDataEditor extends Component {
                                     <Form.Control
                                         as="textarea"
                                         rows="5"
-                                        value={loading ? 'Loading...' : value}
+                                        value={loading ? 'Loading…' : value}
                                         disabled={loading}
                                         onChange={this.handleChange}
                                     />

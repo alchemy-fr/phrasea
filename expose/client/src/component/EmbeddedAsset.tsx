@@ -6,12 +6,14 @@ import {loadAsset} from './api';
 import PublicationSecurityProxy from './security/PublicationSecurityProxy';
 import {logAssetView} from '../lib/log';
 import ErrorPage from './ErrorPage';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     id: string;
 };
 
 export default function EmbeddedAsset({id}: Props) {
+    const {t} = useTranslation();
     const [data, setData] = React.useState<Asset | undefined>();
     const [error, setError] = React.useState<string | undefined>();
 
@@ -41,9 +43,19 @@ export default function EmbeddedAsset({id}: Props) {
 
     if (error) {
         if (['401', '403'].includes(error)) {
-            return <ErrorPage title={'Forbidden'} code={error} />;
+            return (
+                <ErrorPage
+                    title={t('embedded_asset.forbidden', `Forbidden`)}
+                    code={error}
+                />
+            );
         } else if ('404' === error) {
-            return <ErrorPage title={'Not found'} code={error} />;
+            return (
+                <ErrorPage
+                    title={t('embedded_asset.not_found', `Not found`)}
+                    code={error}
+                />
+            );
         }
     }
 

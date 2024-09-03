@@ -4,6 +4,7 @@ import AssetList from './AssetList';
 import DisplayProvider from '../Media/DisplayProvider';
 import {Layout} from './Layouts';
 import {OnSelectionChange} from './types';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     assets: Asset[];
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function AssetSelection({assets, onSelectionChange}: Props) {
+    const {t} = useTranslation();
     const pages = useMemo(() => [assets], [assets]);
 
     return (
@@ -22,7 +24,7 @@ export default function AssetSelection({assets, onSelectionChange}: Props) {
                 onSelectionChange={onSelectionChange}
                 layout={Layout.List}
                 noActions={true}
-                itemLabel={'item'}
+                itemLabel={t('asset_selection.item', `item`)}
             />
         </DisplayProvider>
     );

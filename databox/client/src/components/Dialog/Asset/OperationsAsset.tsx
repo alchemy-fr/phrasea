@@ -11,6 +11,7 @@ import moment from 'moment';
 import {Workflow, workflowStatuses} from '@alchemy/visual-workflow';
 import React from 'react';
 import {modalRoutes} from '../../../routes';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Asset;
@@ -33,12 +34,15 @@ export enum WorkflowStatus {
 }
 
 export default function OperationsAsset({data, onClose, minHeight}: Props) {
+    const {t} = useTranslation();
     const [workflowTriggered, setWorkflowTriggered] = React.useState(false);
     const [workflows, setWorkflows] = React.useState<Workflow[]>();
     const triggerWorkflow = async () => {
         setWorkflowTriggered(true);
         await triggerAssetWorkflow(data.id);
-        toast.success('Workflow is starting!');
+        toast.success(
+            t('operations_asset.workflow_is_starting', `Workflow is starting!`)
+        );
 
         getWorkflows(data.id).then(setWorkflows);
     };
@@ -66,18 +70,31 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <Section>
-                <Intro>You need to run integrations again?</Intro>
+                <Intro>
+                    {t(
+                        'asset.operations.you_need_to_run_integrations_again',
+                        `You need to run integrations again?`
+                    )}
+                </Intro>
                 <Button
                     onClick={triggerWorkflow}
                     disabled={workflowTriggered}
                     startIcon={<PowerSettingsNewIcon />}
                     variant={'contained'}
                 >
-                    Trigger workflow again
+                    {t(
+                        'asset.operations.trigger_workflow_again',
+                        `Trigger workflow again`
+                    )}
                 </Button>
             </Section>
             <Section>
-                <Intro>Last asset workflows</Intro>
+                <Intro>
+                    {t(
+                        'asset.operations.last_asset_workflows',
+                        `Last asset workflows`
+                    )}
+                </Intro>
                 {workflows?.map(w => (
                     <Stack
                         key={w.id}
@@ -111,7 +128,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                 id: w.id,
                             }}
                         >
-                            View
+                            {t('asset.operations.view', `View`)}
                         </Button>
                     </Stack>
                 ))}

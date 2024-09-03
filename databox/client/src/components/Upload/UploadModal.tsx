@@ -15,19 +15,12 @@ import {CollectionChip, WorkspaceChip} from '../Ui/Chips';
 import {CollectionId} from '../Media/Collection/CollectionsTreeView';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
-import {
-    AssetDataTemplate,
-    postAssetDataTemplate,
-    putAssetDataTemplate,
-} from '../../api/templates';
-import {
-    StackedModalProps,
-    useModals,
-    useOutsideRouterDirtyFormPrompt,
-} from '@alchemy/navigation';
+import {AssetDataTemplate, postAssetDataTemplate, putAssetDataTemplate,} from '../../api/templates';
+import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt,} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
-import {getAttributeList} from "../Media/Asset/Attribute/AttributeListData.ts";
+import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
+import type {TFunction} from '@alchemy/i18n';
 
 type FileWrapper = {
     id: string;
@@ -138,10 +131,10 @@ export default function UploadModal({
             return await submitFiles(userId, {
                 files: files.map(f => ({
                     file: f.file,
-                    tags: (data.tags as unknown as string[]),
+                    tags: data.tags as unknown as string[],
                     title:
                         f.file.name === 'image.png'
-                            ? createPastedImageTitle()
+                            ? createPastedImageTitle(t)
                             : f.file.name,
                     destination: collectionId
                         ? `/collections/${collectionId}`
@@ -260,8 +253,9 @@ export default function UploadModal({
     );
 }
 
-function createPastedImageTitle(): string {
-    const m = moment();
-
-    return `Pasted-image-${m.format('YYYY-MM-DD_HH-mm-ss')}`;
+function createPastedImageTitle(t: TFunction): string {
+    return t('pasted_image.filename', {
+        defaultValue: `Pasted-image-{{date}}`,
+        date: moment().format('YYYY-MM-DD_HH-mm-ss'),
+    });
 }

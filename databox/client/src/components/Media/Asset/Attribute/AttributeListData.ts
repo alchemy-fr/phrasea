@@ -1,5 +1,5 @@
-import {AttributeIndex, DefinitionIndex, NO_LOCALE,} from './AttributesEditor';
-import {getAttributeType} from "./types";
+import {AttributeIndex, DefinitionIndex, NO_LOCALE} from './AttributesEditor';
+import {getAttributeType} from './types';
 
 type AttributeInput = {
     definitionId: string;
@@ -10,11 +10,11 @@ type AttributeInput = {
     originVendorContext?: string;
     confidence?: number;
     value: any;
-}
+};
 
 export function getAttributeList(
     attributes: AttributeIndex<string | number>,
-    definitions: DefinitionIndex,
+    definitions: DefinitionIndex
 ): AttributeInput[] {
     const list: AttributeInput[] = [];
 
@@ -24,27 +24,22 @@ export function getAttributeList(
             return;
         }
 
-        const widget = getAttributeType(
-            definition.fieldType
-        );
+        const widget = getAttributeType(definition.fieldType);
 
         const lv = attributes[defId];
         Object.keys(lv).forEach((locale): void => {
             const currValue = lv[locale];
-            const inputLocal = locale !== NO_LOCALE
-                ? locale
-                : undefined;
+            const inputLocal = locale !== NO_LOCALE ? locale : undefined;
 
             if (currValue) {
                 if (currValue instanceof Array) {
                     currValue.forEach(_v => {
-
                         list.push({
                             definitionId: defId,
                             locale: inputLocal,
                             value: widget.normalize(_v.value),
                         });
-                    })
+                    });
                 } else {
                     list.push({
                         definitionId: defId,

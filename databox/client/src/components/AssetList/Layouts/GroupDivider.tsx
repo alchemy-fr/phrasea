@@ -9,6 +9,7 @@ import assetClasses from '../classes';
 import {AttributeType} from '../../../api/attributes.ts';
 import {AttributeFormat} from '../../Media/Asset/Attribute/types/types';
 import {getAttributeType} from '../../Media/Asset/Attribute/types';
+import {useTranslation} from 'react-i18next';
 
 type Props = PropsWithChildren<{
     groupValue: GroupValue;
@@ -17,6 +18,7 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function GroupDivider({groupValue, top, page}: Props) {
+    const {t} = useTranslation();
     const formatContext = React.useContext(AttributeFormatContext);
 
     const {values, type, name} = groupValue;
@@ -77,7 +79,7 @@ export default function GroupDivider({groupValue, top, page}: Props) {
                                 )}
                       </span>
                   ))
-                : 'None'}
+                : t('group_divider.none', `None`)}
         </SectionDivider>
     );
 }

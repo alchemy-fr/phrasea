@@ -25,6 +25,7 @@ import FileItem from './FileItem';
 import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
+import {useTranslation} from 'react-i18next';
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -75,6 +76,7 @@ export default function TUIPhotoEditor({
     setIntegrationOverlay,
     enableInc,
 }: Props) {
+    const {t} = useTranslation();
     const editoRef = useRef<any>();
     const [fileName, setFileName] = useState<string>('');
     const [saving, setSaving] = useState<boolean>(false);
@@ -113,7 +115,7 @@ export default function TUIPhotoEditor({
                         file.id
                     )
                 );
-                toast.success('Saved!');
+                toast.success(t('tuiphoto_editor.saved', `Saved!`));
                 loadData();
             } finally {
                 setSaving(false);
@@ -166,14 +168,16 @@ export default function TUIPhotoEditor({
     return (
         <>
             <IntegrationPanelContent>
-                <Typography>Save as</Typography>
+                <Typography>
+                    {t('tuiphoto_editor.save_as', `Save as`)}
+                </Typography>
                 <TextField
                     value={fileName}
                     onChange={e => {
                         setFileName(e.target.value);
                     }}
                     disabled={!canEdit || saving}
-                    placeholder={'File name'}
+                    placeholder={t('tuiphoto_editor.file_name', `File name`)}
                 />
                 <LoadingButton
                     sx={{
@@ -185,13 +189,15 @@ export default function TUIPhotoEditor({
                     disabled={!canEdit || !fileName}
                     loading={saving}
                 >
-                    Save
+                    {t('tuiphoto_editor.save', `Save`)}
                 </LoadingButton>
             </IntegrationPanelContent>
 
             {data!.pages.length > 0 && (
                 <List>
-                    <ListSubheader>Open recent</ListSubheader>
+                    <ListSubheader>
+                        {t('tuiphoto_editor.open_recent', `Open recent`)}
+                    </ListSubheader>
                     <ListItemButton
                         selected={selectedFile?.id === file.id}
                         onClick={() => onOpen(file!, '')}
@@ -199,7 +205,9 @@ export default function TUIPhotoEditor({
                         <ListItemIcon>
                             <FileOpenIcon />
                         </ListItemIcon>
-                        <ListItemText>Original</ListItemText>
+                        <ListItemText>
+                            {t('tuiphoto_editor.original', `Original`)}
+                        </ListItemText>
                     </ListItemButton>
 
                     {data!.pages.flat().map(d => {
