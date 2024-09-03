@@ -18,24 +18,21 @@ import {
     ListItemText,
     Skeleton,
 } from '@mui/material';
-import {ApiHydraObjectResponse} from '../../../api/hydra';
+import {ApiHydraObjectResponse} from '../../../../api/hydra.ts';
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import {useFormSubmit, UseFormSubmitReturn} from '@alchemy/api';
 import {LoadingButton} from '@mui/lab';
-import {toast} from 'react-toastify';
-import RemoteErrors from '../../Form/RemoteErrors';
 import SortableList, {
     OrderChangeHandler,
     SortableItem,
     SortableItemProps,
-} from '../../Ui/Sortable/SortableList';
-import {useDirtyFormPrompt} from '../Tabbed/FormTab';
-import {DefaultValues} from 'react-hook-form';
-import {Workspace} from '../../../types.ts';
+} from '../../../Ui/Sortable/SortableList.tsx';
+import {Workspace} from '../../../../types.ts';
+import ItemForm from "./ItemForm.tsx";
+import {UseFormSubmitReturn} from '@alchemy/api';
 
-type DefinitionBase = ApiHydraObjectResponse & {id: string};
+export type DefinitionBase = ApiHydraObjectResponse & {id: string};
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
@@ -51,7 +48,7 @@ type ListState<D extends DefinitionBase> = {
     loading: boolean;
 };
 
-type ItemState<D extends DefinitionBase> = {
+export type ItemState<D extends DefinitionBase> = {
     item: D | 'new' | undefined;
     loading: boolean;
 };
@@ -129,6 +126,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
         loading: false,
     });
 
+    const [submitting, setSubmitting] = React.useState(false);
     const {loading, list} = listState;
     const {loading: loadingItem, item} = itemState;
     const {t} = useTranslation();
@@ -169,6 +167,37 @@ export default function DefinitionManager<D extends DefinitionBase>({
         [setItemState, loadItem, item]
     );
 
+    const onItemUpdate = React.useCallback((newData: D) => {
+        const newNormData = normalizeData
+            ? normalizeData(newData)
+            : newData;
+
+        setItemState({
+            item: newNormData,
+            loading: false,
+        });
+
+        setListState(p => {
+            let newList = p.list!;
+            if (newList.find(i => i.id === newData.id)) {
+                newList = newList.map(i => {
+                    if (i.id === newData.id) {
+                        return newData;
+                    }
+
+                    return i;
+                });
+            } else {
+                newList = newList.concat([newData]);
+            }
+
+            return {
+                ...p,
+                list: newList,
+            };
+        });
+    }, [normalizeData]);
+
     const createAttribute = () => {
         setItemState({
             item: 'new',
@@ -190,60 +219,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
         });
     }, []);
 
-    const usedFormSubmit = useFormSubmit({
-        defaultValues: newItem as DefaultValues<D>,
-        onSubmit: async (data: D) => {
-            const newData = await handleSave(data);
-            const newNormData = normalizeData
-                ? normalizeData(newData)
-                : newData;
-
-            setItemState({
-                item: newNormData,
-                loading: false,
-            });
-
-            setListState(p => {
-                let newList = p.list!;
-                if (newList.find(i => i.id === newData.id)) {
-                    newList = newList.map(i => {
-                        if (i.id === data.id) {
-                            return newData;
-                        }
-
-                        return i;
-                    });
-                } else {
-                    newList = newList.concat([newData]);
-                }
-
-                return {
-                    ...p,
-                    list: newList,
-                };
-            });
-
-            return newData;
-        },
-        onSuccess: () => {
-            toast.success(
-                t('definition_manager.saved', 'Definition saved!') as string
-            );
-        },
-    });
-
-    const {submitting, remoteErrors, forbidNavigation, reset} = usedFormSubmit;
-
-    React.useEffect(() => {
-        if (item && 'new' !== item) {
-            reset({
-                ...createNewItem(),
-                ...item,
-            });
-        } else if ('new' === item) {
-            reset(newItem as D);
-        }
-    }, [item, newItem]);
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
@@ -294,8 +269,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
             onClick: handleItemClick,
         };
     }, [onSort, handleItemClick, item, listComponent]);
-
-    useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 
     return (
         <>
@@ -417,19 +390,17 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         </Box>
                     )}
                     {item && (
-                        <form
-                            id={formId}
-                            onSubmit={usedFormSubmit.handleSubmit}
-                        >
-                            {React.createElement(itemComponent, {
-                                data: item === 'new' ? (newItem as D) : item!,
-                                key: item === 'new' ? 'new' : item!.id,
-                                usedFormSubmit,
-                                workspace,
-                            })}
-                        </form>
+                            <ItemForm
+                                key={item === 'new' ? 'new' : item!.id}
+                                itemComponent={itemComponent}
+                                item={item === 'new' ? (newItem as D) : item!}
+                                workspace={workspace}
+                                onSave={handleSave}
+                                formId={formId}
+                                setSubmitting={setSubmitting}
+                                onItemUpdate={onItemUpdate}
+                            />
                     )}
-                    <RemoteErrors errors={remoteErrors} />
                     {item && item !== 'new' && handleDelete && (
                         <>
                             <hr />

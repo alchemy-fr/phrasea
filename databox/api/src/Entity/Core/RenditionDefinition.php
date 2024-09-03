@@ -99,6 +99,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     protected ?self $parent = null;
 
     /**
@@ -322,6 +323,10 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
 
     public function setParent(?self $parent): void
     {
+        if ($parent === $this) {
+            throw new \InvalidArgumentException('Parent cannot be the same as the definition');
+        }
+
         $this->parent = $parent;
     }
 }

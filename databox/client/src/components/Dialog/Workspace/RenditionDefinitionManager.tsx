@@ -1,11 +1,11 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
-import {FormGroup, FormLabel, ListItemText, TextField} from '@mui/material';
+import {FormGroup, FormHelperText, FormLabel, ListItemText, TextField} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
-} from './DefinitionManager';
+} from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {
@@ -19,6 +19,8 @@ import {CheckboxWidget} from '@alchemy/react-form';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
+import RenditionDefinitionSelect from "../../Form/RenditionDefinitionSelect.tsx";
+import CodeEditorWidget from "../../Form/CodeEditorWidget.tsx";
 
 function Item({
     data,
@@ -27,6 +29,7 @@ function Item({
         register,
         control,
         reset,
+        watch,
         formState: {errors},
     },
     workspace,
@@ -36,6 +39,8 @@ function Item({
     React.useEffect(() => {
         reset(normalizeData(data));
     }, [data]);
+
+    const pickSourceFile = watch('pickSourceFile');
 
     return (
         <>
@@ -63,16 +68,23 @@ function Item({
             </FormRow>
             <FormRow>
                 <FormGroup>
-                    <CheckboxWidget
-                        label={t(
-                            'form.rendition_definition.pickSourceFile.label',
-                            'Pick source file'
-                        )}
+                    <FormLabel>
+                        {t('form.rendition_definition.parent.label', 'Parent')}
+                    </FormLabel>
+                    <RenditionDefinitionSelect
                         disabled={submitting}
-                        name={'pickSourceFile'}
+                        name={'parent'}
                         control={control}
+                        workspaceId={workspace.id}
+                        disabledValues={[`/rendition-definitions/${data.id}`]}
                     />
-                    <FormFieldErrors field={'pickSourceFile'} errors={errors} />
+                    <FormHelperText>
+                        {t(
+                            'form.rendition_definition.parent.helper',
+                            'Rendition from which this one is derived'
+                        )}
+                    </FormHelperText>
+                    <FormFieldErrors field={'parent'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -134,6 +146,31 @@ function Item({
                     />
                 </FormGroup>
             </FormRow>
+            <FormRow>
+                <FormGroup>
+                    <CheckboxWidget
+                        label={t(
+                            'form.rendition_definition.pickSourceFile.label',
+                            'Pick source file'
+                        )}
+                        disabled={submitting}
+                        name={'pickSourceFile'}
+                        control={control}
+                    />
+                    <FormFieldErrors field={'pickSourceFile'} errors={errors} />
+                </FormGroup>
+            </FormRow>
+            {!pickSourceFile ? <>
+                <FormRow>
+                    <CodeEditorWidget
+                        control={control}
+                        label={t('form.rendition_definition.definition.label', 'Build definition')}
+                        name={'definition'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'definition'} errors={errors} />
+                </FormRow>
+            </> : ''}
         </>
     );
 }

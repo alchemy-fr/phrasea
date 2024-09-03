@@ -19,7 +19,7 @@ import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
     OnSort,
-} from './DefinitionManager';
+} from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {CheckboxWidget} from '@alchemy/react-form';

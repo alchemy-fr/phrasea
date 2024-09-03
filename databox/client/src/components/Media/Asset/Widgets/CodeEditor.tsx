@@ -7,6 +7,8 @@ type Props = {
     prettify?: (code: string) => string;
 } & IAceEditorProps;
 
+export type {Props as CodeEditorProps};
+
 export default function CodeEditor({
     value: initialValue,
     onChange,

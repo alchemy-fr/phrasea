@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
@@ -60,6 +61,8 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield Field::new('substitutable')
             ->hideOnIndex();
         yield Field::new('pickSourceFile')
+            ->hideOnIndex();
+        yield TextareaField::new('definition')
             ->hideOnIndex();
         yield BooleanField::new('useAsOriginal');
         yield BooleanField::new('useAsPreview');
