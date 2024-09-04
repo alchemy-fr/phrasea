@@ -76,7 +76,10 @@ export default function FilePlayer({
                         height: '100%',
                     }}
                 >
-                    {t('file_player.unsupported_format', `Unsupported format`)}
+                    {t('file_player.unsupported_format', {
+                        defaultValue: `Unsupported format "{{type}}"`,
+                        type: file.type,
+                    })}
                 </div>
             );
     }

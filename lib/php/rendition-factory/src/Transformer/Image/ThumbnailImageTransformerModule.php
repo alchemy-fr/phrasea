@@ -86,6 +86,10 @@ final readonly class ThumbnailImageTransformerModule implements TransformerModul
         }
 
         $outputType = $options['format'] ?? $inputFile->getType();
+        if (!str_starts_with($outputType, 'image/')) {
+            $outputType = 'image/'.$outputType;
+        }
+
         $outputFormat = match ($outputType) {
             'image/jpeg' => 'jpeg',
             'image/png' => 'png',

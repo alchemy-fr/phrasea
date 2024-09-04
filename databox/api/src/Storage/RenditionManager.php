@@ -28,7 +28,8 @@ class RenditionManager
         string $path,
         ?string $type,
         ?int $size,
-        ?string $originalName
+        ?string $originalName,
+        ?string $buildHash,
     ): AssetRendition {
         $file = $this->fileManager->createFile(
             $storage,
@@ -42,7 +43,8 @@ class RenditionManager
         return $this->createOrReplaceRenditionFile(
             $asset,
             $definition,
-            $file
+            $file,
+            $buildHash
         );
     }
 

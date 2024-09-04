@@ -97,6 +97,7 @@ class PhraseanetIntegrationController extends AbstractController
             $asset,
             $definition,
             $file,
+            null,
         );
 
         $em->flush();

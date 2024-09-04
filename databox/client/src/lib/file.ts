@@ -23,7 +23,17 @@ export function getFileTypeFromMIMEType(
         return FileTypeEnum.Audio;
     }
 
-    return FileTypeEnum.Document;
+    if ([
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ].includes(type)) {
+        return FileTypeEnum.Document;
+    }
+
+    return FileTypeEnum.Unknown;
 }
 
 export function dataURLtoFile(dataurl: string, filename: string): File {

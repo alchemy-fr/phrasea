@@ -354,7 +354,7 @@
     "smiling": "Smiling"
   },
   "file_player": {
-    "unsupported_format": "Unsupported format"
+    "unsupported_format": "Unsupported format \"{{type}}\""
   },
   "filter_rule": {
     "exclude": {

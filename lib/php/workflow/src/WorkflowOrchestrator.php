@@ -219,6 +219,7 @@ readonly class WorkflowOrchestrator
             $workflowState->setStatus(WorkflowState::STATUS_STARTED);
             $this->stateRepository->persistWorkflowState($workflowState);
 
+            $jobInputs['rerun'] = true;
             foreach ($jobsToTrigger as $jobId) {
                 $this->triggerJob($workflowState, $jobId, $jobInputs);
             }

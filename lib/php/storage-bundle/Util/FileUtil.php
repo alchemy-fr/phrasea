@@ -21,8 +21,13 @@ final class FileUtil
     public static function guessExtension(?string $type, ?string $path): ?string
     {
         $ext = self::getExtensionFromType($type);
+
         if (null === $ext) {
-            $ext = self::getExtensionFromPath($path) ?: null;
+            if (null !== $path) {
+                return self::getExtensionFromPath($path) ?: null;
+            }
+
+            return null;
         }
 
         return $ext;

@@ -54,7 +54,8 @@ readonly class PhraseanetDownloadSubdefHandler
             $permalink,
             $message->getType(),
             $message->getSize(),
-            basename($urlPart)
+            basename($urlPart),
+            null
         );
 
         $this->em->flush();

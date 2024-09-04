@@ -34,6 +34,7 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
 
     public function handle(RunContext $context): void
     {
+        $force = $context->getInputs()['rerun'] ?? false;
         $asset = $this->getAsset($context);
         $inputs = $context->getInputs();
         $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $inputs['definition']);
@@ -64,7 +65,7 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
         ]));
 
         $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
-        if ($existingRendition?->getBuildHash() === $buildHash) {
+        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
             return;
         }
 
@@ -82,14 +83,10 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
 
     private function createRendition(File $source, string $buildDef): OutputFile
     {
-        $buildConfig = $this->loader->parse($buildDef);
-
-        $localPath = $this->fileFetcher->getFile($source);
-
         return $this->renditionCreator->createRendition(
-            $localPath,
+            $this->fileFetcher->getFile($source),
             $source->getType(),
-            $buildConfig,
+            $this->loader->parse($buildDef),
         );
     }
 }

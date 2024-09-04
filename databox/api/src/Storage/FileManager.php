@@ -60,7 +60,11 @@ final readonly class FileManager
     public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension = null, ?string $originalName = null): File
     {
         if (null === $extension) {
-            $extension = FileUtil::guessExtension($type, $originalName);
+            $extension = FileUtil::guessExtension($type, $originalName ?? $src);
+
+            if (null === $extension && null !== $type) {
+                $extension = FileUtil::getExtensionFromType($type);
+            }
         }
 
         if (null === $type) {
