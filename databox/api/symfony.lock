@@ -26,6 +26,9 @@
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
     },
+    "alchemy/rendition-factory-bundle": {
+        "version": "dev-PS-670-rendition-factory"
+    },
     "alchemy/storage-bundle": {
         "version": "dev-ps-355"
     },

@@ -57,7 +57,7 @@ final readonly class FileManager
         return $path;
     }
 
-    public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension, ?string $originalName): File
+    public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension = null, ?string $originalName = null): File
     {
         if (null === $extension) {
             $extension = FileUtil::guessExtension($type, $originalName);

@@ -1,0 +1,23 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\RenditionFactory\Command\CreateCommand: ~
+    Alchemy\RenditionFactory\FileFamilyGuesser: ~
+    Alchemy\RenditionFactory\RenditionCreator: ~
+    Alchemy\RenditionFactory\Config\YamlLoader: ~
+
+    # Modules
+    Alchemy\RenditionFactory\Transformer\Image\ThumbnailImageTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\VoidTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Imagine\Imagick\Imagine: ~
+    Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
+
+    Alchemy\RenditionFactory\MimeType\MimeTypeGuesser: ~

@@ -11,6 +11,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
+use InvalidArgumentException;
 
 class RenditionManager
 {
@@ -48,7 +49,8 @@ class RenditionManager
     public function createOrReplaceRenditionFile(
         Asset $asset,
         RenditionDefinition $definition,
-        File $file
+        File $file,
+        ?string $buildHash
     ): AssetRendition {
         if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
             $asset->setSource($file);
@@ -57,6 +59,7 @@ class RenditionManager
 
         $rendition = $this->getOrCreateRendition($asset, $definition);
         $rendition->setFile($file);
+        $rendition->setBuildHash($buildHash);
         $this->em->persist($rendition);
 
         return $rendition;
@@ -87,19 +90,21 @@ class RenditionManager
                     return $rendition;
                 }
             }
-        } else {
-            $rendition = $this->em->getRepository(AssetRendition::class)
-                ->findOneBy([
-                    'asset' => $asset->getId(),
-                    'definition' => $definition->getId(),
-                ]);
-
-            if ($rendition instanceof AssetRendition) {
-                unset($this->renditionsToDelete[$rendition->getId()]);
-
-                return $rendition;
-            }
         }
+
+        $rendition = $this->em->getRepository(AssetRendition::class)
+            ->findOneBy([
+                'asset' => $asset->getId(),
+                'definition' => $definition->getId(),
+            ]);
+
+        if ($rendition instanceof AssetRendition) {
+            unset($this->renditionsToDelete[$rendition->getId()]);
+
+            return $rendition;
+        }
+
+        return null;
     }
 
     public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition
@@ -147,7 +152,7 @@ class RenditionManager
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
-            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
+            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $name));
         }
 
         return $definition;
@@ -174,7 +179,7 @@ class RenditionManager
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
-            throw new \InvalidArgumentException(sprintf('Rendition definition "%s" not found', $id));
+            throw new InvalidArgumentException(sprintf('Rendition definition "%s" not found', $id));
         }
 
         return $definition;
