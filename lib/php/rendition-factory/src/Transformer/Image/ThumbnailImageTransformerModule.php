@@ -3,8 +3,10 @@
 namespace Alchemy\RenditionFactory\Transformer\Image;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\DTO\InputFile;
+use Alchemy\RenditionFactory\DTO\ImagineOutputFile;
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
+use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Imagine\Filter\Basic\Thumbnail;
@@ -25,7 +27,7 @@ final readonly class ThumbnailImageTransformerModule implements TransformerModul
         return 'thumbnail_image';
     }
 
-    public function transform(InputFile $inputFile, array $options, TransformationContext $context): OutputFile
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
         $image = $this->imagine->open($inputFile->getPath());
 
@@ -44,10 +46,6 @@ final readonly class ThumbnailImageTransformerModule implements TransformerModul
         $width = $options['width'] ?? null;
         $height = $options['height'] ?? $width;
 
-        if (null === $width) {
-            throw new \InvalidArgumentException('"width" option must be defined');
-        }
-
         $size = $image->getSize();
         $origWidth = $size->getWidth();
         $origHeight = $size->getHeight();
@@ -57,6 +55,8 @@ final readonly class ThumbnailImageTransformerModule implements TransformerModul
                 $height = (int) (($width / $origWidth) * $origHeight);
             } elseif (null === $width) {
                 $width = (int) (($height / $origHeight) * $origWidth);
+            } else {
+                throw new \InvalidArgumentException('"width" or "height" option must be defined');
             }
         }
 

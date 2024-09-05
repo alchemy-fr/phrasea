@@ -7,7 +7,9 @@ namespace Alchemy\RenditionFactory;
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\InputFile;
+use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
+use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
@@ -32,16 +34,24 @@ readonly class RenditionCreator
         string $mimeType,
         BuildConfig $buildConfig,
         ?CreateRenditionOptions $options = null
-    ): OutputFile
+    ): OutputFileInterface
     {
         $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($mimeType));
         if (null == $familyBuildConfig = $buildConfig->getFamily($inputFile->getFamily())) {
-            return OutputFile::fromInputFile($inputFile);
+            throw new \InvalidArgumentException(sprintf(
+                'No build config defined for family "%s" (type: "%s")',
+                $inputFile->getFamily()->value,
+                $mimeType,
+            ));
         }
 
         $transformations = $familyBuildConfig->getTransformations();
         if (empty($transformations)) {
-            return new OutputFile($inputFile->getPath(), $inputFile->getType(), $inputFile->getFamily());
+            throw new \InvalidArgumentException(sprintf(
+                'No transformation defined for family "%s" (type: "%s")',
+                $inputFile->getFamily()->value,
+                $mimeType,
+            ));
         }
 
         $dateWorkingDir = ($options?->getWorkingDirectory() ?? $this->workingDirectory).'/'.date('Y-m-d');
@@ -54,14 +64,22 @@ readonly class RenditionCreator
         }
         $context = new TransformationContext($workingDir);
 
-        foreach ($transformations as $transformation) {
+        $transformationCount = count($transformations);
+        foreach (array_values($transformations) as $i => $transformation) {
             /** @var TransformerModuleInterface $transformer */
             $transformer = $this->transformers->get($transformation->getModule());
             $outputFile = $transformer->transform($inputFile, $transformation->getOptions(), $context);
 
-            $inputFile = InputFile::fromOutputFile($outputFile);
+            if ($i < $transformationCount) {
+                $inputFile = $outputFile->createNextInputFile();
+            }
         }
 
         return $outputFile;
+    }
+
+    private function createOutputFromInput(InputFileInterface $inputFile): OutputFileInterface
+    {
+        return new OutputFile($inputFile->getPath(), $inputFile->getType(), $inputFile->getFamily());
     }
 }

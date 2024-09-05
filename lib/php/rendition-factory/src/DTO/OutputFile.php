@@ -2,10 +2,10 @@
 
 namespace Alchemy\RenditionFactory\DTO;
 
-final readonly class OutputFile extends BaseFile
+final readonly class OutputFile extends BaseFile implements OutputFileInterface
 {
-    public static function fromInputFile(InputFile $inputFile): self
+    public function createNextInputFile(): InputFileInterface
     {
-        return new self($inputFile->getPath(), $inputFile->getType(), $inputFile->getFamily());
+        return new InputFile($this->getPath(), $this->getType(), $this->getFamily());
     }
 }
