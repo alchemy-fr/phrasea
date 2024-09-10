@@ -34,7 +34,7 @@ readonly class RenditionCreator
         ?CreateRenditionOptions $options = null
     ): OutputFileInterface
     {
-        $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($mimeType));
+        $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($mimeType), $options->getMetadataContainer());
         if (null == $familyBuildConfig = $buildConfig->getFamily($inputFile->getFamily())) {
             throw new \InvalidArgumentException(sprintf(
                 'No build config defined for family "%s" (type: "%s")',

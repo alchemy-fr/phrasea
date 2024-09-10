@@ -2,12 +2,15 @@
 
 namespace Alchemy\RenditionFactory\DTO;
 
-abstract readonly class BaseFile
+use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
+
+abstract readonly class BaseFile implements BaseFileInterface
 {
     public function __construct(
         private string $path,
         private string $type,
         private FamilyEnum $family,
+        protected ?MetadataContainerInterface $metadata = null,
     ) {
     }
 
@@ -24,5 +27,10 @@ abstract readonly class BaseFile
     public function getFamily(): FamilyEnum
     {
         return $this->family;
+    }
+
+    public function getMetadata(string $name): string|null
+    {
+        return $this->metadata?->getMetadata($name);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
+use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\StampFilter;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Imagine\Filter\Advanced\OnPixelBased;
 use Imagine\Image\ImagineInterface;
@@ -62,6 +63,7 @@ final readonly class ImagineFilterFactory
             'interlace' => new InterlaceFilterLoader(),
             'resample' => new ResampleFilterLoader($this->imagine),
             'fixed' => new FixedFilterLoader(),
+            'stamp' => new StampFilter($this->imagine),
         ];
 
         foreach ($filters as $name => $filter) {

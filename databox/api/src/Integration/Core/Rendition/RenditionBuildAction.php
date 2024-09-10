@@ -6,9 +6,11 @@ namespace App\Integration\Core\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\RenditionFactory\Config\YamlLoader;
-use Alchemy\RenditionFactory\DTO\OutputFile;
+use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
+use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\RenditionCreator;
 use Alchemy\Workflow\Executor\RunContext;
+use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
@@ -28,6 +30,7 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
         private readonly FileFetcher $fileFetcher,
         private readonly FileManager $fileManager,
         private readonly RenditionCreator $renditionCreator,
+        private readonly AttributesResolver $attributesResolver,
     )
     {
     }
@@ -69,7 +72,7 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
             return;
         }
 
-        $outputFile = $this->createRendition($source, $buildDef);
+        $outputFile = $this->createRendition($asset, $source, $buildDef);
 
         $file = $this->fileManager->createFileFromPath(
             $asset->getWorkspace(),
@@ -81,12 +84,15 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
         $this->em->flush();
     }
 
-    private function createRendition(File $source, string $buildDef): OutputFile
+    private function createRendition(Asset $asset, File $source, string $buildDef): OutputFileInterface
     {
         return $this->renditionCreator->createRendition(
             $this->fileFetcher->getFile($source),
             $source->getType(),
             $this->loader->parse($buildDef),
+            new CreateRenditionOptions(
+                metadataContainer: new AssetMetadataContainer($asset, $this->attributesResolver),
+            )
         );
     }
 }
