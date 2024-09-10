@@ -4,29 +4,27 @@ declare(strict_types=1);
 
 namespace Alchemy\RenditionFactory;
 
+use Alchemy\RenditionFactory\Context\TransformationContextFactory;
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\InputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 readonly class RenditionCreator
 {
-    private string $workingDirectory;
 
     public function __construct(
+        private TransformationContextFactory $contextFactory,
         private FileFamilyGuesser $fileFamilyGuesser,
         /** @var TransformerModuleInterface[] */
         #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
         private ServiceLocator $transformers,
-        ?string $workingDirectory = null,
     ) {
-        $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
 
     public function createRendition(
@@ -54,15 +52,9 @@ readonly class RenditionCreator
             ));
         }
 
-        $dateWorkingDir = ($options?->getWorkingDirectory() ?? $this->workingDirectory).'/'.date('Y-m-d');
-        if (!is_dir($dateWorkingDir)) {
-            mkdir($dateWorkingDir);
-        }
-        $workingDir = $dateWorkingDir.'/'.uniqid();
-        if (!is_dir($workingDir)) {
-            mkdir($workingDir);
-        }
-        $context = new TransformationContext($workingDir);
+        $context = $this->contextFactory->create(
+            $options
+        );
 
         $transformationCount = count($transformations);
         foreach (array_values($transformations) as $i => $transformation) {

@@ -5,12 +5,18 @@ services:
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
 
+    Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
     Alchemy\RenditionFactory\RenditionCreator: ~
     Alchemy\RenditionFactory\Config\YamlLoader: ~
+    Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineFilterFactory: ~
 
     # Modules
     Alchemy\RenditionFactory\Transformer\Image\ThumbnailImageTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 

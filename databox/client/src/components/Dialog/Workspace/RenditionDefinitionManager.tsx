@@ -243,6 +243,7 @@ export default function RenditionDefinitionManager({
 function normalizeData(data: RenditionDefinition) {
     return {
         ...data,
-        class: data.class ? (data.class as RenditionClass)['@id'] : null,
+        class: typeof data.class === 'string' ? data.class : (data.class ? (data.class as RenditionClass)['@id'] : null),
+        parent: typeof data.parent === 'string' ? data.parent : (data.parent ? (data.parent as RenditionDefinition)['@id'] : null),
     };
 }

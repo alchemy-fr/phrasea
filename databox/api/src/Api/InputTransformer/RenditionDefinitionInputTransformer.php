@@ -55,6 +55,8 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
             $object->setKey($data->key);
         }
 
+        $object->setParent($data->parent);
+
         if (null !== $data->name) {
             $object->setName($data->name);
         }

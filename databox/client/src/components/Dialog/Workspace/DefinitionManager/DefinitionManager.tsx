@@ -86,6 +86,8 @@ const SortableListItem = React.memo(
 
 export type OnSort = (ids: string[]) => void;
 
+export type NormalizeData<D extends DefinitionBase> = (data: D) => D;
+
 type Props<D extends DefinitionBase> = {
     load: () => Promise<D[]>;
     loadItem?: (id: string) => Promise<D>;
@@ -99,7 +101,7 @@ type Props<D extends DefinitionBase> = {
     handleDelete?: (id: string) => Promise<void>;
     workspace: Workspace;
     onSort?: OnSort;
-    normalizeData?: (data: D) => D;
+    normalizeData?: NormalizeData<D>;
 };
 
 export default function DefinitionManager<D extends DefinitionBase>({
@@ -399,6 +401,7 @@ export default function DefinitionManager<D extends DefinitionBase>({
                                 formId={formId}
                                 setSubmitting={setSubmitting}
                                 onItemUpdate={onItemUpdate}
+                                normalizeData={normalizeData}
                             />
                     )}
                     {item && item !== 'new' && handleDelete && (

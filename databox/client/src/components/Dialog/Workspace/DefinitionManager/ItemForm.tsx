@@ -2,7 +2,7 @@ import {toast} from "react-toastify";
 import React, {FunctionComponent} from "react";
 import {useDirtyFormPrompt} from "../../Tabbed/FormTab.tsx";
 import type {DefinitionBase} from "./DefinitionManager.tsx";
-import {DefinitionItemFormProps} from "./DefinitionManager.tsx";
+import {DefinitionItemFormProps, NormalizeData} from "./DefinitionManager.tsx";
 import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from "../../../Form/RemoteErrors.tsx";
 import {StateSetter, Workspace} from "../../../../types.ts";
@@ -17,6 +17,7 @@ type Props<D extends DefinitionBase> = {
     formId: string;
     onItemUpdate: (data: D) => void;
     setSubmitting: StateSetter<boolean>;
+    normalizeData?: NormalizeData<D>;
 };
 
 export default function ItemForm<D extends DefinitionBase>({
@@ -27,6 +28,7 @@ export default function ItemForm<D extends DefinitionBase>({
     workspace,
     onItemUpdate,
     setSubmitting,
+    normalizeData,
 }: Props<D>) {
     const {t} = useTranslation();
     const usedFormSubmit = useFormSubmit({
@@ -35,9 +37,10 @@ export default function ItemForm<D extends DefinitionBase>({
             setSubmitting(true);
             try {
                 const newData = await onSave(data);
-                onItemUpdate(newData);
+                const n = normalizeData ? normalizeData(newData) : newData;
+                onItemUpdate(n);
 
-                return newData;
+                return n;
             } finally {
                 setSubmitting(false);
             }
