@@ -11,6 +11,7 @@ RUN apk add --no-cache \
         libjpeg-turbo \
         libpng \
         libwebp \
+        ffmpeg \
     && apk add --no-cache --virtual build-essentials \
         g++ \
         make \
