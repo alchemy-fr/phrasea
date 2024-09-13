@@ -11,19 +11,24 @@ use Alchemy\RenditionFactory\DTO\InputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-readonly class RenditionCreator
+class RenditionCreator
 {
+    /** @var TransformationContext[] */
+    private array $createdContexts = [];
+    /** @var OutputFile[] */
+    private array $createdOutputFiles = [];
 
     public function __construct(
-        private TransformationContextFactory $contextFactory,
-        private FileFamilyGuesser $fileFamilyGuesser,
+        private readonly TransformationContextFactory $contextFactory,
+        private readonly FileFamilyGuesser $fileFamilyGuesser,
         /** @var TransformerModuleInterface[] */
         #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
-        private ServiceLocator $transformers,
+        private readonly ServiceLocator $transformers,
     ) {
     }
 
@@ -55,12 +60,14 @@ readonly class RenditionCreator
         $context = $this->contextFactory->create(
             $options
         );
+        $this->createdContexts[] = $context;
 
         $transformationCount = count($transformations);
         foreach (array_values($transformations) as $i => $transformation) {
             /** @var TransformerModuleInterface $transformer */
             $transformer = $this->transformers->get($transformation->getModule());
             $outputFile = $transformer->transform($inputFile, $transformation->getOptions(), $context);
+            $this->createdOutputFiles[] = $outputFile;
 
             if ($i < $transformationCount) {
                 $inputFile = $outputFile->createNextInputFile();
@@ -68,6 +75,16 @@ readonly class RenditionCreator
         }
 
         return $outputFile;
+    }
+
+    public function cleanUp(): void
+    {
+        foreach ($this->createdOutputFiles as $outputFile) {
+            @unlink($outputFile->getPath());
+        }
+        foreach ($this->createdContexts as $context) {
+            @rmdir($context->getWorkingDirectory());
+        }
     }
 
     private function createOutputFromInput(InputFileInterface $inputFile): OutputFileInterface

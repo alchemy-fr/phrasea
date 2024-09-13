@@ -9,7 +9,7 @@ class VoidTransformerModule implements TransformerModuleInterface
 {
     public static function getName(): string
     {
-        return 'void';
+        return 'Void';
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFile

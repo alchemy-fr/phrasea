@@ -24,6 +24,18 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+#    Alchemy\RenditionFactory\Transformer\Video\VideoToAnimatedGifTransformerModule:
+#        tags:
+#            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+#
+#    Alchemy\RenditionFactory\Transformer\Video\VideoResizeTransformerModule:
+#        tags:
+#            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpegTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
     Imagine\Imagick\Imagine: ~
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
 

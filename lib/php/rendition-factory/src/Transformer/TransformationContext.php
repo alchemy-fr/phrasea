@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer;
 
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class TransformationContext
@@ -12,6 +13,7 @@ final readonly class TransformationContext
         private string $cacheDir,
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
+        private loggerInterface $logger
     ) {
     }
 
@@ -74,5 +76,15 @@ final readonly class TransformationContext
             fwrite($fileHandler, $chunk->getContent());
         }
         fclose($fileHandler);
+    }
+
+    public function getWorkingDirectory(): string
+    {
+        return $this->workingDirectory;
+    }
+
+    public function getLogger(): loggerInterface
+    {
+        return $this->logger;
     }
 }

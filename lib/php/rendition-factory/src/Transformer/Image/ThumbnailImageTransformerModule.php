@@ -3,7 +3,6 @@
 namespace Alchemy\RenditionFactory\Transformer\Image;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\DTO\ImagineOutputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
@@ -90,14 +89,14 @@ final readonly class ThumbnailImageTransformerModule implements TransformerModul
             $outputType = 'image/'.$outputType;
         }
 
-        $outputFormat = match ($outputType) {
-            'image/jpeg' => 'jpeg',
+        $outputExtension = match ($outputType) {
+            'image/jpeg' => 'jpg',
             'image/png' => 'png',
             'image/gif' => 'gif',
-            default => 'jpeg',
+            default => 'jpg',
         };
 
-        $newPath = $context->createTmpFilePath($outputFormat);
+        $newPath = $context->createTmpFilePath($outputExtension);
         $image->save($newPath, $imagineOptions);
         unset($image);
 

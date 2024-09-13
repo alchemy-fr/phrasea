@@ -5,6 +5,8 @@ namespace Alchemy\RenditionFactory\Context;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -16,6 +18,7 @@ final readonly class TransformationContextFactory
         private MimeTypeGuesser $mimeTypeGuesser,
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
+        private ?loggerInterface $logger = null
     )
     {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
@@ -40,7 +43,8 @@ final readonly class TransformationContextFactory
             $workingDir,
             $cacheDir,
             $this->mimeTypeGuesser,
-            $this->client ?? new NativeHttpClient()
+            $this->client ?? new NativeHttpClient(),
+            $this->logger ?? new NullLogger()
         );
     }
 }
