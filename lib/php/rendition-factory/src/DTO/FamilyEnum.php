@@ -5,8 +5,7 @@ namespace Alchemy\RenditionFactory\DTO;
 enum FamilyEnum: string
 {
     case Image = 'image';
-    case Gif = 'gif';
-    case Svg = 'svg';
+    case Animation = 'animation';
     case Video = 'video';
     case Audio = 'audio';
     case Document = 'document';

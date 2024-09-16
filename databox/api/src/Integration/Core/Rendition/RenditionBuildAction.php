@@ -60,39 +60,46 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
             $source = $asset->getSource();
         }
 
-        $buildDef = $renditionDefinition->getDefinition();
-        $buildHash = md5(implode('|', [
-            $source->getId(),
-            $renditionDefinition->getId(),
-            $buildDef,
-        ]));
+        $buildHash = $this->renditionManager->getBuildHash($source, $renditionDefinition);
 
         $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
         if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
             return;
         }
 
-        $outputFile = $this->createRendition($asset, $source, $buildDef);
+        $outputFile = $this->createRendition($asset, $source, $renditionDefinition->getDefinition());
 
-        $file = $this->fileManager->createFileFromPath(
-            $asset->getWorkspace(),
-            $outputFile->getPath(),
-            $outputFile->getType()
-        );
+        if (null !== $outputFile) {
+            $file = $this->fileManager->createFileFromPath(
+                $asset->getWorkspace(),
+                $outputFile->getPath(),
+                $outputFile->getType()
+            );
+        } else {
+            $file = $source;
+        }
 
         $this->renditionManager->createOrReplaceRenditionFile($asset, $renditionDefinition, $file, $buildHash);
         $this->em->flush();
     }
 
-    private function createRendition(Asset $asset, File $source, string $buildDef): OutputFileInterface
+    private function createRendition(Asset $asset, File $source, string $buildDef): ?OutputFileInterface
     {
-        return $this->renditionCreator->createRendition(
-            $this->fileFetcher->getFile($source),
+        $sourcePath = $this->fileFetcher->getFile($source);
+
+        $outputFile = $this->renditionCreator->createRendition(
+            $sourcePath,
             $source->getType(),
             $this->loader->parse($buildDef),
             new CreateRenditionOptions(
                 metadataContainer: new AssetMetadataContainer($asset, $this->attributesResolver),
             )
         );
+
+        if ($sourcePath === $outputFile->getPath()) {
+            return null;
+        }
+
+        return $outputFile;
     }
 }

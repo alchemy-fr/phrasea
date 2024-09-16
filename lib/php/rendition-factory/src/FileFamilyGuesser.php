@@ -6,14 +6,31 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
 final readonly class FileFamilyGuesser
 {
-    public function getFamily(string $mimeType): FamilyEnum
+    public function getFamily(string $src, string $mimeType): FamilyEnum
     {
         if (str_starts_with($mimeType, 'image/')) {
-            return match ($mimeType) {
-                'image/svg+xml' => FamilyEnum::Svg,
-                'image/gif' => FamilyEnum::Gif,
-                default => FamilyEnum::Image,
-            };
+            switch ($mimeType) {
+                case 'image/svg+xml':
+                    if (str_contains(file_get_contents($src), '<animate')) {
+                        return FamilyEnum::Animation;
+                    }
+
+                    return FamilyEnum::Image;
+                case 'image/gif':
+                    if ($this->isAnimatedGif($src)) {
+                        return FamilyEnum::Animation;
+                    }
+
+                    return FamilyEnum::Image;
+                case 'image/webp':
+                    if ($this->isWebpAnimated($src)) {
+                        return FamilyEnum::Animation;
+                    }
+
+                    return FamilyEnum::Image;
+                default:
+                    return FamilyEnum::Image;
+            }
         } elseif (str_starts_with($mimeType, 'video/')) {
             return FamilyEnum::Video;
         } elseif (str_starts_with($mimeType, 'audio/')) {
@@ -24,5 +41,37 @@ final readonly class FileFamilyGuesser
             'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => FamilyEnum::Document,
             default => FamilyEnum::Unknown,
         };
+    }
+
+    private function isAnimatedGif(string $src): bool
+    {
+        if (!($fh = @fopen($src, 'rb'))) {
+            return false;
+        }
+        $count = 0;
+
+        while (!feof($fh) && $count < 2) {
+            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
+            $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $chunk);
+        }
+
+        fclose($fh);
+
+        return $count > 1;
+    }
+
+    private function isWebpAnimated(string $src): bool
+    {
+        $result = false;
+        $fh = fopen($src, "rb");
+        fseek($fh, 12);
+        if (fread($fh, 4) === 'VP8X') {
+            fseek($fh, 16);
+            $myByte = fread($fh, 1);
+            $result = (bool)(((ord($myByte) >> 1) & 1));
+        }
+        fclose($fh);
+
+        return $result;
     }
 }

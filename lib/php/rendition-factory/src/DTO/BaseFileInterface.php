@@ -9,6 +9,4 @@ interface BaseFileInterface
     public function getType(): string;
 
     public function getFamily(): FamilyEnum;
-
-    public function getMetadata(string $name): string|null;
 }

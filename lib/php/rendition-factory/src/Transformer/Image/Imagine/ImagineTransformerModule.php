@@ -6,6 +6,7 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Liip\ImagineBundle\Model\FileBinary;
@@ -25,7 +26,12 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
-        $options['format'] ??= $context->getFormat($inputFile->getType());
+        $inputFormat = ImageFormatGuesser::getFormat($inputFile->getType());
+        if ('svg' === $inputFormat) {
+            return $inputFile->createOutputFile();
+        }
+
+        $options['format'] ??= $inputFormat;
         $options['filters'] = $this->normalizeFilters($options['filters'] ?? []);
 
         $filterManager = $this->filterFactory->createFilterManager($context);
@@ -39,7 +45,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         return new OutputFile(
             $outputPath,
             $output->getMimeType(),
-            FamilyEnum::Image
+            FamilyEnum::Image,
         );
     }
 

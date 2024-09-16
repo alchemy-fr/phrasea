@@ -96,12 +96,6 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                 'display_avatar' => false,
                 'name_property_path' => 'username',
             ],
-            'design' => [
-                'templates' => [
-                    'layout' => '@AlchemyAdmin/layout.html.twig',
-                    'list' => '@AlchemyAdmin/list.html.twig',
-                ],
-            ],
         ]
         );
 

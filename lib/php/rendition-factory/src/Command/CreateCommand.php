@@ -8,7 +8,6 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,11 +30,11 @@ class CreateCommand extends Command
     {
         parent::configure();
 
-        $this->addOption('input', 'i', InputOption::VALUE_REQUIRED, 'The source file');
-        $this->addOption('build-config', 'c', InputOption::VALUE_REQUIRED, 'The build config YAML file');
+        $this->addArgument('src', InputArgument::REQUIRED, 'The source file');
+        $this->addArgument('build-config', InputArgument::REQUIRED, 'The build config YAML file');
         $this->addOption('type', 't', InputOption::VALUE_REQUIRED, 'The MIME type of file');
-        $this->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The output file name WITHOUT extension');
         $this->addOption('working-dir', 'w', InputOption::VALUE_REQUIRED, 'The working directory. Defaults to system temp directory');
+        $this->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The output file name WITHOUT extension');
         $this->addOption('debug', 'd', InputOption::VALUE_NONE, 'set to debug mode (keep files in working directory)');
         $this->setHelp("Create a rendition from a source file and a build config\n"
             . "without --debug, the working directory will be cleaned up after the rendition is created,\n"
@@ -46,38 +45,43 @@ class CreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if(!file_exists($input->getOption('input'))) {
-            $output->writeln(sprintf('Input file not found: %s', $input->getOption('input')));
+        $mimeType = $input->getOption('type');
+        $src = $input->getArgument('src');
+        if (!file_exists($src)) {
+            $output->writeln(sprintf('File "%s" does not exist.', $src));
             return 1;
         }
 
-        $mimeType = $input->getOption('type');
         if ($mimeType === null) {
-            $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($input->getArgument('input'));
+            $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($src);
         }
 
-        $buildConfig = $this->yamlLoader->load($input->getOption('build-config'));
+        $buildConfig = $this->yamlLoader->load($input->getArgument('build-config'));
 
         $options = new CreateRenditionOptions(
-            workingDirectory: $input->getOption('working-dir'),
+            workingDirectory: $input->getOption('working-dir')
         );
 
         $outputFile = $this->renditionCreator->createRendition(
-            $input->getOption('input'),
+            $src,
             $mimeType,
             $buildConfig,
             $options
         );
 
-        $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
-
-        if ( ($outputPath = $input->getOption('output')) ) {
-            $pi = pathinfo($outputPath);
-            @mkdir($pi['dirname'], 0777, true);
+        if ($outputPath = $input->getOption('output')) {
+            @mkdir(dirname($outputPath), 0755, true);
             $outputPath .= '.' . $outputFile->getExtension();
             rename($outputFile->getPath(), $outputPath);
             $output->writeln(sprintf('Rendition moved to: %s', $outputPath));
         }
+
+        if ($src === $outputFile->getPath()) {
+            $output->writeln('No transformation needed');
+            return 1;
+        }
+
+        $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
 
         if(!$input->getOption('debug')) {
             $this->renditionCreator->cleanUp();

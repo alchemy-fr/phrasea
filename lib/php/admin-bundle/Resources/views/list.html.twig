@@ -3,78 +3,7 @@
 
 {% block head_javascript %}
     {{ parent() }}
-    <style>
-        .value-code {
-            white-space: nowrap;
-        }
-        .value-code .code {
-            max-width: 250px;
-            display: inline-block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            vertical-align: middle;
-        }
-        .value-secret .code {
-            cursor: pointer;
-            max-width: unset;
-            overflow: visible;
-            text-overflow: unset;
-        }
-        button.copy {
-            font-size: 11px;
-            background: #FFF;
-            border-radius: 5px;
-            border: 1px solid #CCC;
-            padding: 3px;
-        }
-    </style>
-    <script>
-        function copyText(t) {
-            const tm = document.createElement("input");
-            tm.type = "text";
-            tm.value = t;
-            document.body.appendChild(tm);
-            tm.select();
-            document.execCommand("Copy");
-            document.body.removeChild(tm);
-        }
-
-        $(function () {
-            $('.value-code').each(function () {
-                var $t = $(this);
-                var $c = $(this).find('.code');
-                $(this).find('button.copy').on('click', function (e) {
-                    e.stopPropagation();
-                    var $btn = $(this);
-                    var old = $btn.text();
-                    $btn.text('Copied!');
-                    setTimeout(function () {
-                        $btn.text(old);
-                    }, 3000);
-                    copyText($t.hasClass('value-secret') ? $c.data('raw') : $c.text());
-                });
-            });
-            var secret = '⬤⬤⬤⬤⬤⬤⬤';
-            $('.value-secret').each(function () {
-                var to = null;
-                var $c = $(this).find('.code');
-                $c.data('raw', $c.text());
-                $c.text(secret);
-                $(this).on('click', function () {
-                    if ($c.text() === secret) {
-                        $c.text($c.data('raw'));
-                        to && clearTimeout(to);
-                        to = setTimeout(function () {
-                            $c.text(secret);
-                        }, 5000);
-                    } else {
-                        $c.text(secret);
-                    }
-                });
-            });
-        });
-    </script>
+    {% include '@AlchemyAdmin/fields_js_css.html.twig' %}
 {% endblock %}
 
 {% block content_title %}

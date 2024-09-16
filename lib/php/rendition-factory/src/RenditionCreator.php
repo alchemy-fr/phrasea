@@ -20,8 +20,6 @@ class RenditionCreator
 {
     /** @var TransformationContext[] */
     private array $createdContexts = [];
-    /** @var OutputFile[] */
-    private array $createdOutputFiles = [];
 
     public function __construct(
         private readonly TransformationContextFactory $contextFactory,
@@ -39,7 +37,7 @@ class RenditionCreator
         ?CreateRenditionOptions $options = null
     ): OutputFileInterface
     {
-        $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($mimeType), $options->getMetadataContainer());
+        $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($src, $mimeType));
         if (null == $familyBuildConfig = $buildConfig->getFamily($inputFile->getFamily())) {
             throw new \InvalidArgumentException(sprintf(
                 'No build config defined for family "%s" (type: "%s")',
@@ -67,7 +65,6 @@ class RenditionCreator
             /** @var TransformerModuleInterface $transformer */
             $transformer = $this->transformers->get($transformation->getModule());
             $outputFile = $transformer->transform($inputFile, $transformation->getOptions(), $context);
-            $this->createdOutputFiles[] = $outputFile;
 
             if ($i < $transformationCount) {
                 $inputFile = $outputFile->createNextInputFile();
@@ -79,12 +76,24 @@ class RenditionCreator
 
     public function cleanUp(): void
     {
-        foreach ($this->createdOutputFiles as $outputFile) {
-            @unlink($outputFile->getPath());
-        }
         foreach ($this->createdContexts as $context) {
-            @rmdir($context->getWorkingDirectory());
+            self::recursiveRmDir($context->getWorkingDirectory());
         }
+    }
+
+    private static function recursiveRmDir(string $dir): void
+    {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            $path = $dir.'/'.$file;
+            if (is_dir($path)) {
+                self::recursiveRmDir($path);
+            } else {
+                unlink($path);
+            }
+        }
+
+        rmdir($dir);
     }
 
     private function createOutputFromInput(InputFileInterface $inputFile): OutputFileInterface

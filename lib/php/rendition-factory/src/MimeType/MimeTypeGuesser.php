@@ -21,14 +21,4 @@ final readonly class MimeTypeGuesser
     {
         return $this->mimeTypes->getExtensions($mimeType)[0] ?? null;
     }
-
-    public function getFormat(string $mimeType): ?string
-    {
-        return match ($mimeType) {
-            'image/jpeg' => 'jpeg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            default => null,
-        };
-    }
 }

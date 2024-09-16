@@ -34,12 +34,15 @@ export default function FilePlayer({
 
     switch (mainType) {
         case FileTypeEnum.Image:
+            const isSvg = file.type === 'image/svg+xml';
+
             return (
                 <img
                     style={{
                         maxWidth: '100%',
                         maxHeight: '100%',
                         display: 'block',
+                        ...(isSvg ? {width: '100%'} : {}),
                     }}
                     crossOrigin="anonymous"
                     src={file.url}

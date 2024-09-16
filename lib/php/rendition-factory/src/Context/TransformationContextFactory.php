@@ -18,7 +18,7 @@ final readonly class TransformationContextFactory
         private MimeTypeGuesser $mimeTypeGuesser,
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
-        private ?loggerInterface $logger = null
+        private ?LoggerInterface $logger = null
     )
     {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
@@ -44,7 +44,8 @@ final readonly class TransformationContextFactory
             $cacheDir,
             $this->mimeTypeGuesser,
             $this->client ?? new NativeHttpClient(),
-            $this->logger ?? new NullLogger()
+            $this->logger ?? new NullLogger(),
+            $options->getMetadataContainer()
         );
     }
 }

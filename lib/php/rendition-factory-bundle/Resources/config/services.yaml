@@ -12,10 +12,6 @@ services:
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineFilterFactory: ~
 
     # Modules
-    Alchemy\RenditionFactory\Transformer\Image\ThumbnailImageTransformerModule:
-        tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
-
     Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }

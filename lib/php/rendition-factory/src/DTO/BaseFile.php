@@ -6,15 +6,12 @@ use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 
 abstract readonly class BaseFile implements BaseFileInterface
 {
-    private array $pi;
-
     public function __construct(
         private string $path,
         private string $type,
         private FamilyEnum $family,
         protected ?MetadataContainerInterface $metadata = null,
     ) {
-        $this->pi = pathinfo($path);
     }
 
     public function getPath(): string
@@ -39,6 +36,6 @@ abstract readonly class BaseFile implements BaseFileInterface
 
     public function getExtension(): string
     {
-        return $this->pi['extension'];
+        return pathinfo($this->path, PATHINFO_EXTENSION);
     }
 }

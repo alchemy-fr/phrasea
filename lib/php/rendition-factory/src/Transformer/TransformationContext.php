@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Transformer;
 
+use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -13,7 +14,8 @@ final readonly class TransformationContext
         private string $cacheDir,
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
-        private loggerInterface $logger
+        private LoggerInterface $logger,
+        private ?MetadataContainerInterface $metadata = null
     ) {
     }
 
@@ -48,11 +50,6 @@ final readonly class TransformationContext
         return $this->mimeTypeGuesser->getExtension($mimeType);
     }
 
-    public function getFormat(string $mimeType): ?string
-    {
-        return $this->mimeTypeGuesser->getFormat($mimeType);
-    }
-
     public function getRemoteFile(string $uri): string
     {
         $cacheDir = $this->getCacheDir('remote');
@@ -78,13 +75,18 @@ final readonly class TransformationContext
         fclose($fileHandler);
     }
 
+    public function getMetadata(string $name): ?string
+    {
+        return $this->metadata?->getMetadata($name);
+    }
+
     public function getWorkingDirectory(): string
     {
         return $this->workingDirectory;
     }
 
-    public function getLogger(): loggerInterface
+    public function log(string $message, array $context = []): void
     {
-        return $this->logger;
+        $this->logger->info($message, $context);
     }
 }

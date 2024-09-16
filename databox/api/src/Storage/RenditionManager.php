@@ -208,4 +208,13 @@ class RenditionManager
             }
         }
     }
+
+    public function getBuildHash(File $source, RenditionDefinition $definition): string
+    {
+        return md5(implode('|', [
+            $source->getId(),
+            $definition->getId(),
+            $definition->getDefinition(),
+        ]));
+    }
 }

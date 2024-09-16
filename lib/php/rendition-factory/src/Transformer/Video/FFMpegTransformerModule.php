@@ -13,10 +13,6 @@ use FFMpeg\Filters\Video\VideoFilters;
 
 final readonly class FFMpegTransformerModule implements TransformerModuleInterface
 {
-    public function __construct()
-    {
-    }
-
     public static function getName(): string
     {
         return 'ffmpeg';
@@ -45,7 +41,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             if(!method_exists($this, $filter['name'])) {
                 throw new \InvalidArgumentException(sprintf('Invalid filter: %s', $filter['name']));
             }
-            $context->getLogger()->info(sprintf('Applying filter: %s', $filter['name']));
+            $context->log(sprintf('Applying filter: %s', $filter['name']));
 
             /** @uses self::resize(), self::rotate(), self::pad(), self::crop(), self::clip(), self::synchronize()
              *  @uses self::watermark(), self::framerate()
@@ -187,8 +183,6 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         return $video->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
     }
-
-    //----------------------------------------------
 
     private function getDimension(array $options, string $filterName):FFMpeg\Coordinate\Dimension
     {

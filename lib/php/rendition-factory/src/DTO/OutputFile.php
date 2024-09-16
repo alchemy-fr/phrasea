@@ -6,6 +6,6 @@ final readonly class OutputFile extends BaseFile implements OutputFileInterface
 {
     public function createNextInputFile(): InputFileInterface
     {
-        return new InputFile($this->getPath(), $this->getType(), $this->getFamily(), $this->metadata);
+        return new InputFile($this->getPath(), $this->getType(), $this->getFamily());
     }
 }
