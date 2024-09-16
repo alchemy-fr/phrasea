@@ -2,9 +2,9 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
+use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\StampFilter;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
-use Imagine\Filter\Advanced\OnPixelBased;
 use Imagine\Image\ImagineInterface;
 use Liip\ImagineBundle\Binary\SimpleMimeTypeGuesser;
 use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
@@ -30,6 +30,7 @@ final readonly class ImagineFilterFactory
 {
     public function __construct(
         private ImagineInterface $imagine,
+        private TemplateResolverInterface $templateResolver,
     )
     {
     }
@@ -63,7 +64,11 @@ final readonly class ImagineFilterFactory
             'interlace' => new InterlaceFilterLoader(),
             'resample' => new ResampleFilterLoader($this->imagine),
             'fixed' => new FixedFilterLoader(),
-            'stamp' => new StampFilter($this->imagine),
+            'stamp' => new StampFilter(
+                $context,
+                $this->imagine,
+                $this->templateResolver,
+            ),
         ];
 
         foreach ($filters as $name => $filter) {

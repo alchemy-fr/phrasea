@@ -9,19 +9,16 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use Doctrine\ORM\EntityManagerInterface;
-use Twig\Environment;
-use Twig\Loader\ArrayLoader;
 
 class FallbackResolver
 {
-    private readonly Environment $twig;
     private ?array $indexByName = null;
 
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly TemplateResolver $templateResolver,
+    )
     {
-        $this->twig = new Environment(new ArrayLoader(), [
-            'autoescape' => false,
-        ]);
     }
 
     private function getDefinitionIndexByName(string $workspaceId): array
@@ -51,7 +48,7 @@ class FallbackResolver
 
         if (!empty($fallbacks[$locale])) {
             if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
-                $fallbackValue = $this->resolveFallback($fallbacks[$locale], [
+                $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
                     'file' => $asset->getSource(),
                     'asset' => $asset,
                     'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
@@ -84,12 +81,5 @@ class FallbackResolver
         }
 
         return null;
-    }
-
-    private function resolveFallback(string $fallbackTemplate, array $values): string
-    {
-        $template = $this->twig->createTemplate($fallbackTemplate);
-
-        return $this->twig->render($template, $values);
     }
 }

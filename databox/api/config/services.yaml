@@ -129,3 +129,5 @@ services:
         decorates: 'alchemy.workflow.workflow_repository.default'
         arguments:
             $decorated: '@.inner'
+
+    Alchemy\RenditionFactory\Templating\TemplateResolverInterface: '@App\Asset\Attribute\TemplateResolver'

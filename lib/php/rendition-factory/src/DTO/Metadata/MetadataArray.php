@@ -13,4 +13,9 @@ final readonly class MetadataArray implements MetadataContainerInterface
     {
         return $this->metadata[$name] ?? null;
     }
+
+    public function getTemplatingContext(): array
+    {
+        return $this->metadata;
+    }
 }

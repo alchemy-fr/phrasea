@@ -2,6 +2,8 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter;
 
+use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
+use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Imagine\Image\AbstractFont;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
@@ -12,7 +14,9 @@ use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
 class StampFilter implements LoaderInterface
 {
     public function __construct(
+        private TransformationContext $context,
         private ImagineInterface $imagine,
+        private TemplateResolverInterface $templateResolver,
         private string $fontDirectory = __DIR__.'/../../../../../fonts'
     )
     {
@@ -35,7 +39,9 @@ class StampFilter implements LoaderInterface
             $image->palette()->color($options['color'] ?? '#000000', $options['alpha'] ?? 100)
         );
 
-        $textSize = $font->box($options['text'], $angle);
+        $resolvedText = $this->templateResolver->resolve($options['text'], $this->context->getTemplatingContext());
+
+        $textSize = $font->box($resolvedText, $angle);
 
         switch ($position) {
             case 'topleft':
@@ -91,7 +97,7 @@ class StampFilter implements LoaderInterface
                 $image = $canvas->paste($image, new Point(0, 0));
 
                 break;
-            case 'hover':
+            case 'above':
                 $x = ($size->getWidth() - $textSize->getWidth()) / 2;
                 $y = 0;
 
@@ -114,7 +120,7 @@ class StampFilter implements LoaderInterface
 
         $image->draw()
             ->text(
-                $options['text'],
+                $resolvedText,
                 $font,
                 new Point($x, $y),
                 $angle,

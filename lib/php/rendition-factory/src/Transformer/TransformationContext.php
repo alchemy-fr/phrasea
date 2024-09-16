@@ -80,6 +80,11 @@ final readonly class TransformationContext
         return $this->metadata?->getMetadata($name);
     }
 
+    public function getTemplatingContext(): array
+    {
+        return $this->metadata?->getTemplatingContext() ?? [];
+    }
+
     public function getWorkingDirectory(): string
     {
         return $this->workingDirectory;
