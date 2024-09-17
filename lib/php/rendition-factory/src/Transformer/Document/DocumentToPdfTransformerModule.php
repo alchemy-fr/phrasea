@@ -4,12 +4,12 @@ namespace Alchemy\RenditionFactory\Transformer\Document;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\OutputFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\Document\Unoserver\Unoconvert;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use Symfony\Component\Filesystem\Filesystem;
+use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
 
 final readonly class DocumentToPdfTransformerModule implements TransformerModuleInterface
 {
@@ -35,15 +35,9 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 
         }
 
-        $unoconvert = new Unoconvert();
+        $pdfConvert = new PdfConverter();
 
-        $pageRange = null;
-
-        if (isset($options['page-range'])) {
-            $pageRange = $options['page-range'];
-        }
-
-        $unoconvert->transcode($inputFile->getPath(), $newPath, $pageRange);
+        $pdfConvert->convert($inputFile->getPath(), $newPath);
 
         return new OutputFile(
             $newPath,

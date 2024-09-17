@@ -34,7 +34,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
             throw new \InvalidArgumentException('Invalid extension option');
         }
 
-        $return = $pdf->format(OutputFormat::tryFrom($extension))
+        $pdf->format(OutputFormat::tryFrom($extension))
             ->resolution(300)
             ->quality(100)
             ->save($newPath);

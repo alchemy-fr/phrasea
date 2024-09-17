@@ -9,8 +9,6 @@ for i in ${WORKER_PRIORITIES}; do
   envsubst < ./docker/worker/worker.ini > /etc/supervisor.d/worker-${WORKER_CHANNEL}.ini
 done
 
-cp ./docker/worker/unoserver.ini /etc/supervisor.d/unoserver.ini
-
 unset WORKER_CHANNEL
 
 if [ "${NEWRELIC_ENABLED}" == "1" ]; then
