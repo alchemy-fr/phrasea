@@ -94,4 +94,9 @@ final readonly class TransformationContext
     {
         $this->logger->info($message, $context);
     }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
 }

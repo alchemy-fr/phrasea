@@ -61,7 +61,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $ouputFormat->setAudioCodec($audioCodec);
         }
 
-        $ffmpeg = FFMpeg\FFMpeg::create(); // (new FFMpeg\FFMpeg)->open('/path/to/video');
+        $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger());
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
@@ -69,8 +69,8 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         // first, turn the video into a clip
         if (!empty($filters) && 'pre_clip' === $filters[0]['name']) {
             $filter = array_shift($filters);
-            $context->getLogger()->info(sprintf('Applying filter: %s', $filter['name']));
-            $clip = $this->pre_clip($video, $filter, $context);
+            $context->log(sprintf('Applying filter: %s', $filter['name']));
+            $clip = $this->preClip($video, $filter, $context);
         } else {
             $clip = $video->clip(TimeCode::fromSeconds(0), TimeCode::fromString('01:00:00:00.00'));
         }
@@ -92,7 +92,6 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $outputPath = $context->createTmpFilePath($extension);
 
-        // $video->save($ouputFormat, $outputPath);
         $clip->save($ouputFormat, $outputPath);
 
         unset($clip);
@@ -124,7 +123,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         throw new \InvalidArgumentException('Audio transformation not implemented');
     }
 
-    private function pre_clip(Video $video, array $options, TransformationContext $context): Clip
+    private function preClip(Video $video, array $options, TransformationContext $context): Clip
     {
         $start = $options['start'] ?? 0;
         $duration = $options['duration'] ?? null;
@@ -150,8 +149,6 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
-
-    // ---------- filters ----------
 
     private function remove_audio(Clip $clip, array $options, TransformationContext $context): void
     {

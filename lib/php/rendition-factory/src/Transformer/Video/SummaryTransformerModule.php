@@ -11,6 +11,7 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface;
+use InvalidArgumentException;
 
 final readonly class SummaryTransformerModule implements TransformerModuleInterface
 {
@@ -26,10 +27,10 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
         if (!($format = $options['format'])) {
-            throw new \InvalidArgumentException('Missing format');
+            throw new InvalidArgumentException('Missing format');
         }
         if (!($extension = $options['extension'])) {
-            throw new \InvalidArgumentException('Missing extension');
+            throw new InvalidArgumentException('Missing extension');
         }
 
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
@@ -37,31 +38,31 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
             return $this->doVideo($format, $extension, $inputFile, $options, $context);
         }
 
-        throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
+        throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
     }
 
     private function doVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
-            throw new \InvalidArgumentException('Invalid period for module "summary"');
+            throw new InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
         }
         $clipDuration = $options['duration'] ?? 0;
         if ($clipDuration <= 0 || $clipDuration >= $period) {
-            throw new \InvalidArgumentException('Invalid duration for module "summary"');
+            throw new InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
         }
 
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
         $outpuFormat = new $fqcnFormat();
         if ($videoCodec = $options['video_codec'] ?? null) {
             if (!in_array($videoCodec, $outpuFormat->getAvailableVideoCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
+                throw new InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $outpuFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
             if (!in_array($audioCodec, $outpuFormat->getAvailableAudioCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $outpuFormat->setAudioCodec($audioCodec);
         }
@@ -96,7 +97,6 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
             }
             $clipsExtension = $inputFile->getExtension();
         } else {
-            // fallback to output format
             $clipsFormat = $outpuFormat;
             $clipsExtension = $extension;
         }
@@ -104,14 +104,14 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
         $outputPath = $context->createTmpFilePath($extension);
         $clipsFiles = [];
         try {
-            $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger()); // (new FFMpeg\FFMpeg)->open('/path/to/video');
+            $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger());
             /** @var FFMpeg\Media\Video $video */
             $video = $ffmpeg->open($inputFile->getPath());
 
             $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
             $nClips = ceil($inputDuration / $period);
 
-            $context->getLogger()->info(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
+            $context->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
             $clipDuration = TimeCode::fromSeconds($clipDuration);
             for ($i = 0; $i < $nClips; ++$i) {
                 $start = $i * $period;
