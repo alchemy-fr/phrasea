@@ -15,7 +15,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 {
     public static function getName(): string
     {
-        return 'DocumentToPdf';
+        return 'document_to_pdf';
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface

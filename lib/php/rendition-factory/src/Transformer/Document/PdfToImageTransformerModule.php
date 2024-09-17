@@ -15,7 +15,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
 {
     public static function getName(): string
     {
-        return 'PdfToImage';
+        return 'pdf_to_image';
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
