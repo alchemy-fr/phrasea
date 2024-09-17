@@ -8,6 +8,7 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
+use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -37,9 +38,9 @@ class CreateCommand extends Command
         $this->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The output file name WITHOUT extension');
         $this->addOption('debug', 'd', InputOption::VALUE_NONE, 'set to debug mode (keep files in working directory)');
         $this->setHelp("Create a rendition from a source file and a build config\n"
-            . "without --debug, the working directory will be cleaned up after the rendition is created,\n"
-            . " so to get the final rendition, one must set --output or/and --debug\n"
-            . "--output will move the final rendition from the working directory to the specified location ; Extension is added accordingly of (last) module).\n"
+            ."without --debug, the working directory will be cleaned up after the rendition is created,\n"
+            ." so to get the final rendition, one must set --output or/and --debug\n"
+            ."--output will move the final rendition from the working directory to the specified location ; Extension is added accordingly of (last) module).\n"
         );
     }
 
@@ -49,6 +50,7 @@ class CreateCommand extends Command
         $src = $input->getArgument('src');
         if (!file_exists($src)) {
             $output->writeln(sprintf('File "%s" does not exist.', $src));
+
             return 1;
         }
 
@@ -62,28 +64,35 @@ class CreateCommand extends Command
             workingDirectory: $input->getOption('working-dir')
         );
 
-        $outputFile = $this->renditionCreator->createRendition(
-            $src,
-            $mimeType,
-            $buildConfig,
-            $options
-        );
+        try {
+            $outputFile = $this->renditionCreator->createRendition(
+                $src,
+                $mimeType,
+                $buildConfig,
+                $options
+            );
+        } catch (InvalidArgumentException $e) {
+            $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+
+            return 1;
+        }
 
         if ($outputPath = $input->getOption('output')) {
             @mkdir(dirname($outputPath), 0755, true);
-            $outputPath .= '.' . $outputFile->getExtension();
+            $outputPath .= '.'.$outputFile->getExtension();
             rename($outputFile->getPath(), $outputPath);
             $output->writeln(sprintf('Rendition moved to: %s', $outputPath));
         }
 
         if ($src === $outputFile->getPath()) {
             $output->writeln('No transformation needed');
+
             return 1;
         }
 
         $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
 
-        if(!$input->getOption('debug')) {
+        if (!$input->getOption('debug')) {
             $this->renditionCreator->cleanUp();
         }
 

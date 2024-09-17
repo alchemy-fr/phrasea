@@ -81,6 +81,8 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
 
         $this->renditionManager->createOrReplaceRenditionFile($asset, $renditionDefinition, $file, $buildHash);
         $this->em->flush();
+
+        $this->renditionCreator->cleanUp();
     }
 
     private function createRendition(Asset $asset, File $source, string $buildDef): ?OutputFileInterface

@@ -42,7 +42,13 @@ final readonly class YamlLoader implements FileLoaderInterface
                     FamilyEnum::cases()))));
             }
 
-            $families[$family->value] = $this->parseFamilyConfig($familyConfig);
+            if (null !== $familyConfig) {
+                if (!is_array($familyConfig)) {
+                    throw new ModelException('Invalid family configuration. Array expected');
+                }
+
+                $families[$family->value] = $this->parseFamilyConfig($familyConfig);
+            }
         }
 
         return new BuildConfig($families);
