@@ -1,5 +1,7 @@
 FROM php:8.2.4-cli-alpine3.17
 
+ENV UNOSERVER_VERSION=2.2.1
+
 RUN apk add --no-cache \
 		autoconf \
 		curl \
@@ -10,6 +12,8 @@ RUN apk add --no-cache \
 		mysql-dev \
 		postgresql-dev \
 		zlib \
+    py3-pip \
+    libreoffice \
     	imagemagick \
     	rabbitmq-c-dev \
         bash \
@@ -48,6 +52,42 @@ RUN apk add --no-cache \
     && mkdir -p /etc/sudoers.d \
     && echo $'%sudo ALL = (ALL) NOPASSWD: ALL \n\
 Defaults exempt_group = sudo' > /etc/sudoers.d/nopasswd
+
+# fonts - https://wiki.alpinelinux.org/wiki/Fonts
+RUN apk add --no-cache \
+    font-noto font-noto-cjk font-noto-extra \
+    terminus-font \
+    ttf-font-awesome \
+    ttf-dejavu \
+    ttf-freefont \
+    ttf-hack \
+    ttf-inconsolata \
+    ttf-liberation \
+    ttf-mononoki  \
+    ttf-opensans   \
+    fontconfig && \
+    fc-cache -f 
+
+RUN pip install unoserver==${UNOSERVER_VERSION}
+
+# define uno path
+ENV PATH_LO=/usr/lib/libreoffice/program
+ENV PATH_SP=/usr/lib/python3.10/site-packages
+
+RUN \
+    # copy unohelper.py
+    cp "$PATH_LO"/unohelper.py "$PATH_SP"/  && \
+
+    # prefix path to uno.py
+    echo -e "\
+import sys, os \n\
+sys.path.append('/usr/lib/libreoffice/program') \n\
+os.putenv('URE_BOOTSTRAP', 'vnd.sun.star.pathname:/usr/lib/libreoffice/program/fundamentalrc')\
+" > "$PATH_SP"/uno.py  && \
+
+    # copy the original's content
+    cat "$PATH_LO"/uno.py >> "$PATH_SP"/uno.py
+
 
 ENV APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \

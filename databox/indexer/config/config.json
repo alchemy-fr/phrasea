@@ -61,8 +61,6 @@
             "databox": "%env(PHRASEANET_DATABOX)%",
             "collections": "%env(PHRASEANET_COLLECTIONS)%",
             "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
-            "recordsCollectionPath": "%env(PHRASEANET_RECORDS_COLLECTION_PATH)%",
-            "storiesCollectionPath": "%env(PHRASEANET_STORIES_COLLECTION_PATH)%",
             "searchQuery": "",
             "copyTo": [
               "{% for s in record.getMetadata('Subject', 'no_subject').values %}/classification/{{ record.getMetadata('Creator', 'no_creator').value | escapePath }}/{{ s | escapePath }}\n{% endfor %}"

@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +118,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +175,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -290,7 +290,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -342,7 +342,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -465,11 +465,11 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
-                "reference": "358bb075afd9828aa98e7c10bf639761ab72cbe8"
+                "reference": "0473e34447893f1d3c26cc73974d6705f702409a"
             },
             "require": {
                 "ext-imagick": "^3.7",
@@ -477,6 +477,7 @@
                 "liip/imagine-bundle": "^2.13",
                 "php": "^8.2",
                 "php-ffmpeg/php-ffmpeg": "^1.2",
+                "spatie/pdf-to-image": "^3.1",
                 "symfony/console": "^6",
                 "symfony/http-client": "^6.4.11",
                 "symfony/process": "^6.3",
@@ -526,7 +527,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -580,7 +581,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -635,7 +636,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -687,7 +688,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -744,7 +745,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -808,7 +809,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -8410,6 +8411,76 @@
             "time": "2024-02-26T09:27:19+00:00"
         },
         {
+            "name": "spatie/pdf-to-image",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/pdf-to-image.git",
+                "reference": "acc31c5236180e475c09c1a5c68412876f0bd89a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/pdf-to-image/zipball/acc31c5236180e475c09c1a5c68412876f0bd89a",
+                "reference": "acc31c5236180e475c09c1a5c68412876f0bd89a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-imagick": "*",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.34"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\PdfToImage\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Patrick Organ",
+                    "email": "patrick@permafrost.dev",
+                    "homepage": "https://permafrost.dev",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Convert a pdf to an image",
+            "homepage": "https://github.com/spatie/pdf-to-image",
+            "keywords": [
+                "convert",
+                "image",
+                "pdf",
+                "pdf-to-image",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/pdf-to-image/issues",
+                "source": "https://github.com/spatie/pdf-to-image/tree/3.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-09-14T17:02:32+00:00"
+        },
+        {
             "name": "spatie/temporary-directory",
             "version": "2.2.1",
             "source": {
@@ -14524,7 +14595,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
