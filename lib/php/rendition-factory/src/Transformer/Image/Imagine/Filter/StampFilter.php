@@ -17,9 +17,8 @@ class StampFilter implements LoaderInterface
         private TransformationContext $context,
         private ImagineInterface $imagine,
         private TemplateResolverInterface $templateResolver,
-        private string $fontDirectory = __DIR__.'/../../../../../fonts'
-    )
-    {
+        private string $fontDirectory = __DIR__.'/../../../../../fonts',
+    ) {
     }
 
     public function load(ImageInterface $image, array $options = [])

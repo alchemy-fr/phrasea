@@ -18,16 +18,14 @@ final readonly class TransformationContextFactory
         private MimeTypeGuesser $mimeTypeGuesser,
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
-        private ?LoggerInterface $logger = null
-    )
-    {
+        private ?LoggerInterface $logger = null,
+    ) {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
 
     public function create(
-        ?CreateRenditionOptions $options = null
-    ): TransformationContext
-    {
+        ?CreateRenditionOptions $options = null,
+    ): TransformationContext {
         $baseDir = $options?->getWorkingDirectory() ?? $this->workingDirectory;
         $cacheDir = $options?->getCacheDirectory() ?? $baseDir.'/cache';
         $dateWorkingDir = $baseDir.'/'.date('Y-m-d');

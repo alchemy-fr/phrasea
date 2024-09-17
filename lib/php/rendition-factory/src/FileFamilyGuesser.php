@@ -51,7 +51,7 @@ final readonly class FileFamilyGuesser
         $count = 0;
 
         while (!feof($fh) && $count < 2) {
-            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
+            $chunk = fread($fh, 1024 * 100); // read 100kb at a time
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $chunk);
         }
 
@@ -63,12 +63,12 @@ final readonly class FileFamilyGuesser
     private function isWebpAnimated(string $src): bool
     {
         $result = false;
-        $fh = fopen($src, "rb");
+        $fh = fopen($src, 'rb');
         fseek($fh, 12);
-        if (fread($fh, 4) === 'VP8X') {
+        if ('VP8X' === fread($fh, 4)) {
             fseek($fh, 16);
             $myByte = fread($fh, 1);
-            $result = (bool)(((ord($myByte) >> 1) & 1));
+            $result = (bool) ((ord($myByte) >> 1) & 1);
         }
         fclose($fh);
 

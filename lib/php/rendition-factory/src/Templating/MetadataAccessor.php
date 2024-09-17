@@ -8,8 +8,7 @@ final readonly class MetadataAccessor implements \ArrayAccess
 {
     public function __construct(
         private TransformationContext $context,
-    )
-    {
+    ) {
     }
 
     public function offsetExists(mixed $offset): bool

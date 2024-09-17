@@ -5,11 +5,11 @@ namespace Alchemy\RenditionFactory\DTO\Metadata;
 final readonly class MetadataArray implements MetadataContainerInterface
 {
     public function __construct(
-        private array $metadata
+        private array $metadata,
     ) {
     }
 
-    public function getMetadata(string $name): string|null
+    public function getMetadata(string $name): ?string
     {
         return $this->metadata[$name] ?? null;
     }

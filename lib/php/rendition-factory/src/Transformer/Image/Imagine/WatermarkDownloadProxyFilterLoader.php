@@ -13,8 +13,7 @@ final readonly class WatermarkDownloadProxyFilterLoader implements LoaderInterfa
     public function __construct(
         private TransformationContext $context,
         private ImagineInterface $imagine,
-    )
-    {
+    ) {
     }
 
     public function load(ImageInterface $image, array $options = [])

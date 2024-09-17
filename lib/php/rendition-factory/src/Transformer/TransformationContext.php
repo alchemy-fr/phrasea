@@ -15,7 +15,7 @@ final readonly class TransformationContext
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
         private LoggerInterface $logger,
-        private ?MetadataContainerInterface $metadata = null
+        private ?MetadataContainerInterface $metadata = null,
     ) {
     }
 

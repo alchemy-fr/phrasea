@@ -8,8 +8,7 @@ final readonly class Transformation
         private string $module,
         private array $options,
         private ?string $description,
-    )
-    {
+    ) {
     }
 
     public function getModule(): string

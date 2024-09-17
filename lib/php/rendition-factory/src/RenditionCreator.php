@@ -34,25 +34,16 @@ class RenditionCreator
         string $src,
         string $mimeType,
         BuildConfig $buildConfig,
-        ?CreateRenditionOptions $options = null
-    ): OutputFileInterface
-    {
+        ?CreateRenditionOptions $options = null,
+    ): OutputFileInterface {
         $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($src, $mimeType));
         if (null == $familyBuildConfig = $buildConfig->getFamily($inputFile->getFamily())) {
-            throw new \InvalidArgumentException(sprintf(
-                'No build config defined for family "%s" (type: "%s")',
-                $inputFile->getFamily()->value,
-                $mimeType,
-            ));
+            throw new \InvalidArgumentException(sprintf('No build config defined for family "%s" (type: "%s")', $inputFile->getFamily()->value, $mimeType));
         }
 
         $transformations = $familyBuildConfig->getTransformations();
         if (empty($transformations)) {
-            throw new \InvalidArgumentException(sprintf(
-                'No transformation defined for family "%s" (type: "%s")',
-                $inputFile->getFamily()->value,
-                $mimeType,
-            ));
+            throw new \InvalidArgumentException(sprintf('No transformation defined for family "%s" (type: "%s")', $inputFile->getFamily()->value, $mimeType));
         }
 
         $context = $this->contextFactory->create(
@@ -83,7 +74,7 @@ class RenditionCreator
 
     private static function recursiveRmDir(string $dir): void
     {
-        $files = array_diff(scandir($dir), array('.','..'));
+        $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             $path = $dir.'/'.$file;
             if (is_dir($path)) {
