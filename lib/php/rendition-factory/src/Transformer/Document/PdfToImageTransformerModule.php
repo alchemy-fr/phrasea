@@ -21,20 +21,21 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
         if ($inputFile->getType()!=='application/pdf') {
+            // TODO normalize file to PDF
             throw new \InvalidArgumentException('Invalid input file');
         }
 
         $extension = $options['extension'] ?? 'jpeg';
-        $resolution = $options['resolution'] ?? '300';
-        $quality = $options['quality'] ?? '100';
-
-        $newPath = $context->createTmpFilePath($extension);
-
         $pdf = new Pdf($inputFile->getPath());
 
         if(!$pdf->isValidOutputFormat($extension)) {
             throw new \InvalidArgumentException('Invalid extension option');
         }
+
+        $resolution = $options['resolution'] ?? 300;
+        $quality = $options['quality'] ?? 100;
+
+        $newPath = $context->createTmpFilePath($extension);
 
         $pdf->format(OutputFormat::tryFrom($extension))
             ->resolution($resolution)

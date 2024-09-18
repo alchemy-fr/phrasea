@@ -19,13 +19,11 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
-        $newPath = $context->createTmpFilePath('pdf');
-
         if ($inputFile->getType() === 'application/pdf') {
-            // if input is already a pdf , return the input
-
             return $inputFile->createOutputFile();
         }
+        
+        $newPath = $context->createTmpFilePath('pdf');
 
         $pdfConvert = new PdfConverter();
 

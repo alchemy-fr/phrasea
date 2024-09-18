@@ -47,8 +47,7 @@ final class PdfConverter
         if ($filesystem->exists($generatedFile)) {
             $filesystem->rename($generatedFile, $outputPath);
         } else {
-            throw new FileNotFoundException(sprintf('file not found in %s', $generatedFile));
+            throw new FileNotFoundException(sprintf('Generated file not found in %s', $generatedFile));
         }
     }
-
 } 
