@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\RenditionFactory\Transformer\Document\Libreoffice;
 
 use SplFileInfo;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
@@ -44,10 +45,9 @@ final class PdfConverter
         $filesystem = new Filesystem();
         
         if ($filesystem->exists($generatedFile)) {
-            $filesystem->copy($generatedFile, $outputPath);
-            if ($generatedFile !== $outputPath) {
-                @unlink($generatedFile);
-            }
+            $filesystem->rename($generatedFile, $outputPath);
+        } else {
+            throw new FileNotFoundException(sprintf('file not found in %s', $generatedFile));
         }
     }
 

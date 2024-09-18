@@ -4,7 +4,6 @@ namespace Alchemy\RenditionFactory\Transformer\Document;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\OutputFile;
-use Symfony\Component\Filesystem\Filesystem;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformationContext;
@@ -23,16 +22,9 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         $newPath = $context->createTmpFilePath('pdf');
 
         if ($inputFile->getType() === 'application/pdf') {
-            // if input is already a pdf get and copy the original
-            $filesystem = new Filesystem();
-            $filesystem->copy($inputFile->getPath(), $newPath);
+            // if input is already a pdf , return the input
 
-            return new OutputFile(
-                $newPath,
-                'application/pdf',
-                FamilyEnum::Document
-            );
-
+            return $inputFile->createOutputFile();
         }
 
         $pdfConvert = new PdfConverter();

@@ -25,6 +25,8 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         }
 
         $extension = $options['extension'] ?? 'jpeg';
+        $resolution = $options['resolution'] ?? '300';
+        $quality = $options['quality'] ?? '100';
 
         $newPath = $context->createTmpFilePath($extension);
 
@@ -35,8 +37,8 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         }
 
         $pdf->format(OutputFormat::tryFrom($extension))
-            ->resolution(300)
-            ->quality(100)
+            ->resolution($resolution)
+            ->quality($quality)
             ->save($newPath);
 
         return new OutputFile(
