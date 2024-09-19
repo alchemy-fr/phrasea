@@ -2,8 +2,10 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter;
 
+use Alchemy\RenditionFactory\Context\BuildHashes;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
+use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Imagine\Image\AbstractFont;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
@@ -11,10 +13,10 @@ use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
 
-class StampFilter implements LoaderInterface
+class StampFilter implements LoaderInterface, BuildHashDiffInterface
 {
     public function __construct(
-        private TransformationContext $context,
+        private TransformationContextInterface $context,
         private ImagineInterface $imagine,
         private TemplateResolverInterface $templateResolver,
         private string $fontDirectory = __DIR__.'/../../../../../fonts'
@@ -40,6 +42,9 @@ class StampFilter implements LoaderInterface
         );
 
         $resolvedText = $this->templateResolver->resolve($options['text'], $this->context->getTemplatingContext());
+        $buildHashes = $this->context->getBuildHashes();
+        $buildHashes->setPath(BuildHashes::PATH_LEVEL_MODULE + 1, 'stamp');
+        $buildHashes->addHash($this->hashText($resolvedText));
 
         $textSize = $font->box($resolvedText, $angle);
 
@@ -128,5 +133,26 @@ class StampFilter implements LoaderInterface
             );
 
         return $image;
+    }
+
+    public function buildHashesDiffer(
+        array $buildHashes,
+        array $options,
+        TransformationContextInterface $transformationContext
+    ): bool {
+        if (!empty($buildHashes)) {
+            $textHash = array_shift($buildHashes);
+            $resolvedText = $this->templateResolver->resolve($options['text'], $this->context->getTemplatingContext());
+            if ($textHash !== $this->hashText($resolvedText)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hashText(string $text): string
+    {
+        return hash('sha256', $text);
     }
 }

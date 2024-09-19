@@ -2,11 +2,12 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Context\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Filters\Video\VideoFilters;
@@ -18,7 +19,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return 'ffmpeg';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $ffmpeg = FFMpeg\FFMpeg::create(); // (new FFMpeg\FFMpeg)->open('/path/to/video');
 
@@ -62,9 +63,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         );
     }
 
-    // ---------- filters ----------
-
-    private function resize(VideoFilters $video, array $options, TransformationContext $context) {
+    private function resize(VideoFilters $video, array $options, TransformationContextInterface $context): VideoFilters {
         $dimension = $this->getDimension($options, 'resize');
         $mode = $options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET;
         if(!in_array(
@@ -85,7 +84,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         );
     }
 
-    private function rotate(VideoFilters $video, array $options, TransformationContext $context) {
+    private function rotate(VideoFilters $video, array $options, TransformationContextInterface $context): VideoFilters {
         static $rotations = [
             90 => FFMpeg\Filters\Video\RotateFilter::ROTATE_90,
             180 => FFMpeg\Filters\Video\RotateFilter::ROTATE_180,
@@ -99,14 +98,14 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->rotate($rotations[$angle]);
     }
 
-    private function pad(VideoFilters $video, array $options, TransformationContext $context)
+    private function pad(VideoFilters $video, array $options, TransformationContextInterface $context)
     {
         $dimension = $this->getDimension($options, 'pad');
 
         return $video->pad($dimension);
     }
 
-    private function crop(VideoFilters $video, array $options, TransformationContext $context)
+    private function crop(VideoFilters $video, array $options, TransformationContextInterface $context)
     {
         $point = new FFMpeg\Coordinate\Point($options['x'] ?? 0, $options['y'] ?? 0);
         $dimension = $this->getDimension($options, 'crop');
@@ -114,7 +113,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->crop($point, $dimension);
     }
 
-    private function clip(VideoFilters $video, array $options, TransformationContext $context)
+    private function clip(VideoFilters $video, array $options, TransformationContextInterface $context)
     {
         $start = $options['start'] ?? 0;
         $duration = $options['duration'] ?? null;
@@ -143,12 +142,12 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
 
-    private function synchronize(VideoFilters $video, array $options, TransformationContext $context)
+    private function synchronize(VideoFilters $video, array $options, TransformationContextInterface $context)
     {
         return $video->synchronize();
     }
 
-    private function watermark(VideoFilters $video, array $options, TransformationContext $context)
+    private function watermark(VideoFilters $video, array $options, TransformationContextInterface $context)
     {
         $path = $options['path']??null;
         if(!file_exists($path)) {
@@ -173,7 +172,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->watermark($path, $coord);
     }
 
-    private function framerate(VideoFilters $video, array $options, TransformationContext $context)
+    private function framerate(VideoFilters $video, array $options, TransformationContextInterface $context): VideoFilters
     {
         $framerate = $options['framerate']??0;
         if($framerate <= 0) {
@@ -184,7 +183,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
     }
 
-    private function getDimension(array $options, string $filterName):FFMpeg\Coordinate\Dimension
+    private function getDimension(array $options, string $filterName): FFMpeg\Coordinate\Dimension
     {
         $width = $options['width'] ?? 0;
         $height = $options['height'] ?? 0;

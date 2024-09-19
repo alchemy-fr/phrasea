@@ -55,6 +55,7 @@ readonly class PhraseanetDownloadSubdefHandler
             $message->getType(),
             $message->getSize(),
             basename($urlPart),
+            null,
             null
         );
 

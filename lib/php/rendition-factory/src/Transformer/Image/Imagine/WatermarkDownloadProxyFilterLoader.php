@@ -2,7 +2,8 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
@@ -11,7 +12,7 @@ use Liip\ImagineBundle\Imagine\Filter\Loader\WatermarkFilterLoader;
 final readonly class WatermarkDownloadProxyFilterLoader implements LoaderInterface
 {
     public function __construct(
-        private TransformationContext $context,
+        private TransformationContextInterface $context,
         private ImagineInterface $imagine,
     )
     {

@@ -3,16 +3,20 @@
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
+use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
+use App\Asset\Attribute\Index\AttributeIndex;
 use App\Entity\Core\Asset;
 
 final class AssetMetadataContainer implements MetadataContainerInterface
 {
     private ?array $attributes = null;
+    private ?AttributeIndex $attributeIndex = null;
 
     public function __construct(
         private readonly Asset $asset,
         private readonly AttributesResolver $attributesResolver,
+        private readonly AssetTitleResolver $assetTitleResolver,
     )
     {
     }
@@ -24,23 +28,32 @@ final class AssetMetadataContainer implements MetadataContainerInterface
             return $this->getAttribute(substr($name, strlen($prefix)));
         }
 
-        return match ($name) {
-            'title' => $this->asset->getTitle(),
-            default => null,
-        };
+        switch ($name) {
+            case 'title':
+                $this->fetchAttributes();
+
+                return $this->assetTitleResolver->resolveTitle($this->asset, $this->attributeIndex, ['en']);
+            default:
+                return null;
+        }
     }
 
     public function getAttribute(string $name): mixed
     {
-        if (null === $this->attributes) {
-            $attributeIndex = $this->attributesResolver->resolveAssetAttributes($this->asset, false);
+        $this->fetchAttributes();
 
-            foreach ($attributeIndex->getFlattenAttributes() as $attribute) {
+        return $this->attributes[$name] ?? null;
+    }
+
+    private function fetchAttributes(): void
+    {
+        if (null === $this->attributeIndex) {
+            $this->attributeIndex = $this->attributesResolver->resolveAssetAttributes($this->asset, false);
+
+            foreach ($this->attributeIndex->getFlattenAttributes() as $attribute) {
                 $this->attributes[$attribute->getDefinition()->getSlug()] = $attribute->getValue();
             }
         }
-
-        return $this->attributes[$name] ?? null;
     }
 
     public function getTemplatingContext(): array

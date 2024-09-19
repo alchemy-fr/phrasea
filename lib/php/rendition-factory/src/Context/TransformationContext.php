@@ -1,14 +1,15 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer;
+namespace Alchemy\RenditionFactory\Context;
 
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class TransformationContext
+final readonly class TransformationContext implements TransformationContextInterface
 {
+    private BuildHashes $buildHashes;
     public function __construct(
         private string $workingDirectory,
         private string $cacheDir,
@@ -17,6 +18,7 @@ final readonly class TransformationContext
         private LoggerInterface $logger,
         private ?MetadataContainerInterface $metadata = null
     ) {
+        $this->buildHashes = new BuildHashes();
     }
 
     public function createTmpFilePath(string $extension): string
@@ -93,5 +95,10 @@ final readonly class TransformationContext
     public function log(string $message, array $context = []): void
     {
         $this->logger->info($message, $context);
+    }
+
+    public function getBuildHashes(): BuildHashes
+    {
+        return $this->buildHashes;
     }
 }

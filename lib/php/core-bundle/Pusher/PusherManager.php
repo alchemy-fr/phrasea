@@ -23,6 +23,11 @@ final readonly class PusherManager
             return;
         }
 
-        $this->bus->dispatch(new PusherMessage($channel, $event, $payload));
+        $this->bus->dispatch($this->createBusMessage($channel, $event, $payload));
+    }
+
+    public function createBusMessage(string $channel, string $event, array $payload): PusherMessage
+    {
+        return new PusherMessage($channel, $event, $payload);
     }
 }

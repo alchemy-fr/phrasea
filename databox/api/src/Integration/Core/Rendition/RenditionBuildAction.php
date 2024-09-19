@@ -5,34 +5,19 @@ declare(strict_types=1);
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\RenditionFactory\Config\YamlLoader;
-use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
-use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\RenditionCreator;
 use Alchemy\Workflow\Executor\RunContext;
-use App\Asset\Attribute\AttributesResolver;
-use App\Asset\FileFetcher;
-use App\Entity\Core\Asset;
-use App\Entity\Core\File;
+use App\Asset\RenditionBuilder;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
-use App\Storage\FileManager;
-use App\Storage\RenditionManager;
 
 final class RenditionBuildAction extends AbstractIntegrationAction implements IfActionInterface
 {
     final public const JOB_ID = 'build';
 
     public function __construct(
-        private readonly RenditionManager $renditionManager,
-        private readonly YamlLoader $loader,
-        private readonly FileFetcher $fileFetcher,
-        private readonly FileManager $fileManager,
-        private readonly RenditionCreator $renditionCreator,
-        private readonly AttributesResolver $attributesResolver,
-    )
-    {
+        private readonly RenditionBuilder $renditionBuilder,
+    ) {
     }
 
     public function handle(RunContext $context): void
@@ -42,66 +27,6 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
         $inputs = $context->getInputs();
         $renditionDefinition = DoctrineUtil::findStrict($this->em, RenditionDefinition::class, $inputs['definition']);
 
-        if ($renditionDefinition->isPickSourceFile()) {
-            $this->renditionManager->createOrReplaceRenditionFile($asset, $renditionDefinition, $asset->getSource(), null);
-            $this->em->flush();
-
-            return;
-        }
-
-        if (null !== $parentDefinition = $renditionDefinition->getParent()) {
-            $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
-            if (null === $parentRendition) {
-                throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
-            }
-
-            $source = $parentRendition->getFile();
-        } else {
-            $source = $asset->getSource();
-        }
-
-        $buildHash = $this->renditionManager->getBuildHash($source, $renditionDefinition);
-
-        $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
-        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
-            return;
-        }
-
-        $outputFile = $this->createRendition($asset, $source, $renditionDefinition->getDefinition());
-
-        if (null !== $outputFile) {
-            $file = $this->fileManager->createFileFromPath(
-                $asset->getWorkspace(),
-                $outputFile->getPath(),
-                $outputFile->getType()
-            );
-        } else {
-            $file = $source;
-        }
-
-        $this->renditionManager->createOrReplaceRenditionFile($asset, $renditionDefinition, $file, $buildHash);
-        $this->em->flush();
-
-        $this->renditionCreator->cleanUp();
-    }
-
-    private function createRendition(Asset $asset, File $source, string $buildDef): ?OutputFileInterface
-    {
-        $sourcePath = $this->fileFetcher->getFile($source);
-
-        $outputFile = $this->renditionCreator->createRendition(
-            $sourcePath,
-            $source->getType(),
-            $this->loader->parse($buildDef),
-            new CreateRenditionOptions(
-                metadataContainer: new AssetMetadataContainer($asset, $this->attributesResolver),
-            )
-        );
-
-        if ($sourcePath === $outputFile->getPath()) {
-            return null;
-        }
-
-        return $outputFile;
+        $this->renditionBuilder->buildRendition($renditionDefinition, $asset, $force);
     }
 }
