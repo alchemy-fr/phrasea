@@ -12,6 +12,7 @@ RUN apk add --no-cache \
         libpng \
         libwebp \
         ffmpeg \
+        libreoffice \
     && apk add --no-cache --virtual build-essentials \
         g++ \
         make \
