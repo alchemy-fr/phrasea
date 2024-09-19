@@ -63,27 +63,17 @@ export default function FilePlayer({
                 />
             );
         case FileTypeEnum.Document:
-            return (
-                <PDFPlayer
-                    dimensions={dimensions}
-                    file={file as FileWithUrl}
-                    onLoad={onLoad}
-                    noInteraction={noInteraction}
-                />
-            );
-        default:
-            return (
-                <div
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    {t('file_player.unsupported_format', {
-                        defaultValue: `Unsupported format "{{type}}"`,
-                        type: file.type,
-                    })}
-                </div>
-            );
+            if (file.type === 'application/pdf') {
+                return (
+                    <PDFPlayer
+                        dimensions={dimensions}
+                        file={file as FileWithUrl}
+                        onLoad={onLoad}
+                        noInteraction={noInteraction}
+                    />
+                );
+            }
     }
+
+    return <AssetFileIcon file={file} />;
 }

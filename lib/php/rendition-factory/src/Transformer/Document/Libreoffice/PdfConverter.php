@@ -12,12 +12,7 @@ use Symfony\Component\Process\ExecutableFinder;
 
 final class PdfConverter
 {
-    private string $binaryPath;
-
-    public function __construct()
-    {
-        $this->binaryPath = (new ExecutableFinder())->find('libreoffice');
-    }
+    private ?string $binaryPath = null;
 
     public function convert(string $inputPath, string $outputPath): void
     {
@@ -28,7 +23,7 @@ final class PdfConverter
         $outDir = ($outputInfo->getPathInfo())->getRealPath();
 
         $args = [
-            $this->binaryPath,
+            $this->getBinaryPath(),
             '--headless',
             '--convert-to',
             'pdf',
@@ -43,11 +38,20 @@ final class PdfConverter
 
         $generatedFile = $outDir . '/' .  $filename. '.pdf';
         $filesystem = new Filesystem();
-        
+
         if ($filesystem->exists($generatedFile)) {
             $filesystem->rename($generatedFile, $outputPath);
         } else {
             throw new FileNotFoundException(sprintf('Generated file not found in %s', $generatedFile));
         }
     }
-} 
+
+    private function getBinaryPath(): string
+    {
+        if (null === $this->binaryPath) {
+            $this->binaryPath = (new ExecutableFinder())->find('libreoffice');
+        }
+
+        return $this->binaryPath;
+    }
+}

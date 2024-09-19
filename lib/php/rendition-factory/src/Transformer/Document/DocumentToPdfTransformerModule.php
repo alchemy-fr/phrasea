@@ -2,11 +2,11 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Document;
 
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
 
@@ -17,12 +17,12 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         return 'document_to_pdf';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if ($inputFile->getType() === 'application/pdf') {
             return $inputFile->createOutputFile();
         }
-        
+
         $newPath = $context->createTmpFilePath('pdf');
 
         $pdfConvert = new PdfConverter();

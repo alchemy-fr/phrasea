@@ -2,11 +2,11 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Document;
 
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
 use Spatie\PdfToImage\Pdf;
@@ -18,7 +18,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         return 'pdf_to_image';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if ($inputFile->getType()!=='application/pdf') {
             // TODO normalize file to PDF

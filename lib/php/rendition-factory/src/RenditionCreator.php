@@ -7,13 +7,10 @@ namespace Alchemy\RenditionFactory;
 use Alchemy\RenditionFactory\Context\BuildHashes;
 use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextFactory;
-use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFile;
-use Alchemy\RenditionFactory\DTO\InputFileInterface;
-use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
@@ -136,6 +133,8 @@ final class RenditionCreator
         foreach ($this->createdContexts as $context) {
             self::recursiveRmDir($context->getWorkingDirectory());
         }
+
+        $this->createdContexts = [];
     }
 
     private static function recursiveRmDir(string $dir): void
