@@ -91,7 +91,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
                     'w' => $workflowId,
                     'j' => $jobId,
                 ])
-                ->addOrderBy('t.createdAt', 'DESC')
+                ->addOrderBy('t.triggeredAt', 'DESC')
                 ->setMaxResults(1)
                 ->getQuery()
                 ->setLockMode(LockMode::PESSIMISTIC_WRITE)

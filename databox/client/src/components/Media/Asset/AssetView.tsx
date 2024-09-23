@@ -19,7 +19,7 @@ import AssetAttributes from './AssetAttributes.tsx';
 import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
-import {useTranslation} from 'react-i18next';
+import {Trans} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -42,7 +42,6 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex}: Props) {
-    const {t} = useTranslation();
     const menuWidth = 300;
     const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
@@ -128,11 +127,13 @@ export default function AssetView({modalIndex}: Props) {
                     fullScreen={true}
                     title={
                         <>
-                            {t('asset_view.edit_asset', {
-                                defaultValue:
-                                    'Edit asset <strong>{{name}}</strong>',
-                                name: asset.resolvedTitle,
-                            })}
+                            <Trans
+                                i18nKey={'asset_view.edit_asset'}
+                                values={{
+                                    name: asset.resolvedTitle,
+                                }}
+                                defaults={'Edit asset <strong>{{name}}</strong>'}
+                            />
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}

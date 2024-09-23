@@ -99,7 +99,7 @@ function BasketsPanel({selected}: Props) {
         loadedSearchQuery
             ? loadItems(searchResult.next || undefined)
             : loadMore();
-    const hasLOadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
+    const hasLoadMore = loadedSearchQuery ? !!searchResult.next : hasMore();
 
     const results = loadedSearchQuery ? searchResult?.pages.flat() : baskets;
 
@@ -175,14 +175,14 @@ function BasketsPanel({selected}: Props) {
                     </>
                 )}
             </List>
-            {hasLOadMore ? (
+            {hasLoadMore ? (
                 <Stack
                     sx={{
                         p: 1,
                     }}
                 >
                     <Button variant={'contained'} onClick={loadMoreHandler}>
-                        {t('load_more.button.loading', 'Load more')}
+                        {t('load_more.button.load_more', 'Load more')}
                     </Button>
                 </Stack>
             ) : (
@@ -201,7 +201,7 @@ function BasketsPanel({selected}: Props) {
                     onClick={createBasket}
                     startIcon={<AddIcon />}
                 >
-                    {t('basket.create_button.label', 'New Basket')}
+                    {t('basket.create_button.label', 'Create new Basket')}
                 </Button>
             </Stack>
         </div>

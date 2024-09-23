@@ -104,7 +104,7 @@ export default function SaveFileAsNewAssetDialog({
                 <FormRow>
                     <TextField
                         autoFocus
-                        label={t('form.upload.title.label', 'Title')}
+                        label={t('save_file_as_new_asset_dialog.title.label', 'Title')}
                         disabled={submitting}
                         fullWidth={true}
                         {...register('title')}

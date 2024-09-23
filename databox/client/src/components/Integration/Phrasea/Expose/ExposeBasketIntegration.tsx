@@ -107,15 +107,15 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
 
     const actionTr: Record<string, string> = {
         'sync-progress': t(
-            'integration.expose.sync.event.sync-complete',
+            'integration.expose.sync.event.sync_progress',
             `Sync in progress…`
         ),
         'sync-clean': t(
-            'integration.expose.sync.event.sync-complete',
+            'integration.expose.sync.event.sync_clean',
             `Cleaning assets…`
         ),
         'sync-complete': t(
-            'integration.expose.sync.event.sync-complete',
+            'integration.expose.sync.event.sync_complete',
             `Sync Complete!`
         ),
     };
