@@ -54,10 +54,6 @@ final readonly class RenditionBuildHashManager
         }
 
         if ($this->getBuildHash($source, $definition) !== $assetRendition->getBuildHash()) {
-            dump($assetRendition->getId());
-            dump($this->getBuildHash($assetRendition->getFile(), $definition));
-            dump($assetRendition->getBuildHash());
-
             return true;
         }
 
