@@ -17,9 +17,8 @@ final readonly class TransformationContextFactory
         private MimeTypeGuesser $mimeTypeGuesser,
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
-        private ?LoggerInterface $logger = null
-    )
-    {
+        private ?LoggerInterface $logger = null,
+    ) {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
 

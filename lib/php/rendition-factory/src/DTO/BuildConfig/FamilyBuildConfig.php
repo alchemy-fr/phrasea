@@ -9,8 +9,7 @@ final readonly class FamilyBuildConfig
         private array $transformations,
 
         private array $normalization,
-    )
-    {
+    ) {
     }
 
     public function getTransformations(): array
@@ -22,5 +21,4 @@ final readonly class FamilyBuildConfig
     {
         return $this->normalization;
     }
-
 }

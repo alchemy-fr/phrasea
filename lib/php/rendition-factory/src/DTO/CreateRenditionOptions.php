@@ -10,8 +10,7 @@ final readonly class CreateRenditionOptions
         private ?string $workingDirectory = null,
         private ?string $cacheDirectory = null,
         private ?MetadataContainerInterface $metadataContainer = null,
-    )
-    {
+    ) {
     }
 
     public function getWorkingDirectory(): ?string

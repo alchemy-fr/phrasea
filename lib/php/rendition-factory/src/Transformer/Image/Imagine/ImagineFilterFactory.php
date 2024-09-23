@@ -32,8 +32,7 @@ final readonly class ImagineFilterFactory
     public function __construct(
         private ImagineInterface $imagine,
         private TemplateResolverInterface $templateResolver,
-    )
-    {
+    ) {
     }
 
     public function createFilterManager(TransformationContextInterface $context): FilterManager
@@ -60,7 +59,7 @@ final readonly class ImagineFilterFactory
             'resize' => new ResizeFilterLoader(),
             'thumbnail' => new ThumbnailFilterLoader(),
             'crop' => new CropFilterLoader(),
-//            'grayscale' => new GrayscaleFilterLoader(), Disabled because too slow (OnPixelBased)
+            //            'grayscale' => new GrayscaleFilterLoader(), Disabled because too slow (OnPixelBased)
             'watermark' => new WatermarkDownloadProxyFilterLoader(
                 $context,
                 $this->imagine,

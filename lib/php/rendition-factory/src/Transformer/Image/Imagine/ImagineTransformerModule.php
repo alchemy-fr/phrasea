@@ -18,8 +18,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 {
     public function __construct(
         private ImagineFilterFactory $filterFactory,
-    )
-    {
+    ) {
     }
 
     public static function getName(): string

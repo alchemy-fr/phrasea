@@ -2,7 +2,6 @@
 
 namespace Alchemy\RenditionFactory\DTO;
 
-
 abstract readonly class BaseFile implements BaseFileInterface
 {
     public function __construct(

@@ -8,7 +8,6 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Alchemy\RenditionFactory\RenditionCreator;
-use InvalidArgumentException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -46,6 +45,7 @@ class CreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $time = microtime(true);
         $mimeType = $input->getOption('type');
         $src = $input->getArgument('src');
         if (!file_exists($src)) {
@@ -54,7 +54,7 @@ class CreateCommand extends Command
             return 1;
         }
 
-        if ($mimeType === null) {
+        if (null === $mimeType) {
             $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($src);
         }
 
@@ -71,7 +71,7 @@ class CreateCommand extends Command
                 $buildConfig,
                 $options
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
 
             return 1;
@@ -95,6 +95,8 @@ class CreateCommand extends Command
         if (!$input->getOption('debug')) {
             $this->renditionCreator->cleanUp();
         }
+
+        $output->writeln(sprintf('Execution time: %0.2f', microtime(true) - $time));
 
         return 0;
     }

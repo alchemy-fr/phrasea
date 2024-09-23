@@ -16,7 +16,7 @@ final readonly class TransformationContext implements TransformationContextInter
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
         private LoggerInterface $logger,
-        private ?MetadataContainerInterface $metadata = null
+        private ?MetadataContainerInterface $metadata = null,
     ) {
         $this->buildHashes = new BuildHashes();
     }
@@ -95,6 +95,11 @@ final readonly class TransformationContext implements TransformationContextInter
     public function log(string $message, array $context = []): void
     {
         $this->logger->info($message, $context);
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     public function getBuildHashes(): BuildHashes

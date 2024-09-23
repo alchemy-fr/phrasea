@@ -8,8 +8,7 @@ final readonly class BuildConfig
 {
     public function __construct(
         private array $families,
-    )
-    {
+    ) {
     }
 
     public function getFamily(FamilyEnum $family): ?FamilyBuildConfig

@@ -9,4 +9,6 @@ interface BaseFileInterface
     public function getType(): string;
 
     public function getFamily(): FamilyEnum;
+
+    public function getExtension(): string;
 }
