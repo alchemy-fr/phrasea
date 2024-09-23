@@ -2,11 +2,12 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Context\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -21,7 +22,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return 'ffmpeg';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if (!($format = $options['format'])) {
             throw new \InvalidArgumentException('Missing format');
@@ -107,7 +108,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    private function doAudio(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $fqcnFormat = 'FFMpeg\\Format\\Audio\\'.$format;
         /** @var FormatInterface $ouputFormat */
@@ -150,13 +151,13 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
 
-    private function remove_audio(Clip $clip, array $options, TransformationContext $context): void
+    private function remove_audio(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $customFilter = '-an';
         $clip->addFilter(new FFMpeg\Filters\Audio\SimpleFilter([$customFilter]));
     }
 
-    private function resize(Clip $clip, array $options, TransformationContext $context): void
+    private function resize(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $dimension = $this->getDimension($options, 'resize');
         $mode = $options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET;
@@ -178,7 +179,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         );
     }
 
-    private function rotate(Clip $clip, array $options, TransformationContext $context): void
+    private function rotate(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         static $rotations = [
             90 => FFMpeg\Filters\Video\RotateFilter::ROTATE_90,
@@ -193,14 +194,14 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $clip->filters()->rotate($rotations[$angle]);
     }
 
-    private function pad(Clip $clip, array $options, TransformationContext $context): void
+    private function pad(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $dimension = $this->getDimension($options, 'pad');
 
         $clip->filters()->pad($dimension);
     }
 
-    private function crop(Clip $clip, array $options, TransformationContext $context): void
+    private function crop(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $point = new FFMpeg\Coordinate\Point($options['x'] ?? 0, $options['y'] ?? 0);
         $dimension = $this->getDimension($options, 'crop');
@@ -208,7 +209,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $clip->filters()->crop($point, $dimension);
     }
 
-    private function clip(Clip $clip, array $options, TransformationContext $context): void
+    private function clip(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $start = $options['start'] ?? 0;
         $duration = $options['duration'] ?? null;
@@ -235,12 +236,12 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $clip->filters()->clip($startAsTimecode, $durationAsTimecode);
     }
 
-    private function synchronize(Clip $clip, array $options, TransformationContext $context): void
+    private function synchronize(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $clip->filters()->synchronize();
     }
 
-    private function watermark(Clip $clip, array $options, TransformationContext $context): void
+    private function watermark(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $path = $options['path'] ?? null;
         if (!file_exists($path)) {
@@ -263,7 +264,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $clip->filters()->watermark($path, $coord);
     }
 
-    private function framerate(Clip $clip, array $options, TransformationContext $context): void
+    private function framerate(Clip $clip, array $options, TransformationContextInterface $context): void
     {
         $framerate = $options['framerate'] ?? 0;
         if ($framerate <= 0) {

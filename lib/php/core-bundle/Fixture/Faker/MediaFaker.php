@@ -26,7 +26,7 @@ class MediaFaker extends AbstractCachedFaker
                 'https://download.samplelib.com/mp3/sample-12s.mp3',
             ],
             'pdf' => [
-                'http://www.africau.edu/images/default/sample.pdf',
+                'https://pdfobject.com/pdf/sample.pdf',
                 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
                 'https://assets.ctfassets.net/wm1n7oady8a5/6tJdKFW6ukyIE4Y8sSuYo4/86aa1e4178bef579ac8674eefa1f6bc5/A4-booklet-landscape.en.pdf',
             ],

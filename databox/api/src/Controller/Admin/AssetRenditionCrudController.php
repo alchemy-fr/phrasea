@@ -5,11 +5,13 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -55,6 +57,8 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('asset');
         yield AssociationField::new('definition');
         yield CodeField::new('buildHash')
+            ->hideOnIndex();
+        yield JsonField::new('moduleHashes')
             ->hideOnIndex();
         yield AssociationField::new('file');
         yield BooleanField::new('ready')

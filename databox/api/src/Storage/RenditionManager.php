@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Storage;
 
+use Alchemy\CoreBundle\Pusher\PusherManager;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -13,11 +15,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 use InvalidArgumentException;
 
-class RenditionManager
+final class RenditionManager
 {
     private array $renditionsToDelete = [];
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FileManager $fileManager)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly FileManager $fileManager,
+        private readonly PusherManager $pusherManager,
+        private readonly PostFlushStack $postFlushStack,
+    )
     {
     }
 
@@ -30,6 +37,7 @@ class RenditionManager
         ?int $size,
         ?string $originalName,
         ?string $buildHash,
+        ?array $moduleHashes,
     ): AssetRendition {
         $file = $this->fileManager->createFile(
             $storage,
@@ -44,7 +52,8 @@ class RenditionManager
             $asset,
             $definition,
             $file,
-            $buildHash
+            $buildHash,
+            $moduleHashes,
         );
     }
 
@@ -52,7 +61,8 @@ class RenditionManager
         Asset $asset,
         RenditionDefinition $definition,
         File $file,
-        ?string $buildHash
+        ?string $buildHash,
+        ?array $moduleHashes,
     ): AssetRendition {
         if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
             $asset->setSource($file);
@@ -62,7 +72,17 @@ class RenditionManager
         $rendition = $this->getOrCreateRendition($asset, $definition);
         $rendition->setFile($file);
         $rendition->setBuildHash($buildHash);
+        $rendition->setModuleHashes($moduleHashes);
         $this->em->persist($rendition);
+
+        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
+            'assets',
+            'rendition-update',
+            [
+                'assetId' => $asset->getId(),
+                'definition' => $definition->getId(),
+            ]
+        ));
 
         return $rendition;
     }
@@ -207,14 +227,5 @@ class RenditionManager
                 $this->em->remove($rendition);
             }
         }
-    }
-
-    public function getBuildHash(File $source, RenditionDefinition $definition): string
-    {
-        return md5(implode('|', [
-            $source->getId(),
-            $definition->getId(),
-            $definition->getDefinition(),
-        ]));
     }
 }

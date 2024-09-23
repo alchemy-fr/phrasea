@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Transformer;
 
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 
@@ -11,5 +12,5 @@ interface TransformerModuleInterface
 
     public static function getName(): string;
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface;
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface;
 }

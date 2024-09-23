@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {FC, useCallback, useMemo, useState} from 'react';
 import {Asset, AssetAnnotation, AssetRendition} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
@@ -20,6 +20,8 @@ import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {useTranslation} from 'react-i18next';
+import {useQuery} from '@tanstack/react-query';
+import axios from "axios";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -50,26 +52,24 @@ export default function AssetView({modalIndex}: Props) {
         AssetAnnotation[] | undefined
     >();
 
-    const [data, setData] = useState<Asset>();
-    const [renditions, setRenditions] = useState<AssetRendition[]>();
+    const {data, isError, error, isSuccess} = useQuery({
+        queryKey: ['assets', assetId],
+        queryFn: () => Promise.all([
+            getAsset(assetId!),
+            getAssetRenditions(assetId!).then(r => r.result),
+        ])
+    });
 
-    useEffect(() => {
-        (async () => {
-            try {
-                await Promise.all([
-                    getAsset(assetId!).then(c => setData(c)),
-                    getAssetRenditions(assetId!).then(r =>
-                        setRenditions(r.result)
-                    ),
-                ]);
-            } catch (e: any) {
-                console.log('e', e);
-                if ([401, 403].includes(e.response?.status ?? 0)) {
-                    closeModal();
-                }
+    console.log('data', data);
+
+    React.useEffect(() => {
+        if (isError && axios.isAxiosError(error)) {
+            console.log('error', error);
+            if ([401, 403].includes(error.response?.status ?? 0)) {
+                closeModal();
             }
-        })();
-    }, [assetId]);
+        }
+    }, [closeModal, isError]);
 
     const onAnnotations = React.useCallback<OnAnnotations>(annotations => {
         setAnnotations(annotations);
@@ -97,10 +97,11 @@ export default function AssetView({modalIndex}: Props) {
         };
     }, [winSize]);
 
-    if (!data || !renditions) {
-        return <FullPageLoader />;
+    if (!isSuccess) {
+        return <FullPageLoader/>;
     }
 
+    const [asset, renditions] = data as [Asset, AssetRendition[]];
     const rendition = renditions.find(r => r.id === renditionId);
 
     const handleRenditionChange = (renditionId: string) => {
@@ -128,7 +129,7 @@ export default function AssetView({modalIndex}: Props) {
                         <>
                             {t('asset_view.edit_asset', {
                                 defaultValue: 'Edit asset <strong>{{name}}</strong>',
-                                name: data.resolvedTitle,
+                                name: asset.resolvedTitle,
                             })}
                             <Select<string>
                                 sx={{ml: 2}}
@@ -146,7 +147,7 @@ export default function AssetView({modalIndex}: Props) {
                                 ))}
                             </Select>
                             <AssetViewActions
-                                asset={data!}
+                                asset={asset}
                                 file={rendition?.file}
                             />
                         </>
@@ -187,7 +188,7 @@ export default function AssetView({modalIndex}: Props) {
                                         !integrationOverlay.replace) && (
                                         <FilePlayer
                                             file={rendition.file}
-                                            title={data.title}
+                                            title={asset.title}
                                             dimensions={dimensions}
                                             autoPlayable={false}
                                             controls={true}
@@ -212,18 +213,14 @@ export default function AssetView({modalIndex}: Props) {
                                 height: dimensions.height,
                             })}
                         >
-                            {data ? (
-                                <AssetAttributes
-                                    asset={data}
-                                    onAnnotations={onAnnotations}
-                                />
-                            ) : (
-                                ''
-                            )}
+                            <AssetAttributes
+                                asset={asset}
+                                onAnnotations={onAnnotations}
+                            />
                             {rendition?.file ? (
                                 <FileIntegrations
                                     key={rendition.file.id}
-                                    asset={data}
+                                    asset={asset}
                                     file={rendition.file}
                                     setIntegrationOverlay={setProxy}
                                 />

@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Core;
+namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\StorageBundle\Util\FileUtil;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
@@ -13,12 +16,12 @@ use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ExportAction extends AbstractController
+class ExportProcessor implements ProcessorInterface
 {
+    use SecurityAwareTrait;
+
     public function __construct(
         private readonly HttpClientInterface $zippyClient,
         private readonly ValidatorInterface $validator,
@@ -28,7 +31,10 @@ class ExportAction extends AbstractController
     ) {
     }
 
-    public function __invoke(Export $data, Request $request): Export
+    /**
+     * @param Export     $data
+     */
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Export
     {
         $user = $this->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : null;

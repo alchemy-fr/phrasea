@@ -28,6 +28,14 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Document\DocumentToPdfTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Document\PdfToImageTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
     Imagine\Imagick\Imagine: ~
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
 

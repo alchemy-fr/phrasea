@@ -2,16 +2,19 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
+use Alchemy\RenditionFactory\Context\BuildHashes;
+use Alchemy\RenditionFactory\Context\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
+use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Liip\ImagineBundle\Model\FileBinary;
 
-final readonly class ImagineTransformerModule implements TransformerModuleInterface
+final readonly class ImagineTransformerModule implements TransformerModuleInterface, BuildHashDiffInterface
 {
     public function __construct(
         private ImagineFilterFactory $filterFactory,
@@ -23,7 +26,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         return 'imagine';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $inputFormat = ImageFormatGuesser::getFormat($inputFile->getType());
         if ('svg' === $inputFormat) {
@@ -55,5 +58,29 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         }
 
         return $filters;
+    }
+
+    public function buildHashesDiffer(array $buildHashes, array $options, TransformationContextInterface $transformationContext): bool
+    {
+        $filterLoaders = $this->filterFactory->createFilterLoaders($transformationContext);
+
+        if (!empty($buildHashes)) {
+            $filterName = array_shift($buildHashes);
+
+            $filters = $this->normalizeFilters($options['filters'] ?? []);
+            if (!isset($filters[$filterName])) {
+                return true;
+            }
+
+            $filter = $filterLoaders[$filterName] ?? null;
+            if (!$filter instanceof BuildHashDiffInterface) {
+                return true;
+            }
+            if ($filter->buildHashesDiffer($buildHashes, $filters[$filterName], $transformationContext)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -2,9 +2,10 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
+use Alchemy\RenditionFactory\Context\TransformationContext;
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\StampFilter;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Imagine\Image\ImagineInterface;
 use Liip\ImagineBundle\Binary\SimpleMimeTypeGuesser;
 use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
@@ -34,7 +35,7 @@ final readonly class ImagineFilterFactory
     ) {
     }
 
-    public function createFilterManager(TransformationContext $context): FilterManager
+    public function createFilterManager(TransformationContextInterface $context): FilterManager
     {
         $filterManager = new FilterManager(
             new FilterConfiguration([]),
@@ -42,7 +43,18 @@ final readonly class ImagineFilterFactory
             new SimpleMimeTypeGuesser(new MimeTypes())
         );
 
-        $filters = [
+        $filters = $this->createFilterLoaders($context);
+
+        foreach ($filters as $name => $filter) {
+            $filterManager->addLoader($name, $filter);
+        }
+
+        return $filterManager;
+    }
+
+    public function createFilterLoaders(TransformationContextInterface $context): array
+    {
+        return [
             'relative_resize' => new RelativeResizeFilterLoader(),
             'resize' => new ResizeFilterLoader(),
             'thumbnail' => new ThumbnailFilterLoader(),
@@ -69,11 +81,5 @@ final readonly class ImagineFilterFactory
                 $this->templateResolver,
             ),
         ];
-
-        foreach ($filters as $name => $filter) {
-            $filterManager->addLoader($name, $filter);
-        }
-
-        return $filterManager;
     }
 }

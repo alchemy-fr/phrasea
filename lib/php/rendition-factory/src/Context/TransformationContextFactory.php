@@ -4,7 +4,6 @@ namespace Alchemy\RenditionFactory\Context;
 
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\NativeHttpClient;
@@ -23,9 +22,8 @@ final readonly class TransformationContextFactory
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
 
-    public function create(
-        ?CreateRenditionOptions $options = null,
-    ): TransformationContext {
+    public function create(?CreateRenditionOptions $options = null): TransformationContextInterface
+    {
         $baseDir = $options?->getWorkingDirectory() ?? $this->workingDirectory;
         $cacheDir = $options?->getCacheDirectory() ?? $baseDir.'/cache';
         $dateWorkingDir = $baseDir.'/'.date('Y-m-d');
@@ -42,6 +40,15 @@ final readonly class TransformationContextFactory
             $cacheDir,
             $this->mimeTypeGuesser,
             $this->client ?? new NativeHttpClient(),
+            $this->logger ?? new NullLogger(),
+            $options->getMetadataContainer()
+        );
+    }
+
+    public function createReadOnlyContext(?CreateRenditionOptions $options = null): TransformationContextInterface
+    {
+        return new ReadOnlyTransformationContext(
+            $this->mimeTypeGuesser,
             $this->logger ?? new NullLogger(),
             $options->getMetadataContainer()
         );

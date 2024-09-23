@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Alchemy\RenditionFactory;
 
+use Alchemy\RenditionFactory\Context\BuildHashes;
+use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextFactory;
 use Alchemy\RenditionFactory\DTO\BuildConfig\BuildConfig;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFile;
-use Alchemy\RenditionFactory\DTO\InputFileInterface;
-use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
+use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class RenditionCreator
+final class RenditionCreator
 {
     /** @var TransformationContext[] */
     private array $createdContexts = [];
@@ -51,8 +52,12 @@ class RenditionCreator
         );
         $this->createdContexts[] = $context;
 
+        $buildHashes = $context->getBuildHashes();
+        $buildHashes->setPath(BuildHashes::PATH_LEVEL_FAMILY, $inputFile->getFamily()->value);
+
         $transformationCount = count($transformations);
         foreach (array_values($transformations) as $i => $transformation) {
+            $buildHashes->setPath(BuildHashes::PATH_LEVEL_MODULE, $i);
             /** @var TransformerModuleInterface $transformer */
             $transformer = $this->transformers->get($transformation->getModule());
             $outputFile = $transformer->transform($inputFile, $transformation->getOptions(), $context);
@@ -62,7 +67,56 @@ class RenditionCreator
             }
         }
 
-        return $outputFile;
+        return $outputFile->withBuildHashes($buildHashes->getHashes());
+    }
+
+    /**
+     * Sample values:
+     *   ["family", "module", "filter", "hash"],
+     *   ["family", "module", "hash"]
+     *
+     * @param array $buildHashes
+     */
+    public function buildHashesDiffer(
+        array $buildHashes,
+        BuildConfig $buildConfig,
+        ?CreateRenditionOptions $options = null,
+    ): bool {
+        $context = $this->contextFactory->createReadOnlyContext(
+            $options
+        );
+
+        foreach ($buildHashes as $buildHash) {
+            $family = array_shift($buildHash);
+            $familyBuildConfig = $buildConfig->getFamily(FamilyEnum::from($family));
+            if (null === $familyBuildConfig) {
+                return true;
+            }
+
+            $transformations = $familyBuildConfig->getTransformations();
+            if (empty($transformations)) {
+                return true;
+            }
+
+            $moduleOffset = array_shift($buildHash);
+            if (!isset($transformations[$moduleOffset])) {
+                return true;
+            }
+
+            $transformation = $transformations[$moduleOffset];
+
+            /** @var TransformerModuleInterface $transformer */
+            $transformer = $this->transformers->get($transformation->getModule());
+            if (!$transformer instanceof BuildHashDiffInterface) {
+                return true;
+            }
+
+            if ($transformer->buildHashesDiffer($buildHash, $transformation->getOptions(), $context)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function cleanUp(): void
@@ -70,6 +124,8 @@ class RenditionCreator
         foreach ($this->createdContexts as $context) {
             self::recursiveRmDir($context->getWorkingDirectory());
         }
+
+        $this->createdContexts = [];
     }
 
     private static function recursiveRmDir(string $dir): void
@@ -85,10 +141,5 @@ class RenditionCreator
         }
 
         rmdir($dir);
-    }
-
-    private function createOutputFromInput(InputFileInterface $inputFile): OutputFileInterface
-    {
-        return new OutputFile($inputFile->getPath(), $inputFile->getType(), $inputFile->getFamily());
     }
 }

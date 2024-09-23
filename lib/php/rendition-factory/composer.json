@@ -30,7 +30,8 @@
         "imagine/imagine": "^1.3",
         "liip/imagine-bundle": "^2.13",
         "symfony/http-client": "^6.4.11",
-        "php-ffmpeg/php-ffmpeg": "^1.2"
+        "php-ffmpeg/php-ffmpeg": "^1.2",
+        "spatie/pdf-to-image": "^3.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",

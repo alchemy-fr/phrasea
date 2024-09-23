@@ -86,7 +86,9 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $rendition->getDefinition(),
-                $newRenditionFile
+                $newRenditionFile,
+                null,
+                null,
             );
         }
 
