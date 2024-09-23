@@ -2,11 +2,11 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformationContext;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -15,16 +15,12 @@ use InvalidArgumentException;
 
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
-    public function __construct()
-    {
-    }
-
     public static function getName(): string
     {
         return 'video_summary';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if (!($format = $options['format'])) {
             throw new InvalidArgumentException('Missing format');
@@ -41,7 +37,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
     }
 
-    private function processVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    private function processVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
