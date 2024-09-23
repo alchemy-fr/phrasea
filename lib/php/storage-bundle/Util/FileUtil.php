@@ -73,4 +73,9 @@ final class FileUtil
 
         return $types[0];
     }
+
+    public static function stripExtension(string $filename): string
+    {
+        return preg_replace($filename, '#\.[a-z0-9]{2,5}$#i', '');
+    }
 }
