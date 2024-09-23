@@ -13,7 +13,7 @@ use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface;
 use InvalidArgumentException;
 
-final readonly class SummaryTransformerModule implements TransformerModuleInterface
+final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
     public function __construct()
     {
@@ -21,7 +21,7 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
 
     public static function getName(): string
     {
-        return 'summary';
+        return 'video_summary';
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
@@ -35,13 +35,13 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
 
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
         if (class_exists($fqcnFormat)) {
-            return $this->doVideo($format, $extension, $inputFile, $options, $context);
+            return $this->processVideo($format, $extension, $inputFile, $options, $context);
         }
 
         throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
     }
 
-    private function doVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    private function processVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
     {
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
@@ -142,6 +142,8 @@ final readonly class SummaryTransformerModule implements TransformerModuleInterf
             throw new \RuntimeException(sprintf('Failed to create summary video'));
         }
 
+
+        // TODO return the correct family and MIME type
         return new OutputFile(
             $outputPath,
             'application/octet-stream',

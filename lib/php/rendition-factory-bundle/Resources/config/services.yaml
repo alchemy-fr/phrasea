@@ -20,7 +20,7 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\SummaryTransformerModule:
+    Alchemy\RenditionFactory\Transformer\Video\VideoSummaryTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
