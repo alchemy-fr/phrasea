@@ -45,10 +45,7 @@ readonly class AcceptFileAction implements ActionInterface
         );
 
         $file = $this->borderManager->acceptFile($inputFile, $asset->getWorkspace());
-
-        if ($file instanceof File) {
-            $context->setOutput('fileId', $file->getId());
-            $context->setOutput('assetId', $asset->getId());
-        }
+        $context->setOutput('fileId', $file->getId());
+        $context->setOutput('assetId', $asset->getId());
     }
 }

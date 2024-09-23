@@ -32,6 +32,7 @@ export default function Dashboard({}: Props) {
     const {
         DATABOX_API_URL,
         EXPOSE_API_URL,
+        DASHBOARD_API_URL,
         UPLOADER_API_URL,
         NOTIFY_API_URL,
         DATABOX_CLIENT_URL,
