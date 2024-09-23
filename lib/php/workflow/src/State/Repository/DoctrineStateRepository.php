@@ -74,6 +74,10 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         }
     }
 
+    public function resetJobState(string $workflowId, string $jobId): void
+    {
+    }
+
     public function acquireJobLock(string $workflowId, string $jobId): void
     {
         $this->em->beginTransaction();
@@ -87,6 +91,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
                     'w' => $workflowId,
                     'j' => $jobId,
                 ])
+                ->addOrderBy('t.createdAt', 'DESC')
+                ->setMaxResults(1)
                 ->getQuery()
                 ->setLockMode(LockMode::PESSIMISTIC_WRITE)
                 ->getOneOrNullResult();

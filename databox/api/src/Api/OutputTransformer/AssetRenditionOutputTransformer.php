@@ -30,6 +30,7 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
     public function transform($data, string $outputClass, array &$context = []): object
     {
         $output = new AssetRenditionOutput();
+        $output->setId($data->getId());
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
 

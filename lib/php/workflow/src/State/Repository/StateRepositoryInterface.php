@@ -21,4 +21,6 @@ interface StateRepositoryInterface
     public function persistJobState(JobState $state): void;
 
     public function removeJobState(string $workflowId, string $jobId): void;
+
+    public function resetJobState(string $workflowId, string $jobId): void;
 }

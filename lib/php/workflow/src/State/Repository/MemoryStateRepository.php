@@ -55,6 +55,11 @@ class MemoryStateRepository implements StateRepositoryInterface
         unset($this->jobs[$workflowId][$jobId]);
     }
 
+    public function resetJobState(string $workflowId, string $jobId): void
+    {
+        $this->removeJobState($workflowId, $jobId);
+    }
+
     private function ensureWorkflowExists(string $workflowId): void
     {
         if (!isset($this->jobs[$workflowId])) {

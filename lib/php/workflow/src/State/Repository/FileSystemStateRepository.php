@@ -131,6 +131,11 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
         }
     }
 
+    public function resetJobState(string $workflowId, string $jobId): void
+    {
+        $this->removeJobState($workflowId, $jobId);
+    }
+
     private function getWorkflowPath(string $id, string $filename): string
     {
         return $this->path.DIRECTORY_SEPARATOR.$id.DIRECTORY_SEPARATOR.$filename.'.state';

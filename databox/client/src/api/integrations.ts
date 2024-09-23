@@ -27,7 +27,7 @@ export async function getIntegrationsOfContext(
     const res = await apiClient.get(integrationNS, {
         params: {
             context,
-            workspaceId,
+            workspace: workspaceId,
             ...data,
         },
     });

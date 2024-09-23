@@ -197,7 +197,7 @@ readonly class WorkflowOrchestrator
                 try {
                     $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
                     if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
-                        $this->stateRepository->removeJobState($workflowId, $jobId);
+                        $this->stateRepository->resetJobState($workflowId, $jobId);
 
                         if (!$run->getJob()->isDisabled()) {
                             $jobsToTrigger[] = $jobId;
