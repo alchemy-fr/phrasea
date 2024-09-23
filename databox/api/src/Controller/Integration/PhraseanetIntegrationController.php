@@ -132,7 +132,11 @@ class PhraseanetIntegrationController extends AbstractController
 
                     $logger->debug(sprintf('Received webhook "%s" for workflow "%s"', $json['event'], $workflowId));
 
-                    $workflowState = $workflowStateRepository->getWorkflowState($workflowId);
+                    try {
+                        $workflowState = $workflowStateRepository->getWorkflowState($workflowId);
+                    } catch (\InvalidArgumentException) {
+                        break;
+                    }
                     $inputs = $workflowState->getEvent()->getInputs();
                     if ($assetId !== $inputs['assetId']) {
                         break;
