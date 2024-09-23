@@ -22,7 +22,7 @@ final readonly class FileManager
         ?string $type,
         ?int $size,
         ?string $originalName,
-        Workspace $workspace
+        Workspace $workspace,
     ): File {
         $file = new File();
         $file->setStorage($storage);
@@ -57,10 +57,14 @@ final readonly class FileManager
         return $path;
     }
 
-    public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension, ?string $originalName): File
+    public function createFileFromPath(Workspace $workspace, string $src, ?string $type, ?string $extension = null, ?string $originalName = null): File
     {
         if (null === $extension) {
-            $extension = FileUtil::guessExtension($type, $originalName);
+            $extension = FileUtil::guessExtension($type, $originalName ?? $src);
+
+            if (null === $extension && null !== $type) {
+                $extension = FileUtil::getExtensionFromType($type);
+            }
         }
 
         if (null === $type) {

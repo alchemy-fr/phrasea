@@ -16,7 +16,6 @@ use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Storage\FileManager;
 use App\Storage\RenditionManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Intervention\Image\Imagick\Font;
 
 class WatermarkAction extends AbstractIntegrationAction implements IfActionInterface
@@ -28,7 +27,6 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
         private readonly RenditionManager $renditionManager,
         private readonly AttributeManager $attributeManager,
         private readonly FileManager $fileManager,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -87,7 +85,9 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $rendition->getDefinition(),
-                $newRenditionFile
+                $newRenditionFile,
+                null,
+                null,
             );
         }
 

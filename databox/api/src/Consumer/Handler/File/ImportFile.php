@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class ImportFile
 {
     public function __construct(
-        private string $fileId
+        private string $fileId,
     ) {
     }
 

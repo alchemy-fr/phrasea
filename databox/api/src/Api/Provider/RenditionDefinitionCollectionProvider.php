@@ -12,7 +12,7 @@ class RenditionDefinitionCollectionProvider extends AbstractCollectionProvider
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
         $queryBuilder = $this->em->getRepository(RenditionDefinition::class)
             ->createQueryBuilder('t');

@@ -87,6 +87,9 @@ export default function BasketMenuItem({
                                 ? replaceHighlight(data.descriptionHighlight)
                                 : data.description
                         }
+                        secondaryTypographyProps={{
+                            style: { whiteSpace: 'normal' }
+                    }}
                     />
                 </ListItemButton>
             </ListItem>

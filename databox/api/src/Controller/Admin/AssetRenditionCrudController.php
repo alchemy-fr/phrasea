@@ -3,15 +3,17 @@
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class AssetRenditionCrudController extends AbstractAdminCrudController
@@ -26,6 +28,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
         ;
     }
 
@@ -47,25 +50,17 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $ready = Field::new('ready');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $definition = AssociationField::new('definition');
-        $asset = AssociationField::new('asset');
-        $file = AssociationField::new('file');
-        $id = IdField::new();
-        $fileId = IdField::new('file.id');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $definition, $asset, $fileId, $updatedAt, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$ready, $createdAt, $updatedAt, $definition, $asset, $file];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('asset');
+        yield AssociationField::new('definition');
+        yield CodeField::new('buildHash')
+            ->hideOnIndex();
+        yield JsonField::new('moduleHashes')
+            ->hideOnIndex();
+        yield AssociationField::new('file');
+        yield BooleanField::new('ready')
+            ->renderAsSwitch(false);
+        yield DateTimeField::new('updatedAt');
+        yield DateTimeField::new('createdAt');
     }
 }

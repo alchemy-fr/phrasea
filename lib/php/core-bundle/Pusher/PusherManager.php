@@ -11,18 +11,25 @@ final readonly class PusherManager
     public function __construct(
         private Pusher $pusher,
         private MessageBusInterface $bus,
-    )
-    {
+        private bool $disabled = false,
+    ) {
     }
 
     public function trigger(string $channel, string $event, array $payload, bool $direct = false): void
     {
         if ($direct) {
-            $this->pusher->trigger($channel, $event, $payload);
+            if (!$this->disabled) {
+                $this->pusher->trigger($channel, $event, $payload);
+            }
 
             return;
         }
 
-        $this->bus->dispatch(new PusherMessage($channel, $event, $payload));
+        $this->bus->dispatch($this->createBusMessage($channel, $event, $payload));
+    }
+
+    public function createBusMessage(string $channel, string $event, array $payload): PusherMessage
+    {
+        return new PusherMessage($channel, $event, $payload);
     }
 }

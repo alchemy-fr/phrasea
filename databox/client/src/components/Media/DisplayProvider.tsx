@@ -69,7 +69,8 @@ export default function DisplayProvider({
             ) {
                 return;
             }
-            if (e.key === 'p') {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
                 toast.info(
                     previewLocked
                         ? (t(
@@ -90,10 +91,10 @@ export default function DisplayProvider({
             }
         };
 
-        window.addEventListener('keypress', handler);
+        window.addEventListener('keydown', handler);
 
         return () => {
-            window.removeEventListener('keypress', handler);
+            window.removeEventListener('keydown', handler);
         };
     }, [previewLocked]);
 

@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use App\Controller\Core\ExportAction;
+use App\Api\Processor\ExportProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
@@ -17,9 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(),
         new Post(
             uriTemplate: '/export',
-            controller: ExportAction::class,
-            read: true,
-            validate: false
+            processor: ExportProcessor::class,
         ),
     ],
     normalizationContext: [

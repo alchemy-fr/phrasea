@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ESMappingValidateCommand extends Command
 {
     public function __construct(
-        private readonly IndexSyncState $indexSyncState
+        private readonly IndexSyncState $indexSyncState,
     ) {
         parent::__construct();
     }

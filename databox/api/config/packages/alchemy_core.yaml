@@ -3,3 +3,8 @@ alchemy_core:
     app_url: '%env(DATABOX_API_URL)%'
     healthcheck: ~
     pusher: ~
+
+when@test:
+    alchemy_core:
+        pusher:
+            disabled: true

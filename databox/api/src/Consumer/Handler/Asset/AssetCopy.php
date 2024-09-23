@@ -13,7 +13,7 @@ final readonly class AssetCopy
         private string $id,
         private string $destination,
         private ?bool $link = null,
-        private array $options = []
+        private array $options = [],
     ) {
 
     }

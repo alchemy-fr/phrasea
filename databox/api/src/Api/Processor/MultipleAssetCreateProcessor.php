@@ -17,7 +17,7 @@ final readonly class MultipleAssetCreateProcessor implements ProcessorInterface
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private Security $security
+        private Security $security,
     ) {
     }
 

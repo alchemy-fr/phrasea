@@ -4,7 +4,7 @@ import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
-} from './DefinitionManager';
+} from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {

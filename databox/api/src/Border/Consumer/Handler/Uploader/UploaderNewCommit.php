@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class UploaderNewCommit
 {
     public function __construct(
-        private array $payload
+        private array $payload,
     ) {
     }
 

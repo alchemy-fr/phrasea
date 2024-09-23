@@ -5,6 +5,7 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
+use Alchemy\CoreBundle\Pusher\PusherManager;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -67,6 +68,9 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         if ($config['pusher']['enabled']) {
             $loader->load('pusher.yaml');
+            $def = $container->getDefinition(PusherManager::class);
+            $def->setArgument('$disabled', $config['pusher']['disabled']);
+
             $this->loadPusher($container, $config['pusher']);
         }
 
@@ -82,6 +86,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         if (!class_exists(Pusher::class)) {
             throw new InvalidArgumentException('Missing "pusher/pusher-php-server" dependency. Please run "composer require pusher/pusher-php-server"');
         }
+
         $def = new Definition(Pusher::class, [
             '$host' => $config['host'],
             '$key' => $config['key'],

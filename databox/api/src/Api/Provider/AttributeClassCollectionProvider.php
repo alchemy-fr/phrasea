@@ -18,7 +18,7 @@ class AttributeClassCollectionProvider extends AbstractCollectionProvider
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
         $user = $this->security->getUser();
         if (!$user instanceof JwtUser) {

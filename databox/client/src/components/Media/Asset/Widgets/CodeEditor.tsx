@@ -1,11 +1,15 @@
+import React from 'react';
 import AceEditor, {IAceEditorProps} from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import React from 'react';
+import 'ace-builds/src-noconflict/mode-yaml';
+import 'ace-builds/src-noconflict/mode-json';
 
 type Props = {
     prettify?: (code: string) => string;
 } & IAceEditorProps;
+
+export type {Props as CodeEditorProps};
 
 export default function CodeEditor({
     value: initialValue,

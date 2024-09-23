@@ -126,6 +126,7 @@ App\Entity\Core\RenditionDefinition:
         properties:
           - workspace
           - class.workspace
+          - parent.workspace
   properties:
     class:
       - NotNull: ~

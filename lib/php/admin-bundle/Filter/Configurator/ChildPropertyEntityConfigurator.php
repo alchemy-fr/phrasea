@@ -60,11 +60,12 @@ final class ChildPropertyEntityConfigurator implements FilterConfiguratorInterfa
             // don't show the 'empty value' placeholder when all join columns are required,
             // because an empty filter value would always return no result
             $numberOfRequiredJoinColumns = \count(array_filter(
-                    $doctrineMetadata->get('joinColumns'),
-                    static function (array $joinColumn): bool {
-                            $isNullable = $joinColumn['nullable'] ?? false;
-                            return false === $isNullable;
-                    }
+                $doctrineMetadata->get('joinColumns'),
+                static function (array $joinColumn): bool {
+                    $isNullable = $joinColumn['nullable'] ?? false;
+
+                    return false === $isNullable;
+                }
             ));
 
             $someJoinColumnsAreNullable = \count($childPropertyDoctrineMetadata->get('joinColumns')) !== $numberOfRequiredJoinColumns;

@@ -26,7 +26,7 @@ readonly class AssetDataTemplateExtension implements QueryCollectionExtensionInt
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->addWhere($queryBuilder, $resourceClass, $context);
     }

@@ -32,4 +32,5 @@ return [
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
     Arthem\ObjectReferenceBundle\ArthemObjectReferenceBundle::class => ['all' => true],
+    Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
 ];

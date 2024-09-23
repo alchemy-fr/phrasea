@@ -126,7 +126,7 @@ class WorkflowState
 
     public function isCancelled(): bool
     {
-        return $this->status === self::STATUS_CANCELLED;
+        return self::STATUS_CANCELLED === $this->status;
     }
 
     public function getContext(): Context

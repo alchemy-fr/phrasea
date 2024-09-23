@@ -103,7 +103,7 @@ readonly class WorkflowOrchestrator
                 if (null !== $jobState && in_array($jobState->getStatus(), [
                     JobState::STATUS_TRIGGERED,
                     JobState::STATUS_RUNNING,
-                    ], true)) {
+                ], true)) {
                     $jobState->setStatus(JobState::STATUS_CANCELLED);
                     $this->stateRepository->persistJobState($jobState);
                 }
@@ -162,7 +162,7 @@ readonly class WorkflowOrchestrator
 
     /**
      * Continue a job from outside (i.e. a controller)
-     * after a $context->retainJob()
+     * after a $context->retainJob().
      */
     public function continueJob(string $workflowId, string $jobId, ?array $jobInputs = null): void
     {
@@ -199,7 +199,9 @@ readonly class WorkflowOrchestrator
                     if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
                         $this->stateRepository->removeJobState($workflowId, $jobId);
 
-                        $jobsToTrigger[] = $jobId;
+                        if (!$run->getJob()->isDisabled()) {
+                            $jobsToTrigger[] = $jobId;
+                        }
                     }
                 } finally {
                     if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
@@ -217,6 +219,7 @@ readonly class WorkflowOrchestrator
             $workflowState->setStatus(WorkflowState::STATUS_STARTED);
             $this->stateRepository->persistWorkflowState($workflowState);
 
+            $jobInputs['rerun'] = true;
             foreach ($jobsToTrigger as $jobId) {
                 $this->triggerJob($workflowState, $jobId, $jobInputs);
             }
@@ -248,6 +251,10 @@ readonly class WorkflowOrchestrator
             foreach ($stage->getRuns() as $run) {
                 $job = $run->getJob();
                 $jobId = $job->getId();
+
+                if ($job->isDisabled()) {
+                    continue;
+                }
 
                 $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
                 if (null === $jobState) {

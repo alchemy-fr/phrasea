@@ -1,0 +1,42 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\RenditionFactory\Command\CreateCommand: ~
+
+    Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
+    Alchemy\RenditionFactory\FileFamilyGuesser: ~
+    Alchemy\RenditionFactory\RenditionCreator: ~
+    Alchemy\RenditionFactory\Config\YamlLoader: ~
+    Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineFilterFactory: ~
+
+    # Modules
+    Alchemy\RenditionFactory\Transformer\Image\Imagine\ImagineTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\VoidTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\VideoSummaryTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpegTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Document\DocumentToPdfTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Document\PdfToImageTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Imagine\Imagick\Imagine: ~
+    Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
+
+    Alchemy\RenditionFactory\MimeType\MimeTypeGuesser: ~

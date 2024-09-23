@@ -8,13 +8,14 @@ import {
     CardActions,
     CardContent,
     CardMedia,
+    Chip,
     Skeleton,
     Typography,
 } from '@mui/material';
 import byteSize from 'byte-size';
-import {useTranslation} from 'react-i18next';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
+import {useTranslation} from 'react-i18next';
 
 const cardProps = {
     elevation: 2,
@@ -39,7 +40,7 @@ export function Rendition({
     title,
     asset,
     dimensions,
-    rendition: {name, file},
+    rendition: {name, file, dirty},
 }: Props) {
     const {t} = useTranslation();
 
@@ -67,6 +68,18 @@ export function Rendition({
                             ''
                         )}
                         {file.type ? file.type : ''}
+                        {dirty ? (
+                            <>
+                                {` • `}
+                                <Chip
+                                    size={'small'}
+                                    color={'error'}
+                                    label={t('renditions.dirty', 'Dirty')}
+                                />
+                            </>
+                        ) : (
+                            ''
+                        )}
                     </div>
                 )
             }

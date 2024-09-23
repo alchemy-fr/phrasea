@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class FileDelete
 {
     public function __construct(
-        private array $paths
+        private array $paths,
     ) {
     }
 

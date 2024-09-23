@@ -75,7 +75,7 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                     'one_time_token.cache' => [
                         'adapter' => 'cache.adapter.redis',
                         'provider' => '%env(REDIS_URL)%',
-                        'default_lifetime' => 5*60,
+                        'default_lifetime' => 5 * 60,
                     ],
                 ],
             ],
@@ -94,8 +94,8 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
                 'mapping' => [
                     'paths' => [
                         __DIR__.'/../Api/Resource',
-                    ]
-                ]
+                    ],
+                ],
             ]);
         }
     }

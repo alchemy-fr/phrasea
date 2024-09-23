@@ -21,7 +21,7 @@ class WorkflowStateExtension implements QueryCollectionExtensionInterface
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (WorkflowState::class !== $resourceClass) {
             return;

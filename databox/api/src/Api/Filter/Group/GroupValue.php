@@ -16,7 +16,7 @@ readonly class GroupValue
         #[Groups(['_'])]
         private ?string $key,
         #[Groups(['_'])]
-        private array $values
+        private array $values,
     ) {
     }
 

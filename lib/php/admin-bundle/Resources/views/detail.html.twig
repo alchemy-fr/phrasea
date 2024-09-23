@@ -1,0 +1,6 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block configured_javascripts %}
+    {{ parent() }}
+    {% include '@AlchemyAdmin/fields_js_css.html.twig' %}
+{% endblock %}

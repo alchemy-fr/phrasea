@@ -54,7 +54,7 @@ trait AttributeInputTrait
         AbstractInputTransformer $attributeInputProcessor,
         Asset|AssetDataTemplate $object,
         iterable $attributes,
-        array $context
+        array $context,
     ): void {
         unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
 

@@ -26,7 +26,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
     public function __construct(
         private readonly AwsTranscribeClient $client,
         private readonly BatchAttributeManager $batchAttributeManager,
-        private readonly UriDownloader $fileDownloader
+        private readonly UriDownloader $fileDownloader,
     ) {
     }
 

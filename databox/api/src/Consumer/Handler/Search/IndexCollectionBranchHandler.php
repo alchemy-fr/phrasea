@@ -16,7 +16,7 @@ readonly class IndexCollectionBranchHandler
 {
     public function __construct(
         private SearchIndexer $searchIndexer,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
     ) {
     }
 

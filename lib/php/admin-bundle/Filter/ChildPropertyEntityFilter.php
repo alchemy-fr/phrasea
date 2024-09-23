@@ -26,7 +26,7 @@ final class ChildPropertyEntityFilter implements FilterInterface
 
     public static function new(string $propertyName, string $childPropertyName, $label = null): self
     {
-        $label = $label == null ? $childPropertyName : $label;
+        $label = null == $label ? $childPropertyName : $label;
 
         return (new self())
             ->setFilterFqcn(__CLASS__)
@@ -38,27 +38,21 @@ final class ChildPropertyEntityFilter implements FilterInterface
     }
 
     /**
-     *  Some code logic from EntityFilter
-     * @param QueryBuilder $queryBuilder
-     * @param FilterDataDto $filterDataDto
-     * @param FieldDto|null $fieldDto
-     * @param EntityDto $entityDto
+     *  Some code logic from EntityFilter.
      */
     public function apply(QueryBuilder $queryBuilder, FilterDataDto $filterDataDto, ?FieldDto $fieldDto, EntityDto $entityDto): void
     {
         $alias = $filterDataDto->getEntityAlias();
         // the 'ea_' prefix is needed to avoid errors when using reserved words as assocAlias ('order', 'group', etc.)
         // see https://github.com/EasyCorp/EasyAdminBundle/pull/4344
-        $assocAlias = 'ea_' . $filterDataDto->getParameterName();
-        $childAssocAlias = 'ea_'. $filterDataDto->getParameter2Name();
-
+        $assocAlias = 'ea_'.$filterDataDto->getParameterName();
+        $childAssocAlias = 'ea_'.$filterDataDto->getParameter2Name();
 
         $property = $filterDataDto->getProperty();
         $comparison = $filterDataDto->getComparison();
         $parameterName = $filterDataDto->getParameterName();
         $value = $filterDataDto->getValue();
         $isMultiple = $filterDataDto->getFormTypeOption('value_type_options.multiple');
-
 
         $childPropertyName = $filterDataDto->getFormTypeOption('value_type_options.attr.data-child-property');
         $doctrineMetadata = $entityDto->getPropertyMetadata($property);
@@ -67,7 +61,6 @@ final class ChildPropertyEntityFilter implements FilterInterface
         /** @var ClassMetadata $entityMetadata */
         $propertyEntityMetadata = $entityManager->getClassMetadata($propertyEntityFqcn);
         $propertyEntityDto = new EntityDto($propertyEntityFqcn, $propertyEntityMetadata);
-
 
         $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $property), $assocAlias);
         // do the clause where with the childProperty not with the property like in EntityFilter

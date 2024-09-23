@@ -121,8 +121,10 @@ export interface FieldType extends ApiHydraObjectResponse {
 export interface RenditionDefinition extends ApiHydraObjectResponse {
     id: string;
     name: string;
+    parent?: RenditionDefinition | string | undefined | null;
     class: AttributeClass | string | null;
     workspace: Workspace | string;
+    definition: string;
     pickSourceFile?: boolean;
     useAsOriginal?: boolean;
     useAsPreview?: boolean;
@@ -136,6 +138,7 @@ export interface AssetRendition extends ApiHydraObjectResponse {
     name: string;
     file: File | undefined;
     ready: boolean;
+    dirty?: boolean;
 }
 
 export interface RenditionClass extends ApiHydraObjectResponse {

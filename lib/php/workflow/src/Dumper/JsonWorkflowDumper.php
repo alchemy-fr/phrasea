@@ -19,15 +19,18 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             $jobs = [];
 
             foreach ($stage->getRuns() as $run) {
-                $jobId = $run->getJob()->getId();
+                $j = $run->getJob();
+                $jobId = $j->getId();
                 $jobState = $state->getJobState($jobId);
 
                 $job = [
                     'id' => $jobId,
-                    'name' => $run->getJob()->getName(),
-                    'needs' => array_values($run->getJob()->getNeeds()->getArrayCopy()),
-                    'if' => $run->getJob()->getIf(),
-                    'with' => $run->getJob()->getWith(),
+                    'name' => $j->getName(),
+                    'needs' => array_values($j->getNeeds()->getArrayCopy()),
+                    'if' => $j->getIf(),
+                    'with' => $j->getWith(),
+                    'disabled' => $j->isDisabled(),
+                    'disabledReason' => $j->getDisabledReason(),
                 ];
 
                 if ($jobState instanceof JobState) {

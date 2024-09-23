@@ -82,7 +82,7 @@ export function createThumbActiveStyle(): SxProps {
         },
         '&:hover': {
             [`.${assetClasses.thumbActive}`]: {
-                display: 'block',
+                display: 'contents',
             },
             [`.${assetClasses.thumbInactive}`]: {
                 display: 'none',

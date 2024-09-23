@@ -35,7 +35,9 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
             ->setDateTimeFormat('dd/MM/yyyy HH:mm:ss')
             ->setTimeFormat('HH:mm')
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
-            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig');
+            ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
+            ->overrideTemplate('crud/detail', '@AlchemyAdmin/detail.html.twig')
+        ;
     }
 
     public function configureUserMenu(UserInterface $user): UserMenu

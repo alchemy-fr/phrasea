@@ -13,7 +13,7 @@ readonly class RemoveBgClient
     public function __construct(
         private FileFetcher $fileFetcher,
         private string $cacheDir,
-        private HttpClientInterface $removeBgClient
+        private HttpClientInterface $removeBgClient,
     ) {
     }
 

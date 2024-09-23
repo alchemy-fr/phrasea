@@ -32,7 +32,7 @@ class AssetSearch extends AbstractSearch
     public function search(
         ?string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): array {
         $maxLimit = 50;
 

@@ -96,8 +96,8 @@ function Filter({t: type, x, i, v, w, onInvert, onDelete}: FilterProps) {
                 mb: 1,
                 mr: 1,
             }}
-            title={`${i ? t('filter.not', `Not `) : ''}${formatFilterTitle(w, x, type, v, t)}`}
-            label={`${i ? t('filter.not', `Not `) : ''}${formatFilterLabel(w, x, type, v)}`}
+            title={`${i ? t('filter.exclude', `Exclude `) : ''}${formatFilterTitle(w, x, type, v, t)}`}
+            label={`${i ? t('filter.exclude', `Exclude `) : ''}${formatFilterLabel(w, x, type, v)}`}
             onDelete={onDelete}
             onClick={onInvert}
             color={i ? 'error' : 'primary'}

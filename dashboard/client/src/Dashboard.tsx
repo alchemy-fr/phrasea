@@ -51,6 +51,7 @@ export default function Dashboard({}: Props) {
     } = config.env;
 
     const roles = user?.roles ?? [];
+    const isInIframe = inIframe();
 
     return (
         <Container>
@@ -163,6 +164,12 @@ export default function Dashboard({}: Props) {
                         ]}
                     />
                 )}
+                {isInIframe ? <Service
+                    mainUrl={`/`}
+                    title={`Dashboard`}
+                    description={`Phrasea entrypoint`}
+                    logo={notifyImg}
+                /> : ''}
             </Grid>
             {roles.includes('tech') && (
                 <Grid container spacing={2} marginTop={1}>
@@ -269,4 +276,12 @@ export default function Dashboard({}: Props) {
             )}
         </Container>
     );
+}
+
+function inIframe(): boolean {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }

@@ -32,7 +32,7 @@ class AssetCopier
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
-        array $options = []
+        array $options = [],
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         if (!$sameWorkspace) {
@@ -80,7 +80,7 @@ class AssetCopier
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
-        array $options = []
+        array $options = [],
     ): void {
         $copy = new Asset();
         $copy->setOwnerId($userId);

@@ -21,8 +21,13 @@ final class FileUtil
     public static function guessExtension(?string $type, ?string $path): ?string
     {
         $ext = self::getExtensionFromType($type);
+
         if (null === $ext) {
-            $ext = self::getExtensionFromPath($path) ?: null;
+            if (null !== $path) {
+                return self::getExtensionFromPath($path) ?: null;
+            }
+
+            return null;
         }
 
         return $ext;
@@ -67,5 +72,10 @@ final class FileUtil
         }
 
         return $types[0];
+    }
+
+    public static function stripExtension(string $filename): string
+    {
+        return preg_replace($filename, '#\.[a-z0-9]{2,5}$#i', '');
     }
 }

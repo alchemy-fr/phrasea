@@ -97,6 +97,8 @@ class PhraseanetIntegrationController extends AbstractController
             $asset,
             $definition,
             $file,
+            null,
+            null,
         );
 
         $em->flush();
@@ -176,7 +178,7 @@ class PhraseanetIntegrationController extends AbstractController
         IntegrationManager $integrationManager,
         StateRepositoryInterface $workflowStateRepository,
         PhraseanetTokenManager $tokenManager,
-        Request $request
+        Request $request,
     ): Response {
         $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $assetId));
 
@@ -210,7 +212,7 @@ class PhraseanetIntegrationController extends AbstractController
     public function enqueueAckAction(
         string $integrationId,
         string $assetId,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): Response {
         $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset "%s"', $assetId));
 
@@ -221,7 +223,7 @@ class PhraseanetIntegrationController extends AbstractController
     public function enqueueAssetAckAction(
         string $integrationId,
         string $assetId,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ): Response {
         $logger->debug(sprintf('Phraseanet enqueue acknowledgement received for asset ID "%s"', $assetId));
 

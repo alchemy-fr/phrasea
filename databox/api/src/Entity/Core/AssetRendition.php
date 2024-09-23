@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionInput;
+use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
@@ -112,6 +113,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'groups' => [AssetRendition::GROUP_LIST],
     ],
     input: RenditionInput::class,
+    output: AssetRenditionOutput::class,
     provider: RenditionCollectionProvider::class,
 )]
 #[ORM\Table]
@@ -124,17 +126,14 @@ class AssetRendition extends AbstractUuidEntity
     final public const GROUP_READ = 'assetrend:read';
     final public const GROUP_LIST = 'assetrend:index';
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: RenditionDefinition::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?RenditionDefinition $definition = null;
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
     #[ORM\ManyToOne(targetEntity: File::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?File $file = null;
@@ -145,6 +144,18 @@ class AssetRendition extends AbstractUuidEntity
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $projection = null;
+
+    /**
+     * Hash based on the build process.
+     */
+    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
+    private ?string $buildHash = null;
+
+    /**
+     * Hash based on the build process.
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $moduleHashes = null;
 
     public function getAsset(): Asset
     {
@@ -197,5 +208,25 @@ class AssetRendition extends AbstractUuidEntity
     public function setProjection(?bool $projection): void
     {
         $this->projection = $projection;
+    }
+
+    public function getBuildHash(): ?string
+    {
+        return $this->buildHash;
+    }
+
+    public function setBuildHash(?string $buildHash): void
+    {
+        $this->buildHash = $buildHash;
+    }
+
+    public function getModuleHashes(): ?array
+    {
+        return $this->moduleHashes;
+    }
+
+    public function setModuleHashes(?array $moduleHashes): void
+    {
+        $this->moduleHashes = $moduleHashes;
     }
 }

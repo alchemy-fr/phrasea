@@ -40,6 +40,8 @@ export type Job = {
     endedAt?: string | undefined;
     inputs?: Inputs;
     outputs?: Outputs;
+    disabled: boolean;
+    disabledReason?: string | undefined;
 }
 
 export type NodeData = {

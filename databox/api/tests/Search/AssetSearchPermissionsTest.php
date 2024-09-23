@@ -280,7 +280,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         array $assets,
         array $include,
         array $exclude,
-        array $expectedResults
+        array $expectedResults,
     ): void {
         $workspace = $this->createWorkspace([
             'public' => true,

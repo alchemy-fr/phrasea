@@ -26,6 +26,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints\Length;
 
 #[ApiResource(
     shortName: 'tag',
@@ -77,6 +78,7 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     final public const GROUP_LIST = 'tag:index';
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    #[Length(max: 100)]
     private string $name;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]

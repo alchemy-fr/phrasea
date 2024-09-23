@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\StorageBundle\Util\FileUtil;
 use App\Asset\AssetManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -37,7 +38,9 @@ readonly class NewAssetFromBorderHandler
 
         $asset->setSource($file);
         $asset->setOwnerId($message->getUserId());
-        $asset->setTitle($title ?? $filename ?? $file->getPath());
+        $asset->setTitle($title
+            ?? ($filename ? FileUtil::stripExtension($filename) : null)
+            ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null));
         $asset->setWorkspace($file->getWorkspace());
 
         foreach ($collections as $collection) {

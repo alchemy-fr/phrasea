@@ -26,7 +26,7 @@ class CopyAssetProcessor implements ProcessorInterface
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
-        private readonly IriConverterInterface $iriConverter
+        private readonly IriConverterInterface $iriConverter,
     ) {
     }
 

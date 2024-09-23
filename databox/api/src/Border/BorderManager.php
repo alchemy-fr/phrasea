@@ -19,40 +19,36 @@ final readonly class BorderManager
     {
     }
 
-    public function acceptFile(InputFile $inputFile, Workspace $workspace): ?File
+    public function acceptFile(InputFile $inputFile, Workspace $workspace): File
     {
-        try {
-            $this->validateFile($inputFile);
+        $this->validateFile($inputFile);
 
-            $localFilePath = $this->importFile($inputFile);
+        $localFilePath = $this->importFile($inputFile);
 
-            $content = new FileContent($inputFile, $localFilePath);
-            $this->validateContent($content);
+        $content = new FileContent($inputFile, $localFilePath);
+        $this->validateContent($content);
 
-            $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
+        $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
 
-            $fd = fopen($content->getPath(), 'r');
-            $this->storageManager->storeStream($finalPath, $fd);
-            fclose($fd);
+        $fd = fopen($content->getPath(), 'r');
+        $this->storageManager->storeStream($finalPath, $fd);
+        fclose($fd);
 
-            unlink($content->getPath());
+        unlink($content->getPath());
 
-            $file = new File();
-            $file->setStorage(File::STORAGE_S3_MAIN);
-            $file->setPath($finalPath);
-            $file->setOriginalName($inputFile->getName());
-            $file->setExtension($inputFile->getExtension());
-            $file->setSize($inputFile->getSize());
-            $file->setType($inputFile->getType());
-            $file->setWorkspace($workspace);
+        $file = new File();
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPath($finalPath);
+        $file->setOriginalName($inputFile->getName());
+        $file->setExtension($inputFile->getExtension());
+        $file->setSize($inputFile->getSize());
+        $file->setType($inputFile->getType());
+        $file->setWorkspace($workspace);
 
-            $this->em->persist($file);
-            $this->em->flush();
+        $this->em->persist($file);
+        $this->em->flush();
 
-            return $file;
-        } catch (FileInputValidationException) {
-            return null;
-        }
+        return $file;
     }
 
     public function validateFile(InputFile $file): void

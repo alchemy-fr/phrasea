@@ -10,7 +10,7 @@ final readonly class AttributeChanged
     public function __construct(
         private array $attributes,
         private string $assetId,
-        private ?string $userId
+        private ?string $userId,
     ) {
     }
 

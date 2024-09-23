@@ -23,14 +23,14 @@ final readonly class AssetDataTemplateSearch
         #[Autowire(service: 'fos_elastica.finder.asset_data_template')]
         private PaginatedFinderInterface $finder,
         private Security $security,
-        private EntityIriConverter $iriConverter
+        private EntityIriConverter $iriConverter,
     ) {
     }
 
     public function search(
         ?string $userId,
         array $groupIds,
-        array $filters = []
+        array $filters = [],
     ): Pagerfanta {
         $filterQueries = [];
 

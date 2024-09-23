@@ -7,6 +7,7 @@ namespace App\Workflow;
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
+use Alchemy\Workflow\Normalizer\DisabledNeedNormalizer;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationManager;
@@ -75,7 +76,6 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
         $workspaceIntegrations = $this->em->getRepository(WorkspaceIntegration::class)
             ->findBy([
                 'workspace' => $workspaceId,
-                'enabled' => true,
             ], [
                 'createdAt' => 'ASC',
                 'id' => 'ASC',
@@ -102,6 +102,11 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
             foreach ($integration->getWorkflowJobDefinitions($config, $workflow) as $jobDefinition) {
                 $jobList->offsetSet($jobDefinition->getId(), $jobDefinition);
                 $jobDefinition->setContinueOnError(true);
+
+                if (!$config->getWorkspaceIntegration()->isEnabled()) {
+                    $jobDefinition->markDisabled('Integration is disabled');
+                }
+
                 $jobs[] = $jobDefinition;
             }
             $jobMap[$config->getIntegrationId()] = $jobs;
@@ -126,6 +131,8 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
                 }
             }
         }
+
+        (new DisabledNeedNormalizer())->normalizeWorkflow($integrationWorkflow);
 
         return $integrationWorkflow;
     }

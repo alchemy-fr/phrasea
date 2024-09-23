@@ -19,12 +19,6 @@
             "Alchemy\\Workflow\\Tests\\": "tests/"
         }
     },
-    "authors": [
-        {
-            "name": "Arthur de Moulins",
-            "email": "arthurdemoulins@gmail.com"
-        }
-    ],
     "scripts": {
         "rector": "vendor/bin/rector",
         "test": "./vendor/bin/phpunit",

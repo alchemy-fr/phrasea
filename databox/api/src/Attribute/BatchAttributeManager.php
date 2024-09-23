@@ -375,7 +375,7 @@ class BatchAttributeManager
         ?Attribute $attribute,
         array $assetsId,
         AttributeDefinition $definition,
-        AttributeActionInput $action
+        AttributeActionInput $action,
     ): void {
         if (null !== $attribute && count($assetsId) > 1) {
             throw new \InvalidArgumentException('Attribute update is provided with many assets ID');
@@ -422,7 +422,7 @@ class BatchAttributeManager
         array $assetsId,
         ?AttributeDefinition $definition,
         ?JwtUser $user,
-        array $options = []
+        array $options = [],
     ): void {
         $qb = $this->em->createQueryBuilder()
             ->delete()

@@ -18,6 +18,12 @@ class RenditionDefinitionInput
     public $workspace;
 
     /**
+     * @var RenditionDefinition|null
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $parent;
+
+    /**
      * @var RenditionClass|null
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]

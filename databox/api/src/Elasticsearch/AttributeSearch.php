@@ -166,7 +166,7 @@ class AttributeSearch
     public function buildAttributeQuery(
         array $attributeDefinitionClusters,
         string $queryString,
-        array $options = []
+        array $options = [],
     ): ?Query\AbstractQuery {
         $language = $options['locale'] ?? '*';
 
@@ -309,7 +309,7 @@ class AttributeSearch
         Query $query,
         ?string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): void {
         $language = $options['locale'] ?? '*';
         $position = $options['context']['position'] ?? null;

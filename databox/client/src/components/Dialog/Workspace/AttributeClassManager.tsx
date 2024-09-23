@@ -11,7 +11,7 @@ import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
-} from './DefinitionManager';
+} from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {CheckboxWidget} from '@alchemy/react-form';
 import AclForm from '../../Acl/AclForm';

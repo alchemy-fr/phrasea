@@ -21,7 +21,7 @@ class DynamicAttributeBag
         private readonly AttributeIndex $attributes,
         private readonly array $definitions,
         callable $resolve,
-        string $locale
+        string $locale,
     ) {
         $this->resolve = $resolve;
         $this->locales = array_unique([$locale, AttributeInterface::NO_LOCALE]);

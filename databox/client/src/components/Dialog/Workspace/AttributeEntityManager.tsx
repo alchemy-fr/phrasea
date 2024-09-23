@@ -14,7 +14,7 @@ import {
 import DefinitionManager, {
     DefinitionItemFormProps,
     DefinitionItemProps,
-} from './DefinitionManager';
+} from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import Flag from '../../Ui/Flag.tsx';
 

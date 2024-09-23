@@ -28,7 +28,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly MessageBusInterface $bus
+        private readonly MessageBusInterface $bus,
     ) {
     }
 

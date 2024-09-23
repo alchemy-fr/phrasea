@@ -9,6 +9,7 @@ export default React.memo(({data, selected}: NodeProps<NodeData>) => {
         {data.needs?.length ? <Handle
             type="target"
             position={Position.Left}
+            className={data.disabled ? 'job-disabled' : undefined}
         /> : ''}
         <div
             className={'job-content'}
@@ -23,6 +24,10 @@ export default React.memo(({data, selected}: NodeProps<NodeData>) => {
                 {data.name}
             </div>
             {data.duration && <div className={'job-duration'}>{data.duration}</div>}
+            {data.disabled && data.disabledReason ? <div
+                className={'job-disabled-reason'}
+                title={data.disabledReason}
+            >🚫</div> : ''}
         </div>
         {data.isDependency && <Handle
             type="source"

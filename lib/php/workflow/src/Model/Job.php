@@ -18,6 +18,8 @@ class Job
     private array $outputs = [];
     private ?string $result = null;
     private bool $continueOnError = false;
+    private bool $disabled = false;
+    private ?string $disabledReason = null;
 
     public function __construct(private readonly string $id)
     {
@@ -106,5 +108,21 @@ class Job
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+    public function getDisabledReason(): ?string
+    {
+        return $this->disabledReason;
+    }
+
+    public function markDisabled(?string $reason): void
+    {
+        $this->disabled = true;
+        $this->disabledReason = $reason;
     }
 }

@@ -17,7 +17,7 @@ readonly class AttributeChangedEventHandler
 {
     public function __construct(
         private WorkflowOrchestrator $workflowOrchestrator,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
     ) {
     }
 

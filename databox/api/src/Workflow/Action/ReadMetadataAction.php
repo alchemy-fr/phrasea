@@ -11,7 +11,6 @@ use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Metadata\MetadataNormalizer;
-use Doctrine\ORM\EntityManagerInterface;
 
 class ReadMetadataAction extends AbstractIntegrationAction implements IfActionInterface
 {
@@ -19,7 +18,6 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
         private readonly MetadataManipulator $metadataManipulator,
         private readonly MetadataNormalizer $metadataNormalizer,
         private readonly FileFetcher $fileFetcher,
-        private readonly EntityManagerInterface $em,
     ) {
     }
 

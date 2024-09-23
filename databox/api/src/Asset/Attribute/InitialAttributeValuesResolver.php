@@ -22,7 +22,7 @@ class InitialAttributeValuesResolver
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AttributeAssigner $attributeAssigner
+        private readonly AttributeAssigner $attributeAssigner,
     ) {
         $this->twig = new Environment(new ArrayLoader(), [
             'autoescape' => false,
@@ -93,7 +93,7 @@ class InitialAttributeValuesResolver
         Asset $asset,
         FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
         string $initializeFormula,
-        AttributeDefinition $definition
+        AttributeDefinition $definition,
     ): array {
         $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
 

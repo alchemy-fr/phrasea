@@ -4,7 +4,6 @@ import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
 import {Dimensions, FileWithUrl} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
-import {useTranslation} from 'react-i18next';
 
 type Props = {
     file: File;
@@ -25,7 +24,6 @@ export default function FilePlayer({
     autoPlayable,
     dimensions,
 }: Props) {
-    const {t} = useTranslation();
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (!file.url) {
@@ -34,12 +32,15 @@ export default function FilePlayer({
 
     switch (mainType) {
         case FileTypeEnum.Image:
+            const isSvg = file.type === 'image/svg+xml';
+
             return (
                 <img
                     style={{
                         maxWidth: '100%',
                         maxHeight: '100%',
                         display: 'block',
+                        ...(isSvg ? {width: '100%'} : {}),
                     }}
                     crossOrigin="anonymous"
                     src={file.url}
@@ -60,24 +61,17 @@ export default function FilePlayer({
                 />
             );
         case FileTypeEnum.Document:
-            return (
-                <PDFPlayer
-                    dimensions={dimensions}
-                    file={file as FileWithUrl}
-                    onLoad={onLoad}
-                    noInteraction={noInteraction}
-                />
-            );
-        default:
-            return (
-                <div
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    {t('file_player.unsupported_format', `Unsupported format`)}
-                </div>
-            );
+            if (file.type === 'application/pdf') {
+                return (
+                    <PDFPlayer
+                        dimensions={dimensions}
+                        file={file as FileWithUrl}
+                        onLoad={onLoad}
+                        noInteraction={noInteraction}
+                    />
+                );
+            }
     }
+
+    return <AssetFileIcon file={file} />;
 }

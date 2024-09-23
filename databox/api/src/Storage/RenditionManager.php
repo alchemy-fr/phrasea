@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Storage;
 
+use Alchemy\CoreBundle\Pusher\PusherManager;
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
@@ -12,12 +14,16 @@ use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
 
-class RenditionManager
+final class RenditionManager
 {
     private array $renditionsToDelete = [];
 
-    public function __construct(private readonly EntityManagerInterface $em, private readonly FileManager $fileManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly FileManager $fileManager,
+        private readonly PusherManager $pusherManager,
+        private readonly PostFlushStack $postFlushStack,
+    ) {
     }
 
     public function createOrReplaceRenditionByPath(
@@ -27,7 +33,9 @@ class RenditionManager
         string $path,
         ?string $type,
         ?int $size,
-        ?string $originalName
+        ?string $originalName,
+        ?string $buildHash,
+        ?array $moduleHashes,
     ): AssetRendition {
         $file = $this->fileManager->createFile(
             $storage,
@@ -41,14 +49,18 @@ class RenditionManager
         return $this->createOrReplaceRenditionFile(
             $asset,
             $definition,
-            $file
+            $file,
+            $buildHash,
+            $moduleHashes,
         );
     }
 
     public function createOrReplaceRenditionFile(
         Asset $asset,
         RenditionDefinition $definition,
-        File $file
+        File $file,
+        ?string $buildHash,
+        ?array $moduleHashes,
     ): AssetRendition {
         if (null === $asset->getSource() && $definition->isUseAsOriginal()) {
             $asset->setSource($file);
@@ -57,12 +69,36 @@ class RenditionManager
 
         $rendition = $this->getOrCreateRendition($asset, $definition);
         $rendition->setFile($file);
+        $rendition->setBuildHash($buildHash);
+        $rendition->setModuleHashes($moduleHashes);
         $this->em->persist($rendition);
+
+        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
+            'assets',
+            'rendition-update',
+            [
+                'assetId' => $asset->getId(),
+                'definition' => $definition->getId(),
+            ]
+        ));
 
         return $rendition;
     }
 
     public function getOrCreateRendition(Asset $asset, RenditionDefinition $definition): AssetRendition
+    {
+        if (null !== $assetRendition = $this->getAssetRenditionByDefinition($asset, $definition)) {
+            return $assetRendition;
+        }
+
+        $rendition = new AssetRendition();
+        $rendition->setAsset($asset);
+        $rendition->setDefinition($definition);
+
+        return $rendition;
+    }
+
+    public function getAssetRenditionByDefinition(Asset $asset, RenditionDefinition $definition): ?AssetRendition
     {
         $renditions = $asset->getRenditions();
         $collectionReady = !$renditions instanceof PersistentCollection || $renditions->isInitialized();
@@ -74,25 +110,21 @@ class RenditionManager
                     return $rendition;
                 }
             }
-        } else {
-            $rendition = $this->em->getRepository(AssetRendition::class)
-                ->findOneBy([
-                    'asset' => $asset->getId(),
-                    'definition' => $definition->getId(),
-                ]);
-
-            if ($rendition instanceof AssetRendition) {
-                unset($this->renditionsToDelete[$rendition->getId()]);
-
-                return $rendition;
-            }
         }
 
-        $rendition = new AssetRendition();
-        $rendition->setAsset($asset);
-        $rendition->setDefinition($definition);
+        $rendition = $this->em->getRepository(AssetRendition::class)
+            ->findOneBy([
+                'asset' => $asset->getId(),
+                'definition' => $definition->getId(),
+            ]);
 
-        return $rendition;
+        if ($rendition instanceof AssetRendition) {
+            unset($this->renditionsToDelete[$rendition->getId()]);
+
+            return $rendition;
+        }
+
+        return null;
     }
 
     public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition
@@ -144,6 +176,16 @@ class RenditionManager
         }
 
         return $definition;
+    }
+
+    public function getRenditionDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findBy([
+                'workspace' => $workspaceId,
+            ]);
     }
 
     public function getRenditionDefinitionById(Workspace $workspace, string $id): RenditionDefinition
