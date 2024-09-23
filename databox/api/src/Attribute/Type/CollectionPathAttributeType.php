@@ -15,7 +15,7 @@ class CollectionPathAttributeType extends AbstractAttributeType
     public const NAME = 'collection_path';
 
     public function __construct(
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

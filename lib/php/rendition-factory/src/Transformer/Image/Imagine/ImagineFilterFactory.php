@@ -2,7 +2,6 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
-use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Alchemy\RenditionFactory\Transformer\Image\Imagine\Filter\StampFilter;

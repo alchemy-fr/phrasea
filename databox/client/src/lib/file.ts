@@ -23,13 +23,15 @@ export function getFileTypeFromMIMEType(
         return FileTypeEnum.Audio;
     }
 
-    if ([
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ].includes(type)) {
+    if (
+        [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ].includes(type)
+    ) {
         return FileTypeEnum.Document;
     }
 

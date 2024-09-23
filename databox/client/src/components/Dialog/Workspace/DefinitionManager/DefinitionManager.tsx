@@ -29,7 +29,7 @@ import SortableList, {
     SortableItemProps,
 } from '../../../Ui/Sortable/SortableList.tsx';
 import {Workspace} from '../../../../types.ts';
-import ItemForm from "./ItemForm.tsx";
+import ItemForm from './ItemForm.tsx';
 import {UseFormSubmitReturn} from '@alchemy/api';
 
 export type DefinitionBase = ApiHydraObjectResponse & {id: string};
@@ -169,36 +169,39 @@ export default function DefinitionManager<D extends DefinitionBase>({
         [setItemState, loadItem, item]
     );
 
-    const onItemUpdate = React.useCallback((newData: D) => {
-        const newNormData = normalizeData
-            ? normalizeData(newData)
-            : newData;
+    const onItemUpdate = React.useCallback(
+        (newData: D) => {
+            const newNormData = normalizeData
+                ? normalizeData(newData)
+                : newData;
 
-        setItemState({
-            item: newNormData,
-            loading: false,
-        });
+            setItemState({
+                item: newNormData,
+                loading: false,
+            });
 
-        setListState(p => {
-            let newList = p.list!;
-            if (newList.find(i => i.id === newData.id)) {
-                newList = newList.map(i => {
-                    if (i.id === newData.id) {
-                        return newData;
-                    }
+            setListState(p => {
+                let newList = p.list!;
+                if (newList.find(i => i.id === newData.id)) {
+                    newList = newList.map(i => {
+                        if (i.id === newData.id) {
+                            return newData;
+                        }
 
-                    return i;
-                });
-            } else {
-                newList = newList.concat([newData]);
-            }
+                        return i;
+                    });
+                } else {
+                    newList = newList.concat([newData]);
+                }
 
-            return {
-                ...p,
-                list: newList,
-            };
-        });
-    }, [normalizeData]);
+                return {
+                    ...p,
+                    list: newList,
+                };
+            });
+        },
+        [normalizeData]
+    );
 
     const createAttribute = () => {
         setItemState({
@@ -220,7 +223,6 @@ export default function DefinitionManager<D extends DefinitionBase>({
             });
         });
     }, []);
-
 
     const onDelete = useCallback(() => {
         if (handleDelete && typeof item === 'object') {
@@ -392,17 +394,17 @@ export default function DefinitionManager<D extends DefinitionBase>({
                         </Box>
                     )}
                     {item && (
-                            <ItemForm
-                                key={item === 'new' ? 'new' : item!.id}
-                                itemComponent={itemComponent}
-                                item={item === 'new' ? (newItem as D) : item!}
-                                workspace={workspace}
-                                onSave={handleSave}
-                                formId={formId}
-                                setSubmitting={setSubmitting}
-                                onItemUpdate={onItemUpdate}
-                                normalizeData={normalizeData}
-                            />
+                        <ItemForm
+                            key={item === 'new' ? 'new' : item!.id}
+                            itemComponent={itemComponent}
+                            item={item === 'new' ? (newItem as D) : item!}
+                            workspace={workspace}
+                            onSave={handleSave}
+                            formId={formId}
+                            setSubmitting={setSubmitting}
+                            onItemUpdate={onItemUpdate}
+                            normalizeData={normalizeData}
+                        />
                     )}
                     {item && item !== 'new' && handleDelete && (
                         <>

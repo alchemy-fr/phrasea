@@ -41,7 +41,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AssetTitleResolver $assetTitleResolver,
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly FacetRegistry $facetRegistry,
-        private readonly AttributeTypeRegistry $attributeTypeRegistry
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
     ) {
     }
 
@@ -155,7 +155,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset
+        $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset,
         ): Collection => $collectionAsset->getCollection())
             ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
             ->getValues());
@@ -188,7 +188,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         Asset $asset,
         string $type,
         ?string $userId,
-        array $groupIds
+        array $groupIds,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {

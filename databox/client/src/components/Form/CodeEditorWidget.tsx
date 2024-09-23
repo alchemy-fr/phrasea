@@ -1,7 +1,9 @@
 import {Control, Controller, FieldPath, FieldValues} from 'react-hook-form';
-import CodeEditor, {CodeEditorProps} from "../Media/Asset/Widgets/CodeEditor.tsx";
-import {ReactNode} from "react";
-import {FormLabel} from "@mui/material";
+import CodeEditor, {
+    CodeEditorProps,
+} from '../Media/Asset/Widgets/CodeEditor.tsx';
+import {ReactNode} from 'react';
+import {FormLabel} from '@mui/material';
 
 type Props<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;
@@ -30,7 +32,9 @@ export default function CodeEditorWidget<TFieldValues extends FieldValues>({
                 >
                     {label}
                 </FormLabel>
-            ) : ''}
+            ) : (
+                ''
+            )}
             <Controller
                 control={control}
                 name={name}

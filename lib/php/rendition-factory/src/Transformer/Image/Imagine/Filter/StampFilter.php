@@ -137,7 +137,7 @@ class StampFilter implements LoaderInterface, BuildHashDiffInterface
     public function buildHashesDiffer(
         array $buildHashes,
         array $options,
-        TransformationContextInterface $transformationContext
+        TransformationContextInterface $transformationContext,
     ): bool {
         if (!empty($buildHashes)) {
             $textHash = array_shift($buildHashes);

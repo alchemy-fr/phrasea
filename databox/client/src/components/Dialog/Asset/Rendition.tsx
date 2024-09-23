@@ -2,7 +2,16 @@ import {ReactNode} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import FilePlayer from '../../Media/Asset/FilePlayer';
 import {Dimensions} from '../../Media/Asset/Players';
-import {Button, Card, CardActions, CardContent, CardMedia, Chip, Skeleton, Typography,} from '@mui/material';
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardMedia,
+    Chip,
+    Skeleton,
+    Typography,
+} from '@mui/material';
 import byteSize from 'byte-size';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
@@ -59,14 +68,18 @@ export function Rendition({
                             ''
                         )}
                         {file.type ? file.type : ''}
-                        {dirty ? <>
-                            {` • `}
-                            <Chip
-                                size={'small'}
-                                color={'error'}
-                                label={t('renditions.dirty', 'Dirty')}
-                            />
-                        </> : ''}
+                        {dirty ? (
+                            <>
+                                {` • `}
+                                <Chip
+                                    size={'small'}
+                                    color={'error'}
+                                    label={t('renditions.dirty', 'Dirty')}
+                                />
+                            </>
+                        ) : (
+                            ''
+                        )}
                     </div>
                 )
             }
@@ -75,7 +88,7 @@ export function Rendition({
                     {file?.url && (
                         <>
                             <Button
-                                startIcon={<DownloadIcon/>}
+                                startIcon={<DownloadIcon />}
                                 href={file.url}
                                 target={'_blank'}
                                 rel={'noreferrer'}
@@ -135,15 +148,15 @@ function RenditionStructure({
     );
 }
 
-export function RenditionSkeleton({dimensions}: { dimensions: Dimensions }) {
+export function RenditionSkeleton({dimensions}: {dimensions: Dimensions}) {
     return (
         <RenditionStructure
-            title={<Skeleton variant={'text'}/>}
-            info={<Skeleton variant={'text'} width={'50%'}/>}
+            title={<Skeleton variant={'text'} />}
+            info={<Skeleton variant={'text'} width={'50%'} />}
             dimensions={dimensions}
-            media={<Skeleton {...dimensions} variant={'rectangular'}/>}
+            media={<Skeleton {...dimensions} variant={'rectangular'} />}
             actions={
-                <Skeleton width={150} height={60} variant={'rectangular'}/>
+                <Skeleton width={150} height={60} variant={'rectangular'} />
             }
         />
     );

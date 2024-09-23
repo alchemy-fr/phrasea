@@ -6,8 +6,7 @@ final readonly class AssetAttributeAccessor implements \ArrayAccess
 {
     public function __construct(
         private AssetMetadataContainer $container,
-    )
-    {
+    ) {
     }
 
     public function offsetExists(mixed $offset): bool

@@ -10,6 +10,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class TransformationContext implements TransformationContextInterface
 {
     private BuildHashes $buildHashes;
+
     public function __construct(
         private string $workingDirectory,
         private string $cacheDir,

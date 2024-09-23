@@ -14,14 +14,14 @@ class FieldTypeProvider extends AbstractCollectionProvider
 {
     public function __construct(
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
         $results = array_map(function (AttributeTypeInterface $type): FieldType {
             $t = new FieldType();

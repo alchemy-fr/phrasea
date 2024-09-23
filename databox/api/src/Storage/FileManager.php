@@ -22,7 +22,7 @@ final readonly class FileManager
         ?string $type,
         ?int $size,
         ?string $originalName,
-        Workspace $workspace
+        Workspace $workspace,
     ): File {
         $file = new File();
         $file->setStorage($storage);

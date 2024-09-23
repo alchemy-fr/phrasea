@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class DeleteCollection
 {
     public function __construct(
-        private string $id
+        private string $id,
     ) {
     }
 

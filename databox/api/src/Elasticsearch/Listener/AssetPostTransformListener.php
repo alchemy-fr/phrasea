@@ -25,7 +25,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         private AttributeTypeRegistry $attributeTypeRegistry,
         private FieldNameResolver $fieldNameResolver,
         private AttributesResolver $attributesResolver,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
     ) {
     }
 

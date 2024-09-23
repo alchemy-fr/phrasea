@@ -18,7 +18,7 @@ class DeleteAssetByKeysAction extends AbstractController
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

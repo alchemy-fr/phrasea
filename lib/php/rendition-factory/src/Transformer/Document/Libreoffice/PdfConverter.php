@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Alchemy\RenditionFactory\Transformer\Document\Libreoffice;
 
-use SplFileInfo;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 final class PdfConverter
 {
@@ -16,11 +15,11 @@ final class PdfConverter
 
     public function convert(string $inputPath, string $outputPath): void
     {
-        $inputInfo = new SplFileInfo($inputPath);
-        $filename = $inputInfo->getBasename('.' .$inputInfo->getExtension());
+        $inputInfo = new \SplFileInfo($inputPath);
+        $filename = $inputInfo->getBasename('.'.$inputInfo->getExtension());
 
-        $outputInfo = new SplFileInfo($outputPath);
-        $outDir = ($outputInfo->getPathInfo())->getRealPath();
+        $outputInfo = new \SplFileInfo($outputPath);
+        $outDir = $outputInfo->getPathInfo()->getRealPath();
 
         $args = [
             $this->getBinaryPath(),
@@ -36,7 +35,7 @@ final class PdfConverter
 
         $process->mustRun(); // throw exception when failed
 
-        $generatedFile = $outDir . '/' .  $filename. '.pdf';
+        $generatedFile = $outDir.'/'.$filename.'.pdf';
         $filesystem = new Filesystem();
 
         if ($filesystem->exists($generatedFile)) {

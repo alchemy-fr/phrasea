@@ -21,7 +21,7 @@ class CollectionProvider extends AbstractCollectionProvider
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
         $filters = $context['filters'] ?? [];
 

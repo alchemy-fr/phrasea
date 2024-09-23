@@ -21,7 +21,7 @@ class AwsTranscribeIntegrationController extends AbstractController
     #[Route(path: '/{integrationId}/events', name: 'event', methods: ['POST'])]
     public function incomingEventAction(
         string $integrationId,
-        Request $request
+        Request $request,
     ): Response {
         $this->bus->dispatch(new AwsTranscribeEvent($integrationId, $request->getContent()));
 

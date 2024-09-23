@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 readonly class DeleteCollectionHandler
 {
     public function __construct(
-        private CollectionDelete $collectionDelete
+        private CollectionDelete $collectionDelete,
     ) {
     }
 

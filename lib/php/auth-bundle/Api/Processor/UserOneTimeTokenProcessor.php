@@ -2,7 +2,6 @@
 
 namespace Alchemy\AuthBundle\Api\Processor;
 
-
 use Alchemy\AuthBundle\Api\Resource\OneTimeToken;
 use Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator;
 use ApiPlatform\Metadata\Operation;

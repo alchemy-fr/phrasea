@@ -21,14 +21,13 @@ final readonly class RenditionBuildHashManager
         private AssetTitleResolver $assetTitleResolver,
         private RenditionManager $renditionManager,
         private YamlLoader $loader,
-    )
-    {
+    ) {
     }
 
     public function getBuildHash(File $source, RenditionDefinition $definition): ?string
     {
         if ($definition->isPickSourceFile()
-            || null ===  $definition->getDefinition()) {
+            || null === $definition->getDefinition()) {
             return null;
         }
 
@@ -58,6 +57,7 @@ final readonly class RenditionBuildHashManager
             dump($assetRendition->getId());
             dump($this->getBuildHash($assetRendition->getFile(), $definition));
             dump($assetRendition->getBuildHash());
+
             return true;
         }
 

@@ -17,11 +17,10 @@ final class AssetMetadataContainer implements MetadataContainerInterface
         private readonly Asset $asset,
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetTitleResolver $assetTitleResolver,
-    )
-    {
+    ) {
     }
 
-    public function getMetadata(string $name): string|null
+    public function getMetadata(string $name): ?string
     {
         $prefix = 'attr.';
         if (str_starts_with($name, $prefix)) {

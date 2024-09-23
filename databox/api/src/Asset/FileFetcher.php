@@ -11,7 +11,7 @@ readonly class FileFetcher
 {
     public function __construct(
         private FileUrlResolver $fileUrlResolver,
-        private UriDownloader $fileDownloader
+        private UriDownloader $fileDownloader,
     ) {
     }
 

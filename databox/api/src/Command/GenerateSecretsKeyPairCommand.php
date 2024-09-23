@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class GenerateSecretsKeyPairCommand extends Command
 {
     public function __construct(
-        private readonly EncryptionManager $encryptionManager
+        private readonly EncryptionManager $encryptionManager,
     ) {
         parent::__construct();
     }

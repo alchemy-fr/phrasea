@@ -12,7 +12,7 @@ class TagFilterRuleCollectionProvider extends AbstractCollectionProvider
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
         $criteria = [];
         $filters = $context['filters'] ?? [];

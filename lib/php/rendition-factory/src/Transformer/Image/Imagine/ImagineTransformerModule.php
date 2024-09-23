@@ -2,8 +2,6 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
-use Alchemy\RenditionFactory\Context\BuildHashes;
-use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;

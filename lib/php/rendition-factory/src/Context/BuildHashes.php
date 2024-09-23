@@ -9,6 +9,7 @@ final class BuildHashes
 
     private array $path = [];
     private array $buildHashes = [];
+
     public function setPath(int $depth, string|int $key): void
     {
         $this->path = array_slice($this->path, 0, $depth);

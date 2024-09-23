@@ -22,6 +22,7 @@ class JobContext
     {
         return $this->jobState;
     }
+
     public function getInputs(): Inputs
     {
         return $this->inputs;

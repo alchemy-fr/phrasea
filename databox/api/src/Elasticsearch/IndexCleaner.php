@@ -12,7 +12,7 @@ readonly class IndexCleaner
     public function __construct(
         private Client $client,
         private Index $assetIndex,
-        private Index $collectionIndex
+        private Index $collectionIndex,
     ) {
     }
 

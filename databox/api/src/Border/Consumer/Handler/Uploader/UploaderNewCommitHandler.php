@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class UploaderNewCommitHandler
 {
     public function __construct(
-        private WorkflowOrchestrator $workflowOrchestrator
+        private WorkflowOrchestrator $workflowOrchestrator,
     ) {
     }
 

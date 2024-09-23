@@ -15,8 +15,16 @@ import {CollectionChip, WorkspaceChip} from '../Ui/Chips';
 import {CollectionId} from '../Media/Collection/CollectionsTreeView';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
-import {AssetDataTemplate, postAssetDataTemplate, putAssetDataTemplate,} from '../../api/templates';
-import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt,} from '@alchemy/navigation';
+import {
+    AssetDataTemplate,
+    postAssetDataTemplate,
+    putAssetDataTemplate,
+} from '../../api/templates';
+import {
+    StackedModalProps,
+    useModals,
+    useOutsideRouterDirtyFormPrompt,
+} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';

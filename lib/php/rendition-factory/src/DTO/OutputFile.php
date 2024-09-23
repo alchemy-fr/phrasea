@@ -9,8 +9,7 @@ final readonly class OutputFile extends BaseFile implements OutputFileInterface
         string $type,
         FamilyEnum $family,
         private ?array $buildHashes = null,
-    )
-    {
+    ) {
         parent::__construct($path, $type, $family);
     }
 

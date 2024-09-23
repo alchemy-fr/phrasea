@@ -17,8 +17,7 @@ class FallbackResolver
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly TemplateResolver $templateResolver,
-    )
-    {
+    ) {
     }
 
     private function getDefinitionIndexByName(string $workspaceId): array
@@ -41,7 +40,7 @@ class FallbackResolver
         Asset $asset,
         string $locale,
         AttributeDefinition $definition,
-        AttributeIndex $attributesIndex
+        AttributeIndex $attributesIndex,
     ): ?Attribute {
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();

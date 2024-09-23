@@ -4,11 +4,11 @@ namespace Alchemy\RenditionFactory\Transformer\Document;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
+use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
+use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 
 final readonly class DocumentToPdfTransformerModule implements TransformerModuleInterface
 {
@@ -19,7 +19,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if ($inputFile->getType() === 'application/pdf') {
+        if ('application/pdf' === $inputFile->getType()) {
             return $inputFile->createOutputFile();
         }
 

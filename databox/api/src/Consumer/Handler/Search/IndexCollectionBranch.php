@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class IndexCollectionBranch
 {
     public function __construct(
-        private string $collectionId
+        private string $collectionId,
     ) {
     }
 

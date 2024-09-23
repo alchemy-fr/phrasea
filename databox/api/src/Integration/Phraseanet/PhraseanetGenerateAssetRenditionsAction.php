@@ -20,7 +20,7 @@ final class PhraseanetGenerateAssetRenditionsAction extends AbstractIntegrationA
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly PhraseanetTokenManager $tokenManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

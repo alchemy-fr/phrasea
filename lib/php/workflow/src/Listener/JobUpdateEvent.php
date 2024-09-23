@@ -8,8 +8,7 @@ readonly class JobUpdateEvent
         private string $workflowId,
         private string $jobId,
         private int $status,
-    )
-    {
+    ) {
     }
 
     public function getWorkflowId(): string

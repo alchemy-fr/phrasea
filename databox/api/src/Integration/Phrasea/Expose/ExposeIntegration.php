@@ -60,7 +60,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     public function handleUserAction(
         string $action,
         Request $request,
-        IntegrationConfig $config
+        IntegrationConfig $config,
     ): ?Response {
         switch ($action) {
             case 'sync':

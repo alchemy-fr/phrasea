@@ -11,7 +11,6 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface;
-use InvalidArgumentException;
 
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
@@ -23,10 +22,10 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if (!($format = $options['format'])) {
-            throw new InvalidArgumentException('Missing format');
+            throw new \InvalidArgumentException('Missing format');
         }
         if (!($extension = $options['extension'])) {
-            throw new InvalidArgumentException('Missing extension');
+            throw new \InvalidArgumentException('Missing extension');
         }
 
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
@@ -34,31 +33,31 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             return $this->processVideo($format, $extension, $inputFile, $options, $context);
         }
 
-        throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
+        throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
     }
 
     private function processVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
-            throw new InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
+            throw new \InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
         }
         $clipDuration = $options['duration'] ?? 0;
         if ($clipDuration <= 0 || $clipDuration >= $period) {
-            throw new InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
+            throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
         }
 
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
         $outpuFormat = new $fqcnFormat();
         if ($videoCodec = $options['video_codec'] ?? null) {
             if (!in_array($videoCodec, $outpuFormat->getAvailableVideoCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $outpuFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
             if (!in_array($audioCodec, $outpuFormat->getAvailableAudioCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $outpuFormat->setAudioCodec($audioCodec);
         }
@@ -137,7 +136,6 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         if (!file_exists($outputPath)) {
             throw new \RuntimeException(sprintf('Failed to create summary video'));
         }
-
 
         // TODO return the correct family and MIME type
         return new OutputFile(

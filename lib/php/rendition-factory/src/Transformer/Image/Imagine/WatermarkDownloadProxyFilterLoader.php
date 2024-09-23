@@ -2,7 +2,6 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Image\Imagine;
 
-use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Imagine\Image\ImageInterface;
 use Imagine\Image\ImagineInterface;

@@ -34,7 +34,7 @@ class SuggestionSearch extends AbstractSearch
     public function search(
         ?string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): array {
         $filterQuery = new Query\BoolQuery();
 

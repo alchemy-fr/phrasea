@@ -9,7 +9,7 @@ final readonly class CopyFileToRendition
 {
     public function __construct(
         private string $renditionId,
-        private string $fileId
+        private string $fileId,
     ) {
     }
 

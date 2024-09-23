@@ -11,7 +11,6 @@ use App\Entity\Core\Asset;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 use App\Metadata\MetadataNormalizer;
-use Doctrine\ORM\EntityManagerInterface;
 
 class ReadMetadataAction extends AbstractIntegrationAction implements IfActionInterface
 {

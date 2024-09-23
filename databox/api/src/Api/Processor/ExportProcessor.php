@@ -32,7 +32,7 @@ class ExportProcessor implements ProcessorInterface
     }
 
     /**
-     * @param Export     $data
+     * @param Export $data
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Export
     {

@@ -1,13 +1,13 @@
-import {toast} from "react-toastify";
-import React, {FunctionComponent} from "react";
-import {useDirtyFormPrompt} from "../../Tabbed/FormTab.tsx";
-import type {DefinitionBase} from "./DefinitionManager.tsx";
-import {DefinitionItemFormProps, NormalizeData} from "./DefinitionManager.tsx";
+import {toast} from 'react-toastify';
+import React, {FunctionComponent} from 'react';
+import {useDirtyFormPrompt} from '../../Tabbed/FormTab.tsx';
+import type {DefinitionBase} from './DefinitionManager.tsx';
+import {DefinitionItemFormProps, NormalizeData} from './DefinitionManager.tsx';
 import {useFormSubmit} from '@alchemy/api';
-import RemoteErrors from "../../../Form/RemoteErrors.tsx";
-import {StateSetter, Workspace} from "../../../../types.ts";
+import RemoteErrors from '../../../Form/RemoteErrors.tsx';
+import {StateSetter, Workspace} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
-import {DefaultValues} from "react-hook-form";
+import {DefaultValues} from 'react-hook-form';
 
 type Props<D extends DefinitionBase> = {
     item: D;
@@ -56,17 +56,16 @@ export default function ItemForm<D extends DefinitionBase>({
 
     useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 
-    return <>
-        <form
-            id={formId}
-            onSubmit={usedFormSubmit.handleSubmit}
-        >
-            {React.createElement(itemComponent, {
-                data: item,
-                usedFormSubmit,
-                workspace,
-            })}
-            <RemoteErrors errors={remoteErrors}/>
-        </form>
-    </>
+    return (
+        <>
+            <form id={formId} onSubmit={usedFormSubmit.handleSubmit}>
+                {React.createElement(itemComponent, {
+                    data: item,
+                    usedFormSubmit,
+                    workspace,
+                })}
+                <RemoteErrors errors={remoteErrors} />
+            </form>
+        </>
+    );
 }

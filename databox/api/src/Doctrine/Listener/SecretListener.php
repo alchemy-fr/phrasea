@@ -17,7 +17,7 @@ use Doctrine\ORM\Events;
 final readonly class SecretListener implements EventSubscriber
 {
     public function __construct(
-        private SecretsManager $secretsManager
+        private SecretsManager $secretsManager,
     ) {
     }
 

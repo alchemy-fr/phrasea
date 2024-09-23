@@ -21,7 +21,7 @@ import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import axios from "axios";
+import axios from 'axios';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -54,10 +54,11 @@ export default function AssetView({modalIndex}: Props) {
 
     const {data, isError, error, isSuccess} = useQuery({
         queryKey: ['assets', assetId],
-        queryFn: () => Promise.all([
-            getAsset(assetId!),
-            getAssetRenditions(assetId!).then(r => r.result),
-        ])
+        queryFn: () =>
+            Promise.all([
+                getAsset(assetId!),
+                getAssetRenditions(assetId!).then(r => r.result),
+            ]),
     });
 
     console.log('data', data);
@@ -98,7 +99,7 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!isSuccess) {
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const [asset, renditions] = data as [Asset, AssetRendition[]];
@@ -128,7 +129,8 @@ export default function AssetView({modalIndex}: Props) {
                     title={
                         <>
                             {t('asset_view.edit_asset', {
-                                defaultValue: 'Edit asset <strong>{{name}}</strong>',
+                                defaultValue:
+                                    'Edit asset <strong>{{name}}</strong>',
                                 name: asset.resolvedTitle,
                             })}
                             <Select<string>

@@ -2,8 +2,8 @@ import React from 'react';
 import AceEditor, {IAceEditorProps} from 'react-ace';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import "ace-builds/src-noconflict/mode-yaml";
-import "ace-builds/src-noconflict/mode-json";
+import 'ace-builds/src-noconflict/mode-yaml';
+import 'ace-builds/src-noconflict/mode-json';
 
 type Props = {
     prettify?: (code: string) => string;

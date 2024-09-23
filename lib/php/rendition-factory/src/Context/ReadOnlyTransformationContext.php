@@ -11,7 +11,7 @@ final readonly class ReadOnlyTransformationContext implements TransformationCont
     public function __construct(
         private MimeTypeGuesser $mimeTypeGuesser,
         private LoggerInterface $logger,
-        private ?MetadataContainerInterface $metadata = null
+        private ?MetadataContainerInterface $metadata = null,
     ) {
     }
 

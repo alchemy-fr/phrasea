@@ -21,7 +21,7 @@ class TagFilterManager
         int $objectType,
         string $objectId,
         array $include,
-        array $exclude
+        array $exclude,
     ): TagFilterRule {
         $repo = $this->em->getRepository(TagFilterRule::class);
 

@@ -74,8 +74,6 @@ final class RenditionCreator
      * Sample values:
      *   ["family", "module", "filter", "hash"],
      *   ["family", "module", "hash"]
-     *
-     * @param array $buildHashes
      */
     public function buildHashesDiffer(
         array $buildHashes,

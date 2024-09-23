@@ -103,7 +103,7 @@ readonly class WorkflowOrchestrator
                 if (null !== $jobState && in_array($jobState->getStatus(), [
                     JobState::STATUS_TRIGGERED,
                     JobState::STATUS_RUNNING,
-                    ], true)) {
+                ], true)) {
                     $jobState->setStatus(JobState::STATUS_CANCELLED);
                     $this->stateRepository->persistJobState($jobState);
                 }
@@ -162,7 +162,7 @@ readonly class WorkflowOrchestrator
 
     /**
      * Continue a job from outside (i.e. a controller)
-     * after a $context->retainJob()
+     * after a $context->retainJob().
      */
     public function continueJob(string $workflowId, string $jobId, ?array $jobInputs = null): void
     {

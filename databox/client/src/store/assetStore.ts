@@ -20,5 +20,5 @@ export const useAssetStore = create<State>((set, getState) => ({
             assets[asset.id] = asset;
             return {assets};
         });
-    }
+    },
 }));

@@ -8,7 +8,7 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class OnWorkspaceDelete
 {
     public function __construct(
-        private string $workspaceId
+        private string $workspaceId,
     ) {
     }
 

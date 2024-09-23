@@ -16,14 +16,14 @@ class CollectionSearch extends AbstractSearch
 {
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.collection')]
-        private readonly PaginatedFinderInterface $finder
+        private readonly PaginatedFinderInterface $finder,
     ) {
     }
 
     public function search(
         ?string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): Pagerfanta {
         $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;
@@ -51,7 +51,7 @@ class CollectionSearch extends AbstractSearch
     public function searchAggregationsByWorkspace(
         ?string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): array {
         $query = new Query();
         $query->setSize(0);

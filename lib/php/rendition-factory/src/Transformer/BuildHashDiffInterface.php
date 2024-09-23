@@ -2,7 +2,6 @@
 
 namespace Alchemy\RenditionFactory\Transformer;
 
-
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 
 interface BuildHashDiffInterface

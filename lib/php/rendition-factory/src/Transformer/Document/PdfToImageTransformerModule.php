@@ -4,8 +4,8 @@ namespace Alchemy\RenditionFactory\Transformer\Document;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
+use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
@@ -20,7 +20,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if ($inputFile->getType()!=='application/pdf') {
+        if ('application/pdf' !== $inputFile->getType()) {
             // TODO normalize file to PDF
             throw new \InvalidArgumentException('Invalid input file');
         }
@@ -28,7 +28,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         $extension = $options['extension'] ?? 'jpeg';
         $pdf = new Pdf($inputFile->getPath());
 
-        if(!$pdf->isValidOutputFormat($extension)) {
+        if (!$pdf->isValidOutputFormat($extension)) {
             throw new \InvalidArgumentException('Invalid extension option');
         }
 

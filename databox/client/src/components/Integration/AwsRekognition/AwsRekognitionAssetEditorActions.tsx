@@ -358,8 +358,7 @@ export default function AwsRekognitionAssetEditorActions({
                                         {t('aws_rekognition.actions.face_n', {
                                             defaultValue: `Face #{{n}}`,
                                             n: i + 1,
-                                        })}
-                                        {' '}
+                                        })}{' '}
                                         <small>
                                             (
                                             <ValueConfidence

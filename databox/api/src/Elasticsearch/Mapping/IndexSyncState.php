@@ -15,7 +15,7 @@ readonly class IndexSyncState
         private EntityManagerInterface $em,
         private ManagerInterface $configManager,
         private MappingBuilder $mappingBuilder,
-        private IndexMappingDiff $mappingDiff
+        private IndexMappingDiff $mappingDiff,
     ) {
     }
 

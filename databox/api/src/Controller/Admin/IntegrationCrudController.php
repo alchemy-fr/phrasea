@@ -13,10 +13,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class IntegrationCrudController extends AbstractAdminCrudController
@@ -35,7 +33,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add($this->integrationChoiceField->createFilter('integration'))
-            ;
+        ;
     }
 
     public function configureCrud(Crud $crud): Crud

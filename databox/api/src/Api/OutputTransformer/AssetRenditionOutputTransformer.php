@@ -4,27 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\OutputTransformer;
 
-use Alchemy\AclBundle\Security\PermissionInterface;
-use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\RenditionFactory\RenditionCreator;
 use App\Api\Model\Output\AssetRenditionOutput;
-use App\Api\Model\Output\CollectionOutput;
 use App\Asset\RenditionBuildHashManager;
-use App\Elasticsearch\CollectionSearch;
 use App\Entity\Core\AssetRendition;
-use App\Entity\Core\Collection;
-use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Security\Voter\AbstractVoter;
-use App\Storage\RenditionManager;
-use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 final class AssetRenditionOutputTransformer implements OutputTransformerInterface
 {
     use GroupsHelperTrait;
     use SecurityAwareTrait;
+
     public function __construct(
         private readonly RenditionBuildHashManager $renditionBuildHashManager,
     ) {

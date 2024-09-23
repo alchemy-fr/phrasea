@@ -14,7 +14,7 @@ final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private FacetRegistry $facetRegistry
+        private FacetRegistry $facetRegistry,
     ) {
     }
 

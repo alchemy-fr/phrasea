@@ -16,7 +16,7 @@ class AlternateUrlOutput extends AbstractUuidOutput
         #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
         private readonly string $url,
         #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
-        private readonly ?string $label = null
+        private readonly ?string $label = null,
     ) {
     }
 

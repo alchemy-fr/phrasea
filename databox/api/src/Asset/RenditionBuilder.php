@@ -28,8 +28,7 @@ final readonly class RenditionBuilder
         private FileManager $fileManager,
         private RenditionCreator $renditionCreator,
         private FileFetcher $fileFetcher,
-    )
-    {
+    ) {
     }
 
     public function buildRendition(RenditionDefinition $renditionDefinition, Asset $asset, bool $force = false): void

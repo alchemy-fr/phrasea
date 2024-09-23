@@ -24,7 +24,7 @@ class BasketSearch extends AbstractSearch
     public function search(
         string $userId,
         array $groupIds,
-        array $options = []
+        array $options = [],
     ): Pagerfanta {
         $filterQueries = [];
 

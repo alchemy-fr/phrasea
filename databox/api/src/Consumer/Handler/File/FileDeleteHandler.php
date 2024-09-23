@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 readonly class FileDeleteHandler
 {
     public function __construct(
-        private FileStorageManager $storageManager
+        private FileStorageManager $storageManager,
     ) {
     }
 

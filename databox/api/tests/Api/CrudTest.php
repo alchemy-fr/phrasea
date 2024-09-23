@@ -19,7 +19,7 @@ final class CrudTest extends AbstractDataboxTestCase
         ?string $userId = null,
         ?array $data = null,
         array $expectations = [],
-        array $options = []
+        array $options = [],
     ): void {
         if ($options['createItem'] ?? false) {
             $response = $this->testCase(...$options['createItem']);
@@ -35,7 +35,7 @@ final class CrudTest extends AbstractDataboxTestCase
         ?string $userId = null,
         ?array $data = null,
         array $expectations = [],
-        array $options = []
+        array $options = [],
     ): ResponseInterface {
         $workspace = $this->getOrCreateDefaultWorkspace();
         $attributeClass = $this->getOrCreateDefaultAttributeClass();

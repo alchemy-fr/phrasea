@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\Executor;
 
-use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Outputs;

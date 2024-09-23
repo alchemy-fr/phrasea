@@ -1,5 +1,11 @@
 import {RenditionClass, RenditionDefinition, Workspace} from '../../../types';
-import {FormGroup, FormHelperText, FormLabel, ListItemText, TextField} from '@mui/material';
+import {
+    FormGroup,
+    FormHelperText,
+    FormLabel,
+    ListItemText,
+    TextField,
+} from '@mui/material';
 import {FormRow} from '@alchemy/react-form';
 import DefinitionManager, {
     DefinitionItemFormProps,
@@ -19,8 +25,8 @@ import {CheckboxWidget} from '@alchemy/react-form';
 import apiClient from '../../../api/api-client';
 import {toast} from 'react-toastify';
 import React from 'react';
-import RenditionDefinitionSelect from "../../Form/RenditionDefinitionSelect.tsx";
-import CodeEditorWidget from "../../Form/CodeEditorWidget.tsx";
+import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
+import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 
 function Item({
     data,
@@ -160,18 +166,25 @@ function Item({
                     <FormFieldErrors field={'pickSourceFile'} errors={errors} />
                 </FormGroup>
             </FormRow>
-            {!pickSourceFile ? <>
-                <FormRow>
-                    <CodeEditorWidget
-                        control={control}
-                        label={t('form.rendition_definition.definition.label', 'Build definition')}
-                        name={'definition'}
-                        disabled={submitting}
-                        mode={'yaml'}
-                    />
-                    <FormFieldErrors field={'definition'} errors={errors} />
-                </FormRow>
-            </> : ''}
+            {!pickSourceFile ? (
+                <>
+                    <FormRow>
+                        <CodeEditorWidget
+                            control={control}
+                            label={t(
+                                'form.rendition_definition.definition.label',
+                                'Build definition'
+                            )}
+                            name={'definition'}
+                            disabled={submitting}
+                            mode={'yaml'}
+                        />
+                        <FormFieldErrors field={'definition'} errors={errors} />
+                    </FormRow>
+                </>
+            ) : (
+                ''
+            )}
         </>
     );
 }
@@ -243,7 +256,17 @@ export default function RenditionDefinitionManager({
 function normalizeData(data: RenditionDefinition) {
     return {
         ...data,
-        class: typeof data.class === 'string' ? data.class : (data.class ? (data.class as RenditionClass)['@id'] : null),
-        parent: typeof data.parent === 'string' ? data.parent : (data.parent ? (data.parent as RenditionDefinition)['@id'] : null),
+        class:
+            typeof data.class === 'string'
+                ? data.class
+                : data.class
+                  ? (data.class as RenditionClass)['@id']
+                  : null,
+        parent:
+            typeof data.parent === 'string'
+                ? data.parent
+                : data.parent
+                  ? (data.parent as RenditionDefinition)['@id']
+                  : null,
     };
 }
