@@ -4,26 +4,26 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "95461355655698eda7e053538f30d997",
+    "content-hash": "b9582212ecab0aad4385207cb628d692",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-main",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "a79f8df76410bc741cb780608576ed7c0c34801b"
+                "reference": "a969b425cd07f6c4195d6aa302fe130dc4164c52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/a79f8df76410bc741cb780608576ed7c0c34801b",
-                "reference": "a79f8df76410bc741cb780608576ed7c0c34801b",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/a969b425cd07f6c4195d6aa302fe130dc4164c52",
+                "reference": "a969b425cd07f6c4195d6aa302fe130dc4164c52",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": "^2.6",
                 "ext-json": "*",
-                "php": "^8.1",
+                "php": "^8.2",
                 "ramsey/uuid-doctrine": "^1.5",
                 "symfony/event-dispatcher": "^4.0|^5.4|^6.1",
                 "symfony/framework-bundle": "^4.0|^5.4|^6.1",
@@ -36,7 +36,6 @@
                 "friendsofphp/php-cs-fixer": "^3",
                 "phpunit/phpunit": "^8.4|^10.2.2"
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -54,13 +53,13 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/0.2.1"
             },
-            "time": "2024-08-10T14:32:57+00:00"
+            "time": "2024-09-24T14:58:27+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -118,7 +117,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -175,7 +174,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -234,7 +233,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -290,7 +289,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -342,7 +341,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -465,7 +464,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -527,7 +526,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -581,7 +580,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -636,7 +635,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -688,7 +687,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -745,7 +744,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -809,7 +808,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -14594,7 +14593,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-670-rendition-factory",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -17432,7 +17431,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
         "alchemy/core-bundle": 20,
         "alchemy/es-bundle": 20,

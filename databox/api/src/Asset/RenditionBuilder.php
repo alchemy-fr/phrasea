@@ -45,6 +45,11 @@ final readonly class RenditionBuilder
             return;
         }
 
+        $buildDef = $renditionDefinition->getDefinition();
+        if (empty($buildDef)) {
+            return;
+        }
+
         if (null !== $parentDefinition = $renditionDefinition->getParent()) {
             $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
             if (null === $parentRendition) {
@@ -66,7 +71,7 @@ final readonly class RenditionBuilder
         $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetTitleResolver);
 
         try {
-            $outputFile = $this->createRendition($source, $renditionDefinition->getDefinition(), $metadataContainer);
+            $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
 
             if (null !== $outputFile) {
                 $file = $this->fileManager->createFileFromPath(
