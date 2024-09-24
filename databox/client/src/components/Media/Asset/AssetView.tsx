@@ -132,7 +132,9 @@ export default function AssetView({modalIndex}: Props) {
                                 values={{
                                     name: asset.resolvedTitle,
                                 }}
-                                defaults={'Edit asset <strong>{{name}}</strong>'}
+                                defaults={
+                                    'Edit asset <strong>{{name}}</strong>'
+                                }
                             />
                             <Select<string>
                                 sx={{ml: 2}}
