@@ -27,11 +27,11 @@ export default function FilePlayer({
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (!file.url) {
-        return <AssetFileIcon file={file} />;
+        return <AssetFileIcon file={file}/>;
     }
 
     switch (mainType) {
-        case FileTypeEnum.Image:
+        case FileTypeEnum.Image: {
             const isSvg = file.type === 'image/svg+xml';
 
             return (
@@ -48,6 +48,7 @@ export default function FilePlayer({
                     onLoad={onLoad}
                 />
             );
+        }
         case FileTypeEnum.Audio:
         case FileTypeEnum.Video:
             return (
@@ -73,5 +74,5 @@ export default function FilePlayer({
             }
     }
 
-    return <AssetFileIcon file={file} />;
+    return <AssetFileIcon file={file}/>;
 }

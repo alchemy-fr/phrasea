@@ -63,7 +63,6 @@ export default function BasketListDialog({modalIndex, open}: Props) {
                     <BasketMenuItem
                         key={b.id}
                         onClick={() => onSelect(b)}
-                        noEdit={true}
                         data={b}
                     />
                 ))

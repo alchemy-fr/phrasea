@@ -11,7 +11,6 @@ use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
-use App\Entity\Core\File;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AcceptFileAction implements ActionInterface

@@ -23,7 +23,7 @@ export type OnPreviewToggle = (
 export type ReloadFunc = () => Promise<any>;
 export type LoadMoreFunc = () => Promise<any>;
 
-export type OnContextMenuOpen<Item extends AssetOrAssetContainer> = (
+export type OnAssetContextMenuOpen<Item extends AssetOrAssetContainer> = (
     e: MouseEvent<HTMLElement>,
     item: Item,
     anchorEl?: HTMLElement
@@ -33,7 +33,7 @@ export type AssetActions<Item extends AssetOrAssetContainer> = {
     onAddToBasket?: OnAddToBasket;
     onOpen?: OnOpen;
     onToggle: OnToggle<Item>;
-    onContextMenuOpen?: OnContextMenuOpen<Item>;
+    onContextMenuOpen?: OnAssetContextMenuOpen<Item>;
 };
 
 export type AssetItemProps<Item extends AssetOrAssetContainer> = {
