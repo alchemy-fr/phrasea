@@ -34,7 +34,7 @@ type IntegrationOverlay<P extends {} = any> = {
 };
 
 export type SetIntegrationOverlayFunction<P extends {} = any> = (
-    component: FC<P & IntegrationOverlayCommonProps>,
+    component: FC<P & IntegrationOverlayCommonProps> | null,
     props?: P,
     replace?: boolean
 ) => void;
@@ -60,8 +60,6 @@ export default function AssetView({modalIndex}: Props) {
             ]),
     });
 
-    console.log('data', data);
-
     React.useEffect(() => {
         if (isError && axios.isAxiosError(error)) {
             console.log('error', error);
@@ -77,15 +75,19 @@ export default function AssetView({modalIndex}: Props) {
 
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] =
-        useState<IntegrationOverlay>();
+        useState<IntegrationOverlay | null>(null);
 
     const setProxy: SetIntegrationOverlayFunction = useCallback(
         (component, props, replace = false) => {
-            setIntegrationOverlay({
-                component,
-                props,
-                replace,
-            });
+            if (!component) {
+                setIntegrationOverlay(null);
+            } else {
+                setIntegrationOverlay({
+                    component,
+                    props,
+                    replace,
+                });
+            }
         },
         [setIntegrationOverlay]
     );
@@ -151,10 +153,10 @@ export default function AssetView({modalIndex}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            <AssetViewActions
+                            {!integrationOverlay ? <AssetViewActions
                                 asset={asset}
                                 file={rendition?.file}
-                            />
+                            /> : ''}
                         </>
                     }
                     onClose={onClose}
@@ -181,7 +183,7 @@ export default function AssetView({modalIndex}: Props) {
                                     width: 'fit-content',
                                 }}
                             >
-                                {annotations ? (
+                                {annotations && !integrationOverlay ? (
                                     <AssetAnnotationsOverlay
                                         annotations={annotations}
                                     />

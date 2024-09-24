@@ -18,6 +18,7 @@ export function useAttributeEditor({
     workspaceId: string | undefined;
     assetId?: string | string[] | undefined;
 }) {
+    const [dirty, setDirty] = React.useState(false);
     const [state, setState] = useState<{
         remoteAttributes: AttributeIndex;
         definitionIndex: DefinitionIndex;
@@ -66,6 +67,7 @@ export function useAttributeEditor({
 
     const onChangeHandler = useCallback<OnChangeHandler>(
         (defId, locale, value) => {
+            setDirty(true);
             setAttributes((prev): AttributeIndex<string | number> => {
                 const newValues = {...prev!};
 
@@ -131,6 +133,7 @@ export function useAttributeEditor({
             onChangeHandler,
             getActions,
             reset,
+            dirty,
         };
     }, [state, workspaceId, attributes]);
 }

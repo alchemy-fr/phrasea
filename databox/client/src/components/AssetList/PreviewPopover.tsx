@@ -82,11 +82,7 @@ export default function PreviewPopover({
                             )})`,
                         })}
                     >
-                        <div
-                            style={{
-                                maxHeight: height,
-                            }}
-                        >
+                        <div>
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}

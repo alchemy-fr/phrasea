@@ -182,8 +182,7 @@
     }
   },
   "attributes": {
-    "values": "{{count} values",
-    "values_plural": "{{count} values"
+    "values": "{{count}} values"
   },
   "attributes_editor_form": {
     "attributes_saved": "Attributes saved!"
