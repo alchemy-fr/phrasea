@@ -2,17 +2,18 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Core\AttributeEntity;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\Core\AttributeEntity;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class AttributeEntityCrudController extends AbstractAdminCrudController
 {
@@ -21,17 +22,13 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         return AttributeEntity::class;
     }
 
-    public function configureActions(Actions $actions): Actions
-    {
-        return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ;
-    }
-
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('type')
+            ->add(EntityFilter::new('workspace'))
+            ->add(TextFilter::new('type'))
+            ->add(TextFilter::new('value'))
+            ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 

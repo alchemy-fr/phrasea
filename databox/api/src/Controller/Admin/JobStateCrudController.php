@@ -2,22 +2,25 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\Workflow\Doctrine\Entity\JobState;
-use Alchemy\Workflow\State\JobState as JobStateModel;
-use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\WorkflowOrchestrator;
+use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\AdminBundle\Field\ArrayObjectField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Alchemy\Workflow\State\JobState as JobStateModel;
+use Alchemy\Workflow\State\JobState as ModelJobState;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class JobStateCrudController extends AbstractAdminCrudController
 {
@@ -47,7 +50,6 @@ class JobStateCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $retry)
             ->add(Crud::PAGE_INDEX, $rerun)
             ->add(Crud::PAGE_INDEX, $cancel)
@@ -89,40 +91,49 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id']);
     }
 
-    public function configureFields(string $pageName): iterable
+    public function configureFilters(Filters $filters): Filters
     {
-        $id = IdField::new();
-
-        $workflowName = TextField::new('workflow.name', 'Workflow Name');
-        $duration = TextField::new('durationString', 'Duration');
-        $job = TextField::new('jobId', 'Job ID');
-        $errors = ArrayField::new('errors', 'Errors');
-        $outputs = ArrayObjectField::new('outputs', 'Outputs');
-        $status = ChoiceField::new('status', 'Status')
-            ->setChoices([
+        return $filters
+            ->add(ChoiceFilter::new('status')->setChoices([
                 'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
                 'SUCCESS' => ModelJobState::STATUS_SUCCESS,
                 'FAILURE' => ModelJobState::STATUS_FAILURE,
                 'SKIPPED' => ModelJobState::STATUS_SKIPPED,
                 'RUNNING' => ModelJobState::STATUS_RUNNING,
-            ])
-            ->renderAsBadges([
-                ModelJobState::STATUS_TRIGGERED => 'secondary',
-                ModelJobState::STATUS_SUCCESS => 'success',
-                ModelJobState::STATUS_FAILURE => 'danger',
-                ModelJobState::STATUS_SKIPPED => 'info',
-                ModelJobState::STATUS_RUNNING => 'warning',
-            ]);
-        $triggeredAt = DateTimeField::new('triggeredAt', 'Triggered At');
-        $startedAt = DateTimeField::new('startedAt', 'Started At');
-        $endedAt = DateTimeField::new('endedAt', 'Ended At');
+            ]))
+            ->add(DateTimeFilter::new('startedAt'))
+            ->add(DateTimeFilter::new('endedAt'))
+        ;
+    }
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $endedAt, $duration];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $workflowName, $job, $triggeredAt, $startedAt, $status, $outputs, $errors, $endedAt, $duration];
-        }
+    public function configureFields(string $pageName): iterable
+    {
+        yield IdField::new();
+        yield TextField::new('workflow.name', 'Workflow Name');
+        yield TextField::new('jobId', 'Job ID');
+        yield DateTimeField::new('triggeredAt', 'Triggered At');
+        yield DateTimeField::new('startedAt', 'Started At');
+        yield ChoiceField::new('status', 'Status')
+        ->setChoices([
+            'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,
+            'SUCCESS' => ModelJobState::STATUS_SUCCESS,
+            'FAILURE' => ModelJobState::STATUS_FAILURE,
+            'SKIPPED' => ModelJobState::STATUS_SKIPPED,
+            'RUNNING' => ModelJobState::STATUS_RUNNING,
+        ])
+        ->renderAsBadges([
+            ModelJobState::STATUS_TRIGGERED => 'secondary',
+            ModelJobState::STATUS_SUCCESS => 'success',
+            ModelJobState::STATUS_FAILURE => 'danger',
+            ModelJobState::STATUS_SKIPPED => 'info',
+            ModelJobState::STATUS_RUNNING => 'warning',
+        ]);
 
-        return [];
+        yield DateTimeField::new('endedAt', 'Ended At');
+        yield TextField::new('durationString', 'Duration');
+        yield ArrayField::new('errors', 'Errors')
+            ->hideOnIndex();
+        yield ArrayObjectField::new('outputs', 'Outputs')
+            ->hideOnIndex();
     }
 }

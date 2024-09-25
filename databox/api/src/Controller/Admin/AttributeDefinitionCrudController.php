@@ -2,25 +2,26 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AttributeDefinition;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class AttributeDefinitionCrudController extends AbstractAdminCrudController
 {
@@ -31,12 +32,6 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
     public static function getEntityFqcn(): string
     {
         return AttributeDefinition::class;
-    }
-
-    public function configureActions(Actions $actions): Actions
-    {
-        return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -52,19 +47,16 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add('searchable')
-            ->add('multiple')
-            ->add('fieldType')
-            ->add('fileType');
+            ->add(EntityFilter::new('class'))
+            ->add(BooleanFilter::new('searchable'))
+            ->add(BooleanFilter::new('multiple'))
+            ->add(ChoiceFilter::new('fieldType')->setChoices($this->getFieldTypeChoice()))
+            ->add(TextFilter::new('fileType'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $fileTypeChoices = [];
-        foreach ($this->typeRegistry->getTypes() as $name => $type) {
-            $fileTypeChoices[$name] = $name;
-        }
-
         yield IdField::new();
         yield TextField::new('name');
         yield TextField::new('slug');
@@ -72,7 +64,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('class');
         yield TextField::new('fileType');
         yield ChoiceField::new('fieldType')
-            ->setChoices($fileTypeChoices);
+            ->setChoices($this->getFieldTypeChoice());
         yield TextField::new('entityType');
         yield BooleanField::new('allowInvalid')
             ->hideOnIndex()
@@ -118,7 +110,15 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnForm()
             ->hideOnIndex()
         ;
+    }
 
-        return [];
+    private function getFieldTypeChoice()
+    {
+        $fieldTypeChoices = [];
+        foreach ($this->typeRegistry->getTypes() as $name => $type) {
+            $fieldTypeChoices[$name] = $name;
+        }
+
+        return $fieldTypeChoices;
     }
 }

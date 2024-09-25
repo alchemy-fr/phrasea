@@ -2,15 +2,16 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\AssetTitleAttribute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class AssetTitleAttributeCrudController extends AbstractAdminCrudController
 {
@@ -32,27 +33,19 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('definition'));
+            ->add(EntityFilter::new('definition'))
+            ->add(BooleanFilter::new('overrides'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $workspace = AssociationField::new('workspace');
-        $definition = AssociationField::new('definition');
-        $priority = IntegerField::new('priority');
-        $overrides = BooleanField::new('overrides');
-        $id = IdField::new();
+        yield IdField::new()
+            ->hideOnForm();
+        yield AssociationField::new('workspace');
+        yield AssociationField::new('definition');
+        yield IntegerField::new('priority');
+        yield BooleanField::new('overrides');
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $definition, $priority, $overrides];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $priority, $overrides, $workspace, $definition];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $definition, $priority, $overrides];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $definition, $priority, $overrides];
-        }
-
-        return [];
     }
 }

@@ -2,16 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
-use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\AttributeClass;
+use Alchemy\AdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use Alchemy\AdminBundle\Field\JsonField;
 
 class AttributeClassCrudController extends AbstractAclAdminCrudController
 {
@@ -33,32 +37,28 @@ class AttributeClassCrudController extends AbstractAclAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add('name')
-            ->add('public')
-            ->add('editable');
+            ->add(TextFilter::new('name'))
+            ->add(BooleanFilter::new('public'))
+            ->add(BooleanFilter::new('editable'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $workspace = AssociationField::new('workspace');
-        $name = TextField::new('name');
-        $public = BooleanField::new('public');
-        $editable = BooleanField::new('editable');
-        $id = IdField::new();
-        $key = TextField::new('key');
-        $createdAt = DateTimeField::new('createdAt');
-        $definitions = AssociationField::new('definitions');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $name, $public, $editable, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $editable, $public, $key, $createdAt, $workspace, $definitions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name, $public, $editable];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $name, $public, $editable];
-        }
-
-        return [];
+        yield IdField::new()
+            ->hideOnForm();
+        yield AssociationField::new('workspace');   
+        yield TextField::new('name');
+        yield BooleanField::new('public');
+        yield BooleanField::new('editable');
+        yield TextField::new('key')
+            ->onlyOnDetail();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();    
+        yield AssociationField::new('definitions')
+            ->onlyOnDetail();    
+        yield JsonField::new('labels')
+            ->hideOnIndex();    
     }
 }

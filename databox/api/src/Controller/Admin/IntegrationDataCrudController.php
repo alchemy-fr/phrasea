@@ -2,17 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Field\CodeField;
 use App\Entity\Integration\IntegrationData;
+use Alchemy\AdminBundle\Field\UserChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class IntegrationDataCrudController extends AbstractAdminCrudController
 {
@@ -40,10 +43,19 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         ;
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(EntityFilter::new('integration'))
+            ->add(TextFilter::new('name'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
         yield AssociationField::new('integration');
+        yield TextField::new('name');
         yield TextField::new('objectType');
         yield IdField::new('objectId');
         yield $this->userChoiceField->create('userId', 'User');

@@ -2,16 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\TagFilterRule;
+use Alchemy\AdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class TagFilterRuleCrudController extends AbstractAdminCrudController
 {
@@ -35,28 +39,33 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(ChoiceFilter::new('objectType')->setChoices([
+                'collection' => TagFilterRule::TYPE_COLLECTION ,
+                'workspace' => TagFilterRule::TYPE_WORKSPACE
+                ]))
+            ->add(ChoiceFilter::new('userType')->setChoices([
+                'user'  => TagFilterRule::TYPE_USER,
+                'group' => TagFilterRule::TYPE_GROUP
+            ]))    
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $userType = IntegerField::new('userType');
-        $userId = TextField::new('userId');
-        $objectType = IntegerField::new('objectType');
-        $objectId = TextField::new('objectId');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $include = AssociationField::new('include');
-        $exclude = AssociationField::new('exclude');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $include, $exclude, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $createdAt, $updatedAt, $include, $exclude];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $createdAt, $updatedAt, $include, $exclude];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $createdAt, $updatedAt, $include, $exclude];
-        }
-
-        return [];
+        yield IdField::new()
+            ->hideOnForm();
+        yield IntegerField::new('userType');
+        yield TextField::new('userId');
+        yield IntegerField::new('objectType');
+        yield TextField::new('objectId');
+        yield AssociationField::new('include');
+        yield AssociationField::new('exclude');
+        yield DateTimeField::new('createdAt');
+        yield DateTimeField::new('updatedAt')
+            ->hideOnIndex();
     }
 }
