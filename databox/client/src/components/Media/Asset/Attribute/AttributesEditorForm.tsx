@@ -2,7 +2,7 @@ import {FormLabel, Skeleton} from '@mui/material';
 import {attributeBatchUpdate} from '../../../../api/asset';
 import {Asset} from '../../../../types';
 import {toast} from 'react-toastify';
-import FormTab from '../../../Dialog/Tabbed/FormTab';
+import FormTab, {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import AttributesEditor from './AttributesEditor';
 import {useAttributeEditor} from './useAttributeEditor';
 import {FormRow} from '@alchemy/react-form';
@@ -31,10 +31,13 @@ export default function AttributesEditorForm({
         attributes,
         definitionIndex,
         reloadAssetAttributes,
+        dirty,
     } = useAttributeEditor({
         workspaceId,
         assetId: assetId as string,
     });
+    useDirtyFormPrompt(dirty);
+
     const [saving, setSaving] = React.useState(false);
     const [error, setError] = React.useState<string | undefined>();
 

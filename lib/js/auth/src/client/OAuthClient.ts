@@ -51,7 +51,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
     private readonly httpClient: HttpClient;
     private readonly scope?: string;
     public sessionHasExpired: boolean = false;
-    public autoRefreshToken: boolean = false;
+    public autoRefreshToken: boolean = true;
 
     constructor({
         clientId,
@@ -73,7 +73,7 @@ export default class OAuthClient<UIR extends UserInfoResponse> {
         this.tokenStorageKey = tokenStorageKey ?? 'token';
         this.httpClient = httpClient ?? createHttpClient(this.baseUrl);
         this.scope = scope;
-        this.autoRefreshToken = autoRefreshToken ?? false;
+        this.autoRefreshToken = autoRefreshToken ?? true;
     }
 
     public isTokenPersisted(): boolean {

@@ -15,7 +15,7 @@ final readonly class ReadOnlyTransformationContext implements TransformationCont
     ) {
     }
 
-    public function createTmpFilePath(string $extension): string
+    public function createTmpFilePath(?string $extension): string
     {
         throw new \InvalidArgumentException('Cannot create temporary file in read-only context');
     }

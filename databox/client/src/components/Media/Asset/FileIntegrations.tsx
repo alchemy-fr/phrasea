@@ -95,7 +95,7 @@ export default function FileIntegrations({
 
     useEffect(() => {
         if (!expanded) {
-            setIntegrationOverlay(() => <></>, {}, false);
+            setIntegrationOverlay(null);
         }
     }, [expanded, integrations]);
 

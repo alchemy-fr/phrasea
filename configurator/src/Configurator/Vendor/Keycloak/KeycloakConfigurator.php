@@ -121,9 +121,15 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             }
         }
 
+        $defaultAdminUsername = getenv('DEFAULT_ADMIN_USERNAME');
+        $defaultAdminEmail = $defaultAdminUsername;
+        if (!str_contains($defaultAdminEmail, '@')) {
+            $defaultAdminEmail .= '@'.(getenv('PHRASEA_DOMAIN') ?: 'phrasea.io');
+        }
+
         $defaultAdmin = $this->keycloakManager->createUser([
-            'username' => getenv('DEFAULT_ADMIN_USERNAME'),
-            'email' => getenv('DEFAULT_ADMIN_USERNAME').'@'.getenv('PHRASEA_DOMAIN'),
+            'username' => $defaultAdminUsername,
+            'email' => $defaultAdminEmail,
             'enabled' => true,
             'firstName' => 'Admin',
             'lastName' => 'Admin',

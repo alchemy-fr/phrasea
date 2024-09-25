@@ -13,7 +13,7 @@ import {
     LayoutProps,
     LoadMoreFunc,
     OnAddToBasket,
-    OnContextMenuOpen,
+    OnAssetContextMenuOpen,
     OnOpen,
     OnSelectionChange,
     OnToggle,
@@ -24,11 +24,11 @@ import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterPr
 import {useBasketStore} from '../../store/basketStore';
 import assetClasses from './classes';
 import AssetContextMenu from './AssetContextMenu';
-import {PopoverPosition} from '@mui/material/Popover/Popover';
 import {SelectionActionConfigProps} from './Toolbar/SelectionActions';
 import {useSelectAllKey} from '../../hooks/useSelectAllKey.ts';
 import {createDefaultActionsContext} from './actionContext.ts';
 import useUpdateEffect from '@alchemy/react-hooks/src/useUpdateEffect';
+import {useContextMenu} from '../../hooks/useContextMenu.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
@@ -83,12 +83,31 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     );
     const listRef = React.useRef<HTMLDivElement | null>(null);
     const [toolbarHeight, setToolbarHeight] = React.useState(0);
-    const [anchorElMenu, setAnchorElMenu] = React.useState<null | {
-        item: Item;
+
+    const {
+        contextMenu,
+        onContextMenuOpen: onContextMenuOpenProxy,
+        onContextMenuClose,
+    } = useContextMenu<{
         asset: Asset;
-        pos: PopoverPosition;
-        anchorEl: HTMLElement | undefined;
-    }>(null);
+        item: Item;
+    }>();
+
+    const onContextMenuOpen = React.useCallback<OnAssetContextMenuOpen<Item>>(
+        (e: MouseEvent<HTMLElement>, item: Item, anchorEl?: HTMLElement) => {
+            onContextMenuOpenProxy(
+                e,
+                {
+                    item,
+                    asset: itemToAsset
+                        ? itemToAsset(item)
+                        : (item as unknown as Asset),
+                },
+                anchorEl
+            );
+        },
+        [onContextMenuOpenProxy, itemToAsset]
+    );
 
     React.useEffect(() => {
         if (subSelection) {
@@ -137,31 +156,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
     useSelectAllKey(() => {
         setSelection(pages.flat());
     }, [pages]);
-
-    const onContextMenuOpen = React.useCallback<OnContextMenuOpen<Item>>(
-        (e: MouseEvent<HTMLElement>, item: Item, anchorEl?: HTMLElement) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setAnchorElMenu(p => {
-                if (p && p.anchorEl === anchorEl) {
-                    return null;
-                }
-
-                return {
-                    item,
-                    asset: itemToAsset
-                        ? itemToAsset(item)
-                        : (item as unknown as Asset),
-                    pos: {
-                        left: e.clientX + 2,
-                        top: e.clientY,
-                    },
-                    anchorEl,
-                };
-            });
-        },
-        [setAnchorElMenu, itemToAsset]
-    );
 
     const onToggle = React.useCallback<OnToggle<Item>>(
         (item, e): void => {
@@ -236,14 +230,11 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                         itemOverlay,
                     } as LayoutProps<Item>)}
 
-                    {anchorElMenu ? (
+                    {contextMenu ? (
                         <AssetContextMenu
+                            contextMenu={contextMenu}
                             actionsContext={actionsContext}
-                            item={anchorElMenu.item}
-                            asset={anchorElMenu.asset}
-                            anchorPosition={anchorElMenu.pos}
-                            anchorEl={anchorElMenu.anchorEl}
-                            onClose={() => setAnchorElMenu(null)}
+                            onClose={onContextMenuClose}
                             reload={reload}
                             setSelection={setSelection}
                         />

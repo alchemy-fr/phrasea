@@ -30,6 +30,9 @@ export type WorkspaceMenuItemProps = {
     data: Workspace;
 };
 
+export const workspaceItemClassName = 'ws-item';
+export const cActionClassName = 'c-action';
+
 export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
     const {id, name, capabilities} = data;
 
@@ -64,25 +67,9 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
 
     return (
         <>
-            <ListSubheader
-                component={'div'}
-                disableGutters={true}
-                className={'workspace-item'}
-            >
+            <ListSubheader component={'div'} disableGutters={true}>
                 <ListItem
-                    sx={{
-                        'backgroundColor': 'primary.main',
-                        'color': 'primary.contrastText',
-                        '.c-action': {
-                            visibility: 'hidden',
-                        },
-                        '&:hover .c-action': {
-                            visibility: 'visible',
-                        },
-                        '.MuiListItemSecondaryAction-root': {
-                            zIndex: 1,
-                        },
-                    }}
+                    className={workspaceItemClassName}
                     secondaryAction={
                         <>
                             {capabilities.canEdit && (
@@ -100,7 +87,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                                 addCollection(coll, id),
                                         })
                                     }
-                                    className={'c-action'}
+                                    className={cActionClassName}
                                     aria-label="add-child"
                                 >
                                     <CreateNewFolderIcon />
@@ -119,7 +106,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                         'workspace.item.edit',
                                         'Edit this workspace'
                                     )}
-                                    className={'c-action'}
+                                    className={cActionClassName}
                                     aria-label="edit"
                                 >
                                     <EditIcon />
@@ -142,16 +129,8 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                     }
                     disablePadding
                 >
-                    <ListItemButton
-                        sx={{
-                            '&.Mui-selected': {
-                                bgcolor: 'secondary.main',
-                            },
-                        }}
-                        onClick={onClick}
-                        selected={selected}
-                    >
-                        <ListItemIcon sx={{color: 'inherit'}}>
+                    <ListItemButton onClick={onClick} selected={selected}>
+                        <ListItemIcon>
                             <BusinessIcon />
                         </ListItemIcon>
                         <ListItemText primary={name} />

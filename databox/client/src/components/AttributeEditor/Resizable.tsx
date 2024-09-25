@@ -2,16 +2,12 @@ import React, {PropsWithChildren} from 'react';
 
 type Props = PropsWithChildren<{
     defaultWidth: number;
-    minWidth?: number;
-    maxWidth?: number;
 }> &
     React.HTMLAttributes<HTMLDivElement>;
 
 export default function Resizable({
     children,
     defaultWidth,
-    minWidth,
-    maxWidth,
     style,
     ...props
 }: Props) {

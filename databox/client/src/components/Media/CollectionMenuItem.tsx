@@ -31,6 +31,7 @@ import {useAuth} from '@alchemy/react-auth';
 import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import {deleteCollection} from '../../api/collection';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
+import {cActionClassName} from './WorkspaceMenuItem';
 
 type Props = {
     level: number;
@@ -39,6 +40,8 @@ type Props = {
     titlePath?: string[];
     data: Collection;
 };
+
+export const collectionItemClassName = 'collection-item';
 
 export default function CollectionMenuItem({
     data,
@@ -129,18 +132,10 @@ export default function CollectionMenuItem({
     return (
         <>
             <ListItem
-                sx={{
-                    '.c-action': {
-                        visibility: 'hidden',
-                        bgcolor: 'inherit',
-                    },
-                    '&:hover .c-action': {
-                        visibility: 'visible',
-                    },
-                }}
+                className={collectionItemClassName}
                 secondaryAction={
                     <>
-                        <span className="c-action">
+                        <span className={cActionClassName}>
                             {data.capabilities.canEdit && authContext!.user ? (
                                 <IconButton
                                     title={t(
@@ -248,11 +243,7 @@ export default function CollectionMenuItem({
                     onClick={onClick}
                     style={{paddingLeft: `${10 + level * 10}px`}}
                 >
-                    <ListItemIcon
-                        sx={{
-                            minWidth: 35,
-                        }}
-                    >
+                    <ListItemIcon>
                         {data.public ? (
                             <FolderOutlinedIcon />
                         ) : data.shared ? (

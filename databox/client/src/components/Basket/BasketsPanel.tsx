@@ -3,6 +3,8 @@ import {
     Button,
     List,
     ListItem,
+    ListItemIcon,
+    MenuItem,
     Skeleton,
     Stack,
     TextField,
@@ -25,6 +27,10 @@ import {
     createPaginatedLoader,
     Pagination,
 } from '../../api/pagination.ts';
+import {useContextMenu} from '../../hooks/useContextMenu.ts';
+import ContextMenu from '../Ui/ContextMenu.tsx';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {
     selected?: string;
@@ -32,6 +38,9 @@ type Props = {
 
 function BasketsPanel({selected}: Props) {
     const {t} = useTranslation();
+    const {contextMenu, onContextMenuOpen, onContextMenuClose} =
+        useContextMenu<Basket>();
+
     const baskets = useBasketStore(state => state.baskets);
     const loading = useBasketStore(state => state.loading);
     const loadMore = useBasketStore(state => state.loadMore);
@@ -73,6 +82,7 @@ function BasketsPanel({selected}: Props) {
     }, [searchQuery]);
 
     const onDelete = (data: Basket): void => {
+        onContextMenuClose();
         openModal(ConfirmDialog, {
             textToType: data.title,
             title: t(
@@ -88,6 +98,14 @@ function BasketsPanel({selected}: Props) {
                     ) as string
                 );
             },
+        });
+    };
+
+    const onEdit = (data: Basket) => {
+        onContextMenuClose();
+        navigateToModal(modalRoutes.baskets.routes.manage, {
+            id: data.id,
+            tab: 'edit',
         });
     };
 
@@ -134,6 +152,28 @@ function BasketsPanel({selected}: Props) {
                     </LoadingButton>
                 </form>
             </Stack>
+            {contextMenu ? (
+                <ContextMenu
+                    onClose={onContextMenuClose}
+                    contextMenu={contextMenu}
+                    id={'basket-context-menu'}
+                >
+                    <MenuItem onClick={() => onEdit(contextMenu.data)}>
+                        <ListItemIcon>
+                            <EditIcon />
+                        </ListItemIcon>
+                        {t('basket.actions.edit', 'Edit Basket')}
+                    </MenuItem>
+                    <MenuItem onClick={() => onDelete(contextMenu.data)}>
+                        <ListItemIcon>
+                            <DeleteIcon />
+                        </ListItemIcon>
+                        {t('basket.actions.delete', 'Delete Basket')}
+                    </MenuItem>
+                </ContextMenu>
+            ) : (
+                ''
+            )}
             <List
                 disablePadding
                 component="nav"
@@ -152,10 +192,12 @@ function BasketsPanel({selected}: Props) {
                 {!loading ? (
                     results.map(b => (
                         <BasketMenuItem
+                            onContextMenu={e =>
+                                onContextMenuOpen(e, b, e.currentTarget)
+                            }
                             key={b.id}
                             data={b}
                             selected={selected === b.id}
-                            onDelete={onDelete}
                             onClick={() =>
                                 navigateToModal(
                                     modalRoutes.baskets.routes.view,

@@ -22,9 +22,12 @@ final readonly class TransformationContext implements TransformationContextInter
         $this->buildHashes = new BuildHashes();
     }
 
-    public function createTmpFilePath(string $extension): string
+    public function createTmpFilePath(?string $extension): string
     {
-        $path = uniqid($this->workingDirectory.'/').'.'.$extension;
+        $path = uniqid($this->workingDirectory.'/');
+        if (!empty($extension)) {
+            $path .= '.'.$extension;
+        }
 
         if (file_exists($path)) {
             return $this->createTmpFilePath($extension);

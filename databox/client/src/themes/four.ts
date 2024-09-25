@@ -3,7 +3,7 @@ import {ThemeOptions} from '@mui/material';
 const fourTheme: ThemeOptions = {
     palette: {
         primary: {
-            main: '#9B5DE5',
+            main: '#dc00ab',
             contrastText: '#FFF',
         },
         secondary: {

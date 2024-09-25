@@ -76,7 +76,7 @@ export default function Attributes({
                                 ) : (
                                     <>
                                         {t('attributes.values', {
-                                            defaultValue: '{{count} values',
+                                            defaultValue: '{{count}} values',
                                             count:
                                                 defValue.value?.[l]?.length ??
                                                 0,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Border;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use App\Border\Exception\FileInputValidationException;
 use App\Border\Model\FileContent;
 use App\Border\Model\InputFile;
 use App\Entity\Core\File;

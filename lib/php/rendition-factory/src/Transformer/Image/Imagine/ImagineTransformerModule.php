@@ -39,7 +39,12 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         $image = new FileBinary($inputFile->getPath(), $inputFile->getType());
         $output = $filterManager->apply($image, $options);
 
-        $outputPath = $context->createTmpFilePath($output->getFormat());
+        $extension = $output->getFormat();
+        if (empty($extension)) {
+            $extension = $context->getExtension($output->getMimeType());
+        }
+
+        $outputPath = $context->createTmpFilePath($extension);
         file_put_contents($outputPath, $output->getContent());
 
         return new OutputFile(

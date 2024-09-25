@@ -22,6 +22,7 @@ import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
+import {getMediaBackgroundColor} from "../../../themes/base.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -34,7 +35,7 @@ type IntegrationOverlay<P extends {} = any> = {
 };
 
 export type SetIntegrationOverlayFunction<P extends {} = any> = (
-    component: FC<P & IntegrationOverlayCommonProps>,
+    component: FC<P & IntegrationOverlayCommonProps> | null,
     props?: P,
     replace?: boolean
 ) => void;
@@ -60,8 +61,6 @@ export default function AssetView({modalIndex}: Props) {
             ]),
     });
 
-    console.log('data', data);
-
     React.useEffect(() => {
         if (isError && axios.isAxiosError(error)) {
             console.log('error', error);
@@ -77,15 +76,19 @@ export default function AssetView({modalIndex}: Props) {
 
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] =
-        useState<IntegrationOverlay>();
+        useState<IntegrationOverlay | null>(null);
 
     const setProxy: SetIntegrationOverlayFunction = useCallback(
         (component, props, replace = false) => {
-            setIntegrationOverlay({
-                component,
-                props,
-                replace,
-            });
+            if (!component) {
+                setIntegrationOverlay(null);
+            } else {
+                setIntegrationOverlay({
+                    component,
+                    props,
+                    replace,
+                });
+            }
         },
         [setIntegrationOverlay]
     );
@@ -132,7 +135,9 @@ export default function AssetView({modalIndex}: Props) {
                                 values={{
                                     name: asset.resolvedTitle,
                                 }}
-                                defaults={'Edit asset <strong>{{name}}</strong>'}
+                                defaults={
+                                    'Edit asset <strong>{{name}}</strong>'
+                                }
                             />
                             <Select<string>
                                 sx={{ml: 2}}
@@ -149,10 +154,10 @@ export default function AssetView({modalIndex}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            <AssetViewActions
+                            {!integrationOverlay ? <AssetViewActions
                                 asset={asset}
                                 file={rendition?.file}
-                            />
+                            /> : ''}
                         </>
                     }
                     onClose={onClose}
@@ -166,20 +171,26 @@ export default function AssetView({modalIndex}: Props) {
                         }}
                     >
                         <Box
-                            sx={{
+                            sx={theme => ({
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 overflowY: 'auto',
                                 height: dimensions.height,
                                 width: dimensions.width + scrollbarWidth,
                                 maxWidth: dimensions.width + scrollbarWidth,
-                            }}
+                                backgroundColor: getMediaBackgroundColor(theme),
+                            })}
                         >
                             <div
                                 style={{
                                     position: 'relative',
                                     width: 'fit-content',
+                                    maxHeight: dimensions.height,
                                 }}
                             >
-                                {annotations ? (
+                                {annotations && !integrationOverlay ? (
                                     <AssetAnnotationsOverlay
                                         annotations={annotations}
                                     />

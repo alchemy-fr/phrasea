@@ -10,6 +10,7 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 {
@@ -82,17 +83,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     {
         $this->em->beginTransaction();
         try {
-            $entity = $this->em->getRepository($this->jobStateEntity)
-                ->createQueryBuilder('t')
-                ->select('t')
-                ->andWhere('t.workflow = :w')
-                ->andWhere('t.jobId = :j')
-                ->setParameters([
-                    'w' => $workflowId,
-                    'j' => $jobId,
-                ])
-                ->addOrderBy('t.triggeredAt', 'DESC')
-                ->setMaxResults(1)
+            $entity = $this->createQueryBuilder($workflowId, $jobId)
                 ->getQuery()
                 ->setLockMode(LockMode::PESSIMISTIC_WRITE)
                 ->getOneOrNullResult();
@@ -106,6 +97,21 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         }
     }
 
+    private function createQueryBuilder(string $workflowId, string $jobId): QueryBuilder
+    {
+        return $this->em->getRepository($this->jobStateEntity)
+            ->createQueryBuilder('t')
+            ->select('t')
+            ->andWhere('t.workflow = :w')
+            ->andWhere('t.jobId = :j')
+            ->setParameters([
+                'w' => $workflowId,
+                'j' => $jobId,
+            ])
+            ->addOrderBy('t.triggeredAt', 'DESC')
+            ->setMaxResults(1);
+    }
+
     public function releaseJobLock(string $workflowId, string $jobId): void
     {
         $this->em->commit();
@@ -113,13 +119,18 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
     public function persistJobState(JobState $state): void
     {
-        $entity = $this->fetchJobEntity($state->getWorkflowId(), $state->getJobId());
+        $entity = null;
+        if ($state->getStatus() !== JobState::STATUS_TRIGGERED) {
+            $entity = $this->fetchJobEntity($state->getWorkflowId(), $state->getJobId());
+        }
         if (!$entity instanceof JobStateEntity) {
             $jobStateEntity = $this->jobStateEntity;
             $entity = new $jobStateEntity(
                 $this->em->getReference($this->workflowStateEntity, $state->getWorkflowId()),
                 $state->getJobId()
             );
+
+            $this->jobs[$entity->getWorkflow()->getId()][$entity->getJobId()] = $entity;
         }
 
         $entity->setState($state, $this->em);
@@ -134,10 +145,9 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             return $this->jobs[$workflowId][$jobId];
         }
 
-        $entity = $this->em->getRepository($this->jobStateEntity)->findOneBy([
-            'workflow' => $workflowId,
-            'jobId' => $jobId,
-        ]);
+        $entity = $this->createQueryBuilder($workflowId, $jobId)
+            ->getQuery()
+            ->getOneOrNullResult();
 
         if ($entity) {
             $this->jobs[$workflowId][$jobId] = $entity;

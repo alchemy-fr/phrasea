@@ -167,24 +167,51 @@ App\Entity\Core\RenditionDefinition:
         name: preview
         class: '@n_rc_public'
         useAsPreview: true
+        parent: '@n_rd_original'
+        definition: |
+            image:
+                transformations: &image_transformations
+                    -
+                        module: imagine
+                        options:
+                            filters:
+                                auto_rotate: ~
+                                thumbnail:
+                                    size: \[ 600, 600 ]
+                                    mode: inset
+            animation:
+                transformations: *image_transformations
+            document:
+                transformations:
+                    - module: document_to_pdf
+
     n_rd_thumbnail (extends rendition_definition_n):
         name: thumbnail
         class: '@n_rc_public'
         useAsThumbnail: true
-    n_rd_preview_mobile (extends rendition_definition_n):
-        name: preview_mobile
-        class: '@n_rc_public'
-        useAsPreview: true
-        priority: 1
-    n_rd_thumbnail_mobile (extends rendition_definition_n):
-        name: thumbnail_mobile
-        class: '@n_rc_public'
-        useAsThumbnail: true
-        priority: 1
+        parent: '@n_rd_preview'
+        definition: |
+            image:
+                transformations: &image_transformations
+                    -
+                        module: imagine
+                        options:
+                            filters:
+                                auto_rotate: ~
+                                thumbnail:
+                                    size: \[ 150, 150 ]
+                                    mode: inset
+            animation:
+                transformations: *image_transformations
+            document:
+                transformations:
+                    - module: pdf_to_image
+
     n_rd_thumbnailActive (extends rendition_definition_n):
         name: thumbnailActive
         class: '@n_rc_public'
         useAsThumbnailActive: true
+        parent: '@n_rd_thumbnail'
 
 # Groups:
 # reporter_sport_football_league
@@ -463,14 +490,8 @@ App\Entity\Integration\WorkspaceIntegration:
         integration: tui.photo-editor
         workspace: '@w_newspaper'
     wi_renditions:
-        integration: phraseanet.renditions
+        integration: core.rendition
         workspace: '@w_newspaper'
-        config:
-            databoxId: 1
-            method: api
-            renditions:
-                    - thumbnail
-                    - preview
     wi_watermark:
         integration: core.watermark
         workspace: '@w_newspaper'
