@@ -1,4 +1,4 @@
-import {ThemeOptions} from '@mui/material';
+import {Theme, ThemeOptions} from '@mui/material';
 
 const baseTheme: ThemeOptions = {
     typography: {
@@ -21,3 +21,7 @@ const baseTheme: ThemeOptions = {
 export default baseTheme;
 
 export const leftPanelWidth = 360;
+
+export function getMediaBackgroundColor(theme: Theme): string {
+    return theme.palette.grey[200];
+}

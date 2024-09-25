@@ -6,6 +6,7 @@ import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
+import {getMediaBackgroundColor} from "../../themes/base.ts";
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -75,14 +76,22 @@ export default function PreviewPopover({
                 >
                     <Stack
                         direction={'row'}
-                        spacing={1}
-                        sx={theme => ({
-                            maxHeight: `calc(${height}px - ${theme.spacing(
-                                2
-                            )})`,
-                        })}
+                        spacing={2}
+                        sx={theme => {
+                            const spacingInt = parseInt(theme.spacing(2));
+                            return {
+                                maxHeight: height - spacingInt,
+                                '.media': {
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    backgroundColor: getMediaBackgroundColor(theme),
+                                },
+                            }
+                        }}
                     >
-                        <div>
+                        <div
+                            className={'media'}
+                        >
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}

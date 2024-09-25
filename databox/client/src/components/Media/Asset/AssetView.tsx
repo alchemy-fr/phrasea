@@ -22,6 +22,7 @@ import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
+import {getMediaBackgroundColor} from "../../../themes/base.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -170,17 +171,23 @@ export default function AssetView({modalIndex}: Props) {
                         }}
                     >
                         <Box
-                            sx={{
+                            sx={theme => ({
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 overflowY: 'auto',
                                 height: dimensions.height,
                                 width: dimensions.width + scrollbarWidth,
                                 maxWidth: dimensions.width + scrollbarWidth,
-                            }}
+                                backgroundColor: getMediaBackgroundColor(theme),
+                            })}
                         >
                             <div
                                 style={{
                                     position: 'relative',
                                     width: 'fit-content',
+                                    maxHeight: dimensions.height,
                                 }}
                             >
                                 {annotations && !integrationOverlay ? (
