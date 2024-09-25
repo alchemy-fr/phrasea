@@ -4,7 +4,7 @@ namespace Alchemy\RenditionFactory\Context;
 
 interface TransformationContextInterface
 {
-    public function createTmpFilePath(string $extension): string;
+    public function createTmpFilePath(?string $extension): string;
 
     public function getCacheDir(string $folder): string;
 
