@@ -1,138 +1,121 @@
-import {Asset} from '../../../types';
+import {Asset, StateSetter} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
-import {Button, Chip, Stack, styled, Typography} from '@mui/material';
-import {triggerAssetWorkflow} from '../../../api/asset';
-import {toast} from 'react-toastify';
-import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import {getWorkflows} from '../../../api/workflow';
-import ModalLink from '../../Routing/ModalLink';
-import moment from 'moment';
-import {Workflow, workflowStatuses} from '@alchemy/visual-workflow';
-import React from 'react';
-import {modalRoutes} from '../../../routes';
-import {useTranslation} from 'react-i18next';
+import {Alert, Button, List, ListItem, ListItemIcon, ListItemSecondaryAction, Typography} from '@mui/material';
+import {deleteAsset, deleteAssetShortcut, getAsset} from '../../../api/asset';
+import {Trans, useTranslation} from 'react-i18next';
+import {FormSection} from "../../../../../../lib/js/react-form";
+import ConfirmDialog from "../../Ui/ConfirmDialog.tsx";
+import {useModals} from "../../../../../../lib/js/navigation";
+import ShortcutIcon from '@mui/icons-material/Shortcut';
 
 type Props = {
     data: Asset;
+    setData: StateSetter<Asset>;
 } & DialogTabProps;
 
-const Section = styled('section')(({theme}) => ({
-    marginBottom: theme.spacing(2),
-}));
-
-const Intro = styled('div')(({theme}) => ({
-    marginBottom: theme.spacing(2),
-}));
-
-// Importing enum from visual-workflow does not work
-export enum WorkflowStatus {
-    Started = 0,
-    Success = 1,
-    Failure = 2,
-    Cancelled = 3,
-}
-
-export default function OperationsAsset({data, onClose, minHeight}: Props) {
+export default function OperationsAsset({data, onClose, minHeight, setData}: Props) {
     const {t} = useTranslation();
-    const [workflowTriggered, setWorkflowTriggered] = React.useState(false);
-    const [workflows, setWorkflows] = React.useState<Workflow[]>();
-    const triggerWorkflow = async () => {
-        setWorkflowTriggered(true);
-        await triggerAssetWorkflow(data.id);
-        toast.success(
-            t('operations_asset.workflow_is_starting', `Workflow is starting!`)
-        );
+    const {openModal} = useModals();
 
-        getWorkflows(data.id).then(setWorkflows);
+    const deleteConfirmAsset = async () => {
+        openModal(ConfirmDialog, {
+            textToType: data.title,
+            title: t(
+                'asset_delete.confirm',
+                'Are you sure you want to delete this asset?'
+            ),
+            onConfirm: async () => {
+                await deleteAsset(data.id);
+            },
+            onConfirmed: () => {
+                onClose();
+            },
+        });
     };
 
-    React.useEffect(() => {
-        getWorkflows(data.id).then(setWorkflows);
-    }, []);
-
-    const colors: Record<
-        WorkflowStatus,
-        | 'info'
-        | 'success'
-        | 'error'
-        | 'default'
-        | 'warning'
-        | 'primary'
-        | 'secondary'
-    > = {
-        [WorkflowStatus.Started]: 'secondary',
-        [WorkflowStatus.Success]: 'success',
-        [WorkflowStatus.Cancelled]: 'warning',
-        [WorkflowStatus.Failure]: 'error',
-    };
+    const otherCollections = data.collections?.filter(c => c.id !== data.referenceCollection?.id) ?? [];
 
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
-            <Section>
-                <Intro>
-                    {t(
-                        'asset.operations.you_need_to_run_integrations_again',
-                        `You need to run integrations again?`
-                    )}
-                </Intro>
-                <Button
-                    onClick={triggerWorkflow}
-                    disabled={workflowTriggered}
-                    startIcon={<PowerSettingsNewIcon />}
-                    variant={'contained'}
-                >
-                    {t(
-                        'asset.operations.trigger_workflow_again',
-                        `Trigger workflow again`
-                    )}
-                </Button>
-            </Section>
-            <Section>
-                <Intro>
-                    {t(
-                        'asset.operations.last_asset_workflows',
-                        `Last asset workflows`
-                    )}
-                </Intro>
-                {workflows?.map(w => (
-                    <Stack
-                        key={w.id}
-                        direction={'row'}
-                        alignItems={'center'}
-                        spacing={1}
-                        sx={theme => ({
-                            borderTop: `1px solid ${theme.palette.divider}`,
-                            mt: 1,
-                            pt: 1,
-                        })}
+            <div>
+                <Typography variant={'h2'} sx={{mb: 1}}>
+                    {t('asset_collections.title', 'Collections')}
+                </Typography>
+
+                <Typography variant={'body1'} sx={{mb: 1}}>
+                    {data.referenceCollection ? <Trans
+                        i18nKey={'asset_collections.reference_collection'}
+                        values={{
+                            collection: data.referenceCollection.title,
+                        }}
+                        defaults={'This asset belongs to the collection <strong>{{collection}}</strong>.'}
+                    /> : <Trans
+                        i18nKey={'asset_collections.reference_workspace'}
+                        values={{
+                            workspace: data.workspace.name,
+                        }}
+                        defaults={'This asset belongs to the workspace <strong>{{workspace}}</strong> root collection.'}
+                    />}
+                </Typography>
+
+                {otherCollections.length > 0 ? <>
+                    <Typography variant={'body2'} sx={{mb: 1}}>
+                        {t('asset_collections.other_collections', 'It also appears as shortcut in the following collections:')}
+                    </Typography>
+
+                    <List
+                        sx={{
+                            mb: 2,
+                        }}
                     >
-                        <div>
-                            <Typography variant={'body1'}>{w.name}</Typography>
-                            <Typography variant={'body2'}>
-                                {moment(w.startedAt).fromNow()}
-                                {w.status !== undefined && (
-                                    <Chip
-                                        color={colors[w.status]}
-                                        label={workflowStatuses[w.status]}
-                                        size={'small'}
-                                        sx={{ml: 2}}
-                                    />
-                                )}
-                            </Typography>
-                        </div>
-                        <Button
-                            component={ModalLink}
-                            route={modalRoutes.workflow}
-                            params={{
-                                id: w.id,
-                            }}
-                        >
-                            {t('asset.operations.view', `View`)}
-                        </Button>
-                    </Stack>
-                ))}
-            </Section>
+                        {otherCollections.map(c => {
+                            return <ListItem key={c.id}>
+                                <ListItemIcon>
+                                    <ShortcutIcon />
+                                </ListItemIcon>
+                                {c.title}
+
+                                <ListItemSecondaryAction>
+                                    <Button
+                                        color={'error'}
+                                        onClick={() => {
+                                            openModal(ConfirmDialog, {
+                                                title: t(
+                                                    'asset_collections.remove_shortcut_confirm',
+                                                    'Are you sure you want to remove this shortcut?'
+                                                ),
+                                                onConfirm: async () => {
+                                                    await deleteAssetShortcut(data.id, c.id);
+                                                    setData(await getAsset(data.id));
+                                                },
+                                            });
+                                        }}
+                                    >
+                                        {t('asset_collections.remove_shortcut', 'Remove shortcut')}
+                                    </Button>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        })}
+                    </List>
+                </> : ''}
+            </div>
+            <FormSection>
+                <Alert
+                    color={'error'}
+                    sx={{
+                        mb: 2,
+                    }}
+                >
+                    {t('danger_zone', 'Danger zone')}
+                </Alert>
+                <Typography variant={'h2'} sx={{mb: 1}}>
+                    {t('asset_delete.title', 'Delete Asset')}
+                </Typography>
+                <Button onClick={deleteConfirmAsset} color={'error'}>
+                    {t('asset_delete.title', 'Delete Asset')}
+                </Button>
+            </FormSection>
         </ContentTab>
     );
 }

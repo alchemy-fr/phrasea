@@ -286,6 +286,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
         return $this->privacy >= WorkspaceItemPrivacyInterface::PRIVATE;
     }
 
+    #[Groups([Asset::GROUP_READ])]
     public function getAbsoluteTitle(): string
     {
         $path = $this->getTitle();

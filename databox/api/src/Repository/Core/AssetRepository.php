@@ -5,11 +5,18 @@ declare(strict_types=1);
 namespace App\Repository\Core;
 
 use App\Entity\Core\Asset;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
-class AssetRepository extends EntityRepository
+class AssetRepository extends ServiceEntityRepository
 {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
+        parent::__construct($registry, Asset::class);
+    }
+
     /**
      * @return Asset[]
      */

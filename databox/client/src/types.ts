@@ -44,6 +44,7 @@ export interface Asset
     owner?: User;
     workspace: Workspace;
     attributes: Attribute[];
+    referenceCollection?: Collection | undefined;
     collections: Collection[] | undefined;
     original: AssetRendition | null;
     preview: AssetRendition | null;

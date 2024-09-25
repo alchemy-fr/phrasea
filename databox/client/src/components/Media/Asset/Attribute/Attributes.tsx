@@ -66,6 +66,10 @@ function Attributes({
         );
     }
 
+    if (attributeGroups.length === 0) {
+        return null;
+    }
+
     return (
         <div
             onDoubleClick={stopPropagation}

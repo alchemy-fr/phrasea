@@ -2,6 +2,7 @@ import ConfirmDialog from '../../../Ui/ConfirmDialog';
 import {useTranslation} from 'react-i18next';
 import {deleteAssets} from '../../../../api/asset';
 import {StackedModalProps} from '@alchemy/navigation';
+import React from "react";
 
 type Props = {
     assetIds: string[];
@@ -16,6 +17,22 @@ export default function DeleteAssetsConfirm({
 }: Props) {
     const {t} = useTranslation();
     const count = assetIds.length;
+
+    // TODO
+    // const {data, isSuccess} = useModalFetch<PrepareDeleteAssetsOutput>({
+    //     queryKey: ['assets', assetIds, 'delete'],
+    //     queryFn: () => prepareDeleteAssets(assetIds),
+    //     staleTime: 2000,
+    // });
+    //
+    // if (!isSuccess) {
+    //     if (!open) {
+    //         return null;
+    //     }
+    //     return <FullPageLoader />;
+    // }
+    //
+    // const hasReferences = data.assets.some((d) => d.collections.length > 0);
 
     const onDeleteAssets = async () => {
         await deleteAssets(assetIds);

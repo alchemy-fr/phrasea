@@ -14,6 +14,7 @@ import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
 import {modalRoutes} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import AssetWorkflow from "./AssetWorkflow.tsx";
 
 type Props = {};
 
@@ -110,11 +111,21 @@ export default function AssetDialog({}: Props) {
                     enabled: data.capabilities.canEditPermissions,
                 },
                 {
+                    title: t('asset.manage.workflow.title', 'Workflow'),
+                    component: AssetWorkflow,
+                    id: 'workflow',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.canEdit,
+                },
+                {
                     title: t('asset.manage.operations.title', 'Operations'),
                     component: OperationsAsset,
                     id: 'operations',
                     props: {
                         data,
+                        setData,
                     },
                     enabled: data.capabilities.canEdit,
                 },

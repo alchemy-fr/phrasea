@@ -12,20 +12,26 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
+use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
+use App\Api\Model\Output\PrepareDeleteAssetOutput;
+use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
+use App\Api\Processor\PrepareDeleteAssetProcessor;
+use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
@@ -62,6 +68,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 'groups' => [self::GROUP_READ],
             ]
         ),
+        new Delete(
+            uriTemplate: '/assets/{id}/collections/{collectionId}',
+            uriVariables: [
+                'collectionId' => new Link(fromClass: Collection::class, identifiers: ['id'], expandedValue: '{collectionId}'),
+                'id' => new Link(fromClass: Asset::class, identifiers: ['id']),
+            ],
+            name: 'remove_from_collection',
+            provider: AssetCollectionProvider::class,
+            processor: RemoveAssetFromCollectionProcessor::class,
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
@@ -87,6 +103,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
             validate: false,
             name: 'post_multiple',
             processor: MultipleAssetCreateProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/prepare-delete',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: PrepareDeleteAssetsInput::class,
+            output: PrepareDeleteAssetsOutput::class,
+            name: 'prepare_delete',
+            processor: PrepareDeleteAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/move',

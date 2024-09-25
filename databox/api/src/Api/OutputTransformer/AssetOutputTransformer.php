@@ -155,6 +155,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
         }
 
+        $output->referenceCollection = $data->getReferenceCollection();
+
         $output->setCollections($data->getCollections()->map(fn (CollectionAsset $collectionAsset,
         ): Collection => $collectionAsset->getCollection())
             ->filter(fn (Collection $collection): bool => $this->isGranted(AbstractVoter::LIST, $collection))
