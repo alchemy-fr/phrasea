@@ -2,7 +2,6 @@ import ConfirmDialog from '../../../Ui/ConfirmDialog';
 import {useTranslation} from 'react-i18next';
 import {deleteAssets} from '../../../../api/asset';
 import {StackedModalProps} from '@alchemy/navigation';
-import React from "react";
 
 type Props = {
     assetIds: string[];

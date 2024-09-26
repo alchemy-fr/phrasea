@@ -50,7 +50,7 @@ export default function AssetView({modalIndex, open}: Props) {
         AssetAnnotation[] | undefined
     >();
 
-    const {data, isError, error, isSuccess} = useModalFetch({
+    const {data, isSuccess} = useModalFetch({
         queryKey: ['assets', assetId],
         queryFn: () =>
             Promise.all([
