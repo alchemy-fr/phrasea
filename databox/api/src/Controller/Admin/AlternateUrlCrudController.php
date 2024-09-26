@@ -42,6 +42,7 @@ class AlternateUrlCrudController extends AbstractAdminCrudController
         yield AssociationField::new('workspace');
         yield TextField::new('type');
         yield TextField::new('label');
-        yield DateTimeField::new('createdAt');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
     }
 }

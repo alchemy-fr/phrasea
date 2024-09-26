@@ -88,7 +88,8 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         yield TextField::new('error');   
         yield JsonField::new('mapping')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt');                
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();                
 
     }
 

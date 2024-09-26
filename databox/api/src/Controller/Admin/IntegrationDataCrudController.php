@@ -61,6 +61,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         yield $this->userChoiceField->create('userId', 'User');
         yield TextField::new('keyId');
         yield CodeField::new('value');
-        yield DateTimeField::new('createdAt');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
     }
 }

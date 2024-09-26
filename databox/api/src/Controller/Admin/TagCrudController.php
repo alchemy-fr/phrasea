@@ -47,11 +47,9 @@ class TagCrudController extends AbstractAdminCrudController
         yield TextField::new('locale');
         yield TextField::new('name');
         yield JsonField::new('translations')
-            ->hideOnIndex()
-        ;
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm()
-        ;
+            ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm()
         ;

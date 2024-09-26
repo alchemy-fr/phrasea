@@ -54,7 +54,8 @@ class WebhookLogCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextareaField::new('webhook.url', 'URL')
             ->onlyOnIndex();    
-        yield DateTimeField::new('createdAt');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
         yield AssociationField::new('webhook')
             ->hideOnIndex();          
     }

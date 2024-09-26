@@ -65,13 +65,13 @@ class IntegrationCrudController extends AbstractAdminCrudController
         yield TextareaField::new('optionsYaml')
             ->hideOnIndex();
         yield JsonField::new('config')
-        ->hideOnIndex();
+            ->hideOnIndex();
         yield ArrayField::new('this', 'Config info')
             ->setTemplatePath('admin/integration_config_info.html.twig')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
-        ->hideOnForm();
+            ->hideOnForm();
         yield DateTimeField::new('updatedAt')
-        ->hideOnForm();
+            ->hideOnForm();
     }
 }
