@@ -65,7 +65,8 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('file');
         yield BooleanField::new('ready')
             ->renderAsSwitch(false);
-        yield DateTimeField::new('updatedAt');
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
     }

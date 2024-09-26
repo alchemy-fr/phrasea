@@ -77,7 +77,7 @@ class FileCrudController extends AbstractAdminCrudController
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
-            ->hideOnIndex();
+            ->onlyOnDetail();
 
     }
 }

@@ -51,7 +51,8 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         yield TextField::new('indexName');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-        yield DateTimeField::new('updatedAt');
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
         yield JsonField::new('mapping')
             ->onlyOnDetail();
     }

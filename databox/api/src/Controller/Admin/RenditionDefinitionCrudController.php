@@ -75,8 +75,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield IntegerField::new('priority');
         yield BooleanField::new('download')
-            ->hideOnIndex()
-        ;
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
