@@ -45,7 +45,6 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add(EntityFilter::new('collection'))
             ->add(TextFilter::new('name'))
             ->add($this->userChoiceFilter->createFilter('ownerId', 'Owner'))
             ->add(DateTimeFilter::new('createdAt'))

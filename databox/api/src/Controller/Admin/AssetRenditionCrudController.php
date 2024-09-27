@@ -47,7 +47,6 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(ChildPropertyEntityFilter::new('definition', 'workspace', 'Workspace'))
-            ->add(EntityFilter::new('asset'))
             ->add(NullFilter::new('file', 'Is Ready')->setChoiceLabels('Not ready', 'Ready'))
             ->add(DateTimeFilter::new('createdAt'))
         ;    

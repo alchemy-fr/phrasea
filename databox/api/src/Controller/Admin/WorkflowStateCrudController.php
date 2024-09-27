@@ -12,14 +12,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
