@@ -34,13 +34,20 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
 
         $resolution = $options['resolution'] ?? 300;
         $quality = $options['quality'] ?? 100;
+        $width = isset($options['size'][0]) ? $options['size'][0] : null;
+        $height = isset($options['size'][1]) ? $options['size'][1] : null;
 
         $newPath = $context->createTmpFilePath($extension);
 
         $pdf->format(OutputFormat::tryFrom($extension))
             ->resolution($resolution)
-            ->quality($quality)
-            ->save($newPath);
+            ->quality($quality);
+
+        if (!empty($width) && !empty($height)) {
+            $pdf->size($width, $height);
+        }
+
+        $pdf->save($newPath);
 
         return new OutputFile(
             $newPath,

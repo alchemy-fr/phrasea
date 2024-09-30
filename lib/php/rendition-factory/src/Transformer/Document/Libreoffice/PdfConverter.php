@@ -33,6 +33,8 @@ final class PdfConverter
 
         $process = new Process($args);
 
+        $process->setTimeout(3600);
+
         $process->mustRun(); // throw exception when failed
 
         $generatedFile = $outDir.'/'.$filename.'.pdf';
