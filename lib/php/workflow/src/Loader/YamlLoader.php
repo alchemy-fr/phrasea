@@ -16,7 +16,7 @@ class YamlLoader implements FileLoaderInterface
 {
     public function load(string $file): Workflow
     {
-        $data = Yaml::parseFile($file);
+        $data = Yaml::parseFile($file, Yaml::PARSE_CONSTANT);
 
         try {
             return $this->parseWorkflow($data);

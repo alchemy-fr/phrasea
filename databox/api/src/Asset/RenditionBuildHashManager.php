@@ -24,7 +24,7 @@ final readonly class RenditionBuildHashManager
     ) {
     }
 
-    public function getBuildHash(File $source, RenditionDefinition $definition): ?string
+    public function getBuildHash(?File $source, RenditionDefinition $definition): ?string
     {
         if ($definition->isPickSourceFile()
             || null === $definition->getDefinition()) {
@@ -32,7 +32,7 @@ final readonly class RenditionBuildHashManager
         }
 
         return md5(implode('|', [
-            $source->getId(),
+            $source?->getId() ?? 'no-source',
             $definition->getId(),
             $definition->getDefinition(),
         ]));

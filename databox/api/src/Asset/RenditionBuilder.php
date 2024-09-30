@@ -5,6 +5,7 @@ namespace App\Asset;
 use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
 use Alchemy\RenditionFactory\RenditionCreator;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
@@ -33,10 +34,25 @@ final readonly class RenditionBuilder
 
     public function buildRendition(RenditionDefinition $renditionDefinition, Asset $asset, bool $force = false): void
     {
+        if (null !== $parentDefinition = $renditionDefinition->getParent()) {
+            $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
+            if (null === $parentRendition) {
+                throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
+            }
+
+            $source = $parentRendition->getFile();
+        } else {
+            $source = $asset->getSource();
+            if (null === $source) {
+                throw new \LogicException(sprintf('No source file found for asset "%s"', $asset->getId()));
+            }
+        }
+
         if ($renditionDefinition->isPickSourceFile()) {
-            $this->renditionManager->createOrReplaceRenditionFile($asset,
+            $this->renditionManager->createOrReplaceRenditionFile(
+                $asset,
                 $renditionDefinition,
-                $asset->getSource(),
+                $source,
                 null,
                 null,
             );
@@ -50,17 +66,6 @@ final readonly class RenditionBuilder
             return;
         }
 
-        if (null !== $parentDefinition = $renditionDefinition->getParent()) {
-            $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
-            if (null === $parentRendition) {
-                throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
-            }
-
-            $source = $parentRendition->getFile();
-        } else {
-            $source = $asset->getSource();
-        }
-
         $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
 
         $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
@@ -71,7 +76,11 @@ final readonly class RenditionBuilder
         $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetTitleResolver);
 
         try {
-            $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
+            try {
+                $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
+            } catch (NoBuildConfigException) {
+                return;
+            }
 
             if (null !== $outputFile) {
                 $file = $this->fileManager->createFileFromPath(
@@ -88,7 +97,7 @@ final readonly class RenditionBuilder
                 $renditionDefinition,
                 $file,
                 $buildHash,
-                $outputFile->getBuildHashes(),
+                $outputFile?->getBuildHashes() ?? $buildHash,
             );
             $this->em->flush();
         } finally {

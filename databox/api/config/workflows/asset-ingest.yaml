@@ -1,11 +1,11 @@
 name: asset-ingest
 
 on:
-  asset_ingest:
-    inputs:
-      assetId:
-        required: true
-      workspaceId:
-        required: true
+    asset_ingest:
+        inputs:
+            assetId:
+                required: true
+            workspaceId:
+                required: true
 
 jobs:

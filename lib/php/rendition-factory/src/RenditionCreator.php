@@ -12,6 +12,7 @@ use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
@@ -39,12 +40,12 @@ final class RenditionCreator
     ): OutputFileInterface {
         $inputFile = new InputFile($src, $mimeType, $this->fileFamilyGuesser->getFamily($src, $mimeType));
         if (null == $familyBuildConfig = $buildConfig->getFamily($inputFile->getFamily())) {
-            throw new \InvalidArgumentException(sprintf('No build config defined for family "%s" (type: "%s")', $inputFile->getFamily()->value, $mimeType));
+            NoBuildConfigException::throwNoFamily($inputFile->getFamily()->value, $mimeType);
         }
 
         $transformations = $familyBuildConfig->getTransformations();
         if (empty($transformations)) {
-            throw new \InvalidArgumentException(sprintf('No transformation defined for family "%s" (type: "%s")', $inputFile->getFamily()->value, $mimeType));
+            NoBuildConfigException::throwNoTransformation($inputFile->getFamily()->value, $mimeType);
         }
 
         $context = $this->contextFactory->create(

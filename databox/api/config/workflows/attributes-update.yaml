@@ -1,16 +1,16 @@
 name: attributes-update
 
 on:
-  attributes_update:
-    inputs:
-      attributes:
-        type: array
-        required: true
-      assetId:
-        type: string
-        required: true
-      workspaceId:
-        type: string
-        required: true
+    attributes_update:
+        inputs:
+            attributes:
+                type: array
+                required: true
+            assetId:
+                type: string
+                required: true
+            workspaceId:
+                type: string
+                required: true
 
 jobs:

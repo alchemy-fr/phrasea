@@ -37,8 +37,6 @@ class AssetCopier
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         if (!$sameWorkspace) {
             if (!$asset->getSource()) {
-                $options[self::OPT_WITH_TAGS] = false;
-                $options[self::OPT_WITH_ATTRIBUTES] = false;
                 $this->doCopyAsset(
                     $userId,
                     $groupsId,
@@ -82,6 +80,7 @@ class AssetCopier
         ?Collection $collection,
         array $options = [],
     ): void {
+        $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
         $copy->setOwnerId($userId);
         $copy->setTitle($asset->getTitle());
@@ -89,35 +88,40 @@ class AssetCopier
         $copy->setLocale($asset->getLocale());
         $copy->setWorkspace($workspace);
 
-        if ($collection instanceof Collection) {
+        if (null !== $collection) {
+            if ($collection->getWorkspaceId() !== $workspace->getId()) {
+                throw new \InvalidArgumentException(sprintf('Failed to copy asset: Collection %s does not belong to workspace %s', $collection->getId(), $workspace->getId()));
+            }
             $copy->addToCollection($collection);
         }
-        if ($asset->getSource()) {
+        if (null !== $asset->getSource()) {
             $copy->setSource($this->copyFile($asset->getSource(), $workspace));
         }
 
-        foreach ($asset->getRenditions() as $rendition) {
-            if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(),
-                $userId,
-                $groupsId
-            )) {
-                $this->copyRendition($rendition, $copy);
+        if ($sameWorkspace) {
+            foreach ($asset->getRenditions() as $rendition) {
+                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(),
+                    $userId,
+                    $groupsId
+                )) {
+                    $this->copyRendition($rendition, $copy);
+                }
             }
-        }
 
-        if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
-            $attributes = $this->em->getRepository(Attribute::class)
-                ->getAssetAttributes($asset->getId());
+            if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
+                $attributes = $this->em->getRepository(Attribute::class)
+                    ->getAssetAttributes($asset->getId());
 
-            foreach ($attributes as $attr) {
-                $this->copyAttribute($attr, $copy);
+                foreach ($attributes as $attr) {
+                    $this->copyAttribute($attr, $copy);
+                }
             }
-        }
 
-        if ($options[self::OPT_WITH_TAGS] ?? false) {
-            $tags = $asset->getTags();
-            foreach ($tags as $tag) {
-                $copy->addTag($tag);
+            if ($options[self::OPT_WITH_TAGS] ?? false) {
+                $tags = $asset->getTags();
+                foreach ($tags as $tag) {
+                    $copy->addTag($tag);
+                }
             }
         }
 

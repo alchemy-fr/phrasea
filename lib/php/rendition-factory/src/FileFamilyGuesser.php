@@ -38,7 +38,7 @@ final readonly class FileFamilyGuesser
         }
 
         return match ($mimeType) {
-            'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet' => FamilyEnum::Document,
+            'application/pdf', 'text/rtf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet' => FamilyEnum::Document,
             default => FamilyEnum::Unknown,
         };
     }
