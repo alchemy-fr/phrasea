@@ -2,16 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Core\RenditionClass;
+use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class RenditionClassCrudController extends AbstractAdminCrudController
 {
@@ -33,28 +37,24 @@ class RenditionClassCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
-            ->add('name');
+            ->add(TextFilter::new('name'))
+            ->add(BooleanFilter::new('public'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $workspace = AssociationField::new('workspace');
-        $name = TextField::new('name');
-        $public = BooleanField::new('public');
-        $createdAt = DateTimeField::new('createdAt');
-        $definitions = AssociationField::new('definitions');
+        yield IdField::new();
+        yield AssociationField::new('workspace');
+        yield TextField::new('name');
+        yield BooleanField::new('public');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield AssociationField::new('definitions')
+            ->onlyOnDetail();    
+        yield JsonField::new('labels')
+            ->onlyOnDetail();    
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $workspace, $name, $public, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $public, $createdAt, $workspace, $definitions];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$workspace, $name, $public];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$workspace, $name, $public];
-        }
-
-        return [];
     }
 }

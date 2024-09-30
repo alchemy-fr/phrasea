@@ -2,17 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use App\Entity\Core\Collection;
+use App\Admin\Field\PrivacyField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
-use App\Admin\Field\PrivacyField;
-use App\Entity\Core\Collection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
 {
@@ -39,37 +41,39 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('workspace'));
+            ->add(EntityFilter::new('workspace'))
+            ->add(TextFilter::new('title'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        $title = TextField::new('title');
-        $workspace = AssociationField::new('workspace');
-        $parent = AssociationField::new('parent');
-        $privacy = $this->privacyField->create('privacy');
-        $ownerId = TextField::new('ownerId');
-        $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
-        $id = IdField::new();
-        $key = TextField::new('key');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $deletedAt = DateTimeField::new('deletedAt');
-        $locale = TextField::new('locale');
-        $children = AssociationField::new('children');
-        $assets = AssociationField::new('assets');
-        $referenceAssets = AssociationField::new('referenceAssets');
+        yield IdField::new();
+        yield TextField::new('title');
+        yield AssociationField::new('parent');
+        yield AssociationField::new('workspace');
+        yield $this->privacyField->create('privacy');
+        yield TextField::new('ownerId')
+            ->onlyOnDetail();
+        yield $this->userChoiceField->create('ownerId', 'Owner')
+            ->onlyOnForms();  
+        yield TextField::new('key')
+            ->onlyOnDetail();  
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();       
+        yield DateTimeField::new('updatedAt')
+            ->onlyOnDetail();
+        yield DateTimeField::new('deletedAt')     
+            ->onlyOnDetail();
+        yield TextField::new('locale')
+            ->onlyOnDetail();
+        yield AssociationField::new('children')
+            ->onlyOnDetail();
+        yield AssociationField::new('assets')
+            ->onlyOnDetail();
+        yield AssociationField::new('referenceAssets')                
+            ->onlyOnDetail();
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $title, $parent, $workspace, $privacy, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $title, $ownerId, $key, $createdAt, $updatedAt, $deletedAt, $locale, $privacy, $parent, $children, $assets, $referenceAssets, $workspace];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$title, $workspace, $parent, $privacy, $ownerUser];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$title, $workspace, $parent, $privacy, $ownerUser];
-        }
-
-        return [];
     }
 }

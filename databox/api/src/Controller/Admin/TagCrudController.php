@@ -2,16 +2,18 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Core\Tag;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\Core\Tag;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class TagCrudController extends AbstractAdminCrudController
 {
@@ -32,7 +34,10 @@ class TagCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(EntityFilter::new('workspace'));
+            ->add(EntityFilter::new('workspace'))
+            ->add(TextFilter::new('name'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
@@ -42,11 +47,9 @@ class TagCrudController extends AbstractAdminCrudController
         yield TextField::new('locale');
         yield TextField::new('name');
         yield JsonField::new('translations')
-            ->hideOnIndex()
-        ;
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm()
-        ;
+            ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm()
         ;

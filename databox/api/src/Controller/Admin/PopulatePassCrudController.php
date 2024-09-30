@@ -2,22 +2,26 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Admin\PopulatePass;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
-use App\Entity\Admin\PopulatePass;
+use Symfony\Component\HttpFoundation\Response;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class PopulatePassCrudController extends AbstractAdminCrudController
 {
@@ -42,7 +46,6 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, Action::NEW)
             ->add(Crud::PAGE_INDEX, $globalAddPopulateAction)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
         ;
     }
 
@@ -55,31 +58,39 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(NumericFilter::new('documentCount'))
+            ->add(TextFilter::new('indexName'))
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(DateTimeFilter::new('endedAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $endedAt = DateTimeField::new('endedAt');
-        $documentCount = IntegerField::new('documentCount');
-        $progress = IntegerField::new('progress');
-        $indexName = TextField::new('indexName');
-        $error = TextField::new('error');
-        $createdAt = DateTimeField::new('createdAt');
-        $id = IdField::new();
-        $mapping = JsonField::new('mapping');
-        $progressString = TextareaField::new('progressString');
-        $timeTakenUnit = TextareaField::new('timeTakenUnit');
-        $successful = BooleanField::new('successful')->renderAsSwitch(false);
+        yield IdField::new()
+            ->hideOnForm();
+        yield TextField::new('indexName');
+        yield TextareaField::new('progressString')
+            ->onlyOnIndex();    
+        yield TextareaField::new('timeTakenUnit')
+            ->onlyOnIndex();
+        yield DateTimeField::new('endedAt');
+        yield IntegerField::new('documentCount')
+            ->hideOnForm(); 
+        yield IntegerField::new('progress')
+            ->hideOnIndex();
+        yield BooleanField::new('successful')
+            ->renderAsSwitch(false)
+            ->onlyOnIndex();    
+        yield TextField::new('error');   
+        yield JsonField::new('mapping')
+            ->onlyOnDetail();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();                
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $indexName, $progressString, $timeTakenUnit, $endedAt, $successful, $error, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $endedAt, $documentCount, $progress, $indexName, $mapping, $error, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$endedAt, $documentCount, $progress, $indexName, $error, $createdAt];
-        }
-
-        return [];
     }
 
     public function addPopulate(): Response

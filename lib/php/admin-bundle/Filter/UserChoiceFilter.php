@@ -1,19 +1,19 @@
 <?php
 
-namespace Alchemy\AdminBundle\Field;
+namespace Alchemy\AdminBundle\Filter;
 
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use Alchemy\AuthBundle\Security\JwtUser;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
-final readonly class UserChoiceField
+final readonly class UserChoiceFilter
 {
     public function __construct(private ServiceAccountClient $serviceAccountClient, private KeycloakClient $authServiceClient)
     {
     }
 
-    public function create(string $propertyName, ?string $label = null):ChoiceField
+    public function createFilter(string $propertyName, ?string $label = null):ChoiceFilter
     {
         /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));
@@ -26,6 +26,6 @@ final readonly class UserChoiceField
             $choices = ['' => ''];
         }
 
-        return ChoiceField::new($propertyName, $label)->setChoices($choices);
+        return ChoiceFilter::new($propertyName, $label)->setChoices($choices);
     }
 }

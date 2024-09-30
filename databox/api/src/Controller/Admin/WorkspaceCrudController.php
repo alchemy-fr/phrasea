@@ -2,16 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use App\Entity\Core\Workspace;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
-use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
@@ -33,37 +36,47 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('name'))
+            ->add(BooleanFilter::new('public'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $name = TextField::new('name');
-        $slug = TextField::new('slug');
-        $isPublic = BooleanField::new('public')
-            ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');
-        $ownerId = TextField::new('ownerId');
-        $ownerUser = $this->userChoiceField->create('ownerId', 'Owner');
-        $enabledLocales = ArrayField::new('enabledLocales');
-        $localeFallbacks = ArrayField::new('localeFallbacks');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-        $deletedAt = DateTimeField::new('deletedAt');
-        $collections = AssociationField::new('collections');
-        $tags = AssociationField::new('tags');
-        $renditionClasses = AssociationField::new('renditionClasses');
-        $renditionDefinitions = AssociationField::new('renditionDefinitions');
-        $attributeDefinitions = AssociationField::new('attributeDefinitions');
-        $files = AssociationField::new('files');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $name, $slug, $enabledLocales, $localeFallbacks, $isPublic, $updatedAt, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $name, $slug, $ownerId, $enabledLocales, $localeFallbacks, $isPublic, $createdAt, $updatedAt, $deletedAt, $collections, $tags, $renditionClasses, $renditionDefinitions, $attributeDefinitions, $files];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks, $isPublic];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$name, $slug, $ownerUser, $enabledLocales, $localeFallbacks, $isPublic];
-        }
-
-        return [];
+        yield IdField::new()
+            ->hideOnForm();
+        yield TextField::new('name');
+        yield TextField::new('slug');   
+        yield TextField::new('ownerId')
+            ->onlyOndetail();
+        yield $this->userChoiceField->create('ownerId', 'Owner')
+            ->onlyOnForms(); 
+        yield ArrayField::new('enabledLocales');
+        yield ArrayField::new('localeFallbacks');
+        yield BooleanField::new('public')
+            ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');  
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();
+        yield DateTimeField::new('deletedAt')
+            ->onlyOnDetail();
+        yield AssociationField::new('collections')
+            ->onlyOnDetail();
+        yield AssociationField::new('tags')
+            ->onlyOnDetail();
+        yield AssociationField::new('renditionClasses')
+            ->onlyOnDetail();
+        yield AssociationField::new('renditionDefinitions')
+            ->onlyOnDetail();
+        yield AssociationField::new('renditionDefinitions')
+            ->onlyOnDetail();
+        yield AssociationField::new('attributeDefinitions')
+            ->onlyOnDetail();    
+        yield AssociationField::new('files')
+        ->onlyOnDetail();
     }
 }

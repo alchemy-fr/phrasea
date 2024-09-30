@@ -2,15 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\WebhookBundle\Entity\Webhook;
-use Alchemy\WebhookBundle\Field\EventsChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use Alchemy\WebhookBundle\Field\EventsChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class WebhookCrudController extends AbstractAdminCrudController
 {
@@ -25,29 +29,34 @@ class WebhookCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id', 'url', 'secret', 'events', 'options']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(BooleanFilter::new('active'))
+            ->add(TextFilter::new('url'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $url = TextField::new('url', 'URL');
-        $events = EventsChoiceField::new('events');
-        $verifySSL = Field::new('verifySSL', 'Verify SSL');
-        $secret = TextField::new('secret');
-        $timeout = Field::new('timeout');
-        $active = Field::new('active');
-        $options = TextField::new('options');
-        $createdAt = DateTimeField::new('createdAt');
-        $eventsLabel = TextareaField::new('eventsLabel');
+        yield IdField::new()
+            ->onlyOnDetail();
+        yield TextField::new('url', 'URL');
+        yield BooleanField::new('active');   
+        yield EventsChoiceField::new('events')
+            ->hideOnIndex();
+        yield BooleanField::new('verifySSL', 'Verify SSL')
+            ->hideOnIndex();
+        yield TextField::new('secret')
+            ->hideOnIndex();
+        yield Field::new('timeout')
+            ->onlyOnForms();
+        yield TextField::new('options')
+            ->onlyOnDetail();   
+        yield TextareaField::new('eventsLabel')
+            ->onlyOnIndex();    
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();           
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$url, $active, $eventsLabel, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $url, $secret, $verifySSL, $active, $events, $options, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$url, $events, $verifySSL, $secret, $timeout, $active];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$url, $events, $verifySSL, $secret, $timeout, $active];
-        }
-
-        return [];
     }
 }

@@ -2,21 +2,24 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
-use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Entity\Workflow\WorkflowState;
+use Alchemy\Workflow\WorkflowOrchestrator;
+use Alchemy\AdminBundle\Field\ArrayObjectField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
@@ -53,7 +56,6 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $viewWorkflow)
             ->add(Crud::PAGE_INDEX, $cancel)
         ;
@@ -67,19 +69,23 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(ChoiceFilter::new('status')->setChoices([
+                'STARTED' => ModelWorkflowState::STATUS_STARTED,
+                'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
+                'FAILURE' => ModelWorkflowState::STATUS_FAILURE,
+            ]))
+            ->add(DateTimeFilter::new('startedAt'))
+            ->add(DateTimeFilter::new('endedAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $name = TextField::new('name', 'Name');
-        $eventName = TextField::new('eventName', 'Event');
-        $eventInputs = ArrayObjectField::new('eventInputs', 'Event inputs');
-        $initiator = TextField::new('initiatorId', 'Initiator');
-        $context = ArrayObjectField::new('context', 'Context');
-        $asset = AssociationField::new('asset', 'Asset');
-        $duration = TextField::new('durationString', 'Duration');
-        $startedAt = DateTimeField::new('startedAt', 'Started At');
-        $endedAt = DateTimeField::new('endedAt', 'Ended At');
-        $status = ChoiceField::new('status', 'Status')
+        yield IdField::new();
+        yield ChoiceField::new('status', 'Status')
             ->setChoices([
                 'STARTED' => ModelWorkflowState::STATUS_STARTED,
                 'SUCCESS' => ModelWorkflowState::STATUS_SUCCESS,
@@ -90,22 +96,16 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
                 ModelWorkflowState::STATUS_FAILURE => 'danger',
             ]);
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [
-                $id,
-                $status,
-                $name,
-                $eventName,
-                $initiator,
-                $asset,
-                $duration,
-                $startedAt,
-                $endedAt,
-            ];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $asset, $name, $startedAt, $status, $endedAt, $duration, $eventName, $eventInputs, $context];
-        }
-
-        return [];
+        yield TextField::new('name', 'Name');
+        yield TextField::new('eventName', 'Event');
+        yield ArrayObjectField::new('eventInputs', 'Event inputs')
+            ->hideOnIndex();
+        yield TextField::new('initiatorId', 'Initiator'); 
+        yield ArrayObjectField::new('context', 'Context')
+            ->hideOnIndex();    
+        yield AssociationField::new('asset', 'Asset');
+        yield TextField::new('durationString', 'Duration');
+        yield DateTimeField::new('startedAt', 'Started At');    
+        yield DateTimeField::new('endedAt', 'Ended At');
     }
 }

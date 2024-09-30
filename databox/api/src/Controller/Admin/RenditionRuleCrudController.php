@@ -2,15 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
-use Alchemy\AdminBundle\Field\IdField;
-use App\Admin\Field\RenditionRuleObjectTypeChoiceField;
 use App\Entity\Core\RenditionRule;
+use App\Entity\Core\TagFilterRule;
+use Alchemy\AdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Alchemy\AdminBundle\Field\Acl\UserTypeChoiceField;
+use App\Admin\Field\RenditionRuleObjectTypeChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class RenditionRuleCrudController extends AbstractAdminCrudController
 {
@@ -32,27 +36,34 @@ class RenditionRuleCrudController extends AbstractAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+        ->add(ChoiceFilter::new('objectType')->setChoices([
+            'collection' => TagFilterRule::TYPE_COLLECTION ,
+            'workspace' => TagFilterRule::TYPE_WORKSPACE
+            ]))
+        ->add(ChoiceFilter::new('userType')->setChoices([
+            'user'  => TagFilterRule::TYPE_USER,
+            'group' => TagFilterRule::TYPE_GROUP
+        ]))    
+        ->add(DateTimeFilter::new('createdAt'))
+    ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $id = IdField::new();
-        $userType = $this->userTypeChoiceField->create('userType');
-        $userId = TextField::new('userId');
-        $objectType = RenditionRuleObjectTypeChoiceField::new('objectType');
-        $objectId = TextField::new('objectId');
-        $allowed = AssociationField::new('allowed');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
+        yield IdField::new()
+            ->hideOnForm();
+        yield $this->userTypeChoiceField->create('userType');
+        yield TextField::new('userId');
+        yield RenditionRuleObjectTypeChoiceField::new('objectType');
+        yield TextField::new('objectId');
+        yield AssociationField::new('allowed');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->hideOnForm();    
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $allowed, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $userType, $userId, $objectType, $objectId, $createdAt, $updatedAt, $allowed];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $allowed];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$userType, $userId, $objectType, $objectId, $allowed];
-        }
-
-        return [];
     }
 }

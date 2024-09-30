@@ -2,22 +2,24 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Core\Attribute;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
-use App\Entity\Core\Attribute;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 
 class AttributeCrudController extends AbstractAdminCrudController
 {
@@ -29,7 +31,6 @@ class AttributeCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
     }
@@ -38,7 +39,9 @@ class AttributeCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(ChildPropertyEntityFilter::new('definition', 'workspace', 'Workspace'))
-            ->add('value')
+            ->add(TextFilter::new('value'))
+            ->add(TextFilter::new('locale'))
+            ->add(BooleanFilter::new('locked'))
         ;
     }
 
@@ -58,11 +61,11 @@ class AttributeCrudController extends AbstractAdminCrudController
         yield AssociationField::new('asset');
         yield TextField::new('locale');
         yield TextField::new('value');
-        yield Field::new('locked');
+        yield BooleanField::new('locked');
         yield IntegerField::new('origin');
-        yield TextField::new('originVendor')
+        yield TextField::new('originVendor');
+        yield TextareaField::new('originVendorContext')
             ->hideOnIndex();
-        yield TextareaField::new('originVendorContext');
         yield IntegerField::new('position');
         yield IdField::new('originUserId')
             ->hideOnIndex();

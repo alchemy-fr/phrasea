@@ -26,6 +26,7 @@ services:
   Alchemy\AdminBundle\Form\GroupChoiceType: ~
 
   Alchemy\AdminBundle\Field\UserChoiceField:
+  Alchemy\AdminBundle\Filter\UserChoiceFilter:
 
   Alchemy\AdminBundle\AdminConfigRegistry:
     arguments:
