@@ -19,12 +19,11 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\CopyAssetInput;
-use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
+use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
-use App\Api\Model\Output\PrepareDeleteAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\CopyAssetProcessor;
@@ -65,7 +64,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             normalizationContext: [
-                'groups' => [self::GROUP_READ],
+                'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
             ]
         ),
         new Delete(
@@ -106,6 +105,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Post(
             uriTemplate: '/assets/prepare-delete',
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_LIST,
+                    Collection::GROUP_ABSOLUTE_TITLE,
+                ],
+            ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: PrepareDeleteAssetsInput::class,
             output: PrepareDeleteAssetsOutput::class,

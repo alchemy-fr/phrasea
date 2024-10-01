@@ -2,29 +2,29 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\Asset;
-use App\Admin\Field\PrivacyField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Workflow\WorkflowState;
+use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\WorkflowOrchestrator;
-use Alchemy\AdminBundle\Field\UserChoiceField;
-use Symfony\Component\HttpFoundation\Response;
+use App\Admin\Field\PrivacyField;
+use App\Entity\Core\Asset;
+use App\Entity\Workflow\WorkflowState;
 use App\Workflow\Event\AssetIngestWorkflowEvent;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use Symfony\Component\HttpFoundation\Response;
 
 class AssetCrudController extends AbstractAclAdminCrudController
 {
@@ -102,7 +102,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield IntegerField::new('collections.count', '# Colls')
             ->onlyOnIndex();
         yield AssociationField::new('source')
-            ->onlyOnIndex();    
+            ->onlyOnIndex();
         yield TextField::new('key')
             ->hideOnForm();
         yield DateTimeField::new('createdAt')
@@ -110,11 +110,11 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield DateTimeField::new('updatedAt')
             ->onlyOnDetail();
         yield AssociationField::new('tags')
-            ->hideOnIndex();    
+            ->hideOnIndex();
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
-            ->onlyOnDetail(); 
+            ->onlyOnDetail();
         yield AssociationField::new('storyCollection')
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
@@ -122,13 +122,13 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('attributes')
             ->onlyOnDetail();
         yield Field::new('file')
-            ->onlyOnDetail();    
+            ->onlyOnDetail();
         yield AssociationField::new('renditions')
             ->onlyOnDetail();
         yield AssociationField::new('fileVersions')
-            ->onlyOnDetail();    
+            ->onlyOnDetail();
         yield TextField::new('pendingUploadToken')
-            ->onlyOnDetail();     
+            ->onlyOnDetail();
 
     }
 }

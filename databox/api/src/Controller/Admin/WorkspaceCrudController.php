@@ -2,19 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\Workspace;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
@@ -49,15 +49,15 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield TextField::new('name');
-        yield TextField::new('slug');   
+        yield TextField::new('slug');
         yield TextField::new('ownerId')
             ->onlyOndetail();
         yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->onlyOnForms(); 
+            ->onlyOnForms();
         yield ArrayField::new('enabledLocales');
         yield ArrayField::new('localeFallbacks');
         yield BooleanField::new('public')
-            ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');  
+            ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
@@ -75,7 +75,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('renditionDefinitions')
             ->onlyOnDetail();
         yield AssociationField::new('attributeDefinitions')
-            ->onlyOnDetail();    
+            ->onlyOnDetail();
         yield AssociationField::new('files')
         ->onlyOnDetail();
     }

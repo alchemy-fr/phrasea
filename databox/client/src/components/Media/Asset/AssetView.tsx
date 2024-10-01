@@ -20,8 +20,8 @@ import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
-import {getMediaBackgroundColor} from "../../../themes/base.ts";
-import {useModalFetch} from "../../../hooks/useModalFetch.ts";
+import {getMediaBackgroundColor} from '../../../themes/base.ts';
+import {useModalFetch} from '../../../hooks/useModalFetch.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -93,7 +93,7 @@ export default function AssetView({modalIndex, open}: Props) {
         if (!open) {
             return null;
         }
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const [asset, renditions] = data as [Asset, AssetRendition[]];
@@ -146,10 +146,14 @@ export default function AssetView({modalIndex, open}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {!integrationOverlay ? <AssetViewActions
-                                asset={asset}
-                                file={rendition?.file}
-                            /> : ''}
+                            {!integrationOverlay ? (
+                                <AssetViewActions
+                                    asset={asset}
+                                    file={rendition?.file}
+                                />
+                            ) : (
+                                ''
+                            )}
                         </>
                     }
                     onClose={onClose}

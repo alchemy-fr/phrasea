@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller\Core;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Consumer\Handler\Asset\AssetDelete;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,13 +29,26 @@ class DeleteAssetByIdsAction extends AbstractController
             throw new BadRequestHttpException('Missing "ids"');
         }
 
-        $assets = $this->em->getRepository(Asset::class)
-            ->findByIds($ids);
-
-        foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
-            $this->bus->dispatch(new AssetDelete($asset->getId()));
+        $collectionIds = $request->request->all('collections');
+        $hardDelete = empty($collectionIds);
+        if (!$hardDelete) {
+            $collections = DoctrineUtil::iterateIds($this->em->getRepository(Collection::class), $collectionIds);
+            foreach ($collections as $collection) {
+                $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $collection);
+            }
         }
+
+        if ($hardDelete) {
+            $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $ids);
+            $ids = [];
+            foreach ($assets as $asset) {
+                if ($this->isGranted(AbstractVoter::DELETE, $asset)) {
+                    $ids[] = $asset->getId();
+                }
+            }
+        }
+
+        $this->bus->dispatch(new AssetDelete($ids, $collectionIds));
 
         return new Response('', 204);
     }

@@ -91,9 +91,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
 
             if (null !== $data->collection) {
-                if (null === $object->getReferenceCollection()) {
-                    $object->setReferenceCollection($data->collection);
-                }
                 $object->addToCollection($data->collection);
             }
 

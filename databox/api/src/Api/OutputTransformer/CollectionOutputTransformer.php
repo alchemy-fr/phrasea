@@ -55,6 +55,10 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $output->owner = $this->transformUser($data->getOwnerId());
         }
 
+        if ($this->hasGroup([Collection::GROUP_ABSOLUTE_TITLE], $context)) {
+            $output->absoluteTitle = $data->getAbsoluteTitle();
+        }
+
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
             $maxChildrenLimit = 30;
             if (preg_match('#[&?]childrenLimit=(\d+)#', (string) $context['request_uri'], $regs)) {

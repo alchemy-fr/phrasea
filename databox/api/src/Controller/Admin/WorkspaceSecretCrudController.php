@@ -2,17 +2,17 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Integration\WorkspaceSecret;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class WorkspaceSecretCrudController extends AbstractAdminCrudController
 {
@@ -40,7 +40,7 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');    
+        yield AssociationField::new('workspace');
         yield TextField::new('name');
         yield TextField::new('plainValue', 'Value')
             ->setFormType(PasswordType::class)

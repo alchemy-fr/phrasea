@@ -2,22 +2,22 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Admin\Field\IntegrationChoiceField;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class IntegrationCrudController extends AbstractAdminCrudController
 {
@@ -62,10 +62,10 @@ class IntegrationCrudController extends AbstractAdminCrudController
 ')
         ->hideOnIndex();
         yield $this->integrationChoiceField->create('integration');
-        yield TextareaField::new('optionsYaml')
-            ->hideOnIndex();
+        yield TextareaField::new('configYaml', 'Config')
+            ->onlyOnForms();
         yield JsonField::new('config')
-            ->hideOnIndex();
+            ->onlyOnDetail();
         yield ArrayField::new('this', 'Config info')
             ->setTemplatePath('admin/integration_config_info.html.twig')
             ->hideOnForm();

@@ -29,12 +29,11 @@ class RemoveAssetFromCollectionProcessor implements ProcessorInterface
         $assetCollection = $this->em->getRepository(CollectionAsset::class)
             ->findOneBy(['asset' => $data->getId(), 'collection' => $uriVariables['collectionId']]);
 
-        if (null === $assetCollection) {
-            return;
-        }
-
         if ($assetCollection instanceof CollectionAsset) {
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $assetCollection->getCollection());
+            if ($assetCollection->getAsset()->getReferenceCollection()?->getId() === $assetCollection->getCollection()->getId()) {
+                throw new \InvalidArgumentException('Cannot remove asset from reference collection');
+            }
             $this->em->remove($assetCollection);
             $this->em->flush();
         }

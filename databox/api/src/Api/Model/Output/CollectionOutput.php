@@ -52,6 +52,9 @@ class CollectionOutput extends AbstractUuidOutput
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_READ, Workspace::GROUP_LIST, Workspace::GROUP_READ])]
     public bool $public;
 
+    #[Groups([Collection::GROUP_ABSOLUTE_TITLE])]
+    public ?string $absoluteTitle = null;
+
     #[Groups(['collection:parent'])]
     private ?self $parent = null;
 

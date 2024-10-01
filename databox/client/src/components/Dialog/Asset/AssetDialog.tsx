@@ -14,7 +14,7 @@ import AssetFileVersions from './AssetFileVersions';
 import OperationsAsset from './OperationsAsset';
 import {modalRoutes} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
-import AssetWorkflow from "./AssetWorkflow.tsx";
+import AssetWorkflow from './AssetWorkflow.tsx';
 
 type Props = {};
 

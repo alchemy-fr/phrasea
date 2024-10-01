@@ -219,6 +219,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
 export interface Collection extends IPermissions {
     id: string;
     title: string;
+    absoluteTitle?: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     public: boolean;

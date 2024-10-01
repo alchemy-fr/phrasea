@@ -2,19 +2,19 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\WebhookBundle\Entity\Webhook;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use Alchemy\WebhookBundle\Field\EventsChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WebhookCrudController extends AbstractAdminCrudController
 {
@@ -42,7 +42,7 @@ class WebhookCrudController extends AbstractAdminCrudController
         yield IdField::new()
             ->onlyOnDetail();
         yield TextField::new('url', 'URL');
-        yield BooleanField::new('active');   
+        yield BooleanField::new('active');
         yield EventsChoiceField::new('events')
             ->hideOnIndex();
         yield BooleanField::new('verifySSL', 'Verify SSL')
@@ -52,11 +52,11 @@ class WebhookCrudController extends AbstractAdminCrudController
         yield Field::new('timeout')
             ->onlyOnForms();
         yield TextField::new('options')
-            ->onlyOnDetail();   
+            ->onlyOnDetail();
         yield TextareaField::new('eventsLabel')
-            ->onlyOnIndex();    
+            ->onlyOnIndex();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();           
+            ->hideOnForm();
 
     }
 }

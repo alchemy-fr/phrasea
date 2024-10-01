@@ -13,7 +13,7 @@ final readonly class UserChoiceFilter
     {
     }
 
-    public function createFilter(string $propertyName, ?string $label = null):ChoiceFilter
+    public function createFilter(string $propertyName, ?string $label = null): ChoiceFilter
     {
         /** @var JwtUser[] $users */
         $users = $this->serviceAccountClient->executeWithAccessToken(fn (string $accessToken): array => $this->authServiceClient->getUsers($accessToken));

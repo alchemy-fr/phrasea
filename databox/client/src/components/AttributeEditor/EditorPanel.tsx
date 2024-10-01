@@ -123,7 +123,7 @@ export default function EditorPanel<T>({
                             '.MuiTab-root': {
                                 textTransform: 'none',
                             },
-                            mb: 2,
+                            'mb': 2,
                         }}
                     >
                         {locales.map(l => (

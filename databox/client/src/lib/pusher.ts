@@ -5,12 +5,11 @@ import {
 } from '@alchemy/core';
 import config from '../config.ts';
 import React from 'react';
-import {toast} from 'react-toastify';
 
 const pusher = createPusher({
     key: config.pusherKey!,
     host: config.pusherHost!,
-    onConnectionError: err => toast.error(err.toString()),
+    onConnectionError: err => console.error(err),
 });
 
 export function registerWs(

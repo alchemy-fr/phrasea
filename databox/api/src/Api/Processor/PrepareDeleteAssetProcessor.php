@@ -26,22 +26,29 @@ class PrepareDeleteAssetProcessor implements ProcessorInterface
     /**
      * @param PrepareDeleteAssetsInput $data
      */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): PrepareDeleteAssetsOutput
     {
         $assets = $this->assetRepository->findByIds($data->ids);
 
+        $canDelete = false;
         $cache = [];
         $collections = [];
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
-            foreach ($asset->getCollections() as $collection) {
-                $cId = $collection->getId();
-                if ($cache[$cId] ?? ($cache[$cId] = $this->security->isGranted(AbstractVoter::EDIT, $collection))) {
-                    $collections[$cId] = $collection;
+            if (!$canDelete && $this->isGranted(AbstractVoter::DELETE, $asset)) {
+                $canDelete = true;
+            }
+            foreach ($asset->getCollections() as $assetCollection) {
+                $c = $assetCollection->getCollection();
+                $cId = $c->getId();
+                if ($cId !== $assetCollection->getAsset()->getReferenceCollectionId()) {
+                    if ($cache[$cId] ?? ($cache[$cId] = $this->security->isGranted(AbstractVoter::EDIT, $c))) {
+                        $collections[$cId] = $c;
+                    }
                 }
             }
         }
 
-        return new PrepareDeleteAssetsOutput(array_values($collections));
+        return new PrepareDeleteAssetsOutput($canDelete, array_values($collections));
     }
 }

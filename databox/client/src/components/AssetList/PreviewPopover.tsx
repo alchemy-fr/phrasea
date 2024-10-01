@@ -6,7 +6,7 @@ import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
-import {getMediaBackgroundColor} from "../../themes/base.ts";
+import {getMediaBackgroundColor} from '../../themes/base.ts';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -107,12 +107,14 @@ export default function PreviewPopover({
                         {displayAttributes && (
                             <Box
                                 sx={{
-                                    maxHeight: height - spacingInt * 2,
-                                    overflow: previewLocked ? 'auto' : 'hidden',
-                                    paddingLeft: theme.spacing(2),
+                                    'maxHeight': height - spacingInt * 2,
+                                    'overflow': previewLocked
+                                        ? 'auto'
+                                        : 'hidden',
+                                    'paddingLeft': theme.spacing(2),
                                     '&:empty': {
                                         display: 'none',
-                                    }
+                                    },
                                 }}
                             >
                                 <Attributes

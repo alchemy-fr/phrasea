@@ -207,19 +207,30 @@ export async function deleteAsset(id: string): Promise<void> {
     await apiClient.delete(`/assets/${id}`);
 }
 
-export async function deleteAssets(ids: string[]): Promise<void> {
+type DeleteOptions = {
+    collections: string[];
+};
+
+export async function deleteAssets(
+    ids: string[],
+    deleteOptions: DeleteOptions
+): Promise<void> {
     await apiClient.delete(`/assets`, {
         data: {
             ids,
+            ...deleteOptions,
         },
     });
 }
 
 export type PrepareDeleteAssetsOutput = {
+    canDelete: boolean;
     collections: Collection[];
-}
+};
 
-export async function prepareDeleteAssets(ids: string[]): Promise<PrepareDeleteAssetsOutput> {
+export async function prepareDeleteAssets(
+    ids: string[]
+): Promise<PrepareDeleteAssetsOutput> {
     const res = await apiClient.post(`/assets/prepare-delete`, {
         ids,
     });
@@ -275,6 +286,9 @@ export async function postMultipleAssets(
     return res.data.assets;
 }
 
-export async function deleteAssetShortcut(assetId :string, collectionId: string): Promise<void> {
+export async function deleteAssetShortcut(
+    assetId: string,
+    collectionId: string
+): Promise<void> {
     await apiClient.delete(`/assets/${assetId}/collections/${collectionId}`);
 }
