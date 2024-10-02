@@ -120,7 +120,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     public function persistJobState(JobState $state): void
     {
         $entity = null;
-        if ($state->getStatus() !== JobState::STATUS_TRIGGERED) {
+        if (JobState::STATUS_TRIGGERED !== $state->getStatus()) {
             $entity = $this->fetchJobEntity($state->getWorkflowId(), $state->getJobId());
         }
         if (!$entity instanceof JobStateEntity) {

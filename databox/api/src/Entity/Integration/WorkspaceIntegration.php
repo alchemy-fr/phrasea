@@ -121,25 +121,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
         $this->config = $config;
     }
 
-    public function getOptionsJson(): string
-    {
-        if (null !== $this->optionsJson) {
-            return $this->optionsJson;
-        }
-
-        return json_encode($this->config, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
-    }
-
-    public function setOptionsJson(string $options): void
-    {
-        $this->optionsJson = $options;
-        try {
-            $this->config = json_decode($options, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\Throwable) {
-        }
-    }
-
-    public function getOptionsYaml(): string
+    public function getConfigYaml(): string
     {
         if (null !== $this->optionsYaml) {
             return $this->optionsYaml;
@@ -148,7 +130,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
         return Yaml::dump($this->config, 10);
     }
 
-    public function setOptionsYaml(string $options): void
+    public function setConfigYaml(string $options): void
     {
         $this->optionsYaml = $options;
         try {

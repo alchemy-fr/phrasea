@@ -2,19 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\TagFilterRule;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use App\Entity\Core\TagFilterRule;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class TagFilterRuleCrudController extends AbstractAdminCrudController
 {
@@ -42,13 +42,13 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(ChoiceFilter::new('objectType')->setChoices([
-                'collection' => TagFilterRule::TYPE_COLLECTION ,
-                'workspace' => TagFilterRule::TYPE_WORKSPACE
-                ]))
+                'collection' => TagFilterRule::TYPE_COLLECTION,
+                'workspace' => TagFilterRule::TYPE_WORKSPACE,
+            ]))
             ->add(ChoiceFilter::new('userType')->setChoices([
-                'user'  => TagFilterRule::TYPE_USER,
-                'group' => TagFilterRule::TYPE_GROUP
-            ]))    
+                'user' => TagFilterRule::TYPE_USER,
+                'group' => TagFilterRule::TYPE_GROUP,
+            ]))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }

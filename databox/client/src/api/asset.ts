@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {Asset, AssetFileVersion, Attribute} from '../types';
+import {Asset, AssetFileVersion, Attribute, Collection} from '../types';
 import {
     ApiCollectionResponse,
     getAssetsHydraCollection,
@@ -207,12 +207,34 @@ export async function deleteAsset(id: string): Promise<void> {
     await apiClient.delete(`/assets/${id}`);
 }
 
-export async function deleteAssets(ids: string[]): Promise<void> {
+type DeleteOptions = {
+    collections: string[];
+};
+
+export async function deleteAssets(
+    ids: string[],
+    deleteOptions: DeleteOptions
+): Promise<void> {
     await apiClient.delete(`/assets`, {
         data: {
             ids,
+            ...deleteOptions,
         },
     });
+}
+
+export type PrepareDeleteAssetsOutput = {
+    canDelete: boolean;
+    collections: Collection[];
+};
+
+export async function prepareDeleteAssets(
+    ids: string[]
+): Promise<PrepareDeleteAssetsOutput> {
+    const res = await apiClient.post(`/assets/prepare-delete`, {
+        ids,
+    });
+    return res.data;
 }
 
 export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
@@ -262,4 +284,11 @@ export async function postMultipleAssets(
     });
 
     return res.data.assets;
+}
+
+export async function deleteAssetShortcut(
+    assetId: string,
+    collectionId: string
+): Promise<void> {
+    await apiClient.delete(`/assets/${assetId}/collections/${collectionId}`);
 }

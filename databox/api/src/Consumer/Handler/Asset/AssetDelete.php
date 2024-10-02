@@ -8,12 +8,18 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class AssetDelete
 {
     public function __construct(
-        private string $id,
+        private array $ids,
+        private array $collections = [],
     ) {
     }
 
-    public function getId(): string
+    public function getIds(): array
     {
-        return $this->id;
+        return $this->ids;
+    }
+
+    public function getCollections(): array
+    {
+        return $this->collections;
     }
 }

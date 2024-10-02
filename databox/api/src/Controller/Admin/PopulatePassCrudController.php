@@ -2,26 +2,26 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Admin\PopulatePass;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
-use Symfony\Component\HttpFoundation\Response;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use App\Entity\Admin\PopulatePass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Component\Messenger\MessageBusInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class PopulatePassCrudController extends AbstractAdminCrudController
 {
@@ -74,22 +74,22 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield TextField::new('indexName');
         yield TextareaField::new('progressString')
-            ->onlyOnIndex();    
+            ->onlyOnIndex();
         yield TextareaField::new('timeTakenUnit')
             ->onlyOnIndex();
         yield DateTimeField::new('endedAt');
         yield IntegerField::new('documentCount')
-            ->hideOnForm(); 
+            ->hideOnForm();
         yield IntegerField::new('progress')
             ->hideOnIndex();
         yield BooleanField::new('successful')
             ->renderAsSwitch(false)
-            ->onlyOnIndex();    
-        yield TextField::new('error');   
+            ->onlyOnIndex();
+        yield TextField::new('error');
         yield JsonField::new('mapping')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();                
+            ->hideOnForm();
 
     }
 

@@ -135,7 +135,10 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             if (a.original?.file?.url) {
                 canDownload = true;
             }
-            if (a.capabilities.canDelete) {
+            if (
+                a.capabilities.canDelete ||
+                (a.collections && a.collections.length > 0)
+            ) {
                 canDelete = true;
             }
             if (a.capabilities.canEdit) {

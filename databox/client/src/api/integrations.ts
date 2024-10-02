@@ -64,27 +64,14 @@ export async function getIntegrationTokens(
 export async function runIntegrationAction(
     action: string,
     integrationId: string,
-    data?: Record<string, any>,
-    file?: File
+    data?: Record<string, any>
 ): Promise<any> {
     const config: AxiosRequestConfig = {};
-    const formData: FormData = new FormData();
-    if (file) {
-        formData.append('file', file, file.name);
-        if (data) {
-            Object.keys(data).forEach(k => {
-                formData.set(k, data[k]);
-            });
-        }
-        config.headers = {
-            'Content-Type': 'multipart/form-data',
-        };
-    }
 
     return (
         await apiClient.post(
             `/integrations/${integrationId}/actions/${action}`,
-            file ? formData : data,
+            data,
             config
         )
     ).data;

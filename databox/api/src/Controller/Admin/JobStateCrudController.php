@@ -2,25 +2,26 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\Workflow\WorkflowOrchestrator;
-use Alchemy\Workflow\Doctrine\Entity\JobState;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use Alchemy\Workflow\WorkflowOrchestrator;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
 {
@@ -109,7 +110,7 @@ class JobStateCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield TextField::new('workflow.name', 'Workflow Name');
+        yield AssociationField::new('workflow', 'Workflow');
         yield TextField::new('jobId', 'Job ID');
         yield DateTimeField::new('triggeredAt', 'Triggered At');
         yield DateTimeField::new('startedAt', 'Started At');
@@ -131,9 +132,11 @@ class JobStateCrudController extends AbstractAdminCrudController
 
         yield DateTimeField::new('endedAt', 'Ended At');
         yield TextField::new('durationString', 'Duration');
-        yield ArrayField::new('errors', 'Errors')
+        yield ArrayField::new('errors')
             ->hideOnIndex();
-        yield ArrayObjectField::new('outputs', 'Outputs')
+        yield ArrayObjectField::new('inputs')
+            ->hideOnIndex();
+        yield ArrayObjectField::new('outputs')
             ->hideOnIndex();
     }
 }

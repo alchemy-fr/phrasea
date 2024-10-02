@@ -2,24 +2,24 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Workflow\WorkflowState;
-use Alchemy\Workflow\WorkflowOrchestrator;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use Alchemy\Workflow\WorkflowOrchestrator;
+use App\Entity\Workflow\WorkflowState;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
-use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class WorkflowStateCrudController extends AbstractAdminCrudController
 {
@@ -100,12 +100,12 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         yield TextField::new('eventName', 'Event');
         yield ArrayObjectField::new('eventInputs', 'Event inputs')
             ->hideOnIndex();
-        yield TextField::new('initiatorId', 'Initiator'); 
+        yield TextField::new('initiatorId', 'Initiator');
         yield ArrayObjectField::new('context', 'Context')
-            ->hideOnIndex();    
+            ->hideOnIndex();
         yield AssociationField::new('asset', 'Asset');
         yield TextField::new('durationString', 'Duration');
-        yield DateTimeField::new('startedAt', 'Started At');    
+        yield DateTimeField::new('startedAt', 'Started At');
         yield DateTimeField::new('endedAt', 'Ended At');
     }
 }

@@ -39,7 +39,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ApiResource(
@@ -108,6 +107,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     final public const GROUP_LIST = 'coll:index';
     final public const GROUP_CHILDREN = 'coll:ic';
     final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
+    final public const GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;
@@ -138,7 +138,6 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
 
     #[ORM\ManyToOne(targetEntity: Workspace::class, inversedBy: 'collections')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['_'])]
     protected ?Workspace $workspace = null;
 
     /**

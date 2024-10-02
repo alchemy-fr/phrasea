@@ -34,6 +34,10 @@ final readonly class RenditionBuilder
 
     public function buildRendition(RenditionDefinition $renditionDefinition, Asset $asset, bool $force = false): void
     {
+        if ($asset->getWorkspaceId() !== $renditionDefinition->getWorkspaceId()) {
+            throw new \LogicException(sprintf('Asset "%s" and rendition definition "%s" are not in the same workspace', $asset->getId(), $renditionDefinition->getId()));
+        }
+
         if (null !== $parentDefinition = $renditionDefinition->getParent()) {
             $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $parentDefinition);
             if (null === $parentRendition) {

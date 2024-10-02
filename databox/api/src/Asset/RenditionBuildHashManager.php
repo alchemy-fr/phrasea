@@ -45,7 +45,7 @@ final readonly class RenditionBuildHashManager
         if (null !== $parentDefinition = $definition->getParent()) {
             $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($assetRendition->getAsset(), $parentDefinition);
             if (null === $parentRendition) {
-                throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $assetRendition->getAsset()->getId()));
+                return true;
             }
 
             $source = $parentRendition->getFile();

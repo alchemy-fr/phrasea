@@ -29,7 +29,6 @@ final class IncomingUpload
     {
         return [
             'commit_id' => $this->commit_id,
-            'assets' => $this->assets,
             'publisher' => $this->publisher,
             'token' => $this->token,
             'base_url' => $this->base_url,
@@ -40,7 +39,6 @@ final class IncomingUpload
     {
         $self = new self();
         $self->commit_id = $data['commit_id'] ?? null;
-        $self->assets = $data['assets'] ?? null;
         $self->publisher = $data['publisher'] ?? null;
         $self->token = $data['token'] ?? null;
         $self->base_url = $data['base_url'] ?? null;

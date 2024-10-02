@@ -2,20 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\AttributeClass;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
+use App\Entity\Core\AttributeClass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
-use Alchemy\AdminBundle\Field\JsonField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class AttributeClassCrudController extends AbstractAclAdminCrudController
 {
@@ -48,17 +48,17 @@ class AttributeClassCrudController extends AbstractAclAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield AssociationField::new('workspace');   
+        yield AssociationField::new('workspace');
         yield TextField::new('name');
         yield BooleanField::new('public');
         yield BooleanField::new('editable');
         yield TextField::new('key')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();    
+            ->hideOnForm();
         yield AssociationField::new('definitions')
-            ->onlyOnDetail();    
+            ->onlyOnDetail();
         yield JsonField::new('labels')
-            ->hideOnIndex();    
+            ->hideOnIndex();
     }
 }

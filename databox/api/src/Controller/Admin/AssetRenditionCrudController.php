@@ -2,22 +2,21 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\AssetRendition;
-use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
+use App\Entity\Core\AssetRendition;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 
 class AssetRenditionCrudController extends AbstractAdminCrudController
 {
@@ -49,7 +48,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
             ->add(ChildPropertyEntityFilter::new('definition', 'workspace', 'Workspace'))
             ->add(NullFilter::new('file', 'Is Ready')->setChoiceLabels('Not ready', 'Ready'))
             ->add(DateTimeFilter::new('createdAt'))
-        ;    
+        ;
     }
 
     public function configureFields(string $pageName): iterable

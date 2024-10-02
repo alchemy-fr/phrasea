@@ -23,10 +23,29 @@ import {
     Integration,
 } from '../../Integration/types.ts';
 
-const integrations: Record<string, FC<AssetIntegrationActionsProps>> = {
-    [Integration.RemoveBg]: RemoveBGAssetEditorActions,
-    [Integration.AwsRekognition]: AwsRekognitionAssetEditorActions,
-    [Integration.TuiPhotoEditor]: TUIPhotoEditor,
+const supportsImage = (file: File): boolean => {
+    return (file && file.type.startsWith('image/')) || false;
+};
+
+const integrations: Record<
+    string,
+    {
+        component: FC<AssetIntegrationActionsProps>;
+        supports: (file: File) => boolean;
+    }
+> = {
+    [Integration.RemoveBg]: {
+        component: RemoveBGAssetEditorActions,
+        supports: supportsImage,
+    },
+    [Integration.AwsRekognition]: {
+        component: AwsRekognitionAssetEditorActions,
+        supports: supportsImage,
+    },
+    [Integration.TuiPhotoEditor]: {
+        component: TUIPhotoEditor,
+        supports: supportsImage,
+    },
 };
 
 function IntegrationProxy({
@@ -40,7 +59,10 @@ function IntegrationProxy({
     const i = props.integration.integration;
 
     // eslint-disable-next-line no-prototype-builtins
-    if (integrations.hasOwnProperty(i)) {
+    if (
+        integrations.hasOwnProperty(i) &&
+        integrations[i].supports(props.file)
+    ) {
         return (
             <Accordion expanded={expanded} onChange={onExpand}>
                 <AccordionSummary
@@ -57,7 +79,7 @@ function IntegrationProxy({
                         p: 0,
                     }}
                 >
-                    {React.createElement(integrations[i], props)}
+                    {React.createElement(integrations[i].component, props)}
                 </AccordionDetails>
             </Accordion>
         );

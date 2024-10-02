@@ -16,6 +16,7 @@ type Props = {
 export default function Operations({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
+
     const deleteConfirmCollection = async () => {
         openModal(ConfirmDialog, {
             textToType: data.title,
@@ -31,6 +32,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
             },
         });
     };
+
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <CollectionMoveSection

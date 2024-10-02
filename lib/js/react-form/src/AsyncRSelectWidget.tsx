@@ -272,8 +272,15 @@ export default function AsyncRSelectWidget<
                 required={required}
                 components={componentsProp}
                 onChange={(newValue, meta) => {
+                    const v = isMulti
+                        ? (newValue as SelectOption[]).map(
+                            v => v.value,
+                        )
+                        : (newValue as SelectOption | null)
+                        ?.value ?? null;
+
                     onChangeProp && onChangeProp(newValue, meta);
-                    setValue(!clearOnSelect ? newValue : null);
+                    setValue(!clearOnSelect ? (v as any) : null);
                 }}
                 value={valueToOption(
                     isMulti || false,

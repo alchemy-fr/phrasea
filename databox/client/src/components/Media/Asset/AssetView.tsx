@@ -12,7 +12,7 @@ import FullPageLoader from '../../Ui/FullPageLoader';
 import RouteDialog from '../../Dialog/RouteDialog';
 import {getAssetRenditions} from '../../../api/rendition';
 import MenuItem from '@mui/material/MenuItem';
-import {useCloseModal, useNavigateToModal} from '../../Routing/ModalLink';
+import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
 import {scrollbarWidth} from '../../../constants.ts';
 import AssetAttributes from './AssetAttributes.tsx';
@@ -20,9 +20,8 @@ import {OnAnnotations} from './Attribute/Attributes.tsx';
 import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
-import axios from 'axios';
-import {getMediaBackgroundColor} from "../../../themes/base.ts";
+import {getMediaBackgroundColor} from '../../../themes/base.ts';
+import {useModalFetch} from '../../../hooks/useModalFetch.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -42,17 +41,16 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
 
 type Props = {} & StackedModalProps;
 
-export default function AssetView({modalIndex}: Props) {
+export default function AssetView({modalIndex, open}: Props) {
     const menuWidth = 300;
     const headerHeight = 60;
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
-    const closeModal = useCloseModal();
     const [annotations, setAnnotations] = React.useState<
         AssetAnnotation[] | undefined
     >();
 
-    const {data, isError, error, isSuccess} = useQuery({
+    const {data, isSuccess} = useModalFetch({
         queryKey: ['assets', assetId],
         queryFn: () =>
             Promise.all([
@@ -60,15 +58,6 @@ export default function AssetView({modalIndex}: Props) {
                 getAssetRenditions(assetId!).then(r => r.result),
             ]),
     });
-
-    React.useEffect(() => {
-        if (isError && axios.isAxiosError(error)) {
-            console.log('error', error);
-            if ([401, 403].includes(error.response?.status ?? 0)) {
-                closeModal();
-            }
-        }
-    }, [closeModal, isError]);
 
     const onAnnotations = React.useCallback<OnAnnotations>(annotations => {
         setAnnotations(annotations);
@@ -101,6 +90,9 @@ export default function AssetView({modalIndex}: Props) {
     }, [winSize]);
 
     if (!isSuccess) {
+        if (!open) {
+            return null;
+        }
         return <FullPageLoader />;
     }
 
@@ -154,10 +146,14 @@ export default function AssetView({modalIndex}: Props) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                            {!integrationOverlay ? <AssetViewActions
-                                asset={asset}
-                                file={rendition?.file}
-                            /> : ''}
+                            {!integrationOverlay ? (
+                                <AssetViewActions
+                                    asset={asset}
+                                    file={rendition?.file}
+                                />
+                            ) : (
+                                ''
+                            )}
                         </>
                     }
                     onClose={onClose}

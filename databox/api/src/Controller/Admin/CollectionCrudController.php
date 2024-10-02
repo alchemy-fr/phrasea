@@ -2,19 +2,19 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Core\Collection;
-use App\Admin\Field\PrivacyField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use App\Admin\Field\PrivacyField;
+use App\Entity\Core\Collection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class CollectionCrudController extends AbstractAclAdminCrudController
 {
@@ -57,14 +57,14 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield TextField::new('ownerId')
             ->onlyOnDetail();
         yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->onlyOnForms();  
+            ->onlyOnForms();
         yield TextField::new('key')
-            ->onlyOnDetail();  
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();       
+            ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->onlyOnDetail();
-        yield DateTimeField::new('deletedAt')     
+        yield DateTimeField::new('deletedAt')
             ->onlyOnDetail();
         yield TextField::new('locale')
             ->onlyOnDetail();
@@ -72,7 +72,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->onlyOnDetail();
         yield AssociationField::new('assets')
             ->onlyOnDetail();
-        yield AssociationField::new('referenceAssets')                
+        yield AssociationField::new('referenceAssets')
             ->onlyOnDetail();
 
     }

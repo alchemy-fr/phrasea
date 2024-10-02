@@ -1,12 +1,12 @@
 import {useCallback, useContext, useState} from 'react';
 import {Asset} from '../../types';
-import {Paper, Popper, Stack} from '@mui/material';
+import {Box, Paper, Popper, Stack, useTheme} from '@mui/material';
 import FilePlayer from '../Media/Asset/FilePlayer';
 import {getRelativeViewHeight, getRelativeViewWidth} from '../../lib/style';
 import Attributes, {attributesSx} from '../Media/Asset/Attribute/Attributes';
 import {DisplayContext} from '../Media/DisplayContext';
 import {ZIndex} from '../../themes/zIndex.ts';
-import {getMediaBackgroundColor} from "../../themes/base.ts";
+import {getMediaBackgroundColor} from '../../themes/base.ts';
 
 type Props = {
     anchorEl: HTMLElement | undefined;
@@ -26,6 +26,9 @@ export default function PreviewPopover({
     const width = getRelativeViewWidth(relativeSize);
     const height = getRelativeViewHeight(relativeSize);
     const {previewLocked} = useContext(DisplayContext)!;
+    const theme = useTheme();
+    const padding = 1;
+    const spacingInt = parseInt(theme.spacing(padding));
 
     const onLoad = useCallback(() => {
         setAnchor(anchorEl);
@@ -68,7 +71,7 @@ export default function PreviewPopover({
                 <Paper
                     elevation={6}
                     sx={{
-                        padding: 1,
+                        padding,
                         maxWidth: width,
                         maxHeight: height,
                         ...attributesSx(),
@@ -76,28 +79,23 @@ export default function PreviewPopover({
                 >
                     <Stack
                         direction={'row'}
-                        spacing={2}
-                        sx={theme => {
-                            const spacingInt = parseInt(theme.spacing(2));
-                            return {
-                                maxHeight: height - spacingInt,
-                                '.media': {
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    backgroundColor: getMediaBackgroundColor(theme),
-                                },
-                            }
+                        style={{
+                            maxHeight: height - spacingInt,
                         }}
                     >
                         <div
-                            className={'media'}
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                backgroundColor: getMediaBackgroundColor(theme),
+                            }}
                         >
                             <FilePlayer
                                 key={asset.id}
                                 file={asset.preview!.file!}
                                 dimensions={{
                                     width: width / 2,
-                                    height,
+                                    height: height - spacingInt * 2,
                                 }}
                                 title={asset.resolvedTitle}
                                 onLoad={onLoad}
@@ -107,10 +105,16 @@ export default function PreviewPopover({
                             />
                         </div>
                         {displayAttributes && (
-                            <div
-                                style={{
-                                    maxHeight: height,
-                                    overflow: previewLocked ? 'auto' : 'hidden',
+                            <Box
+                                sx={{
+                                    'maxHeight': height - spacingInt * 2,
+                                    'overflow': previewLocked
+                                        ? 'auto'
+                                        : 'hidden',
+                                    'paddingLeft': theme.spacing(2),
+                                    '&:empty': {
+                                        display: 'none',
+                                    },
                                 }}
                             >
                                 <Attributes
@@ -118,7 +122,7 @@ export default function PreviewPopover({
                                     displayControls={previewLocked}
                                     pinnedOnly={true}
                                 />
-                            </div>
+                            </Box>
                         )}
                     </Stack>
                 </Paper>

@@ -2,16 +2,16 @@
 
 namespace App\Controller\Admin;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\Integration\WorkspaceEnv;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class WorkspaceEnvCrudController extends AbstractAdminCrudController
 {
@@ -44,7 +44,7 @@ class WorkspaceEnvCrudController extends AbstractAdminCrudController
         yield TextField::new('value')
             ->setHelp('Never store secrets here, use Workspace Secret instead!');
         yield DateTimeField::new('createdAt')
-            ->hideOnForm();    
+            ->hideOnForm();
 
     }
 }

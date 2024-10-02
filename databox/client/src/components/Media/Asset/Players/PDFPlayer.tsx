@@ -1,19 +1,29 @@
-import {useCallback, useContext, useState} from 'react';
+import {useCallback, useContext, useRef, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
-type Props = {} & PlayerProps;
+type Props = {
+    controls?: boolean | undefined;
+} & PlayerProps;
 
 export default function PDFPlayer({
     file,
+    controls,
     dimensions: forcedDimensions,
     onLoad,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
+    const [numPages, setNumPages] = useState<number>();
+    const pageRef = useRef<number>(1);
+    const [pageNumber, setPageNumberProxy] = useState<number>(1);
+    const [renderedPageNumber, setRenderedPageNumber] = useState<number>();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
@@ -21,6 +31,7 @@ export default function PDFPlayer({
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
+            setNumPages(pdf.numPages);
             pdf.getPage(1).then((page: any) => {
                 setRatio(page.view[3] / page.view[2]);
             });
@@ -30,26 +41,143 @@ export default function PDFPlayer({
         [onLoad]
     );
 
+    const setPageNumber = (num: number): void => {
+        pageRef.current = num;
+        setPageNumberProxy(num);
+    };
+
+    const prevPageClassName = 'pdf-prev-page';
+    const controlsClassName = 'pdf-controls';
+    const isLoading = renderedPageNumber !== pageNumber;
+
     return (
-        <div
-            style={{
+        <Box
+            sx={{
                 maxWidth: dimensions.width,
                 maxHeight: dimensions.height,
                 position: 'relative',
                 backgroundColor: '#FFF',
+                [`.${prevPageClassName}`]: {
+                    position: 'absolute',
+                    zIndex: 1,
+                },
+                [`.${controlsClassName}`]: {
+                    display: 'none',
+                },
+                [`&:hover .${controlsClassName}`]: {
+                    display: 'flex',
+                },
             }}
         >
             <Document file={file.url} onLoadSuccess={onDocLoad}>
-                {ratio && (
-                    <Page
-                        {...pdfDimensions}
-                        pageNumber={1}
-                        onLoadSuccess={onLoad}
-                    />
+                {ratio ? (
+                    <>
+                        {controls ? (
+                            <div
+                                style={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                    width: '100%',
+                                    position: 'absolute',
+                                    zIndex: 10,
+                                    userSelect: 'none',
+                                }}
+                            >
+                                {isLoading ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: '100%',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        <CircularProgress />
+                                    </div>
+                                ) : (
+                                    ''
+                                )}
+
+                                <div
+                                    className={controlsClassName}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: 5,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <Stack
+                                        sx={theme => ({
+                                            opacity: 0.9,
+                                            bgcolor: 'background.paper',
+                                            p: 1,
+                                            boxShadow: theme.shadows[2],
+                                            borderRadius:
+                                                theme.shape.borderRadius,
+                                        })}
+                                        direction={'row'}
+                                        alignItems={'center'}
+                                        spacing={3}
+                                    >
+                                        <IconButton
+                                            onClick={() =>
+                                                setPageNumber(pageNumber - 1)
+                                            }
+                                            disabled={pageNumber === 1}
+                                        >
+                                            <KeyboardArrowLeftIcon />
+                                        </IconButton>
+                                        <div>
+                                            {pageNumber} / {numPages}
+                                        </div>
+                                        <IconButton
+                                            onClick={() =>
+                                                setPageNumber(pageNumber + 1)
+                                            }
+                                            disabled={pageNumber === numPages}
+                                        >
+                                            <KeyboardArrowRightIcon />
+                                        </IconButton>
+                                    </Stack>
+                                </div>
+                            </div>
+                        ) : (
+                            ''
+                        )}
+
+                        {isLoading && renderedPageNumber ? (
+                            <Page
+                                {...pdfDimensions}
+                                className={prevPageClassName}
+                                key={renderedPageNumber}
+                                pageNumber={renderedPageNumber}
+                            />
+                        ) : (
+                            ''
+                        )}
+                        <Page
+                            {...pdfDimensions}
+                            key={pageNumber}
+                            pageNumber={pageNumber}
+                            onRenderSuccess={() => {
+                                if (pageRef.current === pageNumber) {
+                                    setRenderedPageNumber(pageNumber);
+                                }
+                            }}
+                        />
+                    </>
+                ) : (
+                    ''
                 )}
             </Document>
-        </div>
+        </Box>
     );
 }
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${
+    pdfjs.version
+}/build/pdf.worker.min.js`;

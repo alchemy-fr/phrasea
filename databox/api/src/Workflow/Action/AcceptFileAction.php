@@ -11,6 +11,8 @@ use App\Border\BorderManager;
 use App\Border\Model\InputFile;
 use App\Border\UploaderClient;
 use App\Entity\Core\Asset;
+use App\Entity\Core\Collection;
+use App\Entity\Core\Workspace;
 use Doctrine\ORM\EntityManagerInterface;
 
 readonly class AcceptFileAction implements ActionInterface
@@ -25,15 +27,41 @@ readonly class AcceptFileAction implements ActionInterface
     public function handle(RunContext $context): void
     {
         $inputs = $context->getInputs();
-
+        $userId = $inputs['userId'];
         $assetData = $this->uploaderClient->getAsset($inputs['baseUrl'], $inputs['assetId'], $inputs['token']);
+        $assetId = $assetData['data']['targetAsset'] ?? null;
 
-        $assetId = $assetData['data']['targetAsset'];
-        $uploadToken = $assetData['data']['uploadToken'];
+        if (null !== $assetId) {
+            $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
+            $uploadToken = $assetData['data']['uploadToken'];
 
-        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $assetId);
-        if ($uploadToken !== $asset->getPendingUploadToken()) {
-            throw new \InvalidArgumentException('Unexpected upload token');
+            if ($uploadToken !== $asset->getPendingUploadToken()) {
+                throw new \InvalidArgumentException('Unexpected upload token');
+            }
+        } else {
+            $collection = null;
+            $collectionId = $assetData['formData']['collection_destination'] ?? null;
+            if ($collectionId) {
+                $collection = DoctrineUtil::findStrict($this->em, Collection::class, $collectionId);
+                $workspace = $collection->getWorkspace();
+            } else {
+                $workspaceId = $assetData['data']['workspaceId'] ?? null;
+                if (empty($workspaceId)) {
+                    throw new \InvalidArgumentException('Missing target asset or workspace ID');
+                }
+                $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
+            }
+
+            $asset = new Asset();
+            $asset->setTitle($assetData['originalName']);
+            $asset->setOwnerId($userId);
+            $asset->setWorkspace($workspace);
+            if (null !== $collection) {
+                $asset->addToCollection($collection);
+            }
+
+            $this->em->persist($asset);
+            $this->em->flush();
         }
 
         $inputFile = new InputFile(
