@@ -279,8 +279,8 @@ export default function AsyncRSelectWidget<
                         : (newValue as SelectOption | null)
                         ?.value ?? null;
 
-                    onChangeProp && onChangeProp(v, meta);
-                    setValue(!clearOnSelect ? v : null);
+                    onChangeProp && onChangeProp(newValue, meta);
+                    setValue(!clearOnSelect ? (v as any) : null);
                 }}
                 value={valueToOption(
                     isMulti || false,
