@@ -37,19 +37,14 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
         uploadStateStorage.initUpload(userId, fileUID, uploadId);
     }
 
-
     const multipart = await multipartUpload(apiClient, file.file, {
         uploadParts,
         uploadId,
         onProgress,
-        onUploadInit: ({
-                           uploadId,
-                       }) => {
+        onUploadInit: ({uploadId}) => {
             uploadStateStorage.initUpload(userId, fileUID, uploadId);
         },
-        onPartUploaded: ({
-                             etag,
-                         }) => {
+        onPartUploaded: ({etag}) => {
             uploadStateStorage.updateUpload(userId, fileUID, etag);
         },
     });

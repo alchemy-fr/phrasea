@@ -15,8 +15,7 @@ final class IncomingUploaderFileWorkflowEvent
         string $assetId,
         string $userId,
         string $token,
-    ): WorkflowEvent
-    {
+    ): WorkflowEvent {
         return new WorkflowEvent(
             self::EVENT,
             [

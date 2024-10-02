@@ -5,9 +5,9 @@ import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import {Box, CircularProgress, IconButton, Stack} from "@mui/material";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 type Props = {
     controls?: boolean | undefined;
@@ -44,7 +44,7 @@ export default function PDFPlayer({
     const setPageNumber = (num: number): void => {
         pageRef.current = num;
         setPageNumberProxy(num);
-    }
+    };
 
     const prevPageClassName = 'pdf-prev-page';
     const controlsClassName = 'pdf-controls';
@@ -70,82 +70,109 @@ export default function PDFPlayer({
             }}
         >
             <Document file={file.url} onLoadSuccess={onDocLoad}>
-                {ratio ? <>
-                    {controls ? <div
-                        style={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: '100%',
-                            width: '100%',
-                            position: 'absolute',
-                            zIndex: 10,
-                            userSelect: 'none',
-                        }}
-                    >
-                        {isLoading ? <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: '100%',
-                            width: '100%',
-                        }}>
-                            <CircularProgress/>
-                        </div> : ''}
+                {ratio ? (
+                    <>
+                        {controls ? (
+                            <div
+                                style={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    height: '100%',
+                                    width: '100%',
+                                    position: 'absolute',
+                                    zIndex: 10,
+                                    userSelect: 'none',
+                                }}
+                            >
+                                {isLoading ? (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: '100%',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        <CircularProgress />
+                                    </div>
+                                ) : (
+                                    ''
+                                )}
 
-                        <div
-                            className={controlsClassName}
-                            style={{
-                                position: 'absolute',
-                                bottom: 5,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                width: '100%',
-                            }}>
-                            <Stack
-                                sx={theme => ({
-                                opacity: 0.90,
-                                    bgcolor: 'background.paper',
-                                    p: 1,
-                                    boxShadow: theme.shadows[2],
-                                    borderRadius: theme.shape.borderRadius,
-                                })}
-                                direction={'row'}
-                                alignItems={'center'} spacing={3}>
-                                <IconButton
-                                    onClick={() => setPageNumber(pageNumber - 1)}
-                                    disabled={pageNumber === 1}
+                                <div
+                                    className={controlsClassName}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: 5,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                    }}
                                 >
-                                    <KeyboardArrowLeftIcon/>
-                                </IconButton>
-                                <div>
-                                    {pageNumber} / {numPages}
+                                    <Stack
+                                        sx={theme => ({
+                                            opacity: 0.9,
+                                            bgcolor: 'background.paper',
+                                            p: 1,
+                                            boxShadow: theme.shadows[2],
+                                            borderRadius:
+                                                theme.shape.borderRadius,
+                                        })}
+                                        direction={'row'}
+                                        alignItems={'center'}
+                                        spacing={3}
+                                    >
+                                        <IconButton
+                                            onClick={() =>
+                                                setPageNumber(pageNumber - 1)
+                                            }
+                                            disabled={pageNumber === 1}
+                                        >
+                                            <KeyboardArrowLeftIcon />
+                                        </IconButton>
+                                        <div>
+                                            {pageNumber} / {numPages}
+                                        </div>
+                                        <IconButton
+                                            onClick={() =>
+                                                setPageNumber(pageNumber + 1)
+                                            }
+                                            disabled={pageNumber === numPages}
+                                        >
+                                            <KeyboardArrowRightIcon />
+                                        </IconButton>
+                                    </Stack>
                                 </div>
-                                <IconButton
-                                    onClick={() => setPageNumber(pageNumber + 1)}
-                                    disabled={pageNumber === numPages}
-                                >
-                                    <KeyboardArrowRightIcon/>
-                                </IconButton>
-                            </Stack></div>
-                    </div> : ''}
+                            </div>
+                        ) : (
+                            ''
+                        )}
 
-                    {isLoading && renderedPageNumber ? <Page
-                        {...pdfDimensions}
-                        className={prevPageClassName}
-                        key={renderedPageNumber}
-                        pageNumber={renderedPageNumber}
-                    /> : ''}
-                    <Page
-                        {...pdfDimensions}
-                        key={pageNumber}
-                        pageNumber={pageNumber}
-                        onRenderSuccess={() => {
-                            if (pageRef.current === pageNumber) {
-                                setRenderedPageNumber(pageNumber);
-                            }
-                        }}
-                    />
-                </> : ''}
+                        {isLoading && renderedPageNumber ? (
+                            <Page
+                                {...pdfDimensions}
+                                className={prevPageClassName}
+                                key={renderedPageNumber}
+                                pageNumber={renderedPageNumber}
+                            />
+                        ) : (
+                            ''
+                        )}
+                        <Page
+                            {...pdfDimensions}
+                            key={pageNumber}
+                            pageNumber={pageNumber}
+                            onRenderSuccess={() => {
+                                if (pageRef.current === pageNumber) {
+                                    setRenderedPageNumber(pageNumber);
+                                }
+                            }}
+                        />
+                    </>
+                ) : (
+                    ''
+                )}
             </Document>
         </Box>
     );

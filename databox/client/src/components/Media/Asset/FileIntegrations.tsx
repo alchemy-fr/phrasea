@@ -24,13 +24,16 @@ import {
 } from '../../Integration/types.ts';
 
 const supportsImage = (file: File): boolean => {
-    return file && file.type.startsWith('image/') || false;
+    return (file && file.type.startsWith('image/')) || false;
 };
 
-const integrations: Record<string, {
-    component: FC<AssetIntegrationActionsProps>,
-    supports: (file: File) => boolean;
-}> = {
+const integrations: Record<
+    string,
+    {
+        component: FC<AssetIntegrationActionsProps>;
+        supports: (file: File) => boolean;
+    }
+> = {
     [Integration.RemoveBg]: {
         component: RemoveBGAssetEditorActions,
         supports: supportsImage,
@@ -56,7 +59,10 @@ function IntegrationProxy({
     const i = props.integration.integration;
 
     // eslint-disable-next-line no-prototype-builtins
-    if (integrations.hasOwnProperty(i) && integrations[i].supports(props.file)) {
+    if (
+        integrations.hasOwnProperty(i) &&
+        integrations[i].supports(props.file)
+    ) {
         return (
             <Accordion expanded={expanded} onChange={onExpand}>
                 <AccordionSummary

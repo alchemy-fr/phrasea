@@ -64,7 +64,7 @@ export async function getIntegrationTokens(
 export async function runIntegrationAction(
     action: string,
     integrationId: string,
-    data?: Record<string, any>,
+    data?: Record<string, any>
 ): Promise<any> {
     const config: AxiosRequestConfig = {};
 
