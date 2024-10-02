@@ -47,7 +47,7 @@ readonly class AcceptFileAction implements ActionInterface
             } else {
                 $workspaceId = $assetData['data']['workspaceId'] ?? null;
                 if (empty($workspaceId)) {
-                    throw new \InvalidArgumentException('Missing target asset or workspace ID');
+                    throw new \InvalidArgumentException('Missing "collection_destination", "targetAsset" or "workspaceId"');
                 }
                 $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             }
@@ -57,6 +57,7 @@ readonly class AcceptFileAction implements ActionInterface
             $asset->setOwnerId($userId);
             $asset->setWorkspace($workspace);
             if (null !== $collection) {
+                $asset->setReferenceCollection($collection);
                 $asset->addToCollection($collection);
             }
 

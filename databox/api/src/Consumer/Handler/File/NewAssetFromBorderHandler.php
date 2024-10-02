@@ -44,6 +44,9 @@ readonly class NewAssetFromBorderHandler
         $asset->setWorkspace($file->getWorkspace());
 
         foreach ($collections as $collection) {
+            if (null === $asset->getReferenceCollection()) {
+                $asset->setReferenceCollection($collection);
+            }
             $assetCollection = $asset->addToCollection($collection);
             $this->em->persist($assetCollection);
         }

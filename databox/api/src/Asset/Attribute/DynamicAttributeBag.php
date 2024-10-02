@@ -34,6 +34,10 @@ class DynamicAttributeBag
             return null;
         }
 
+        if ($def->isMultiple()) {
+            return null;
+        }
+
         $defId = $def->getId();
 
         foreach ($this->locales as $l) {

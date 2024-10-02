@@ -45,6 +45,10 @@ class FallbackResolver
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
+        if ($definition->isMultiple()) {
+            return null;
+        }
+
         if (!empty($fallbacks[$locale])) {
             if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
                 $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [

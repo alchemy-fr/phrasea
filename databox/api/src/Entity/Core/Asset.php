@@ -311,10 +311,6 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
         }
 
-        if (null === $this->referenceCollection) {
-            $this->setReferenceCollection($collection);
-        }
-
         if ($checkUnique) {
             $duplicates = $this->collections->filter(fn (CollectionAsset $ca): bool => $ca->getCollection() === $collection);
 
@@ -331,21 +327,6 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $collection->getAssets()->add($assetCollection);
 
         return $assetCollection;
-    }
-
-    /**
-     * @internal For admin only
-     */
-    public function setStartingCollections(DoctrineCollection $collections): void
-    {
-        foreach ($collections as $collection) {
-            $this->addToCollection($collection);
-        }
-    }
-
-    public function getStartingCollections(): DoctrineCollection
-    {
-        return $this->collections->map(fn (CollectionAsset $collectionAsset): Collection => $collectionAsset->getCollection());
     }
 
     /**

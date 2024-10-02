@@ -64,6 +64,7 @@ trait DataboxTestTrait
             if (!$collection instanceof Collection) {
                 throw new \InvalidArgumentException('Collection not found');
             }
+            $asset->setReferenceCollection($collection);
             $collectionAsset = $asset->addToCollection($collection);
             $em->persist($collectionAsset);
         }

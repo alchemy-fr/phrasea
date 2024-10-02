@@ -66,6 +66,9 @@ readonly class AttributesResolver
             ->getWorkspaceFallbackDefinitions($asset->getWorkspaceId());
 
         foreach ($fbDefinitions as $definition) {
+            if ($definition->isMultiple()) {
+                continue;
+            }
             $k = $definition->getId();
 
             $fallbacks = $definition->getFallback();

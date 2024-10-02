@@ -190,7 +190,11 @@ readonly class JobExecutor
             try {
                 $jobCallable($runContext);
             } catch (\Throwable $e) {
-                $this->logger->error($e->getMessage());
+                $this->logger->error($e->getMessage(), [
+                    'exception' => $e,
+                    'step' => $step->getId(),
+                    'job' => $job->getId(),
+                ]);
                 $jobState->addException($e);
                 $endStatus = JobState::STATUS_FAILURE;
 

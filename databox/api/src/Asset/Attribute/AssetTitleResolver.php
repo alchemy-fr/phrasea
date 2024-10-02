@@ -9,12 +9,16 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class AssetTitleResolver
 {
     private array $cache = [];
 
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly LoggerInterface $logger,
+    )
     {
     }
 
@@ -23,7 +27,12 @@ class AssetTitleResolver
         if (empty($asset->getTitle()) || $this->hasTitleOverride($asset->getWorkspaceId())) {
             $titleAttrs = $this->getTitleAttributes($asset->getWorkspaceId());
             foreach ($titleAttrs as $attrTitle) {
-                $definitionId = $attrTitle->getDefinition()->getId();
+                $attributeDefinition = $attrTitle->getDefinition();
+                if ($attributeDefinition->isMultiple()) {
+                    $this->logger->warning(sprintf('Cannot use multiple attribute definition "%s" as title', $attributeDefinition->getId()));
+                    continue;
+                }
+                $definitionId = $attributeDefinition->getId();
 
                 foreach ($preferredLocales as $l) {
                     if (null !== $attribute = $attributesIndex->getAttribute($definitionId, $l)) {
