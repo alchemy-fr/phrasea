@@ -115,6 +115,9 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
                     if ($groupBy === $this->fieldNameResolver->getFieldNameFromDefinition($definitionIndex->getDefinition())) {
                         foreach ($preferredLocales as $l) {
+                            if ($definitionIndex->getDefinition()->isMultiple()) {
+                                continue;
+                            }
                             if (null !== $attr = $definitionIndex->getAttribute($l)) {
                                 $indexValue = $attr->getValue();
                                 break 2;

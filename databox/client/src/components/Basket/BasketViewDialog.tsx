@@ -100,7 +100,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                 },
             ],
         };
-    }, [removeFromBasket]);
+    }, [data, removeFromBasket]);
 
     const itemToAsset = (item: BasketAsset) => item.asset;
 

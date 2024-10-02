@@ -41,6 +41,22 @@ final class DefinitionIndex
 
     public function getAttribute(string $locale): ?Attribute
     {
+        if ($this->definition->isMultiple()) {
+            throw new \LogicException(sprintf('Cannot get single attribute for multiple definition "%s"', $this->definition->getId()));
+        }
+
+        return $this->locales[$locale] ?? null;
+    }
+
+    /**
+     * @return Attribute[]|null
+     */
+    public function getAttributes(string $locale): ?array
+    {
+        if (!$this->definition->isMultiple()) {
+            throw new \LogicException(sprintf('Cannot get multiple attributes for single definition "%s"', $this->definition->getId()));
+        }
+
         return $this->locales[$locale] ?? null;
     }
 

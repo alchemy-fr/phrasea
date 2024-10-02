@@ -9,6 +9,7 @@ use App\Integration\Env\EnvResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -77,6 +78,9 @@ readonly class IntegrationManager
     public function validateIntegration(WorkspaceIntegration $workspaceIntegration): void
     {
         $integration = $this->integrationRegistry->getStrictIntegration($workspaceIntegration->getIntegration());
+        if (null === $workspaceIntegration->getWorkspace() && $integration::requiresWorkspace()) {
+            throw new InvalidConfigurationException(sprintf('Integration "%s" must have a workspace', $integration::getTitle()));
+        }
 
         $config = $this->getConfiguration(
             $workspaceIntegration,

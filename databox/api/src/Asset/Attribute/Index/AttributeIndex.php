@@ -26,7 +26,20 @@ final class AttributeIndex
 
     public function getAttribute(string $definitionId, string $locale): ?Attribute
     {
-        return $this->definitions[$definitionId]?->getAttribute($locale);
+        if (!isset($this->definitions[$definitionId])) {
+            return null;
+        }
+
+        return $this->definitions[$definitionId]->getAttribute($locale);
+    }
+
+    public function getAttributes(string $definitionId, string $locale): ?array
+    {
+        if (!isset($this->definitions[$definitionId])) {
+            return null;
+        }
+
+        return $this->definitions[$definitionId]->getAttributes($locale);
     }
 
     /**
