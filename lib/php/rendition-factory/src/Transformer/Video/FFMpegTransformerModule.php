@@ -2,12 +2,11 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
-use Alchemy\RenditionFactory\Context\TransformationContext;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -43,7 +42,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
     }
 
-    private function doVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContext $context): OutputFileInterface
+    private function doVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
         /** @var FormatInterface $ouputFormat */
@@ -61,8 +60,52 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             }
             $ouputFormat->setAudioCodec($audioCodec);
         }
+        if (null !== ($videoKilobitrate = $options['video_kilobitrate'] ?? null)) {
+            if(!method_exists($ouputFormat, 'setKiloBitrate')) {
+                throw new \InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
+            }
+            if(!is_int($videoKilobitrate)) {
+                throw new \InvalidArgumentException('Invalid video kilobitrate');
+            }
+            $ouputFormat->setKiloBitrate($videoKilobitrate);
+        }
+        if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
+            if(!method_exists($ouputFormat, 'setAudioKiloBitrate')) {
+                throw new \InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
+            }
+            if(!is_int($audioKilobitrate)) {
+                throw new \InvalidArgumentException('Invalid audio kilobitrate');
+            }
+            $ouputFormat->setAudioKiloBitrate($audioKilobitrate);
+        }
+        if (null !== ($passes = $options['passes'] ?? null)) {
+            if(!method_exists($ouputFormat, 'setPasses')) {
+                throw new \InvalidArgumentException(sprintf('format %s does not support passes', $format));
+            }
+            if(!is_int($passes) || $passes < 1) {
+                throw new \InvalidArgumentException('Invalid passes count');
+            }
+            if(0 === $videoKilobitrate) {
+                throw new \InvalidArgumentException('passes must not be set if video_kilobitrate is 0');
+            }
+            $ouputFormat->setPasses($passes);
+        }
 
-        $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger());
+        $ffmpegOptions = [];
+        if ($timeout = $options['timeout'] ?? null) {
+            if(!is_int($timeout)) {
+                throw new \InvalidArgumentException('Invalid timeout');
+            }
+            $ffmpegOptions['timeout'] = $timeout;
+        }
+        if ($threads = $options['ffmpeg.threads'] ?? null) {
+            if(!is_int($threads) || $threads < 1) {
+                throw new \InvalidArgumentException('Invalid ffmpeg.threads');
+            }
+            $ffmpegOptions['ffmpeg.threads'] = $threads;
+        }
+        $ffmpeg = FFMpeg\FFMpeg::create($ffmpegOptions, $context->getLogger());
+
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
@@ -98,10 +141,14 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         unset($clip);
         unset($video);
 
+        $mimeType = $context->guessMimeTypeFromPath($outputPath);
+        $fileFamilyGuesser = new FileFamilyGuesser();
+        $family = $fileFamilyGuesser->getFamily($outputPath, $mimeType);
+
         return new OutputFile(
             $outputPath,
-            'application/octet-stream',
-            FamilyEnum::Unknown
+            $mimeType,
+            $family
         );
     }
 
@@ -124,7 +171,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         throw new \InvalidArgumentException('Audio transformation not implemented');
     }
 
-    private function preClip(Video $video, array $options, TransformationContext $context): Clip
+    private function preClip(Video $video, array $options, TransformationContextInterface $context): Clip
     {
         $start = $options['start'] ?? 0;
         $duration = $options['duration'] ?? null;
