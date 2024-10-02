@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
@@ -65,6 +66,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Collection', '', Collection::class),
             MenuItem::linkToCrud('Asset', '', Asset::class),
             MenuItem::linkToCrud('File', '', File::class),
+            MenuItem::linkToCrud('Multipart Upload', '', MultipartUpload::class),
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
             MenuItem::linkToCrud('AssetTitleAttribute', '', AssetTitleAttribute::class),

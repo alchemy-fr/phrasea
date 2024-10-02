@@ -103,7 +103,7 @@ export default function App() {
 
     return (
         <>
-            <ToastContainer />
+            <ToastContainer position={'bottom-left'} />
             <AppProxy />
         </>
     );

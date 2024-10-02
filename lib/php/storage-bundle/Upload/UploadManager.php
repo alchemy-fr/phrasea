@@ -13,15 +13,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class UploadManager
+final readonly class UploadManager
 {
     public function __construct(
-        private readonly S3Client $client,
-        private readonly string $uploadBucket,
-        private readonly EntityManagerInterface $em,
-        private readonly LoggerInterface $logger,
-        private readonly FileValidator $fileValidator,
-        private readonly string $pathPrefix
+        private S3Client $client,
+        private string $uploadBucket,
+        private EntityManagerInterface $em,
+        private LoggerInterface $logger,
+        private FileValidator $fileValidator,
+        private string $pathPrefix
     )
     {
     }

@@ -26,6 +26,8 @@ import {useChannelRegistration} from '../../../lib/pusher.ts';
 import {useIntegrationData} from '../useIntegrationData.ts';
 import {AssetIntegrationActionsProps, Integration} from '../types.ts';
 import {useTranslation} from 'react-i18next';
+import {multipartUpload} from "@alchemy/api/src/multiPartUpload.ts";
+import apiClient from "../../../api/api-client.ts";
 
 const myTheme = {
     // Theme object to extends default dark theme.
@@ -102,20 +104,26 @@ export default function TUIPhotoEditor({
         if (editoRef.current) {
             setSaving(true);
             try {
-                await runIntegrationAction(
+                const multipart = await multipartUpload(
+                    apiClient,
+                    dataURLtoFile(
+                        editoRef.current.getInstance().toDataURL(),
+                        file.id
+                    ),
+                );
+
+                const newFile = await runIntegrationAction(
                     'save',
                     integration.id,
                     {
                         fileId: file.id,
                         assetId: asset.id,
                         name: fileName,
-                    },
-                    dataURLtoFile(
-                        editoRef.current.getInstance().toDataURL(),
-                        file.id
-                    )
+                        multipart,
+                    }
                 );
                 toast.success(t('tuiphoto_editor.saved', `Saved!`));
+                setSelectedFile(newFile.value);
                 loadData();
             } finally {
                 setSaving(false);

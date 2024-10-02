@@ -51,7 +51,7 @@ export default function DeleteAssetsConfirm({
         onDelete && onDelete();
     };
 
-    if (collections.length === 0 && !hardDelete) {
+    if (collections.length === 0 && !data.canDelete) {
         return (
             <AlertDialog modalIndex={modalIndex} open={open}>
                 {t(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Storage;
 
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\File;
@@ -79,6 +80,18 @@ final readonly class FileManager
             $type,
             filesize($src),
             $originalName,
+            $workspace
+        );
+    }
+
+    public function createFileFromMultipartUpload(MultipartUpload $multipartUpload, Workspace $workspace): File
+    {
+        return $this->createFile(
+            File::STORAGE_S3_MAIN,
+            $multipartUpload->getPath(),
+            $multipartUpload->getType(),
+            $multipartUpload->getSize(),
+            $multipartUpload->getFilename(),
             $workspace
         );
     }

@@ -78,6 +78,11 @@ class JobState
         return $this->getJobState()->getOutputs()->getArrayCopy();
     }
 
+    public function getInputs(): array
+    {
+        return $this->getJobState()->getInputs()->getArrayCopy();
+    }
+
     public function getErrors(): array
     {
         return $this->getJobState()->getErrors();

@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace Alchemy\AdminBundle\Controller;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -36,25 +35,15 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        $filename = TextField::new('filename');
-        $type = TextField::new('type');
-        $sizeAsString = TextField::new('sizeAsString');
-        $uploadId = IdField::new('uploadId');
-        $path = TextField::new('path');
-        $complete = BooleanField::new('complete')->renderAsSwitch(false);
-        $createdAt = DateTimeField::new('createdAt');
-        $id = IdField::new();
-        $size = IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $filename, $type, $size, $path, $uploadId, $complete, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$filename, $type, $sizeAsString, $uploadId, $path, $complete, $createdAt];
-        }
+        yield IdField::new();
+        yield TextField::new('type');
+        yield IdField::new('uploadId');
+        yield TextField::new('filename');
+        yield TextField::new('sizeAsString');
+        yield TextField::new('path');
+        yield BooleanField::new('complete')->renderAsSwitch(false);
+        yield DateTimeField::new('createdAt');
+        yield IntegerField::new('size')->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
 
         return [];
     }

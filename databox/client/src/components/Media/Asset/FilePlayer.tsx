@@ -65,6 +65,7 @@ export default function FilePlayer({
             if (file.type === 'application/pdf') {
                 return (
                     <PDFPlayer
+                        controls={controls}
                         dimensions={dimensions}
                         file={file as FileWithUrl}
                         onLoad={onLoad}

@@ -10,13 +10,19 @@ final class IncomingUploaderFileWorkflowEvent
 {
     final public const EVENT = 'incoming_uploader_file';
 
-    public static function createEvent(string $baseUrl, string $assetId, string $token): WorkflowEvent
+    public static function createEvent(
+        string $baseUrl,
+        string $assetId,
+        string $userId,
+        string $token,
+    ): WorkflowEvent
     {
         return new WorkflowEvent(
             self::EVENT,
             [
                 'baseUrl' => $baseUrl,
                 'assetId' => $assetId,
+                'userId' => $userId,
                 'token' => $token,
             ]
         );

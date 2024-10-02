@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Action;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
@@ -27,7 +28,7 @@ trait FileUserActionsTrait
     final public const DATA_FILE = 'file';
 
     protected FileManager $fileManager;
-    protected FileUploadManager $fileUploadManager;
+    protected UploadManager $uploadManager;
     protected FileUrlResolver $fileUrlResolver;
 
     protected function getFile(Request $request): File
@@ -54,12 +55,9 @@ trait FileUserActionsTrait
             throw new BadRequestHttpException(sprintf('File "%s" and Asset "%s" are not from the same workspace', $parentFile->getId(), $asset->getId()));
         }
 
-        $file = $request->files->get('file');
-        if (!$file instanceof UploadedFile) {
-            throw new \InvalidArgumentException('Missing or invalid file');
-        }
+        $multipartUpload = $this->uploadManager->handleMultipartUpload($request);
 
-        return $this->fileUploadManager->storeFileUploadFromRequest($asset->getWorkspace(), $file);
+        return $this->fileManager->createFileFromMultipartUpload($multipartUpload, $asset->getWorkspace());
     }
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void
@@ -96,8 +94,8 @@ trait FileUserActionsTrait
     }
 
     #[Required]
-    public function setFileUploadManager(FileUploadManager $fileUploadManager): void
+    public function setUploadManager(UploadManager $uploadManager): void
     {
-        $this->fileUploadManager = $fileUploadManager;
+        $this->uploadManager = $uploadManager;
     }
 }

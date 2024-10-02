@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -109,7 +110,7 @@ class JobStateCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
-        yield TextField::new('workflow.name', 'Workflow Name');
+        yield AssociationField::new('workflow', 'Workflow');
         yield TextField::new('jobId', 'Job ID');
         yield DateTimeField::new('triggeredAt', 'Triggered At');
         yield DateTimeField::new('startedAt', 'Started At');
@@ -131,9 +132,11 @@ class JobStateCrudController extends AbstractAdminCrudController
 
         yield DateTimeField::new('endedAt', 'Ended At');
         yield TextField::new('durationString', 'Duration');
-        yield ArrayField::new('errors', 'Errors')
+        yield ArrayField::new('errors')
             ->hideOnIndex();
-        yield ArrayObjectField::new('outputs', 'Outputs')
+        yield ArrayObjectField::new('inputs')
+            ->hideOnIndex();
+        yield ArrayObjectField::new('outputs')
             ->hideOnIndex();
     }
 }

@@ -10,7 +10,8 @@
     "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
   },
   "files": [
-    "translations/*.json"
+    "translations/*.json",
+    "src/multiPartUpload.ts"
   ],
   "peerDependencies": {
     "axios": "^1.6.2",
