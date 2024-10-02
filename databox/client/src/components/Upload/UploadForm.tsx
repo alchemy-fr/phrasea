@@ -83,7 +83,7 @@ export const UploadForm: FC<{
 
     const onTemplateSelect = React.useCallback(
         (values: OnChangeValue<SelectOption, true>) => {
-            setSelectedTemplates(values?.map(v => v.value) ?? []);
+            setSelectedTemplates(values ?? []);
         },
         []
     );
