@@ -30,7 +30,11 @@ final readonly class EnvResolver
         $secret = $this->em->getRepository(WorkspaceSecret::class)
             ->findOneBy($params);
         if ($secret instanceof WorkspaceSecret) {
-            return $this->secretsManager->decryptSecret($secret->getValue());
+            try {
+                return $this->secretsManager->decryptSecret($secret->getValue());
+            } catch (\Exception $e) {
+                throw new \RuntimeException(sprintf('Failed to decrypt WorkspaceSecret "%s" (workspace: %s): %s', $key, $workspaceId ?? 'NULL', $e->getMessage()), 0, $e);
+            }
         }
 
         $env = $this->em->getRepository(WorkspaceEnv::class)

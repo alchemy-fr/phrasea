@@ -32,7 +32,7 @@ export default function GeoDistanceFacet({facet}: FacetGroupProps) {
                             </Marker>
                             <Circle
                                 center={meta.position}
-                                radius={b.to}
+                                radius={b.to!}
                                 key={b.key.toString()}
                                 fillColor={colors[i] ?? colors[0]}
                                 color={colors[i] ?? colors[0]}

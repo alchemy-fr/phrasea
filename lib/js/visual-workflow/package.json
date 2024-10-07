@@ -10,16 +10,16 @@
     "reactflow": "^11.11.4"
   },
   "peerDependencies": {
-    "@mui/icons-material": "^5.15.13",
-    "@mui/lab": "5.0.0-alpha.168",
-    "@mui/material": "^5.15.13",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/lab": "^5.0.0-alpha.168",
+    "@mui/material": "^5.16.7",
     "moment": "^2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@mui/icons-material": "^5.16.7",
-    "@mui/lab": "5.0.0-alpha.168",
+    "@mui/lab": "5.0.0-alpha.173",
     "@mui/material": "^5.16.7",
     "@storybook/addon-essentials": "^7.6.20",
     "@storybook/addon-interactions": "^7.6.20",
