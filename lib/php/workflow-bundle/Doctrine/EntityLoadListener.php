@@ -15,7 +15,7 @@ final readonly class EntityLoadListener
 {
     public function __construct(
         private string $workflowStateEntity,
-        private string $jobStateEntity
+        private string $jobStateEntity,
     ) {
     }
 

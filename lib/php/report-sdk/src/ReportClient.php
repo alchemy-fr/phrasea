@@ -18,7 +18,7 @@ class ReportClient
         private readonly string $appId,
         private readonly Client $client,
         ?LogValidator $logValidator = null,
-        ?LoggerInterface $logger = null
+        ?LoggerInterface $logger = null,
     ) {
         if (null === $logValidator) {
             $logValidator = new LogValidator();
@@ -31,7 +31,7 @@ class ReportClient
         string $action,
         ?string $userId = null,
         ?string $itemId = null,
-        array $payload = []
+        array $payload = [],
     ): void {
         $log = [
             'action' => $action,

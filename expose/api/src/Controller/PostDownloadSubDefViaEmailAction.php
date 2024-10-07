@@ -22,7 +22,7 @@ final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction
         string $publicationId,
         string $subDefId,
         Request $request,
-        MessageBusInterface $bus
+        MessageBusInterface $bus,
     ): Response {
         $publication = $this->getPublication($publicationId);
         $subDef = $this->getSubDefOfPublication($subDefId, $publication);

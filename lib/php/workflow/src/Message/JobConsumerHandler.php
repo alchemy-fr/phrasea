@@ -11,7 +11,7 @@ final readonly class JobConsumerHandler
 {
     public function __construct(
         private PlanExecutor $planExecutor,
-        private WorkflowOrchestrator $orchestrator
+        private WorkflowOrchestrator $orchestrator,
     ) {
     }
 

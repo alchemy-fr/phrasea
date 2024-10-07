@@ -8,7 +8,7 @@ final readonly class SerializeObject
         private string $class,
         private string $event,
         private array $data,
-        private ?array $changeSet = null
+        private ?array $changeSet = null,
     ) {
     }
 

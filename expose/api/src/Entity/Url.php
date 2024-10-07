@@ -15,7 +15,7 @@ class Url implements \JsonSerializable, \Stringable
         #[ApiProperty]
         private ?string $text = null,
         #[ApiProperty(writable: true)]
-        private ?string $url = null
+        private ?string $url = null,
     ) {
     }
 

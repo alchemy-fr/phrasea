@@ -6,7 +6,7 @@
     "homepage": "https://www.alchemy.fr/",
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "symfony/framework-bundle": "^4.0 ||^5 || ^6"
     },
     "config": {

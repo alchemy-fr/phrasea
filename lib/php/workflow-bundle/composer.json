@@ -15,7 +15,7 @@
     }
   ],
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.3",
     "symfony/framework-bundle": "^6",
     "symfony/monolog-bundle": "^3.5",
     "symfony/config": "^6.3",

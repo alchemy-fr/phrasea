@@ -19,7 +19,7 @@ class PresignedUrlTest extends TestCase
         ?string $storageBaseUrl,
         string $region,
         string $bucketName,
-        bool $usePathStyleEndpoint
+        bool $usePathStyleEndpoint,
     ): void {
         $accessKey = 'ACCESS_KEY';
         $secretKey = 'SECRET_KEY';

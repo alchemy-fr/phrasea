@@ -15,7 +15,7 @@ final class MatomoClient
     public function __construct(
         HttpClientInterface $matomoClient,
         string $matomoSiteId,
-        string $matomoAuthToken
+        string $matomoAuthToken,
     ) {
         $this->client = $matomoClient;
         $this->matomoSiteId = $matomoSiteId;

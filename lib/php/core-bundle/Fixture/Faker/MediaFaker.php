@@ -9,7 +9,7 @@ class MediaFaker extends AbstractCachedFaker
     public function randomMedia(
         string $workspaceId,
         string $type,
-        string $n
+        string $n,
     ): string {
         $urls = [
             'mp4' => [

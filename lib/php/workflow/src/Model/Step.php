@@ -82,4 +82,9 @@ class Step
     {
         $this->with = $with;
     }
+
+    public function __clone(): void
+    {
+        $this->env = clone $this->env;
+    }
 }

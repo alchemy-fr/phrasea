@@ -10,7 +10,7 @@ class ImageUrlFaker extends AbstractCachedFaker
         string $workspaceId,
         string $lock,
         int $size = 1000,
-        $theme = 'landscape'
+        $theme = 'landscape',
     ): string {
         $ratios = [
             16 / 9,

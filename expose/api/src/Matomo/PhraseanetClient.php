@@ -14,7 +14,7 @@ final class PhraseanetClient
 
     public function __construct(
         HttpClientInterface $phraseanetClient,
-        string $phraseanetAuthToken
+        string $phraseanetAuthToken,
     ) {
         $this->client = $phraseanetClient;
         $this->authToken = $phraseanetAuthToken;

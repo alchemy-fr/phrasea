@@ -19,7 +19,7 @@ final class SyncMatomoPhraseanetCommand extends Command
 
     public function __construct(
         MatomoClient $matomoClient,
-        PhraseanetClient $phraseanetClient
+        PhraseanetClient $phraseanetClient,
     ) {
         $this->matomoClient = $matomoClient;
         $this->phraseanetClient = $phraseanetClient;

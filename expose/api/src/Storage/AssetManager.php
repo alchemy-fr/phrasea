@@ -26,7 +26,7 @@ class AssetManager
         string $mimeType,
         string $originalName,
         int $size,
-        array $options = []
+        array $options = [],
     ): Asset {
         $asset = new Asset();
         $asset->setPath($path);
@@ -107,7 +107,7 @@ class AssetManager
         string $path,
         string $mimeType,
         int $size,
-        array $options = []
+        array $options = [],
     ): SubDefinition {
         $existingSubDef = $this
             ->em

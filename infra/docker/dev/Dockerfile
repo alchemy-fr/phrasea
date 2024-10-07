@@ -1,4 +1,4 @@
-FROM php:8.2.4-cli-alpine3.17
+FROM php:8.3.11-cli-alpine3.20
 
 RUN apk add --no-cache \
 		autoconf \
@@ -17,7 +17,6 @@ RUN apk add --no-cache \
         freetype \
         g++ \
         gettext \
-        jq-dev \
         libjpeg-turbo \
         libpng \
         libwebp \
@@ -33,16 +32,6 @@ RUN apk add --no-cache \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
     && mkdir -p /bootstrap/entrypoint.d \
     && git clone https://github.com/robbyrussell/oh-my-zsh.git /bootstrap/.oh-my-zsh \
-    && mkdir /opt/jq-php \
-    && (cd /opt/jq-php \
-    && git clone --depth=1 https://github.com/kjdev/php-ext-jq.git \
-    && cd php-ext-jq \
-    && phpize \
-    && ./configure \
-    && make \
-    && make test \
-    && make install) \
-    && echo "extension=jq.so" > $PHP_INI_DIR/conf.d/jq.ini \
     && adduser -D -u 1000 app \
     && addgroup -S sudo \
     && addgroup app sudo \
@@ -52,7 +41,8 @@ Defaults exempt_group = sudo' > /etc/sudoers.d/nopasswd
 
 ENV APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
-    IMAGICK_VERSION=3.7.0 \
+    IMAGICK_PHP83_FIX_COMMIT=9df92616f577e38625b96b7b903582a46c064739 \
+#    IMAGICK_VERSION=3.7.0 \
     XDEBUG_VERSION=3.2.1 \
     REDIS_VERSION=5.3.7 \
     APP_ENV=dev
@@ -85,10 +75,13 @@ RUN set -eux; \
 	pecl install \
 		apcu-${APCU_VERSION} \
 		amqp-${AMQP_VERSION} \
-        imagick-${IMAGICK_VERSION} \
+#        imagick-${IMAGICK_VERSION} \
 		redis-${REDIS_VERSION} \
 		xdebug-${XDEBUG_VERSION} \
 	; \
+    curl -L https://github.com/remicollet/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}.zip -o /tmp/imagick-issue-php83.zip \
+        && unzip /tmp/imagick-issue-php83.zip -d /tmp \
+        && pecl install /tmp/imagick-${IMAGICK_PHP83_FIX_COMMIT}/package.xml; \
 	pecl clear-cache; \
 	docker-php-ext-enable \
 		apcu \

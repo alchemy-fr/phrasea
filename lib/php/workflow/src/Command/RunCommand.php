@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RunCommand extends Command
 {
     public function __construct(
-        private readonly WorkflowOrchestrator $orchestrator
+        private readonly WorkflowOrchestrator $orchestrator,
     ) {
         parent::__construct();
     }

@@ -13,7 +13,7 @@ final readonly class NotifyTopicHandler
 {
     public function __construct(
         private MessageBusInterface $bus,
-        private TopicManager $topicManager
+        private TopicManager $topicManager,
     ) {
     }
 

@@ -19,7 +19,7 @@ class DumpWorkflowCommand extends Command
 {
     public function __construct(
         private readonly StateRepositoryInterface $stateRepository,
-        private readonly WorkflowRepositoryInterface $workflowRepository
+        private readonly WorkflowRepositoryInterface $workflowRepository,
     ) {
         parent::__construct();
     }

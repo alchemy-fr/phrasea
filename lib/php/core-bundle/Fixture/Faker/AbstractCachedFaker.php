@@ -20,7 +20,7 @@ abstract class AbstractCachedFaker extends BaseProvider
         FileStorageManager $fileStorageManager,
         PathGenerator $pathGenerator,
         Generator $generator,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct($generator);
         $this->fileStorageManager = $fileStorageManager;

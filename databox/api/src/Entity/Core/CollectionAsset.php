@@ -6,7 +6,6 @@ namespace App\Entity\Core;
 
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
-use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;

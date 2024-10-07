@@ -27,7 +27,7 @@ class PublicationExtension implements QueryCollectionExtensionInterface
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (Publication::class !== $resourceClass) {
             return;

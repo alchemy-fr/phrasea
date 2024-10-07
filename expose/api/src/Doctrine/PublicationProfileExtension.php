@@ -28,7 +28,7 @@ readonly class PublicationProfileExtension implements QueryCollectionExtensionIn
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         if (PublicationProfile::class === $resourceClass) {
             $rootAlias = $queryBuilder->getRootAliases()[0];

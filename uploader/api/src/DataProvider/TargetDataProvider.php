@@ -14,7 +14,7 @@ final readonly class TargetDataProvider implements ProviderInterface
 {
     public function __construct(
         private ProviderInterface $itemsProvider,
-        private Security $security
+        private Security $security,
     ) {
     }
 
