@@ -168,7 +168,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 assetIds: selectedAssets.map(i => i.id),
                 workspaceId: wsId!,
                 onComplete: () => {
-                    reload && reload();
+                    reload?.();
                 },
             });
         };
@@ -236,7 +236,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 openModal(DeleteAssetsConfirm, {
                     assetIds: selectedAssets.map(i => i.id),
                     onDelete: () => {
-                        reload && reload();
+                        reload?.();
                     },
                 });
             },
@@ -244,7 +244,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                 openModal(CopyAssetsDialog, {
                     assets: selectedAssets,
                     onComplete: () => {
-                        reload && reload();
+                        reload?.();
                     },
                 });
             },

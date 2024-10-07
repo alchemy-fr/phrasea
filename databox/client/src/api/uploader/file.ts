@@ -1,9 +1,9 @@
-import {UploadedFile, uploadMultipartFile} from './multiPartUpload';
 import config from '../../config';
 import uploaderClient from '../uploader-client';
 import {promiseConcurrency} from '../../lib/promises';
 import {oauthClient} from '../api-client';
 import {RawAxiosRequestHeaders} from 'axios';
+import {multipartUpload} from "../../../../../lib/js/api/src/multiPartUpload.ts";
 
 interface MyHeaders extends RawAxiosRequestHeaders {
     Authorization?: string;
@@ -23,14 +23,17 @@ export async function makeAuthorizationHeaders(): Promise<MyHeaders> {
 
 type FormData = Record<string, any> | undefined;
 
+type UploadedFile = {
+    data?: Record<string, any>;
+    file: File;
+};
 export async function UploadFiles(
-    userId: string,
     files: UploadedFile[],
     formData?: FormData
 ): Promise<void> {
     const targetSlug = config.uploaderTargetSlug;
     const assets = await promiseConcurrency(
-        files.map(f => () => UploadFile(targetSlug, userId, f)),
+        files.map(f => () => UploadFile(targetSlug, f)),
         2
     );
 
@@ -39,10 +42,16 @@ export async function UploadFiles(
 
 export async function UploadFile(
     targetSlug: string,
-    userId: string,
     uploadedFile: UploadedFile
 ): Promise<string> {
-    return await uploadMultipartFile(targetSlug, userId, uploadedFile);
+    const multipart = await multipartUpload(uploaderClient, uploadedFile.file, {
+    });
+
+    return (await uploaderClient.post(`/assets`, {
+        targetSlug,
+        multipart,
+        data: uploadedFile.data,
+    })).data.id;
 }
 
 export async function CommitUpload(

@@ -85,6 +85,9 @@ export type ActionsContext<Item extends AssetOrAssetContainer> = {
     layout?: boolean;
     export?: boolean;
     edit?: boolean;
+    move?: boolean;
+    copy?: boolean;
+    replace?: boolean;
     share?: boolean;
     delete?: boolean;
     open?: boolean;

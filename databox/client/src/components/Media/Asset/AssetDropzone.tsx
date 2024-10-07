@@ -28,7 +28,6 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
 
             openModal(UploadModal, {
                 files: acceptedFiles,
-                userId: authContext.user!.id,
             });
         },
         [authContext]
@@ -38,7 +37,6 @@ export default function AssetDropzone({children}: PropsWithChildren<{}>) {
         retrieveImageFromClipboardAsBlob(e, imageBlob => {
             openModal(UploadModal, {
                 files: [imageBlob],
-                userId: authContext.user!.id,
             });
         });
     };

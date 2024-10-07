@@ -136,7 +136,7 @@ export default function CollectionMenuItem({
                 secondaryAction={
                     <>
                         <span className={cActionClassName}>
-                            {data.capabilities.canEdit && authContext!.user ? (
+                            {data.capabilities.canEdit && authContext!.isAuthenticated() ? (
                                 <IconButton
                                     title={t(
                                         'collection.item.create_asset',
@@ -145,7 +145,6 @@ export default function CollectionMenuItem({
                                     onClick={() =>
                                         openModal(UploadModal, {
                                             files: [],
-                                            userId: authContext!.user!.id,
                                             workspaceTitle: workspace.name,
                                             workspaceId: workspace.id,
                                             collectionId: data.id,

@@ -63,7 +63,6 @@ export default function AssetDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
                 },
                 {
                     title: t('asset.manage.edit.title', 'Edit'),

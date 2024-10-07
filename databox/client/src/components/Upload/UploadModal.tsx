@@ -37,7 +37,6 @@ type FileWrapper = {
 
 type Props = {
     files: File[];
-    userId: string;
     workspaceId?: string;
     collectionId?: string;
     titlePath?: string[];
@@ -46,7 +45,6 @@ type Props = {
 
 export default function UploadModal({
     files: initFiles,
-    userId,
     workspaceId: initWsId,
     open,
     workspaceTitle,
@@ -136,7 +134,7 @@ export default function UploadModal({
                 }
             }
 
-            return await submitFiles(userId, {
+            return await submitFiles({
                 files: files.map(f => ({
                     file: f.file,
                     tags: data.tags as unknown as string[],

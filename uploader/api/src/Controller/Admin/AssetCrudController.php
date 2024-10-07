@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -49,6 +50,10 @@ class AssetCrudController extends AbstractAdminCrudController
         yield TextField::new('mimeType')
             ->hideOnIndex();
         yield TextField::new('path')
+            ->hideOnIndex();
+        yield JsonField::new('formData')
+            ->hideOnIndex();
+        yield JsonField::new('data')
             ->hideOnIndex();
         yield BooleanField::new('acknowledged')->renderAsSwitch(false);
         yield AssociationField::new('target');

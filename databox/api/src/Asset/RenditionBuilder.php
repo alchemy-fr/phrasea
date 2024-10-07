@@ -101,7 +101,7 @@ final readonly class RenditionBuilder
                 $renditionDefinition,
                 $file,
                 $buildHash,
-                $outputFile?->getBuildHashes() ?? $buildHash,
+                $outputFile?->getBuildHashes(),
             );
             $this->em->flush();
         } finally {

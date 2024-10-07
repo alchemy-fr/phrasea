@@ -69,9 +69,10 @@ export default function OperationsAsset({
                             }}
                             components={{
                                 strong: <CollectionChip />,
+                                i: <WorkspaceChip />,
                             }}
                             defaults={
-                                'This asset belongs to the collection <strong>{{collection}}</strong>'
+                                'This asset belongs to the collection <strong>{{collection}}</strong> in the workspace root <i>{{workspace}}</i>.'
                             }
                         />
                     ) : (
