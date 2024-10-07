@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-readonly class NewAssetFromBorderHandler
+final readonly class NewAssetFromBorderHandler
 {
     public function __construct(
         private AssetManager $assetManager,

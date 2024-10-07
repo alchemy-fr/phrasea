@@ -25,7 +25,7 @@
         "cs": "vendor/bin/php-cs-fixer fix"
     },
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-json": "*",
         "symfony/console": "^5.4 || ^6",
         "symfony/yaml": "^6.2",

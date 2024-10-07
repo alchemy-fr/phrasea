@@ -151,9 +151,9 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     private bool $useAsThumbnailActive = false;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
-    private ?string $definition = '';
+    private ?string $definition = null;
 
     #[Groups([RenditionDefinition::GROUP_READ])]
     #[ORM\Column(type: Types::JSON, nullable: true)]

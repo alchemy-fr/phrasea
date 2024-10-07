@@ -1,4 +1,4 @@
-FROM php:8.2.4-fpm-alpine3.17
+FROM php:8.3.11-fpm-alpine3.19
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \

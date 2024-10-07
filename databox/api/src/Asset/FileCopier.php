@@ -13,8 +13,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class FileCopier
 {
-    public function __construct(private EntityManagerInterface $em, private FileStorageManager $storageManager, private FilePathGenerator $pathGenerator)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private FileStorageManager $storageManager,
+        private FilePathGenerator $pathGenerator,
+    ) {
     }
 
     public function copyFile(File $file, Workspace $workspace): File
@@ -38,7 +41,7 @@ final readonly class FileCopier
         return $copy;
     }
 
-    public function copyFileProperties(File $file, Workspace $workspace): File
+    private function copyFileProperties(File $file, Workspace $workspace): File
     {
         $copy = new File();
         $copy->setType($file->getType());
@@ -50,8 +53,6 @@ final readonly class FileCopier
         $copy->setOriginalName($file->getOriginalName());
         $copy->setExtension($file->getExtension());
         $copy->setPath($file->getPath());
-
-        $this->em->persist($copy);
 
         return $copy;
     }
