@@ -24,7 +24,7 @@ final class CreateAssetAction extends AbstractController
         private readonly AssetManager $assetManager,
         private readonly UploadManager $uploadManager,
         private readonly PathGenerator $pathGenerator,
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

@@ -28,7 +28,7 @@ class DownloadHandlerTest extends TestCase
         string $url,
         MockResponse $response,
         string $expectedMimeType,
-        ?string $expectedExtension
+        ?string $expectedExtension,
     ): void {
         /** @var MessageBusInterface|MockObject $busMock */
         $busMock = $this->createMock(MessageBusInterface::class);

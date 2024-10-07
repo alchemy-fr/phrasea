@@ -18,7 +18,7 @@ final class DownloadUrlAction extends AbstractController
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
-        private readonly FormValidator $formValidator
+        private readonly FormValidator $formValidator,
     ) {
     }
 

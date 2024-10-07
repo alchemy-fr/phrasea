@@ -2,7 +2,8 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-ENV IMAGICK_VERSION=3.7.0
+ENV IMAGICK_PHP83_FIX_COMMIT=9df92616f577e38625b96b7b903582a46c064739
+# IMAGICK_VERSION=3.7.0
 
 RUN apk add --no-cache \
         perl \
@@ -23,8 +24,11 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         imagemagick-dev \
-    && pecl install \
-        imagick-${IMAGICK_VERSION} \
+    && curl -L https://github.com/remicollet/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}.zip -o /tmp/imagick-issue-php83.zip  \
+        && unzip /tmp/imagick-issue-php83.zip -d /tmp \
+        && pecl install /tmp/imagick-${IMAGICK_PHP83_FIX_COMMIT}/package.xml \
+#    && pecl install \
+#        imagick-${IMAGICK_VERSION} \
     && pecl clear-cache \
     && docker-php-ext-enable \
         imagick \

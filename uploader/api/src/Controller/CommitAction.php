@@ -27,7 +27,7 @@ final class CommitAction extends AbstractController
         private readonly FormValidator $formValidator,
         private readonly CommitValidator $commitValidator,
         private readonly ReportUserService $reportClient,
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

@@ -11,6 +11,7 @@ CLIENT_PROJECTS="
 databox/client
 expose/client
 uploader/client
+dashboard/client
 "
 
 NODE_PROJECTS="

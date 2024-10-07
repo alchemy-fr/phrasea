@@ -25,7 +25,7 @@ readonly class WorkflowOrchestrator
         private WorkflowRepositoryInterface $workflowRepository,
         private StateRepositoryInterface $stateRepository,
         private JobTriggerInterface $trigger,
-        private EventValidatorInterface $eventValidator
+        private EventValidatorInterface $eventValidator,
     ) {
     }
 

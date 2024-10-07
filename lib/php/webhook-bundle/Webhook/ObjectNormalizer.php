@@ -18,7 +18,7 @@ class ObjectNormalizer
         NormalizerInterface $normalizer,
         private readonly NormalizerContextBuilderInterface $normalizerContextBuilder,
         TokenStorageInterface $tokenStorage,
-        private readonly ?array $normalizerRoles = null
+        private readonly ?array $normalizerRoles = null,
     ) {
         $this->normalizer = $normalizer;
         $this->tokenStorage = $tokenStorage;

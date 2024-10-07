@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Asset;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\NewAssetFromBorder;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -13,7 +14,6 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class AssetCopier
 {
@@ -22,8 +22,12 @@ class AssetCopier
 
     private array $fileCopies = [];
 
-    public function __construct(private readonly MessageBusInterface $bus, private readonly EntityManagerInterface $em, private readonly RenditionPermissionManager $renditionPermissionManager, private readonly FileCopier $fileCopier)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly RenditionPermissionManager $renditionPermissionManager,
+        private readonly FileCopier $fileCopier,
+        private readonly PostFlushStack $postFlushStack,
+    ) {
     }
 
     public function copyAsset(
@@ -45,12 +49,9 @@ class AssetCopier
                     $collection,
                     $options
                 );
-                $this->em->flush();
             } else {
                 $file = $this->copyFile($asset->getSource(), $workspace);
-                $this->em->flush();
-
-                $this->bus->dispatch(new NewAssetFromBorder(
+                $this->postFlushStack->addBusMessage(new NewAssetFromBorder(
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
@@ -67,9 +68,10 @@ class AssetCopier
                 $collection,
                 $options
             );
-
-            $this->em->flush();
         }
+
+        $this->em->flush();
+        $this->fileCopies = [];
     }
 
     private function doCopyAsset(
@@ -155,8 +157,8 @@ class AssetCopier
         $copy->setAsset($target);
         $copy->setDefinition($rendition->getDefinition());
 
-        if ($rendition->getFile()) {
-            $copy->setFile($this->copyFile($rendition->getFile(), $target->getWorkspace()));
+        if (null !== $file = $rendition->getFile()) {
+            $copy->setFile($this->copyFile($file, $target->getWorkspace()));
         }
 
         $this->em->persist($copy);
@@ -164,6 +166,8 @@ class AssetCopier
 
     private function copyFile(File $file, Workspace $workspace): File
     {
-        return $this->fileCopies[$file->getId()] ?? ($this->fileCopies[$file->getId()] = $this->fileCopier->copyFile($file, $workspace));
+        $key = $file->getId().':'.$workspace->getId();
+
+        return $this->fileCopies[$key] ?? ($this->fileCopies[$key] = $this->fileCopier->copyFile($file, $workspace));
     }
 }

@@ -22,7 +22,7 @@ class AssetManager
         string $originalName,
         int $size,
         string $userId,
-        ?array $data = null
+        ?array $data = null,
     ): Asset {
         $asset = new Asset();
         $asset->setTarget($target);

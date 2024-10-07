@@ -125,4 +125,12 @@ class Job
         $this->disabled = true;
         $this->disabledReason = $reason;
     }
+
+    public function __clone(): void
+    {
+        $this->env = clone $this->env;
+        $this->steps = clone $this->steps;
+        $this->needs = clone $this->needs;
+        $this->with = clone $this->with;
+    }
 }

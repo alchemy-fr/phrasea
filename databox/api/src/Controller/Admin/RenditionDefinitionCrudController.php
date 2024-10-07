@@ -65,6 +65,7 @@ class RenditionDefinitionCrudController extends AbstractAdminCrudController
         yield BooleanField::new('pickSourceFile')
             ->hideOnIndex();
         yield TextareaField::new('definition')
+            ->setRequired(false)
             ->hideOnIndex();
         yield BooleanField::new('useAsOriginal');
         yield BooleanField::new('useAsPreview');

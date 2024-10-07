@@ -60,4 +60,11 @@ final class Workflow
     {
         $this->name = $newName;
     }
+
+    public function __clone(): void
+    {
+        $this->env = clone $this->env;
+        $this->jobs = clone $this->jobs;
+        $this->on = clone $this->on;
+    }
 }

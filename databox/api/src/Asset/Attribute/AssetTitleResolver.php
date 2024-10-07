@@ -18,8 +18,7 @@ class AssetTitleResolver
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     public function resolveTitle(Asset $asset, AttributeIndex $attributesIndex, array $preferredLocales): Attribute|string|null

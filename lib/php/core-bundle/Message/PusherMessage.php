@@ -7,7 +7,7 @@ final readonly class PusherMessage
     public function __construct(
         private string $channel,
         private string $event,
-        private array $payload = []
+        private array $payload = [],
     ) {
     }
 

@@ -12,7 +12,7 @@ interface NotifierInterface
         string $userId,
         string $template,
         array $parameters = [],
-        ?array $contactInfo = null
+        ?array $contactInfo = null,
     ): void;
 
     public function registerUser(string $userId, array $contactInfo): void;

@@ -17,7 +17,7 @@ class LiFormWidgetResolver
 
     public function __construct(
         #[TaggedIterator(WidgetResolverInterface::TAG)]
-        iterable $resolvers
+        iterable $resolvers,
     ) {
         $this->resolvers = $resolvers;
     }

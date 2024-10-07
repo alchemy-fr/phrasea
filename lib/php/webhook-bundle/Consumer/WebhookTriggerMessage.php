@@ -7,7 +7,7 @@ final readonly class WebhookTriggerMessage
     public function __construct(
         private string $webhookId,
         private string $event,
-        private array $payload
+        private array $payload,
     ) {
     }
 

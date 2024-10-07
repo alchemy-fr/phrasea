@@ -7,21 +7,21 @@
     "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js"
   },
   "peerDependencies": {
-    "@mui/icons-material": "^5.15.1",
-    "@mui/material": "^5.15.13",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
     "react": "^18.2.0",
     "react-i18next": "^14.1.1"
   },
   "dependencies": {
-    "styled-components": "^6.1.8"
+    "styled-components": "^6.1.13"
   },
   "devDependencies": {
-    "@mui/icons-material": "^5.15.13",
-    "@mui/material": "^5.15.13",
-    "@types/react": "^18.2.65",
-    "react": "^18.2.0",
-    "react-i18next": "^14.1.1",
-    "i18next-scanner": "^4.4.0",
-    "i18next-scanner-typescript": "^1.2.0"
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
+    "@types/react": "^18.3.11",
+    "i18next-scanner": "^4.5.0",
+    "i18next-scanner-typescript": "^1.2.1",
+    "react": "^18.3.1",
+    "react-i18next": "^14.1.3"
   }
 }

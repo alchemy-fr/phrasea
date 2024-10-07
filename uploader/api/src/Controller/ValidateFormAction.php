@@ -15,7 +15,7 @@ final class ValidateFormAction extends AbstractController
 {
     public function __construct(
         private readonly FormValidator $formValidator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 

@@ -24,11 +24,11 @@
   "devDependencies": {
     "@alchemy/phrasea-ui": "workspace:*",
     "@jonkoops/matomo-tracker-react": "^0.7.0",
-    "@types/react": "^18.2.65",
-    "i18next": "^23.11.4",
-    "react": "^18.2.0",
-    "react-i18next": "^14.1.1",
-    "i18next-scanner": "^4.4.0",
-    "i18next-scanner-typescript": "^1.2.0"
+    "@types/react": "^18.3.11",
+    "i18next": "^23.15.2",
+    "i18next-scanner": "^4.5.0",
+    "i18next-scanner-typescript": "^1.2.1",
+    "react": "^18.3.1",
+    "react-i18next": "^14.1.3"
   }
 }

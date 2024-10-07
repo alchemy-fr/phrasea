@@ -10,15 +10,15 @@
   "main": "index.ts",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^18.2.0",
-    "pusher-js": "^8.3.0"
+    "pusher-js": "^8.3.0",
+    "react": "^18.2.0"
   },
   "dependencies": {
-    "@sentry/react": "^7.106.1"
+    "@sentry/react": "^7.119.1"
   },
   "devDependencies": {
-    "@sentry/types": "^7.106.1",
-    "@types/react": "^18.2.65",
+    "@sentry/types": "^7.119.1",
+    "@types/react": "^18.3.11",
     "pusher-js": "^8.3.0"
   }
 }

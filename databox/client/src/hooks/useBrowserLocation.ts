@@ -8,7 +8,7 @@ const defaultSettings: PositionOptions = {
 
 type Position = {
     timestamp: EpochTimeStamp;
-} & GeolocationCoordinates;
+} & Omit<GeolocationCoordinates, "toJSON">;
 
 export const useBrowserPosition = (
     enabled: boolean,

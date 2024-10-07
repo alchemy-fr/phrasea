@@ -61,31 +61,31 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $ouputFormat->setAudioCodec($audioCodec);
         }
         if (null !== ($videoKilobitrate = $options['video_kilobitrate'] ?? null)) {
-            if(!method_exists($ouputFormat, 'setKiloBitrate')) {
+            if (!method_exists($ouputFormat, 'setKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
             }
-            if(!is_int($videoKilobitrate)) {
+            if (!is_int($videoKilobitrate)) {
                 throw new \InvalidArgumentException('Invalid video kilobitrate');
             }
             $ouputFormat->setKiloBitrate($videoKilobitrate);
         }
         if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
-            if(!method_exists($ouputFormat, 'setAudioKiloBitrate')) {
+            if (!method_exists($ouputFormat, 'setAudioKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
             }
-            if(!is_int($audioKilobitrate)) {
+            if (!is_int($audioKilobitrate)) {
                 throw new \InvalidArgumentException('Invalid audio kilobitrate');
             }
             $ouputFormat->setAudioKiloBitrate($audioKilobitrate);
         }
         if (null !== ($passes = $options['passes'] ?? null)) {
-            if(!method_exists($ouputFormat, 'setPasses')) {
+            if (!method_exists($ouputFormat, 'setPasses')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support passes', $format));
             }
-            if(!is_int($passes) || $passes < 1) {
+            if (!is_int($passes) || $passes < 1) {
                 throw new \InvalidArgumentException('Invalid passes count');
             }
-            if(0 === $videoKilobitrate) {
+            if (0 === $videoKilobitrate) {
                 throw new \InvalidArgumentException('passes must not be set if video_kilobitrate is 0');
             }
             $ouputFormat->setPasses($passes);
@@ -93,13 +93,13 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $ffmpegOptions = [];
         if ($timeout = $options['timeout'] ?? null) {
-            if(!is_int($timeout)) {
+            if (!is_int($timeout)) {
                 throw new \InvalidArgumentException('Invalid timeout');
             }
             $ffmpegOptions['timeout'] = $timeout;
         }
         if ($threads = $options['threads'] ?? null) {
-            if(!is_int($threads) || $threads < 1) {
+            if (!is_int($threads) || $threads < 1) {
                 throw new \InvalidArgumentException('Invalid threads count');
             }
             $ffmpegOptions['ffmpeg.threads'] = $threads;

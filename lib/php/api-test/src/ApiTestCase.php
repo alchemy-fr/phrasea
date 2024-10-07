@@ -21,7 +21,7 @@ abstract class ApiTestCase extends WebTestCase
         ?array $params = null,
         array $files = [],
         array $server = [],
-        ?string $content = null
+        ?string $content = null,
     ): Response {
         if (null !== $accessToken) {
             if (is_array($accessToken)) {

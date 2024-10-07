@@ -20,8 +20,8 @@
     "@types/jest": "^23.3.14",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^10.17.60",
-    "axios": "^1.6.7",
+    "axios": "^1.7.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.6.2"
   }
 }

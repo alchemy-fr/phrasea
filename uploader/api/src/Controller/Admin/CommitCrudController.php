@@ -24,7 +24,7 @@ class CommitCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly MessageBusInterface $bus,
-        private readonly UserChoiceField $userChoiceField
+        private readonly UserChoiceField $userChoiceField,
     ) {
     }
 

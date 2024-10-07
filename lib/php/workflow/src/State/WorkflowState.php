@@ -28,7 +28,7 @@ class WorkflowState
         private string $workflowName,
         private ?WorkflowEvent $event,
         ?string $id = null,
-        array $context = []
+        array $context = [],
     ) {
         $this->id = $id ?? Uuid::uuid4()->toString();
         $this->startedAt = new MicroDateTime();
