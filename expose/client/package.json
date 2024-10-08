@@ -25,7 +25,7 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "axios": "^1.7.7",
-    "bootstrap": "^4.6.2",
+    "bootstrap": "^5.0.0",
     "flow-bin": "^0.126.1",
     "mapbox-gl": "^1.13.3",
     "moment": "^2.30.1",
