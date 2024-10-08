@@ -20,8 +20,6 @@
     "noFallthroughCasesInSwitch": true,
     "allowJs": true,
 
-    "downlevelIteration": true,
-
     "types": ["node"]
   },
   "include": ["src/*"]
