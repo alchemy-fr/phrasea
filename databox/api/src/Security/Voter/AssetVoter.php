@@ -57,26 +57,17 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->hasAcl(PermissionInterface::OPERATOR, $subject->getReferenceCollection(), $token)
-                    );
+                    || $this->containerHasAcl($subject, PermissionInterface::OPERATOR, $token);
             case self::EDIT_ATTRIBUTES:
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->hasAcl(PermissionInterface::EDIT, $subject, $token)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->hasAcl(PermissionInterface::EDIT, $subject->getReferenceCollection(), $token)
-                    );
+                    || $this->containerHasAcl($subject, PermissionInterface::EDIT, $token);
             case self::SHARE:
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'EDIT')
                     || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->hasAcl(PermissionInterface::EDIT, $subject->getReferenceCollection(), $token)
-                    );
+                    || $this->containerHasAcl($subject, PermissionInterface::EDIT, $token);
             case self::DELETE:
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
@@ -89,17 +80,27 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')
                     || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->hasAcl(PermissionInterface::OWNER, $subject->getReferenceCollection(), $token)
-                    );
+                    || $this->containerHasAcl($subject, PermissionInterface::OWNER, $token);
         }
 
         return false;
     }
 
+    private function containerHasAcl(Asset $asset, int $permission, TokenInterface $token): bool
+    {
+        if (null !== $collection = $asset->getReferenceCollection()) {
+            return $this->hasAcl($permission, $collection, $token);
+        }
+
+        return $this->hasAcl($permission, $asset->getWorkspace(), $token);
+    }
+
     private function collectionGrantsAccess(Asset $subject): bool
     {
+        if (null === $subject->getReferenceCollection() && $this->security->isGranted(AbstractVoter::EDIT, $subject->getWorkspace())) {
+            return true;
+        }
+
         foreach ($subject->getCollections() as $collectionAsset) {
             if ($this->security->isGranted(AbstractVoter::READ, $collectionAsset->getCollection())) {
                 return true;

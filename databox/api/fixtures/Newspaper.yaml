@@ -295,12 +295,12 @@ App\Entity\Core\Asset:
         workspace: '@w_newspaper'
         privacy: '<numberBetween(1, 5)>'
         __calls:
-            - addToCollection: ['@c_n_*']
+            - addToCollection: ['@c_n_*', true, true]
             - addTag (80%?): ['@tag_*']
             - addTag (50%?): ['@tag_*']
-            - addToCollection (80%?): ['@c_n_sport', true]
-            - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true]
-            - addToCollection (80%?): ['@c_n_entertainment_archives_series', true]
+            - addToCollection (80%?): ['@c_n_sport', true, true]
+            - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true, true]
+            - addToCollection (80%?): ['@c_n_entertainment_archives_series', true, true]
 
     a_img{1..50} (extends asset_n):
         title: 'Image #<ucwords($current)>'
