@@ -1051,11 +1051,11 @@ importers:
         specifier: ^2.7.1
         version: 2.7.1
       rollup:
-        specifier: ^0.67.4
-        version: 0.67.4
+        specifier: ^2.79.2
+        version: 2.79.2
       rollup-plugin-commonjs:
         specifier: ^9.3.4
-        version: 9.3.4(rollup@0.67.4)
+        version: 9.3.4(rollup@2.79.2)
       rollup-plugin-json:
         specifier: ^3.1.0
         version: 3.1.0
@@ -1064,10 +1064,10 @@ importers:
         version: 3.4.0
       rollup-plugin-sourcemaps:
         specifier: ^0.4.2
-        version: 0.4.2(rollup@0.67.4)
+        version: 0.4.2(rollup@2.79.2)
       rollup-plugin-typescript2:
         specifier: ^0.18.1
-        version: 0.18.1(rollup@0.67.4)(typescript@5.6.2)
+        version: 0.18.1(rollup@2.79.2)(typescript@5.6.2)
       semantic-release:
         specifier: ^15.14.0
         version: 15.14.0(@octokit/core@6.1.2)(encoding@0.1.13)
@@ -4284,9 +4284,6 @@ packages:
 
   '@types/eslint@9.6.1':
     resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
-
-  '@types/estree@0.0.39':
-    resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
 
   '@types/estree@0.0.51':
     resolution: {integrity: sha512-CuPgU6f3eT/XgKKPqKd/gLZV1Xmvf1a2R5POBOGQa6uv82xpls89HU5zKeVoyR8XzHd1RGNOlQlvUe3CFkjWNQ==}
@@ -10812,13 +10809,9 @@ packages:
   rollup-pluginutils@2.8.2:
     resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
 
-  rollup@0.67.4:
-    resolution: {integrity: sha512-AVuP73mkb4BBMUmksQ3Jw0jTrBTU1i7rLiUYjFxLZGb3xiFmtVEg40oByphkZAsiL0bJC3hRAJUQos/e5EBd+w==}
-    hasBin: true
-
-  rollup@3.29.5:
-    resolution: {integrity: sha512-GVsDdsbJzzy4S/v3dqWPJ7EfvZJfCHiDqe80IyrF59LYuP+e6U1LJoUqeuqRbwAWoMNoXivMNeNAOf5E22VA1w==}
-    engines: {node: '>=14.18.0', npm: '>=8.0.0'}
+  rollup@2.79.2:
+    resolution: {integrity: sha512-fS6iqSPZDs3dr/y7Od6y5nha8dW1YnbgtsyotCVvoFGKbERG++CVRFv1meyGDE1SNItQA8BrnCw7ScdAhRJ3XQ==}
+    engines: {node: '>=10.0.0'}
     hasBin: true
 
   rollup@4.24.0:
@@ -15567,7 +15560,7 @@ snapshots:
       find-cache-dir: 3.3.2
       fs-extra: 11.2.0
       magic-string: 0.30.11
-      rollup: 3.29.5
+      rollup: 2.79.2
       vite: 5.4.8(@types/node@18.19.54)(sass@1.79.4)(terser@5.34.1)
     optionalDependencies:
       typescript: 5.6.2
@@ -16458,8 +16451,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.6
       '@types/json-schema': 7.0.15
-
-  '@types/estree@0.0.39': {}
 
   '@types/estree@0.0.51': {}
 
@@ -23932,12 +23923,12 @@ snapshots:
     dependencies:
       glob: 10.4.5
 
-  rollup-plugin-commonjs@9.3.4(rollup@0.67.4):
+  rollup-plugin-commonjs@9.3.4(rollup@2.79.2):
     dependencies:
       estree-walker: 0.6.1
       magic-string: 0.25.9
       resolve: 1.22.8
-      rollup: 0.67.4
+      rollup: 2.79.2
       rollup-pluginutils: 2.8.2
 
   rollup-plugin-json@3.1.0:
@@ -23950,17 +23941,17 @@ snapshots:
       is-module: 1.0.0
       resolve: 1.22.8
 
-  rollup-plugin-sourcemaps@0.4.2(rollup@0.67.4):
+  rollup-plugin-sourcemaps@0.4.2(rollup@2.79.2):
     dependencies:
-      rollup: 0.67.4
+      rollup: 2.79.2
       rollup-pluginutils: 2.8.2
       source-map-resolve: 0.5.3
 
-  rollup-plugin-typescript2@0.18.1(rollup@0.67.4)(typescript@5.6.2):
+  rollup-plugin-typescript2@0.18.1(rollup@2.79.2)(typescript@5.6.2):
     dependencies:
       fs-extra: 7.0.0
       resolve: 1.8.1
-      rollup: 0.67.4
+      rollup: 2.79.2
       rollup-pluginutils: 2.3.3
       tslib: 1.9.3
       typescript: 5.6.2
@@ -23974,12 +23965,7 @@ snapshots:
     dependencies:
       estree-walker: 0.6.1
 
-  rollup@0.67.4:
-    dependencies:
-      '@types/estree': 0.0.39
-      '@types/node': 10.17.60
-
-  rollup@3.29.5:
+  rollup@2.79.2:
     optionalDependencies:
       fsevents: 2.3.3
 
