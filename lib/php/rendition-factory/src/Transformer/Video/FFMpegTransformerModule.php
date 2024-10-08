@@ -99,7 +99,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $ffmpegOptions['timeout'] = $timeout;
         }
         if ($threads = $options['threads'] ?? null) {
-            if(!is_int($threads) || $threads < 1) {
+            if (!is_int($threads) || $threads < 1) {
                 throw new \InvalidArgumentException('Invalid threads count');
             }
             $ffmpegOptions['ffmpeg.threads'] = $threads;
