@@ -138,10 +138,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $clip->save($ouputFormat, $outputPath);
 
-        unset($clip);
-        unset($video);
+        unset($clip, $video);
+        gc_collect_cycles();
 
         $mimeType = $context->guessMimeTypeFromPath($outputPath);
+
         $fileFamilyGuesser = new FileFamilyGuesser();
         $family = $fileFamilyGuesser->getFamily($outputPath, $mimeType);
 

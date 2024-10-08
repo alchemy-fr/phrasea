@@ -3,10 +3,10 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
@@ -108,13 +108,19 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
             $context->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
             $clipDuration = TimeCode::fromSeconds($clipDuration);
+            $removeAudioFilter = new FFMpeg\Filters\Audio\SimpleFilter(['-an']);
             for ($i = 0; $i < $nClips; ++$i) {
                 $start = $i * $period;
                 $clip = $video->clip(TimeCode::fromSeconds($start), $clipDuration);
+                $clip->addFilter($removeAudioFilter);
                 $clipPath = $context->createTmpFilePath($clipsExtension);
                 $clip->save($clipsFormat, $clipPath);
+                unset($clip);
+                gc_collect_cycles();
                 $clipsFiles[] = realpath($clipPath);
             }
+            unset($removeAudioFilter, $video);
+            gc_collect_cycles();
 
             $outVideo = $ffmpeg->open($clipsFiles[0]);
 
@@ -127,6 +133,9 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                     ->concat($clipsFiles)
                     ->saveFromDifferentCodecs($outpuFormat, $outputPath);
             }
+
+            unset($outVideo);
+            gc_collect_cycles();
         } finally {
             foreach ($clipsFiles as $clipFile) {
                 @unlink($clipFile);
@@ -137,11 +146,15 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             throw new \RuntimeException(sprintf('Failed to create summary video'));
         }
 
-        // TODO return the correct family and MIME type
+        $mimeType = $context->guessMimeTypeFromPath($outputPath);
+
+        $fileFamilyGuesser = new FileFamilyGuesser();
+        $family = $fileFamilyGuesser->getFamily($outputPath, $mimeType);
+
         return new OutputFile(
             $outputPath,
-            'application/octet-stream',
-            FamilyEnum::Unknown
+            $mimeType,
+            $family
         );
     }
 }

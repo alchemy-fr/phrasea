@@ -70,6 +70,7 @@ final readonly class YamlLoader implements FileLoaderInterface
     {
         return new Transformation(
             $transformation['module'],
+            $transformation['enabled'] ?? true,
             $transformation['options'] ?? [],
             $transformation['description'] ?? null
         );
