@@ -32,9 +32,8 @@ export default function AssetSearch({}: Props) {
     >((): void => {
         openModal(UploadModal, {
             files: [],
-            userId: authContext.user!.id,
         });
-    }, [authContext]);
+    }, []);
 
     const onOpen = useCallback<OnOpen>(
         (asset, renditionId): void => {

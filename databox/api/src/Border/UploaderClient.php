@@ -29,6 +29,7 @@ readonly class UploaderClient
                 'headers' => [
                     'Authorization' => 'AssetToken '.$token,
                 ],
+                'json' => [],
             ]);
     }
 

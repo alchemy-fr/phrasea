@@ -17,7 +17,7 @@ final class AssetAckAction extends AbstractController
     {
     }
 
-    public function __invoke(Asset $asset)
+    public function __invoke(Asset $asset): JsonResponse
     {
         $this->denyAccessUnlessGranted(AssetVoter::ACK, $asset);
 

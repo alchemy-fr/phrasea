@@ -13,6 +13,10 @@ import {ActionsContext, ReloadFunc} from './types.ts';
 import {useAssetActions} from '../../hooks/useAssetActions.ts';
 import ContextMenu from '../Ui/ContextMenu.tsx';
 import {ContextMenuContext} from '../../hooks/useContextMenu.ts';
+import InfoIcon from '@mui/icons-material/Info';
+import FileCopyIcon from "@mui/icons-material/FileCopy";
+import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 
 type Props<Item extends AssetOrAssetContainer> = {
     contextMenu: ContextMenuContext<{
@@ -36,8 +40,8 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     const {asset, item} = contextMenu.data;
     const {id, original} = asset;
 
-    const {onDelete, onOpen, onDownload, onEdit, onEditAttr, can} =
-        useAssetActions({asset, onAction: onClose, actionsContext});
+    const {onDelete, onOpen, onDownload, onInfo, onEdit, onMove, onCopy, onReplace, onEditAttr, can} =
+        useAssetActions({asset, onAction: onClose, actionsContext, reload});
 
     const openUrl = (url: string) => {
         document.location.href = url;
@@ -83,6 +87,14 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         <ListItemText primary={a.label || a.type} />
                     </MenuItem>
                 ))}
+            <MenuItem onClick={onInfo}>
+                <ListItemIcon>
+                    <InfoIcon />
+                </ListItemIcon>
+                <ListItemText
+                    primary={t('asset.actions.info', 'Info')}
+                />
+            </MenuItem>
             {can.download && (
                 <MenuItem onClick={onDownload}>
                     <ListItemIcon>
@@ -106,6 +118,32 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
             ) : (
                 ''
             )}
+            {actionsContext.move ? (
+                <MenuItem
+                    disabled={!can.edit}
+                    onClick={can.edit ? onMove : undefined}
+                >
+                    <ListItemIcon>
+                        <DriveFileMoveIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('asset.actions.move', 'Move')} />
+                </MenuItem>
+            ) : (
+                ''
+            )}
+            {actionsContext.copy ? (
+                <MenuItem
+                    disabled={!can.share}
+                    onClick={can.share ? onCopy : undefined}
+                >
+                    <ListItemIcon>
+                        <FileCopyIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={t('asset.actions.copy', 'Copy')} />
+                </MenuItem>
+            ) : (
+                ''
+            )}
             {actionsContext.edit ? (
                 <MenuItem
                     disabled={!can.editAttributes}
@@ -118,6 +156,24 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                         primary={t(
                             'asset.actions.edit_attributes',
                             'Edit attributes'
+                        )}
+                    />
+                </MenuItem>
+            ) : (
+                ''
+            )}
+            {actionsContext.replace ? (
+                <MenuItem
+                    disabled={!can.edit}
+                    onClick={can.edit ? onReplace : undefined}
+                >
+                    <ListItemIcon>
+                        <ChangeCircleIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={t(
+                            'asset.actions.replace_source_file',
+                            'Replace source file'
                         )}
                     />
                 </MenuItem>

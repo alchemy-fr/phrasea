@@ -7,6 +7,8 @@ import EventIcon from '@mui/icons-material/Event';
 import PersonIcon from '@mui/icons-material/Person';
 import InfoRow from '../Info/InfoRow';
 import {useTranslation} from 'react-i18next';
+import BusinessIcon from '@mui/icons-material/Business';
+import FolderIcon from '@mui/icons-material/Folder';
 
 type Props = {
     data: Asset;
@@ -53,6 +55,24 @@ export default function InfoAsset({data, onClose, minHeight}: Props) {
                     value={data.attributesEditedAt}
                     copyValue={data.attributesEditedAt}
                     icon={<EventIcon />}
+                />
+                <InfoRow
+                    icon={<BusinessIcon/>}
+                    label={t(
+                        'asset.info.workspace',
+                        `Workspace`
+                    )}
+                    value={data.workspace.name}
+                    copyValue={data.workspace.id}
+                />
+                <InfoRow
+                    icon={<FolderIcon/>}
+                    label={t(
+                        'asset.info.collection',
+                        `Collection`
+                    )}
+                    value={data.referenceCollection?.absoluteTitle ?? t('asset.info.collection.none', 'None')}
+                    copyValue={data.referenceCollection?.id}
                 />
             </MenuList>
         </ContentTab>

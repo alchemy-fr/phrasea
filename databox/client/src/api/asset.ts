@@ -237,6 +237,13 @@ export async function prepareDeleteAssets(
     return res.data;
 }
 
+export async function prepareAssetSubstitution(
+    id: string
+): Promise<Asset> {
+    const res = await apiClient.put(`/assets/${id}/prepare-substitution`, {});
+    return res.data;
+}
+
 export async function putAsset(id: string, data: Partial<any>): Promise<Asset> {
     const res = await apiClient.put(`/assets/${id}`, data, {
         headers: {

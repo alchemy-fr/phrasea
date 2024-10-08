@@ -5,15 +5,19 @@ import ExportAssetsDialog from '../components/Media/Asset/Actions/ExportAssetsDi
 import {modalRoutes} from '../routes.ts';
 import {Asset, AssetOrAssetContainer} from '../types.ts';
 import {useModals} from '@alchemy/navigation';
-import {ActionsContext} from '../components/AssetList/types.ts';
+import {ActionsContext, ReloadFunc} from '../components/AssetList/types.ts';
 import {createDefaultActionsContext} from '../components/AssetList/actionContext.ts';
 import SubstituteFileDialog from '../components/Media/Asset/Actions/SubstituteFileDialog.tsx';
+import MoveAssetsDialog from "../components/Media/Asset/Actions/MoveAssetsDialog.tsx";
+import CopyAssetsDialog from "../components/Media/Asset/Actions/CopyAssetsDialog.tsx";
+import ReplaceAssetSourceDialog from "../components/Media/Asset/Actions/ReplaceAssetSourceDialog.tsx";
 
 type Props<Item extends AssetOrAssetContainer> = {
     asset: Asset;
     onAction?: () => void;
     actionsContext?: ActionsContext<Item>;
     onDelete?: () => void;
+    reload?: ReloadFunc;
 };
 
 export function useAssetActions<Item extends AssetOrAssetContainer>({
@@ -21,6 +25,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
     onAction,
     actionsContext = createDefaultActionsContext(),
     onDelete,
+    reload,
 }: Props<Item>) {
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
@@ -68,6 +73,38 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
             onEdit: () => {
                 navigateToModal(modalRoutes.assets.routes.manage, {
                     tab: 'edit',
+                    id: asset.id,
+                });
+                onAction?.();
+            },
+            onMove: () => {
+                openModal(MoveAssetsDialog, {
+                    assetIds: [asset.id],
+                    workspaceId: asset.workspace.id,
+                    onComplete: () => {
+                        reload?.();
+                    },
+                });
+                onAction?.();
+            },
+            onCopy: () => {
+                openModal(CopyAssetsDialog, {
+                    assets: [asset],
+                    onComplete: () => {
+                        reload?.();
+                    },
+                });
+                onAction?.();
+            },
+            onReplace: () => {
+                openModal(ReplaceAssetSourceDialog, {
+                    asset,
+                });
+                onAction?.();
+            },
+            onInfo: () => {
+                navigateToModal(modalRoutes.assets.routes.manage, {
+                    tab: 'info',
                     id: asset.id,
                 });
                 onAction?.();

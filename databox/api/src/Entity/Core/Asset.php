@@ -30,6 +30,7 @@ use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
+use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -89,6 +90,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/assets/{id}/attributes',
             input: AssetAttributeBatchUpdateInput::class,
             processor: AssetAttributeBatchUpdateProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/assets/{id}/prepare-substitution',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            output: AssetOutput::class,
+            provider: AssetCollectionProvider::class,
+            processor: PrepareSubstitutionProcessor::class,
         ),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),

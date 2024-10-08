@@ -29,13 +29,11 @@ type UploadInput = {
 };
 
 export async function submitFiles(
-    userId: string,
     data: UploadInput
 ): Promise<Asset[]> {
     const assets = await createAssets(data);
 
     UploadFiles(
-        userId,
         data.files.map(f => {
             if (!f.assetId) {
                 console.log('data', data);
