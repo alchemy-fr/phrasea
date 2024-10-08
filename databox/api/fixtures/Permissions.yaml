@@ -42,37 +42,37 @@ App\Entity\Core\Asset:
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o1'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
   a_{a2} (extends asset_p):
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o2'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
   a_{b} (extends asset_p):
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o3'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
   a_{c} (extends asset_p):
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o4'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
   a_{c2} (extends asset_p):
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o5'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
   a_{d} (extends asset_p):
     title: 'Image in <ucwords($current)>'
     source: '@f_img_o6'
     __calls:
-        - addToCollection: ['@c_<current()>']
+        - addToCollection: ['@c_<current()>', true, true]
 
 App\Entity\Core\File:
   file_p (template):

@@ -316,10 +316,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->title = $title;
     }
 
-    public function addToCollection(Collection $collection, bool $checkUnique = false): CollectionAsset
+    public function addToCollection(Collection $collection, bool $checkUnique = false, bool $assignReferenceIfNull = false): CollectionAsset
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
+        }
+
+        if ($assignReferenceIfNull && null === $this->referenceCollection) {
+            $this->referenceCollection = $collection;
         }
 
         if ($checkUnique) {
