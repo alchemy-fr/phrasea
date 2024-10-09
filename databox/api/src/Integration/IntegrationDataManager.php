@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Repository\Integration\IntegrationDataRepository;
