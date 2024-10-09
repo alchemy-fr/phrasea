@@ -61,6 +61,7 @@ final class ShareCrudController extends AbstractAdminCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
+        yield TextField::new('title');
         yield AssociationField::new('asset')
             ->autocomplete();
         yield CodeField::new('token');

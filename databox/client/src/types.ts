@@ -31,7 +31,8 @@ export type User = {
 
 export type Share = {
     id: string;
-    asset: Asset;
+    title?: string | undefined;
+    asset: Asset | string;
     token: string;
     startsAt?: string | undefined | null;
     expiresAt?: string | undefined | null;
