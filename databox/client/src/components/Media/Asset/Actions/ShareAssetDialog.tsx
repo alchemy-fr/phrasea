@@ -217,7 +217,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
                 <FormControlLabel
                     control={
                         <Switch
-                            checked={advancedMode}
+                            checked={advancedMode || false}
                             onChange={() => setAdvancedMode(!advancedMode)}
                         />
                     }

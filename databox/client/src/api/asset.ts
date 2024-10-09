@@ -105,6 +105,14 @@ export async function getAssetShares(assetId: string): Promise<Share[]> {
     })).data['hydra:member'];
 }
 
+export async function getPublicShare(id: string, token: string): Promise<Share> {
+    return (await apiClient.get(`/shares/${id}/public`, {
+        params: {
+            token,
+        },
+    })).data;
+}
+
 export async function createAssetShare(assetId: string, data: Partial<Share> = {}): Promise<Share> {
     const res = (await apiClient.post(`/shares`, {
         ...data,

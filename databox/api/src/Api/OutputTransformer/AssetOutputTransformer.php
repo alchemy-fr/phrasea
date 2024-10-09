@@ -20,6 +20,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\Share;
 use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
@@ -88,6 +89,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         if ($this->hasGroup([
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
+            Share::GROUP_PUBLIC_READ,
         ], $context)) {
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();

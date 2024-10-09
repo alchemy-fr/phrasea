@@ -46,10 +46,10 @@ function Attributes({
 
             return ws;
         });
-    }, []);
+    }, [asset]);
 
-    const pinnedAttributes =
-        (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? [];
+    const pinnedAttributes = asset.workspace ?
+        ((preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? []) : [];
 
     let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
 
@@ -85,7 +85,7 @@ function Attributes({
                         definition={g.definition}
                         displayControls={displayControls}
                         pinned={pinnedAttributes.includes(g.definition.id)}
-                        togglePin={togglePin}
+                        togglePin={asset.workspace ? togglePin : undefined}
                         onAnnotations={onAnnotations}
                     />
                 );
