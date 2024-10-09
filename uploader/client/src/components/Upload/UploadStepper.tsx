@@ -59,7 +59,7 @@ export default function UploadStepper({target}: Props) {
     );
 
     const reset = React.useCallback(() => {
-        uploadBatch.abort();
+        uploadBatch.reset();
         setFiles([]);
         setStep(Step.Files);
     }, [uploadBatch, setStep, setFiles]);

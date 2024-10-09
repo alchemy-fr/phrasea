@@ -1,5 +1,6 @@
 import {uploadMultipartFile} from './multiPartUpload';
 import apiClient, {oauthClient} from './lib/apiClient';
+import axios from "axios";
 
 export default class UploadBatch {
     files = [];
@@ -24,7 +25,11 @@ export default class UploadBatch {
     }
 
     reset() {
-        this.abort();
+        this.files.forEach(file => {
+            if (file.abortController) {
+                file.abortController.abort();
+            }
+        });
         this.files = [];
         this.formData = null;
         this.uploading = false;
@@ -36,14 +41,6 @@ export default class UploadBatch {
         this.resetListeners();
 
         window.addEventListener('online', this.retryUploads);
-    }
-
-    abort() {
-        this.files.forEach(file => {
-            if (file.abortController) {
-                file.abortController.abort();
-            }
-        });
     }
 
     resetListeners() {
@@ -169,7 +166,11 @@ export default class UploadBatch {
                     this.failedUploads.push(retryCallback);
                 });
             } else if (retry < 10) {
-                return await this.uploadFile(index, retry + 1);
+                if (!axios.isCancel(err)) {
+                    return await this.uploadFile(index, retry + 1);
+                } else {
+                    return;
+                }
             }
 
             this.onFileError(err, index);

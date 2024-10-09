@@ -56,6 +56,14 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     use OwnerIdTrait;
     final public const string GROUP_READ = 'share:read';
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups([self::GROUP_READ])]
+    private ?string $title = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Groups([self::GROUP_READ])]
+    private bool $enabled = true;
+
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Asset $asset = null;
@@ -65,6 +73,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     protected ?\DateTimeImmutable $startsAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups([self::GROUP_READ])]
     protected ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
@@ -128,5 +137,25 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }
