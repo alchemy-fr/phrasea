@@ -32,7 +32,7 @@ final readonly class CommitAcknowledgeHandler
 
         $commit->setAcknowledged(true);
 
-        $this->em->transactional(function () use ($commit): void {
+        $this->em->wrapInTransaction(function () use ($commit): void {
             $this->em->createQueryBuilder()
                 ->update(Asset::class, 'a')
                 ->set('a.acknowledged', ':true')

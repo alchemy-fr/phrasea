@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

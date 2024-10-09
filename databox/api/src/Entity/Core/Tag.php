@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Provider\TagCollectionProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;

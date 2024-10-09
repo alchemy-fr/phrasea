@@ -6,7 +6,7 @@ namespace App\Entity\Core;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Api\Model\Output\FileOutput;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;

@@ -6,7 +6,7 @@ namespace App\Entity\Integration;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Entity\Traits\UpdatedAtTrait;

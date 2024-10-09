@@ -1,10 +1,6 @@
 import apiClient from './api-client';
-import {Asset, AssetFileVersion, Attribute, Collection} from '../types';
-import {
-    ApiCollectionResponse,
-    getAssetsHydraCollection,
-    getHydraCollection,
-} from './hydra';
+import {Asset, AssetFileVersion, Attribute, Collection, Share} from '../types';
+import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 
@@ -99,6 +95,26 @@ export async function getAsset(id: string): Promise<Asset> {
     const res = await apiClient.get(`/assets/${id}`);
 
     return res.data;
+}
+
+export async function getAssetShares(assetId: string): Promise<Share[]> {
+    return (await apiClient.get(`/shares`, {
+        params: {
+            asset: assetId,
+        },
+    })).data['hydra:member'];
+}
+
+export async function createAssetShare(assetId: string): Promise<Share> {
+    const res = (await apiClient.post(`/shares`, {
+        asset: `/assets/${assetId}`,
+    })).data;
+
+    return res;
+}
+
+export async function removeAssetShare(assetId: string): Promise<void> {
+    await apiClient.delete(`/shares/${assetId}`);
 }
 
 export async function getAssetAttributes(

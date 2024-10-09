@@ -131,6 +131,8 @@ export default class UploadBatch {
             target: `/targets/${this.targetId}`,
         };
 
+        this.reset();
+
         apiClient.post('/commit', formData);
     }
 

@@ -6,6 +6,7 @@ const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
 
 export async function uploadMultipartFile(targetId, userId, file, onProgress) {
     const fileUID = getUniqueFileId(file.file, fileChunkSize);
+    console.log('fileUID', fileUID);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
     const uploadParts = [];
 
@@ -47,9 +48,12 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
         onPartUploaded: ({etag}) => {
             uploadStateStorage.updateUpload(userId, fileUID, etag);
         },
+        receiveAbortController: (abortController) => {
+            file.abortController = abortController;
+        },
     });
 
-    const abortController = new AbortController();
+    file.abortController = new AbortController();
 
     const finalRes = await apiClient.post(
         `/assets`,
@@ -58,7 +62,7 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
             multipart,
         },
         {
-            signal: abortController.signal,
+            signal: file.abortController.signal,
         }
     );
 

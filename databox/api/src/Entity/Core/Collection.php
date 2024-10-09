@@ -21,7 +21,7 @@ use App\Api\Model\Output\CollectionOutput;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Provider\CollectionProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;

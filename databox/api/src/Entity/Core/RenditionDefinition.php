@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;

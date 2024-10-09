@@ -58,16 +58,6 @@ final class ShareCrudController extends AbstractAdminCrudController
         ;
     }
 
-    public function createEntity(string $entityFqcn): Share
-    {
-        $share = new Share();
-        $share->setToken(ByteString::fromRandom(32)->toString());
-        $share->setOwnerId($this->getUser()->getId());
-
-        return $share;
-    }
-
-
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
