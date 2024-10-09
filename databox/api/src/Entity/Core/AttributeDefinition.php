@@ -19,7 +19,7 @@ use App\Api\Provider\AttributeDefinitionCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Controller\Core\AttributeDefinitionSortAction;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;

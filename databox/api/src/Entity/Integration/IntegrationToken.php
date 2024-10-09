@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use App\Api\Provider\IntegrationTokenDataProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;

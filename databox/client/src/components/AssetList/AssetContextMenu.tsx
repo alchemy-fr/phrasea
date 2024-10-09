@@ -17,6 +17,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import ShareIcon from "@mui/icons-material/Share";
 
 type Props<Item extends AssetOrAssetContainer> = {
     contextMenu: ContextMenuContext<{
@@ -40,7 +41,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
     const {asset, item} = contextMenu.data;
     const {id, original} = asset;
 
-    const {onDelete, onOpen, onDownload, onInfo, onEdit, onMove, onCopy, onReplace, onEditAttr, can} =
+    const {onDelete, onOpen, onDownload, onInfo, onEdit, onMove, onCopy, onReplace, onShare, onEditAttr, can} =
         useAssetActions({asset, onAction: onClose, actionsContext, reload});
 
     const openUrl = (url: string) => {
@@ -102,6 +103,16 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     </ListItemIcon>
                     <ListItemText
                         primary={t('asset.actions.download', 'Download')}
+                    />
+                </MenuItem>
+            )}
+            {can.share && (
+                <MenuItem onClick={onShare}>
+                    <ListItemIcon>
+                        <ShareIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={t('asset.actions.share', 'Share')}
                     />
                 </MenuItem>
             )}

@@ -17,7 +17,7 @@ use App\Api\Model\Output\WorkspaceOutput;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;

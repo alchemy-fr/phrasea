@@ -20,7 +20,7 @@ use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;

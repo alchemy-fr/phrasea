@@ -29,6 +29,16 @@ export type User = {
     username: string;
 };
 
+export type Share = {
+    id: string;
+    asset: Asset;
+    token: string;
+    startsAt?: string | undefined | null;
+    expiresAt?: string | undefined | null;
+    updatedAt: Readonly<string>;
+    createdAt: Readonly<string>;
+}
+
 export interface Asset
     extends IPermissions<{
         canEditAttributes: boolean;

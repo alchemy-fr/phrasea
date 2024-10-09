@@ -37,7 +37,7 @@ use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\OwnerIdTrait;

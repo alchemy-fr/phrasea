@@ -4,25 +4,30 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Listener\OwnerPersistableInterface;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\String\ByteString;
 
 #[ApiResource(
-    shortName: 'workspace',
+    shortName: 'share',
     operations: [
         new Get(
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
@@ -43,7 +48,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
 )]
 #[ORM\Entity(repositoryClass: ShareRepository::class)]
-class Share extends AbstractUuidEntity implements WithOwnerIdInterface
+#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['asset'])]
+class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -61,11 +67,18 @@ class Share extends AbstractUuidEntity implements WithOwnerIdInterface
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?\DateTimeImmutable $expiresAt = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
+    #[Groups([self::GROUP_READ])]
     private ?string $token = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
+
+    public function __construct(UuidInterface|string|null $id = null)
+    {
+        parent::__construct($id);
+        $this->token = ByteString::fromRandom(64)->toString();
+    }
 
     public function getAsset(): ?Asset
     {

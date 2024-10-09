@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Api\Provider\TagFilterRuleCollectionProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\TagFilterRuleRepository;

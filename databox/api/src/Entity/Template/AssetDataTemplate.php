@@ -16,7 +16,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Traits\CreatedAtTrait;

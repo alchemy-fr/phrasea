@@ -32,6 +32,7 @@ class AssetCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
+            ->setPaginatorPageSize(100)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Asset')
             ->setDefaultSort(['createdAt' => 'DESC'])

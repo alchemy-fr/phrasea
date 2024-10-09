@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Provider\RenditionCollectionProvider;
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\AssetRenditionRepository;
