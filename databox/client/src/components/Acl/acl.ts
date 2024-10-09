@@ -13,7 +13,7 @@ export enum AclPermission {
 
 export const aclPermissions: {[key: string]: number} = {
     [AclPermission.VIEW]: 1,
-    // [AclPermission.SHARE]: 256,
+    [AclPermission.SHARE]: 256,
     [AclPermission.CREATE]: 2,
     [AclPermission.EDIT]: 4,
     [AclPermission.DELETE]: 8,
