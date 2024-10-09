@@ -6,10 +6,17 @@ namespace App\Security\Voter;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Share;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class ShareVoter extends AbstractVoter
 {
+    public function __construct(
+        private readonly RequestStack $requestStack,
+    )
+    {
+    }
+
     protected function supports(string $attribute, $subject): bool
     {
         return $subject instanceof Share;
@@ -31,9 +38,28 @@ class ShareVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated() && $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset()),
-            self::READ, self::EDIT, self::DELETE => $isOwner()
+            self::READ => $isOwner()
+                || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset())
+                || $this->hasValidToken($subject),
+            self::EDIT,
+            self::DELETE => $isOwner()
                 || $this->security->isGranted(AssetVoter::SHARE, $subject->getAsset()),
             default => false,
         };
+    }
+
+    private function hasValidToken(Share $share): bool
+    {
+        if (
+            !$share->isEnabled()
+            || ($share->getExpiresAt() && $share->getExpiresAt() < new \DateTimeImmutable())
+            || ($share->getStartsAt() && $share->getStartsAt() > new \DateTimeImmutable())
+        ) {
+            return false;
+        }
+
+        $token = $this->requestStack->getCurrentRequest()?->get('token');
+
+        return $token && $token === $share->getToken();
     }
 }

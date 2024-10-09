@@ -30,7 +30,17 @@ use Symfony\Component\String\ByteString;
     shortName: 'share',
     operations: [
         new Get(
-            security: 'is_granted("'.AbstractVoter::READ.'", object)'
+            uriTemplate: '/shares/{id}/public',
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_PUBLIC_READ
+                ],
+            ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+            name: 'public',
+        ),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Put(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
@@ -55,6 +65,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     use UpdatedAtTrait;
     use OwnerIdTrait;
     final public const string GROUP_READ = 'share:read';
+    final public const string GROUP_PUBLIC_READ = 'share:public';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([self::GROUP_READ])]
@@ -65,7 +76,8 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     private bool $enabled = true;
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[Groups([self::GROUP_PUBLIC_READ])]
     private ?Asset $asset = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
