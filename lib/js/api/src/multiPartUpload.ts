@@ -22,6 +22,7 @@ export type MultipartUploadOptions = {
         partNumber: number;
     }) => void;
     onProgress?: (event: AxiosProgressEvent) => void;
+    receiveAbortController?: (abortController: AbortController) => void;
 }
 
 export async function multipartUpload(apiClient: HttpClient, file: File, {
@@ -31,6 +32,7 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
     onUploadInit,
     onPartUploaded,
     onProgress,
+    receiveAbortController,
 }: MultipartUploadOptions = {}): Promise<MultipartUpload> {
     const fileChunkSize = 5242880; // 5242880 is the minimum allowed by AWS S3;
     const parts: UploadPart[] = initialUploadParts ?? [];
@@ -39,6 +41,7 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
 
     if (parts.length === 0) {
         const abortControllerInit = new AbortController();
+        receiveAbortController?.(abortControllerInit);
 
         const res = await apiClient.post(
             uploadPath,
@@ -65,6 +68,7 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
         const end = index * fileChunkSize;
 
         const abortControllerLoop = new AbortController();
+        receiveAbortController?.(abortControllerLoop);
 
         const getUploadUrlResp = await apiClient.post(
             `/uploads/${uploadId}/part`,
@@ -84,6 +88,7 @@ export async function multipartUpload(apiClient: HttpClient, file: File, {
                 : file.slice(start);
 
         const abortControllerPut = new AbortController();
+        receiveAbortController?.(abortControllerPut);
 
         const uploadResp = await apiClient.put(url, blob, {
             signal: abortControllerPut.signal,

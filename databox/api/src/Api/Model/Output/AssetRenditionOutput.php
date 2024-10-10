@@ -8,6 +8,7 @@ use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Share;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 class AssetRenditionOutput extends AbstractUuidOutput
@@ -21,10 +22,10 @@ class AssetRenditionOutput extends AbstractUuidOutput
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     public $definition;
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $file;
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public ?string $name = null;
 
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -15,7 +16,6 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Provider\TagCollectionProvider;
-use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\UpdatedAtTrait;

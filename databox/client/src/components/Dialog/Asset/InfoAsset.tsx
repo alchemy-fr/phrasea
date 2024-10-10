@@ -57,21 +57,18 @@ export default function InfoAsset({data, onClose, minHeight}: Props) {
                     icon={<EventIcon />}
                 />
                 <InfoRow
-                    icon={<BusinessIcon/>}
-                    label={t(
-                        'asset.info.workspace',
-                        `Workspace`
-                    )}
+                    icon={<BusinessIcon />}
+                    label={t('asset.info.workspace', `Workspace`)}
                     value={data.workspace.name}
                     copyValue={data.workspace.id}
                 />
                 <InfoRow
-                    icon={<FolderIcon/>}
-                    label={t(
-                        'asset.info.collection',
-                        `Collection`
-                    )}
-                    value={data.referenceCollection?.absoluteTitle ?? t('asset.info.collection.none', 'None')}
+                    icon={<FolderIcon />}
+                    label={t('asset.info.collection', `Collection`)}
+                    value={
+                        data.referenceCollection?.absoluteTitle ??
+                        t('asset.info.collection.none', 'None')
+                    }
                     copyValue={data.referenceCollection?.id}
                 />
             </MenuList>

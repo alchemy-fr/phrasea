@@ -10,6 +10,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\Share;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class FileOutput extends AbstractUuidOutput
@@ -20,22 +21,42 @@ class FileOutput extends AbstractUuidOutput
     /**
      * The MIME type.
      */
-    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
+    #[Groups([File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetFileVersion::GROUP_LIST,
+        Share::GROUP_PUBLIC_READ])]
     private ?string $type = null;
 
-    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
+    #[Groups([File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetFileVersion::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?int $size = null;
 
     /**
      * Signed URL.
      */
-    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST, AssetFileVersion::GROUP_LIST])]
+    #[Groups([File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetFileVersion::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?string $url = null;
 
     /**
      * @var AlternateUrlOutput[]
      */
-    #[Groups([File::GROUP_LIST, File::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, AssetRendition::GROUP_LIST])]
+    #[Groups([File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST])]
     private ?array $alternateUrls = [];
 
     public function getUrl(): ?string

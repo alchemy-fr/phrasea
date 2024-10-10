@@ -14,6 +14,7 @@ abstract class AbstractAdminCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
+            ->setPaginatorPageSize(50)
             ->overrideTemplate('layout', '@AlchemyAdmin/layout.html.twig')
             ->overrideTemplate('crud/index', '@AlchemyAdmin/list.html.twig')
             ->showEntityActionsInlined()

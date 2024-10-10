@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
@@ -85,6 +86,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->add(TextFilter::new('id'))
             ->add(TextFilter::new('title'))
             ->add(EntityFilter::new('workspace'))
+            ->add(AssociationIdentifierFilter::new('referenceCollection'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
@@ -118,8 +120,10 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('storyCollection')
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
-            ->onlyOnDetail();
+            ->onlyOnDetail()
+            ->autocomplete();
         yield AssociationField::new('attributes')
+            ->autocomplete()
             ->onlyOnDetail();
         yield Field::new('file')
             ->onlyOnDetail();

@@ -13,7 +13,7 @@ type Props = {
     definition: AttributeDefinition;
     attribute: Attribute | Attribute[];
     displayControls: boolean;
-    togglePin: (definitionId: string) => void;
+    togglePin: undefined | ((definitionId: string) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
     onAnnotations?: OnAnnotations | undefined;
@@ -84,11 +84,17 @@ export default function AttributeRowUI({
                                     )}
                                 />
 
-                                <IconButton onClick={() => togglePin(id)}>
-                                    <PushPinIcon
-                                        color={pinned ? 'success' : undefined}
-                                    />
-                                </IconButton>
+                                {togglePin ? (
+                                    <IconButton onClick={() => togglePin(id)}>
+                                        <PushPinIcon
+                                            color={
+                                                pinned ? 'success' : undefined
+                                            }
+                                        />
+                                    </IconButton>
+                                ) : (
+                                    ''
+                                )}
                             </>
                         ) : (
                             ''

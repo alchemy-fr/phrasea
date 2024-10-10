@@ -180,4 +180,4 @@ export default function PDFPlayer({
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${
     pdfjs.version
-}/build/pdf.worker.min.js`;
+}/build/pdf.worker.min.mjs`;
