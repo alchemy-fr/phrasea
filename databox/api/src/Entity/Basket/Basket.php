@@ -6,6 +6,7 @@ namespace App\Entity\Basket;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -20,7 +21,6 @@ use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;

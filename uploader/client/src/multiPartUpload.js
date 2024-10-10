@@ -48,7 +48,7 @@ export async function uploadMultipartFile(targetId, userId, file, onProgress) {
         onPartUploaded: ({etag}) => {
             uploadStateStorage.updateUpload(userId, fileUID, etag);
         },
-        receiveAbortController: (abortController) => {
+        receiveAbortController: abortController => {
             file.abortController = abortController;
         },
     });

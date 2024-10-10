@@ -28,9 +28,7 @@ type UploadInput = {
     files: InputFile[];
 };
 
-export async function submitFiles(
-    data: UploadInput
-): Promise<Asset[]> {
+export async function submitFiles(data: UploadInput): Promise<Asset[]> {
     const assets = await createAssets(data);
 
     UploadFiles(

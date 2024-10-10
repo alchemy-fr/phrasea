@@ -39,7 +39,7 @@ export type Share = {
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
     alternateUrls: Record<string, string>;
-}
+};
 
 export interface Asset
     extends IPermissions<{

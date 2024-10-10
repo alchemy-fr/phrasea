@@ -8,7 +8,7 @@ import './lib/leaflet';
 import {initSentry} from '@alchemy/core';
 import config from './config';
 import {QueryClientProvider} from '@tanstack/react-query';
-import {queryClient} from "./lib/query.ts";
+import {queryClient} from './lib/query.ts';
 
 initSentry(config);
 

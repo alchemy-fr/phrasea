@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -13,7 +14,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Core\Workspace;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;

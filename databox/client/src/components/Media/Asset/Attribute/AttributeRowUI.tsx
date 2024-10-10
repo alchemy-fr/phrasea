@@ -84,11 +84,17 @@ export default function AttributeRowUI({
                                     )}
                                 />
 
-                                {togglePin ? <IconButton onClick={() => togglePin(id)}>
-                                    <PushPinIcon
-                                        color={pinned ? 'success' : undefined}
-                                    />
-                                </IconButton> : ''}
+                                {togglePin ? (
+                                    <IconButton onClick={() => togglePin(id)}>
+                                        <PushPinIcon
+                                            color={
+                                                pinned ? 'success' : undefined
+                                            }
+                                        />
+                                    </IconButton>
+                                ) : (
+                                    ''
+                                )}
                             </>
                         ) : (
                             ''

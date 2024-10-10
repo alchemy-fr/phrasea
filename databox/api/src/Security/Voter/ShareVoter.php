@@ -13,8 +13,7 @@ class ShareVoter extends AbstractVoter
 {
     public function __construct(
         private readonly RequestStack $requestStack,
-    )
-    {
+    ) {
     }
 
     protected function supports(string $attribute, $subject): bool

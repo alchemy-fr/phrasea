@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Api\Processor\ShareProcessor;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
 use App\Api\Provider\ShareRenditionProvider;
-use App\Entity\Basket\Basket;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
-use App\Entity\WithOwnerIdInterface;
 use App\Listener\OwnerPersistableInterface;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
@@ -39,7 +36,7 @@ use Symfony\Component\String\ByteString;
             uriTemplate: '/shares/{id}/public',
             normalizationContext: [
                 'groups' => [
-                    self::GROUP_PUBLIC_READ
+                    self::GROUP_PUBLIC_READ,
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
@@ -53,7 +50,7 @@ use Symfony\Component\String\ByteString;
             ],
             normalizationContext: [
                 'groups' => [
-                    self::GROUP_PUBLIC_READ
+                    self::GROUP_PUBLIC_READ,
                 ],
             ],
             name: 'share_public_rendition',

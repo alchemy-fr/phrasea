@@ -96,7 +96,8 @@ export default function CopyAssetsDialog({
                         a =>
                             a.capabilities.canShare &&
                             workspaceDest &&
-                            (!data.byReference || a.workspace.id === workspaceDest)
+                            (!data.byReference ||
+                                a.workspace.id === workspaceDest)
                     )
                     .map(a => a.id),
                 ...selectionOW.map(a => a.id),

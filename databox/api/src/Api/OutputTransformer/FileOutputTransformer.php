@@ -20,7 +20,7 @@ class FileOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly FileUrlResolver $fileUrlResolver,
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

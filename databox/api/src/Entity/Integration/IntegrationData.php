@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -15,7 +16,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\IntegrationDataOutput;
 use App\Api\Provider\IntegrationDataProvider;
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Arthem\ObjectReferenceBundle\Mapping\Attribute\ObjectReference;

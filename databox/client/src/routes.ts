@@ -9,7 +9,7 @@ import {compileRoutes} from '@alchemy/navigation';
 import BasketDialog from './components/Dialog/Basket/BasketDialog';
 import BasketViewDialog from './components/Basket/BasketViewDialog';
 import AttributeEditorView from './components/AttributeEditor/AttributeEditorView.tsx';
-import SharePage from "./pages/SharePage.tsx";
+import SharePage from './pages/SharePage.tsx';
 
 const modalRoutes = {
     workspaces: {

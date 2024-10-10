@@ -3,17 +3,26 @@ import {Asset, Share} from '../../types.ts';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {TextField} from '@mui/material';
 import FormDialog from '../Dialog/FormDialog.tsx';
-import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {createAssetShare} from "../../api/asset.ts";
-import {useFormSubmit} from "../../../../../lib/js/api";
-import RemoteErrors from "../Form/RemoteErrors.tsx";
+import {
+    StackedModalProps,
+    useModals,
+    useOutsideRouterDirtyFormPrompt,
+} from '@alchemy/navigation';
+import {createAssetShare} from '../../api/asset.ts';
+import {useFormSubmit} from '../../../../../lib/js/api';
+import RemoteErrors from '../Form/RemoteErrors.tsx';
 
 type Props = {
     asset: Asset;
     onSuccess: (share: Share) => void;
 } & StackedModalProps;
 
-export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: Props) {
+export default function CreateShareDialog({
+    asset,
+    open,
+    modalIndex,
+    onSuccess,
+}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
@@ -30,7 +39,7 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
             startsAt: '',
             expiresAt: '',
         },
-        onSubmit: async (data) => {
+        onSubmit: async data => {
             return await createAssetShare(asset.id, {
                 ...data,
                 startsAt: data.startsAt || null,
@@ -44,7 +53,6 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
     });
     useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
 
-
     const formId = 'create-share-link';
 
     return (
@@ -56,15 +64,11 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
             loading={submitting}
             submitLabel={t('create_share_link.dialog.submit', 'Create Link')}
         >
-
             <form id={formId} onSubmit={handleSubmit}>
                 <FormRow>
                     <TextField
                         autoFocus
-                        label={t(
-                            'create_share_link.form.title.label',
-                            'Title'
-                        )}
+                        label={t('create_share_link.form.title.label', 'Title')}
                         disabled={submitting}
                         {...register('title')}
                         helperText={t(
@@ -72,7 +76,7 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
                             'You can name the audience of this share link'
                         )}
                     />
-                    <FormFieldErrors field={'title'} errors={errors}/>
+                    <FormFieldErrors field={'title'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <TextField
@@ -89,7 +93,7 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
                             'Optional. If set, the share link will only be active after this time'
                         )}
                     />
-                    <FormFieldErrors field={'startsAt'} errors={errors}/>
+                    <FormFieldErrors field={'startsAt'} errors={errors} />
                 </FormRow>
                 <FormRow>
                     <TextField
@@ -106,10 +110,10 @@ export default function CreateShareDialog({asset, open, modalIndex, onSuccess}: 
                             'Optional. If set, the share link will only be active until this time'
                         )}
                     />
-                    <FormFieldErrors field={'expiresAt'} errors={errors}/>
+                    <FormFieldErrors field={'expiresAt'} errors={errors} />
                 </FormRow>
             </form>
-            <RemoteErrors errors={remoteErrors}/>
+            <RemoteErrors errors={remoteErrors} />
         </FormDialog>
     );
 }
