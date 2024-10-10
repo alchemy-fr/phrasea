@@ -44,7 +44,6 @@ export default function AttributeEntitySelect<
                   type,
                   workspaceId,
                   onCreate: (d: AttributeEntity) => {
-                      console.log('d', d);
                       onCreate({
                           label: d.value,
                           value: d.id,

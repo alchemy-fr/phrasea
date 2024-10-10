@@ -10,9 +10,15 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use App\Api\Processor\ShareProcessor;
+use App\Api\Provider\ShareCollectionProvider;
+use App\Api\Provider\ShareReadProvider;
+use App\Api\Provider\ShareRenditionProvider;
+use App\Entity\Basket\Basket;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\UpdatedAtTrait;
@@ -37,20 +43,43 @@ use Symfony\Component\String\ByteString;
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
-            name: 'public',
+            name: 'share_public',
+        ),
+        new Get(
+            uriTemplate: '/s/{id}/r/{rendition}',
+            uriVariables: [
+                'id' => 'id',
+                'rendition' => 'rendition',
+            ],
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_PUBLIC_READ
+                ],
+            ],
+            name: 'share_public_rendition',
+            provider: ShareRenditionProvider::class,
+            extraProperties: [
+                '_api_disable_swagger_provider' => true,
+            ],
         ),
         new Get(
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
+            provider: ShareReadProvider::class,
         ),
         new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            provider: ShareReadProvider::class,
         ),
         new Delete(
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)'
         ),
-        new GetCollection(),
+        new GetCollection(
+            provider: ShareCollectionProvider::class,
+        ),
         new Post(
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            provider: ShareReadProvider::class,
+            processor: ShareProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -94,6 +123,9 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
+
+    #[Groups([self::GROUP_READ])]
+    public array $alternateUrls = [];
 
     public function __construct(UuidInterface|string|null $id = null)
     {

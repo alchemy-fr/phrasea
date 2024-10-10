@@ -11,7 +11,7 @@ import SubstituteFileDialog from '../components/Media/Asset/Actions/SubstituteFi
 import MoveAssetsDialog from "../components/Media/Asset/Actions/MoveAssetsDialog.tsx";
 import CopyAssetsDialog from "../components/Media/Asset/Actions/CopyAssetsDialog.tsx";
 import ReplaceAssetSourceDialog from "../components/Media/Asset/Actions/ReplaceAssetSourceDialog.tsx";
-import ShareAssetDialog from "../components/Media/Asset/Actions/ShareAssetDialog.tsx";
+import ShareAssetDialog from "../components/Share/ShareAssetDialog.tsx";
 
 type Props<Item extends AssetOrAssetContainer> = {
     asset: Asset;

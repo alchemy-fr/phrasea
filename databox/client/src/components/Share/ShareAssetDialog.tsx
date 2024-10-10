@@ -1,25 +1,22 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {Asset, Share} from '../../../../types';
+import {Asset, Share} from '../../types.ts';
 import {FormRow} from '@alchemy/react-form';
-import {Button, Divider, FormControlLabel, Icon, ListItemText, Stack, Switch, Typography} from '@mui/material';
-import FormDialog from '../../../Dialog/FormDialog';
-import FullPageLoader from '../../../Ui/FullPageLoader';
-import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useModalFetch} from "../../../../hooks/useModalFetch.ts";
-import {createAssetShare, getAssetShares, removeAssetShare} from "../../../../api/asset.ts";
+import {Button, Divider, FormControlLabel, List, ListItemText, Stack, Switch} from '@mui/material';
+import FormDialog from '../Dialog/FormDialog.tsx';
+import FullPageLoader from '../Ui/FullPageLoader.tsx';
+import {useModalFetch} from "../../hooks/useModalFetch.ts";
+import {createAssetShare, getAssetShares, removeAssetShare} from "../../api/asset.ts";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CloseIcon from "@mui/icons-material/Close";
 import {useMutation} from "@tanstack/react-query";
-import {queryClient} from "../../../../lib/query.ts";
-import {LoadingButton} from "@mui/lab";
+import {queryClient} from "../../lib/query.ts";
 import AddIcon from "@mui/icons-material/Add";
 import CreateShareDialog from "./CreateShareDialog.tsx";
-import CopiableTextField from "../../../Ui/CopiableTextField.tsx";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {FlexRow} from "@alchemy/phrasea-ui";
-import moment from "moment";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CopiableTextField from "../Ui/CopiableTextField.tsx";
+import {toast} from "react-toastify";
+import ShareItem, {getShareUrl} from "./ShareItem.tsx";
+import {StackedModalProps, useModals} from "@alchemy/navigation";
 
 type Props = {
     asset: Asset;
@@ -40,7 +37,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
         queryFn: () => getAssetShares(asset.id),
     });
     const publicShare: Share | undefined = data && data.length === 1 ? data[0] : undefined;
-    const isSimple = !!publicShare || data && data.length === 0;
+    const isSimple = (!!publicShare && !publicShare.title && !publicShare.expiresAt && !publicShare.startsAt) || data && data.length === 0;
 
     React.useEffect(() => {
         if (isSuccess && advancedMode === undefined) {
@@ -58,7 +55,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
             return await createAssetShare(asset.id);
         },
         onSuccess: (data) => {
-            queryClient.setQueryData(queryKey, (prev: Share[]) => prev.concat([data]));
+            queryClient.setQueryData(queryKey, (prev: Share[]) => [data].concat(prev));
         },
     });
 
@@ -95,7 +92,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
     }
 
     const loading = createShare.isPending || removeShare.isPending;
-    const publicUrl = publicShare ? `${window.location.origin}/share/${publicShare.id}/${publicShare.token}` : undefined;
+    const publicUrl = publicShare ? getShareUrl(publicShare) : undefined;
 
     const copy = () => {
         if (publicUrl) {
@@ -112,10 +109,11 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
             loading={loading}
             onSave={() => {
                 copy();
+                toast.success(t('share.dialog.copied', 'Link copied to clipboard'));
                 closeModal();
             }}
-            submitIcon={!advancedMode ? <ContentCopyIcon/> : <CloseIcon/>}
-            submitLabel={!advancedMode ? t('share.dialog.submit', 'Copy Link') : t('common.close', 'Close')}
+            submitIcon={!advancedMode && !!publicUrl ? <ContentCopyIcon/> : <CloseIcon/>}
+            submitLabel={!advancedMode && !!publicUrl ? t('share.dialog.submit', 'Copy Link') : t('common.close', 'Close')}
         >
             {!advancedMode ? <>
                 <FormRow>
@@ -147,61 +145,20 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
                     />
                 </FormRow>}
             </> : <>
-                {data.map((share: Share) => {
-                    console.log('share', share);
-                    const r = revoking.includes(share.id);
-                    return (
-                        <FormRow
+                {data.length > 0 ? <List
+                    sx={{
+                        mb: 2,
+                    }}
+                >
+                    {data.map((share: Share) => {
+                        return <ShareItem
                             key={share.id}
-                        >
-                            {share.title ? <Typography variant={'h2'} style={{display: 'inline'}}>
-                                {share.title}{' - '}
-                            </Typography> : ''}
-
-                            <Typography variant={'body2'} style={{display: 'inline'}}>
-                                {t('share.item.createdAt', 'Created at {{date}}', {date: moment(share.createdAt).format('LLL')})}
-                            </Typography>
-
-                            <FlexRow>
-                                <CopiableTextField
-                                    disabled={r}
-                                    value={`${window.location.origin}/share/${share.id}/${share.token}`}
-                                />
-                                <LoadingButton
-                                    sx={{
-                                        ml: 2,
-                                    }}
-                                    color={'error'}
-                                    startIcon={<DeleteIcon/>}
-                                    loading={r}
-                                    disabled={r}
-                                    onClick={() => removeShare.mutate(share.id)}
-                                >
-                                    {t('common.revoke', 'Revoke')}
-                                </LoadingButton>
-                            </FlexRow>
-                            <div>
-                                {share.startsAt ? <FlexRow>
-                                    <Icon sx={{
-                                        mr: 1,
-                                    }}>
-                                        <AccessTimeIcon/>
-                                    </Icon>
-                                    {t('share.item.startsAt', 'Starts at {{date}}', {date: moment(share.startsAt).format('LLL')})}
-                                </FlexRow> : ''}
-
-                                {share.expiresAt ? <FlexRow>
-                                    <Icon sx={{
-                                        mr: 1,
-                                    }}>
-                                        <AccessTimeIcon/>
-                                    </Icon>
-                                    {t('share.item.expiresAt', 'Expires at {{date}}', {date: moment(share.expiresAt).format('LLL')})}
-                                </FlexRow> : ''}
-                            </div>
-                        </FormRow>
-                    );
-                })}
+                            share={share}
+                            revoking={revoking.includes(share.id)}
+                            onRevoke={removeShare.mutate}
+                        />;
+                    })}
+                </List> : ''}
                 <Button
                     variant={'contained'}
                     onClick={createNew}
