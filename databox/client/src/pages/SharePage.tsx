@@ -20,7 +20,10 @@ export default function SharePage({}: Props) {
     }
 
     return (
-        <div>
+        <div style={{
+            overflow: 'auto',
+            height: '100vh',
+        }}>
             {data.asset && (
                 <AssetShare asset={data.asset as Asset}/>
             )}

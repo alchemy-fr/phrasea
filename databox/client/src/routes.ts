@@ -84,7 +84,7 @@ const routes = {
         public: true,
     },
     share: {
-        path: '/share/:id/:token',
+        path: '/s/:id/:token',
         component: SharePage,
         public: true,
     },

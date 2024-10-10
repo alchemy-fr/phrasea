@@ -100,7 +100,7 @@ export async function getAsset(id: string): Promise<Asset> {
 export async function getAssetShares(assetId: string): Promise<Share[]> {
     return (await apiClient.get(`/shares`, {
         params: {
-            asset: assetId,
+            assetId,
         },
     })).data['hydra:member'];
 }

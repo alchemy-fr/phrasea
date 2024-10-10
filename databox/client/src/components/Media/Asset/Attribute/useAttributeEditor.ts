@@ -114,6 +114,7 @@ export function useAttributeEditor({
                 res
             );
 
+            setDirty(false);
             setRemoteAttributes(attributeIndex);
             setAttributes(attributeIndex);
         };

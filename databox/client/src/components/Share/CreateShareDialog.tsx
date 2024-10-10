@@ -1,12 +1,12 @@
 import {useTranslation} from 'react-i18next';
-import {Asset, Share} from '../../../../types';
+import {Asset, Share} from '../../types.ts';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {TextField} from '@mui/material';
-import FormDialog from '../../../Dialog/FormDialog';
+import FormDialog from '../Dialog/FormDialog.tsx';
 import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
-import {createAssetShare} from "../../../../api/asset.ts";
-import {useFormSubmit} from "../../../../../../../lib/js/api";
-import RemoteErrors from "../../../Form/RemoteErrors.tsx";
+import {createAssetShare} from "../../api/asset.ts";
+import {useFormSubmit} from "../../../../../lib/js/api";
+import RemoteErrors from "../Form/RemoteErrors.tsx";
 
 type Props = {
     asset: Asset;

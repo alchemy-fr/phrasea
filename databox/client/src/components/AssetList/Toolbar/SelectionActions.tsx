@@ -37,6 +37,8 @@ import {ActionsContext, ReloadFunc} from '../types';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
+import ShareAssetDialog from "../../Share/ShareAssetDialog.tsx";
+import {toast} from "react-toastify";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({theme}) => ({
     '& .MuiToggleButtonGroup-grouped': {
@@ -107,6 +109,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
         canEditAttributes,
         canMove,
         canShare,
+        onShare,
         onDelete,
         onCopy,
         onMove,
@@ -173,6 +176,16 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             });
         };
 
+        const onShare = () => {
+            if (selectedAssets.length !== 1) {
+                toast.warn(t('asset_actions.share_multiple', 'You can only share one asset at a time'));
+                return;
+            }
+            openModal(ShareAssetDialog, {
+                asset: selectedAssets[0],
+            });
+        };
+
         const onEdit = () => {
             if (selection.length === 1) {
                 navigateToModal(modalRoutes.assets.routes.manage, {
@@ -232,6 +245,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
             canEditAttributes,
             canMove,
             canShare,
+            onShare,
             onDelete: () => {
                 openModal(DeleteAssetsConfirm, {
                     assetIds: selectedAssets.map(i => i.id),
@@ -387,6 +401,7 @@ export default function SelectionActions<Item extends AssetOrAssetContainer>({
                                 disabled={!canShare}
                                 variant={'contained'}
                                 startIcon={<ShareIcon />}
+                                onClick={onShare}
                             >
                                 {t('asset_actions.share', 'Share')}
                             </Button>

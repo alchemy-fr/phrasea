@@ -38,6 +38,7 @@ export type Share = {
     expiresAt?: string | undefined | null;
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
+    alternateUrls: Record<string, string>;
 }
 
 export interface Asset
