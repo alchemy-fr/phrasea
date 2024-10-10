@@ -3,12 +3,12 @@ import {useTranslation} from 'react-i18next';
 import FormDialog from '../../../Dialog/FormDialog';
 import {Asset} from '../../../../types';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import UploadDropzone from "../../../Upload/UploadDropzone.tsx";
-import {UploadFiles} from "../../../../api/uploader/file.ts";
-import {toast} from "react-toastify";
-import {Box, Grid} from "@mui/material";
-import FileCard from "../../../Upload/FileCard.tsx";
-import {prepareAssetSubstitution} from "../../../../api/asset.ts";
+import UploadDropzone from '../../../Upload/UploadDropzone.tsx';
+import {UploadFiles} from '../../../../api/uploader/file.ts';
+import {toast} from 'react-toastify';
+import {Box, Grid} from '@mui/material';
+import FileCard from '../../../Upload/FileCard.tsx';
+import {prepareAssetSubstitution} from '../../../../api/asset.ts';
 
 type Props = {
     asset: Asset;
@@ -35,34 +35,43 @@ export default function ReplaceAssetSourceDialog({
         setUploading(true);
         try {
             const data = await prepareAssetSubstitution(asset.id);
-            await UploadFiles(
-                [{
+            await UploadFiles([
+                {
                     file,
                     data: {
                         targetAsset: data.id,
                         uploadToken: data.pendingUploadToken,
-                    }
-                }]
-            );
+                    },
+                },
+            ]);
 
-            toast.success(t('replace_asset.dialog.success', 'New asset source file has been uploaded and will be replaced soon.'));
+            toast.success(
+                t(
+                    'replace_asset.dialog.success',
+                    'New asset source file has been uploaded and will be replaced soon.'
+                )
+            );
             closeModal();
         } finally {
             setUploading(false);
         }
-
-    }
+    };
 
     return (
         <FormDialog
             modalIndex={modalIndex}
-            title={t('replace_asset.dialog.title', 'Substitute asset source file')}
+            title={t(
+                'replace_asset.dialog.title',
+                'Substitute asset source file'
+            )}
             open={open}
             loading={uploading}
             onSave={upload}
             submittable={!!file}
         >
-            {!file ? <UploadDropzone onDrop={onDrop}/> : (
+            {!file ? (
+                <UploadDropzone onDrop={onDrop} />
+            ) : (
                 <Box
                     sx={theme => ({
                         bgcolor: theme.palette.grey[100],
@@ -76,12 +85,12 @@ export default function ReplaceAssetSourceDialog({
                         rowSpacing={1}
                         columnSpacing={{xs: 1, sm: 2, md: 3}}
                     >
-                            <Grid item xs={12} md={6}>
-                                <FileCard
-                                    file={file}
-                                    onRemove={() => setFile(undefined)}
-                                />
-                            </Grid>
+                        <Grid item xs={12} md={6}>
+                            <FileCard
+                                file={file}
+                                onRemove={() => setFile(undefined)}
+                            />
+                        </Grid>
                     </Grid>
                 </Box>
             )}

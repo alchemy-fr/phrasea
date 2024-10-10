@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
-use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use App\Entity\Traits\UpdatedAtTrait;

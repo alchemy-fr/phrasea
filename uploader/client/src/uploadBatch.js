@@ -1,6 +1,6 @@
 import {uploadMultipartFile} from './multiPartUpload';
 import apiClient, {oauthClient} from './lib/apiClient';
-import axios from "axios";
+import axios from 'axios';
 
 export default class UploadBatch {
     files = [];

@@ -164,12 +164,16 @@ export default function Dashboard({}: Props) {
                         ]}
                     />
                 )}
-                {isInIframe ? <Service
-                    mainUrl={`/`}
-                    title={`Dashboard`}
-                    description={`Phrasea entrypoint`}
-                    logo={notifyImg}
-                /> : ''}
+                {isInIframe ? (
+                    <Service
+                        mainUrl={`/`}
+                        title={`Dashboard`}
+                        description={`Phrasea entrypoint`}
+                        logo={notifyImg}
+                    />
+                ) : (
+                    ''
+                )}
             </Grid>
             {roles.includes('tech') && (
                 <Grid container spacing={2} marginTop={1}>

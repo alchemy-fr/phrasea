@@ -11,14 +11,13 @@ final class ShareCollectionProvider extends AbstractAssetFilteredCollectionProvi
 {
     public function __construct(
         private readonly ShareReadProvider $shareReadProvider,
-    )
-    {
+    ) {
     }
 
     protected function provideCollection(
         Operation $operation,
         array $uriVariables = [],
-        array $context = []
+        array $context = [],
     ): array|object {
 
         $asset = $this->getAsset($context);

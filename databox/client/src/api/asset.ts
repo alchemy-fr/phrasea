@@ -1,6 +1,10 @@
 import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute, Collection, Share} from '../types';
-import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
+import {
+    ApiCollectionResponse,
+    getAssetsHydraCollection,
+    getHydraCollection,
+} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 
@@ -98,26 +102,38 @@ export async function getAsset(id: string): Promise<Asset> {
 }
 
 export async function getAssetShares(assetId: string): Promise<Share[]> {
-    return (await apiClient.get(`/shares`, {
-        params: {
-            assetId,
-        },
-    })).data['hydra:member'];
+    return (
+        await apiClient.get(`/shares`, {
+            params: {
+                assetId,
+            },
+        })
+    ).data['hydra:member'];
 }
 
-export async function getPublicShare(id: string, token: string): Promise<Share> {
-    return (await apiClient.get(`/shares/${id}/public`, {
-        params: {
-            token,
-        },
-    })).data;
+export async function getPublicShare(
+    id: string,
+    token: string
+): Promise<Share> {
+    return (
+        await apiClient.get(`/shares/${id}/public`, {
+            params: {
+                token,
+            },
+        })
+    ).data;
 }
 
-export async function createAssetShare(assetId: string, data: Partial<Share> = {}): Promise<Share> {
-    const res = (await apiClient.post(`/shares`, {
-        ...data,
-        asset: `/assets/${assetId}`,
-    })).data;
+export async function createAssetShare(
+    assetId: string,
+    data: Partial<Share> = {}
+): Promise<Share> {
+    const res = (
+        await apiClient.post(`/shares`, {
+            ...data,
+            asset: `/assets/${assetId}`,
+        })
+    ).data;
 
     return res;
 }
@@ -262,9 +278,7 @@ export async function prepareDeleteAssets(
     return res.data;
 }
 
-export async function prepareAssetSubstitution(
-    id: string
-): Promise<Asset> {
+export async function prepareAssetSubstitution(id: string): Promise<Asset> {
     const res = await apiClient.put(`/assets/${id}/prepare-substitution`, {});
     return res.data;
 }

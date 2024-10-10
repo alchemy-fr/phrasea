@@ -29,27 +29,31 @@ function Attributes({
     const {preferences, updatePreference} = useContext(UserPreferencesContext);
     const formatContext = useContext(AttributeFormatContext);
 
-    const togglePin = React.useCallback((definitionId: string) => {
-        updatePreference('pinnedAttrs', prev => {
-            const ws = {...prev};
+    const togglePin = React.useCallback(
+        (definitionId: string) => {
+            updatePreference('pinnedAttrs', prev => {
+                const ws = {...prev};
 
-            if (ws[asset.workspace.id]?.includes(definitionId)) {
-                ws[asset.workspace.id] = ws[asset.workspace.id].filter(
-                    c => c !== definitionId
-                );
-            } else {
-                ws[asset.workspace.id] = [
-                    ...(ws[asset.workspace.id] || []),
-                    definitionId,
-                ];
-            }
+                if (ws[asset.workspace.id]?.includes(definitionId)) {
+                    ws[asset.workspace.id] = ws[asset.workspace.id].filter(
+                        c => c !== definitionId
+                    );
+                } else {
+                    ws[asset.workspace.id] = [
+                        ...(ws[asset.workspace.id] || []),
+                        definitionId,
+                    ];
+                }
 
-            return ws;
-        });
-    }, [asset]);
+                return ws;
+            });
+        },
+        [asset]
+    );
 
-    const pinnedAttributes = asset.workspace ?
-        ((preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? []) : [];
+    const pinnedAttributes = asset.workspace
+        ? (preferences.pinnedAttrs ?? {})[asset.workspace.id] ?? []
+        : [];
 
     let attributeGroups = buildAttributesGroupedByDefinition(asset.attributes);
 

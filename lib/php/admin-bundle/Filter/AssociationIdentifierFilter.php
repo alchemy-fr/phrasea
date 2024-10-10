@@ -1,6 +1,7 @@
 <?php
 
 namespace Alchemy\AdminBundle\Filter;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\MappingException;
@@ -12,12 +13,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FilterDataDto;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\FilterTrait;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
-use RuntimeException;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Uid\Ulid;
 use Symfony\Component\Uid\Uuid;
-use Throwable;
-use function count;
 
 class AssociationIdentifierFilter implements FilterInterface
 {
@@ -37,7 +35,7 @@ class AssociationIdentifierFilter implements FilterInterface
         QueryBuilder $queryBuilder,
         FilterDataDto $filterDataDto,
         ?FieldDto $fieldDto,
-        EntityDto $entityDto
+        EntityDto $entityDto,
     ): void {
         $alias = $filterDataDto->getEntityAlias();
         $property = $filterDataDto->getProperty();
@@ -52,7 +50,7 @@ class AssociationIdentifierFilter implements FilterInterface
             $assocAlias = 'ea_'.$filterDataDto->getParameterName();
             $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $property), $assocAlias);
 
-            if (0 === count($value)) {
+            if (0 === \count($value)) {
                 $queryBuilder->andWhere(sprintf('%s %s', $assocAlias, $comparison));
             } else {
                 $orX = new Orx();
@@ -63,7 +61,7 @@ class AssociationIdentifierFilter implements FilterInterface
                 $queryBuilder->andWhere($orX)
                     ->setParameter($parameterName, $this->processParameterValue($queryBuilder, $value));
             }
-        } elseif (null === $value || ($isMultiple && 0 === count($value))) {
+        } elseif (null === $value || ($isMultiple && 0 === \count($value))) {
             $queryBuilder->andWhere(sprintf('%s.%s %s', $alias, $property, $comparison));
         } else {
             $orX = new Orx();
@@ -82,7 +80,7 @@ class AssociationIdentifierFilter implements FilterInterface
             return $this->processSingleParameterValue($queryBuilder, $parameterValue);
         }
 
-        return $parameterValue->map(fn($element) => $this->processSingleParameterValue($queryBuilder, $element));
+        return $parameterValue->map(fn ($element) => $this->processSingleParameterValue($queryBuilder, $element));
     }
 
     private function processSingleParameterValue(QueryBuilder $queryBuilder, mixed $parameterValue): mixed
@@ -91,7 +89,7 @@ class AssociationIdentifierFilter implements FilterInterface
 
         try {
             $classMetadata = $entityManager->getClassMetadata($parameterValue::class);
-        } catch (Throwable) {
+        } catch (\Throwable) {
             // only reached if $parameterValue does not contain an object of a managed
             // entity, return as we only need to process bound entities
             return $parameterValue;
@@ -100,7 +98,7 @@ class AssociationIdentifierFilter implements FilterInterface
         try {
             $identifierType = $classMetadata->getTypeOfField($classMetadata->getSingleIdentifierFieldName());
         } catch (MappingException) {
-            throw new RuntimeException(sprintf('The EntityFilter does not support entities with a composite primary key or entities without an identifier. Please check your entity "%s".', $parameterValue::class));
+            throw new \RuntimeException(sprintf('The EntityFilter does not support entities with a composite primary key or entities without an identifier. Please check your entity "%s".', $parameterValue::class));
         }
 
         $identifierValue = $entityManager->getUnitOfWork()->getSingleIdentifierValue($parameterValue);
@@ -111,7 +109,7 @@ class AssociationIdentifierFilter implements FilterInterface
                     $identifierValue,
                     $entityManager->getConnection()->getDatabasePlatform()
                 );
-            } catch (Throwable) {
+            } catch (\Throwable) {
                 // if the conversion fails we cannot process the uid parameter value
             }
         }

@@ -8,7 +8,6 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
-use App\Api\Traits\ItemProviderAwareTrait;
 use App\Asset\FileUrlResolver;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
