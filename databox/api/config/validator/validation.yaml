@@ -175,15 +175,15 @@ App\Entity\Core\Tag:
           - name
         errorPath: name
 
-App\Entity\Integration\WorkspaceIntegration:
-  constraints:
-    - App\Validator\ValidIntegrationOptionsConstraint: ~
-  properties:
-    optionsJson:
-      - Json:
-          message: You've entered an invalid Json.
-    optionsYaml:
-      - App\Validator\YamlConstraint: ~
+# App\Entity\Integration\WorkspaceIntegration:
+#   constraints:
+#     - App\Validator\ValidIntegrationOptionsConstraint: ~
+#   properties:
+#     optionsJson:
+#       - Json:
+#           message: You've entered an invalid Json.
+#     optionsYaml:
+#       - App\Validator\YamlConstraint: ~
 
 App\Entity\Integration\IntegrationData:
   properties:
