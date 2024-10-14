@@ -9,6 +9,8 @@ use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class JsonType extends AbstractType implements DataTransformerInterface
 {
@@ -24,14 +26,31 @@ class JsonType extends AbstractType implements DataTransformerInterface
 
     public function reverseTransform(mixed $value)
     {
+        if ($value !== null && json_validate($value) === false) {
+            return ['input-error' => 'Invalid JSON: ' . json_last_error_msg()];
+        }
+
         return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefault('attr', [
-            'rows' => 10,
-            'style' => 'font-family: "Courier New"',
+        $resolver->setDefaults([
+            'attr'=> [
+                'rows' => 10,
+                'style' => 'font-family: "Courier New"',
+            ],
+            'constraints' => [
+                new Assert\Callback(
+                    function (mixed $data, ExecutionContextInterface $context) {
+                        if (isset($data['input-error'])) {
+                            $context
+                            ->buildViolation($data['input-error'])
+                            ->addViolation();
+                        }
+                    }       
+                )
+            ]
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Field\YamlField;
 use App\Admin\Field\IntegrationChoiceField;
 use App\Entity\Integration\WorkspaceIntegration;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -13,7 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
@@ -62,7 +62,7 @@ class IntegrationCrudController extends AbstractAdminCrudController
 ')
         ->hideOnIndex();
         yield $this->integrationChoiceField->create('integration');
-        yield TextareaField::new('configYaml', 'Config')
+        yield YamlField::new('configYaml', 'Config')
             ->onlyOnForms();
         yield JsonField::new('config')
             ->onlyOnDetail();
