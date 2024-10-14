@@ -9,7 +9,7 @@ import {CollectionChip, WorkspaceChip} from '../../Ui/Chips';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {OnCollectionEdit} from '../../Dialog/Collection/EditCollection';
 import React from 'react';
-import {useDirtyFormPromptOutsideRouter} from '../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '../../Dialog/Tabbed/FormTab';
 
 type Props = {
     parent?: string;
@@ -59,7 +59,7 @@ export default function CreateCollection({
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useDirtyFormPromptOutsideRouter(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
     const formId = 'create-collection';
 
     const title = titlePath ? (

@@ -43,12 +43,14 @@ function WrapperComponent({children}: RouteWrapperProps) {
         <>
             <ModalStack>
                 <SessionExpireContainer />
-                <OverlayOutlet
-                    routes={modalRoutes}
-                    queryParam={'_m'}
-                    RouteProxyComponent={RouteProxy}
-                />
-                <MatomoRouteWrapper>{children}</MatomoRouteWrapper>
+                <MatomoRouteWrapper>
+                    <OverlayOutlet
+                        routes={modalRoutes}
+                        queryParam={'_m'}
+                        RouteProxyComponent={RouteProxy}
+                    />
+                    {children}
+                </MatomoRouteWrapper>
             </ModalStack>
         </>
     );

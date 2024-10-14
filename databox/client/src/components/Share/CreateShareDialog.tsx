@@ -6,7 +6,7 @@ import FormDialog from '../Dialog/FormDialog.tsx';
 import {
     StackedModalProps,
     useModals,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
 } from '@alchemy/navigation';
 import {createAssetShare} from '../../api/asset.ts';
 import {useFormSubmit} from '../../../../../lib/js/api';
@@ -51,7 +51,7 @@ export default function CreateShareDialog({
             closeModal();
         },
     });
-    useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     const formId = 'create-share-link';
 

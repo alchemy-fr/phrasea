@@ -4,7 +4,7 @@ import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
-import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useFormPrompt} from '@alchemy/navigation';
 import {useBasketStore} from '../../../store/basketStore';
 import {putBasket} from '../../../api/basket';
 import {BasketForm} from '../../Form/BasketForm';
@@ -35,7 +35,7 @@ export default function EditBasket({data, onClose, minHeight}: Props) {
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useInRouterDirtyFormPrompt(t, forbidNavigation);
+    useFormPrompt(t, forbidNavigation);
 
     const formId = 'edit-basket';
 

@@ -100,7 +100,7 @@ readonly class AttributesResolver
             $definition = $attribute->getDefinition();
             $f = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
 
-            $fieldName = sprintf('attributes.%s.%s', $locale, $f);
+            $fieldName = sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, $locale, $f);
 
             if ($h = ($highlights[$fieldName] ?? null)) {
                 if ($definition->isMultiple()) {
