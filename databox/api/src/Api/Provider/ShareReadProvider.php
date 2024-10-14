@@ -44,10 +44,6 @@ final class ShareReadProvider implements ProviderInterface
         $options = [
             AssetRenditionRepository::WITH_FILE => true,
         ];
-//        $renditionIds = [];
-//        if (!empty($renditionIds)) {
-//            $options[AssetRenditionRepository::OPT_DEFINITION_IDS] = $renditionIds;
-//        }
 
         /** @var AssetRendition[] $renditions */
         $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($asset->getId(), $options);

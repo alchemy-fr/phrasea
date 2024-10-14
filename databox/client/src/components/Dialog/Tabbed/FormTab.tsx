@@ -7,8 +7,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from '../../Form/RemoteErrors';
 import {useTranslation} from 'react-i18next';
 import {
-    useInRouterDirtyFormPrompt,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
 } from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
@@ -22,16 +21,10 @@ type Props = PropsWithChildren<{
     minHeight?: number | undefined;
 }>;
 
-export function useDirtyFormPrompt(isDirty: boolean) {
+export function useDirtyFormPrompt(isDirty: boolean, modalIndex?: number) {
     const {t} = useTranslation();
 
-    useInRouterDirtyFormPrompt(t, isDirty);
-}
-
-export function useDirtyFormPromptOutsideRouter(isDirty: boolean) {
-    const {t} = useTranslation();
-
-    useOutsideRouterDirtyFormPrompt(t, isDirty);
+    useFormPrompt(t, isDirty, modalIndex);
 }
 
 export default function FormTab({

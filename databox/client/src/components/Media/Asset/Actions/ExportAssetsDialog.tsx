@@ -97,7 +97,7 @@ export default function ExportAssetsDialog({assets, open, modalIndex}: Props) {
             closeModal();
         },
     });
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
 
     const formId = 'export';
 

@@ -21,7 +21,7 @@ import {
 import {getBatchActions} from './batchActions.ts';
 import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
-import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab.tsx';
+import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab.tsx';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from '../../api/attributes.ts';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
@@ -34,6 +34,7 @@ type Props = {
     definition: AttributeDefinition | undefined;
     setDefinition: StateSetter<AttributeDefinition | undefined>;
     onSaved: () => void;
+    modalIndex?: number | undefined;
 };
 
 export function useAttributeValues<T>({
@@ -44,6 +45,7 @@ export function useAttributeValues<T>({
     definition,
     setDefinition,
     onSaved,
+    modalIndex,
 }: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -433,7 +435,7 @@ export function useAttributeValues<T>({
         });
     }, [index, initialIndex, definitionIndex, onSaved]);
 
-    useDirtyFormPromptOutsideRouter(history.current > 0);
+    useDirtyFormPrompt(history.current > 0, modalIndex);
 
     return {
         attributeDefinitions: finalAttributeDefinitions,

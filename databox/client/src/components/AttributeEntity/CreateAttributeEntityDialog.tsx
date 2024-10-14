@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {
     StackedModalProps,
-    useInRouterDirtyFormPrompt,
+    useFormPrompt,
     useModals,
 } from '@alchemy/navigation';
 import {Button, TextField} from '@mui/material';
@@ -78,7 +78,7 @@ export default function CreateAttributeEntityDialog({
         },
     });
 
-    useInRouterDirtyFormPrompt(t, forbidNavigation);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     return (
         <AppDialog

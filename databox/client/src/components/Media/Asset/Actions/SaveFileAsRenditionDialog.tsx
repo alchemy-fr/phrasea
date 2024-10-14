@@ -13,7 +13,7 @@ import {useFormSubmit} from '@alchemy/api';
 import {
     useModals,
     StackedModalProps,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
 } from '@alchemy/navigation';
 
 type FormData = {
@@ -62,7 +62,7 @@ export default function SaveFileAsRenditionDialog({
             closeModal();
         },
     });
-    useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     const formId = 'save-file-as-rendition';
 
