@@ -8,7 +8,7 @@ import {FormFieldErrors} from '@alchemy/react-form';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import RemoteErrors from '../../../Form/RemoteErrors';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 
 type Props = {
@@ -50,7 +50,7 @@ export default function MoveAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPromptOutsideRouter(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
 
     const formId = 'move-assets';
 

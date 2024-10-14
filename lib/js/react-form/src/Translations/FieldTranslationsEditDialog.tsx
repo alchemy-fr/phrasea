@@ -6,7 +6,7 @@ import {useTranslation} from 'react-i18next';
 import FormHasErrorsAlert from '../FormHasErrorsAlert';
 import Button from '@mui/material/Button';
 import RemoteErrors from '../RemoteErrors';
-import {StackedModalProps, useModals, useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation'
+import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation'
 import {AppDialog} from '@alchemy/phrasea-ui'
 import {useFormSubmit} from '@alchemy/api'
 import {TextFieldProps} from '@mui/material/TextField/TextField';
@@ -89,7 +89,7 @@ export default function FieldTranslationsEditDialog<
 
     const formId = field + 'Translations';
 
-    useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     watch('translations');
 

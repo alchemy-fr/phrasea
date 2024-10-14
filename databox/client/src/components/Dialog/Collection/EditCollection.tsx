@@ -6,7 +6,7 @@ import {useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {CollectionForm} from '../../Form/CollectionForm';
-import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useFormPrompt} from '@alchemy/navigation';
 import {useCollectionStore} from '../../../store/collectionStore';
 
 export type OnCollectionEdit = (coll: Collection) => void;
@@ -40,7 +40,7 @@ export default function EditCollection({data, onClose, minHeight}: Props) {
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useInRouterDirtyFormPrompt(t, forbidNavigation);
+    useFormPrompt(t, forbidNavigation);
 
     const formId = 'edit-collection';
 

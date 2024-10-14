@@ -3,7 +3,7 @@ import {getCurrentPath, getRelativeUrl, getFullPath} from "./src/utils";
 import RouterProvider from "./src/RouterProvider";
 import ModalStack, {StackedModalProps, useModals} from "./src/useModalStack";
 import MatomoRouteWrapper from "./src/proxy/MatomoRouteWrapper";
-import {useInRouterDirtyFormPrompt, useOutsideRouterDirtyFormPrompt} from "./src/useNavigationPrompt";
+import {useFormPrompt} from "./src/useNavigationPrompt";
 import {
     CloseOverlayFunction,
     NavigateToOverlayFunction,
@@ -26,8 +26,7 @@ export {
     useModals,
     MatomoRouteWrapper,
     RouterProvider,
-    useInRouterDirtyFormPrompt,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
     useNavigateToOverlay,
     useCloseOverlay,
     ModalStack,

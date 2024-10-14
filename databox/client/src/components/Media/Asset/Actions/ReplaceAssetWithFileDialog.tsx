@@ -42,7 +42,7 @@ export default function ReplaceAssetWithFileDialog({
                 closeModal();
             },
         });
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
 
     const formId = 'save-file-as-new-asset';
 

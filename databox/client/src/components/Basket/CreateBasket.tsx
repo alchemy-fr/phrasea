@@ -6,7 +6,7 @@ import {postBasket} from '../../api/basket';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPromptOutsideRouter} from '../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '../Dialog/Tabbed/FormTab';
 import {useBasketStore} from '../../store/basketStore';
 
 type Props = {
@@ -37,7 +37,7 @@ export default function CreateBasket({modalIndex, open, onCreate}: Props) {
     });
 
     const {submitting, remoteErrors, forbidNavigation} = usedFormSubmit;
-    useDirtyFormPromptOutsideRouter(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
     const formId = 'create-basket';
 
     return (

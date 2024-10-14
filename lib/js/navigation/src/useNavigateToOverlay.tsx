@@ -6,12 +6,18 @@ import {getPath} from "./Router";
 export type NavigateToOverlayFunction = (route: RouteDefinition, params?: RouteParameters, options?: NavigateOptions) => void;
 export type CloseOverlayFunction = (options?: NavigateOptions) => void;
 
+let lastHash: string | undefined;
+
 export function useNavigateToOverlay(queryParam: string): NavigateToOverlayFunction {
     const navigate = useNavigate();
 
     return React.useCallback<NavigateToOverlayFunction>((route, params, options) => {
+        lastHash = document.location.hash;
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set(queryParam, getPath(route, params));
+
         navigate({
-            search: `${queryParam}=${getPath(route, params)}`,
+            search: searchParams.toString(),
         }, options);
     }, []);
 }
@@ -27,6 +33,7 @@ export function useCloseOverlay(queryParam: string): CloseOverlayFunction {
         navigate({
             pathname: location.pathname,
             search: searchParams.toString(),
+            hash: lastHash,
         }, options);
     }, [navigate, location]);
 }

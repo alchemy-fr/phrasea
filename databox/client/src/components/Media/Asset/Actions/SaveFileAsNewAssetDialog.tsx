@@ -82,7 +82,7 @@ export default function SaveFileAsNewAssetDialog({
             closeModal();
         },
     });
-    useDirtyFormPrompt(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
 
     const formId = 'save-file-as-new-asset';
 
