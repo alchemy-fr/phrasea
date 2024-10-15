@@ -72,6 +72,8 @@ class CreateCommand extends Command
                 $buildConfig,
                 $options
             );
+            $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
+
         } catch (\InvalidArgumentException $e) {
             $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
 
@@ -90,8 +92,6 @@ class CreateCommand extends Command
 
             return 1;
         }
-
-        $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
 
         if (!$input->getOption('debug')) {
             $this->renditionCreator->cleanUp();

@@ -3,16 +3,19 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class VideoToFrameTransformerModule implements TransformerModuleInterface
 {
-    public function __construct()
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats)
     {
     }
 
@@ -23,10 +26,32 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
+        if (!($format = $options['format'] ?? null)) {
+            throw new \InvalidArgumentException('Missing format');
+        }
+
+        if(!$this->formats->has($format)) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
+        }
+        /** @var FormatInterface $outputFormat */
+        $outputFormat = $this->formats->get($format);
+
+        if($outputFormat->getFamily() !== FamilyEnum::Image) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s, only image formats supported', $format));
+        }
+
+        if (null != ($extension = $options['extension'] ?? null)) {
+            if(!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            }
+        }
+        else {
+            $extension = ($outputFormat->getAllowedExtensions())[0];
+        }
+
         $ffmpeg = FFMpeg\FFMpeg::create(); // (new FFMpeg\FFMpeg)->open('/path/to/video');
 
         $from_seconds = $options['from_seconds'] ?? 0;
-        $extension = $options['extension'] ?? '.jpg';
 
         $video = $ffmpeg->open($inputFile->getPath());
         $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($from_seconds));
@@ -34,18 +59,13 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
         $frame->save($outputPath);
 
-        unset($frame, $video);
+        unset($frame, $video, $ffmpeg);
         gc_collect_cycles();
-
-        $mimeType = $context->guessMimeTypeFromPath($outputPath);
-
-        $fileFamilyGuesser = new FileFamilyGuesser();
-        $family = $fileFamilyGuesser->getFamily($outputPath, $mimeType);
 
         return new OutputFile(
             $outputPath,
-            $mimeType,
-            $family
+            $outputFormat->getMimeType(),
+            $outputFormat->getFamily(),
         );
     }
 }
