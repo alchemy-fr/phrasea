@@ -17,7 +17,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 final class ShareRenditionProvider implements ProviderInterface
 {
@@ -37,10 +37,12 @@ final class ShareRenditionProvider implements ProviderInterface
     {
         $item = $this->shareRepository->find($uriVariables['id']);
         if (!$item instanceof Share) {
-            throw new NotFoundHttpException('Share not found');
+            return $this->createNotFoundResponse();
         }
 
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $item);
+        if (!$this->security->isGranted(AbstractVoter::READ, $item)) {
+            return $this->createNotFoundResponse();
+        }
 
         $defId = $uriVariables['rendition'];
         $rendition = $this->em->getRepository(AssetRendition::class)->findOneBy([
@@ -50,10 +52,16 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
+
         if (null !== $file = $rendition?->getFile()) {
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
         }
 
-        throw new NotFoundHttpException('Rendition not found');
+        return $this->createNotFoundResponse();
+    }
+
+    private function createNotFoundResponse(): Response
+    {
+        return new Response('', Response::HTTP_NOT_FOUND);
     }
 }

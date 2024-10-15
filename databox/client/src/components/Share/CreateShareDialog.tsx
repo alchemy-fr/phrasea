@@ -11,6 +11,7 @@ import {
 import {createAssetShare} from '../../api/asset.ts';
 import {useFormSubmit} from '../../../../../lib/js/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
+import {normalizeDate} from "../../lib/date.ts";
 
 type Props = {
     asset: Asset;
@@ -42,8 +43,8 @@ export default function CreateShareDialog({
         onSubmit: async data => {
             return await createAssetShare(asset.id, {
                 ...data,
-                startsAt: data.startsAt || null,
-                expiresAt: data.expiresAt || null,
+                startsAt: normalizeDate(data.startsAt || null),
+                expiresAt: normalizeDate(data.expiresAt || null),
             });
         },
         onSuccess: (d: Share) => {
