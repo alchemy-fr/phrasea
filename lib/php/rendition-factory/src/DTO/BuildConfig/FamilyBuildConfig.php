@@ -14,10 +14,7 @@ final readonly class FamilyBuildConfig
 
     public function getTransformations(): array
     {
-        return array_filter(
-            $this->transformations,
-            fn (Transformation $transformation) => $transformation->isEnabled()
-        );
+        return $this->transformations;
     }
 
     public function getNormalization(): array

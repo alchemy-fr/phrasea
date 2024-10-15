@@ -6,7 +6,6 @@ final readonly class Transformation
 {
     public function __construct(
         private string $module,
-        private bool $enabled,
         private array $options,
         private ?string $description,
     ) {
@@ -25,10 +24,5 @@ final readonly class Transformation
     public function getOptions(): array
     {
         return $this->options;
-    }
-
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
     }
 }

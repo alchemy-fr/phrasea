@@ -32,7 +32,7 @@ class CreateCommand extends Command
 
         $this->addArgument('src', InputArgument::REQUIRED, 'The source file');
         $this->addArgument('build-config', InputArgument::REQUIRED, 'The build config YAML file');
-        $this->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Force the MIME type of file');
+        $this->addOption('type', 't', InputOption::VALUE_OPTIONAL, 'Force the MIME type of file');
         $this->addOption('working-dir', 'w', InputOption::VALUE_REQUIRED, 'The working directory. Defaults to system temp directory');
         $this->addOption('output', 'o', InputOption::VALUE_REQUIRED, 'The output file name WITHOUT extension');
         $this->addOption('debug', 'd', InputOption::VALUE_NONE, 'set to debug mode (keep files in working directory)');
@@ -72,8 +72,6 @@ class CreateCommand extends Command
                 $buildConfig,
                 $options
             );
-            $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
-
         } catch (\InvalidArgumentException $e) {
             $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
 
@@ -92,6 +90,8 @@ class CreateCommand extends Command
 
             return 1;
         }
+
+        $output->writeln(sprintf('Rendition created: %s', $outputFile->getPath()));
 
         if (!$input->getOption('debug')) {
             $this->renditionCreator->cleanUp();
