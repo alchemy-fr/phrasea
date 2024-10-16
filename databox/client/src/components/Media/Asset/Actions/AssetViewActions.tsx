@@ -19,7 +19,7 @@ type Props = {
 export default function AssetViewActions({asset, file}: Props) {
     const {t} = useTranslation();
     const closeModal = useCloseModal();
-    const {onDelete, onDownload, onEdit, onEditAttr, onSubstituteFile, can} =
+    const {onDelete, onDownload, onEdit, onEditAttr, onShare, onSubstituteFile, can} =
         useAssetActions({asset, onDelete: closeModal});
 
     return (
@@ -89,7 +89,9 @@ export default function AssetViewActions({asset, file}: Props) {
                     ''
                 )}
                 {can.share ? (
-                    <Button variant={'contained'} startIcon={<ShareIcon />}>
+                    <Button variant={'contained'}
+                            onClick={() => onShare()}
+                            startIcon={<ShareIcon />}>
                         {t('asset_actions.share', 'Share')}
                     </Button>
                 ) : (

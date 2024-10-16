@@ -64,15 +64,15 @@ export default function OperationsAsset({
                         <Trans
                             i18nKey={'asset_collections.reference_collection'}
                             values={{
-                                collection:
-                                    data.referenceCollection.absoluteTitle,
+                                collection: data.referenceCollection.absoluteTitle,
+                                workspace: data.workspace.name,
                             }}
                             components={{
                                 strong: <CollectionChip />,
                                 i: <WorkspaceChip />,
                             }}
                             defaults={
-                                'This asset belongs to the collection <strong>{{collection}}</strong> in the workspace root <i>{{workspace}}</i>.'
+                                'This asset belongs to the collection <strong>{{collection}}</strong> in the workspace <i>{{workspace}}</i>.'
                             }
                         />
                     ) : (

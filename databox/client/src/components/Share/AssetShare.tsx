@@ -26,7 +26,7 @@ export default function AssetShare({asset}: Props) {
                 <Paper
                     elevation={1}
                     sx={{
-                        width,
+                        maxWidth: width,
                         margin: '0 auto',
                     }}
                 >

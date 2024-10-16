@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Processor\ShareProcessor;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
@@ -103,7 +104,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 
     #[ORM\ManyToOne(targetEntity: Asset::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    #[Groups([self::GROUP_PUBLIC_READ])]
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
     private ?Asset $asset = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
@@ -121,6 +122,9 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $config = [];
 
+    /**
+     * @var ShareAlternateUrlOutput[]
+     */
     #[Groups([self::GROUP_READ])]
     public array $alternateUrls = [];
 

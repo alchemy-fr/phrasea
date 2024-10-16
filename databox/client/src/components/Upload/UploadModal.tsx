@@ -141,7 +141,7 @@ export default function UploadModal({
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle(t)
-                            : f.file.name,
+                            : f.file.name.replace(/\.[^/.]+$/, ''),
                     destination: collectionId
                         ? `/collections/${collectionId}`
                         : (data.destination as CollectionId),

@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
+use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Traits\ItemProviderAwareTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
@@ -51,11 +52,15 @@ final class ShareReadProvider implements ProviderInterface
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
             if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getClass(), null)) {
-                $item->alternateUrls[$definition->getName()] = $this->urlGenerator->generate('share_public_rendition', [
+                $item->alternateUrls[] = new ShareAlternateUrlOutput(
+                    $definition->getName(),
+                    $this->urlGenerator->generate('share_public_rendition', [
                     'id' => $item->getId(),
                     'rendition' => $definition->getId(),
                     'token' => $item->getToken(),
-                ], UrlGeneratorInterface::ABS_URL);
+                ], UrlGeneratorInterface::ABS_URL),
+                    $rendition->getFile()->getType(),
+                );
             }
         }
 

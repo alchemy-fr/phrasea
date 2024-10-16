@@ -27,8 +27,11 @@ import AddIcon from '@mui/icons-material/Add';
 import CreateShareDialog from './CreateShareDialog.tsx';
 import CopiableTextField from '../Ui/CopiableTextField.tsx';
 import {toast} from 'react-toastify';
-import ShareItem, {getShareUrl} from './ShareItem.tsx';
+import ShareItem from './ShareItem.tsx';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
+import {getShareTitle, UrlActions} from "./UrlActions.tsx";
+import {getShareUrl} from "./shareUtils.ts";
+import ShareSocials from "./ShareSocials.tsx";
 
 type Props = {
     asset: Asset;
@@ -135,10 +138,12 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
             title={t('share.dialog.title', 'Share Asset')}
             loading={loading}
             onSave={() => {
-                copy();
-                toast.success(
-                    t('share.dialog.copied', 'Link copied to clipboard')
-                );
+                if (!advancedMode && !!publicUrl) {
+                    copy();
+                    toast.success(
+                        t('share.dialog.copied', 'Link copied to clipboard')
+                    );
+                }
                 closeModal();
             }}
             submitIcon={
@@ -187,7 +192,17 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
                             <CopiableTextField
                                 fullWidth={true}
                                 value={publicUrl!}
+                                actions={<UrlActions
+                                    url={publicUrl!}
+                                />}
                             />
+                            <div>
+                                <ShareSocials
+                                    url={publicUrl!}
+                                    title={getShareTitle(publicShare)}
+                                    isImage={false}
+                                />
+                            </div>
                         </FormRow>
                     )}
                 </>

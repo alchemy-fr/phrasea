@@ -89,6 +89,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         if ($this->hasGroup([
             Asset::GROUP_LIST,
             Asset::GROUP_READ,
+            Share::GROUP_READ,
             Share::GROUP_PUBLIC_READ,
         ], $context)) {
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
