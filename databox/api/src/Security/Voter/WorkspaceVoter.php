@@ -64,6 +64,12 @@ class WorkspaceVoter extends AbstractVoter
             self::EDIT_PERMISSIONS => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || $this->isAdmin(),
+            self::OPERATOR => $isOwner()
+                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token),
+            self::OWNER => $isOwner()
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
+                || $this->isAdmin(),
+
             default => false,
         };
     }
