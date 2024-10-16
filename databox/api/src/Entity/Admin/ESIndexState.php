@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Admin;
 
-use App\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use Doctrine\DBAL\Types\Types;

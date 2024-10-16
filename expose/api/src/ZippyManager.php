@@ -22,7 +22,7 @@ class ZippyManager
         $hash = $this->getArchiveHash($publication);
 
         if (null === $publication->getZippyId() || $hash !== $publication->getZippyHash()) {
-            return $this->em->transactional(function () use ($publication, $hash): string {
+            return $this->em->wrapInTransaction(function () use ($publication, $hash): string {
                 /** @var Publication $publication */
                 $publication = $this->em->find(Publication::class, $publication->getId(), LockMode::PESSIMISTIC_WRITE);
 

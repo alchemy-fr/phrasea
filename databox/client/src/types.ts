@@ -29,6 +29,24 @@ export type User = {
     username: string;
 };
 
+export type ShareAlternateUrl = {
+    name: string;
+    url: string;
+    type: string | undefined;
+}
+
+export type Share = {
+    id: string;
+    title?: string | undefined;
+    asset: Asset;
+    token: string;
+    startsAt?: string | undefined | null;
+    expiresAt?: string | undefined | null;
+    updatedAt: Readonly<string>;
+    createdAt: Readonly<string>;
+    alternateUrls: ShareAlternateUrl[];
+};
+
 export interface Asset
     extends IPermissions<{
         canEditAttributes: boolean;

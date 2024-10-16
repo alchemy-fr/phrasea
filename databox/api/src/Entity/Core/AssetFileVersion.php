@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use App\Api\Provider\AssetFileVersionCollectionProvider;
 
-use App\Entity\AbstractUuidEntity;
+use App\Api\Provider\AssetFileVersionCollectionProvider;
 use App\Entity\Traits\CreatedAtTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

@@ -8,7 +8,7 @@ import {useFormSubmit} from '@alchemy/api';
 import {
     StackedModalProps,
     useModals,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
 } from '@alchemy/navigation';
 import {Basket, IntegrationData} from '../../../../types.ts';
 import {runIntegrationAction} from '../../../../api/integrations.ts';
@@ -79,7 +79,7 @@ export default function CreatePublicationDialog({
             closeModal();
         },
     });
-    useOutsideRouterDirtyFormPrompt(t, forbidNavigation, modalIndex);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     const formId = 'ep';
 

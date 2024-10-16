@@ -13,6 +13,7 @@ use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\Share;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class AssetOutput extends AbstractUuidOutput
@@ -35,13 +36,21 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @var AttributeOutput[]
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     protected ?array $attributes = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        WebhookSerializationInterface::DEFAULT_GROUP,
+        Share::GROUP_PUBLIC_READ])]
     private ?string $title = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        WebhookSerializationInterface::DEFAULT_GROUP,
+        Share::GROUP_READ,
+        Share::GROUP_PUBLIC_READ,
+    ])]
     private ?string $resolvedTitle = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
@@ -71,19 +80,19 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
     private array $collections;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?File $source = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $original = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $preview = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnailActive = null;
 
     #[Groups(['dates'])]

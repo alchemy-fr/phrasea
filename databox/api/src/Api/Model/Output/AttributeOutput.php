@@ -9,6 +9,7 @@ use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Share;
 use App\Entity\Template\AssetDataTemplate;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -28,10 +29,18 @@ class AttributeOutput extends AbstractUuidOutput
      *
      * @var AttributeDefinition|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ, AssetDataTemplate::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Attribute::GROUP_LIST,
+        Attribute::GROUP_READ,
+        AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $definition;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ, AssetDataTemplate::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Attribute::GROUP_LIST,
+        Attribute::GROUP_READ,
+        AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $value;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ])]
@@ -55,13 +64,17 @@ class AttributeOutput extends AbstractUuidOutput
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public ?string $originVendorContext = null;
 
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public ?array $assetAnnotations = null;
 
     /**
      * @var string|null
      */
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ, AssetDataTemplate::GROUP_READ])]
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Attribute::GROUP_LIST,
+        Attribute::GROUP_READ,
+        AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $locale;
 
     /**

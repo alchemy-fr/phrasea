@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeClass;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -27,7 +28,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[ApiProperty(security: "is_granted('READ_ADMIN', object)")]
     public ?AttributeClass $class = null;
 
-    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
+    #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public ?string $name = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
@@ -36,7 +37,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?string $fileType = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public string $fieldType = TextAttributeType::NAME;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
@@ -51,10 +52,10 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public bool $translatable = false;
 
-    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public bool $multiple = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
@@ -89,7 +90,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $canEdit = null;
 
-    #[Groups([AttributeDefinition::GROUP_LIST])]
+    #[Groups([AttributeDefinition::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     public function getLocales(): ?array
     {
         if ($this->translatable) {

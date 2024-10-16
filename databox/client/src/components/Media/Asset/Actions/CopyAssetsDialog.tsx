@@ -13,21 +13,9 @@ import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';
 import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {useDirtyFormPromptOutsideRouter} from '../../../Dialog/Tabbed/FormTab';
+import {useDirtyFormPrompt} from '../../../Dialog/Tabbed/FormTab';
 import {toast} from 'react-toastify';
 import {OnSelectionChange} from '../../../AssetList/types';
-
-type FormData = {
-    destination: string;
-    byReference: boolean;
-    withAttributes: boolean;
-    withTags: boolean;
-};
-
-type Props = {
-    assets: Asset[];
-    onComplete: () => void;
-} & StackedModalProps;
 
 function AssetList({
     assets,
@@ -59,6 +47,18 @@ function AssetList({
         </div>
     );
 }
+
+type FormData = {
+    destination: string;
+    byReference: boolean;
+    withAttributes: boolean;
+    withTags: boolean;
+};
+
+type Props = {
+    assets: Asset[];
+    onComplete: () => void;
+} & StackedModalProps;
 
 export default function CopyAssetsDialog({
     assets,
@@ -96,7 +96,8 @@ export default function CopyAssetsDialog({
                         a =>
                             a.capabilities.canShare &&
                             workspaceDest &&
-                            (!data.byReference || a.workspace.id === workspaceDest)
+                            (!data.byReference ||
+                                a.workspace.id === workspaceDest)
                     )
                     .map(a => a.id),
                 ...selectionOW.map(a => a.id),
@@ -121,7 +122,7 @@ export default function CopyAssetsDialog({
             onComplete();
         },
     });
-    useDirtyFormPromptOutsideRouter(forbidNavigation);
+    useDirtyFormPrompt(forbidNavigation, modalIndex);
     const byRef = watch('byReference');
 
     const nonLinkablePerm: Asset[] = useMemo(

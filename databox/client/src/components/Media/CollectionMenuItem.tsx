@@ -136,7 +136,8 @@ export default function CollectionMenuItem({
                 secondaryAction={
                     <>
                         <span className={cActionClassName}>
-                            {data.capabilities.canEdit && authContext!.isAuthenticated() ? (
+                            {data.capabilities.canEdit &&
+                            authContext!.isAuthenticated() ? (
                                 <IconButton
                                     title={t(
                                         'collection.item.create_asset',

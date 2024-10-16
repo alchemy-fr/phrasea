@@ -1,5 +1,5 @@
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {Button} from '@mui/material';
+import {Breakpoint, Button} from '@mui/material';
 import {PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import SaveIcon from '@mui/icons-material/Save';
@@ -17,6 +17,7 @@ type Props = PropsWithChildren<
         errors?: ReactNode[];
         submitLabel?: ReactNode;
         submitIcon?: ReactNode;
+        maxWidth?: Breakpoint | false;
     } & StackedModalProps
 >;
 
@@ -31,6 +32,7 @@ export default function FormDialog({
     submittable = true,
     open,
     children,
+    maxWidth,
     modalIndex,
 }: Props) {
     const {closeModal} = useModals();
@@ -43,6 +45,7 @@ export default function FormDialog({
             loading={loading}
             onClose={closeModal}
             title={title}
+            maxWidth={maxWidth}
             actions={({onClose}) => (
                 <>
                     <Button

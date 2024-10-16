@@ -177,7 +177,8 @@ export default function RSelectWidget<
                 required={required}
                 components={componentsProp}
                 onChange={(newValue, meta) => {
-                    onChangeProp && onChangeProp(newValue, meta);
+                    console.log('dd', newValue, onChangeProp);
+                    onChangeProp?.(newValue, meta);
                     setValue(!clearOnSelect ? newValue : null);
                 }}
                 value={valueToOption(

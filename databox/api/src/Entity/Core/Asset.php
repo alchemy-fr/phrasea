@@ -6,6 +6,7 @@ namespace App\Entity\Core;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use ApiPlatform\Metadata\ApiResource;
@@ -37,7 +38,6 @@ use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
-use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -316,10 +316,14 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
         $this->title = $title;
     }
 
-    public function addToCollection(Collection $collection, bool $checkUnique = false): CollectionAsset
+    public function addToCollection(Collection $collection, bool $checkUnique = false, bool $assignReferenceIfNull = false): CollectionAsset
     {
         if ($collection->getWorkspace() !== $this->getWorkspace()) {
             throw new \InvalidArgumentException('Cannot add to a collection from a different workspace');
+        }
+
+        if ($assignReferenceIfNull && null === $this->referenceCollection) {
+            $this->referenceCollection = $collection;
         }
 
         if ($checkUnique) {

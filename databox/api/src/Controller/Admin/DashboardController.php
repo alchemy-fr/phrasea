@@ -25,6 +25,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionRule;
+use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
@@ -79,6 +80,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('RenditionClass', '', RenditionClass::class),
             MenuItem::linkToCrud('RenditionRule', '', RenditionRule::class),
             MenuItem::linkToCrud('AlternateUrl', '', AlternateUrl::class),
+            MenuItem::linkToCrud('Share', '', Share::class),
         ];
 
         $basket = [

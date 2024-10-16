@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use App\Api\Provider\IntegrationTokenDataProvider;
-use App\Entity\AbstractUuidEntity;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;

@@ -23,7 +23,7 @@ import {
 import {
     StackedModalProps,
     useModals,
-    useOutsideRouterDirtyFormPrompt,
+    useFormPrompt,
 } from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
@@ -66,7 +66,7 @@ export default function UploadModal({
         }))
     );
     const {closeModal} = useModals();
-    useOutsideRouterDirtyFormPrompt(t, files.length > 0);
+    useFormPrompt(t, files.length > 0, modalIndex);
 
     const usedAttributeEditor = useAttributeEditor({
         workspaceId,
@@ -141,7 +141,7 @@ export default function UploadModal({
                     title:
                         f.file.name === 'image.png'
                             ? createPastedImageTitle(t)
-                            : f.file.name,
+                            : f.file.name.replace(/\.[^/.]+$/, ''),
                     destination: collectionId
                         ? `/collections/${collectionId}`
                         : (data.destination as CollectionId),
@@ -254,6 +254,7 @@ export default function UploadModal({
                 noDestination={Boolean(workspaceTitle)}
                 usedAttributeEditor={usedAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}
+                modalIndex={modalIndex}
             />
         </FormDialog>
     );

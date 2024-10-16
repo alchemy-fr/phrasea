@@ -21,7 +21,7 @@ import {OnChangeValue} from 'react-select';
 import {Asset, Attribute, Tag} from '../../types';
 import {AttributeIndex} from '../Media/Asset/Attribute/AttributesEditor';
 import FullPageLoader from '../Ui/FullPageLoader';
-import {useOutsideRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 
@@ -48,6 +48,7 @@ export const UploadForm: FC<{
     usedFormSubmit: UseFormSubmitReturn<UploadData, Asset[], FormUploadData>;
     resetForms: () => void;
     formId: string;
+    modalIndex?: number;
 }> = function ({
     formId,
     usedFormSubmit,
@@ -59,6 +60,7 @@ export const UploadForm: FC<{
     onChangeWorkspace,
     onChangeCollection,
     resetForms,
+    modalIndex,
 }) {
     const {t} = useTranslation();
     const [selectedTemplates, setSelectedTemplates] = React.useState<string[]>(
@@ -79,7 +81,7 @@ export const UploadForm: FC<{
         submitting,
     } = usedFormSubmit;
 
-    useOutsideRouterDirtyFormPrompt(t, forbidNavigation);
+    useFormPrompt(t, forbidNavigation, modalIndex);
 
     const onTemplateSelect = React.useCallback(
         (values: OnChangeValue<SelectOption, true>) => {

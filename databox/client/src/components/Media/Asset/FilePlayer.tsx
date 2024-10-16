@@ -11,7 +11,7 @@ type Props = {
     title: string | undefined;
     onLoad?: () => void;
     noInteraction?: boolean;
-    autoPlayable: boolean;
+    autoPlayable?: boolean;
     dimensions?: Dimensions;
 };
 
@@ -58,7 +58,7 @@ export default function FilePlayer({
                     controls={controls}
                     onLoad={onLoad}
                     noInteraction={noInteraction}
-                    autoPlayable={autoPlayable}
+                    autoPlayable={autoPlayable || false}
                 />
             );
         case FileTypeEnum.Document:

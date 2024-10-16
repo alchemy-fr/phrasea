@@ -8,37 +8,25 @@ import {useModals} from "./useModalStack";
 import {TFunction} from "i18next";
 import {BlockerFunction} from "@remix-run/router";
 
-function useInRouterNavigationPrompt(message: string, when: boolean, modalIndex?: number) {
+function useNavigationPrompt(message: string, when: boolean, modalIndex?: number) {
     const modalContext = useModals();
     const navContext = useContext(NavigationContext);
 
     const blocker = useBlocker(
         React.useMemo<boolean | BlockerFunction>(() => {
-            if (when && navContext) {
+            if (when && navContext && modalIndex === undefined) {
                 return (() => !window.confirm(message)) as BlockerFunction;
             }
 
             return false;
-        }, [message, when, navContext])
+        }, [message, when, navContext, modalIndex])
     );
-
-    React.useEffect(() => {
-        if (!navContext && modalContext && modalIndex !== undefined) {
-            modalContext.setCloseConstraint(modalIndex, () => when ? window.confirm(message) : true);
-        }
-    }, [blocker, modalContext, modalIndex, when]);
-
-    useBeforeUnloadWhen(when, message);
-}
-
-function useOutsideRouterNavigationPrompt(message: string, when: boolean, modalIndex?: number) {
-    const modalContext = useModals();
 
     React.useEffect(() => {
         if (modalContext && modalIndex !== undefined) {
             modalContext.setCloseConstraint(modalIndex, () => when ? window.confirm(message) : true);
         }
-    }, [modalContext, modalIndex, when]);
+    }, [blocker, modalContext, modalIndex, when, message]);
 
     useBeforeUnloadWhen(when, message);
 }
@@ -58,10 +46,6 @@ function useBeforeUnloadWhen(when: boolean, message: string): void {
     );
 }
 
-export function useInRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useInRouterNavigationPrompt(t('lib.navigation.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
-}
-
-export function useOutsideRouterDirtyFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
-    useOutsideRouterNavigationPrompt(t('lib.navigation.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
+export function useFormPrompt(t: TFunction, isDirty: boolean, modalIndex?: number) {
+    useNavigationPrompt(t('lib.navigation.dismiss_changes', 'Are you sure you want to dismiss unsaved changes?'), isDirty, modalIndex);
 }

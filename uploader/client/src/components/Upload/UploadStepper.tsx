@@ -8,7 +8,7 @@ import UploadForm from './UploadForm.tsx';
 import UploadProgress from '../page/UploadProgress';
 import {useTranslation} from 'react-i18next';
 import UploadDone from '../page/UploadDone';
-import {useInRouterDirtyFormPrompt} from '@alchemy/navigation';
+import {useFormPrompt} from '@alchemy/navigation';
 
 enum Step {
     Files,
@@ -43,6 +43,8 @@ export default function UploadStepper({target}: Props) {
     }, [onError, uploadBatch]);
 
     const onSubmitFiles = React.useCallback(() => {
+        console.log('files', files);
+
         uploadBatch.addFiles(files);
         uploadBatch.startUpload();
         setStep(Step.Form);
@@ -57,7 +59,7 @@ export default function UploadStepper({target}: Props) {
     );
 
     const reset = React.useCallback(() => {
-        uploadBatch.abort();
+        uploadBatch.reset();
         setFiles([]);
         setStep(Step.Files);
     }, [uploadBatch, setStep, setFiles]);
@@ -68,7 +70,7 @@ export default function UploadStepper({target}: Props) {
         }
     }, [reset]);
 
-    useInRouterDirtyFormPrompt(t, files.length > 0);
+    useFormPrompt(t, files.length > 0);
 
     return (
         <>
