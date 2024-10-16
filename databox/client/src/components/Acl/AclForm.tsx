@@ -2,8 +2,7 @@ import {useCallback} from 'react';
 import PermissionList from '../Permissions/PermissionList';
 import {deleteAce, getAces, putAce} from '../../api/acl';
 import {OnPermissionDelete, PermissionObject} from '../Permissions/permissions';
-import {Ace, UserType} from '../../types';
-import {useCollectionStore} from '../../store/collectionStore';
+import {UserType} from '../../types';
 
 type Props = {
     objectType: PermissionObject;
@@ -34,20 +33,8 @@ export default function AclForm({
         [objectType, objectId]
     );
 
-    const onListChanged =
-        objectType === 'collection'
-            ? (permissions: Ace[]) => {
-                  useCollectionStore
-                      .getState()
-                      .partialUpdateCollection(objectId, {
-                          shared: permissions.length > 0,
-                      });
-              }
-            : undefined;
-
     return (
         <PermissionList
-            onListChanged={onListChanged}
             displayedPermissions={displayedPermissions}
             loadPermissions={loadPermissions}
             updatePermission={updatePermission}

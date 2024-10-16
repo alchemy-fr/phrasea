@@ -42,16 +42,15 @@ export default function UserPreferencesProvider({children}: Props) {
     const initialData = getFromStorage();
     const queryKey = ['userPreferences', user?.id];
 
-    const {data: preferences, isSuccess} = useQuery<UserPreferences>({
+    const {data: preferences, isLoading} = useQuery<UserPreferences>({
         initialData: initialData,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
         queryFn: async () => {
-            if (user) {
-                return await getUserPreferences();
-            }
-
-            return initialData;
+            return await getUserPreferences();
         },
-        queryKey: queryKey,
+        queryKey,
+        enabled: !!user,
     });
 
     const mutationFn = async <T extends keyof UserPreferences>({
@@ -134,7 +133,8 @@ export default function UserPreferencesProvider({children}: Props) {
                     })}
                 />
 
-                {isSuccess ? children : <FullPageLoader
+                {!isLoading ? children : <FullPageLoader
+                    backdrop={false}
                     message={t('user_preferences.loading', 'Loading user preferences…')}
                 />}
             </ThemeEditorProvider>

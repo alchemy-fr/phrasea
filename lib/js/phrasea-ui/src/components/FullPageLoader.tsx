@@ -14,7 +14,7 @@ export default function FullPageLoader({
 }: Props) {
     return <Backdrop
         sx={theme => ({
-            color: theme.palette.common.white,
+            color: backdrop ? theme.palette.common.white : undefined,
             zIndex: theme.zIndex.drawer + 1,
             flexDirection: 'column',
         })}

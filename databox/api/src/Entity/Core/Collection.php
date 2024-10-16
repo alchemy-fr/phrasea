@@ -46,7 +46,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     operations: [
         new Get(
             normalizationContext: [
-                'groups' => [self::GROUP_READ],
+                'groups' => [
+                    self::GROUP_READ,
+                    self::GROUP_ABSOLUTE_TITLE,
+                ],
             ],
             security: 'is_granted("'.AbstractVoter::LIST.'", object)'
         ),

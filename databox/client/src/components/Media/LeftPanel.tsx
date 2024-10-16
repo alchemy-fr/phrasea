@@ -40,8 +40,12 @@ export default function LeftPanel() {
     const {t} = useTranslation();
     const [tab, setTab] = useState<TabEnum>(TabEnum.facets);
     const {isAuthenticated} = useAuth();
+    const treeLoadedOnce = React.useRef(false);
 
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: TabEnum) => {
+        if (newValue === TabEnum.tree && !treeLoadedOnce.current) {
+            treeLoadedOnce.current = true;
+        }
         setTab(newValue);
     };
 
@@ -67,7 +71,7 @@ export default function LeftPanel() {
                 <Facets/>
             </TabPanel>
             <TabPanel value={tab} index={TabEnum.tree}>
-                {tab === TabEnum.tree ? <CollectionsPanel/> : ''}
+                {treeLoadedOnce.current || tab === TabEnum.tree ? <CollectionsPanel/> : ''}
             </TabPanel>
             {isAuthenticated() ? (
                 <TabPanel value={tab} index={TabEnum.baskets}>
