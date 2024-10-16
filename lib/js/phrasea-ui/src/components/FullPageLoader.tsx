@@ -1,22 +1,34 @@
-import {Backdrop, CircularProgress} from "@mui/material";
+import {Backdrop, CircularProgress, Typography} from "@mui/material";
+import {ReactNode} from "react";
 
 type Props = {
     open?: boolean;
     backdrop?: boolean;
+    message?: ReactNode;
 };
 
 export default function FullPageLoader({
     open = true,
     backdrop = true,
+    message,
 }: Props) {
     return <Backdrop
-        sx={{
-            color: '#fff',
-            zIndex: (theme) => theme.zIndex.drawer + 1
-        }}
+        sx={theme => ({
+            color: theme.palette.common.white,
+            zIndex: theme.zIndex.drawer + 1,
+            flexDirection: 'column',
+        })}
         open={open}
         invisible={!backdrop}
     >
-        <CircularProgress/>
+        <div>
+            <CircularProgress color="inherit"/>
+        </div>
+        {message ? <Typography
+            variant={'body1'}
+            sx={{
+                mt: 3,
+            }}
+        >{message}</Typography> : null}
     </Backdrop>
 }

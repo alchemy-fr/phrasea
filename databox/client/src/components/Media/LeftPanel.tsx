@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import Facets from './Asset/Facets';
 import CollectionsPanel from './CollectionsPanel';
 import {Tab, Tabs} from '@mui/material';
-import {styled} from '@mui/material/styles';
 import {TabPanelProps} from '@mui/lab';
 import BasketsPanel from '../Basket/BasketsPanel';
 import {useAuth} from '@alchemy/react-auth';
@@ -22,50 +21,24 @@ function a11yProps(name: TabEnum) {
     };
 }
 
-function TabPanel(props: {index: string} & TabPanelProps) {
+function TabPanel(props: { index: string } & TabPanelProps) {
     const {children, value, index} = props;
 
     return (
         <div
             role="tabpanel"
             hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
+            id={`tabpanel-${index}`}
+            aria-labelledby={`tab-${index}`}
         >
             {children}
         </div>
     );
 }
 
-const AntTabs = styled(Tabs)({
-    root: {
-        backgroundColor: 'none',
-        borderBottom: '1px solid #e8e8e8',
-    },
-    indicator: {
-        backgroundColor: '#1890ff',
-    },
-});
-
-const AntTab = styled(Tab)({
-    root: {
-        '&:hover': {
-            color: '#40a9ff',
-            opacity: 1,
-        },
-        '&$selected': {
-            color: '#1890ff',
-        },
-        '&:focus': {
-            color: '#40a9ff',
-        },
-    },
-    selected: {},
-});
-
 export default function LeftPanel() {
     const {t} = useTranslation();
-    const [tab, setTab] = useState<TabEnum>(TabEnum.tree);
+    const [tab, setTab] = useState<TabEnum>(TabEnum.facets);
     const {isAuthenticated} = useAuth();
 
     const handleChange = (_event: React.ChangeEvent<{}>, newValue: TabEnum) => {
@@ -74,31 +47,31 @@ export default function LeftPanel() {
 
     return (
         <>
-            <AntTabs value={tab} onChange={handleChange} aria-label="Views">
-                <AntTab
-                    label={t('left_panel.tree', `Tree`)}
-                    {...a11yProps(TabEnum.tree)}
-                />
-                <AntTab
+            <Tabs value={tab} onChange={handleChange} aria-label="Views">
+                <Tab
                     label={t('left_panel.facets', `Facets`)}
                     {...a11yProps(TabEnum.facets)}
                 />
+                <Tab
+                    label={t('left_panel.tree', `Tree`)}
+                    {...a11yProps(TabEnum.tree)}
+                />
                 {isAuthenticated() ? (
-                    <AntTab
+                    <Tab
                         label={t('left_panel.baskets', `Baskets`)}
                         {...a11yProps(TabEnum.baskets)}
                     />
                 ) : null}
-            </AntTabs>
-            <TabPanel value={tab} index={TabEnum.tree}>
-                <CollectionsPanel />
-            </TabPanel>
+            </Tabs>
             <TabPanel value={tab} index={TabEnum.facets}>
-                <Facets />
+                <Facets/>
+            </TabPanel>
+            <TabPanel value={tab} index={TabEnum.tree}>
+                {tab === TabEnum.tree ? <CollectionsPanel/> : ''}
             </TabPanel>
             {isAuthenticated() ? (
                 <TabPanel value={tab} index={TabEnum.baskets}>
-                    <BasketsPanel />
+                    <BasketsPanel/>
                 </TabPanel>
             ) : null}
         </>

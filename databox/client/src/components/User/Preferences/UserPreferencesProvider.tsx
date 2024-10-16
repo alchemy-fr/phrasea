@@ -1,7 +1,7 @@
 import React, {PropsWithChildren} from 'react';
 import {
     TUserPreferencesContext,
-    UpdatePreferenceHandler,
+    UpdatePreferenceHandler, UpdatePreferenceHandlerArg,
     UserPreferences,
     UserPreferencesContext,
 } from './UserPreferencesContext';
@@ -12,6 +12,15 @@ import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
+import {FullPageLoader} from "@alchemy/phrasea-ui";
+import {useTranslation} from 'react-i18next';
+import {useMutation, useQuery} from "@tanstack/react-query";
+import {queryClient} from "../../../lib/query.ts";
+
+type UpdatePrefVariables<T extends keyof UserPreferences = keyof UserPreferences> = {
+    name: T;
+    handler: UpdatePreferenceHandlerArg<T>;
+};
 
 const sessionStorageKey = 'userPrefs';
 
@@ -28,50 +37,64 @@ function getFromStorage(): UserPreferences {
 type Props = PropsWithChildren<{}>;
 
 export default function UserPreferencesProvider({children}: Props) {
-    const [preferences, setPreferences] =
-        React.useState<UserPreferences>(getFromStorage());
     const {user} = useAuth();
+    const {t} = useTranslation();
+    const initialData = getFromStorage();
+    const queryKey = ['userPreferences', user?.id];
 
-    const updatePreference = React.useCallback<UpdatePreferenceHandler>(
-        (name, value) => {
-            setPreferences(prev => {
-                const newPrefs = {...prev};
+    const {data: preferences, isSuccess} = useQuery<UserPreferences>({
+        initialData: initialData,
+        queryFn: async () => {
+            if (user) {
+                return await getUserPreferences();
+            }
 
-                if (typeof value === 'function') {
-                    newPrefs[name] = value(newPrefs[name]);
-                } else {
-                    newPrefs[name] = value;
-                }
-
-                if (user) {
-                    putUserPreferences(name, newPrefs[name]);
-                }
-
-                sessionStorage.setItem(
-                    sessionStorageKey,
-                    JSON.stringify(newPrefs)
-                );
-
-                return newPrefs;
-            });
+            return initialData;
         },
-        [user]
-    );
+        queryKey: queryKey,
+    });
 
-    React.useEffect(() => {
-        if (user) {
-            getUserPreferences().then(r =>
-                setPreferences({
-                    ...r,
-                })
+    const mutationFn = async <T extends keyof UserPreferences>({
+        name,
+        handler,
+    }: UpdatePrefVariables<T>): Promise<UserPreferences> => {
+        return queryClient.setQueryData<UserPreferences>(queryKey, (prev) => {
+            const newPrefs = {...(prev ?? {})} as UserPreferences;
+
+            if (typeof handler === 'function') {
+                newPrefs[name] = handler(newPrefs[name]);
+            } else {
+                newPrefs[name] = handler;
+            }
+
+            if (user) {
+                setTimeout(() => {
+                    putUserPreferences(name, newPrefs[name]);
+                }, 0);
+            }
+
+            sessionStorage.setItem(
+                sessionStorageKey,
+                JSON.stringify(newPrefs)
             );
-        }
-    }, [user?.id]);
+
+            return newPrefs;
+        })!;
+    };
+
+    const updatePreference = useMutation<UserPreferences, {}, UpdatePrefVariables<any>>({
+        mutationFn
+    });
 
     const value = React.useMemo<TUserPreferencesContext>(() => {
         return {
             preferences,
-            updatePreference,
+            updatePreference: ((name, handler) => {
+                updatePreference.mutate({
+                    name,
+                    handler,
+                });
+            }) as UpdatePreferenceHandler,
         };
     }, [preferences, updatePreference]);
 
@@ -82,7 +105,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     preferences.theme ?? 'default'
                 )}
             >
-                <CssBaseline />
+                <CssBaseline/>
                 <GlobalStyles
                     styles={theme => ({
                         '*': {
@@ -110,7 +133,10 @@ export default function UserPreferencesProvider({children}: Props) {
                             },
                     })}
                 />
-                {children}
+
+                {isSuccess ? children : <FullPageLoader
+                    message={t('user_preferences.loading', 'Loading user preferences…')}
+                />}
             </ThemeEditorProvider>
         </UserPreferencesContext.Provider>
     );
