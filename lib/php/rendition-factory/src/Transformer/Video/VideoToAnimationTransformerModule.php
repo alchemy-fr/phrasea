@@ -108,7 +108,8 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         $outputPath = $context->createTmpFilePath($extension);
         $commands[] = $outputPath;
 
-        $ffmpeg = FFMpeg\FFMpeg::create();
+        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
+
         $ffmpeg->getFFMpegDriver()->command($commands);
 
         if(!file_exists($outputPath)) {

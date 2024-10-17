@@ -117,20 +117,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $FFMpegFormat->setPasses($passes);
         }
 
-        $ffmpegOptions = [];
-        if ($timeout = $options['timeout'] ?? null) {
-            if (!is_int($timeout)) {
-                throw new InvalidArgumentException('Invalid timeout');
-            }
-            $ffmpegOptions['timeout'] = $timeout;
-        }
-        if ($threads = $options['threads'] ?? null) {
-            if (!is_int($threads) || $threads < 1) {
-                throw new InvalidArgumentException('Invalid threads count');
-            }
-            $ffmpegOptions['ffmpeg.threads'] = $threads;
-        }
-        $ffmpeg = FFMpeg\FFMpeg::create($ffmpegOptions, $context->getLogger());
+        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
 
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());

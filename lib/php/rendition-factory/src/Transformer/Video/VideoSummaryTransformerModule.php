@@ -86,9 +86,10 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
         $clipsExtension = ($outputFormat->getAllowedExtensions())[0];
 
+        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
+
         $clipsFiles = [];
         try {
-            $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger());
             /** @var FFMpeg\Media\Video $video */
             $video = $ffmpeg->open($inputFile->getPath());
 

@@ -50,7 +50,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
             $extension = ($outputFormat->getAllowedExtensions())[0];
         }
 
-        $ffmpeg = FFMpeg\FFMpeg::create(); // (new FFMpeg\FFMpeg)->open('/path/to/video');
+        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
 
         $from_seconds = $options['from_seconds'] ?? 0;
 
