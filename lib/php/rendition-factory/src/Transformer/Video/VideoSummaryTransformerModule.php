@@ -8,95 +8,84 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
-use FFMpeg\Format\FormatInterface;
+use FFMpeg\Format\VideoInterface;
+use InvalidArgumentException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
+
 
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats)
+    {
+    }
+
     public static function getName(): string
     {
         return 'video_summary';
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if (!($format = $options['format'])) {
-            throw new \InvalidArgumentException('Missing format');
-        }
-        if (!($extension = $options['extension'])) {
-            throw new \InvalidArgumentException('Missing extension');
+        if (!($format = $options['format'] ?? null)) {
+            throw new InvalidArgumentException('Missing format');
         }
 
-        $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
-        if (class_exists($fqcnFormat)) {
-            return $this->processVideo($format, $extension, $inputFile, $options, $context);
+        if(!$this->formats->has($format)) {
+            throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
+        }
+        /** @var FormatInterface $outputFormat */
+        $outputFormat = $this->formats->get($format);
+
+        if($outputFormat->getFamily() !== FamilyEnum::Video) {
+            throw new InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
         }
 
-        throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
-    }
+        if (null != ($extension = $options['extension'] ?? null)) {
+            if(!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            }
+        }
+        else {
+            $extension = ($outputFormat->getAllowedExtensions())[0];
+        }
 
-    private function processVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
-    {
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
-            throw new \InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
+            throw new InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
         }
         $clipDuration = $options['duration'] ?? 0;
         if ($clipDuration <= 0 || $clipDuration >= $period) {
-            throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
+            throw new InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
         }
 
-        $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
-        $outpuFormat = new $fqcnFormat();
+        /** @var VideoInterface $FFMpegOutputFormat */
+        $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
         if ($videoCodec = $options['video_codec'] ?? null) {
-            if (!in_array($videoCodec, $outpuFormat->getAvailableVideoCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
+            if (!in_array($videoCodec, $FFMpegOutputFormat->getAvailableVideoCodecs())) {
+                throw new InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
-            $outpuFormat->setVideoCodec($videoCodec);
+            $FFMpegOutputFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
-            if (!in_array($audioCodec, $outpuFormat->getAvailableAudioCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+            if (!in_array($audioCodec, $FFMpegOutputFormat->getAvailableAudioCodecs())) {
+                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
-            $outpuFormat->setAudioCodec($audioCodec);
+            $FFMpegOutputFormat->setAudioCodec($audioCodec);
         }
 
-        // try to find an "enhanced by alchemy" format (supports "copy" video codec) for clips
+        $clipsExtension = ($outputFormat->getAllowedExtensions())[0];
 
-        switch ($inputFile->getType()) {
-            case 'video/mp4':
-            case 'video/mov':
-                $clipsFormatName = 'X264';
-                break;
-            case 'video/webm':
-                $clipsFormatName = 'WebM';
-                break;
-            case 'video/ogg':
-                $clipsFormatName = 'Ogg';
-                break;
-            default:
-                $clipsFormatName = '?';
-                break;
-        }
-
-        /** @var FormatInterface $clipsFormat */
-        $fqcnFormat = 'Alchemy\\RenditionFactory\\Transformer\\Video\\FFMpeg\\Format\\Video\\'.$clipsFormatName;
-        if (class_exists($fqcnFormat)) {
-            $clipsFormat = new $fqcnFormat();
-            if (in_array('copy', $clipsFormat->getAvailableVideoCodecs())) {
-                $clipsFormat->setVideoCodec('copy');
-            }
-            if (in_array('copy', $clipsFormat->getAvailableAudioCodecs())) {
-                $clipsFormat->setAudioCodec('copy');
-            }
-            $clipsExtension = $inputFile->getExtension();
-        } else {
-            $clipsFormat = $outpuFormat;
-            $clipsExtension = $extension;
-        }
-
-        $outputPath = $context->createTmpFilePath($extension);
         $clipsFiles = [];
         try {
             $ffmpeg = FFMpeg\FFMpeg::create([], $context->getLogger());
@@ -108,25 +97,30 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
             $context->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
             $clipDuration = TimeCode::fromSeconds($clipDuration);
+            $removeAudioFilter = new FFMpeg\Filters\Audio\SimpleFilter(['-an']);
             for ($i = 0; $i < $nClips; ++$i) {
                 $start = $i * $period;
                 $clip = $video->clip(TimeCode::fromSeconds($start), $clipDuration);
+                $clip->addFilter($removeAudioFilter);
                 $clipPath = $context->createTmpFilePath($clipsExtension);
-                $clip->save($clipsFormat, $clipPath);
+                $clip->save($FFMpegOutputFormat, $clipPath);
+                unset($clip);
+                gc_collect_cycles();
                 $clipsFiles[] = realpath($clipPath);
             }
+            unset($removeAudioFilter, $video);
+            gc_collect_cycles();
 
             $outVideo = $ffmpeg->open($clipsFiles[0]);
 
-            if ($format == $clipsFormatName) {
-                $outVideo
-                    ->concat($clipsFiles)
-                    ->saveFromSameCodecs($outputPath, true);
-            } else {
-                $outVideo
-                    ->concat($clipsFiles)
-                    ->saveFromDifferentCodecs($outpuFormat, $outputPath);
-            }
+            $outputPath = $context->createTmpFilePath($extension);
+
+            $outVideo
+                ->concat($clipsFiles)
+                ->saveFromSameCodecs($outputPath, true);
+
+            unset($outVideo, $ffmpeg);
+            gc_collect_cycles();
         } finally {
             foreach ($clipsFiles as $clipFile) {
                 @unlink($clipFile);
@@ -134,14 +128,13 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         }
 
         if (!file_exists($outputPath)) {
-            throw new \RuntimeException(sprintf('Failed to create summary video'));
+            throw new RuntimeException('Failed to create summary video');
         }
 
-        // TODO return the correct family and MIME type
         return new OutputFile(
             $outputPath,
-            'application/octet-stream',
-            FamilyEnum::Unknown
+            $outputFormat->getMimeType(),
+            $outputFormat->getFamily(),
         );
     }
 }
