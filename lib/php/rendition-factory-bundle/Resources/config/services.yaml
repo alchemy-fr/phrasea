@@ -28,6 +28,14 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Video\VideoToFrameTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\VideoToAnimationTransformerModule:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
+
     Alchemy\RenditionFactory\Transformer\Document\DocumentToPdfTransformerModule:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
@@ -36,7 +44,47 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
+    # FFMpeg "formats"
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\JpegFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\MkvFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\Mpeg4Format:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\MpegFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\QuicktimeFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\WebmFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedGifFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedPngFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedWebpFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+
     Imagine\Imagick\Imagine: ~
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
 
     Alchemy\RenditionFactory\MimeType\MimeTypeGuesser: ~
+    Alchemy\RenditionFactory\Format\FormatGuesser: ~
+    Alchemy\RenditionFactory\Format\FormatFactory: ~
