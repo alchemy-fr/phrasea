@@ -65,6 +65,7 @@ RUN set -eux; \
 	; \
 	\
 	docker-php-ext-install \
+        exif \
 		intl \
 		zip \
 		sockets \
