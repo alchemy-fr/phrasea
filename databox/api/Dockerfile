@@ -30,8 +30,11 @@ RUN apk add --no-cache \
 #    && pecl install \
 #        imagick-${IMAGICK_VERSION} \
     && pecl clear-cache \
+    && docker-php-ext-install \
+        exif \
     && docker-php-ext-enable \
         imagick \
+        exif \
     && apk del build-essentials
 
 # Warm up composer cache for faster builds
