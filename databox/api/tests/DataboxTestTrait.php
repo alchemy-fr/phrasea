@@ -106,6 +106,9 @@ trait DataboxTestTrait
         if ($options['public'] ?? false) {
             $collection->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
         }
+        if ($options['parent'] ?? false) {
+            $collection->setParent($options['parent']);
+        }
 
         $em->persist($collection);
         if (!($options['no_flush'] ?? false)) {

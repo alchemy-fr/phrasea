@@ -244,7 +244,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     {
         $roots = [];
         for ($i = WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE; $i <= WorkspaceItemPrivacyInterface::PUBLIC; ++$i) {
-            $roots[$i] = $this->privacy === $i;
+            $roots[$i] = $this->privacy >= $i;
         }
 
         if (null !== $this->parent) {

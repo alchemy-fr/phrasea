@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Tests;
+namespace App\Tests\Search;
 
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use App\Tests\Search\AbstractSearchTest;
 
 class CollectionSearchTest extends AbstractSearchTest
 {
@@ -15,6 +14,114 @@ class CollectionSearchTest extends AbstractSearchTest
     {
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('collection');
+    }
+    public function testSearchRootWithCollectionsInNonPublicWorkspaceAsAnonymousUser(): void
+    {
+        $A = $this->createCollection([
+            'title' => 'A',
+        ]);
+        $this->createCollection([
+            'title' => 'B',
+            'parent' => $A,
+            'public'=> true,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/collections',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(0, $data);
+    }
+
+    public function testSearchRootWithNonPublicCollectionsInPublicWorkspaceAsAnonymousUser(): void
+    {
+        $workspace = $this->createWorkspace([
+            'title' => 'Workspace',
+            'public' => true,
+        ]);
+        $A = $this->createCollection([
+            'title' => 'A',
+            'workspace' => $workspace,
+        ]);
+        $this->createCollection([
+            'title' => 'B',
+            'parent' => $A,
+            'workspace' => $workspace,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/collections',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(0, $data);
+    }
+
+    public function testSearchRootWithOnePublicSubCollectionInPublicWorkspaceAsAnonymousUser(): void
+    {
+        $workspace = $this->createWorkspace([
+            'title' => 'Workspace',
+            'public' => true,
+        ]);
+        $A = $this->createCollection([
+            'title' => 'A',
+            'workspace' => $workspace,
+        ]);
+        $this->createCollection([
+            'title' => 'B',
+            'parent' => $A,
+            'public'=> true,
+            'workspace' => $workspace,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/collections',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(1, $data);
+        $this->assertSame('B', $data[0]['title']);
+    }
+
+
+    public function testSearchRootWithTwoPublicSubCollectionsInPublicWorkspaceAsAnonymousUser(): void
+    {
+        $workspace = $this->createWorkspace([
+            'title' => 'Workspace',
+            'public' => true,
+        ]);
+        $A = $this->createCollection([
+            'title' => 'A',
+            'public'=> true,
+            'workspace' => $workspace,
+        ]);
+        $this->createCollection([
+            'title' => 'B',
+            'parent' => $A,
+            'public'=> true,
+            'workspace' => $workspace,
+        ]);
+        self::releaseIndex();
+
+        $response = $this->request(
+            null,
+            'GET',
+            '/collections',
+        );
+
+        $data = $this->getDataFromResponse($response, 200);
+        $this->assertCount(1, $data);
+        $this->assertSame('A', $data[0]['title']);
     }
 
     public function testSearchPublicCollectionsInPrivateWorkspaceAsAnonymousUser(): void

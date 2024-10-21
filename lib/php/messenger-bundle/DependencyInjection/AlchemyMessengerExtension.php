@@ -24,6 +24,11 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('services.yaml');
+
+        $bundles = $container->getParameter('kernel.bundles');
+        if (isset($bundles['SentryBundle'])) {
+            $loader->load('sentry.yaml');
+        }
     }
 
     public function prepend(ContainerBuilder $container): void
