@@ -122,7 +122,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
-        $filters = $options['filters'] ?? [];
+        $filters = array_values(array_filter($options['filters'] ?? [],
+            function($filter) {
+                return $filter['enabled'] ?? true;
+            }));
+
         // first, turn the video into a clip
         if (!empty($filters) && 'pre_clip' === $filters[0]['name']) {
             $filter = array_shift($filters);

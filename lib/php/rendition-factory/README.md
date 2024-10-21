@@ -125,13 +125,13 @@ Generic module to chain ffmpeg "filters" in a single command.
 
 - `filters` list of ffmpeg filters to apply. 
 
-Each "filter" has a name and a list of specific options.
+Each "filter" has a name and a list of specific options ; Set `enable=false` to disable a filter.
 
 ```yaml
             module: ffmpeg
             options:
                 format: video-quicktime
-               filters:
+                filters:
                     -    
                         name: resize
                         width: 320
@@ -139,6 +139,7 @@ Each "filter" has a name and a list of specific options.
                         mode: inset
                     -
                         name: watermark
+                        enabled: false  # THIS FILTER IS DISABLED
                         # only local files are supported for now
                         path: "/var/workspace/my_watermarks/google_PNG.png"
                         position: relative

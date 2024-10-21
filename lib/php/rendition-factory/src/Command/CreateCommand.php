@@ -81,6 +81,10 @@ class CreateCommand extends Command
         }
 
         if ($outputPath = $input->getOption('output')) {
+            if(substr($outputPath, -1) === '/') {
+                // a directory is specified, use the filename of the source
+                $outputPath .= pathinfo($src, PATHINFO_FILENAME);
+            }
             @mkdir(dirname($outputPath), 0755, true);
             $outputPath .= '.'.$outputFile->getExtension();
             rename($outputFile->getPath(), $outputPath);
