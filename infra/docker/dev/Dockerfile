@@ -10,7 +10,8 @@ RUN apk add --no-cache \
 		mysql-dev \
 		postgresql-dev \
 		zlib \
-    libreoffice \
+        ffmpeg \
+        libreoffice \
     	imagemagick \
     	rabbitmq-c-dev \
         bash \
