@@ -1,6 +1,11 @@
 import {create, StoreApi} from 'zustand';
 import {Collection} from '../types';
-import {collectionChildrenLimit, CollectionOptions, collectionSecondLimit, getCollections,} from '../api/collection';
+import {
+    collectionChildrenLimit,
+    CollectionOptions,
+    collectionSecondLimit,
+    getCollections,
+} from '../api/collection';
 
 export type CollectionPager = {
     items: CollectionExtended[];
@@ -22,7 +27,11 @@ type State = {
     tree: Record<string, CollectionPager>;
     updateCollection: (collection: Collection) => void;
     partialUpdateCollection: (id: string, updates: Partial<Collection>) => void;
-    load: (workspaceId: string, parentId?: string, force?: boolean) => Promise<void>;
+    load: (
+        workspaceId: string,
+        parentId?: string,
+        force?: boolean
+    ) => Promise<void>;
     loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
     addCollection: (
         collection: Collection,
@@ -72,12 +81,14 @@ export const useCollectionStore = create<State>((set, getState) => ({
 
             const jc = state.justCreated[pagerId] ?? false;
             if (jc) {
-                Object.keys(jc as Record<string, CollectionExtended>).forEach(cId => {
-                    if (!items.some(c => c.id === cId)) {
-                        items.push(jc[cId]);
-                        ++data.total;
+                Object.keys(jc as Record<string, CollectionExtended>).forEach(
+                    cId => {
+                        if (!items.some(c => c.id === cId)) {
+                            items.push(jc[cId]);
+                            ++data.total;
+                        }
                     }
-                });
+                );
             }
 
             tree[pagerId] = {
@@ -404,11 +415,16 @@ export function getNextPage(pager: CollectionPager): number | undefined {
     }
 }
 
-const createPagerExpandingSetter = (pagerId: string, parentId: string | undefined) => {
+const createPagerExpandingSetter = (
+    pagerId: string,
+    parentId: string | undefined
+) => {
     return (state: State) => {
         const tree = {...state.tree};
 
-        const parentCollection = parentId ? state.collections[parentId] : undefined;
+        const parentCollection = parentId
+            ? state.collections[parentId]
+            : undefined;
 
         tree[pagerId] = {
             ...(tree[pagerId] ?? {
@@ -455,7 +471,7 @@ function addJustCreated(
     const newStore = {...store};
     newStore[parentId] = {
         ...(newStore[parentId] ?? {}),
-    }
+    };
     newStore[parentId][collection.id] = collection;
 
     setTimeout(() => {
@@ -465,12 +481,12 @@ function addJustCreated(
             if (s[parentId]) {
                 s[parentId] = {
                     ...(s[parentId] ?? {}),
-                }
-                delete s[parentId][collection.id]
+                };
+                delete s[parentId][collection.id];
             }
 
             return s;
-        })
+        });
     }, 10000);
 
     return store;

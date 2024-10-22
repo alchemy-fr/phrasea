@@ -15,7 +15,12 @@ type Props = {
     value: string;
 } & Omit<TextFieldProps, 'value'>;
 
-export default function CopiableTextField({value, actions, startAdornment, ...props}: Props) {
+export default function CopiableTextField({
+    value,
+    actions,
+    startAdornment,
+    ...props
+}: Props) {
     const handleFocus = (event: React.FocusEvent<HTMLInputElement>) =>
         event.currentTarget.select();
 
@@ -26,9 +31,11 @@ export default function CopiableTextField({value, actions, startAdornment, ...pr
             onFocus={handleFocus}
             InputProps={{
                 readOnly: true,
-                startAdornment: startAdornment ? <InputAdornment position="start">
-                    {startAdornment}
-                    </InputAdornment> : undefined,
+                startAdornment: startAdornment ? (
+                    <InputAdornment position="start">
+                        {startAdornment}
+                    </InputAdornment>
+                ) : undefined,
                 endAdornment: (
                     <InputAdornment position="end">
                         <CopyToClipboard>

@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Alchemy\AdminBundle\Form;
 
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
-class YamlType extends AbstractType 
+class YamlType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'attr'=> [
+            'attr' => [
                 'rows' => 10,
                 'style' => 'font-family: "Courier New"',
             ],
@@ -31,9 +31,9 @@ class YamlType extends AbstractType
                                 ->buildViolation(sprintf('YAML error: %s', $e->getMessage()))
                                 ->addViolation();
                         }
-                    }       
-                )
-            ]
+                    }
+                ),
+            ],
         ]);
     }
 

@@ -11,8 +11,7 @@ final readonly class ShareAlternateUrlOutput
         private string $name,
         private string $url,
         private ?string $type,
-    )
-    {
+    ) {
     }
 
     #[Groups([Share::GROUP_READ])]

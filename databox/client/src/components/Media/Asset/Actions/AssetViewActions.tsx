@@ -19,15 +19,22 @@ type Props = {
 export default function AssetViewActions({asset, file}: Props) {
     const {t} = useTranslation();
     const closeModal = useCloseModal();
-    const {onDelete, onDownload, onEdit, onEditAttr, onShare, onSubstituteFile, can} =
-        useAssetActions({asset, onDelete: closeModal});
+    const {
+        onDelete,
+        onDownload,
+        onEdit,
+        onEditAttr,
+        onShare,
+        onSubstituteFile,
+        can,
+    } = useAssetActions({asset, onDelete: closeModal});
 
     return (
         <>
             <Box
                 sx={{
-                    zIndex: 1,
-                    position:'relative',
+                    'zIndex': 1,
+                    'position': 'relative',
                     'display': 'inline-block',
                     'ml': 2,
                     '> * + *': {
@@ -91,9 +98,11 @@ export default function AssetViewActions({asset, file}: Props) {
                     ''
                 )}
                 {can.share ? (
-                    <Button variant={'contained'}
-                            onClick={() => onShare()}
-                            startIcon={<ShareIcon />}>
+                    <Button
+                        variant={'contained'}
+                        onClick={() => onShare()}
+                        startIcon={<ShareIcon />}
+                    >
                         {t('asset_actions.share', 'Share')}
                     </Button>
                 ) : (

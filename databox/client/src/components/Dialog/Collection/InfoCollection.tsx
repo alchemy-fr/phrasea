@@ -7,8 +7,8 @@ import EventIcon from '@mui/icons-material/Event';
 import InfoRow from '../Info/InfoRow';
 import PersonIcon from '@mui/icons-material/Person';
 import {useTranslation} from 'react-i18next';
-import FolderIcon from "@mui/icons-material/Folder";
-import BusinessIcon from "@mui/icons-material/Business";
+import FolderIcon from '@mui/icons-material/Folder';
+import BusinessIcon from '@mui/icons-material/Business';
 
 type Props = {
     id: string;
@@ -55,9 +55,7 @@ export default function InfoCollection({data, onClose, minHeight}: Props) {
                 <InfoRow
                     icon={<FolderIcon />}
                     label={t('collection.info.absolute_path', `Absolute Path`)}
-                    value={
-                        data.absoluteTitle
-                    }
+                    value={data.absoluteTitle}
                 />
             </MenuList>
         </ContentTab>

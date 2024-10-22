@@ -1,11 +1,7 @@
 import {AttributeEntity, Workspace} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {
-    StackedModalProps,
-    useFormPrompt,
-    useModals,
-} from '@alchemy/navigation';
+import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import {Button, TextField} from '@mui/material';
 import {LoadingButton} from '@mui/lab';
 import {

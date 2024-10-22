@@ -23,7 +23,7 @@ import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
-import {Collection} from "../Media/Collection/CollectionTree/collectionTree.ts";
+import {Collection} from '../Media/Collection/CollectionTree/collectionTree.ts';
 
 export type UploadData = {
     destination: Collection;

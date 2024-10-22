@@ -2,9 +2,9 @@ import React, {useCallback, useState} from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {TreeView} from '@mui/x-tree-view';
-import {CircularProgress,} from '@mui/material';
+import {CircularProgress} from '@mui/material';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
-import {useWorkspaceStore} from "../../../../store/workspaceStore.ts";
+import {useWorkspaceStore} from '../../../../store/workspaceStore.ts';
 import {
     Collection,
     CommonTreeProps,
@@ -12,9 +12,9 @@ import {
     normalizeNodeId,
     SetNewCollectionPath,
     treeViewPathSeparator,
-    UpdateCollectionPath
-} from "./collectionTree.ts";
-import WorkspaceTreeItem from "./WorkspaceTreeItem.tsx";
+    UpdateCollectionPath,
+} from './collectionTree.ts';
+import WorkspaceTreeItem from './WorkspaceTreeItem.tsx';
 
 type Props<IsMulti extends boolean = false> = {
     value?: IsMulti extends true ? Collection[] : Collection;
@@ -40,7 +40,9 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     const loadWorkspaces = useWorkspaceStore(state => state.load);
     const loading = useWorkspaceStore(state => state.loading);
     const allWorkspaces = useWorkspaceStore(state => state.workspaces);
-    const workspaces = workspaceId ? allWorkspaces.filter(w => w.id === workspaceId) : allWorkspaces;
+    const workspaces = workspaceId
+        ? allWorkspaces.filter(w => w.id === workspaceId)
+        : allWorkspaces;
 
     useEffectOnce(() => {
         loadWorkspaces();
@@ -115,14 +117,14 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                         id === null
                             ? prev!.nodes.slice(0, index)
                             : prev!.nodes.map((p, i) =>
-                                i === index
-                                    ? {
-                                        id: id!,
-                                        value: value!,
-                                        editing: editing!,
-                                    }
-                                    : p
-                            ),
+                                  i === index
+                                      ? {
+                                            id: id!,
+                                            value: value!,
+                                            editing: editing!,
+                                        }
+                                      : p
+                              ),
                 };
             });
         },
@@ -134,7 +136,7 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
     };
 
     if (loading) {
-        return <CircularProgress size={50}/>;
+        return <CircularProgress size={50} />;
     }
 
     return (
@@ -155,8 +157,8 @@ export function CollectionsTreeView<IsMulti extends boolean = false>({
                     color: 'inherit',
                 },
             })}
-            defaultCollapseIcon={<ExpandMoreIcon/>}
-            defaultExpandIcon={<ChevronRightIcon/>}
+            defaultCollapseIcon={<ExpandMoreIcon />}
+            defaultExpandIcon={<ChevronRightIcon />}
             expanded={expanded}
             selected={selected as any}
             onNodeToggle={handleToggle}

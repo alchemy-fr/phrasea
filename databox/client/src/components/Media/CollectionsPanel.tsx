@@ -5,7 +5,7 @@ import WorkspaceMenuItem, {
 } from './WorkspaceMenuItem';
 import {alpha, Box, CircularProgress} from '@mui/material';
 import {collectionItemClassName} from './CollectionMenuItem';
-import {useWorkspaceStore} from "../../store/workspaceStore.ts";
+import {useWorkspaceStore} from '../../store/workspaceStore.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {FlexRow} from '@alchemy/phrasea-ui';
 
@@ -61,16 +61,22 @@ function CollectionsPanel({}: Props) {
                 },
             })}
         >
-            {loading ? <FlexRow style={{
-                marginTop: '20vh',
-                justifyContent: 'center',
-            }}>
-                <CircularProgress style={{display: 'block'}}/>
-            </FlexRow> : <>
-                {workspaces?.map(w => (
-                    <WorkspaceMenuItem data={w} key={w.id} />
-                ))}
-            </>}
+            {loading ? (
+                <FlexRow
+                    style={{
+                        marginTop: '20vh',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <CircularProgress style={{display: 'block'}} />
+                </FlexRow>
+            ) : (
+                <>
+                    {workspaces?.map(w => (
+                        <WorkspaceMenuItem data={w} key={w.id} />
+                    ))}
+                </>
+            )}
         </Box>
     );
 }

@@ -31,7 +31,7 @@ import {useContextMenu} from '../../hooks/useContextMenu.ts';
 import ContextMenu from '../Ui/ContextMenu.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import useEffectOnce from "@alchemy/react-hooks/src/useEffectOnce";
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 
 type Props = {
     selected?: string;

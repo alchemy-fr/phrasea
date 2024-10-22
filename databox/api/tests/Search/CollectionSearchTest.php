@@ -15,6 +15,7 @@ class CollectionSearchTest extends AbstractSearchTest
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('collection');
     }
+
     public function testSearchRootWithCollectionsInNonPublicWorkspaceAsAnonymousUser(): void
     {
         $A = $this->createCollection([
@@ -23,7 +24,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $this->createCollection([
             'title' => 'B',
             'parent' => $A,
-            'public'=> true,
+            'public' => true,
         ]);
         self::releaseIndex();
 
@@ -77,7 +78,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $this->createCollection([
             'title' => 'B',
             'parent' => $A,
-            'public'=> true,
+            'public' => true,
             'workspace' => $workspace,
         ]);
         self::releaseIndex();
@@ -93,7 +94,6 @@ class CollectionSearchTest extends AbstractSearchTest
         $this->assertSame('B', $data[0]['title']);
     }
 
-
     public function testSearchRootWithTwoPublicSubCollectionsInPublicWorkspaceAsAnonymousUser(): void
     {
         $workspace = $this->createWorkspace([
@@ -102,13 +102,13 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         $A = $this->createCollection([
             'title' => 'A',
-            'public'=> true,
+            'public' => true,
             'workspace' => $workspace,
         ]);
         $this->createCollection([
             'title' => 'B',
             'parent' => $A,
-            'public'=> true,
+            'public' => true,
             'workspace' => $workspace,
         ]);
         self::releaseIndex();

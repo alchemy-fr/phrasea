@@ -1,7 +1,8 @@
 import React, {PropsWithChildren} from 'react';
 import {
     TUserPreferencesContext,
-    UpdatePreferenceHandler, UpdatePreferenceHandlerArg,
+    UpdatePreferenceHandler,
+    UpdatePreferenceHandlerArg,
     UserPreferences,
     UserPreferencesContext,
 } from './UserPreferencesContext';
@@ -12,12 +13,14 @@ import {useAuth} from '@alchemy/react-auth';
 import {ThemeEditorProvider} from '@alchemy/theme-editor';
 import {Classes} from '../../../classes.ts';
 import {scrollbarWidth} from '../../../constants.ts';
-import {FullPageLoader} from "@alchemy/phrasea-ui";
+import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
-import {useMutation, useQuery} from "@tanstack/react-query";
-import {queryClient} from "../../../lib/query.ts";
+import {useMutation, useQuery} from '@tanstack/react-query';
+import {queryClient} from '../../../lib/query.ts';
 
-type UpdatePrefVariables<T extends keyof UserPreferences = keyof UserPreferences> = {
+type UpdatePrefVariables<
+    T extends keyof UserPreferences = keyof UserPreferences,
+> = {
     name: T;
     handler: UpdatePreferenceHandlerArg<T>;
 };
@@ -63,7 +66,7 @@ export default function UserPreferencesProvider({children}: Props) {
         name,
         handler,
     }: UpdatePrefVariables<T>): Promise<UserPreferences> => {
-        return queryClient.setQueryData<UserPreferences>(queryKey, (prev) => {
+        return queryClient.setQueryData<UserPreferences>(queryKey, prev => {
             const newPrefs = {...(prev ?? {})} as UserPreferences;
 
             if (typeof handler === 'function') {
@@ -84,8 +87,12 @@ export default function UserPreferencesProvider({children}: Props) {
         })!;
     };
 
-    const updatePreference = useMutation<UserPreferences, {}, UpdatePrefVariables<any>>({
-        mutationFn
+    const updatePreference = useMutation<
+        UserPreferences,
+        {},
+        UpdatePrefVariables<any>
+    >({
+        mutationFn,
     });
 
     const value = React.useMemo<TUserPreferencesContext>(() => {
@@ -107,7 +114,7 @@ export default function UserPreferencesProvider({children}: Props) {
                     preferences.theme ?? 'default'
                 )}
             >
-                <CssBaseline/>
+                <CssBaseline />
                 <GlobalStyles
                     styles={theme => ({
                         '*': {
@@ -136,10 +143,17 @@ export default function UserPreferencesProvider({children}: Props) {
                     })}
                 />
 
-                {!isLoading ? children : <FullPageLoader
-                    backdrop={false}
-                    message={t('user_preferences.loading', 'Loading user preferences…')}
-                />}
+                {!isLoading ? (
+                    children
+                ) : (
+                    <FullPageLoader
+                        backdrop={false}
+                        message={t(
+                            'user_preferences.loading',
+                            'Loading user preferences…'
+                        )}
+                    />
+                )}
             </ThemeEditorProvider>
         </UserPreferencesContext.Provider>
     );

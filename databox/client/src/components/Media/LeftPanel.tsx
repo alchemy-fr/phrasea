@@ -21,7 +21,7 @@ function a11yProps(name: TabEnum) {
     };
 }
 
-function TabPanel(props: { index: string } & TabPanelProps) {
+function TabPanel(props: {index: string} & TabPanelProps) {
     const {children, value, index} = props;
 
     return (
@@ -68,14 +68,18 @@ export default function LeftPanel() {
                 ) : null}
             </Tabs>
             <TabPanel value={tab} index={TabEnum.facets}>
-                <Facets/>
+                <Facets />
             </TabPanel>
             <TabPanel value={tab} index={TabEnum.tree}>
-                {treeLoadedOnce.current || tab === TabEnum.tree ? <CollectionsPanel/> : ''}
+                {treeLoadedOnce.current || tab === TabEnum.tree ? (
+                    <CollectionsPanel />
+                ) : (
+                    ''
+                )}
             </TabPanel>
             {isAuthenticated() ? (
                 <TabPanel value={tab} index={TabEnum.baskets}>
-                    <BasketsPanel/>
+                    <BasketsPanel />
                 </TabPanel>
             ) : null}
         </>

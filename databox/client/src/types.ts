@@ -33,7 +33,7 @@ export type ShareAlternateUrl = {
     name: string;
     url: string;
     type: string | undefined;
-}
+};
 
 export type Share = {
     id: string;

@@ -60,8 +60,9 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
         e.stopPropagation();
         expand();
 
-        if (undefined === pager.total
-            || e.detail > 1 // is double click
+        if (
+            undefined === pager.total ||
+            e.detail > 1 // is double click
         ) {
             loadRoot(id);
         }
@@ -125,7 +126,10 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                 aria-label="expand-toggle"
                             >
                                 {pager.expanding ? (
-                                    <CircularProgress color={'inherit'} size={24} />
+                                    <CircularProgress
+                                        color={'inherit'}
+                                        size={24}
+                                    />
                                 ) : !expanded ? (
                                     <ExpandLessIcon />
                                 ) : (

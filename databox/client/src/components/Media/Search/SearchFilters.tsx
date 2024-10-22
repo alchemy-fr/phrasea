@@ -54,21 +54,34 @@ function formatFilterTitle(
                 return t('filter.between', {
                     defaultValue: '{{title}} between {{from}} and {{to}}',
                     title,
-                    from: extractLabelValueFromKey(value[0], type, DateFormats.Long).label,
-                    to: extractLabelValueFromKey(value[1], type, DateFormats.Long).label,
+                    from: extractLabelValueFromKey(
+                        value[0],
+                        type,
+                        DateFormats.Long
+                    ).label,
+                    to: extractLabelValueFromKey(
+                        value[1],
+                        type,
+                        DateFormats.Long
+                    ).label,
                 });
             } else if (value[0]) {
                 return t('filter.after', {
                     defaultValue: '{{title}} after {{from}}',
                     title,
-                    from: extractLabelValueFromKey(value[0], type, DateFormats.Long).label,
+                    from: extractLabelValueFromKey(
+                        value[0],
+                        type,
+                        DateFormats.Long
+                    ).label,
                 });
             }
 
             return t('filter.before', {
                 defaultValue: '{{title}} before {{to}}',
                 title,
-                to: extractLabelValueFromKey(value[1], type, DateFormats.Long).label,
+                to: extractLabelValueFromKey(value[1], type, DateFormats.Long)
+                    .label,
             });
     }
 }
@@ -94,20 +107,23 @@ function formatFilterLabel(
                 .join(', ');
         case FacetType.DateRange:
             if (value[0] && value[1]) {
-
-            return `${
-                extractLabelValueFromKey(value[0], type, DateFormats.Short)
-                    .label
-            } - ${
-                extractLabelValueFromKey(value[1], type, DateFormats.Short)
-                    .label
-            }`;
+                return `${
+                    extractLabelValueFromKey(value[0], type, DateFormats.Short)
+                        .label
+                } - ${
+                    extractLabelValueFromKey(value[1], type, DateFormats.Short)
+                        .label
+                }`;
             } else if (value[0]) {
-                return `>= ${extractLabelValueFromKey(value[0], type, DateFormats.Short)
-                    .label}`;
+                return `>= ${
+                    extractLabelValueFromKey(value[0], type, DateFormats.Short)
+                        .label
+                }`;
             } else {
-                return `<= ${extractLabelValueFromKey(value[1], type, DateFormats.Short)
-                    .label}`;
+                return `<= ${
+                    extractLabelValueFromKey(value[1], type, DateFormats.Short)
+                        .label
+                }`;
             }
     }
 }

@@ -1,12 +1,17 @@
-import React, {useCallback} from "react";
-import {CollectionPager, useCollectionStore} from "../../../../store/collectionStore.ts";
-import EditableCollectionTree, {defaultNewCollectionName} from "../EditableTree.tsx";
-import {TreeItem} from "@mui/x-tree-view";
-import {IconButton, Stack} from "@mui/material";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import {CollectionOptionalWorkspace} from "../../../../types.ts";
-import {CommonTreeItemProps, treeViewPathSeparator} from "./collectionTree.ts";
-import TreeItemLoader from "./TreeItemLoader.tsx";
+import React, {useCallback} from 'react';
+import {
+    CollectionPager,
+    useCollectionStore,
+} from '../../../../store/collectionStore.ts';
+import EditableCollectionTree, {
+    defaultNewCollectionName,
+} from '../EditableTree.tsx';
+import {TreeItem} from '@mui/x-tree-view';
+import {IconButton, Stack} from '@mui/material';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import {CollectionOptionalWorkspace} from '../../../../types.ts';
+import {CommonTreeItemProps, treeViewPathSeparator} from './collectionTree.ts';
+import TreeItemLoader from './TreeItemLoader.tsx';
 
 type Props<IsMulti extends boolean = false> = {
     collection: CollectionOptionalWorkspace;
@@ -91,16 +96,18 @@ export function CollectionTreeItem<IsMulti extends boolean = false>({
                             sx={{ml: 1}}
                             onClick={onCreateNewCollection}
                         >
-                            <CreateNewFolderIcon/>
+                            <CreateNewFolderIcon />
                         </IconButton>
                     )}
                 </Stack>
             }
         >
             {/*Wrapping all to avoid collapse in node */}
-            {pager.expanding || hasTree || (allowNew && hasNewCollectionPath) ? (
+            {pager.expanding ||
+            hasTree ||
+            (allowNew && hasNewCollectionPath) ? (
                 <>
-                    {pager.expanding ? <TreeItemLoader/> : null}
+                    {pager.expanding ? <TreeItemLoader /> : null}
                     {allowNew && hasNewCollectionPath ? (
                         <EditableCollectionTree
                             nodes={newCollectionPath!.nodes}

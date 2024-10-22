@@ -1,5 +1,5 @@
-import {CollectionOptionalWorkspace} from "../../../../types.ts";
-import {nodeNewPrefix} from "../EditableTree.tsx";
+import {CollectionOptionalWorkspace} from '../../../../types.ts';
+import {nodeNewPrefix} from '../EditableTree.tsx';
 
 const nodeSeparator = '|';
 
@@ -29,14 +29,13 @@ export type CommonTreeItemProps<IsMulti extends boolean = false> = {
     setExpanded: SetExpanded;
 } & CommonTreeProps<IsMulti>;
 
-
 export type CommonTreeProps<IsMulti extends boolean = false> = {
     multiple?: IsMulti;
     disabledBranches?: string[];
     allowNew?: boolean;
     disabled?: boolean | undefined;
     isSelectable?: IsSelectable;
-}
+};
 
 export type CollectionId = string;
 

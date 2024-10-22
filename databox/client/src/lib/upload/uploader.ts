@@ -10,8 +10,8 @@ import {v4 as uuidv4} from 'uuid';
 import {
     CollectionId,
     NewCollectionPath,
-    treeViewPathSeparator
-} from "../../components/Media/Collection/CollectionTree/collectionTree.ts";
+    treeViewPathSeparator,
+} from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
 
 type InputFile = {
     title?: string;

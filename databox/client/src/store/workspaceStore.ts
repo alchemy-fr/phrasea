@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {Workspace} from '../types';
-import {getWorkspaces} from "../api/workspace.ts";
+import {getWorkspaces} from '../api/workspace.ts';
 
 type State = {
     tree: Record<string, Workspace>;
@@ -61,7 +61,7 @@ export const useWorkspaceStore = create<State>((set, getState) => ({
             const tree = {...state.tree};
 
             tree[id] = {
-                ...tree[id] ?? {},
+                ...(tree[id] ?? {}),
                 ...updates,
             };
 

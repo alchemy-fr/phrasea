@@ -10,11 +10,7 @@ import RenditionDefinitionSelect from '../../../Form/RenditionDefinitionSelect';
 import {useTranslation} from 'react-i18next';
 import {postRendition} from '../../../../api/rendition';
 import {useFormSubmit} from '@alchemy/api';
-import {
-    useModals,
-    StackedModalProps,
-    useFormPrompt,
-} from '@alchemy/navigation';
+import {useModals, StackedModalProps, useFormPrompt} from '@alchemy/navigation';
 
 type FormData = {
     definition: string | undefined;

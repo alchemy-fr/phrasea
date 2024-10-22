@@ -1,11 +1,14 @@
-import {Box, Typography} from "@mui/material";
-import {CollectionTreeItem} from "./CollectionTreeItem.tsx";
-import {TreeItem} from "@mui/x-tree-view";
-import React from "react";
-import {Workspace} from "../../../../types.ts";
-import {CommonTreeItemProps, treeViewPathSeparator} from "./collectionTree.ts";
-import {CollectionPager, useCollectionStore} from "../../../../store/collectionStore.ts";
-import TreeItemLoader from "./TreeItemLoader.tsx";
+import {Box, Typography} from '@mui/material';
+import {CollectionTreeItem} from './CollectionTreeItem.tsx';
+import {TreeItem} from '@mui/x-tree-view';
+import React from 'react';
+import {Workspace} from '../../../../types.ts';
+import {CommonTreeItemProps, treeViewPathSeparator} from './collectionTree.ts';
+import {
+    CollectionPager,
+    useCollectionStore,
+} from '../../../../store/collectionStore.ts';
+import TreeItemLoader from './TreeItemLoader.tsx';
 
 type Props<IsMulti extends boolean = false> = {
     workspace: Workspace;
@@ -36,51 +39,53 @@ export default function WorkspaceTreeItem<IsMulti extends boolean = false>({
         }
     }
 
-    return <>
-        <TreeItem
-            nodeId={nodeId}
-            key={workspaceId}
-            onClick={load}
-            label={
-                <>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 1,
-                        }}
-                    >
-                        <Typography
-                            variant="body1"
+    return (
+        <>
+            <TreeItem
+                nodeId={nodeId}
+                key={workspaceId}
+                onClick={load}
+                label={
+                    <>
+                        <Box
                             sx={{
-                                fontWeight: 'inherit',
-                                flexGrow: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                p: 1,
                             }}
                         >
-                            {workspace.name}
-                        </Typography>
-                        <Typography
-                            variant="caption"
-                            color="inherit"
-                        ></Typography>
-                    </Box>
-                </>
-            }
-            disabled={
-                disabledBranches &&
-                disabledBranches.some(b => nodeId.startsWith(b))
-            }
-        >
-            {pager.expanding ? <TreeItemLoader/> : null}
-            {pager.items.map(c => (
-                <CollectionTreeItem
-                    {...rest}
-                    key={c.id}
-                    workspaceId={workspaceId}
-                    collection={c}
-                    disabledBranches={disabledBranches}
-                />
-            ))}
-        </TreeItem>
-    </>
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    fontWeight: 'inherit',
+                                    flexGrow: 1,
+                                }}
+                            >
+                                {workspace.name}
+                            </Typography>
+                            <Typography
+                                variant="caption"
+                                color="inherit"
+                            ></Typography>
+                        </Box>
+                    </>
+                }
+                disabled={
+                    disabledBranches &&
+                    disabledBranches.some(b => nodeId.startsWith(b))
+                }
+            >
+                {pager.expanding ? <TreeItemLoader /> : null}
+                {pager.items.map(c => (
+                    <CollectionTreeItem
+                        {...rest}
+                        key={c.id}
+                        workspaceId={workspaceId}
+                        collection={c}
+                        disabledBranches={disabledBranches}
+                    />
+                ))}
+            </TreeItem>
+        </>
+    );
 }
