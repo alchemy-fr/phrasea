@@ -275,7 +275,6 @@ export interface BasketAsset {
 export interface Workspace extends IPermissions {
     id: string;
     name: string;
-    collections: Collection[];
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     createdAt: string;

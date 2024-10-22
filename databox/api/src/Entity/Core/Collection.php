@@ -85,7 +85,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         'groups' => [
             self::GROUP_LIST,
             self::GROUP_CHILDREN,
-            self::GROUP_2LEVEL_CHILDREN,
         ],
     ],
     input: CollectionInput::class,
@@ -106,11 +105,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     use LocaleTrait;
     use WorkspacePrivacyTrait;
 
-    final public const GROUP_READ = 'coll:read';
-    final public const GROUP_LIST = 'coll:index';
-    final public const GROUP_CHILDREN = 'coll:ic';
-    final public const GROUP_2LEVEL_CHILDREN = 'coll:2lc';
-    final public const GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
+    final public const string GROUP_READ = 'coll:read';
+    final public const string GROUP_LIST = 'coll:index';
+    final public const string GROUP_CHILDREN = 'coll:ic';
+    final public const string GROUP_ABSOLUTE_TITLE = 'coll:absTitle';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $title = null;

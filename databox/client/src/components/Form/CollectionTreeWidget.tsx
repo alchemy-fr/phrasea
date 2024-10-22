@@ -6,10 +6,10 @@ import {FieldPath} from 'react-hook-form';
 import {
     CollectionsTreeView,
     CollectionTreeViewProps,
-    IsSelectable,
-} from '../Media/Collection/CollectionsTreeView';
+} from '../Media/Collection/CollectionTree/CollectionsTreeView.tsx';
 import {FormControl, FormLabel} from '@mui/material';
 import {RegisterOptions} from 'react-hook-form';
+import {IsSelectable} from "../Media/Collection/CollectionTree/collectionTree.ts";
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     label?: ReactNode;

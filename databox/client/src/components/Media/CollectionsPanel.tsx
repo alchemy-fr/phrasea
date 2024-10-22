@@ -1,28 +1,23 @@
 import React from 'react';
-import {useCollectionStore} from '../../store/collectionStore';
 import WorkspaceMenuItem, {
     cActionClassName,
     workspaceItemClassName,
 } from './WorkspaceMenuItem';
-import {getWorkspaces} from '../../api/collection';
-import {Workspace} from '../../types';
-import {alpha, Box} from '@mui/material';
+import {alpha, Box, CircularProgress} from '@mui/material';
 import {collectionItemClassName} from './CollectionMenuItem';
+import {useWorkspaceStore} from "../../store/workspaceStore.ts";
+import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
+import {FlexRow} from '@alchemy/phrasea-ui';
 
 type Props = {};
 
 function CollectionsPanel({}: Props) {
-    const [workspaces, setWorkspaces] = React.useState<Workspace[]>([]);
+    const loadWorkspaces = useWorkspaceStore(state => state.load);
+    const loading = useWorkspaceStore(state => state.loading);
+    const workspaces = useWorkspaceStore(state => state.workspaces);
 
-    const setRootCollections = useCollectionStore(
-        state => state.setRootCollections
-    );
-
-    React.useEffect(() => {
-        getWorkspaces().then(result => {
-            setRootCollections(result);
-            setWorkspaces(result);
-        });
+    useEffectOnce(() => {
+        loadWorkspaces();
     }, []);
 
     return (
@@ -42,6 +37,7 @@ function CollectionsPanel({}: Props) {
                     },
                     [`.MuiListItemButton-root.Mui-selected`]: {
                         backgroundColor: theme.palette.secondary.main,
+                        color: theme.palette.secondary.contrastText,
                     },
                 },
                 '.MuiListItemIcon-root': {
@@ -65,9 +61,16 @@ function CollectionsPanel({}: Props) {
                 },
             })}
         >
-            {workspaces.map(w => (
-                <WorkspaceMenuItem data={w} key={w.id} />
-            ))}
+            {loading ? <FlexRow style={{
+                marginTop: '20vh',
+                justifyContent: 'center',
+            }}>
+                <CircularProgress style={{display: 'block'}}/>
+            </FlexRow> : <>
+                {workspaces?.map(w => (
+                    <WorkspaceMenuItem data={w} key={w.id} />
+                ))}
+            </>}
         </Box>
     );
 }

@@ -34,20 +34,26 @@ function getFromStorage(): UserPreferences {
     return {};
 }
 
+function putToStorage(prefs: UserPreferences): void {
+    sessionStorage.setItem(sessionStorageKey, JSON.stringify(prefs));
+}
+
 type Props = PropsWithChildren<{}>;
 
 export default function UserPreferencesProvider({children}: Props) {
     const {user} = useAuth();
     const {t} = useTranslation();
-    const initialData = getFromStorage();
     const queryKey = ['userPreferences', user?.id];
 
     const {data: preferences, isLoading} = useQuery<UserPreferences>({
-        initialData: initialData,
+        initialData: getFromStorage(),
         staleTime: 0,
         refetchOnWindowFocus: false,
         queryFn: async () => {
-            return await getUserPreferences();
+            const userPreferences = await getUserPreferences();
+            putToStorage(userPreferences);
+
+            return userPreferences;
         },
         queryKey,
         enabled: !!user,
@@ -72,10 +78,7 @@ export default function UserPreferencesProvider({children}: Props) {
                 }, 0);
             }
 
-            sessionStorage.setItem(
-                sessionStorageKey,
-                JSON.stringify(newPrefs)
-            );
+            putToStorage(newPrefs);
 
             return newPrefs;
         })!;

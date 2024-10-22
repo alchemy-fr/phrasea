@@ -1,11 +1,6 @@
-import {create} from 'zustand';
-import {Collection, Workspace} from '../types';
-import {
-    collectionChildrenLimit,
-    CollectionOptions,
-    collectionSecondLimit,
-    getCollections,
-} from '../api/collection';
+import {create, StoreApi} from 'zustand';
+import {Collection} from '../types';
+import {collectionChildrenLimit, CollectionOptions, collectionSecondLimit, getCollections,} from '../api/collection';
 
 export type CollectionPager = {
     items: CollectionExtended[];
@@ -19,14 +14,15 @@ type CollectionExtended = {
     parentId: string | undefined;
 } & Collection;
 
+type JustCreatedIndex = Record<string, Record<string, CollectionExtended>>;
+
 type State = {
     collections: Record<string, CollectionExtended>;
+    justCreated: JustCreatedIndex;
     tree: Record<string, CollectionPager>;
-    setRootCollections: (workspaces: Workspace[]) => void;
     updateCollection: (collection: Collection) => void;
     partialUpdateCollection: (id: string, updates: Partial<Collection>) => void;
-    loadChildren: (workspaceId: string, parentId: string) => Promise<void>;
-    loadRoot: (workspaceId: string) => Promise<void>;
+    load: (workspaceId: string, parentId?: string, force?: boolean) => Promise<void>;
     loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
     addCollection: (
         collection: Collection,
@@ -37,44 +33,28 @@ type State = {
     moveCollection: (id: string, to: string | undefined) => void;
 };
 
-function updateCollectionByReference(
-    state: Record<string, Collection>,
-    collection: Collection | CollectionExtended,
-    workspaceId: string,
-    parentId?: string | undefined
-): CollectionExtended {
-    const c = state[collection.id];
-
-    if (c) {
-        (Object.keys(collection) as (keyof typeof collection)[]).forEach(k => {
-            // @ts-expect-error key typing
-            c[k] = collection[k];
-        });
-    } else {
-        return (state[collection.id] = {
-            ...collection,
-            workspaceId,
-            parentId,
-        } as CollectionExtended);
-    }
-
-    return c as CollectionExtended;
-}
-
 export const useCollectionStore = create<State>((set, getState) => ({
     collections: {},
     tree: {},
+    justCreated: {},
 
-    loadChildren: async (workspaceId, parentId) => {
+    load: async (workspaceId, parentId, force) => {
+        const pagerId = parentId ?? workspaceId;
+        if (!force && getState().tree[pagerId]) {
+            return;
+        }
+
         const timeout = setTimeout(() => {
-            set(createPagerExpandingSetter(parentId));
+            set(createPagerExpandingSetter(pagerId, parentId));
         }, 800);
 
         const data = await getCollections({
+            workspaces: [workspaceId],
             parent: parentId,
             limit: collectionSecondLimit,
             childrenLimit: collectionChildrenLimit,
         });
+
         clearTimeout(timeout);
 
         set(state => {
@@ -90,47 +70,18 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 );
             });
 
-            tree[parentId] = {
-                ...(tree[parentId] ?? {}),
-                items,
-                total: data.total,
-                expanding: false,
-                loadingMore: false,
-            };
+            const jc = state.justCreated[pagerId] ?? false;
+            if (jc) {
+                Object.keys(jc as Record<string, CollectionExtended>).forEach(cId => {
+                    if (!items.some(c => c.id === cId)) {
+                        items.push(jc[cId]);
+                        ++data.total;
+                    }
+                });
+            }
 
-            return {
-                tree,
-                collections: newCollections,
-            };
-        });
-    },
-
-    loadRoot: async workspaceId => {
-        const timeout = setTimeout(() => {
-            set(createPagerExpandingSetter(workspaceId));
-        }, 800);
-
-        const data = await getCollections({
-            workspaces: [workspaceId],
-            limit: collectionSecondLimit,
-            childrenLimit: collectionChildrenLimit,
-        });
-        clearTimeout(timeout);
-
-        set(state => {
-            const tree = {...state.tree};
-            const newCollections = {...state.collections};
-
-            const items = data.result.map(c => {
-                return updateCollectionByReference(
-                    newCollections,
-                    c,
-                    workspaceId
-                );
-            });
-
-            tree[workspaceId] = {
-                ...(tree[workspaceId] ?? {}),
+            tree[pagerId] = {
+                ...(tree[pagerId] ?? {}),
                 items,
                 total: data.total,
                 expanding: false,
@@ -218,36 +169,6 @@ export const useCollectionStore = create<State>((set, getState) => ({
         }
     },
 
-    setRootCollections: workspaces => {
-        set(state => {
-            const newCollections = {...state.collections};
-            const tree = {...state.tree};
-
-            workspaces.forEach(ws => {
-                const wsId = ws.id;
-
-                const items = ws.collections.map(c => {
-                    return updateCollectionByReference(
-                        newCollections,
-                        c,
-                        ws.id
-                    );
-                });
-
-                tree[wsId] = {
-                    items,
-                    expanding: false,
-                    loadingMore: false,
-                };
-            });
-
-            return {
-                collections: newCollections,
-                tree,
-            };
-        });
-    },
-
     updateCollection: collection => {
         getState().partialUpdateCollection(collection.id, collection);
     },
@@ -312,7 +233,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 (oldPublic && false === updates.public) ||
                 (oldShared && false === updates.shared);
             if (shouldRefresh && state.tree[id]) {
-                state.loadChildren(oldColl.workspaceId, id);
+                state.load(oldColl.workspaceId, id);
             }
 
             return {
@@ -325,6 +246,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
         set(state => {
             const newCollections = {...state.collections};
             const tree = {...state.tree};
+            let justCreated = state.justCreated;
 
             const c = updateCollectionByReference(
                 newCollections,
@@ -340,7 +262,11 @@ export const useCollectionStore = create<State>((set, getState) => ({
                     (parentCollection.children?.length ?? 0) === 0
                 ) {
                     newCollections[parentCollection.id].children = [c];
+
+                    justCreated = addJustCreated(justCreated, parentId, c, set);
                 }
+            } else {
+                justCreated = addJustCreated(justCreated, workspaceId, c, set);
             }
 
             const pagerId = c.parentId ?? c.workspaceId;
@@ -358,6 +284,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
 
             return {
                 tree,
+                justCreated,
                 collections: newCollections,
             };
         });
@@ -477,19 +404,74 @@ export function getNextPage(pager: CollectionPager): number | undefined {
     }
 }
 
-const createPagerExpandingSetter = (pagerId: string) => {
+const createPagerExpandingSetter = (pagerId: string, parentId: string | undefined) => {
     return (state: State) => {
         const tree = {...state.tree};
+
+        const parentCollection = parentId ? state.collections[parentId] : undefined;
 
         tree[pagerId] = {
             ...(tree[pagerId] ?? {
                 loadingMore: false,
-                items: [],
+                items: parentCollection ? parentCollection.children : [],
             }),
-            ...tree[pagerId],
             expanding: true,
         };
 
         return {tree};
     };
 };
+
+function updateCollectionByReference(
+    state: Record<string, Collection>,
+    collection: Collection | CollectionExtended,
+    workspaceId: string,
+    parentId?: string | undefined
+): CollectionExtended {
+    const c = state[collection.id];
+
+    if (c) {
+        (Object.keys(collection) as (keyof typeof collection)[]).forEach(k => {
+            // @ts-expect-error key typing
+            c[k] = collection[k];
+        });
+    } else {
+        return (state[collection.id] = {
+            ...collection,
+            workspaceId,
+            parentId,
+        } as CollectionExtended);
+    }
+
+    return c as CollectionExtended;
+}
+
+function addJustCreated(
+    store: JustCreatedIndex,
+    parentId: string,
+    collection: CollectionExtended,
+    set: StoreApi<State>['setState']
+): JustCreatedIndex {
+    const newStore = {...store};
+    newStore[parentId] = {
+        ...(newStore[parentId] ?? {}),
+    }
+    newStore[parentId][collection.id] = collection;
+
+    setTimeout(() => {
+        set((prev: State) => {
+            const s = {...prev.justCreated};
+
+            if (s[parentId]) {
+                s[parentId] = {
+                    ...(s[parentId] ?? {}),
+                }
+                delete s[parentId][collection.id]
+            }
+
+            return s;
+        })
+    }, 10000);
+
+    return store;
+}

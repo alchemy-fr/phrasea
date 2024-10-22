@@ -4,12 +4,12 @@ import {useTranslation} from 'react-i18next';
 import {Typography} from '@mui/material';
 import {
     CollectionsTreeView,
-    treeViewPathSeparator,
-} from './CollectionsTreeView';
+} from './CollectionTree/CollectionsTreeView.tsx';
 import {clearWorkspaceCache, moveCollection} from '../../../api/collection';
 import {toast} from 'react-toastify';
 import {LoadingButton} from '@mui/lab';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
+import {treeViewPathSeparator} from "./CollectionTree/collectionTree.ts";
 
 type Props = {
     collection: Collection;
@@ -70,7 +70,7 @@ export default function CollectionMoveSection({collection, onMoved}: Props) {
                 disabled={loading || !dest}
                 loading={loading}
             >
-                {t('', 'Move collection')}
+                {t('collection_move.move.label', 'Move collection')}
             </LoadingButton>
         </div>
     );

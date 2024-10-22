@@ -22,8 +22,7 @@ import ModalLink from '../Routing/ModalLink';
 import {useTranslation} from 'react-i18next';
 import {useModals} from '@alchemy/navigation';
 import {modalRoutes} from '../../routes';
-import {useCollectionStore} from '../../store/collectionStore';
-import {useShallow} from 'zustand/react/shallow';
+import {CollectionPager, useCollectionStore} from '../../store/collectionStore';
 import LoadMoreCollections from './Collection/LoadMoreCollections';
 
 export type WorkspaceMenuItemProps = {
@@ -44,8 +43,15 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
 
     const addCollection = useCollectionStore(state => state.addCollection);
     const loadMore = useCollectionStore(state => state.loadMore);
-    const loadRoot = useCollectionStore(state => state.loadRoot);
-    const pager = useCollectionStore(useShallow(state => state.tree))[id];
+    const loadRoot = useCollectionStore(state => state.load);
+
+    const pager =
+        useCollectionStore(state => state.tree)[id] ??
+        ({
+            items: [],
+            expanding: false,
+            loadingMore: false,
+        } as CollectionPager);
 
     const expand = (force?: boolean) => {
         setExpanded(p => !p || true === force);
@@ -54,8 +60,9 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
         e.stopPropagation();
         expand();
 
-        if (e.detail > 1) {
-            // is double click
+        if (undefined === pager.total
+            || e.detail > 1 // is double click
+        ) {
             loadRoot(id);
         }
     };
@@ -118,7 +125,7 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                                 aria-label="expand-toggle"
                             >
                                 {pager.expanding ? (
-                                    <CircularProgress size={24} />
+                                    <CircularProgress color={'inherit'} size={24} />
                                 ) : !expanded ? (
                                     <ExpandLessIcon />
                                 ) : (
@@ -146,11 +153,11 @@ export default function WorkspaceMenuItem({data}: WorkspaceMenuItemProps) {
                 {pager?.items &&
                     pager!.items.map(c => (
                         <CollectionMenuItem
-                            data={c}
-                            workspaceId={id}
+                            collection={c}
                             key={c.id}
                             absolutePath={c.id}
                             level={0}
+                            workspace={data}
                         />
                     ))}
                 {pager && pager.items.length < (pager.total ?? 0) && (

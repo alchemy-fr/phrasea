@@ -8,11 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import {KeyboardCode} from '@dnd-kit/core';
 import {alpha} from '@mui/material/styles';
-import {
-    NewCollectionNodeState,
-    SetExpanded,
-    UpdateCollectionPath,
-} from './CollectionsTreeView';
+import {NewCollectionNodeState, SetExpanded, UpdateCollectionPath} from "./CollectionTree/collectionTree.ts";
 
 type Props = {
     offset: number;
