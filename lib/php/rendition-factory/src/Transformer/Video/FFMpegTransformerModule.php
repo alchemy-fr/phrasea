@@ -96,7 +96,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $FFMpegFormat->setKiloBitrate($videoKilobitrate);
         }
         if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
-            if (!method_exists($ouputFormat, 'setAudioKiloBitrate')) {
+            if (!method_exists($FFMpegFormat, 'setAudioKiloBitrate')) {
                 throw new InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
             }
             if (!is_int($audioKilobitrate)) {
@@ -105,7 +105,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $FFMpegFormat->setAudioKiloBitrate($audioKilobitrate);
         }
         if (null !== ($passes = $options['passes'] ?? null)) {
-            if (!method_exists($ouputFormat, 'setPasses')) {
+            if (!method_exists($FFMpegFormat, 'setPasses')) {
                 throw new InvalidArgumentException(sprintf('format %s does not support passes', $format));
             }
             if (!is_int($passes) || $passes < 1) {
