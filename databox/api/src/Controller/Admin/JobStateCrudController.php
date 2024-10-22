@@ -21,6 +21,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
@@ -63,7 +64,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->retryFailedJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
 
-        return new RedirectResponse($context->getReferrer());
+        return $this->returnToReferer($context);
     }
 
     public function cancelJob(AdminContext $context): RedirectResponse
@@ -72,7 +73,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->cancelWorkflow($jobState->getWorkflow()->getId());
 
-        return new RedirectResponse($context->getReferrer());
+        return $this->returnToReferer($context);
     }
 
     public function rerunJob(AdminContext $context): RedirectResponse
@@ -81,7 +82,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->rerunJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
 
-        return new RedirectResponse($context->getReferrer());
+        return $this->returnToReferer($context);
     }
 
     public function configureCrud(Crud $crud): Crud

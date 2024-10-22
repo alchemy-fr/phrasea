@@ -68,7 +68,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
                 WorkflowState::INITIATOR_ID => $user->getId(),
             ]);
 
-        return $this->redirect($context->getReferrer());
+        return $this->returnToReferer($context);
     }
 
     public function configureCrud(Crud $crud): Crud
