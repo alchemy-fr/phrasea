@@ -68,7 +68,7 @@ export function extractLabelValueFromKey(
     format?: AttributeFormat
 ): LabelledBucketValue {
     // eslint-disable-next-line no-prototype-builtins
-    if (typeof key === 'object' && key.hasOwnProperty('value')) {
+    if (key && typeof key === 'object' && key.hasOwnProperty('value')) {
         return key as LabelledBucketValue;
     }
 

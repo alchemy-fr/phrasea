@@ -50,11 +50,26 @@ function formatFilterTitle(
                 .map(v => extractLabelValueFromKey(v, type).label)
                 .join(`" ${t('common.or', `or`)} "`)}"`;
         case FacetType.DateRange:
-            return `${title} between ${
-                extractLabelValueFromKey(value[0], type, DateFormats.Long).label
-            } and ${
-                extractLabelValueFromKey(value[1], type, DateFormats.Long).label
-            }`;
+            if (value[0] && value[1]) {
+                return t('filter.between', {
+                    defaultValue: '{{title}} between {{from}} and {{to}}',
+                    title,
+                    from: extractLabelValueFromKey(value[0], type, DateFormats.Long).label,
+                    to: extractLabelValueFromKey(value[1], type, DateFormats.Long).label,
+                });
+            } else if (value[0]) {
+                return t('filter.after', {
+                    defaultValue: '{{title}} after {{from}}',
+                    title,
+                    from: extractLabelValueFromKey(value[0], type, DateFormats.Long).label,
+                });
+            }
+
+            return t('filter.before', {
+                defaultValue: '{{title}} before {{to}}',
+                title,
+                to: extractLabelValueFromKey(value[1], type, DateFormats.Long).label,
+            });
     }
 }
 
@@ -78,6 +93,8 @@ function formatFilterLabel(
                 .map(s => truncate(extractLabelValueFromKey(s, type).label, 15))
                 .join(', ');
         case FacetType.DateRange:
+            if (value[0] && value[1]) {
+
             return `${
                 extractLabelValueFromKey(value[0], type, DateFormats.Short)
                     .label
@@ -85,6 +102,13 @@ function formatFilterLabel(
                 extractLabelValueFromKey(value[1], type, DateFormats.Short)
                     .label
             }`;
+            } else if (value[0]) {
+                return `>= ${extractLabelValueFromKey(value[0], type, DateFormats.Short)
+                    .label}`;
+            } else {
+                return `<= ${extractLabelValueFromKey(value[1], type, DateFormats.Short)
+                    .label}`;
+            }
     }
 }
 

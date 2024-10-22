@@ -43,16 +43,20 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function createFilterQuery(string $field, $value): AbstractQuery
     {
-        $startFloor = (new \DateTimeImmutable())
-            ->setTimestamp((int) $value[0]);
+        $criteria = [];
+        if (null !== $value[0]) {
+            $criteria['gte'] = (new \DateTimeImmutable())
+                ->setTimestamp((int) $value[0])
+                    ->getTimestamp() * 1000;
+        }
 
-        $endCeil = (new \DateTimeImmutable())
-            ->setTimestamp((int) $value[1]);
+        if (null !== $value[1]) {
+            $criteria['lte'] = (new \DateTimeImmutable())
+                ->setTimestamp((int) $value[1])
+                    ->getTimestamp() * 1000;
+        }
 
-        return new Range($field, [
-            'gte' => $startFloor->getTimestamp() * 1000,
-            'lte' => $endCeil->getTimestamp() * 1000,
-        ]);
+        return new Range($field, $criteria);
     }
 
     public function getFacetType(): string
