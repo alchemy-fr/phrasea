@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class CollectionPathAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'collection_path';
+    public const string NAME = 'collection_path';
 
     public function __construct(
         private readonly EntityManagerInterface $em,

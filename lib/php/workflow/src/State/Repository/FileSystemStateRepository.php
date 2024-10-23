@@ -10,8 +10,8 @@ use Alchemy\Workflow\State\WorkflowState;
 
 class FileSystemStateRepository implements LockAwareStateRepositoryInterface
 {
-    private const WORKFLOW_FILENAME = '__workflow';
-    private const JOB_PREFIX = 'job::';
+    private const string WORKFLOW_FILENAME = '__workflow';
+    private const string JOB_PREFIX = 'job::';
     private readonly string $path;
 
     private array $fileDescriptors = [];

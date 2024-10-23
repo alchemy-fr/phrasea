@@ -116,6 +116,9 @@ export default function AppDialog({
                 sx={{
                     p: disablePadding ? 0 : 2,
                     border: disablePadding ? 0 : undefined,
+                    '&:empty': {
+                        display: 'none',
+                    },
                 }}
             >
                 {children}

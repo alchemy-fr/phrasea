@@ -14,8 +14,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class FormDataEditorVoter extends Voter
 {
-    final public const EDIT_FORM_SCHEMA = 'EDIT_FORM_SCHEMA';
-    final public const EDIT_TARGET_DATA = 'EDIT_TARGET_DATA';
+    final public const string EDIT_FORM_SCHEMA = 'EDIT_FORM_SCHEMA';
+    final public const string EDIT_TARGET_DATA = 'EDIT_TARGET_DATA';
 
     public function __construct(private readonly Security $security)
     {

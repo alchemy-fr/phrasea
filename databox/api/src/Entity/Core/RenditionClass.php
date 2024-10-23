@@ -46,8 +46,8 @@ class RenditionClass extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'rendclass:read';
-    final public const GROUP_LIST = 'rendclass:index';
+    final public const string GROUP_READ = 'rendclass:read';
+    final public const string GROUP_LIST = 'rendclass:index';
 
     /**
      * Override trait for annotation.

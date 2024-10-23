@@ -1,51 +1,51 @@
 {
-  "name": "alchemy/workflow-bundle",
-  "type": "symfony-bundle",
-  "description": "Alchemy Workflow bundle",
-  "keywords": [],
-  "homepage": "https://www.alchemy.fr/",
-  "license": "MIT",
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../workflow",
-      "options": {
-        "symlink": true
-      }
-    }
-  ],
-  "require": {
-    "php": "^8.3",
-    "symfony/framework-bundle": "^6",
-    "symfony/monolog-bundle": "^3.5",
-    "symfony/config": "^6.3",
-    "ramsey/uuid": "^4.2",
-    "alchemy/workflow": "@dev"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "scripts": {
-    "rector": "vendor/bin/rector",
-    "cs": "vendor/bin/php-cs-fixer fix",
-    "test": "echo 'This project has no test...'"
-  },
-  "autoload": {
-    "psr-4": {
-      "Alchemy\\WorkflowBundle\\": ""
+    "name": "alchemy/workflow-bundle",
+    "type": "symfony-bundle",
+    "description": "Alchemy Workflow bundle",
+    "keywords": [],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../workflow",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "symfony/framework-bundle": "^6",
+        "symfony/monolog-bundle": "^3.5",
+        "symfony/config": "^6.3",
+        "ramsey/uuid": "^4.2",
+        "alchemy/workflow": "@dev"
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Alchemy\\WorkflowBundle\\Tests\\": "/Tests/"
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\WorkflowBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\WorkflowBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "^1.0.4"
     }
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.17",
-    "phpunit/phpunit": "^9.5",
-    "rector/rector": "^1.0.4"
-  }
 }

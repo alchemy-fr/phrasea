@@ -53,8 +53,8 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable
     use UpdatedAtTrait;
     use NullableWorkspaceTrait;
 
-    final public const GROUP_READ = 'wi:read';
-    final public const GROUP_LIST = 'wi:index';
+    final public const string GROUP_READ = 'wi:read';
+    final public const string GROUP_LIST = 'wi:index';
 
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: true)]

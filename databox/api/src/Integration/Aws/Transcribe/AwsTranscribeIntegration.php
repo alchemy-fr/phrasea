@@ -20,8 +20,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
-    private const VERSION = '1.0';
-    final public const SNS_PREFIX = 'databox:integration:transcribe:';
+    private const string VERSION = '1.0';
+    final public const string SNS_PREFIX = 'databox:integration:transcribe:';
 
     public function __construct(
         private readonly AwsTranscribeClient $client,

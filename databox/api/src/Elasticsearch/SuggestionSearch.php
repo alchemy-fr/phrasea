@@ -16,9 +16,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class SuggestionSearch extends AbstractSearch
 {
-    private const SUGGEST_FIELD = 'suggestion';
-    private const SUGGEST_SUB_FIELD = 'suggest';
-    private const DEFINITION_ID_FIELD = 'definitionId';
+    private const string SUGGEST_FIELD = 'suggestion';
+    private const string SUGGEST_SUB_FIELD = 'suggest';
+    private const string DEFINITION_ID_FIELD = 'definitionId';
 
     public function __construct(
         #[Autowire(service: 'fos_elastica.index.collection')]

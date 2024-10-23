@@ -49,8 +49,8 @@ class AttributeClass extends AbstractUuidEntity implements AclObjectInterface, \
 {
     use CreatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'attrclass:read';
-    final public const GROUP_LIST = 'attrclass:index';
+    final public const string GROUP_READ = 'attrclass:read';
+    final public const string GROUP_LIST = 'attrclass:index';
 
     /**
      * Override trait for annotation.

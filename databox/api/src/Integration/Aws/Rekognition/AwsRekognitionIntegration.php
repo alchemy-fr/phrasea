@@ -25,11 +25,11 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Workfl
 {
     use FileUserActionsTrait;
 
-    private const ACTION_ANALYZE = 'analyze';
+    private const string ACTION_ANALYZE = 'analyze';
 
-    final public const LABELS = 'labels';
-    final public const TEXTS = 'texts';
-    final public const FACES = 'faces';
+    final public const string LABELS = 'labels';
+    final public const string TEXTS = 'texts';
+    final public const string FACES = 'faces';
 
     private const CATEGORIES = [
         self::LABELS => RekognitionLabelsAction::class,

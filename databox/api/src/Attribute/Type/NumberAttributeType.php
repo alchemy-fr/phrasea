@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class NumberAttributeType extends AbstractAttributeType
 {
-    final public const NAME = 'number';
+    final public const string NAME = 'number';
 
     public static function getName(): string
     {

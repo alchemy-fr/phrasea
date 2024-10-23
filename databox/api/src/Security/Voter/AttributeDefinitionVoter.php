@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeDefinitionVoter extends AbstractVoter
 {
-    final public const VIEW_ATTRIBUTES = 'VIEW_ATTRIBUTES';
+    final public const string VIEW_ATTRIBUTES = 'VIEW_ATTRIBUTES';
 
     protected function supports(string $attribute, $subject): bool
     {

@@ -172,9 +172,9 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     use LocaleTrait;
     use OwnerIdTrait;
     use WorkspacePrivacyTrait;
-    final public const GROUP_READ = 'asset:read';
-    final public const GROUP_LIST = 'asset:index';
-    final public const GROUP_WRITE = 'asset:w';
+    final public const string GROUP_READ = 'asset:read';
+    final public const string GROUP_LIST = 'asset:index';
+    final public const string GROUP_WRITE = 'asset:w';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;

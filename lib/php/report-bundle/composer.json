@@ -1,48 +1,48 @@
 {
-  "name": "alchemy/report-bundle",
-  "type": "symfony-bundle",
-  "description": "Symfony report bundle",
-  "keywords": [],
-  "homepage": "https://www.alchemy.fr/",
-  "license": "MIT",
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../report-sdk",
-      "options": {
-        "symlink": true
-      }
-    }
-  ],
-  "require": {
-    "php": "^7.4 || ^8.0",
-    "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
-    "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
-    "alchemy/report-sdk": "@dev"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "scripts": {
-    "rector": "vendor/bin/rector",
-    "cs": "vendor/bin/php-cs-fixer fix",
-    "test": "echo 'This project has no test...'"
-  },
-  "autoload": {
-    "psr-4": {
-      "Alchemy\\ReportBundle\\": ""
+    "name": "alchemy/report-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony report bundle",
+    "keywords": [],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../report-sdk",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "symfony/framework-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
+        "symfony/security-bundle": "^2.8 || ^3.0 || ^4.0 || ^5.0 || ^6.0",
+        "alchemy/report-sdk": "@dev"
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\ReportBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\ReportBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "rector/rector": "^1.0.4"
     }
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.17",
-    "rector/rector": "^1.0.4"
-  }
 }

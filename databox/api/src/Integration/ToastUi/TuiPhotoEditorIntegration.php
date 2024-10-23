@@ -20,8 +20,8 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
     use PusherTrait;
     use FileUserActionsTrait;
 
-    private const ACTION_SAVE = 'save';
-    private const ACTION_DELETE = 'delete';
+    private const string ACTION_SAVE = 'save';
+    private const string ACTION_DELETE = 'delete';
 
     public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {

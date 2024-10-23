@@ -42,7 +42,7 @@ class BasketAsset extends AbstractUuidEntity implements WithOwnerIdInterface
     use CreatedAtTrait;
     use AssetAnnotationsTrait;
 
-    public const GROUP_LIST = 'basket-asset:list';
+    public const string GROUP_LIST = 'basket-asset:list';
 
     #[ORM\ManyToOne(targetEntity: Basket::class, inversedBy: 'assets')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

@@ -8,7 +8,7 @@ use Alchemy\Workflow\Event\WorkflowEvent;
 
 final class IncomingUploaderFileWorkflowEvent
 {
-    final public const EVENT = 'incoming_uploader_file';
+    final public const string EVENT = 'incoming_uploader_file';
 
     public static function createEvent(
         string $baseUrl,

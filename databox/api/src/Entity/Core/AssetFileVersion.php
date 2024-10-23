@@ -35,8 +35,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class AssetFileVersion extends AbstractUuidEntity
 {
     use CreatedAtTrait;
-    final public const GROUP_READ = 'afv:read';
-    final public const GROUP_LIST = 'afv:index';
+    final public const string GROUP_READ = 'afv:read';
+    final public const string GROUP_LIST = 'afv:index';
 
     #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
     private ?string $versionName = null;

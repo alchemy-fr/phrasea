@@ -50,7 +50,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 class WorkflowState extends BaseWorkflowState
 {
-    final public const INITIATOR_ID = 'initiatorId';
+    final public const string INITIATOR_ID = 'initiatorId';
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $initiatorId = null;

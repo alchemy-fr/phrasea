@@ -2,24 +2,50 @@ import {useEffect, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
-import {getAssetRenditions} from '../../../api/rendition';
-import {Rendition, RenditionSkeleton} from './Rendition';
+import {deleteRendition, getAssetRenditions} from '../../../api/rendition';
+import {Rendition} from './Rendition';
+import {RenditionSkeleton} from "./RenditionSkeleton.tsx";
+import ConfirmDialog from "../../Ui/ConfirmDialog.tsx";
+import {toast} from "react-toastify";
+import {useModals} from "@alchemy/navigation";
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     data: Asset;
 } & DialogTabProps;
 
-const maxDimensions = {
-    width: 300,
-    height: 230,
-};
-
 export default function Renditions({data, onClose, minHeight}: Props) {
     const [renditions, setRenditions] = useState<AssetRendition[]>();
+    const {openModal} = useModals();
+    const {t} = useTranslation();
+
+    const maxDimensions = {
+        width: 300,
+        height: 230,
+    };
 
     useEffect(() => {
         getAssetRenditions(data.id).then(d => setRenditions(d.result));
     }, []);
+
+    const onDelete = async (id: string) => {
+        openModal(ConfirmDialog, {
+            title: t(
+                'rendition_delete.confirm',
+                'Are you sure you want to delete this rendition?'
+            ),
+            onConfirm: async () => {
+                await deleteRendition(id);
+                setRenditions(renditions?.filter(r => r.id !== id));
+                toast.success(
+                    t(
+                        'rendition_delete.confirmed',
+                        'Rendition has been deleted!'
+                    ) as string
+                );
+            },
+        });
+    }
 
     return (
         <ContentTab
@@ -31,6 +57,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                 renditions.map(r => {
                     return (
                         <Rendition
+                            onDelete={() => onDelete(r.id)}
                             asset={data}
                             key={r.id}
                             rendition={r}

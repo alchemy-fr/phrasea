@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[AutoconfigureTag(self::TAG)]
 interface AttributeTypeInterface
 {
-    final public const TAG = 'app.attribute_type';
+    final public const string TAG = 'app.attribute_type';
 
     public static function getName(): string;
 

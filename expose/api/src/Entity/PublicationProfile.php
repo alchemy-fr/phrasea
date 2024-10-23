@@ -54,9 +54,9 @@ class PublicationProfile implements AclObjectInterface, \Stringable
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    final public const GROUP_ADMIN_READ = 'profile:admin:read';
-    final public const GROUP_READ = 'profile:read';
-    final public const GROUP_LIST = 'profile:index';
+    final public const string GROUP_ADMIN_READ = 'profile:admin:read';
+    final public const string GROUP_READ = 'profile:read';
+    final public const string GROUP_LIST = 'profile:index';
 
     /**
      * @var Uuid

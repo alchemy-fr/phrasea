@@ -5,19 +5,19 @@ namespace App\Entity\Traits;
 interface AssetAnnotationsInterface
 {
     // "x", "y", "c"? (border color in hexa)
-    final public const TYPE_POINT = 'point';
+    final public const string TYPE_POINT = 'point';
 
     // "x", "y", "r" (radius in %), "c"? (border color in hexa), "f"? (fill color in hexa)
-    final public const TYPE_CIRCLE = 'circle';
+    final public const string TYPE_CIRCLE = 'circle';
 
     // "x1", "y1", "x2", "y2", "c"? (border color in hexa), "f"? (fill color in hexa)
-    final public const TYPE_RECTANGLE = 'rect';
+    final public const string TYPE_RECTANGLE = 'rect';
 
     // "t" (time: float in seconds)
-    final public const TYPE_CUE = 'cue';
+    final public const string TYPE_CUE = 'cue';
 
     // "s" (start time: float in seconds), "e" (end time: float in seconds)
-    final public const TYPE_TIME_RANGE = 'time_range';
+    final public const string TYPE_TIME_RANGE = 'time_range';
 
     final public const TYPES = [
         self::TYPE_POINT,

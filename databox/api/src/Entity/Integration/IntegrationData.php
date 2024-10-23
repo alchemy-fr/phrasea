@@ -66,9 +66,9 @@ class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    final public const GROUP_READ = 'int-data:read';
-    final public const GROUP_LIST = 'int-data:index';
-    final public const GROUP_WRITE = 'int-data:w';
+    final public const string GROUP_READ = 'int-data:read';
+    final public const string GROUP_LIST = 'int-data:index';
+    final public const string GROUP_WRITE = 'int-data:w';
 
     #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
     #[ORM\JoinColumn(nullable: false)]

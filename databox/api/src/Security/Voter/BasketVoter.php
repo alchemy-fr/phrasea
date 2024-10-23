@@ -11,8 +11,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class BasketVoter extends AbstractVoter
 {
-    final public const SCOPE_PREFIX = 'ROLE_BASKET:';
-    final public const SHARE = 'SHARE';
+    final public const string SCOPE_PREFIX = 'ROLE_BASKET:';
+    final public const string SHARE = 'SHARE';
 
     protected function supports(string $attribute, $subject): bool
     {

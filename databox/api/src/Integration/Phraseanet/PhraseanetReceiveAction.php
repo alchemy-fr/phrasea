@@ -10,7 +10,7 @@ use App\Integration\IfActionInterface;
 
 final class PhraseanetReceiveAction extends AbstractIntegrationAction implements IfActionInterface
 {
-    final public const JOB_ID = 'receive';
+    final public const string JOB_ID = 'receive';
 
     public function handle(RunContext $context): void
     {

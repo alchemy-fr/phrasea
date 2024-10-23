@@ -10,7 +10,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 final class ServiceAccountClient
 {
-    private const ACCESS_TOKEN_CACHE_KEY = 'admin_access_token';
+    private const string ACCESS_TOKEN_CACHE_KEY = 'admin_access_token';
 
     public function __construct(
         protected readonly KeycloakClient $serviceClient,

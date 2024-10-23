@@ -18,8 +18,8 @@ use Elastica\Query;
 
 class AttributeSearch
 {
-    final public const OPT_STRICT_PHRASE = 'strict';
-    final public const GROUP_ALL = '*';
+    final public const string OPT_STRICT_PHRASE = 'strict';
+    final public const string GROUP_ALL = '*';
 
     public function __construct(
         private readonly FieldNameResolver $fieldNameResolver,

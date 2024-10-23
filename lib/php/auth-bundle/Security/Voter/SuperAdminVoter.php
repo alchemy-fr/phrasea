@@ -23,7 +23,7 @@ final class SuperAdminVoter extends Voter
      * Never replace '-' to '_'.
      * Role inherited from API scope will contain '-'.
      */
-    final public const ROLE = 'ROLE_SUPER-ADMIN';
+    final public const string ROLE = 'ROLE_SUPER-ADMIN';
 
     protected function supports(string $attribute, $subject): bool
     {

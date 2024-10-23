@@ -16,8 +16,8 @@ use Symfony\Component\Validator\Constraints\Url;
 
 class PhraseanetRenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
-    final public const METHOD_ENQUEUE = 'enqueue';
-    final public const METHOD_API = 'api';
+    final public const string METHOD_ENQUEUE = 'enqueue';
+    final public const string METHOD_API = 'api';
 
     public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
     {

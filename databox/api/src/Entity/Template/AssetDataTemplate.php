@@ -74,8 +74,8 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'adt:read';
-    final public const GROUP_LIST = 'adt:index';
+    final public const string GROUP_READ = 'adt:read';
+    final public const string GROUP_LIST = 'adt:index';
 
     /**
      * Template name.

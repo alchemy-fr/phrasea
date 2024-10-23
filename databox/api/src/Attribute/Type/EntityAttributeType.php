@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class EntityAttributeType extends TextAttributeType
 {
-    public const NAME = 'entity';
+    public const string NAME = 'entity';
 
     public function __construct(
         private readonly AttributeEntityRepository $repository,

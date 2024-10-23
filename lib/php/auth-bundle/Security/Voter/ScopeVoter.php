@@ -11,7 +11,7 @@ final class ScopeVoter extends Voter
 {
     use ScopeVoterTrait;
 
-    final public const PREFIX = 'scope:';
+    final public const string PREFIX = 'scope:';
 
     protected function supports(string $attribute, mixed $subject): bool
     {

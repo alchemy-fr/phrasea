@@ -13,7 +13,7 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
-    final public const VERSION = '1.0';
+    final public const string VERSION = '1.0';
 
     public static function getName(): string
     {

@@ -60,8 +60,8 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 {
     use AssetAnnotationsTrait;
 
-    final public const GROUP_READ = 'attr:read';
-    final public const GROUP_LIST = 'attr:index';
+    final public const string GROUP_READ = 'attr:read';
+    final public const string GROUP_LIST = 'attr:index';
 
     final public const ORIGIN_MACHINE = 0;
     final public const ORIGIN_HUMAN = 1;

@@ -8,7 +8,7 @@ use Alchemy\Workflow\Event\WorkflowEvent;
 
 final class AssetIngestWorkflowEvent
 {
-    final public const EVENT = 'asset_ingest';
+    final public const string EVENT = 'asset_ingest';
 
     public static function createEvent(string $assetId, string $workspaceId): WorkflowEvent
     {

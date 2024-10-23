@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag(self::TAG)]
 interface HealthCheckerInterface
 {
-    final public const TAG = 'alchemy_core.health_checker';
+    final public const string TAG = 'alchemy_core.health_checker';
 
     public function getName(): string;
 

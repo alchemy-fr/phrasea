@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class CacheListener implements EventSubscriberInterface
 {
-    private const CACHE_ATTR = '__cache';
+    private const string CACHE_ATTR = '__cache';
 
     public function __construct(private RequestStack $requestStack)
     {

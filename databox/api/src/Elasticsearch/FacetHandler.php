@@ -13,7 +13,7 @@ use Elastica\Query;
 
 final readonly class FacetHandler
 {
-    public const MISSING_SUFFIX = '::missing';
+    public const string MISSING_SUFFIX = '::missing';
 
     public function __construct(private FacetRegistry $facetRegistry, private AttributeTypeRegistry $attributeTypeRegistry)
     {

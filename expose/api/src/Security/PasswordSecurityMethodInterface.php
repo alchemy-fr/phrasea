@@ -6,6 +6,6 @@ namespace App\Security;
 
 interface PasswordSecurityMethodInterface
 {
-    public const ERROR_NO_PASSWORD_PROVIDED = 'missing_password';
-    public const ERROR_INVALID_PASSWORD = 'invalid_password';
+    public const string ERROR_NO_PASSWORD_PROVIDED = 'missing_password';
+    public const string ERROR_INVALID_PASSWORD = 'invalid_password';
 }

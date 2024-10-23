@@ -286,8 +286,8 @@ class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;
 
-    final public const GET_ASSET_ROUTE_NAME = 'get_asset';
-    final public const GROUP_READ = 'asset:read';
+    final public const string GET_ASSET_ROUTE_NAME = 'get_asset';
+    final public const string GROUP_READ = 'asset:read';
 
     /**
      * @var Uuid

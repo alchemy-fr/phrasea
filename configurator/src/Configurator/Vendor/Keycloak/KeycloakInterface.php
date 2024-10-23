@@ -6,8 +6,8 @@ namespace App\Configurator\Vendor\Keycloak;
 
 interface KeycloakInterface
 {
-    final public const ROLE_ADMIN = 'admin';
-    final public const ROLE_TECH = 'tech';
-    final public const ROLE_USER_ADMIN = 'user-admin';
-    final public const ROLE_GROUP_ADMIN = 'group-admin';
+    final public const string ROLE_ADMIN = 'admin';
+    final public const string ROLE_TECH = 'tech';
+    final public const string ROLE_USER_ADMIN = 'user-admin';
+    final public const string ROLE_GROUP_ADMIN = 'group-admin';
 }

@@ -30,7 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/integrations/phraseanet', name: 'integration_phraseanet_')]
 class PhraseanetIntegrationController extends AbstractController
 {
-    final public const ASSET_NAME_PREFIX = 'gen-sub-def-';
+    final public const string ASSET_NAME_PREFIX = 'gen-sub-def-';
 
     #[Route(path: '/{integrationId}/renditions/incoming/{assetId}', name: 'incoming_rendition', methods: ['POST'])]
     public function incomingRenditionAction(

@@ -13,9 +13,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class AssetVoter extends Voter
 {
-    final public const ACK = 'ACK';
-    final public const DOWNLOAD = 'DOWNLOAD';
-    final public const READ_METADATA = 'READ_META';
+    final public const string ACK = 'ACK';
+    final public const string DOWNLOAD = 'DOWNLOAD';
+    final public const string READ_METADATA = 'READ_META';
 
     public function __construct(private readonly Security $security)
     {

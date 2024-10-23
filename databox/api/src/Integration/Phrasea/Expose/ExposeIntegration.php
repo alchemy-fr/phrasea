@@ -27,8 +27,8 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 {
     use IntegrationTokenTrait;
     use UserActionsTrait;
-    private const DATA_PUBLICATION_ID = 'publication_id';
-    private const DATA_PUBLICATION = 'publication';
+    private const string DATA_PUBLICATION_ID = 'publication_id';
+    private const string DATA_PUBLICATION = 'publication';
 
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,

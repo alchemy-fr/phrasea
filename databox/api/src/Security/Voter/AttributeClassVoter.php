@@ -9,9 +9,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class AttributeClassVoter extends AbstractVoter
 {
-    final public const READ_ADMIN = 'READ_ADMIN';
+    final public const string READ_ADMIN = 'READ_ADMIN';
 
-    final public const SCOPE_PREFIX = 'ROLE_ATTRIBUTE-CLASS:';
+    final public const string SCOPE_PREFIX = 'ROLE_ATTRIBUTE-CLASS:';
 
     protected function supports(string $attribute, $subject): bool
     {

@@ -13,7 +13,7 @@ use App\Integration\IfActionInterface;
 
 final class RenditionBuildAction extends AbstractIntegrationAction implements IfActionInterface
 {
-    final public const JOB_ID = 'build';
+    final public const string JOB_ID = 'build';
 
     public function __construct(
         private readonly RenditionBuilder $renditionBuilder,

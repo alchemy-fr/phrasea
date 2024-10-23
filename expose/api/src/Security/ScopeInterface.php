@@ -6,5 +6,5 @@ namespace App\Security;
 
 interface ScopeInterface
 {
-    final public const SCOPE_PUBLISH = 'publish';
+    final public const string SCOPE_PUBLISH = 'publish';
 }

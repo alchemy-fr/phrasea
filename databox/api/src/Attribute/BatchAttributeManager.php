@@ -31,10 +31,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BatchAttributeManager
 {
-    final public const ACTION_SET = 'set';
-    final public const ACTION_DELETE = 'delete';
-    final public const ACTION_REPLACE = 'replace';
-    final public const ACTION_ADD = 'add';
+    final public const string ACTION_SET = 'set';
+    final public const string ACTION_DELETE = 'delete';
+    final public const string ACTION_REPLACE = 'replace';
+    final public const string ACTION_ADD = 'add';
 
     public function __construct(
         private readonly EntityManagerInterface $em,

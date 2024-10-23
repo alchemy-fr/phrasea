@@ -22,14 +22,14 @@ class PublicationVoter extends Voter
     use ScopeVoterTrait;
     use JwtVoterTrait;
 
-    final public const PUBLISH = 'publication:publish';
-    final public const CREATE = 'CREATE';
-    final public const INDEX = 'publication:index';
-    final public const READ = 'READ';
-    final public const READ_DETAILS = 'READ_DETAILS';
-    final public const OPERATOR = 'OPERATOR';
-    final public const EDIT = 'EDIT';
-    final public const DELETE = 'DELETE';
+    final public const string PUBLISH = 'publication:publish';
+    final public const string CREATE = 'CREATE';
+    final public const string INDEX = 'publication:index';
+    final public const string READ = 'READ';
+    final public const string READ_DETAILS = 'READ_DETAILS';
+    final public const string OPERATOR = 'OPERATOR';
+    final public const string EDIT = 'EDIT';
+    final public const string DELETE = 'DELETE';
 
     public function __construct(
         private readonly Security $security,

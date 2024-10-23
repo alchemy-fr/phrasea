@@ -16,9 +16,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class IntegrationWorkflowRepository implements WorkflowRepositoryInterface
 {
-    private const ASSET_INGEST_NAME = 'asset-ingest';
-    private const ATTRIBUTES_UPDATE_NAME = 'attributes-update';
-    private const INCOMING_UPLOADER_FILE_NAME = 'incoming-uploader-file';
+    private const string ASSET_INGEST_NAME = 'asset-ingest';
+    private const string ATTRIBUTES_UPDATE_NAME = 'attributes-update';
+    private const string INCOMING_UPLOADER_FILE_NAME = 'incoming-uploader-file';
     private const ROOT_WORKFLOWS = [
         self::ATTRIBUTES_UPDATE_NAME,
         self::ASSET_INGEST_NAME,

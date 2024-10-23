@@ -18,8 +18,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class PublicationConfig implements MergeableValueObjectInterface
 {
     final public const SECURITY_METHOD_NONE = null;
-    final public const SECURITY_METHOD_PASSWORD = 'password';
-    final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    final public const string SECURITY_METHOD_PASSWORD = 'password';
+    final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups(['profile:read', 'publication:admin:read'])]

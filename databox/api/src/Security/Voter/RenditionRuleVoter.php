@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionRuleVoter extends AbstractVoter
 {
-    final public const SCOPE_PREFIX = 'ROLE_RENDITION-RULE:';
+    final public const string SCOPE_PREFIX = 'ROLE_RENDITION-RULE:';
 
     protected function supports(string $attribute, $subject): bool
     {

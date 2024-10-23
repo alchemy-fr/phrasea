@@ -23,7 +23,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
     use WithOwnerIdProcessorTrait;
     use AttributeInputTrait;
 
-    final public const CONTEXT_CREATION_MICRO_TIME = 'micro_time';
+    final public const string CONTEXT_CREATION_MICRO_TIME = 'micro_time';
 
     public function __construct(
         private readonly OriginalRenditionManager $originalRenditionManager,

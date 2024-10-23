@@ -6,5 +6,5 @@ namespace App\Api\Processor;
 
 interface AttributeInputProcessorInterface
 {
-    public const ATTRIBUTE_DEFINITION = '_ATTR_DEF';
+    public const string ATTRIBUTE_DEFINITION = '_ATTR_DEF';
 }

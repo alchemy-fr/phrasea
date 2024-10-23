@@ -57,8 +57,8 @@ class AttributeEntity extends AbstractUuidEntity
     use WorkspaceTrait;
     public const TYPE_LENGTH = 100;
 
-    final public const GROUP_READ = 'attr-entity:read';
-    final public const GROUP_LIST = 'attr-entity:index';
+    final public const string GROUP_READ = 'attr-entity:read';
+    final public const string GROUP_LIST = 'attr-entity:index';
 
     #[ORM\Column(type: Types::STRING, length: self::TYPE_LENGTH, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]

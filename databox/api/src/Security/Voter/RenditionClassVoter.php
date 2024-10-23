@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class RenditionClassVoter extends AbstractVoter
 {
-    final public const READ_ADMIN = 'READ_ADMIN';
-    final public const SCOPE_PREFIX = 'ROLE_RENDITION-CLASS:';
+    final public const string READ_ADMIN = 'READ_ADMIN';
+    final public const string SCOPE_PREFIX = 'ROLE_RENDITION-CLASS:';
 
     protected function supports(string $attribute, $subject): bool
     {
