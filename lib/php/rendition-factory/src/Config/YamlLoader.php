@@ -60,7 +60,7 @@ final readonly class YamlLoader implements FileLoaderInterface
 
         $transformations = [];
         foreach ($data['transformations'] as $transformation) {
-            if($transformation['enabled'] ?? true) {
+            if ($transformation['enabled'] ?? true) {
                 $transformations[] = $this->parseTransformation($transformation);
             }
         }

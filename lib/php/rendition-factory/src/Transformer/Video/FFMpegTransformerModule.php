@@ -121,7 +121,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $video = $ffmpeg->open($inputFile->getPath());
 
         $filters = array_values(array_filter($options['filters'] ?? [],
-            function($filter) {
+            function ($filter) {
                 return $filter['enabled'] ?? true;
             }));
 
