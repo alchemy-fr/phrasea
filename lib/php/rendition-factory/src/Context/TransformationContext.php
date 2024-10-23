@@ -4,8 +4,10 @@ namespace Alchemy\RenditionFactory\Context;
 
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
+use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Twig\Environment as TwigEnvironment;
 
 final readonly class TransformationContext implements TransformationContextInterface
 {
@@ -17,6 +19,8 @@ final readonly class TransformationContext implements TransformationContextInter
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
         private LoggerInterface $logger,
+        private TwigEnvironment $twig,
+        private TemplateResolverInterface $templateResolver,
         private ?MetadataContainerInterface $metadata = null,
     ) {
         $this->buildHashes = new BuildHashes();
@@ -109,5 +113,14 @@ final readonly class TransformationContext implements TransformationContextInter
     public function getBuildHashes(): BuildHashes
     {
         return $this->buildHashes;
+    }
+
+    public function getTwig(): TwigEnvironment
+    {
+        return $this->twig;
+    }
+    public function getTemplateResolver(): TemplateResolverInterface
+    {
+        return $this->templateResolver;
     }
 }

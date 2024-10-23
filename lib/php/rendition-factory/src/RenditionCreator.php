@@ -13,6 +13,7 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
+use Alchemy\RenditionFactory\Templating\TemplateResolverInterface;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
