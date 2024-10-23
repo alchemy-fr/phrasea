@@ -65,6 +65,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
             $outputPath,
             $outputFormat->getMimeType(),
             $outputFormat->getFamily(),
+            false // TODO implement projection
         );
     }
 }

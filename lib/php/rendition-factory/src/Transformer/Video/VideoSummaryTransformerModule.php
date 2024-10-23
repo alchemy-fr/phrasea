@@ -131,6 +131,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             $outputPath,
             $outputFormat->getMimeType(),
             $outputFormat->getFamily(),
+            false // TODO implement projection
         );
     }
 }

@@ -46,6 +46,7 @@ export default function SaveFileAsRenditionDialog({
                 definitionId: data.definition,
                 assetId: asset.id,
                 sourceFileId: file.id,
+                substituted: true,
             });
         },
         onSuccess: () => {

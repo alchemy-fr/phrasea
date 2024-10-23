@@ -59,7 +59,7 @@ class AssetInput extends AbstractOwnerIdInput
     public $relationship;
 
     /**
-     * @var RenditionInput[]
+     * @var AssetRenditionInput[]
      */
     public ?array $renditions = null;
 }
