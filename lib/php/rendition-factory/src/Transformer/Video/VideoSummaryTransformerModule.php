@@ -102,11 +102,9 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                 $clipPath = $context->createTmpFilePath($clipsExtension);
                 $clip->save($FFMpegOutputFormat, $clipPath);
                 unset($clip);
-                gc_collect_cycles();
                 $clipsFiles[] = realpath($clipPath);
             }
             unset($removeAudioFilter, $video);
-            gc_collect_cycles();
 
             $outVideo = $ffmpeg->open($clipsFiles[0]);
 
@@ -117,12 +115,13 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                 ->saveFromSameCodecs($outputPath, true);
 
             unset($outVideo, $ffmpeg);
-            gc_collect_cycles();
         } finally {
             foreach ($clipsFiles as $clipFile) {
                 @unlink($clipFile);
             }
         }
+
+        gc_collect_cycles();
 
         if (!file_exists($outputPath)) {
             throw new \RuntimeException('Failed to create summary video');
