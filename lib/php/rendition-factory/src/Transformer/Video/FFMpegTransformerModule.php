@@ -3,19 +3,26 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
-use FFMpeg\Format\FormatInterface;
+use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class FFMpegTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats)
+    {
+    }
+
     public static function getName(): string
     {
         return 'ffmpeg';
@@ -26,60 +33,77 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         if (!($format = $options['format'])) {
             throw new \InvalidArgumentException('Missing format');
         }
-        if (!($extension = $options['extension'])) {
-            throw new \InvalidArgumentException('Missing extension');
+
+        if (!$this->formats->has($format)) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
+        }
+        /** @var FormatInterface $outputFormat */
+        $outputFormat = $this->formats->get($format);
+
+        if (null != ($extension = $options['extension'] ?? null)) {
+            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            }
+        } else {
+            $extension = $outputFormat->getAllowedExtensions()[0];
         }
 
-        $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
-        if (class_exists($fqcnFormat)) {
-            return $this->doVideo($format, $extension, $inputFile, $options, $context);
-        }
-        $fqcnFormat = 'FFMpeg\\Format\\Audio\\'.$format;
-        if (class_exists($fqcnFormat)) {
-            return $this->doAudio($format, $extension, $inputFile, $options, $context);
+        if (FamilyEnum::Video !== $outputFormat->getFamily()) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
         }
 
-        throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
+        if (FamilyEnum::Video === $outputFormat->getFamily()) {
+            return $this->doVideo($outputFormat, $extension, $inputFile, $options, $context);
+        }
+
+        if (FamilyEnum::Audio === $outputFormat->getFamily()) {
+            return $this->doAudio($outputFormat, $extension, $inputFile, $options, $context);
+        }
+
+        throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
     }
 
-    private function doVideo(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
+    private function doVideo(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $fqcnFormat = 'FFMpeg\\Format\\Video\\'.$format;
-        /** @var FormatInterface $ouputFormat */
-        $ouputFormat = new $fqcnFormat();
+        $format = $ouputFormat->getFormat();
+        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+        }
+        /** @var FFMpegFormatInterface $FFMpegFormat */
+        $FFMpegFormat = $ouputFormat->getFFMpegFormat();
 
         if ($videoCodec = $options['video_codec'] ?? null) {
-            if (!in_array($videoCodec, $ouputFormat->getAvailableVideoCodecs())) {
+            if (!in_array($videoCodec, $FFMpegFormat->getAvailableVideoCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
-            $ouputFormat->setVideoCodec($videoCodec);
+            $FFMpegFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
-            if (!in_array($audioCodec, $ouputFormat->getAvailableAudioCodecs())) {
+            if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
-            $ouputFormat->setAudioCodec($audioCodec);
+            $FFMpegFormat->setAudioCodec($audioCodec);
         }
         if (null !== ($videoKilobitrate = $options['video_kilobitrate'] ?? null)) {
-            if (!method_exists($ouputFormat, 'setKiloBitrate')) {
+            if (!method_exists($FFMpegFormat, 'setKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
             }
             if (!is_int($videoKilobitrate)) {
                 throw new \InvalidArgumentException('Invalid video kilobitrate');
             }
-            $ouputFormat->setKiloBitrate($videoKilobitrate);
+            $FFMpegFormat->setKiloBitrate($videoKilobitrate);
         }
         if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
-            if (!method_exists($ouputFormat, 'setAudioKiloBitrate')) {
+            if (!method_exists($FFMpegFormat, 'setAudioKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
             }
             if (!is_int($audioKilobitrate)) {
                 throw new \InvalidArgumentException('Invalid audio kilobitrate');
             }
-            $ouputFormat->setAudioKiloBitrate($audioKilobitrate);
+            $FFMpegFormat->setAudioKiloBitrate($audioKilobitrate);
         }
         if (null !== ($passes = $options['passes'] ?? null)) {
-            if (!method_exists($ouputFormat, 'setPasses')) {
+            if (!method_exists($FFMpegFormat, 'setPasses')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support passes', $format));
             }
             if (!is_int($passes) || $passes < 1) {
@@ -88,28 +112,19 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             if (0 === $videoKilobitrate) {
                 throw new \InvalidArgumentException('passes must not be set if video_kilobitrate is 0');
             }
-            $ouputFormat->setPasses($passes);
+            $FFMpegFormat->setPasses($passes);
         }
 
-        $ffmpegOptions = [];
-        if ($timeout = $options['timeout'] ?? null) {
-            if (!is_int($timeout)) {
-                throw new \InvalidArgumentException('Invalid timeout');
-            }
-            $ffmpegOptions['timeout'] = $timeout;
-        }
-        if ($threads = $options['threads'] ?? null) {
-            if (!is_int($threads) || $threads < 1) {
-                throw new \InvalidArgumentException('Invalid threads count');
-            }
-            $ffmpegOptions['ffmpeg.threads'] = $threads;
-        }
-        $ffmpeg = FFMpeg\FFMpeg::create($ffmpegOptions, $context->getLogger());
+        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
 
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
-        $filters = $options['filters'] ?? [];
+        $filters = array_values(array_filter($options['filters'] ?? [],
+            function ($filter) {
+                return $filter['enabled'] ?? true;
+            }));
+
         // first, turn the video into a clip
         if (!empty($filters) && 'pre_clip' === $filters[0]['name']) {
             $filter = array_shift($filters);
@@ -136,36 +151,35 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $outputPath = $context->createTmpFilePath($extension);
 
-        $clip->save($ouputFormat, $outputPath);
+        $clip->save($FFMpegFormat, $outputPath);
 
-        unset($clip);
-        unset($video);
-
-        $mimeType = $context->guessMimeTypeFromPath($outputPath);
-        $fileFamilyGuesser = new FileFamilyGuesser();
-        $family = $fileFamilyGuesser->getFamily($outputPath, $mimeType);
+        unset($clip, $video, $ffmpeg);
+        gc_collect_cycles();
 
         return new OutputFile(
             $outputPath,
-            $mimeType,
-            $family
+            $ouputFormat->getMimeType(),
+            $ouputFormat->getFamily(),
         );
     }
 
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(string $format, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
+    private function doAudio(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $fqcnFormat = 'FFMpeg\\Format\\Audio\\'.$format;
-        /** @var FormatInterface $ouputFormat */
-        $ouputFormat = new $fqcnFormat();
+        $format = $ouputFormat->getFormat();
+        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+        }
+        /** @var FFMpegFormatInterface $FFMpegFormat */
+        $FFMpegFormat = $ouputFormat->getFFMpegFormat();
 
         if ($audioCodec = $options['audio_codec'] ?? null) {
-            if (!in_array($audioCodec, $ouputFormat->getAvailableAudioCodecs())) {
+            if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
-            $ouputFormat->setAudioCodec($audioCodec);
+            $FFMpegFormat->setAudioCodec($audioCodec);
         }
 
         throw new \InvalidArgumentException('Audio transformation not implemented');
