@@ -1,39 +1,22 @@
-import {ReactNode} from 'react';
+import React from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import FilePlayer from '../../Media/Asset/FilePlayer';
 import {Dimensions} from '../../Media/Asset/Players';
-import {
-    Button,
-    Card,
-    CardActions,
-    CardContent,
-    CardMedia,
-    Chip,
-    Skeleton,
-    Typography,
-} from '@mui/material';
+import {Button, Chip,} from '@mui/material';
 import byteSize from 'byte-size';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import {useTranslation} from 'react-i18next';
-
-const cardProps = {
-    elevation: 2,
-    sx: {
-        display: 'flex',
-        mb: 2,
-    },
-};
-
-const cardContentSx = {
-    flexGrow: 1,
-};
+import DeleteIcon from "@mui/icons-material/Delete";
+import {RenditionStructure} from "./RenditionStructure.tsx";
+import {LoadingButton} from "@mui/lab";
 
 type Props = {
     asset: Asset;
     title: string | undefined;
     rendition: AssetRendition;
     dimensions: Dimensions;
+    onDelete: () => Promise<void>;
 };
 
 export function Rendition({
@@ -41,8 +24,19 @@ export function Rendition({
     asset,
     dimensions,
     rendition: {name, file, dirty},
+    onDelete,
 }: Props) {
     const {t} = useTranslation();
+    const [deleting, setDeleting] = React.useState(false);
+
+    const deleteRendition = async () => {
+        setDeleting(true);
+        try {
+            await onDelete();
+        } finally {
+            setDeleting(false);
+        }
+    }
 
     return (
         <RenditionStructure
@@ -102,62 +96,18 @@ export function Rendition({
                             />
                         </>
                     )}
+                    <LoadingButton
+                        loading={deleting}
+                        disabled={deleting}
+                        onClick={deleteRendition}
+                        color={'error'}
+                        startIcon={<DeleteIcon/>}
+                    >
+                        {t('renditions.delete', 'Delete')}
+                    </LoadingButton>
                 </>
             }
         />
     );
 }
 
-function RenditionStructure({
-    title,
-    info,
-    media,
-    actions,
-    dimensions,
-}: {
-    title: ReactNode;
-    info: ReactNode;
-    media: ReactNode | undefined;
-    actions: ReactNode;
-    dimensions: Dimensions;
-}) {
-    return (
-        <Card {...cardProps}>
-            <CardMedia
-                sx={theme => ({
-                    ...dimensions,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: theme.palette.grey['100'],
-                })}
-            >
-                {media ? media : ''}
-            </CardMedia>
-            <CardContent sx={cardContentSx}>
-                <Typography component="div" variant="h5">
-                    {title}
-                </Typography>
-                <Typography component="div" variant="body1">
-                    {info}
-                </Typography>
-
-                <CardActions disableSpacing>{actions}</CardActions>
-            </CardContent>
-        </Card>
-    );
-}
-
-export function RenditionSkeleton({dimensions}: {dimensions: Dimensions}) {
-    return (
-        <RenditionStructure
-            title={<Skeleton variant={'text'} />}
-            info={<Skeleton variant={'text'} width={'50%'} />}
-            dimensions={dimensions}
-            media={<Skeleton {...dimensions} variant={'rectangular'} />}
-            actions={
-                <Skeleton width={150} height={60} variant={'rectangular'} />
-            }
-        />
-    );
-}

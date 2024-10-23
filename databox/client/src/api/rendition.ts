@@ -102,6 +102,10 @@ export async function deleteRenditionClass(id: string): Promise<void> {
     await apiClient.delete(`${renditionClassNS}/${id}`);
 }
 
+export async function deleteRendition(id: string): Promise<void> {
+    await apiClient.delete(`${renditionNS}/${id}`);
+}
+
 export async function deleteRenditionDefinition(id: string): Promise<void> {
     await apiClient.delete(`${renditionDefinitionNS}/${id}`);
 }

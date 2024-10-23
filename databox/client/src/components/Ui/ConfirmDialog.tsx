@@ -191,7 +191,7 @@ export default function ConfirmDialog<CO extends ConfirmOptions>({
                     ))}
                 </div>
             )}
-            {options && (
+            {Object.keys(options).length > 0 && (
                 <div data-testid="options">
                     {Object.keys(options).map(k => (
                         <div key={k}>

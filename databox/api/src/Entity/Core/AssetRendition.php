@@ -19,6 +19,7 @@ use App\Api\Provider\RenditionCollectionProvider;
 use App\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\AssetRenditionRepository;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -26,10 +27,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'rendition',
     operations: [
-        new Get(security: 'is_granted("READ", object)'),
-        new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
+        new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
+        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(),
         new Post(
             openapiContext: [
