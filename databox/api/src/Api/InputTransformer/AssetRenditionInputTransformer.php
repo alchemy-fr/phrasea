@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use App\Api\Model\Input\RenditionInput;
+use App\Api\Model\Input\AssetRenditionInput;
 use App\Consumer\Handler\File\CopyFileToRendition;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -12,15 +12,15 @@ use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class RenditionInputTransformer extends AbstractFileInputTransformer
+class AssetRenditionInputTransformer extends AbstractFileInputTransformer
 {
     public function supports(string $resourceClass, object $data): bool
     {
-        return AssetRendition::class === $resourceClass && $data instanceof RenditionInput;
+        return AssetRendition::class === $resourceClass && $data instanceof AssetRenditionInput;
     }
 
     /**
-     * @param RenditionInput $data
+     * @param AssetRenditionInput $data
      */
     public function transform(object $data, string $resourceClass, array $context = []): object|iterable
     {
@@ -39,11 +39,20 @@ class RenditionInputTransformer extends AbstractFileInputTransformer
             }
 
             $object = $this->renditionManager->getOrCreateRendition($asset, $definition);
+            if ($object->isLocked()) {
+                throw new BadRequestHttpException('Cannot update locked rendition');
+            }
+
+            if ($object->isSubstituted() && !$data->force) {
+                throw new BadRequestHttpException('Cannot update rendition that has been substituted without the "force" parameter');
+            }
         }
 
         if (!$object->getDefinition()->isSubstitutable()) {
             throw new BadRequestHttpException(sprintf('Cannot substitute rendition "%s"', $object->getDefinition()->getName()));
         }
+
+        $object->setSubstituted($data->substituted);
 
         $workspace = $object->getAsset()->getWorkspace();
 

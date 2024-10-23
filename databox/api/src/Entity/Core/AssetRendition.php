@@ -13,7 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\Api\Model\Input\RenditionInput;
+use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Entity\Traits\CreatedAtTrait;
@@ -22,7 +22,6 @@ use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     shortName: 'rendition',
@@ -113,7 +112,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: [
         'groups' => [AssetRendition::GROUP_LIST],
     ],
-    input: RenditionInput::class,
+    input: AssetRenditionInput::class,
     output: AssetRenditionOutput::class,
     provider: RenditionCollectionProvider::class,
 )]
@@ -142,9 +141,17 @@ class AssetRendition extends AbstractUuidEntity
     /**
      * Homothetic and same format has original.
      */
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $projection = null;
+
+    /**
+     * Rendition cannot be substituted.
+     */
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $locked = false;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $substituted = false;
 
     /**
      * Hash based on the build process.
@@ -189,8 +196,6 @@ class AssetRendition extends AbstractUuidEntity
         $this->definition = $definition;
     }
 
-    #[ApiProperty]
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ])]
     public function getName(): string
     {
         return $this->definition->getName();
@@ -229,5 +234,25 @@ class AssetRendition extends AbstractUuidEntity
     public function setModuleHashes(?array $moduleHashes): void
     {
         $this->moduleHashes = $moduleHashes;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): void
+    {
+        $this->locked = $locked;
+    }
+
+    public function isSubstituted(): bool
+    {
+        return $this->substituted;
+    }
+
+    public function setSubstituted(bool $substituted): void
+    {
+        $this->substituted = $substituted;
     }
 }

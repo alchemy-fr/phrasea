@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input;
 
-class RenditionInput
+class AssetRenditionInput
 {
     /**
      * Rendition definition ID. Or provide name.
@@ -31,4 +31,8 @@ class RenditionInput
      * @var string|null
      */
     public $sourceFileId;
+
+    public $substituted;
+
+    public $force;
 }

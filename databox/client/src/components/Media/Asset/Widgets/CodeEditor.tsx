@@ -53,10 +53,6 @@ export default function CodeEditor({
                 onChange={changeHandler}
                 editorProps={{$blockScrolling: true}}
                 value={value}
-                style={{
-                    width: '100%',
-                    height: 200,
-                }}
                 setOptions={{
                     enableBasicAutocompletion: false,
                     enableLiveAutocompletion: true,
@@ -64,6 +60,8 @@ export default function CodeEditor({
                     showLineNumbers: true,
                     tabSize: 2,
                 }}
+                width={'100%'}
+                height={'300px'}
                 {...rest}
             />
         </div>

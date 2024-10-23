@@ -34,6 +34,7 @@ final readonly class RenditionBuilder
 
     public function buildRendition(RenditionDefinition $renditionDefinition, Asset $asset, bool $force = false): void
     {
+        $isProjection = true;
         if ($asset->getWorkspaceId() !== $renditionDefinition->getWorkspaceId()) {
             throw new \LogicException(sprintf('Asset "%s" and rendition definition "%s" are not in the same workspace', $asset->getId(), $renditionDefinition->getId()));
         }
@@ -44,6 +45,9 @@ final readonly class RenditionBuilder
                 throw new \LogicException(sprintf('Parent rendition "%s" not found for asset "%s"', $parentDefinition->getName(), $asset->getId()));
             }
 
+            if (false === $parentRendition->getProjection()) {
+                $isProjection = false;
+            }
             $source = $parentRendition->getFile();
         } else {
             $source = $asset->getSource();
@@ -59,6 +63,7 @@ final readonly class RenditionBuilder
                 $source,
                 null,
                 null,
+                projection: $isProjection,
             );
             $this->em->flush();
 
@@ -87,6 +92,10 @@ final readonly class RenditionBuilder
             }
 
             if (null !== $outputFile) {
+                if (!$outputFile->isProjection()) {
+                    $isProjection = false;
+                }
+
                 $file = $this->fileManager->createFileFromPath(
                     $asset->getWorkspace(),
                     $outputFile->getPath(),
@@ -102,6 +111,7 @@ final readonly class RenditionBuilder
                 $file,
                 $buildHash,
                 $outputFile?->getBuildHashes(),
+                projection: $isProjection,
             );
             $this->em->flush();
         } finally {

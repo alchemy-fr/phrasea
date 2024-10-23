@@ -160,6 +160,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             $outputPath,
             $ouputFormat->getMimeType(),
             $ouputFormat->getFamily(),
+            false // TODO implement projection
         );
     }
 

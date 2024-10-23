@@ -118,7 +118,8 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         return new OutputFile(
             $outputPath,
             $outputFormat->getMimeType(),
-            $outputFormat->getFamily()
+            $outputFormat->getFamily(),
+            false // TODO implement projection
         );
     }
 

@@ -27,6 +27,8 @@ type RenditionInput = {
     definitionId?: string | undefined;
     sourceFileId?: string | undefined;
     assetId: string;
+    substituted?: boolean;
+    force?: boolean;
 };
 
 export async function postRendition(
