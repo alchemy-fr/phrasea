@@ -161,6 +161,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
                 return [-1, (int)floor($dimensions->getHeight() / $hRatio)];
             }
         }
-        return [$width, $height];   // fallback : exact fit (maybe not homothetic)
+        // fallback : exact fit (might be not homothetic)
+        return [$width, $height];
     }
 }

@@ -84,7 +84,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             $FFMpegOutputFormat->setAudioCodec($audioCodec);
         }
 
-        $clipsExtension = ($outputFormat->getAllowedExtensions())[0];
+        $clipsExtension = $outputFormat->getAllowedExtensions()[0];
 
         $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
 
