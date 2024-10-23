@@ -32,8 +32,26 @@ final readonly class YamlLoader implements FileLoaderInterface
         return $this->parseConfig($data);
     }
 
+    private function removeDisabled(array $data): array
+    {
+        $out = [];
+        foreach($data as $key => $value) {
+            if(is_array($value)) {
+                if($value['enabled'] ?? true) {
+                    $out[$key] = $this->removeDisabled($value);
+                }
+            }
+            else {
+                $out[$key] = $value;
+            }
+        }
+        return $out;
+    }
+
     private function parseConfig(array $data): BuildConfig
     {
+        $data = $this->removeDisabled($data);
+
         $families = [];
         foreach ($data as $familyKey => $familyConfig) {
             if (null === $family = FamilyEnum::tryFrom($familyKey)) {
@@ -70,7 +88,6 @@ final readonly class YamlLoader implements FileLoaderInterface
     {
         return new Transformation(
             $transformation['module'],
-            $transformation['enabled'] ?? true,
             $transformation['options'] ?? [],
             $transformation['description'] ?? null
         );
