@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 final readonly class EnvResolver
 {
     // Stands for Phrasea Workspace Integration
-    private const ENV_PREFIX = 'PWI_';
+    private const string ENV_PREFIX = 'PWI_';
 
     public function __construct(
         private SecretsManager $secretsManager,

@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag(self::TAG)]
 interface WidgetResolverInterface
 {
-    final public const TAG = 'app.widget_resolver';
+    final public const string TAG = 'app.widget_resolver';
 
     public function supports(array $config): bool;
 

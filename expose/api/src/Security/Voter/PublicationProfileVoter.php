@@ -15,11 +15,11 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class PublicationProfileVoter extends Voter
 {
-    final public const CREATE = 'profile:create';
-    final public const INDEX = 'profile:index';
-    final public const READ = 'READ';
-    final public const EDIT = 'EDIT';
-    final public const DELETE = 'DELETE';
+    final public const string CREATE = 'profile:create';
+    final public const string INDEX = 'profile:index';
+    final public const string READ = 'READ';
+    final public const string EDIT = 'EDIT';
+    final public const string DELETE = 'DELETE';
 
     public function __construct(private readonly Security $security)
     {

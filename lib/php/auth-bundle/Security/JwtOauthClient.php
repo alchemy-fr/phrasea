@@ -6,7 +6,7 @@ namespace Alchemy\AuthBundle\Security;
 
 class JwtOauthClient implements JwtInterface
 {
-    final public const ROLE_OAUTH_CLIENT = 'ROLE_OAUTH_CLIENT';
+    final public const string ROLE_OAUTH_CLIENT = 'ROLE_OAUTH_CLIENT';
 
     private readonly array $roles;
 

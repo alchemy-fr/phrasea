@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag(name: self::TAG)]
 interface IntegrationDataTransformerInterface
 {
-    final public const TAG = 'app.integration.data';
+    final public const string TAG = 'app.integration.data';
 
     public function transformData(IntegrationData $data, IntegrationConfig $config): void;
 

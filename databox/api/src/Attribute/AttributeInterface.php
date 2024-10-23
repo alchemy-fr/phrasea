@@ -4,6 +4,6 @@ namespace App\Attribute;
 
 interface AttributeInterface
 {
-    final public const ATTRIBUTES_FIELD = 'attrs';
-    final public const NO_LOCALE = '_';
+    final public const string ATTRIBUTES_FIELD = 'attrs';
+    final public const string NO_LOCALE = '_';
 }

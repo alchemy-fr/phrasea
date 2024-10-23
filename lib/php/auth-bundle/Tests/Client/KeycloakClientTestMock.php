@@ -16,11 +16,11 @@ use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 class KeycloakClientTestMock implements HttpClientInterface
 {
-    final public const USER_TOKEN = '__VALID_USER_TOKEN__';
-    final public const ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
+    final public const string USER_TOKEN = '__VALID_USER_TOKEN__';
+    final public const string ADMIN_TOKEN = '__VALID_ADMIN_TOKEN__';
 
-    final public const USER_UID = '123';
-    final public const ADMIN_UID = '4242';
+    final public const string USER_UID = '123';
+    final public const string ADMIN_UID = '4242';
 
     private const USERS = [
         self::ADMIN_UID => [

@@ -83,9 +83,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'attrdef:read';
-    final public const GROUP_LIST = 'attrdef:index';
-    final public const GROUP_WRITE = 'attrdef:w';
+    final public const string GROUP_READ = 'attrdef:read';
+    final public const string GROUP_LIST = 'attrdef:index';
+    final public const string GROUP_WRITE = 'attrdef:w';
 
     /**
      * Override trait for annotation.

@@ -100,9 +100,9 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
     use OwnerIdTrait;
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    final public const GROUP_READ = 'basket:read';
-    final public const GROUP_LIST = 'basket:index';
-    final public const GROUP_WRITE = 'basket:w';
+    final public const string GROUP_READ = 'basket:read';
+    final public const string GROUP_LIST = 'basket:index';
+    final public const string GROUP_WRITE = 'basket:w';
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]

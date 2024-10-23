@@ -17,10 +17,10 @@ class DownloadRequestVoter extends Voter
 {
     use ScopeVoterTrait;
 
-    final public const LIST = 'download_request:list';
-    final public const READ = 'READ';
-    final public const EDIT = 'EDIT';
-    final public const DELETE = 'DELETE';
+    final public const string LIST = 'download_request:list';
+    final public const string READ = 'READ';
+    final public const string EDIT = 'EDIT';
+    final public const string DELETE = 'DELETE';
 
     public function __construct(private readonly Security $security)
     {

@@ -23,7 +23,7 @@ class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegra
 {
     use PusherTrait;
     use FileUserActionsTrait;
-    private const ACTION_PROCESS = 'process';
+    private const string ACTION_PROCESS = 'process';
 
     public function __construct(
         private readonly RemoveBgProcessor $removeBgProcessor,

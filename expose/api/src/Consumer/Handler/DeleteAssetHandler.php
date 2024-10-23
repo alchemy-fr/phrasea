@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class DeleteAssetHandler
 {
-    final public const EVENT = 'delete_asset';
+    final public const string EVENT = 'delete_asset';
 
     public function __construct(private FileStorageManager $storageManager)
     {

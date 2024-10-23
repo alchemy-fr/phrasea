@@ -84,9 +84,9 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     use UpdatedAtTrait;
     use WorkspaceTrait;
 
-    final public const GROUP_READ = 'renddef:read';
-    final public const GROUP_LIST = 'renddef:index';
-    final public const GROUP_WRITE = 'renddef:w';
+    final public const string GROUP_READ = 'renddef:read';
+    final public const string GROUP_LIST = 'renddef:index';
+    final public const string GROUP_WRITE = 'renddef:w';
     private const GRANT_ADMIN_PROP = "object ? is_granted('READ_ADMIN', object) : true";
 
     /**

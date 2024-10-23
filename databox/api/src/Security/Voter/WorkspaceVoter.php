@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WorkspaceVoter extends AbstractVoter
 {
-    final public const SCOPE_PREFIX = 'ROLE_WORKSPACE:';
+    final public const string SCOPE_PREFIX = 'ROLE_WORKSPACE:';
     private array $cache = [];
 
     protected function supports(string $attribute, $subject): bool

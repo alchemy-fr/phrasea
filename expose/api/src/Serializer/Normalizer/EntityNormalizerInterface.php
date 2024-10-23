@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag(self::TAG)]
 interface EntityNormalizerInterface
 {
-    final public const TAG = 'app.entity_normalizer';
+    final public const string TAG = 'app.entity_normalizer';
 
     public function normalize($object, array &$context = []): void;
 

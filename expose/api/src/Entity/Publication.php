@@ -112,15 +112,15 @@ class Publication implements AclObjectInterface, \Stringable
     use CapabilitiesTrait;
     use ClientAnnotationsTrait;
 
-    final public const GET_PUBLICATION_ROUTE_NAME = 'get_publication';
+    final public const string GET_PUBLICATION_ROUTE_NAME = 'get_publication';
 
-    final public const GROUP_READ = 'publication:read';
-    final public const GROUP_ADMIN_READ = 'publication:admin:read';
-    final public const GROUP_LIST = 'publication:index';
+    final public const string GROUP_READ = 'publication:read';
+    final public const string GROUP_ADMIN_READ = 'publication:admin:read';
+    final public const string GROUP_LIST = 'publication:index';
 
     final public const SECURITY_METHOD_NONE = null;
-    final public const SECURITY_METHOD_PASSWORD = 'password';
-    final public const SECURITY_METHOD_AUTHENTICATION = 'authentication';
+    final public const string SECURITY_METHOD_PASSWORD = 'password';
+    final public const string SECURITY_METHOD_AUTHENTICATION = 'authentication';
 
     #[ApiProperty(identifier: true)]
     #[Groups(['_', self::GROUP_LIST, self::GROUP_READ, Asset::GROUP_READ])]

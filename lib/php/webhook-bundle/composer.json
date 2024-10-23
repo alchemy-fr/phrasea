@@ -1,42 +1,42 @@
 {
-  "name": "alchemy/webhook-bundle",
-  "type": "symfony-bundle",
-  "description": "Symfony webhook bundle",
-  "keywords": [
-    "webhook"
-  ],
-  "homepage": "https://www.alchemy.fr/",
-  "license": "MIT",
-  "require": {
-    "php": "^7.4 || ^8.0",
-    "symfony/messenger": "^6",
-    "guzzlehttp/guzzle": "^7.2",
-    "ramsey/uuid-doctrine": "^1.5",
-    "symfony/framework-bundle": "^4.0 || ^5.2 || ^6"
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "scripts": {
-    "rector": "vendor/bin/rector",
-    "cs": "vendor/bin/php-cs-fixer fix",
-    "test": "echo 'This project has no test...'"
-  },
-  "autoload": {
-    "psr-4": {
-      "Alchemy\\WebhookBundle\\": ""
+    "name": "alchemy/webhook-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony webhook bundle",
+    "keywords": [
+        "webhook"
+    ],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "symfony/messenger": "^6",
+        "guzzlehttp/guzzle": "^7.2",
+        "ramsey/uuid-doctrine": "^1.5",
+        "symfony/framework-bundle": "^4.0 || ^5.2 || ^6"
     },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Alchemy\\WebhookBundle\\Tests\\": "/Tests/"
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\WebhookBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\WebhookBundle\\Tests\\": "/Tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "rector/rector": "^1.0.4"
     }
-  },
-  "require-dev": {
-    "friendsofphp/php-cs-fixer": "^3.17",
-    "rector/rector": "^1.0.4"
-  }
 }

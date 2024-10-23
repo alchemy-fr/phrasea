@@ -11,7 +11,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 class ExpressionParser extends ExpressionLanguage
 {
-    private const DYNAMIC_PATTERN = '#\${{ +(.+?) +}}#';
+    private const string DYNAMIC_PATTERN = '#\${{ +(.+?) +}}#';
 
     public function evaluateJobExpression(
         string $expression,

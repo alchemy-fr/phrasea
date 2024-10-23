@@ -74,8 +74,8 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     use UpdatedAtTrait;
     use LocaleTrait;
     use WorkspaceTrait;
-    final public const GROUP_READ = 'tag:read';
-    final public const GROUP_LIST = 'tag:index';
+    final public const string GROUP_READ = 'tag:read';
+    final public const string GROUP_LIST = 'tag:index';
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Length(max: 100)]

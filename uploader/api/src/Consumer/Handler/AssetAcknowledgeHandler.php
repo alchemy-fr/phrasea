@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsMessageHandler]
 final readonly class AssetAcknowledgeHandler
 {
-    final public const EVENT = 'asset_ack';
+    final public const string EVENT = 'asset_ack';
 
     public function __construct(
         private MessageBusInterface $bus,

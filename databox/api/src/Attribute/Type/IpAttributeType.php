@@ -9,7 +9,7 @@ use Elastica\Query\AbstractQuery;
 
 class IpAttributeType extends AbstractAttributeType
 {
-    final public const NAME = 'ip';
+    final public const string NAME = 'ip';
 
     public static function getName(): string
     {

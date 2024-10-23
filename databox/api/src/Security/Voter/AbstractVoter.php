@@ -16,14 +16,14 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractVoter extends Voter
 {
-    final public const CREATE = 'CREATE';
-    final public const LIST = 'LIST';
-    final public const READ = 'READ';
-    final public const EDIT = 'EDIT';
-    final public const DELETE = 'DELETE';
-    final public const EDIT_PERMISSIONS = 'EDIT_PERMISSIONS';
-    final public const OPERATOR = 'OPERATOR';
-    final public const OWNER = 'OWNER';
+    final public const string CREATE = 'CREATE';
+    final public const string LIST = 'LIST';
+    final public const string READ = 'READ';
+    final public const string EDIT = 'EDIT';
+    final public const string DELETE = 'DELETE';
+    final public const string EDIT_PERMISSIONS = 'EDIT_PERMISSIONS';
+    final public const string OPERATOR = 'OPERATOR';
+    final public const string OWNER = 'OWNER';
 
     protected EntityManagerInterface $em;
     protected Security $security;

@@ -10,7 +10,7 @@ use Elastica\Query\AbstractQuery;
 
 class GeoPointAttributeType extends AbstractAttributeType
 {
-    final public const NAME = 'geo_point';
+    final public const string NAME = 'geo_point';
 
     public static function getName(): string
     {

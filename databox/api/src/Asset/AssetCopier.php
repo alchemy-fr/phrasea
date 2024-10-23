@@ -17,8 +17,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
 {
-    final public const OPT_WITH_ATTRIBUTES = 'withAttributes';
-    final public const OPT_WITH_TAGS = 'withTags';
+    final public const string OPT_WITH_ATTRIBUTES = 'withAttributes';
+    final public const string OPT_WITH_TAGS = 'withTags';
 
     private array $fileCopies = [];
 

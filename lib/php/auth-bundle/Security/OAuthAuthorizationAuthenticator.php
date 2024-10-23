@@ -26,7 +26,7 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    private const CHECK_ROUTE = 'alchemy_auth_oauth_check';
+    private const string CHECK_ROUTE = 'alchemy_auth_oauth_check';
 
     public function __construct(
         private readonly KeycloakClient $oauthClient,

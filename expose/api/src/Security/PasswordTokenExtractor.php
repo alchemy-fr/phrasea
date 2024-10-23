@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class PasswordTokenExtractor
 {
-    private const HEADER_NAME = 'X-Passwords';
+    private const string HEADER_NAME = 'X-Passwords';
 
     public function __construct(
         private RequestStack $requestStack,

@@ -22,8 +22,8 @@ trait FileUserActionsTrait
 {
     use UserActionsTrait;
 
-    final public const DATA_FILE_ID = 'file_id';
-    final public const DATA_FILE = 'file';
+    final public const string DATA_FILE_ID = 'file_id';
+    final public const string DATA_FILE = 'file';
 
     protected FileManager $fileManager;
     protected UploadManager $uploadManager;

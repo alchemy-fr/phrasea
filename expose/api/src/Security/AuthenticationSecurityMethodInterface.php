@@ -6,6 +6,6 @@ namespace App\Security;
 
 interface AuthenticationSecurityMethodInterface
 {
-    public const ERROR_NO_ACCESS_TOKEN = 'missing_access_token';
-    public const ERROR_NOT_ALLOWED = 'not_allowed';
+    public const string ERROR_NO_ACCESS_TOKEN = 'missing_access_token';
+    public const string ERROR_NOT_ALLOWED = 'not_allowed';
 }

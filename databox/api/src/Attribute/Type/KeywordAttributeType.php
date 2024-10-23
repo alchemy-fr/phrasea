@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class KeywordAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'keyword';
+    public const string NAME = 'keyword';
 
     public static function getName(): string
     {

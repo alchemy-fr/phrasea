@@ -13,10 +13,10 @@ class AssetVoter extends Voter
 {
     use JwtVoterTrait;
 
-    final public const READ = 'READ';
-    final public const EDIT = 'EDIT';
-    final public const DELETE = 'DELETE';
-    final public const CREATE = 'CREATE';
+    final public const string READ = 'READ';
+    final public const string EDIT = 'EDIT';
+    final public const string DELETE = 'DELETE';
+    final public const string CREATE = 'CREATE';
 
     public function __construct(
         private readonly Security $security,

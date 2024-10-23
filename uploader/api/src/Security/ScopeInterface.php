@@ -6,5 +6,5 @@ namespace App\Security;
 
 interface ScopeInterface
 {
-    final public const SCOPE_COMMIT_LIST = 'commit:list';
+    final public const string SCOPE_COMMIT_LIST = 'commit:list';
 }

@@ -16,8 +16,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class CommitVoter extends Voter
 {
     use ScopeVoterTrait;
-    final public const ACK = 'ACK';
-    final public const READ = 'READ';
+    final public const string ACK = 'ACK';
+    final public const string READ = 'READ';
 
     public function __construct(private readonly Security $security)
     {

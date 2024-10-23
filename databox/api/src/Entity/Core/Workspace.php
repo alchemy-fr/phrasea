@@ -89,8 +89,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     use UpdatedAtTrait;
     use OwnerIdTrait;
     use DeletedAtTrait;
-    final public const GROUP_READ = 'workspace:read';
-    final public const GROUP_LIST = 'workspace:index';
+    final public const string GROUP_READ = 'workspace:read';
+    final public const string GROUP_LIST = 'workspace:index';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;

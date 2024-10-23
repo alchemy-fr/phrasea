@@ -9,10 +9,10 @@ class JwtUser implements JwtInterface, JwtUserInterface
     /**
      * @deprecated Use IS_AUTHENTICATED_FULLY instead
      */
-    final public const ROLE_USER = 'ROLE_USER';
-    final public const IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
-    final public const ROLE_ADMIN = 'ROLE_ADMIN';
-    final public const ROLE_TECH = 'ROLE_TECH';
+    final public const string ROLE_USER = 'ROLE_USER';
+    final public const string IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
+    final public const string ROLE_ADMIN = 'ROLE_ADMIN';
+    final public const string ROLE_TECH = 'ROLE_TECH';
 
     private ?string $refreshToken = null;
 

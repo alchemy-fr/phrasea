@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class TextAttributeType extends AbstractAttributeType
 {
-    public const NAME = 'text';
+    public const string NAME = 'text';
 
     public static function getName(): string
     {

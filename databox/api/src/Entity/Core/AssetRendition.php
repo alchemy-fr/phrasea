@@ -124,8 +124,8 @@ class AssetRendition extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
-    final public const GROUP_READ = 'assetrend:read';
-    final public const GROUP_LIST = 'assetrend:index';
+    final public const string GROUP_READ = 'assetrend:read';
+    final public const string GROUP_LIST = 'assetrend:index';
 
     #[ORM\ManyToOne(targetEntity: RenditionDefinition::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
