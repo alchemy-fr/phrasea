@@ -7,18 +7,17 @@ use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class TransformationContext implements TransformationContextInterface
+final readonly class TransformationContext implements TransformationContextInterface
 {
     private BuildHashes $buildHashes;
-    private bool $isProjection = true;
 
     public function __construct(
-        private readonly string $workingDirectory,
-        private readonly string $cacheDir,
-        private readonly MimeTypeGuesser $mimeTypeGuesser,
-        private readonly HttpClientInterface $client,
-        private readonly LoggerInterface $logger,
-        private readonly ?MetadataContainerInterface $metadata = null,
+        private string $workingDirectory,
+        private string $cacheDir,
+        private MimeTypeGuesser $mimeTypeGuesser,
+        private HttpClientInterface $client,
+        private LoggerInterface $logger,
+        private ?MetadataContainerInterface $metadata = null,
     ) {
         $this->buildHashes = new BuildHashes();
     }
@@ -110,15 +109,5 @@ final class TransformationContext implements TransformationContextInterface
     public function getBuildHashes(): BuildHashes
     {
         return $this->buildHashes;
-    }
-
-    public function setNotProjection(): void
-    {
-        $this->isProjection = false;
-    }
-
-    public function isProjection(): bool
-    {
-        return $this->isProjection;
     }
 }
