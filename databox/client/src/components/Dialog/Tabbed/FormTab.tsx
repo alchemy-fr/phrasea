@@ -6,9 +6,7 @@ import {LoadingButton} from '@mui/lab';
 import SaveIcon from '@mui/icons-material/Save';
 import RemoteErrors from '../../Form/RemoteErrors';
 import {useTranslation} from 'react-i18next';
-import {
-    useFormPrompt,
-} from '@alchemy/navigation';
+import {useFormPrompt} from '@alchemy/navigation';
 
 type Props = PropsWithChildren<{
     loading: boolean;

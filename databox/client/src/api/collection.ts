@@ -35,32 +35,6 @@ export function clearWorkspaceCache(): void {
     delete cache.ws;
 }
 
-export async function getWorkspaces(): Promise<Workspace[]> {
-    // eslint-disable-next-line no-prototype-builtins
-    if (cache.hasOwnProperty('ws')) {
-        return cache.ws;
-    }
-
-    const collections = await getCollections({
-        groupByWorkspace: true,
-        limit: collectionChildrenLimit,
-    });
-
-    const workspaces: {[key: string]: Workspace} = {};
-
-    collections.result.forEach((c: Collection) => {
-        if (!workspaces[c.workspace.id]) {
-            workspaces[c.workspace.id] = {
-                ...c.workspace,
-                collections: [],
-            };
-        }
-        workspaces[c.workspace.id].collections.push(c);
-    });
-
-    return (cache.ws = Object.keys(workspaces).map(i => workspaces[i]));
-}
-
 export async function getCollection(id: string): Promise<Collection> {
     return (await apiClient.get(`/collections/${id}`)).data;
 }

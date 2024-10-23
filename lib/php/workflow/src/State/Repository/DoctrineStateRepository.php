@@ -11,7 +11,14 @@ use Alchemy\Workflow\State\WorkflowState;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
+#[AsEventListener(event: WorkerMessageHandledEvent::class, method: 'clear')]
+#[AsEventListener(event: WorkerMessageFailedEvent::class, method: 'clear')]
+#[AsEventListener(event: KernelEvents::TERMINATE, method: 'clear')]
 class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 {
     private array $jobs = [];
@@ -25,6 +32,11 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     ) {
         $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
         $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;
+    }
+
+    public function clear(): void
+    {
+        $this->jobs = [];
     }
 
     public function getWorkflowState(string $id): WorkflowState
@@ -90,6 +102,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
             if ($entity instanceof JobStateEntity) {
                 $this->jobs[$workflowId][$jobId] = $entity;
+            } else {
+                unset($this->jobs[$workflowId][$jobId]);
             }
         } catch (\Throwable $e) {
             $this->em->rollback();
@@ -151,6 +165,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
         if ($entity) {
             $this->jobs[$workflowId][$jobId] = $entity;
+        } else {
+            unset($this->jobs[$workflowId][$jobId]);
         }
 
         return $entity;

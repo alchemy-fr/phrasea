@@ -40,7 +40,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         $workflowState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->cancelWorkflow($workflowState->getId());
 
-        return new RedirectResponse($context->getReferrer());
+        return $this->returnToReferer($context);
     }
 
     public function configureActions(Actions $actions): Actions

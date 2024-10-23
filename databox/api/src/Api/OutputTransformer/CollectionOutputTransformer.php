@@ -21,7 +21,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
     use GroupsHelperTrait;
     use UserOutputTransformerTrait;
     use SecurityAwareTrait;
-    final public const COLLECTION_CACHE_NS = 'coll_visibility';
+    final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
@@ -71,9 +71,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
 
             $key = sprintf(AbstractObjectNormalizer::DEPTH_KEY_PATTERN, $output::class, 'children');
-            $maxDepth = $this->hasGroup(Collection::GROUP_2LEVEL_CHILDREN, $context) ? 2 : 1;
             $depth = $context[$key] ?? 0;
-            if ($depth < $maxDepth) {
+            if ($depth < 1) {
                 if (false !== $data->getHasChildren()) {
                     $collections = $this->collectionSearch->search($context['userId'], $context['groupIds'], [
                         'parent' => $data->getId(),

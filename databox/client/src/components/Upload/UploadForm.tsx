@@ -12,7 +12,6 @@ import {
     buildAttributeIndex,
     useAttributeEditor,
 } from '../Media/Asset/Attribute/useAttributeEditor';
-import {Collection} from '../Media/Collection/CollectionsTreeView';
 import SaveAsTemplateForm from './SaveAsTemplateForm';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {AssetDataTemplate, getAssetDataTemplate} from '../../api/templates';
@@ -24,6 +23,7 @@ import FullPageLoader from '../Ui/FullPageLoader';
 import {useFormPrompt} from '@alchemy/navigation';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
+import {Collection} from '../Media/Collection/CollectionTree/collectionTree.ts';
 
 export type UploadData = {
     destination: Collection;

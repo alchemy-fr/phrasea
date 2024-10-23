@@ -73,7 +73,7 @@ function decodeFilter(str: string): FilterEntry {
 function normalizeBucketValue(
     v: ResolvedBucketValue
 ): NormalizedBucketKeyValue {
-    if (typeof v === 'object') {
+    if (v && typeof v === 'object') {
         return {
             v: v.value,
             l: v.label,
@@ -86,7 +86,7 @@ function normalizeBucketValue(
 function denormalizeBucketValue(
     v: NormalizedBucketKeyValue
 ): ResolvedBucketValue {
-    if (typeof v === 'object') {
+    if (v && typeof v === 'object') {
         return {
             value: v.v,
             label: v.l,

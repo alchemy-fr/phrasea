@@ -1,8 +1,3 @@
-import {
-    CollectionId,
-    NewCollectionPath,
-    treeViewPathSeparator,
-} from '../../components/Media/Collection/CollectionsTreeView';
 import {postCollection} from '../../api/collection';
 import {UploadFiles} from '../../api/uploader/file';
 import {Asset} from '../../types';
@@ -12,6 +7,11 @@ import {
     postMultipleAssets,
 } from '../../api/asset';
 import {v4 as uuidv4} from 'uuid';
+import {
+    CollectionId,
+    NewCollectionPath,
+    treeViewPathSeparator,
+} from '../../components/Media/Collection/CollectionTree/collectionTree.ts';
 
 type InputFile = {
     title?: string;

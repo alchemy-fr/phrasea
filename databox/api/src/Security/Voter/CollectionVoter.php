@@ -66,6 +66,12 @@ class CollectionVoter extends AbstractVoter
             self::EDIT_PERMISSIONS => $isOwner()
                 || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
                 || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::OPERATOR => $isOwner()
+                || $this->hasAcl(PermissionInterface::OPERATOR, $subject, $token)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
+            self::OWNER => $isOwner()
+                || $this->hasAcl(PermissionInterface::OWNER, $subject, $token)
+                || (null !== $subject->getParent() && $this->security->isGranted($attribute, $subject->getParent())),
             default => false,
         };
     }

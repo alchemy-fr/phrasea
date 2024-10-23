@@ -26,7 +26,7 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
 
         $document = $event->getDocument();
 
-        $bestPrivacy = $collection->getBestPrivacyInParentHierarchy();
+        $bestPrivacy = $collection->getPrivacy();
 
         $users = $this->permissionManager->getAllowedUsers($collection, PermissionInterface::VIEW);
         $groups = $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW);
@@ -35,21 +35,35 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         $nlUsers = $users;
         $nlGroups = $groups;
 
-        if (!in_array(null, $users, true)) {
-            $parent = $collection->getParent();
-            while (null !== $parent) {
-                $users = array_merge($users, $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW));
-                if (in_array(null, $users, true)) {
-                    break;
-                }
-
-                $groups = array_merge($groups, $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW));
-                $parent = $parent->getParent();
+        $parent = $collection->getParent();
+        while (null !== $parent) {
+            $bestPrivacy = max($bestPrivacy, $parent->getPrivacy());
+            if ($bestPrivacy >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
+                $nlUsers = [];
+                $nlGroups = [];
+                break;
             }
+
+            $parentUsers = $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW);
+            $users = array_merge($users, $parentUsers);
+            $nlUsers = array_diff($nlUsers, $parentUsers);
+
+            if (in_array(null, $users, true)) {
+                $nlUsers = [];
+                $nlGroups = [];
+                $bestPrivacy = max($bestPrivacy, WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
+                break;
+            }
+
+            $parentGroups = $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW);
+            $groups = array_merge($groups, $parentGroups);
+            $nlGroups = array_diff($nlGroups, $parentGroups);
+
+            $parent = $parent->getParent();
         }
 
         if (in_array(null, $users, true)) {
-            $users = ['*'];
+            $users = [];
             $groups = [];
             $bestPrivacy = max($bestPrivacy, WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
         }

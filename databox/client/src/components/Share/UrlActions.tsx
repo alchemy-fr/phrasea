@@ -1,7 +1,7 @@
-import {FlexRow} from "../../../../../lib/js/phrasea-ui";
-import {IconButton} from "@mui/material";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import {Share} from "../../types.ts";
+import {FlexRow} from '../../../../../lib/js/phrasea-ui';
+import {IconButton} from '@mui/material';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import {Share} from '../../types.ts';
 
 type Props = {
     url: string;
@@ -10,11 +10,8 @@ type Props = {
 export function UrlActions({url}: Props) {
     return (
         <FlexRow>
-            <IconButton
-                href={url}
-                target={'_blank'}
-            >
-                <OpenInNewIcon/>
+            <IconButton href={url} target={'_blank'}>
+                <OpenInNewIcon />
             </IconButton>
         </FlexRow>
     );

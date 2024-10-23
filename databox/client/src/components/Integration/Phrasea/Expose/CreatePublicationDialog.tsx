@@ -5,11 +5,7 @@ import RemoteErrors from '../../../Form/RemoteErrors';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
-import {
-    StackedModalProps,
-    useModals,
-    useFormPrompt,
-} from '@alchemy/navigation';
+import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
 import {Basket, IntegrationData} from '../../../../types.ts';
 import {runIntegrationAction} from '../../../../api/integrations.ts';
 import {SwitchWidget} from '@alchemy/react-form';

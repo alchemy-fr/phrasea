@@ -8,11 +8,14 @@ export type UserPreferences = {
     layout?: Layout;
 };
 
+export type UpdatePreferenceHandlerArg<T extends keyof UserPreferences> =
+    | ((prev: UserPreferences[T]) => UserPreferences[T])
+    | UserPreferences[T]
+    | undefined;
+
 export type UpdatePreferenceHandler = <T extends keyof UserPreferences>(
     name: T,
-    handler:
-        | ((prev: UserPreferences[T]) => UserPreferences[T])
-        | UserPreferences[T]
+    handler: UpdatePreferenceHandlerArg<T>
 ) => void;
 
 export type TUserPreferencesContext = {

@@ -12,7 +12,7 @@ import {
     NewCollectionNodeState,
     SetExpanded,
     UpdateCollectionPath,
-} from './CollectionsTreeView';
+} from './CollectionTree/collectionTree.ts';
 
 type Props = {
     offset: number;

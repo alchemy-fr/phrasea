@@ -12,7 +12,6 @@ import moment from 'moment';
 import {v4 as uuidv4} from 'uuid';
 import UploadDropzone from './UploadDropzone';
 import {CollectionChip, WorkspaceChip} from '../Ui/Chips';
-import {CollectionId} from '../Media/Collection/CollectionsTreeView';
 import {useAttributeEditor} from '../Media/Asset/Attribute/useAttributeEditor';
 import {useAssetDataTemplateOptions} from '../Media/Asset/Attribute/useAssetDataTemplateOptions';
 import {
@@ -20,15 +19,12 @@ import {
     postAssetDataTemplate,
     putAssetDataTemplate,
 } from '../../api/templates';
-import {
-    StackedModalProps,
-    useModals,
-    useFormPrompt,
-} from '@alchemy/navigation';
+import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
 import {Privacy} from '../../api/privacy';
 import {Asset} from '../../types';
 import {getAttributeList} from '../Media/Asset/Attribute/AttributeListData.ts';
 import type {TFunction} from '@alchemy/i18n';
+import {CollectionId} from '../Media/Collection/CollectionTree/collectionTree.ts';
 
 type FileWrapper = {
     id: string;

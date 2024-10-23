@@ -104,6 +104,10 @@ final class CollectionFacet extends AbstractFacet
             $pColl = $pColl->getParent();
         }
 
+        if (empty($levels)) {
+            return null;
+        }
+
         return implode(' / ', array_reverse($levels));
     }
 }

@@ -14,12 +14,13 @@ type State = {
     baskets: Basket[];
     current: Basket | undefined;
     nextUrl?: string | undefined;
+    loaded: boolean;
     loading: boolean;
     loadingCurrent: boolean;
     loadingMore: boolean;
     total?: number;
     hasMore: () => boolean;
-    load: (params?: GetBasketOptions) => Promise<void>;
+    load: (params?: GetBasketOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
     addBasket: (basket: Basket) => void;
     updateBasket: (data: Basket) => void;
@@ -32,14 +33,19 @@ type State = {
 
 export const useBasketStore = create<State>((set, getState) => ({
     loadingMore: false,
+    loaded: false,
     loading: false,
     loadingCurrent: false,
     current: undefined,
     baskets: [],
 
-    load: async params => {
+    load: async (params, force) => {
+        if (getState().loaded && !force) {
+            return;
+        }
+
         set({
-            loading: false,
+            loading: true,
         });
 
         try {
@@ -53,7 +59,7 @@ export const useBasketStore = create<State>((set, getState) => ({
                 nextUrl: data.next || undefined,
             }));
         } catch (e: any) {
-            set({loadingMore: true});
+            set({loading: true});
             throw e;
         }
     },

@@ -29,9 +29,9 @@ import CopiableTextField from '../Ui/CopiableTextField.tsx';
 import {toast} from 'react-toastify';
 import ShareItem from './ShareItem.tsx';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {getShareTitle, UrlActions} from "./UrlActions.tsx";
-import {getShareUrl} from "./shareUtils.ts";
-import ShareSocials from "./ShareSocials.tsx";
+import {getShareTitle, UrlActions} from './UrlActions.tsx';
+import {getShareUrl} from './shareUtils.ts';
+import ShareSocials from './ShareSocials.tsx';
 
 type Props = {
     asset: Asset;
@@ -192,9 +192,7 @@ export default function ShareAssetDialog({asset, open, modalIndex}: Props) {
                             <CopiableTextField
                                 fullWidth={true}
                                 value={publicUrl!}
-                                actions={<UrlActions
-                                    url={publicUrl!}
-                                />}
+                                actions={<UrlActions url={publicUrl!} />}
                             />
                             <div>
                                 <ShareSocials

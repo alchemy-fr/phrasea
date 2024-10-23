@@ -52,7 +52,6 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
-
         if (null !== $file = $rendition?->getFile()) {
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));
         }

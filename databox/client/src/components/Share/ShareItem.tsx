@@ -7,11 +7,11 @@ import {LoadingButton} from '@mui/lab';
 import {useTranslation} from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {FlexRow} from '../../../../../lib/js/phrasea-ui';
-import {getShareTitle, UrlActions} from "./UrlActions.tsx";
-import React from "react";
-import {getShareUrl} from "./shareUtils.ts";
-import SelectShareAlternateUrl from "./SelectShareAlternateUrl.tsx";
-import ShareSocials from "./ShareSocials.tsx";
+import {getShareTitle, UrlActions} from './UrlActions.tsx';
+import React from 'react';
+import {getShareUrl} from './shareUtils.ts';
+import SelectShareAlternateUrl from './SelectShareAlternateUrl.tsx';
+import ShareSocials from './ShareSocials.tsx';
 
 type Props = {
     share: Share;
@@ -21,9 +21,13 @@ type Props = {
 
 export default function ShareItem({share, revoking, onRevoke}: Props) {
     const {t} = useTranslation();
-    const [selectedAlternate, setSelectedAlternate] = React.useState<string | undefined>();
+    const [selectedAlternate, setSelectedAlternate] = React.useState<
+        string | undefined
+    >();
     const shareTitle = getShareTitle(share);
-    const alternateUrl = selectedAlternate ? share.alternateUrls.find(a => a.name === selectedAlternate) : undefined;
+    const alternateUrl = selectedAlternate
+        ? share.alternateUrls.find(a => a.name === selectedAlternate)
+        : undefined;
     const shareUrl = alternateUrl?.url ?? getShareUrl(share);
 
     return (
@@ -47,10 +51,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                                 ''
                             )}
 
-                            <Typography
-                                component={'span'}
-                                variant={'body2'}
-                            >
+                            <Typography component={'span'} variant={'body2'}>
                                 {t(
                                     'share.item.createdAt',
                                     'Created at {{date}}',
@@ -66,17 +67,18 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                                 <CopiableTextField
                                     disabled={revoking}
                                     value={shareUrl}
-                                    startAdornment={<div
-                                    >
-                                        <SelectShareAlternateUrl
-                                            onSelect={setSelectedAlternate}
-                                            value={selectedAlternate}
-                                            alternateUrls={share.alternateUrls}
-                                        />
-                                    </div>}
-                                    actions={<UrlActions
-                                        url={shareUrl}
-                                    />}
+                                    startAdornment={
+                                        <div>
+                                            <SelectShareAlternateUrl
+                                                onSelect={setSelectedAlternate}
+                                                value={selectedAlternate}
+                                                alternateUrls={
+                                                    share.alternateUrls
+                                                }
+                                            />
+                                        </div>
+                                    }
+                                    actions={<UrlActions url={shareUrl} />}
                                 />
                             </div>
                         </>
@@ -90,7 +92,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                                             mr: 1,
                                         }}
                                     >
-                                        <AccessTimeIcon/>
+                                        <AccessTimeIcon />
                                     </Icon>
                                     {t(
                                         'share.item.startsAt',
@@ -113,7 +115,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                                             mr: 1,
                                         }}
                                     >
-                                        <AccessTimeIcon/>
+                                        <AccessTimeIcon />
                                     </Icon>
                                     {t(
                                         'share.item.expiresAt',
@@ -132,7 +134,11 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                                 <ShareSocials
                                     url={shareUrl}
                                     title={shareTitle}
-                                    isImage={alternateUrl?.type?.startsWith('image/') ?? false}
+                                    isImage={
+                                        alternateUrl?.type?.startsWith(
+                                            'image/'
+                                        ) ?? false
+                                    }
                                 />
                             </div>
                         </>
@@ -148,7 +154,7 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                             ml: 2,
                         }}
                         color={'error'}
-                        startIcon={<DeleteIcon/>}
+                        startIcon={<DeleteIcon />}
                         loading={revoking}
                         disabled={revoking}
                         onClick={() => onRevoke(share.id)}

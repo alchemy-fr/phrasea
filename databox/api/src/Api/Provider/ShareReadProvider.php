@@ -55,10 +55,10 @@ final class ShareReadProvider implements ProviderInterface
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [
-                    'id' => $item->getId(),
-                    'rendition' => $definition->getId(),
-                    'token' => $item->getToken(),
-                ], UrlGeneratorInterface::ABS_URL),
+                        'id' => $item->getId(),
+                        'rendition' => $definition->getId(),
+                        'token' => $item->getToken(),
+                    ], UrlGeneratorInterface::ABS_URL),
                     $rendition->getFile()->getType(),
                 );
             }

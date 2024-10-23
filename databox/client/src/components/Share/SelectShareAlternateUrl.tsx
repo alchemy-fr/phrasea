@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {Button, Menu, MenuItem} from "@mui/material";
-import {ShareAlternateUrl} from "../../types.ts";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {Button, Menu, MenuItem} from '@mui/material';
+import {ShareAlternateUrl} from '../../types.ts';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 type Props = {
     onSelect: (value: string | undefined) => void;
@@ -25,44 +25,39 @@ export default function SelectShareAlternateUrl({
         setAnchorEl(null);
     };
 
-    const select: Props['onSelect'] = (value) => {
+    const select: Props['onSelect'] = value => {
         onSelect(value);
         handleClose();
-    }
+    };
 
     const defaultLabel = t('share.item.rendition.asset', 'Asset');
 
-    return <>
-        <Button
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-            variant="contained"
-            disableElevation
-            onClick={handleClick}
-            endIcon={<KeyboardArrowDownIcon />}
-        >
-            {value || defaultLabel}
-        </Button>
-        <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-        >
-            <MenuItem
-                onClick={() => select(undefined)}
-                selected={!value}
+    return (
+        <>
+            <Button
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                variant="contained"
+                disableElevation
+                onClick={handleClick}
+                endIcon={<KeyboardArrowDownIcon />}
             >
-                {defaultLabel}
-            </MenuItem>
-            {alternateUrls.map(a => (
-                <MenuItem
-                    key={a.name}
-                    onClick={() => select(a.name)}
-                    selected={a.name === value}
-                >
-                    {a.name}
+                {value || defaultLabel}
+            </Button>
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={() => select(undefined)} selected={!value}>
+                    {defaultLabel}
                 </MenuItem>
-            ))}
-        </Menu>
-    </>
+                {alternateUrls.map(a => (
+                    <MenuItem
+                        key={a.name}
+                        onClick={() => select(a.name)}
+                        selected={a.name === value}
+                    >
+                        {a.name}
+                    </MenuItem>
+                ))}
+            </Menu>
+        </>
+    );
 }

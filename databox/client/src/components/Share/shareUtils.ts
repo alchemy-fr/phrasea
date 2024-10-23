@@ -1,6 +1,6 @@
-import {Share} from "../../types.ts";
-import {routes} from "../../routes.ts";
-import {getPath} from "@alchemy/navigation";
+import {Share} from '../../types.ts';
+import {routes} from '../../routes.ts';
+import {getPath} from '@alchemy/navigation';
 
 export function getShareUrl(s: Share) {
     return getPath(
@@ -14,4 +14,3 @@ export function getShareUrl(s: Share) {
         }
     );
 }
-
