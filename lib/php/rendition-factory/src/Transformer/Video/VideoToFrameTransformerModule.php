@@ -50,10 +50,10 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
         $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
 
-        $from_seconds = $options['from_seconds'] ?? 0;
+        $fromSeconds = $options['from_seconds'] ?? 0;
 
         $video = $ffmpeg->open($inputFile->getPath());
-        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($from_seconds));
+        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds));
         $outputPath = $context->createTmpFilePath($extension);
 
         $frame->save($outputPath);
