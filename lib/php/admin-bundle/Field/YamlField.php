@@ -3,8 +3,8 @@
 namespace Alchemy\AdminBundle\Field;
 
 use Alchemy\AdminBundle\Form\YamlType;
-use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 
 final class YamlField implements FieldInterface
 {

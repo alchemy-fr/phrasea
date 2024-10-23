@@ -26,8 +26,8 @@ class JsonType extends AbstractType implements DataTransformerInterface
 
     public function reverseTransform(mixed $value)
     {
-        if ($value !== null && json_validate($value) === false) {
-            return ['input-error' => 'Invalid JSON: ' . json_last_error_msg()];
+        if (null !== $value && false === json_validate($value)) {
+            return ['input-error' => 'Invalid JSON: '.json_last_error_msg()];
         }
 
         return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
@@ -36,7 +36,7 @@ class JsonType extends AbstractType implements DataTransformerInterface
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'attr'=> [
+            'attr' => [
                 'rows' => 10,
                 'style' => 'font-family: "Courier New"',
             ],
@@ -48,9 +48,9 @@ class JsonType extends AbstractType implements DataTransformerInterface
                             ->buildViolation($data['input-error'])
                             ->addViolation();
                         }
-                    }       
-                )
-            ]
+                    }
+                ),
+            ],
         ]);
     }
 
