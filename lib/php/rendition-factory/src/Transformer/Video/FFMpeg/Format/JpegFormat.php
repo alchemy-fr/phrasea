@@ -3,7 +3,6 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use FFMpeg\Format\Video\X264;
 
 class JpegFormat implements FormatInterface
 {

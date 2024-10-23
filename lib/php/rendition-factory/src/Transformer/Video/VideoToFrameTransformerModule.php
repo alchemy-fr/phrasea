@@ -10,7 +10,6 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
-use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
@@ -28,26 +27,25 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if (!($format = $options['format'] ?? null)) {
-            throw new InvalidArgumentException('Missing format');
+            throw new \InvalidArgumentException('Missing format');
         }
 
-        if(!$this->formats->has($format)) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
+        if (!$this->formats->has($format)) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
         }
         /** @var FormatInterface $outputFormat */
         $outputFormat = $this->formats->get($format);
 
-        if($outputFormat->getFamily() !== FamilyEnum::Image) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s, only image formats supported', $format));
+        if (FamilyEnum::Image !== $outputFormat->getFamily()) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s, only image formats supported', $format));
         }
 
         if (null != ($extension = $options['extension'] ?? null)) {
-            if(!in_array($extension, $outputFormat->getAllowedExtensions())) {
-                throw new InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
             }
-        }
-        else {
-            $extension = ($outputFormat->getAllowedExtensions())[0];
+        } else {
+            $extension = $outputFormat->getAllowedExtensions()[0];
         }
 
         $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);

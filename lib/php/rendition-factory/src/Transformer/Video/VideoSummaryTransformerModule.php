@@ -12,13 +12,10 @@ use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\VideoInterface;
-use InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
-
 
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
@@ -38,48 +35,47 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
         if (!($format = $options['format'] ?? null)) {
-            throw new InvalidArgumentException('Missing format');
+            throw new \InvalidArgumentException('Missing format');
         }
 
-        if(!$this->formats->has($format)) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
+        if (!$this->formats->has($format)) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
         }
         /** @var FormatInterface $outputFormat */
         $outputFormat = $this->formats->get($format);
 
-        if($outputFormat->getFamily() !== FamilyEnum::Video) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
+        if (FamilyEnum::Video !== $outputFormat->getFamily()) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
         }
 
         if (null != ($extension = $options['extension'] ?? null)) {
-            if(!in_array($extension, $outputFormat->getAllowedExtensions())) {
-                throw new InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
             }
-        }
-        else {
-            $extension = ($outputFormat->getAllowedExtensions())[0];
+        } else {
+            $extension = $outputFormat->getAllowedExtensions()[0];
         }
 
         $period = $options['period'] ?? 0;
         if ($period <= 0) {
-            throw new InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
+            throw new \InvalidArgumentException(sprintf('Invalid period for module "%s"', self::getName()));
         }
         $clipDuration = $options['duration'] ?? 0;
         if ($clipDuration <= 0 || $clipDuration >= $period) {
-            throw new InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
+            throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
         }
 
         /** @var VideoInterface $FFMpegOutputFormat */
         $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
         if ($videoCodec = $options['video_codec'] ?? null) {
             if (!in_array($videoCodec, $FFMpegOutputFormat->getAvailableVideoCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $FFMpegOutputFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
             if (!in_array($audioCodec, $FFMpegOutputFormat->getAvailableAudioCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $FFMpegOutputFormat->setAudioCodec($audioCodec);
         }
@@ -129,7 +125,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         }
 
         if (!file_exists($outputPath)) {
-            throw new RuntimeException('Failed to create summary video');
+            throw new \RuntimeException('Failed to create summary video');
         }
 
         return new OutputFile(

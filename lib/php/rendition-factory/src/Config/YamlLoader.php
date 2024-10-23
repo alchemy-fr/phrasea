@@ -35,16 +35,16 @@ final readonly class YamlLoader implements FileLoaderInterface
     private function removeDisabled(array $data): array
     {
         $out = [];
-        foreach($data as $key => $value) {
-            if(is_array($value)) {
-                if($value['enabled'] ?? true) {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if ($value['enabled'] ?? true) {
                     $out[$key] = $this->removeDisabled($value);
                 }
-            }
-            else {
+            } else {
                 $out[$key] = $value;
             }
         }
+
         return $out;
     }
 
