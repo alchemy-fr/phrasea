@@ -139,7 +139,7 @@ FROM "user"');
 
         $i = 0;
         foreach ($users as $row) {
-            $i++;
+            ++$i;
             $output->writeln(sprintf('-  User <info>%s</info> (%d/%s - %d)', $row['id'], $i, $userCount, round($i / $userCount * 100)));
             $roles = json_decode($row['roles'], true, 512, JSON_THROW_ON_ERROR);
             $realmRoles = [];
@@ -199,7 +199,7 @@ FROM "user_group" WHERE user_id = :uid', [
                 'query' => [
                     'first' => $first,
                     'max' => $perPage,
-                ]
+                ],
             ]);
             if (empty($users)) {
                 break;

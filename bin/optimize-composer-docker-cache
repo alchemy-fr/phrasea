@@ -67,7 +67,7 @@ function updateProject(string $project)
             '(cd %s && composer update --no-interaction --ansi)',
         ]), dirname($composerCacheSrc), $project));
     } finally {
-        runSubCommand(sprintf('rm -f %s', $libSymlink));
+        @unlink($libSymlink);
     }
 }
 

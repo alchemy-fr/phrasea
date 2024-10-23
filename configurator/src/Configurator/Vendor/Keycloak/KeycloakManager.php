@@ -518,7 +518,6 @@ final class KeycloakManager
             ]), [
                 'json' => $data,
             ]), null, $data);
-        ;
     }
 
     public function getRealmRoles(): array
