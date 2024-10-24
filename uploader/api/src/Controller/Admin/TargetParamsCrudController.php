@@ -2,14 +2,17 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use App\Entity\TargetParams;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\TargetParams;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class TargetParamsCrudController extends AbstractAclAdminCrudController
 {
@@ -26,25 +29,25 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
             ->setSearchFields(['id', 'data']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(AssociationIdentifierFilter::new('target'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $target = AssociationField::new('target');
-        $jsonData = TextareaField::new('jsonData');
-        $id = IdField::new();
-        $data = JsonField::new('data');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $createdAt, $updatedAt, $target, $data];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$target, $jsonData];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$target, $jsonData];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('target');
+        yield TextareaField::new('jsonData')
+            ->onlyOnForms();
+        yield JsonField::new('data')
+            ->onlyOnDetail();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();    
+        yield DateTimeField::new('updatedAt')
+            ->onlyOnDetail();
     }
 }

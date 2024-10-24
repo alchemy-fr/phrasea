@@ -2,15 +2,17 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use App\Entity\FormSchema;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\FormSchema;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class FormSchemaCrudController extends AbstractAclAdminCrudController
 {
@@ -27,26 +29,23 @@ class FormSchemaCrudController extends AbstractAclAdminCrudController
             ->setSearchFields(['id', 'locale', 'data']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(AssociationIdentifierFilter::new('target'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $target = AssociationField::new('target');
-        $locale = TextField::new('locale');
-        $jsonData = TextareaField::new('jsonData');
-        $id = IdField::new();
-        $data = JsonField::new('data');
-        $createdAt = DateTimeField::new('createdAt');
-        $updatedAt = DateTimeField::new('updatedAt');
-
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $target, $locale, $createdAt];
-        } elseif (Crud::PAGE_DETAIL === $pageName) {
-            return [$id, $locale, $createdAt, $updatedAt, $target, $data];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$target, $locale, $jsonData];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$target, $locale, $jsonData];
-        }
-
-        return [];
+        yield IdField::new();
+        yield AssociationField::new('target');
+        yield TextField::new('locale');
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield DateTimeField::new('updatedAt')
+            ->onlyOnDetail();
+        yield JsonField::new('data', 'jsonData');    
     }
 }
