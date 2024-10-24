@@ -2,16 +2,20 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Target;
+use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\GroupChoiceField;
-use Alchemy\AdminBundle\Field\IdField;
-use App\Entity\Target;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 
 class TargetCrudController extends AbstractAdminCrudController
 {
@@ -29,33 +33,39 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id', 'slug', 'name', 'description', 'targetUrl', 'defaultDestination', 'targetAccessToken', 'targetTokenType', 'allowedGroups']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('name'))
+            ->add(BooleanFilter::new('enabled'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        $name = TextField::new('name');
-        $slug = TextField::new('slug');
-        $description = TextareaField::new('description');
-        $targetUrl = TextField::new('targetUrl')
+        yield IdField::new()
+            ->hideOnForm();
+        yield TextField::new('slug');
+        yield TextField::new('name');  
+        yield TextareaField::new('description')
+            ->hideOnIndex();   
+        yield CodeField::new('pullModeUrl', 'Pull mode URL')
+            ->onlyOnIndex();
+        yield TextField::new('targetUrl')
             ->setHelp('Leave empty for pull mode. i.e: "https://phraseanet.phrasea.local/api/v1/upload/enqueue/" for Phraseanet, "http://databox-api/incoming-uploads" for Databox upload');
-        $targetTokenType = TextField::new('targetTokenType')
+        yield TextField::new('targetTokenType')
             ->setHelp('Use "OAuth" for Phraseanet')
-            ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "Bearer"']]);
-        $targetAccessToken = TextField::new('targetAccessToken');
-        $defaultDestination = TextField::new('defaultDestination')
-            ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)');
-        $allowedGroups = GroupChoiceField::new('allowedGroups');
-        $enabled = Field::new('enabled');
-        $id = IdField::new();
-        $createdAt = DateTimeField::new('createdAt');
-        $pullModeUrl = CodeField::new('pullModeUrl', 'Pull mode URL');
+            ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "Bearer"']])
+            ->onlyOnForms();   
+        yield TextField::new('targetAccessToken');
+        yield TextField::new('defaultDestination')
+            ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')
+            ->onlyOnForms();
+        yield GroupChoiceField::new('allowedGroups')
+            ->onlyOnForms();
+        yield BooleanField::new('enabled');
+        yield DateTimeField::new('createdAt')
+            ->onlyOnIndex();
 
-        if (Crud::PAGE_INDEX === $pageName) {
-            return [$id, $slug, $name, $pullModeUrl, $targetUrl, $enabled, $createdAt];
-        } elseif (Crud::PAGE_NEW === $pageName) {
-            return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
-        } elseif (Crud::PAGE_EDIT === $pageName) {
-            return [$slug, $name, $description, $targetUrl, $targetTokenType, $targetAccessToken, $defaultDestination, $allowedGroups, $enabled];
-        }
-
-        return [];
     }
 }

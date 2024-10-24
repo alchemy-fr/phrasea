@@ -2,18 +2,23 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use App\Entity\Asset;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
-use App\Entity\Asset;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 
 class AssetCrudController extends AbstractAdminCrudController
 {
@@ -39,17 +44,25 @@ class AssetCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id', 'path', 'size', 'originalName', 'mimeType', 'userId']);
     }
 
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('id'))
+            ->add(TextFilter::new('mimeType'))
+            ->add(BooleanFilter::new('acknowledged'))
+            ->add(AssociationIdentifierFilter::new('commit'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
         yield IdField::new('userId');
         yield IntegerField::new('size')
-            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig')
-            ->hideOnIndex();
-        yield TextField::new('originalName')
-            ->hideOnIndex();
-        yield TextField::new('mimeType')
-            ->hideOnIndex();
+            ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig');
+        yield TextField::new('originalName');
+        yield TextField::new('mimeType');
         yield TextField::new('path')
             ->hideOnIndex();
         yield JsonField::new('formData')

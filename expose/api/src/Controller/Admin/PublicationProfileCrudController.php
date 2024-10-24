@@ -2,20 +2,31 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
-use Alchemy\AdminBundle\Field\IdField;
 use App\Entity\PublicationProfile;
 use App\Field\PublicationConfigField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use Alchemy\AdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 
 class PublicationProfileCrudController extends AbstractAclAdminCrudController
 {
     public static function getEntityFqcn(): string
     {
         return PublicationProfile::class;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('id'))
+            ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('ownerId'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
