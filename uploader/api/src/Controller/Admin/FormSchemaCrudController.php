@@ -10,9 +10,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
-use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class FormSchemaCrudController extends AbstractAclAdminCrudController
 {
@@ -32,7 +32,7 @@ class FormSchemaCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(AssociationIdentifierFilter::new('target'))
+            ->add(EntityFilter::new('target'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }

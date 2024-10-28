@@ -60,12 +60,12 @@ class TargetCrudController extends AbstractAdminCrudController
         yield TextField::new('targetAccessToken');
         yield TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')
-            ->onlyOnForms();
+            ->hideOnIndex();
         yield GroupChoiceField::new('allowedGroups')
-            ->onlyOnForms();
+            ->hideOnIndex();
         yield BooleanField::new('enabled');
         yield DateTimeField::new('createdAt')
-            ->onlyOnIndex();
+            ->hideOnForm();
 
     }
 }

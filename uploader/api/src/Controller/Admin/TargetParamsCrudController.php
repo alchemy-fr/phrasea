@@ -42,7 +42,7 @@ class TargetParamsCrudController extends AbstractAclAdminCrudController
         yield IdField::new();
         yield AssociationField::new('target');
         yield TextareaField::new('jsonData')
-            ->onlyOnForms();
+            ->hideOnIndex();
         yield JsonField::new('data')
             ->onlyOnDetail();
         yield DateTimeField::new('createdAt')
