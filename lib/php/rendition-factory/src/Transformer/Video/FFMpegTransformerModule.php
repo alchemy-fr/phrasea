@@ -30,11 +30,9 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return 'ffmpeg';
     }
 
-    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $rawOptions, TransformationContextInterface $context): OutputFileInterface
     {
-        $this->optionsResolver->load($options);
-
-        $options = $this->optionsResolver->getResolvedOptions();
+        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
 
         if (!($format = $options['format'] ?? null)) {
             throw new \InvalidArgumentException('Missing format');
@@ -59,19 +57,19 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
-            return $this->doVideo($outputFormat, $extension, $inputFile, $context);
+            return $this->doVideo($outputFormat, $extension, $rawOptions, $inputFile, $context);
         }
 
         if (FamilyEnum::Audio === $outputFormat->getFamily()) {
-            return $this->doAudio($outputFormat, $extension, $inputFile, $context);
+            return $this->doAudio($outputFormat, $extension, $rawOptions, $inputFile, $context);
         }
 
         throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
     }
 
-    private function doVideo(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
+    private function doVideo(FormatInterface $ouputFormat, string $extension, array $rawOptions, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $this->optionsResolver->getResolvedOptions();
+        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
 
         $format = $ouputFormat->getFormat();
         if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
@@ -83,10 +81,12 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
-        $this->optionsResolver->addContext('input', $video->getStreams()->videos()->first()->all());
-        $this->optionsResolver->addContext('metadata', $context->getTemplatingContext());
-
-        $options = $this->optionsResolver->getResolvedOptions();
+        $options = $this->optionsResolver->resolveOptions($rawOptions,
+            [
+                'input' => $video->getStreams()->videos()->first()->all(),
+                'metadata'=> $context->getTemplatingContext(),
+            ]
+        );
 
         /** @var FFMpegFormatInterface $FFMpegFormat */
         $FFMpegFormat = $ouputFormat->getFFMpegFormat();
@@ -176,9 +176,9 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
+    private function doAudio(FormatInterface $ouputFormat, string $extension, array $rawOptions, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $this->optionsResolver->getResolvedOptions();
+        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
 
         $format = $ouputFormat->getFormat();
         if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
