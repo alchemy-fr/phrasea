@@ -31,11 +31,32 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
         $this->inner->persistWorkflowState($state);
     }
 
-    public function getJobState(string $workflowId, string $jobId): ?JobState
+    public function getJobState(string $workflowId, string $jobStateId): ?JobState
+    {
+        $this->logs[] = ['getJobState', $workflowId, $jobStateId];
+
+        return $this->inner->getJobState($workflowId, $jobStateId);
+    }
+
+    public function getLastJobState(string $workflowId, string $jobId): ?JobState
+    {
+        $this->logs[] = ['getLastJobState', $workflowId, $jobId];
+
+        return $this->inner->getLastJobState($workflowId, $jobId);
+    }
+
+    public function createJobState(string $workflowId, string $jobId): JobState
+    {
+        $this->logs[] = ['createJobState', $workflowId, $jobId];
+
+        return $this->inner->createJobState($workflowId, $jobId);
+    }
+
+    public function getJobStates(string $workflowId, string $jobId): array
     {
         $this->logs[] = ['getJobState', $workflowId, $jobId];
 
-        return $this->inner->getJobState($workflowId, $jobId);
+        return $this->inner->getJobStates($workflowId, $jobId);
     }
 
     public function persistJobState(JobState $state): void
@@ -45,11 +66,20 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
         $this->inner->persistJobState($state);
     }
 
-    public function removeJobState(string $workflowId, string $jobId): void
+    public function removeJobState(string $workflowId, string $jobStateId): void
     {
-        $this->logs[] = ['removeJobState', $workflowId, $jobId];
+        $this->logs[] = ['removeJobState', $workflowId, $jobStateId];
 
-        $this->inner->removeJobState($workflowId, $jobId);
+        $this->inner->removeJobState($workflowId, $jobStateId);
+    }
+
+    public function acquireJobLock(string $workflowId, string $jobStateId): void
+    {
+        $this->logs[] = ['acquireJobLock', $workflowId, $jobStateId];
+
+        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
+            $this->inner->acquireJobLock($workflowId, $jobStateId);
+        }
     }
 
     public function resetJobState(string $workflowId, string $jobId): void
@@ -57,21 +87,12 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
         $this->removeJobState($workflowId, $jobId);
     }
 
-    public function acquireJobLock(string $workflowId, string $jobId): void
+    public function releaseJobLock(string $workflowId, string $jobStateId): void
     {
-        $this->logs[] = ['acquireJobLock', $workflowId, $jobId];
+        $this->logs[] = ['releaseJobLock', $workflowId, $jobStateId];
 
         if ($this->inner instanceof LockAwareStateRepositoryInterface) {
-            $this->inner->acquireJobLock($workflowId, $jobId);
-        }
-    }
-
-    public function releaseJobLock(string $workflowId, string $jobId): void
-    {
-        $this->logs[] = ['releaseJobLock', $workflowId, $jobId];
-
-        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
-            $this->inner->releaseJobLock($workflowId, $jobId);
+            $this->inner->releaseJobLock($workflowId, $jobStateId);
         }
     }
 

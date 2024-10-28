@@ -9,5 +9,5 @@ interface JobTriggerInterface
     /**
      * @return bool whether workflow should continue in the process
      */
-    public function triggerJob(string $workflowId, string $jobId): bool;
+    public function triggerJob(string $workflowId, string $jobStateId): bool;
 }

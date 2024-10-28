@@ -85,9 +85,9 @@ abstract class AbstractWorkflowTest extends TestCase
     {
         foreach ($expected as $jobId => $result) {
             if (null === $result) {
-                $this->assertNull($repository->getJobState($workflowId, $jobId));
+                $this->assertNull($repository->getJobStates($workflowId, $jobId));
             } else {
-                $this->assertEquals($result, $repository->getJobState($workflowId, $jobId)->getStatus(), $jobId);
+                $this->assertEquals($result, $repository->getJobStates($workflowId, $jobId)->getStatus(), $jobId);
             }
         }
     }

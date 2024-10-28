@@ -6,5 +6,5 @@ namespace Alchemy\Workflow\Runner;
 
 interface RunnerInterface
 {
-    public function run(string $workflowId, string $jobId): void;
+    public function run(string $workflowId, string $jobStateId): void;
 }

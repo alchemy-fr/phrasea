@@ -13,9 +13,9 @@ final readonly class MessengerJobTrigger implements JobTriggerInterface
     {
     }
 
-    public function triggerJob(string $workflowId, string $jobId): bool
+    public function triggerJob(string $workflowId, string $jobStateId): bool
     {
-        $this->bus->dispatch(new JobConsumer($workflowId, $jobId));
+        $this->bus->dispatch(new JobConsumer($workflowId, $jobStateId));
 
         return true;
     }

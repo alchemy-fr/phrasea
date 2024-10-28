@@ -17,7 +17,7 @@ final readonly class JobConsumerHandler
 
     public function __invoke(JobConsumer $message): void
     {
-        $this->planExecutor->executePlan($message->getWorkflowId(), $message->getJobId());
+        $this->planExecutor->executePlan($message->getWorkflowId(), $message->getJobStateId());
         $this->orchestrator->continueWorkflow($message->getWorkflowId());
     }
 }

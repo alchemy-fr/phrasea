@@ -9,13 +9,12 @@ use Alchemy\Workflow\State\StateUtil;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 
 class JobState
 {
-    protected string $id;
-
     protected ?string $state = null;
+
+    protected int $number;
 
     protected int $status;
 
@@ -30,9 +29,12 @@ class JobState
 
     protected ?ModelJobState $jobState = null;
 
-    public function __construct(protected ?WorkflowState $workflow, protected string $jobId)
+    public function __construct(
+        protected readonly string $id,
+        protected ?WorkflowState $workflow,
+        protected string $jobId,
+    )
     {
-        $this->id = Uuid::uuid4()->toString();
     }
 
     public function getId(): string
@@ -62,6 +64,7 @@ class JobState
         $this->endedAt = $state->getEndedAt()?->getDateTimeObject();
         $this->startedAt = $state->getStartedAt()?->getDateTimeObject();
         $this->status = $state->getStatus();
+        $this->number = $state->getNumber();
     }
 
     public function getJobState(): ModelJobState
@@ -116,5 +119,10 @@ class JobState
     public function getJobId(): string
     {
         return $this->jobId;
+    }
+
+    public function getNumber(): int
+    {
+        return $this->number;
     }
 }

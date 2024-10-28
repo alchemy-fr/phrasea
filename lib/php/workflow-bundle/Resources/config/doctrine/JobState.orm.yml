@@ -37,3 +37,7 @@ Alchemy\Workflow\Doctrine\Entity\JobState:
       name: status
       type: smallint
       nullable: false
+    number:
+      name: status
+      type: smallint
+      nullable: false

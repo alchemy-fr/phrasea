@@ -7,6 +7,7 @@ readonly class JobUpdateEvent
     public function __construct(
         private string $workflowId,
         private string $jobId,
+        private string $jobStateId,
         private int $status,
     ) {
     }
@@ -19,6 +20,11 @@ readonly class JobUpdateEvent
     public function getJobId(): string
     {
         return $this->jobId;
+    }
+
+    public function getJobStateId(): string
+    {
+        return $this->jobStateId;
     }
 
     public function getStatus(): int

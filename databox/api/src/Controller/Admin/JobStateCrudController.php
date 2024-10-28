@@ -19,9 +19,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
@@ -109,6 +112,7 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->add(AssociationIdentifierFilter::new('workflow'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
+            ->add(NumericFilter::new('number'))
         ;
     }
 
@@ -119,6 +123,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         yield TextField::new('jobId', 'Job ID');
         yield DateTimeField::new('triggeredAt', 'Triggered At');
         yield DateTimeField::new('startedAt', 'Started At');
+        yield NumberField::new('number');
         yield ChoiceField::new('status', 'Status')
         ->setChoices([
             'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,

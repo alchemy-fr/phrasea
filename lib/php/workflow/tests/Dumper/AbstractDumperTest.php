@@ -41,7 +41,7 @@ abstract class AbstractDumperTest extends AbstractWorkflowTest
         $stateRepository = $this->createMock(StateRepositoryInterface::class);
         $stateRepository
             ->expects($this->exactly(count($jobMap)))
-            ->method('getJobState')
+            ->method('getLastJobState')
             ->will($this->returnValueMap($jobMap));
 
         return new WorkflowState($stateRepository, 'foo', null, $workflowId);

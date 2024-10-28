@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\State;
 
 use Alchemy\Workflow\Date\MicroDateTime;
+use Ramsey\Uuid\Uuid;
 
-class JobState
+final class JobState
 {
-    final public const STATUS_TRIGGERED = 0;
-    final public const STATUS_SUCCESS = 1;
-    final public const STATUS_FAILURE = 2;
-    final public const STATUS_SKIPPED = 3;
-    final public const STATUS_RUNNING = 4;
-    final public const STATUS_ERROR = 5;
-    final public const STATUS_CANCELLED = 6;
+    final public const int STATUS_TRIGGERED = 0;
+    final public const int STATUS_SUCCESS = 1;
+    final public const int STATUS_FAILURE = 2;
+    final public const int STATUS_SKIPPED = 3;
+    final public const int STATUS_RUNNING = 4;
+    final public const int STATUS_ERROR = 5;
+    final public const int STATUS_CANCELLED = 6;
 
-    final public const STATUS_LABELS = [
+    final public const array STATUS_LABELS = [
         self::STATUS_TRIGGERED => 'triggered',
         self::STATUS_SUCCESS => 'success',
         self::STATUS_FAILURE => 'failure',
@@ -25,6 +26,9 @@ class JobState
         self::STATUS_ERROR => 'error',
         self::STATUS_CANCELLED => 'cancelled',
     ];
+
+    private readonly string $id;
+
     private array $errors = [];
     private Outputs $outputs;
     private ?Inputs $inputs = null;
@@ -37,10 +41,21 @@ class JobState
     private ?MicroDateTime $startedAt = null;
     private ?MicroDateTime $endedAt = null;
 
-    public function __construct(private string $workflowId, private string $jobId, private int $status)
-    {
+    public function __construct(
+        private readonly string $workflowId,
+        private readonly string $jobId,
+        private int $status = self::STATUS_TRIGGERED,
+        ?string $id = null,
+        private readonly int $number = 0,
+    ) {
+        $this->id = $id ?? Uuid::uuid4()->toString();
         $this->triggeredAt = new MicroDateTime();
         $this->outputs = new Outputs();
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     public function getStatus(): int
@@ -139,11 +154,14 @@ class JobState
             'startedAt' => $this->startedAt,
             'endedAt' => $this->endedAt,
             'errors' => $this->errors,
+            'id' => $this->id,
+            'number' => $this->number,
         ];
     }
 
     public function __unserialize(array $data): void
     {
+        $this->id = $data['id'] ?? 'unset';
         $this->workflowId = $data['workflowId'];
         $this->jobId = $data['jobId'];
         $this->status = $data['status'];
@@ -153,6 +171,7 @@ class JobState
         $this->startedAt = $data['startedAt'] ?? null;
         $this->endedAt = $data['endedAt'] ?? null;
         $this->errors = $data['errors'] ?? [];
+        $this->number = $data['number'] ?? 0;
     }
 
     public function getSteps(): array
@@ -170,5 +189,10 @@ class JobState
         $this->inputs = $inputs;
 
         return $this;
+    }
+
+    public function getNumber(): int
+    {
+        return $this->number;
     }
 }

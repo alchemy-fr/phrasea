@@ -68,21 +68,12 @@ readonly class JobExecutor
         return false;
     }
 
-    public function executeJob(WorkflowState $workflowState, Job $job, array $env = []): void
+    public function executeJob(WorkflowState $workflowState, Job $job, JobState $jobState, array $env = []): void
     {
         $workflowId = $workflowState->getId();
         $jobId = $job->getId();
 
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->acquireJobLock($workflowId, $jobId);
-        }
-
         try {
-            $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-
-            if (null === $jobState) {
-                throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
-            }
 
             $status = $jobState->getStatus();
             if (JobState::STATUS_TRIGGERED !== $status) {
@@ -132,7 +123,7 @@ readonly class JobExecutor
         } catch (\Throwable $e) {
             try {
                 if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                    $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                    $this->stateRepository->releaseJobLock($workflowId, $jobState->getId());
                 }
             } catch (\Throwable $e2) {
                 throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
@@ -149,10 +140,10 @@ readonly class JobExecutor
         $this->stateRepository->persistJobState($jobState);
 
         if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getJobId());
+            $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getId());
         }
 
-        $this->eventDispatcher->dispatch(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getStatus()));
+        $this->eventDispatcher->dispatch(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getId(), $jobState->getStatus()));
     }
 
     private function runJob(JobExecutionContext $context, Job $job): void

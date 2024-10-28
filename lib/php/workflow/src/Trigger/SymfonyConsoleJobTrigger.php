@@ -6,9 +6,9 @@ namespace Alchemy\Workflow\Trigger;
 
 class SymfonyConsoleJobTrigger implements JobTriggerInterface
 {
-    public function triggerJob(string $workflowId, string $jobId): bool
+    public function triggerJob(string $workflowId, string $jobStateId): bool
     {
-        exec(sprintf('bin/console workflow:run "%s"', escapeshellarg($jobId)));
+        exec(sprintf('bin/console workflow:run "%s"', escapeshellarg($jobStateId)));
 
         return false;
     }

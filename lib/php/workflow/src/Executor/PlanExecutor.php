@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\Executor;
 
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
+use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 
 final readonly class PlanExecutor
@@ -17,9 +18,20 @@ final readonly class PlanExecutor
     ) {
     }
 
-    public function executePlan(string $workflowId, string $jobId): void
+    public function executePlan(string $workflowId, string $jobStateId): void
     {
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->acquireJobLock($workflowId, $jobStateId);
+        }
+
+        $jobState = $this->stateRepository->getJobState($workflowId, $jobStateId);
+        if (null === $jobState) {
+            throw new \InvalidArgumentException(sprintf('Job state "%s" does not exists for workflow "%s"', $jobStateId, $workflowId));
+        }
+
+        $jobId = $jobState->getJobId();
 
         $event = $workflowState->getEvent();
         $workflow = $this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName());
@@ -30,6 +42,8 @@ final readonly class PlanExecutor
         $planner = new WorkflowPlanner([$workflow]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobId), $workflow->getEnv()->getArrayCopy());
+        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobId), $jobState, $workflow->getEnv()->getArrayCopy());
+
+
     }
 }
