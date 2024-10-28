@@ -6,7 +6,6 @@ use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Twig\Environment as TwigEnvironment;
 
 final readonly class TransformationContext implements TransformationContextInterface
 {
@@ -18,7 +17,6 @@ final readonly class TransformationContext implements TransformationContextInter
         private MimeTypeGuesser $mimeTypeGuesser,
         private HttpClientInterface $client,
         private LoggerInterface $logger,
-        private TwigEnvironment $twig,
         private ?MetadataContainerInterface $metadata = null,
     ) {
         $this->buildHashes = new BuildHashes();

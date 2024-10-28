@@ -8,8 +8,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Twig\Environment as TwigEnvironment;
-use Twig\Loader\ArrayLoader;
 
 final readonly class TransformationContextFactory
 {
@@ -20,8 +18,6 @@ final readonly class TransformationContextFactory
         ?string $workingDirectory = null,
         private ?HttpClientInterface $client = null,
         private ?LoggerInterface $logger = null,
-        private ?TwigEnvironment $twig = null,
-
     ) {
         $this->workingDirectory = $workingDirectory ?? sys_get_temp_dir();
     }
@@ -45,7 +41,6 @@ final readonly class TransformationContextFactory
             $this->mimeTypeGuesser,
             $this->client ?? new NativeHttpClient(),
             $this->logger ?? new NullLogger(),
-            $this->twig ?? new TwigEnvironment(new ArrayLoader(), []),
             $options->getMetadataContainer()
         );
     }

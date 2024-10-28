@@ -277,7 +277,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     {
         $dimension = $this->getDimension($options, 'pad');
 
-        $context->log(sprintf("Applying 'pad' filter: dimension=%s", var_export($dimension, true)));
+        $context->log(sprintf("Applying 'pad' filter: dimension=%s", $this->dimensionAsText($dimension)));
         $clip->filters()->pad($dimension);
     }
 
@@ -291,7 +291,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $point = new FFMpeg\Coordinate\Point((int) $x, (int) $y);
         $dimension = $this->getDimension($options, 'crop');
 
-        $context->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", var_export($point, true), var_export($dimension, true)));
+        $context->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", $this->pointAsText($point), $this->dimensionAsText($dimension)));
         $clip->filters()->crop($point, $dimension);
     }
 
@@ -352,7 +352,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         array_walk($coord, fn (&$v) => $v = (int) $v);
 
-        $context->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, var_export($coord, true)));
+        $context->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, $this->coordAsText($coord)));
         $clip->filters()->watermark($path, $coord);
     }
 
@@ -377,5 +377,25 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         return new FFMpeg\Coordinate\Dimension($width, $height);
+    }
+
+    private function pointAsText(FFMpeg\Coordinate\Point $point): string
+    {
+        return sprintf('(%d, %d)', $point->getX(), $point->getY());
+    }
+
+    private function dimensionAsText(FFMpeg\Coordinate\Dimension $dimension): string
+    {
+        return sprintf('%dx%d', $dimension->getWidth(), $dimension->getHeight());
+    }
+
+    private function coordAsText(array $coord): string
+    {
+        $s = [];
+        foreach ($coord as $k => $v) {
+            $s[] = sprintf('%s=%d', $k, $v);
+        }
+
+        return '['.implode(', ', $s).']';
     }
 }
