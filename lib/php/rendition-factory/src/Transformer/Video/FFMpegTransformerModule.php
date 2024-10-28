@@ -2,7 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
-use Alchemy\RenditionFactory\Config\TemplatedOptions;
+use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
@@ -15,14 +15,14 @@ use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
-use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class FFMpegTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats)
-    {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        private ModuleOptionsResolver $optionsResolver,
+    ) {
     }
 
     public static function getName(): string
@@ -32,8 +32,9 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $templatedOptions = new TemplatedOptions($options);
-        $options = $templatedOptions->asArray();
+        $this->optionsResolver->load($options);
+
+        $options = $this->optionsResolver->getResolvedOptions();
 
         if (!($format = $options['format'] ?? null)) {
             throw new \InvalidArgumentException('Missing format');
@@ -58,19 +59,19 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
-            return $this->doVideo($outputFormat, $extension, $inputFile, $templatedOptions, $context);
+            return $this->doVideo($outputFormat, $extension, $inputFile, $context);
         }
 
         if (FamilyEnum::Audio === $outputFormat->getFamily()) {
-            return $this->doAudio($outputFormat, $extension, $inputFile, $templatedOptions, $context);
+            return $this->doAudio($outputFormat, $extension, $inputFile, $context);
         }
 
         throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
     }
 
-    private function doVideo(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TemplatedOptions $templatedOptions, TransformationContextInterface $context): OutputFileInterface
+    private function doVideo(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $templatedOptions->asArray();
+        $options = $this->optionsResolver->getResolvedOptions();
 
         $format = $ouputFormat->getFormat();
         if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
@@ -82,10 +83,10 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         /** @var Video $video */
         $video = $ffmpeg->open($inputFile->getPath());
 
-        $templatedOptions->addContext('input', $video->getStreams()->videos()->first()->all());
-        $templatedOptions->addContext('metadata', $context->getTemplatingContext());
+        $this->optionsResolver->addContext('input', $video->getStreams()->videos()->first()->all());
+        $this->optionsResolver->addContext('metadata', $context->getTemplatingContext());
 
-        $options = $templatedOptions->asArray();
+        $options = $this->optionsResolver->getResolvedOptions();
 
         /** @var FFMpegFormatInterface $FFMpegFormat */
         $FFMpegFormat = $ouputFormat->getFFMpegFormat();
@@ -175,9 +176,9 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TemplatedOptions $compiledOptions, TransformationContextInterface $context): OutputFileInterface
+    private function doAudio(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $compiledOptions->asArray();
+        $options = $this->optionsResolver->getResolvedOptions();
 
         $format = $ouputFormat->getFormat();
         if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
