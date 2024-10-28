@@ -3,14 +3,18 @@
 namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class MultipartUploadCrudController extends AbstractAdminCrudController
 {
@@ -31,6 +35,17 @@ class MultipartUploadCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('MultipartUpload')
             ->setEntityLabelInPlural('MultipartUpload');
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(TextFilter::new('id'))
+            ->add(TextFilter::new('type'))
+            ->add(TextFilter::new('filename'))
+            ->add(BooleanFilter::new('complete'))
+            ->add(DateTimeFilter::new('createdAt'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable

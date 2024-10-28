@@ -2,20 +2,22 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Admin\PermissionView;
-use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
-use Alchemy\AdminBundle\Field\IdField;
-use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Publication;
 use App\Field\PublicationConfigField;
+use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AclBundle\Admin\PermissionView;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class PublicationCrudController extends AbstractAclAdminCrudController
 {
@@ -45,7 +47,11 @@ class PublicationCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('profile');
+            ->add(TextFilter::new('id'))
+            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('ownerId'))
+            ->add(EntityFilter::new('profile'))
+        ;
     }
 
     public function configureFields(string $pageName): iterable
