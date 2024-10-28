@@ -36,37 +36,36 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $options = $templatedOptions->asArray();
 
         if (!($format = $options['format'] ?? null)) {
-            throw new InvalidArgumentException('Missing format');
+            throw new \InvalidArgumentException('Missing format');
         }
 
-        if(!$this->formats->has($format)) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s', $format));
+        if (!$this->formats->has($format)) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
         }
         /** @var FormatInterface $outputFormat */
         $outputFormat = $this->formats->get($format);
 
         if (null != ($extension = $options['extension'] ?? null)) {
-            if(!in_array($extension, $outputFormat->getAllowedExtensions())) {
-                throw new InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
+            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
+                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
             }
-        }
-        else {
+        } else {
             $extension = $outputFormat->getAllowedExtensions()[0];
         }
 
-        if($outputFormat->getFamily() !== FamilyEnum::Video) {
-            throw new InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
+        if (FamilyEnum::Video !== $outputFormat->getFamily()) {
+            throw new \InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
         }
 
-        if($outputFormat->getFamily() === FamilyEnum::Video) {
+        if (FamilyEnum::Video === $outputFormat->getFamily()) {
             return $this->doVideo($outputFormat, $extension, $inputFile, $templatedOptions, $context);
         }
 
-        if ($outputFormat->getFamily() === FamilyEnum::Audio) {
+        if (FamilyEnum::Audio === $outputFormat->getFamily()) {
             return $this->doAudio($outputFormat, $extension, $inputFile, $templatedOptions, $context);
         }
 
-        throw new InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
+        throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
     }
 
     private function doVideo(FormatInterface $ouputFormat, string $extension, InputFileInterface $inputFile, TemplatedOptions $templatedOptions, TransformationContextInterface $context): OutputFileInterface
@@ -74,8 +73,8 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $options = $templatedOptions->asArray();
 
         $format = $ouputFormat->getFormat();
-        if(!method_exists($ouputFormat, 'getFFMpegFormat')) {
-            throw new InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
         }
 
         $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
@@ -93,40 +92,40 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         if ($videoCodec = $options['video_codec'] ?? null) {
             if (!in_array($videoCodec, $FFMpegFormat->getAvailableVideoCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $FFMpegFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $options['audio_codec'] ?? null) {
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $FFMpegFormat->setAudioCodec($audioCodec);
         }
         if (null !== ($videoKilobitrate = $options['video_kilobitrate'] ?? null)) {
-            $videoKilobitrate = (int)$videoKilobitrate;
+            $videoKilobitrate = (int) $videoKilobitrate;
             if (!method_exists($FFMpegFormat, 'setKiloBitrate')) {
-                throw new InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
+                throw new \InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
             }
             $FFMpegFormat->setKiloBitrate($videoKilobitrate);
         }
         if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
-            $audioKilobitrate = (int)$audioKilobitrate;
+            $audioKilobitrate = (int) $audioKilobitrate;
             if (!method_exists($FFMpegFormat, 'setAudioKiloBitrate')) {
-                throw new InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
+                throw new \InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
             }
             $FFMpegFormat->setAudioKiloBitrate($audioKilobitrate);
         }
         if (null !== ($passes = $options['passes'] ?? null)) {
-            $passes = (int)$passes;
+            $passes = (int) $passes;
             if (!method_exists($FFMpegFormat, 'setPasses')) {
-                throw new InvalidArgumentException(sprintf('format %s does not support passes', $format));
+                throw new \InvalidArgumentException(sprintf('format %s does not support passes', $format));
             }
             if ($passes < 1) {
-                throw new InvalidArgumentException('Invalid passes count');
+                throw new \InvalidArgumentException('Invalid passes count');
             }
             if (0 === $videoKilobitrate) {
-                throw new InvalidArgumentException('passes must not be set if video_kilobitrate is 0');
+                throw new \InvalidArgumentException('passes must not be set if video_kilobitrate is 0');
             }
             $FFMpegFormat->setPasses($passes);
         }
@@ -135,22 +134,6 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             function ($filter) {
                 return $filter['enabled'] ?? true;
             }));
-
-//        // patch filters to transform relative "from" and "duration" to absolute values
-//        foreach($filters as &$f) {
-//            if (isset($f['from']) && str_ends_with(trim($f['from']), '%')) {
-//                if(null === $duration) {
-//                    throw new InvalidArgumentException('Unknown video duration, cannot use relative "from"');
-//                }
-//                $f['from'] = floor(($duration * (int)$f['from']) / 100);
-//            }
-//            if (isset($f['duration']) && str_ends_with(trim($f['duration']), '%')) {
-//                if(null === $duration) {
-//                    throw new InvalidArgumentException('Unknown video duration, cannot use relative "duration"');
-//                }
-//                $f['duration'] = floor(($duration * (int)$f['duration']) / 100);
-//            }
-//        }
 
         // first, turn the video into a clip
         if (!empty($filters) && 'pre_clip' === $filters[0]['name']) {
@@ -162,10 +145,10 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         foreach ($filters as $filter) {
             if ('pre_clip' === $filter['name']) {
-                throw new InvalidArgumentException('"pre_clip" filter must be the first filter');
+                throw new \InvalidArgumentException('"pre_clip" filter must be the first filter');
             }
             if (!method_exists($this, $filter['name'])) {
-                throw new InvalidArgumentException(sprintf('Invalid filter: %s', $filter['name']));
+                throw new \InvalidArgumentException(sprintf('Invalid filter: %s', $filter['name']));
             }
 
             /* @uses self::resize(), self::rotate(), self::pad(), self::crop(), self::clip(), self::synchronize()
@@ -197,15 +180,15 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $options = $compiledOptions->asArray();
 
         $format = $ouputFormat->getFormat();
-        if(!method_exists($ouputFormat, 'getFFMpegFormat')) {
-            throw new InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
         }
         /** @var FFMpegFormatInterface $FFMpegFormat */
         $FFMpegFormat = $ouputFormat->getFFMpegFormat();
 
         if ($audioCodec = $options['audio_codec'] ?? null) {
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
-                throw new InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
+                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $FFMpegFormat->setAudioCodec($audioCodec);
         }
@@ -220,7 +203,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $startAsTimecode = $durationAsTimecode = false;
 
-        if (is_numeric($start) && (float)$start >= 0) {
+        if (is_numeric($start) && (float) $start >= 0) {
             $startAsTimecode = TimeCode::fromSeconds($start);
         } elseif (is_string($start)) {
             $startAsTimecode = TimeCode::fromString($start);
@@ -229,7 +212,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid start for filter "clip"');
         }
 
-        if (is_numeric($duration) && (float)$duration > 0) {
+        if (is_numeric($duration) && (float) $duration > 0) {
             $durationAsTimecode = TimeCode::fromSeconds($duration);
         } elseif (is_string($duration)) {
             $durationAsTimecode = TimeCode::fromString($duration);
@@ -239,6 +222,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         $context->log(sprintf("Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
+
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
 
@@ -279,7 +263,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             180 => FFMpeg\Filters\Video\RotateFilter::ROTATE_180,
             270 => FFMpeg\Filters\Video\RotateFilter::ROTATE_270,
         ];
-        $angle = (int)($options['angle'] ?? 0);
+        $angle = (int) ($options['angle'] ?? 0);
         if (!array_key_exists($angle, $rotations)) {
             throw new \InvalidArgumentException('Invalid rotation, must be 90, 180 or 270 for filter "rotate"');
         }
@@ -300,10 +284,10 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     {
         $x = $options['x'] ?? 0;
         $y = $options['y'] ?? 0;
-        if(!is_numeric($x) || !is_numeric($y)) {
+        if (!is_numeric($x) || !is_numeric($y)) {
             throw new \InvalidArgumentException('Invalid x/y for filter "crop"');
         }
-        $point = new FFMpeg\Coordinate\Point((int)$x, (int)$y);
+        $point = new FFMpeg\Coordinate\Point((int) $x, (int) $y);
         $dimension = $this->getDimension($options, 'crop');
 
         $context->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", var_export($point, true), var_export($dimension, true)));
@@ -317,7 +301,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
         $startAsTimecode = $durationAsTimecode = false;
 
-        if (is_numeric($start) && (float)$start >= 0) {
+        if (is_numeric($start) && (float) $start >= 0) {
             $startAsTimecode = TimeCode::fromSeconds($start);
         } elseif (is_string($start)) {
             $startAsTimecode = TimeCode::fromString($start);
@@ -326,7 +310,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid start for filter "clip"');
         }
 
-        if (is_numeric($duration) && (float)$duration > 0) {
+        if (is_numeric($duration) && (float) $duration > 0) {
             $durationAsTimecode = TimeCode::fromSeconds($duration);
         } elseif (is_string($duration)) {
             $durationAsTimecode = TimeCode::fromString($duration);
@@ -365,7 +349,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid position for filter "watermark"');
         }
 
-        array_walk($coord, fn (&$v) => $v = (int)$v);
+        array_walk($coord, fn (&$v) => $v = (int) $v);
 
         $context->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, var_export($coord, true)));
         $clip->filters()->watermark($path, $coord);
@@ -373,11 +357,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     private function framerate(Clip $clip, array $options, TransformationContextInterface $context): void
     {
-        $framerate = (int)($options['framerate'] ?? 0);
+        $framerate = (int) ($options['framerate'] ?? 0);
         if ($framerate <= 0) {
             throw new \InvalidArgumentException('Invalid framerate for filter "framerate"');
         }
-        $gop = (int)($options['gop'] ?? 0);
+        $gop = (int) ($options['gop'] ?? 0);
 
         $context->log(sprintf("Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
         $clip->filters()->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
@@ -385,8 +369,8 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     private function getDimension(array $options, string $filterName): FFMpeg\Coordinate\Dimension
     {
-        $width = (int)($options['width'] ?? 0);
-        $height = (int)($options['height'] ?? 0);
+        $width = (int) ($options['width'] ?? 0);
+        $height = (int) ($options['height'] ?? 0);
         if ($width <= 0 || $height <= 0) {
             throw new \InvalidArgumentException(sprintf('Invalid width/height for filter "%s"', $filterName));
         }
