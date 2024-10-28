@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class RenditionPermissionManager
 {
-    private const IS_EMPTY = 0;
+    private const int IS_EMPTY = 0;
     private const string ANONYMOUS = '~';
 
     /**

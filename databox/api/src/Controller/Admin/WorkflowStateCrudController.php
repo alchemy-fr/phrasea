@@ -66,6 +66,9 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Workflow State')
             ->setEntityLabelInPlural('Workflow States')
+            ->setDefaultSort([
+                'startedAt' => 'DESC',
+            ])
             ->setSearchFields(['id']);
     }
 

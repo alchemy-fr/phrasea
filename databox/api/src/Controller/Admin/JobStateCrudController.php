@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
@@ -89,6 +90,9 @@ class JobStateCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Job State')
             ->setEntityLabelInPlural('Job States')
+            ->setDefaultSort([
+                'triggeredAt' => 'DESC',
+            ])
             ->setSearchFields(['id']);
     }
 
@@ -102,6 +106,7 @@ class JobStateCrudController extends AbstractAdminCrudController
                 'SKIPPED' => ModelJobState::STATUS_SKIPPED,
                 'RUNNING' => ModelJobState::STATUS_RUNNING,
             ]))
+            ->add(AssociationIdentifierFilter::new('workflow'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
         ;
