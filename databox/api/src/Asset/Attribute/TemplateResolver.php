@@ -17,10 +17,9 @@ final readonly class TemplateResolver implements TemplateResolverInterface
         ]);
     }
 
-    public function resolve($template, array $values): string
+    public function resolve(string $template, array $values): string
     {
-        // trivial: template must contain "{{" or "{%" - not escaped by "\" -
-        if (is_string($template) && 1 === preg_match('/(^{|[^\\\\]{)[{%]/', $template)) {
+        if (str_contains($template, '{')) {
             return $this->twig->createTemplate($template)->render($values);
         }
 

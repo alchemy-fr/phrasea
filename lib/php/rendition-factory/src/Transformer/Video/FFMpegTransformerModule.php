@@ -30,11 +30,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return 'ffmpeg';
     }
 
-    public function transform(InputFileInterface $inputFile, array $rawOptions, TransformationContextInterface $context): OutputFileInterface
+    public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
+        $resolveOptions = $this->optionsResolver->resolveOptions($options, []);
 
-        if (!($format = $options['format'] ?? null)) {
+        if (!($format = $resolveOptions['format'] ?? null)) {
             throw new \InvalidArgumentException('Missing format');
         }
 
@@ -44,7 +44,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         /** @var FormatInterface $outputFormat */
         $outputFormat = $this->formats->get($format);
 
-        if (null != ($extension = $options['extension'] ?? null)) {
+        if (null != ($extension = $resolveOptions['extension'] ?? null)) {
             if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
                 throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
             }
@@ -57,11 +57,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         if (FamilyEnum::Video === $outputFormat->getFamily()) {
-            return $this->doVideo($outputFormat, $extension, $rawOptions, $inputFile, $context);
+            return $this->doVideo($outputFormat, $extension, $options, $inputFile, $context);
         }
 
         if (FamilyEnum::Audio === $outputFormat->getFamily()) {
-            return $this->doAudio($outputFormat, $extension, $rawOptions, $inputFile, $context);
+            return $this->doAudio($outputFormat, $extension, $options, $inputFile, $context);
         }
 
         throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
@@ -84,7 +84,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         $options = $this->optionsResolver->resolveOptions($rawOptions,
             [
                 'input' => $video->getStreams()->videos()->first()->all(),
-                'metadata'=> $context->getTemplatingContext(),
+                'metadata' => $context->getTemplatingContext(),
             ]
         );
 
