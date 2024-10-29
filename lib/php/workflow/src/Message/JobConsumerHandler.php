@@ -23,6 +23,7 @@ final readonly class JobConsumerHandler
             $message->getJobId(),
             $message->getJobStateId(),
         ));
+
         $this->orchestrator->continueWorkflow($message->getWorkflowId());
     }
 }

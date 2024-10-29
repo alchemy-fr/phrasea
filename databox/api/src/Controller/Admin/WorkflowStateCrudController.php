@@ -47,7 +47,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
             ->setHtmlAttributes(['target' => '_blank'])
-            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/workflows/%s', $this->databoxClientBaseUrl, $entity->getId()));
+            ->linkToUrl(fn (WorkflowState $entity): string => sprintf('%s/?_m=%s', $this->databoxClientBaseUrl, urlencode(sprintf('/workflows/%s', $entity->getId()))));
 
         $cancel = Action::new('cancelWorkflow', 'Cancel Workflow', 'fas fa-ban')
             ->displayIf(fn (WorkflowState $entity) => ModelWorkflowState::STATUS_STARTED === $entity->getStatus())

@@ -80,9 +80,7 @@ final class WorkflowOrchestrator
 
         $this->doContinueWorkflow($workflowState);
 
-        if (!$this->trigger->isSynchronous()) {
-            $this->flush();
-        }
+        $this->flush();
 
         return $workflowState;
     }
@@ -147,9 +145,7 @@ final class WorkflowOrchestrator
             }
         });
 
-        if (!$this->trigger->isSynchronous()) {
-            $this->flush();
-        }
+        $this->flush();
     }
 
     private function wrapInTransaction(callable $callback): void
@@ -217,9 +213,7 @@ final class WorkflowOrchestrator
             $this->doRerunJobs($workflowId, $jobIdFilter, $expectedStatuses, $jobInputs);
         });
 
-        if (!$this->trigger->isSynchronous()) {
-            $this->flush();
-        }
+        $this->flush();
     }
 
     private function doRerunJobs(string $workflowId, ?string $jobIdFilter, ?array $expectedStatuses, ?array $jobInputs): void
@@ -360,10 +354,11 @@ final class WorkflowOrchestrator
         }
         $this->stateRepository->persistJobState($jobState);
 
+        $jobTrigger = new JobTrigger($workflowId, $jobId, $jobState->getId());
         if ($this->trigger->isSynchronous()) {
-            $this->trigger->triggerJob(new JobTrigger($workflowId, $jobId, $jobState->getId()));
+            $this->trigger->triggerJob($jobTrigger);
         } else {
-            $this->workflowsToTrigger[] = new JobTrigger($workflowId, $jobId, $jobState->getId());
+            $this->workflowsToTrigger[] = $jobTrigger;
         }
     }
 

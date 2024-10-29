@@ -24,18 +24,23 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-readonly class JobExecutor
+final class JobExecutor
 {
-    private LoggerInterface $logger;
-    private OutputInterface $output;
-    private EnvContainer $envs;
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly LoggerInterface $logger;
+    private readonly OutputInterface $output;
+    private readonly EnvContainer $envs;
+    private readonly EventDispatcherInterface $eventDispatcher;
+
+    /**
+     * @var JobUpdateEvent[]
+     */
+    private array $eventsToDispatch = [];
 
     public function __construct(
-        private iterable $executors,
-        private ActionRegistryInterface $actionRegistry,
-        private ExpressionParser $expressionParser,
-        private StateRepositoryInterface $stateRepository,
+        private readonly iterable $executors,
+        private readonly ActionRegistryInterface $actionRegistry,
+        private readonly ExpressionParser $expressionParser,
+        private readonly StateRepositoryInterface $stateRepository,
         ?OutputInterface $output = null,
         ?LoggerInterface $logger = null,
         ?EnvContainer $envs = null,
@@ -152,11 +157,24 @@ readonly class JobExecutor
             }
         });
 
+        $this->flushEvents();
+
         if (null === $context) {
             return;
         }
 
         $this->runJob($context, $job);
+
+        $this->flushEvents();
+    }
+
+    private function dispatchEvent(JobUpdateEvent $event): void
+    {
+        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
+            $this->eventsToDispatch[] = $event;
+        } else {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 
     private function persistJobState(JobState $jobState): void
@@ -167,7 +185,7 @@ readonly class JobExecutor
             $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getId());
         }
 
-        $this->eventDispatcher->dispatch(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getId(), $jobState->getStatus()));
+        $this->dispatchEvent(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getId(), $jobState->getStatus()));
     }
 
     private function runJob(JobExecutionContext $context, Job $job): void
@@ -270,6 +288,15 @@ readonly class JobExecutor
 
                 throw new \RuntimeException(sprintf('Error while evaluating expression "%s": %s', $value, $e->getMessage()), 0, $e);
             }
+        }
+    }
+
+    private function flushEvents(): void
+    {
+        $events = $this->eventsToDispatch;
+        $this->eventsToDispatch = [];
+        foreach ($events as $event) {
+            $this->eventDispatcher->dispatch($event);
         }
     }
 }

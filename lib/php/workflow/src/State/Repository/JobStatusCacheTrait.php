@@ -33,6 +33,7 @@ trait JobStatusCacheTrait
         $this->statuses = [];
         $this->statusesByJobId = [];
         $this->workflows = [];
+        $this->lastByJobId = [];
     }
 
     protected function cacheWorkflowState(string $workflowId, ?object $state): void
