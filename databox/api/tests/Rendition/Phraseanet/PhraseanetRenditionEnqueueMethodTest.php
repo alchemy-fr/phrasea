@@ -103,7 +103,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         $workflowId = $eventMessage->getWorkflowId();
-        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getJobStateId());
+        self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':enqueue', $eventMessage->getJobId());
         $this->consumeEvent($envelope);
 
         self::assertEquals('POST', $mockResponse->getRequestMethod());
