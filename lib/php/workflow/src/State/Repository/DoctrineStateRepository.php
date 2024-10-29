@@ -19,7 +19,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 #[AsEventListener(event: WorkerMessageHandledEvent::class, method: 'flush')]
 #[AsEventListener(event: WorkerMessageFailedEvent::class, method: 'flush')]
 #[AsEventListener(event: KernelEvents::TERMINATE, method: 'flush')]
-class DoctrineStateRepository implements LockAwareStateRepositoryInterface
+class DoctrineStateRepository implements LockAwareStateRepositoryInterface, TransactionalStateRepositoryInterface
 {
     use JobStatusCacheTrait;
 
@@ -120,20 +120,11 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
     public function acquireJobLock(string $workflowId, string $jobStateId): void
     {
-        $this->em->beginTransaction();
-        try {
-            $entity = $this->em->getRepository($this->jobStateEntity)
-                ->find($jobStateId, LockMode::PESSIMISTIC_WRITE);
+        $entity = $this->em
+            ->getRepository($this->jobStateEntity)
+            ->find($jobStateId, LockMode::PESSIMISTIC_WRITE);
 
-            if ($entity instanceof JobStateEntity) {
-                $this->statuses[$jobStateId] = $entity;
-            } else {
-                unset($this->statuses[$jobStateId]);
-            }
-        } catch (\Throwable $e) {
-            $this->em->rollback();
-            throw $e;
-        }
+        $this->cacheJobState($workflowId, $jobStateId, $entity);
     }
 
     private function createListQueryBuilder(string $workflowId, string $jobId): QueryBuilder
@@ -151,7 +142,6 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
 
     public function releaseJobLock(string $workflowId, string $jobStateId): void
     {
-        $this->em->commit();
     }
 
     public function persistJobState(JobState $state): void
@@ -231,5 +221,32 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         $this->cacheJobStates($workflowId, $jobId, $states);
 
         return $states;
+    }
+
+    public function acquireWorkflowLock(string $workflowId): void
+    {
+        $entity = $this->em
+            ->getRepository($this->workflowStateEntity)
+            ->find($workflowId, LockMode::PESSIMISTIC_WRITE);
+
+        $this->cacheWorkflowState($workflowId, $entity);
+    }
+
+    public function releaseWorkflowLock(string $workflowId): void
+    {
+    }
+
+    public function transactional(callable $callback)
+    {
+        $this->em->beginTransaction();
+        try {
+            $response = $callback();
+            $this->em->commit();
+
+            return $response;
+        } catch (\Throwable $e) {
+            $this->em->rollback();
+            throw $e;
+        }
     }
 }

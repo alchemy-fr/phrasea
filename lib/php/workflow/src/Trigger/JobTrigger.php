@@ -1,13 +1,13 @@
 <?php
 
-namespace Alchemy\Workflow\Message;
+namespace Alchemy\Workflow\Trigger;
 
-final readonly class JobConsumer
+final readonly class JobTrigger
 {
     public function __construct(
         private string $workflowId,
         private string $jobId,
-        private string $jobStateId,
+        private string $jobStateId
     )
     {
     }

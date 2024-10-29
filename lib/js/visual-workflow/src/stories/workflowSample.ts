@@ -10,7 +10,8 @@ export const workflowSample: Workflow = {
             jobs: [
                 {
                     name: 'init',
-                    id: 'init',
+                    stateId: 'init-0',
+                    jobId: 'init',
                     status: JobStatus.Success,
                     duration: '0.053s',
                     triggeredAt: '2023-05-24T10:22:25.495639+00:00',
@@ -30,7 +31,7 @@ export const workflowSample: Workflow = {
                 },
                 {
                     name: 'skipped',
-                    id: 'skipped',
+                    jobId: 'skipped',
                     status: JobStatus.Skipped,
                 },
             ],

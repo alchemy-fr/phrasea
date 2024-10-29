@@ -2,7 +2,8 @@
 
 namespace Alchemy\Workflow\Message;
 
-use Alchemy\Workflow\Executor\PlanExecutor;
+use Alchemy\Workflow\Runner\RunnerInterface;
+use Alchemy\Workflow\Trigger\JobTrigger;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -10,14 +11,18 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class JobConsumerHandler
 {
     public function __construct(
-        private PlanExecutor $planExecutor,
+        private RunnerInterface $runner,
         private WorkflowOrchestrator $orchestrator,
     ) {
     }
 
     public function __invoke(JobConsumer $message): void
     {
-        $this->planExecutor->executePlan($message->getWorkflowId(), $message->getJobStateId());
+        $this->runner->run(new JobTrigger(
+            $message->getWorkflowId(),
+            $message->getJobId(),
+            $message->getJobStateId(),
+        ));
         $this->orchestrator->continueWorkflow($message->getWorkflowId());
     }
 }

@@ -55,15 +55,9 @@ final class WorkflowState
         return $this->startedAt;
     }
 
-    public function getJobState(string $jobId): ?JobState
+    public function getLastJobState(string $jobId): ?JobState
     {
-        $states = $this->stateRepository->getJobStates($this->id, $jobId);
-
-        if (empty($states)) {
-            return null;
-        }
-
-        return $states[array_key_last($states)];
+        return $this->stateRepository->getLastJobState($this->id, $jobId);
     }
 
     public function getDuration(): ?float

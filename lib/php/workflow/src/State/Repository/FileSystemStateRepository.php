@@ -14,7 +14,8 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
     private const string JOB_PREFIX = 'job::';
     private readonly string $path;
 
-    private array $fileDescriptors = [];
+    private array $jobFileDescriptors = [];
+    private array $workflowFileDescriptors = [];
 
     public function __construct(string $path)
     {
@@ -45,7 +46,7 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
 
     public function getJobState(string $workflowId, string $jobStateId): ?JobState
     {
-        $fd = $this->fileDescriptors[$workflowId][$jobStateId] ?? null;
+        $fd = $this->jobFileDescriptors[$workflowId][$jobStateId] ?? null;
         if (null === $fd) {
             return $this->readJobState($workflowId, $jobStateId);
         }
@@ -75,18 +76,6 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
         return new JobState($workflowId, $jobId, id: $this->getStateId($jobId));
     }
 
-    public function persistWorkflowState(WorkflowState $state): void
-    {
-        $path = $this->getWorkflowPath($state->getId(), self::WORKFLOW_FILENAME);
-
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755);
-        }
-
-        file_put_contents($path, serialize($state));
-    }
-
     private function getStateId(string $jobId): string
     {
         return sprintf('%s-0', $jobId);
@@ -113,6 +102,41 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
         return null;
     }
 
+    public function acquireWorkflowLock(string $workflowId): void
+    {
+        $path = $this->getWorkflowPath($workflowId, self::WORKFLOW_FILENAME);
+        $fd = fopen($path, 'c+');
+
+        if (!flock($fd, LOCK_EX)) {
+            throw new LockException(sprintf('Cannot acquire lock on "%s"', $path));
+        }
+
+        $this->workflowFileDescriptors[$workflowId] = $fd;
+    }
+
+    public function releaseWorkflowLock(string $workflowId): void
+    {
+        $fd = $this->workflowFileDescriptors[$workflowId] ?? null;
+        if ($fd) {
+            flock($fd, LOCK_UN);
+            fclose($fd);
+        }
+
+        unset($this->workflowFileDescriptors[$workflowId]);
+    }
+
+    public function persistWorkflowState(WorkflowState $state): void
+    {
+        $path = $this->getWorkflowPath($state->getId(), self::WORKFLOW_FILENAME);
+
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755);
+        }
+
+        file_put_contents($path, serialize($state));
+    }
+
     public function acquireJobLock(string $workflowId, string $jobStateId): void
     {
         $path = $this->getJobPath($workflowId, $jobStateId);
@@ -122,24 +146,24 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
             throw new LockException(sprintf('Cannot acquire lock on "%s"', $path));
         }
 
-        $this->fileDescriptors[$workflowId][$jobStateId] = $fd;
+        $this->jobFileDescriptors[$workflowId][$jobStateId] = $fd;
     }
 
     public function releaseJobLock(string $workflowId, string $jobStateId): void
     {
-        $fd = $this->fileDescriptors[$workflowId][$jobStateId] ?? null;
+        $fd = $this->jobFileDescriptors[$workflowId][$jobStateId] ?? null;
         if ($fd) {
             flock($fd, LOCK_UN);
             fclose($fd);
         }
 
-        unset($this->fileDescriptors[$workflowId][$jobStateId]);
+        unset($this->jobFileDescriptors[$workflowId][$jobStateId]);
     }
 
     public function persistJobState(JobState $state): void
     {
         $jobStateId = $state->getId();
-        $fd = $this->fileDescriptors[$state->getWorkflowId()][$jobStateId] ?? null;
+        $fd = $this->jobFileDescriptors[$state->getWorkflowId()][$jobStateId] ?? null;
         $hadLock = null === $fd;
         if ($hadLock) {
             $path = $this->getJobPath($state->getWorkflowId(), $jobStateId);

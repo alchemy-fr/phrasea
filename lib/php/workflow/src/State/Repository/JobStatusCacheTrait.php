@@ -4,9 +4,15 @@ namespace Alchemy\Workflow\State\Repository;
 
 
 use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\WorkflowState;
 
 trait JobStatusCacheTrait
 {
+    /**
+     * @var array<string, WorkflowState>
+     */
+    protected array $workflows = [];
+
     /**
      * @var array<string, JobState>
      */
@@ -26,6 +32,16 @@ trait JobStatusCacheTrait
     {
         $this->statuses = [];
         $this->statusesByJobId = [];
+        $this->workflows = [];
+    }
+
+    protected function cacheWorkflowState(string $workflowId, ?object $state): void
+    {
+        if (null === $state) {
+            unset($this->workflows[$workflowId]);
+        } else {
+            $this->workflows[$workflowId] = $state;
+        }
     }
 
     protected function cacheJobState(string $workflowId, string $jobStateId, ?object $state): void

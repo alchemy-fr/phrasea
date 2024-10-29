@@ -36,7 +36,7 @@ class JsonDumperTest extends AbstractDumperTest
                     'stage' => 1,
                     'jobs' => [
                         [
-                            'id' => 'intro',
+                            'jobId' => 'intro',
                             'name' => 'intro',
                             'status' => JobState::STATUS_SUCCESS,
                             'startedAt' => '2000-05-12T12:12:42.424242+00:00',
@@ -47,9 +47,11 @@ class JsonDumperTest extends AbstractDumperTest
                             'needs' => [],
                             'with' => [],
                             'disabled' => false,
-                        ],
+                            'stateId' => 'intro-0',
+                            'number' => 0,
+            ],
                         [
-                            'id' => 'never-called',
+                            'jobId' => 'never-called',
                             'name' => 'never-called',
                             'status' => JobState::STATUS_SKIPPED,
                             'outputs' => [],
@@ -59,6 +61,8 @@ class JsonDumperTest extends AbstractDumperTest
                             'if' => 'env.WF_TEST == "bar"',
                             'with' => [],
                             'disabled' => false,
+                            'stateId' => 'never-called-0',
+                            'number' => 0,
                         ],
                     ],
                 ],
@@ -66,7 +70,7 @@ class JsonDumperTest extends AbstractDumperTest
                     'stage' => 2,
                     'jobs' => [
                         [
-                            'id' => 'content',
+                            'jobId' => 'content',
                             'name' => 'content',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
@@ -82,9 +86,11 @@ class JsonDumperTest extends AbstractDumperTest
                             ],
                             'with' => [],
                             'disabled' => false,
+                            'stateId' => 'content-0',
+                            'number' => 0,
                         ],
                         [
-                            'id' => 'content_bis',
+                            'jobId' => 'content_bis',
                             'name' => 'content_bis',
                             'status' => JobState::STATUS_RUNNING,
                             'startedAt' => '2000-05-12T12:12:44.424242+00:00',
@@ -99,6 +105,8 @@ class JsonDumperTest extends AbstractDumperTest
                                 'foo' => 'bar',
                             ],
                             'disabled' => false,
+                            'stateId' => 'content_bis-0',
+                            'number' => 0,
                         ],
                     ],
                 ],
@@ -106,7 +114,7 @@ class JsonDumperTest extends AbstractDumperTest
                     'stage' => 3,
                     'jobs' => [
                         [
-                            'id' => 'outro',
+                            'jobId' => 'outro',
                             'name' => 'outro',
                             'needs' => [
                                 'content',

@@ -7,9 +7,10 @@ namespace Alchemy\Workflow\Tests\State;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 
-class TestStateStateRepository implements LockAwareStateRepositoryInterface
+class TestStateStateRepository implements LockAwareStateRepositoryInterface, TransactionalStateRepositoryInterface
 {
     private array $logs = [];
 
@@ -94,6 +95,39 @@ class TestStateStateRepository implements LockAwareStateRepositoryInterface
         if ($this->inner instanceof LockAwareStateRepositoryInterface) {
             $this->inner->releaseJobLock($workflowId, $jobStateId);
         }
+    }
+
+    public function acquireWorkflowLock(string $workflowId): void
+    {
+        $this->logs[] = ['acquireWorkflowLock', $workflowId];
+
+        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
+            $this->inner->acquireWorkflowLock($workflowId);
+        }
+    }
+
+    public function releaseWorkflowLock(string $workflowId): void
+    {
+        $this->logs[] = ['releaseWorkflowLock', $workflowId];
+
+        if ($this->inner instanceof LockAwareStateRepositoryInterface) {
+            $this->inner->releaseWorkflowLock($workflowId);
+        }
+    }
+
+    public function transactional(callable $callback)
+    {
+        $this->logs[] = ['beginTransaction'];
+
+        if ($this->inner instanceof TransactionalStateRepositoryInterface) {
+            $response = $this->inner->transactional($callback);
+        } else {
+            $response = $callback();
+        }
+
+        $this->logs[] = ['endTransaction'];
+
+        return $response;
     }
 
     public function getLogs(): array
