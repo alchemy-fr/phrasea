@@ -3,22 +3,14 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
-use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
+final readonly class VideoToAnimationTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats)
-    {
-    }
-
     public static function getName(): string
     {
         return 'video_to_animation';
@@ -26,45 +18,34 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        if (!($format = $options['format'] ?? null)) {
-            throw new \InvalidArgumentException('Missing format');
-        }
+        $this->prepare($options, $context);
 
-        if (!$this->formats->has($format)) {
-            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
-        }
-        /** @var FormatInterface $outputFormat */
-        $outputFormat = $this->formats->get($format);
-        if (FamilyEnum::Animation !== $outputFormat->getFamily()) {
-            throw new \InvalidArgumentException(sprintf('Invalid format %s, only animation formats supported', $format));
-        }
+        /** @var FFMpeg\Media\Video $video */
+        $video = $this->ffmpeg->open($inputFile->getPath());
 
-        if (null != ($extension = $options['extension'] ?? null)) {
-            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
-                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
-            }
-        } else {
-            $extension = $outputFormat->getAllowedExtensions()[0];
-        }
+        $resolverContext = [
+            'metadata' => $context->getTemplatingContext(),
+            'input' => $video->getStreams()->videos()->first()->all(),
+        ];
 
-        $fromSeconds = FFMpeg\Coordinate\TimeCode::fromSeconds($options['from_seconds'] ?? 0);
+        $fromSeconds = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
 
-        $duration = $options['duration'] ?? null;
+        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
         if (null !== $duration && ($duration = (int) $duration) <= 0) {
             throw new \InvalidArgumentException('Invalid duration');
         }
 
-        if (($fps = (int) ($options['fps'] ?? 1)) <= 0) {
+        if (($fps = (int) $this->optionsResolver->resolveOption($options['fps'] ?? 1, $resolverContext)) <= 0) {
             throw new \InvalidArgumentException('Invalid fps');
         }
 
-        $width = $options['width'] ?? null;
-        $height = $options['height'] ?? null;
+        $width = $this->optionsResolver->resolveOption($options['width'] ?? null, $resolverContext);
+        $height = $this->optionsResolver->resolveOption($options['height'] ?? null, $resolverContext);
         if ((null !== $width && ($width = (int) $width) <= 0) || (null !== $height && ($height = (int) $height) <= 0)) {
             throw new \InvalidArgumentException('Invalid width or height');
         }
 
-        $mode = $options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET;
+        $mode = $this->optionsResolver->resolveOption($options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, $resolverContext);
         if (!in_array(
             $mode,
             [
@@ -78,7 +59,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         }
         switch ($mode) {
             case FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET:
-                list($width, $height) = $this->getDimensionsInset($inputFile->getPath(), $width, $height);
+                [$width, $height] = $this->getDimensionsInset($video, $width, $height);
                 break;
                 // other modes not implemented
             default:
@@ -101,29 +82,23 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         $commands[] = '-loop';
         $commands[] = '0';
 
-        $outputPath = $context->createTmpFilePath($extension);
+        $outputPath = $context->createTmpFilePath($this->extension);
         $commands[] = $outputPath;
 
-        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
-
-        $ffmpeg->getFFMpegDriver()->command($commands);
+        $this->ffmpeg->getFFMpegDriver()->command($commands);
 
         if (!file_exists($outputPath)) {
             throw new \RuntimeException('Failed to create animated gif');
         }
 
-        unset($ffmpeg);
-        gc_collect_cycles();
-
         return new OutputFile(
             $outputPath,
-            $outputFormat->getMimeType(),
-            $outputFormat->getFamily(),
-            false // TODO implement projection
+            $this->outputFormat->getMimeType(),
+            $this->outputFormat->getFamily()
         );
     }
 
-    private function getDimensionsInset($path, $width, $height): array
+    private function getDimensionsInset(FFMpeg\Media\Video $video, $width, $height): array
     {
         if (null === $width && null === $height) {
             return [-1, -1];
@@ -134,8 +109,6 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         if (null === $height) {
             return [$width, -1];
         }
-        $ffmpeg = FFMpeg\FFMpeg::create();
-        $video = $ffmpeg->open($path);
         $dimensions = null;
         foreach ($video->getStreams() as $stream) {
             if ($stream->isVideo()) {
@@ -147,7 +120,6 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
                 }
             }
         }
-        unset($video, $ffmpeg);
         if ($dimensions) {
             $wRatio = $width ? ($dimensions->getWidth() / $width) : 0;
             $hRatio = $height ? ($dimensions->getHeight() / $height) : 0;

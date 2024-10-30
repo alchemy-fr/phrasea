@@ -2,29 +2,20 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
-use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
-use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class FFMpegTransformerModule implements TransformerModuleInterface
+final readonly class FFMpegTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
-        private ModuleOptionsResolver $optionsResolver,
-    ) {
-    }
-
     public static function getName(): string
     {
         return 'ffmpeg';
@@ -32,92 +23,64 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $resolveOptions = $this->optionsResolver->resolveOptions($options, []);
+        $this->prepare($options, $context);
 
-        if (!($format = $resolveOptions['format'] ?? null)) {
-            throw new \InvalidArgumentException('Missing format');
+        if (FamilyEnum::Video === $this->outputFormat->getFamily()) {
+            return $this->doVideo($options, $inputFile, $context);
         }
 
-        if (!$this->formats->has($format)) {
-            throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
-        }
-        /** @var FormatInterface $outputFormat */
-        $outputFormat = $this->formats->get($format);
-
-        if (null != ($extension = $resolveOptions['extension'] ?? null)) {
-            if (!in_array($extension, $outputFormat->getAllowedExtensions())) {
-                throw new \InvalidArgumentException(sprintf('Invalid extension %s for format %s', $extension, $format));
-            }
-        } else {
-            $extension = $outputFormat->getAllowedExtensions()[0];
+        if (FamilyEnum::Audio === $this->outputFormat->getFamily()) {
+            return $this->doAudio($options, $inputFile, $context);
         }
 
-        if (FamilyEnum::Video !== $outputFormat->getFamily()) {
-            throw new \InvalidArgumentException(sprintf('Invalid format %s, only video formats supported', $format));
-        }
-
-        if (FamilyEnum::Video === $outputFormat->getFamily()) {
-            return $this->doVideo($outputFormat, $extension, $options, $inputFile, $context);
-        }
-
-        if (FamilyEnum::Audio === $outputFormat->getFamily()) {
-            return $this->doAudio($outputFormat, $extension, $options, $inputFile, $context);
-        }
-
-        throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $format));
+        throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $this->format));
     }
 
-    private function doVideo(FormatInterface $ouputFormat, string $extension, array $rawOptions, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
+    private function doVideo(array $options, InputFileInterface $inputFile, TransformationContextInterface $transformationContext): OutputFileInterface
     {
-        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
-
-        $format = $ouputFormat->getFormat();
-        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+        $format = $this->outputFormat->getFormat();
+        if (!method_exists($this->outputFormat, 'getFFMpegFormat')) {
             throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
         }
 
-        $ffmpeg = FFMpegHelper::createFFMpeg($options, $context);
+        /** @var FFMpegFormatInterface $FFMpegFormat */
+        $FFMpegFormat = $this->outputFormat->getFFMpegFormat();
 
         /** @var Video $video */
-        $video = $ffmpeg->open($inputFile->getPath());
+        $video = $this->ffmpeg->open($inputFile->getPath());
 
-        $options = $this->optionsResolver->resolveOptions($rawOptions,
-            [
-                'input' => $video->getStreams()->videos()->first()->all(),
-                'metadata' => $context->getTemplatingContext(),
-            ]
-        );
+        $resolverContext = [
+            'metadata' => $transformationContext->getTemplatingContext(),
+            'input' => $video->getStreams()->videos()->first()->all(),
+        ];
 
-        /** @var FFMpegFormatInterface $FFMpegFormat */
-        $FFMpegFormat = $ouputFormat->getFFMpegFormat();
-
-        if ($videoCodec = $options['video_codec'] ?? null) {
+        if ($videoCodec = $this->optionsResolver->resolveOption($options['video_codec'] ?? null, $resolverContext)) {
             if (!in_array($videoCodec, $FFMpegFormat->getAvailableVideoCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $FFMpegFormat->setVideoCodec($videoCodec);
         }
-        if ($audioCodec = $options['audio_codec'] ?? null) {
+        if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $FFMpegFormat->setAudioCodec($audioCodec);
         }
-        if (null !== ($videoKilobitrate = $options['video_kilobitrate'] ?? null)) {
+        if (null !== ($videoKilobitrate = $this->optionsResolver->resolveOption($options['video_kilobitrate'] ?? null, $resolverContext))) {
             $videoKilobitrate = (int) $videoKilobitrate;
             if (!method_exists($FFMpegFormat, 'setKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support video_kilobitrate', $format));
             }
             $FFMpegFormat->setKiloBitrate($videoKilobitrate);
         }
-        if (null !== ($audioKilobitrate = $options['audio_kilobitrate'] ?? null)) {
+        if (null !== ($audioKilobitrate = $this->optionsResolver->resolveOption($options['audio_kilobitrate'] ?? null, $resolverContext))) {
             $audioKilobitrate = (int) $audioKilobitrate;
             if (!method_exists($FFMpegFormat, 'setAudioKiloBitrate')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support audio_kilobitrate', $format));
             }
             $FFMpegFormat->setAudioKiloBitrate($audioKilobitrate);
         }
-        if (null !== ($passes = $options['passes'] ?? null)) {
+        if (null !== ($passes = $this->optionsResolver->resolveOption($options['passes'] ?? null, $resolverContext))) {
             $passes = (int) $passes;
             if (!method_exists($FFMpegFormat, 'setPasses')) {
                 throw new \InvalidArgumentException(sprintf('format %s does not support passes', $format));
@@ -132,14 +95,14 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
 
         $filters = array_values(array_filter($options['filters'] ?? [],
-            function ($filter) {
-                return $filter['enabled'] ?? true;
+            function ($filter) use ($resolverContext) {
+                return $this->optionsResolver->resolveOption($filter['enabled'] ?? true, $resolverContext);
             }));
 
         // first, turn the video into a clip
         if (!empty($filters) && 'pre_clip' === $filters[0]['name']) {
             $filter = array_shift($filters);
-            $clip = $this->preClip($video, $filter, $context);
+            $clip = $this->preClip($video, $filter, $resolverContext);
         } else {
             $clip = $video->clip(TimeCode::fromSeconds(0), TimeCode::fromString('01:00:00:00.00'));
         }
@@ -155,39 +118,40 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             /* @uses self::resize(), self::rotate(), self::pad(), self::crop(), self::clip(), self::synchronize()
              *  @uses self::watermark(), self::framerate(), self::remove_audio()
              */
-            call_user_func([$this, $filter['name']], $clip, $filter, $context);
+            call_user_func([$this, $filter['name']], $clip, $filter, $resolverContext);
         }
 
-        $outputPath = $context->createTmpFilePath($extension);
+        $outputPath = $transformationContext->createTmpFilePath($this->extension);
 
         $clip->save($FFMpegFormat, $outputPath);
 
-        unset($clip, $video, $ffmpeg);
+        unset($clip, $video);
         gc_collect_cycles();
 
         return new OutputFile(
             $outputPath,
-            $ouputFormat->getMimeType(),
-            $ouputFormat->getFamily(),
-            false // TODO implement projection
+            $this->outputFormat->getMimeType(),
+            $this->outputFormat->getFamily(),
         );
     }
 
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(FormatInterface $ouputFormat, string $extension, array $rawOptions, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
+    private function doAudio(array $options, InputFileInterface $inputFile, TransformationContextInterface $context): OutputFileInterface
     {
-        $options = $this->optionsResolver->resolveOptions($rawOptions, []);
+        $resolverContext = [
+            'metadata' => $context->getTemplatingContext(),
+        ];
 
-        $format = $ouputFormat->getFormat();
-        if (!method_exists($ouputFormat, 'getFFMpegFormat')) {
+        $format = $this->outputFormat->getFormat();
+        if (!method_exists($this->outputFormat, 'getFFMpegFormat')) {
             throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
         }
         /** @var FFMpegFormatInterface $FFMpegFormat */
-        $FFMpegFormat = $ouputFormat->getFFMpegFormat();
+        $FFMpegFormat = $this->outputFormat->getFFMpegFormat();
 
-        if ($audioCodec = $options['audio_codec'] ?? null) {
+        if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
@@ -197,10 +161,10 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         throw new \InvalidArgumentException('Audio transformation not implemented');
     }
 
-    private function preClip(Video $video, array $options, TransformationContextInterface $context): Clip
+    private function preClip(Video $video, array $options, array $resolverContext): Clip
     {
-        $start = $options['start'] ?? 0;
-        $duration = $options['duration'] ?? null;
+        $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
+        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
 
         $startAsTimecode = $durationAsTimecode = false;
 
@@ -222,22 +186,22 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid duration for filter "clip"');
         }
 
-        $context->log(sprintf("Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
+        $this->log(sprintf("Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
 
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
 
-    private function remove_audio(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function remove_audio(Clip $clip, array $options, array $resolverContext): void
     {
         $customFilter = '-an';
-        $context->log("Applying 'remove_audio' filter");
+        $this->log("Applying 'remove_audio' filter");
         $clip->addFilter(new FFMpeg\Filters\Audio\SimpleFilter([$customFilter]));
     }
 
-    private function resize(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function resize(Clip $clip, array $options, array $resolverContext): void
     {
-        $dimension = $this->getDimension($options, 'resize');
-        $mode = $options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET;
+        $dimension = $this->getDimension($options, $resolverContext, 'resize');
+        $mode = $this->optionsResolver->resolveOption($options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, $resolverContext);
         if (!in_array(
             $mode,
             [
@@ -250,55 +214,55 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid mode for filter "resize"');
         }
 
-        $context->log(sprintf("Applying 'resize' filter: dimension=[width=%s, height=%s], mode=%s", $dimension->getWidth(), $dimension->getHeight(), $mode));
+        $this->log(sprintf("Applying 'resize' filter: dimension=[width=%s, height=%s], mode=%s", $dimension->getWidth(), $dimension->getHeight(), $mode));
         $clip->filters()->resize(
             $dimension,
             $mode
         );
     }
 
-    private function rotate(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function rotate(Clip $clip, array $options, array $resolverContext): void
     {
         static $rotations = [
             90 => FFMpeg\Filters\Video\RotateFilter::ROTATE_90,
             180 => FFMpeg\Filters\Video\RotateFilter::ROTATE_180,
             270 => FFMpeg\Filters\Video\RotateFilter::ROTATE_270,
         ];
-        $angle = (int) ($options['angle'] ?? 0);
+        $angle = (int) $this->optionsResolver->resolveOption($options['angle'] ?? 0, $resolverContext);
         if (!array_key_exists($angle, $rotations)) {
             throw new \InvalidArgumentException('Invalid rotation, must be 90, 180 or 270 for filter "rotate"');
         }
 
-        $context->log(sprintf("Applying 'rotate' filter: angle=%d", $angle));
+        $this->log(sprintf("Applying 'rotate' filter: angle=%d", $angle));
         $clip->filters()->rotate($rotations[$angle]);
     }
 
-    private function pad(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function pad(Clip $clip, array $options, array $resolverContext): void
     {
-        $dimension = $this->getDimension($options, 'pad');
+        $dimension = $this->getDimension($options, $resolverContext, 'pad');
 
-        $context->log(sprintf("Applying 'pad' filter: dimension=%s", $this->dimensionAsText($dimension)));
+        $this->log(sprintf("Applying 'pad' filter: dimension=%s", FFMpegHelper::dimensionAsText($dimension)));
         $clip->filters()->pad($dimension);
     }
 
-    private function crop(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function crop(Clip $clip, array $options, array $resolverContext): void
     {
-        $x = $options['x'] ?? 0;
-        $y = $options['y'] ?? 0;
+        $x = $this->optionsResolver->resolveOption($options['x'] ?? 0, $resolverContext);
+        $y = $this->optionsResolver->resolveOption($options['y'] ?? 0, $resolverContext);
         if (!is_numeric($x) || !is_numeric($y)) {
             throw new \InvalidArgumentException('Invalid x/y for filter "crop"');
         }
         $point = new FFMpeg\Coordinate\Point((int) $x, (int) $y);
-        $dimension = $this->getDimension($options, 'crop');
+        $dimension = $this->getDimension($options, $resolverContext, 'crop');
 
-        $context->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", $this->pointAsText($point), $this->dimensionAsText($dimension)));
+        $this->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", FFMpegHelper::pointAsText($point), FFMpegHelper::dimensionAsText($dimension)));
         $clip->filters()->crop($point, $dimension);
     }
 
-    private function clip(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function clip(Clip $clip, array $options, array $resolverContext): void
     {
-        $start = $options['start'] ?? 0;
-        $duration = $options['duration'] ?? null;
+        $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
+        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
 
         $startAsTimecode = $durationAsTimecode = false;
 
@@ -320,23 +284,23 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid duration for filter "clip"');
         }
 
-        $context->log(sprintf("Applying 'clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
+        $this->log(sprintf("Applying 'clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
         $clip->filters()->clip($startAsTimecode, $durationAsTimecode);
     }
 
-    private function synchronize(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function synchronize(Clip $clip, array $options, array $resolverContext): void
     {
-        $context->log("Applying 'synchronize' filter");
+        $this->log("Applying 'synchronize' filter");
         $clip->filters()->synchronize();
     }
 
-    private function watermark(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function watermark(Clip $clip, array $options, array $resolverContext): void
     {
-        $path = $options['path'] ?? null;
+        $path = $this->optionsResolver->resolveOption($options['path'] ?? null, $resolverContext);
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('Watermark file for filter "watermark" not found');
         }
-        $position = $options['position'] ?? 'absolute';
+        $position = $this->optionsResolver->resolveOption($options['position'] ?? 'absolute', $resolverContext);
         if ('relative' == $position) {
             $coord = array_filter($options, fn ($k) => in_array($k, ['bottom', 'right', 'top', 'left']), ARRAY_FILTER_USE_KEY);
             if (array_key_exists('bottom', $coord) && array_key_exists('top', $coord)
@@ -350,52 +314,32 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid position for filter "watermark"');
         }
 
-        array_walk($coord, fn (&$v) => $v = (int) $v);
+        array_walk($coord, fn (&$v) => $v = (int) $this->optionsResolver->resolveOption($v, $resolverContext));
 
-        $context->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, $this->coordAsText($coord)));
+        $this->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, FFMpegHelper::coordAsText($coord)));
         $clip->filters()->watermark($path, $coord);
     }
 
-    private function framerate(Clip $clip, array $options, TransformationContextInterface $context): void
+    private function framerate(Clip $clip, array $options, array $resolverContext): void
     {
-        $framerate = (int) ($options['framerate'] ?? 0);
+        $framerate = (int) $this->optionsResolver->resolveOption($options['framerate'] ?? 0, $resolverContext);
         if ($framerate <= 0) {
             throw new \InvalidArgumentException('Invalid framerate for filter "framerate"');
         }
         $gop = (int) ($options['gop'] ?? 0);
 
-        $context->log(sprintf("Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
+        $this->log(sprintf("Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
         $clip->filters()->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
     }
 
-    private function getDimension(array $options, string $filterName): FFMpeg\Coordinate\Dimension
+    private function getDimension(array $options, array $resolverContext, string $filterName): FFMpeg\Coordinate\Dimension
     {
-        $width = (int) ($options['width'] ?? 0);
-        $height = (int) ($options['height'] ?? 0);
+        $width = (int) $this->optionsResolver->resolveOption($options['width'] ?? 0, $resolverContext);
+        $height = (int) $this->optionsResolver->resolveOption($options['height'] ?? 0, $resolverContext);
         if ($width <= 0 || $height <= 0) {
             throw new \InvalidArgumentException(sprintf('Invalid width/height for filter "%s"', $filterName));
         }
 
         return new FFMpeg\Coordinate\Dimension($width, $height);
-    }
-
-    private function pointAsText(FFMpeg\Coordinate\Point $point): string
-    {
-        return sprintf('(%d, %d)', $point->getX(), $point->getY());
-    }
-
-    private function dimensionAsText(FFMpeg\Coordinate\Dimension $dimension): string
-    {
-        return sprintf('%dx%d', $dimension->getWidth(), $dimension->getHeight());
-    }
-
-    private function coordAsText(array $coord): string
-    {
-        $s = [];
-        foreach ($coord as $k => $v) {
-            $s[] = sprintf('%s=%d', $k, $v);
-        }
-
-        return '['.implode(', ', $s).']';
     }
 }

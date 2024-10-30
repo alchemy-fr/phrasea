@@ -10,22 +10,8 @@ class ModuleOptionsResolver
     {
     }
 
-    public function resolveOptions(array $options, array $context): array
+    public function resolveOption(mixed $option, array $context): mixed
     {
-        return $this->compile($options, $context);
-    }
-
-    private function compile(array $options, array $context): array
-    {
-        $r = [];
-        foreach ($options as $k => $o) {
-            if (is_array($o)) {
-                $r[$k] = $this->compile($o, $context);
-            } else {
-                $r[$k] = is_string($o) ? $this->templateResolver->resolve($o, $context) : $o;
-            }
-        }
-
-        return $r;
+        return is_string($option) ? $this->templateResolver->resolve($option, $context) : $option;
     }
 }
