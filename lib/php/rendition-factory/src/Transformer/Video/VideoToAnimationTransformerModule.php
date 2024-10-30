@@ -18,10 +18,11 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $this->prepare($options, $context);
+        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var FFMpeg\Media\Video $video */
-        $video = $this->ffmpeg->open($inputFile->getPath());
+        $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
         $resolverContext = [
             'metadata' => $context->getTemplatingContext(),
@@ -82,10 +83,10 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
         $commands[] = '-loop';
         $commands[] = '0';
 
-        $outputPath = $context->createTmpFilePath($this->extension);
+        $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
         $commands[] = $outputPath;
 
-        $this->ffmpeg->getFFMpegDriver()->command($commands);
+        $commonArgs->getFFMpeg()->getFFMpegDriver()->command($commands);
 
         if (!file_exists($outputPath)) {
             throw new \RuntimeException('Failed to create animated gif');
@@ -93,8 +94,9 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
 
         return new OutputFile(
             $outputPath,
-            $this->outputFormat->getMimeType(),
-            $this->outputFormat->getFamily()
+            $outputFormat->getMimeType(),
+            $outputFormat->getFamily(),
+            false,
         );
     }
 

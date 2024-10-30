@@ -26,10 +26,12 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
      */
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $this->prepare($options, $context);
+        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $outputFormat = $commonArgs->getOutputFormat();
+        $format = $outputFormat->getFormat();
 
         /** @var FFMpeg\Media\Video $video */
-        $video = $this->ffmpeg->open($inputFile->getPath());
+        $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
         $resolverContext = [
             'metadata' => $context->getTemplatingContext(),
@@ -46,28 +48,28 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
         }
 
         /** @var VideoInterface $FFMpegOutputFormat */
-        $FFMpegOutputFormat = $this->outputFormat->getFFMpegFormat();
+        $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
         if ($videoCodec = $this->optionsResolver->resolveOption($options['video_codec'] ?? null, $resolverContext)) {
             if (!in_array($videoCodec, $FFMpegOutputFormat->getAvailableVideoCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $this->format));
+                throw new \InvalidArgumentException(sprintf('Invalid video codec %s for format %s', $videoCodec, $format));
             }
             $FFMpegOutputFormat->setVideoCodec($videoCodec);
         }
         if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
             if (!in_array($audioCodec, $FFMpegOutputFormat->getAvailableAudioCodecs())) {
-                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $this->format));
+                throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }
             $FFMpegOutputFormat->setAudioCodec($audioCodec);
         }
 
-        $clipsExtension = $this->outputFormat->getAllowedExtensions()[0];
+        $clipsExtension = $outputFormat->getAllowedExtensions()[0];
 
         $clipsFiles = [];
         try {
             $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
             $nClips = ceil($inputDuration / $period);
 
-            $this->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
+            $context->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
             $clipDuration = TimeCode::fromSeconds($clipDuration);
             $removeAudioFilter = new FFMpeg\Filters\Audio\SimpleFilter(['-an']);
             for ($i = 0; $i < $nClips; ++$i) {
@@ -81,9 +83,9 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
             }
             unset($removeAudioFilter, $video);
 
-            $outVideo = $this->ffmpeg->open($clipsFiles[0]);
+            $outVideo = $commonArgs->getFFMpeg()->open($clipsFiles[0]);
 
-            $outputPath = $context->createTmpFilePath($this->extension);
+            $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
             $outVideo
                 ->concat($clipsFiles)
@@ -104,8 +106,9 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
 
         return new OutputFile(
             $outputPath,
-            $this->outputFormat->getMimeType(),
-            $this->outputFormat->getFamily(),
+            $outputFormat->getMimeType(),
+            $outputFormat->getFamily(),
+            false,
         );
     }
 }

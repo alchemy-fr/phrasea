@@ -19,10 +19,11 @@ final readonly class VideoToFrameTransformerModule extends VideoTransformerBase 
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
-        $this->prepare($options, $context);
+        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Video $video */
-        $video = $this->ffmpeg->open($inputFile->getPath());
+        $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
         $resolverContext = [
             'metadata' => $context->getTemplatingContext(),
@@ -32,7 +33,7 @@ final readonly class VideoToFrameTransformerModule extends VideoTransformerBase 
         $fromSeconds = $this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext);
 
         $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds));
-        $outputPath = $context->createTmpFilePath($this->extension);
+        $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
         $frame->save($outputPath);
 
@@ -41,8 +42,9 @@ final readonly class VideoToFrameTransformerModule extends VideoTransformerBase 
 
         return new OutputFile(
             $outputPath,
-            $this->outputFormat->getMimeType(),
-            $this->outputFormat->getFamily(),
+            $outputFormat->getMimeType(),
+            $outputFormat->getFamily(),
+            false,
         );
     }
 }
