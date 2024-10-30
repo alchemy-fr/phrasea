@@ -14,7 +14,7 @@ use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
 
-final readonly class FFMpegTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
+final readonly class FFMpegTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
 {
     public static function getName(): string
     {

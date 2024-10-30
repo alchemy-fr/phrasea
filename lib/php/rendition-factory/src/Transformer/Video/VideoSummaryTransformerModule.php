@@ -14,7 +14,7 @@ use FFMpeg\Format\VideoInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-final readonly class VideoSummaryTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoSummaryTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
 {
     public static function getName(): string
     {

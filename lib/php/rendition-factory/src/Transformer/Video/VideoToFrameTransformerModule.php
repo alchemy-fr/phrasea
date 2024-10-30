@@ -11,7 +11,7 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Media\Video;
 
-final readonly class VideoToFrameTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoToFrameTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
 {
     public static function getName(): string
     {

@@ -10,7 +10,7 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 
-final readonly class VideoToAnimationTransformerModule extends VideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoToAnimationTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
 {
     public static function getName(): string
     {
