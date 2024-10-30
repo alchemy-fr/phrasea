@@ -5,36 +5,50 @@ parameters:
     env(EXPOSE_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(EXPOSE_DB_NAME)%'
     env(NOTIFY_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(NOTIFY_DB_NAME)%'
     env(UPLOADER_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(UPLOADER_DB_NAME)%'
+    env(CONFIGURATOR_DATABASE_URL): 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(CONFIGURATOR_DB_NAME)%'
+    doctrine_commons: &doctrine_commons
+        driver: 'pdo_pgsql'
+        server_version: '11.2'
+        charset: utf8
 
 doctrine:
     dbal:
         connections:
+            configurator:
+                <<: *doctrine_commons
+                url: '%env(resolve:CONFIGURATOR_DATABASE_URL)%'
+
             auth:
-                driver: 'pdo_pgsql'
-                server_version: '11.2'
-                charset: utf8
+                <<: *doctrine_commons
                 url: '%env(resolve:AUTH_DATABASE_URL)%'
 
             databox:
-                driver: 'pdo_pgsql'
-                server_version: '11.2'
-                charset: utf8
+                <<: *doctrine_commons
                 url: '%env(resolve:DATABOX_DATABASE_URL)%'
 
             expose:
-                driver: 'pdo_pgsql'
-                server_version: '11.2'
-                charset: utf8
+                <<: *doctrine_commons
                 url: '%env(resolve:EXPOSE_DATABASE_URL)%'
 
             notify:
-                driver: 'pdo_pgsql'
-                server_version: '11.2'
-                charset: utf8
+                <<: *doctrine_commons
                 url: '%env(resolve:NOTIFY_DATABASE_URL)%'
 
             uploader:
-                driver: 'pdo_pgsql'
-                server_version: '11.2'
-                charset: utf8
+                <<: *doctrine_commons
                 url: '%env(resolve:UPLOADER_DATABASE_URL)%'
+
+    orm:
+        auto_generate_proxy_classes: true
+        enable_lazy_ghost_objects: true
+        report_fields_where_declared: true
+        validate_xml_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App

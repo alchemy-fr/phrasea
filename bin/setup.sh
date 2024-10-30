@@ -15,6 +15,14 @@ docker compose up -d
 # Wait for services to be ready
 docker compose run --rm dockerize
 
+# Setup Report
+## Create DB
+create_db "${REPORT_DB_NAME}"
+create_db "${KEYCLOAK_DB_NAME}"
+create_db "${KEYCLOAK2_DB_NAME}"
+
+run_container_as configurator "bin/setup.sh" app
+
 # Setup Uploader
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${UPLOADER_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
@@ -71,13 +79,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
 "
 ## Create Uploader target for client upload
 exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADER_TARGET_SLUG} 'Databox Uploader' http://databox-api/incoming-uploads"
-
-# Setup Report
-## Create DB
-create_db "${REPORT_DB_NAME}"
-
-create_db "${KEYCLOAK_DB_NAME}"
-create_db "${KEYCLOAK2_DB_NAME}"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer

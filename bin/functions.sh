@@ -39,13 +39,17 @@ function load-env {
   rm -f "${tmp}"
 }
 
-# execute a shell commmand in a container defined in docker-compose.yml
+# execute a shell command in a container defined in docker-compose.yml
 function exec_container() {
   docker compose exec -T "$1" sh -c "$2"
 }
 
 function exec_container_as() {
   docker compose exec -T "$1" su "$3" sh -c "$2"
+}
+
+function run_container_as() {
+  docker compose run --rm -T "$1" su "$3" sh -c "$2"
 }
 
 function create_db() {
