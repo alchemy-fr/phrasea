@@ -56,10 +56,10 @@ class TagFilterRule extends AbstractUuidEntity
     final public const string GROUP_READ = 'tfr:read';
     final public const string GROUP_LIST = 'tfr:index';
 
-    final public const TYPE_USER = 0;
-    final public const TYPE_GROUP = 1;
-    final public const TYPE_WORKSPACE = 0;
-    final public const TYPE_COLLECTION = 1;
+    final public const int TYPE_USER = 0;
+    final public const int TYPE_GROUP = 1;
+    final public const int TYPE_WORKSPACE = 0;
+    final public const int TYPE_COLLECTION = 1;
 
     final public const OBJECT_CLASSES = [
         self::TYPE_WORKSPACE => Workspace::class,

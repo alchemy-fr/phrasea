@@ -92,7 +92,7 @@ EOF, $output->fetch());
             'outro' => JobState::STATUS_SUCCESS,
         ], $stateRepository, $workflowState->getId());
 
-        $contentBisState = $stateRepository->getJobState($workflowState->getId(), 'content_bis');
+        $contentBisState = $stateRepository->getLastJobState($workflowState->getId(), 'content_bis');
         $this->assertEquals([
             'foo' => 'bar',
             'duration' => $contentBisState->getSteps()['first']->getDuration(),

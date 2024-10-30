@@ -21,6 +21,7 @@ export default function JobDetail({
     const values: Cells = [
         [`Status`, undefined !== job.status ? jobStatuses[job.status] : '-'],
         [`Duration`, job.duration ?? '-'],
+        [`#`, (job.number ?? '-').toString()],
         [`Started At`, <DateValue date={job.startedAt}/>],
     ];
 
@@ -33,7 +34,7 @@ export default function JobDetail({
             loading={rerunning}
             onClick={() => {
                 setRerunning(true);
-                job.onRerun!(job.id).finally(() => {
+                job.onRerun!(job.jobId).finally(() => {
                     setRerunning(false);
                 });
             }}

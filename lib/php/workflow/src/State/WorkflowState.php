@@ -9,24 +9,24 @@ use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Ramsey\Uuid\Uuid;
 
-class WorkflowState
+final class WorkflowState
 {
-    final public const STATUS_STARTED = 0;
-    final public const STATUS_SUCCESS = 1;
-    final public const STATUS_FAILURE = 2;
-    final public const STATUS_CANCELLED = 3;
+    final public const int STATUS_STARTED = 0;
+    final public const int STATUS_SUCCESS = 1;
+    final public const int STATUS_FAILURE = 2;
+    final public const int STATUS_CANCELLED = 3;
 
-    private string $id;
-    private Context $context;
-    private ?MicroDateTime $startedAt = null;
+    private readonly string $id;
+    private readonly Context $context;
+    private readonly ?MicroDateTime $startedAt;
     private ?MicroDateTime $endedAt = null;
     private ?MicroDateTime $cancelledAt = null;
     private int $status = self::STATUS_STARTED;
 
     public function __construct(
         private StateRepositoryInterface $stateRepository,
-        private string $workflowName,
-        private ?WorkflowEvent $event,
+        private readonly string $workflowName,
+        private readonly ?WorkflowEvent $event,
         ?string $id = null,
         array $context = [],
     ) {
@@ -55,9 +55,9 @@ class WorkflowState
         return $this->startedAt;
     }
 
-    public function getJobState(string $jobId): ?JobState
+    public function getLastJobState(string $jobId): ?JobState
     {
-        return $this->stateRepository->getJobState($this->id, $jobId);
+        return $this->stateRepository->getLastJobState($this->id, $jobId);
     }
 
     public function getDuration(): ?float

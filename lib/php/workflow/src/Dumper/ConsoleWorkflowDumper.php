@@ -56,7 +56,7 @@ class ConsoleWorkflowDumper implements WorkflowDumperInterface
             foreach ($stage->getRuns() as $runIndex => $run) {
                 foreach ($run->getJob()->getSteps() as $stepIndex => $step) {
                     $jobId = $run->getJob()->getId();
-                    $jobState = $state->getJobState($jobId);
+                    $jobState = $state->getLastJobState($jobId);
 
                     $table->addRow([
                         0 === $runIndex ? $stageIndex + 1 : '',

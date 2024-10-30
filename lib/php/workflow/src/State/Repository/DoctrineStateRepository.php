@@ -16,12 +16,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 
-#[AsEventListener(event: WorkerMessageHandledEvent::class, method: 'clear')]
-#[AsEventListener(event: WorkerMessageFailedEvent::class, method: 'clear')]
-#[AsEventListener(event: KernelEvents::TERMINATE, method: 'clear')]
-class DoctrineStateRepository implements LockAwareStateRepositoryInterface
+#[AsEventListener(event: WorkerMessageHandledEvent::class, method: 'flush')]
+#[AsEventListener(event: WorkerMessageFailedEvent::class, method: 'flush')]
+#[AsEventListener(event: KernelEvents::TERMINATE, method: 'flush')]
+class DoctrineStateRepository implements LockAwareStateRepositoryInterface, TransactionalStateRepositoryInterface
 {
-    private array $jobs = [];
+    use JobStatusCacheTrait;
+
     private readonly string $workflowStateEntity;
     private readonly string $jobStateEntity;
 
@@ -32,11 +33,6 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     ) {
         $this->workflowStateEntity = $workflowStateEntity ?? WorkflowStateEntity::class;
         $this->jobStateEntity = $jobStateEntity ?? JobStateEntity::class;
-    }
-
-    public function clear(): void
-    {
-        $this->jobs = [];
     }
 
     public function getWorkflowState(string $id): WorkflowState
@@ -50,6 +46,27 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         $state->setStateRepository($this);
 
         return $state;
+    }
+
+    public function flush(): void
+    {
+        $this->clearCache();
+    }
+
+    public function createJobState(string $workflowId, string $jobId): JobState
+    {
+        $number = $this->createListQueryBuilder($workflowId, $jobId)
+            ->select('MAX(t.number) + 1')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return new JobState(
+            $workflowId,
+            $jobId,
+            JobState::STATUS_TRIGGERED,
+            null,
+            $number ?? 0,
+        );
     }
 
     public function persistWorkflowState(WorkflowState $state): void
@@ -66,24 +83,34 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         $this->em->flush($entity);
     }
 
-    public function getJobState(string $workflowId, string $jobId): ?JobState
+    public function getJobState(string $workflowId, string $jobStateId): ?JobState
     {
-        $entity = $this->fetchJobEntity($workflowId, $jobId);
-        if (!$entity instanceof JobStateEntity) {
-            return null;
-        }
-
-        return $entity->getJobState();
+        return $this->fetchJobState($workflowId, $jobStateId)?->getJobState();
     }
 
-    public function removeJobState(string $workflowId, string $jobId): void
+    public function getLastJobState(string $workflowId, string $jobId): ?JobState
     {
-        $entity = $this->fetchJobEntity($workflowId, $jobId);
+        return $this->fetchLastJobState($workflowId, $jobId)?->getJobState();
+    }
+
+    public function getJobStates(string $workflowId, string $jobId): array
+    {
+        $entities = $this->fetchJobStates($workflowId, $jobId);
+        if (empty($entities)) {
+            return [];
+        }
+
+        return array_map(fn (JobStateEntity $state) => $state->getJobState(), $entities);
+    }
+
+    public function removeJobState(string $workflowId, string $jobStateId): void
+    {
+        $entity = $this->fetchJobState($workflowId, $jobStateId);
         if ($entity instanceof JobStateEntity) {
             $this->em->remove($entity);
             $this->em->flush();
 
-            unset($this->jobs[$workflowId][$jobId]);
+            $this->removeJobStateFromCache($workflowId, $jobStateId);
         }
     }
 
@@ -91,27 +118,16 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
     {
     }
 
-    public function acquireJobLock(string $workflowId, string $jobId): void
+    public function acquireJobLock(string $workflowId, string $jobStateId): void
     {
-        $this->em->beginTransaction();
-        try {
-            $entity = $this->createQueryBuilder($workflowId, $jobId)
-                ->getQuery()
-                ->setLockMode(LockMode::PESSIMISTIC_WRITE)
-                ->getOneOrNullResult();
+        $entity = $this->em
+            ->getRepository($this->jobStateEntity)
+            ->find($jobStateId, LockMode::PESSIMISTIC_WRITE);
 
-            if ($entity instanceof JobStateEntity) {
-                $this->jobs[$workflowId][$jobId] = $entity;
-            } else {
-                unset($this->jobs[$workflowId][$jobId]);
-            }
-        } catch (\Throwable $e) {
-            $this->em->rollback();
-            throw $e;
-        }
+        $this->cacheJobState($workflowId, $jobStateId, $entity);
     }
 
-    private function createQueryBuilder(string $workflowId, string $jobId): QueryBuilder
+    private function createListQueryBuilder(string $workflowId, string $jobId): QueryBuilder
     {
         return $this->em->getRepository($this->jobStateEntity)
             ->createQueryBuilder('t')
@@ -121,30 +137,29 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
             ->setParameters([
                 'w' => $workflowId,
                 'j' => $jobId,
-            ])
-            ->addOrderBy('t.triggeredAt', 'DESC')
-            ->setMaxResults(1);
+            ]);
     }
 
-    public function releaseJobLock(string $workflowId, string $jobId): void
+    public function releaseJobLock(string $workflowId, string $jobStateId): void
     {
-        $this->em->commit();
     }
 
     public function persistJobState(JobState $state): void
     {
         $entity = null;
         if (JobState::STATUS_TRIGGERED !== $state->getStatus()) {
-            $entity = $this->fetchJobEntity($state->getWorkflowId(), $state->getJobId());
+            $entity = $this->fetchJobState($state->getWorkflowId(), $state->getId());
         }
         if (!$entity instanceof JobStateEntity) {
             $jobStateEntity = $this->jobStateEntity;
             $entity = new $jobStateEntity(
+                $state->getId(),
                 $this->em->getReference($this->workflowStateEntity, $state->getWorkflowId()),
                 $state->getJobId()
             );
 
-            $this->jobs[$entity->getWorkflow()->getId()][$entity->getJobId()] = $entity;
+            $this->statuses[$state->getId()] = $state;
+            $this->statuses[$entity->getWorkflow()->getId()][$entity->getJobId()][] = $entity;
         }
 
         $entity->setState($state, $this->em);
@@ -153,22 +168,85 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface
         $this->em->flush($entity);
     }
 
-    private function fetchJobEntity(string $workflowId, string $jobId): ?JobStateEntity
+    private function fetchJobState(string $workflowId, string $jobStateId): ?JobStateEntity
     {
-        if (isset($this->jobs[$workflowId][$jobId])) {
-            return $this->jobs[$workflowId][$jobId];
+        $state = $this->statuses[$jobStateId] ?? null;
+        if ($state instanceof JobStateEntity) {
+            return $state;
         }
 
-        $entity = $this->createQueryBuilder($workflowId, $jobId)
+        $state = $this->em->getRepository($this->jobStateEntity)
+            ->findOneBy(['id' => $jobStateId]);
+
+        $this->cacheJobState($workflowId, $jobStateId, $state);
+
+        return $state;
+    }
+
+    private function fetchLastJobState(string $workflowId, string $jobId): ?JobStateEntity
+    {
+        $state = $this->lastByJobId[$workflowId][$jobId] ?? null;
+        if ($state instanceof JobStateEntity) {
+            return $state;
+        }
+
+        $state = $this->createListQueryBuilder($workflowId, $jobId)
+            ->addOrderBy('t.triggeredAt', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
 
-        if ($entity) {
-            $this->jobs[$workflowId][$jobId] = $entity;
-        } else {
-            unset($this->jobs[$workflowId][$jobId]);
+        if ($state) {
+            $this->cacheLastJobState($workflowId, $jobId, $state);
         }
 
-        return $entity;
+        return $state;
+    }
+
+    /**
+     * @return JobStateEntity[]
+     */
+    private function fetchJobStates(string $workflowId, string $jobId): array
+    {
+        $statuses = $this->statusesByJobId[$workflowId][$jobId] ?? null;
+        if (null !== $statuses) {
+            return $statuses;
+        }
+
+        $states = $this->createListQueryBuilder($workflowId, $jobId)
+            ->addOrderBy('t.triggeredAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $this->cacheJobStates($workflowId, $jobId, $states);
+
+        return $states;
+    }
+
+    public function acquireWorkflowLock(string $workflowId): void
+    {
+        $entity = $this->em
+            ->getRepository($this->workflowStateEntity)
+            ->find($workflowId, LockMode::PESSIMISTIC_WRITE);
+
+        $this->cacheWorkflowState($workflowId, $entity);
+    }
+
+    public function releaseWorkflowLock(string $workflowId): void
+    {
+    }
+
+    public function transactional(callable $callback)
+    {
+        $this->em->beginTransaction();
+        try {
+            $response = $callback();
+            $this->em->commit();
+
+            return $response;
+        } catch (\Throwable $e) {
+            $this->em->rollback();
+            throw $e;
+        }
     }
 }

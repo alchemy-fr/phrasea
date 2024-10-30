@@ -63,10 +63,10 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const string GROUP_READ = 'attr:read';
     final public const string GROUP_LIST = 'attr:index';
 
-    final public const ORIGIN_MACHINE = 0;
-    final public const ORIGIN_HUMAN = 1;
-    final public const ORIGIN_FALLBACK = 2;
-    final public const ORIGIN_INITIAL = 3;
+    final public const int ORIGIN_MACHINE = 0;
+    final public const int ORIGIN_HUMAN = 1;
+    final public const int ORIGIN_FALLBACK = 2;
+    final public const int ORIGIN_INITIAL = 3;
 
     final public const ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
@@ -75,9 +75,9 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
         self::ORIGIN_INITIAL => 'initial',
     ];
 
-    final public const STATUS_VALID = 0;
-    final public const STATUS_REVIEW_PENDING = 1;
-    final public const STATUS_DECLINED = 2;
+    final public const int STATUS_VALID = 0;
+    final public const int STATUS_REVIEW_PENDING = 1;
+    final public const int STATUS_DECLINED = 2;
 
     final public const STATUS_LABELS = [
         self::STATUS_VALID => 'valid',

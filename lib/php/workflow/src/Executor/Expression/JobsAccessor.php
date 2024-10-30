@@ -14,7 +14,7 @@ readonly class JobsAccessor
 
     public function __get(string $name)
     {
-        if (null !== $jobState = $this->workflowState->getJobState($name)) {
+        if (null !== $jobState = $this->workflowState->getLastJobState($name)) {
             return new ObjectOrArrayAccessor($jobState);
         }
 

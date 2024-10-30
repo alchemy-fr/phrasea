@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\ArrayObjectField;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
@@ -18,9 +19,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class JobStateCrudController extends AbstractAdminCrudController
@@ -89,6 +93,9 @@ class JobStateCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Job State')
             ->setEntityLabelInPlural('Job States')
+            ->setDefaultSort([
+                'triggeredAt' => 'DESC',
+            ])
             ->setSearchFields(['id']);
     }
 
@@ -102,8 +109,10 @@ class JobStateCrudController extends AbstractAdminCrudController
                 'SKIPPED' => ModelJobState::STATUS_SKIPPED,
                 'RUNNING' => ModelJobState::STATUS_RUNNING,
             ]))
+            ->add(AssociationIdentifierFilter::new('workflow'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
+            ->add(NumericFilter::new('number'))
         ;
     }
 
@@ -114,6 +123,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         yield TextField::new('jobId', 'Job ID');
         yield DateTimeField::new('triggeredAt', 'Triggered At');
         yield DateTimeField::new('startedAt', 'Started At');
+        yield NumberField::new('number');
         yield ChoiceField::new('status', 'Status')
         ->setChoices([
             'TRIGGERED' => ModelJobState::STATUS_TRIGGERED,

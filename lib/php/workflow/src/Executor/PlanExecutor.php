@@ -7,6 +7,7 @@ namespace Alchemy\Workflow\Executor;
 use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\Trigger\JobTrigger;
 
 final readonly class PlanExecutor
 {
@@ -17,9 +18,9 @@ final readonly class PlanExecutor
     ) {
     }
 
-    public function executePlan(string $workflowId, string $jobId): void
+    public function executePlan(JobTrigger $jobTrigger): void
     {
-        $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+        $workflowState = $this->stateRepository->getWorkflowState($jobTrigger->getWorkflowId());
 
         $event = $workflowState->getEvent();
         $workflow = $this->workflowRepository->loadWorkflowByName($workflowState->getWorkflowName());
@@ -30,6 +31,6 @@ final readonly class PlanExecutor
         $planner = new WorkflowPlanner([$workflow]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
-        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobId), $workflow->getEnv()->getArrayCopy());
+        $this->jobExecutor->executeJob($workflowState, $plan->getJob($jobTrigger->getJobId()), $jobTrigger->getJobStateId(), $workflow->getEnv()->getArrayCopy());
     }
 }

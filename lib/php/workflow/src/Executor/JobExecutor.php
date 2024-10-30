@@ -15,6 +15,7 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
@@ -23,18 +24,23 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-readonly class JobExecutor
+final class JobExecutor
 {
-    private LoggerInterface $logger;
-    private OutputInterface $output;
-    private EnvContainer $envs;
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly LoggerInterface $logger;
+    private readonly OutputInterface $output;
+    private readonly EnvContainer $envs;
+    private readonly EventDispatcherInterface $eventDispatcher;
+
+    /**
+     * @var JobUpdateEvent[]
+     */
+    private array $eventsToDispatch = [];
 
     public function __construct(
-        private iterable $executors,
-        private ActionRegistryInterface $actionRegistry,
-        private ExpressionParser $expressionParser,
-        private StateRepositoryInterface $stateRepository,
+        private readonly iterable $executors,
+        private readonly ActionRegistryInterface $actionRegistry,
+        private readonly ExpressionParser $expressionParser,
+        private readonly StateRepositoryInterface $stateRepository,
         ?OutputInterface $output = null,
         ?LoggerInterface $logger = null,
         ?EnvContainer $envs = null,
@@ -68,80 +74,107 @@ readonly class JobExecutor
         return false;
     }
 
-    public function executeJob(WorkflowState $workflowState, Job $job, array $env = []): void
+    private function wrapInTransaction(callable $callback): mixed
     {
-        $workflowId = $workflowState->getId();
-        $jobId = $job->getId();
-
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->acquireJobLock($workflowId, $jobId);
+        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
+            return $this->stateRepository->transactional($callback);
         }
 
-        try {
-            $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+        return $callback();
+    }
 
-            if (null === $jobState) {
-                throw new \InvalidArgumentException(sprintf('State of job "%s" does not exists for workflow "%s"', $jobId, $workflowId));
+    public function executeJob(WorkflowState $workflowState, Job $job, string $jobStateId, array $env = []): void
+    {
+        $context = $this->wrapInTransaction(function () use ($workflowState, $job, $jobStateId, $env): ?JobExecutionContext {
+            $workflowId = $workflowState->getId();
+
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->acquireJobLock($workflowId, $jobStateId);
             }
 
-            $status = $jobState->getStatus();
-            if (JobState::STATUS_TRIGGERED !== $status) {
-                if (JobState::STATUS_CANCELLED === $status) {
-                    return;
-                }
+            $jobState = $this->stateRepository->getJobState($workflowId, $jobStateId);
 
-                throw new ConcurrencyException(sprintf('Job "%s" has not the "%s" status for workflow "%s" (got "%s")', $jobId, JobState::STATUS_LABELS[JobState::STATUS_TRIGGERED], $workflowId, JobState::STATUS_LABELS[$status]));
-            }
-
-            $context = new JobExecutionContext(
-                $workflowState,
-                $jobState,
-                $this->output,
-                $this->envs->mergeWith($env),
-                ($workflowState->getEvent()?->getInputs() ?? new Inputs())->mergeWith($jobState->getInputs()?->getArrayCopy() ?? [])
-            );
-
-            $jobInputs = $context->getInputs()
-                ->mergeWith($this->expressionParser->evaluateArray($job->getWith()->getArrayCopy(), $context));
-            $context->replaceInputs($jobInputs);
-
-            $jobState->setInputs($jobInputs);
+            $jobId = $job->getId();
 
             try {
-                $shouldBeSkipped = $this->shouldBeSkipped($context, $job);
+                $status = $jobState->getStatus();
+                if (JobState::STATUS_TRIGGERED !== $status) {
+                    if (JobState::STATUS_CANCELLED === $status) {
+                        return null;
+                    }
+
+                    throw new ConcurrencyException(sprintf('Job "%s" has not the "%s" status for workflow "%s" (got "%s")', $jobId, JobState::STATUS_LABELS[JobState::STATUS_TRIGGERED], $workflowId, JobState::STATUS_LABELS[$status]));
+                }
+
+                $context = new JobExecutionContext(
+                    $workflowState,
+                    $jobState,
+                    $this->output,
+                    $this->envs->mergeWith($env),
+                    ($workflowState->getEvent()?->getInputs() ?? new Inputs())->mergeWith($jobState->getInputs()?->getArrayCopy() ?? [])
+                );
+
+                $jobInputs = $context->getInputs()
+                    ->mergeWith($this->expressionParser->evaluateArray($job->getWith()->getArrayCopy(), $context));
+                $context->replaceInputs($jobInputs);
+
+                $jobState->setInputs($jobInputs);
+
+                try {
+                    $shouldBeSkipped = $this->shouldBeSkipped($context, $job);
+                } catch (\Throwable $e) {
+                    $error = sprintf('Error while evaluating if condition: %s', $e->getMessage());
+                    $this->logger->error($error);
+                    $jobState->addError($error);
+                    $jobState->setStatus(JobState::STATUS_ERROR);
+                    $this->persistJobState($jobState);
+
+                    return null;
+                }
+
+                if ($shouldBeSkipped) {
+                    $jobState->setStatus(JobState::STATUS_SKIPPED);
+                    $this->persistJobState($jobState);
+
+                    return null;
+                }
+
+                $jobState->setStatus(JobState::STATUS_RUNNING);
+                $jobState->setStartedAt(new MicroDateTime());
+                $this->persistJobState($jobState);
+
+                return $context;
             } catch (\Throwable $e) {
-                $error = sprintf('Error while evaluating if condition: %s', $e->getMessage());
-                $this->logger->error($error);
-                $jobState->addError($error);
-                $jobState->setStatus(JobState::STATUS_ERROR);
-                $this->persistJobState($jobState);
-
-                return;
-            }
-
-            if ($shouldBeSkipped) {
-                $jobState->setStatus(JobState::STATUS_SKIPPED);
-                $this->persistJobState($jobState);
-
-                return;
-            }
-
-            $jobState->setStatus(JobState::STATUS_RUNNING);
-            $jobState->setStartedAt(new MicroDateTime());
-            $this->persistJobState($jobState);
-        } catch (\Throwable $e) {
-            try {
-                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                    $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                try {
+                    if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                        $this->stateRepository->releaseJobLock($workflowId, $jobState->getId());
+                    }
+                } catch (\Throwable $e2) {
+                    throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
                 }
-            } catch (\Throwable $e2) {
-                throw new \RuntimeException(sprintf('Error while releasing job lock after another error: %s (First error was: %s)', $e2->getMessage(), $e->getMessage()), 0, $e);
-            }
 
-            throw $e;
+                throw $e;
+            }
+        });
+
+        $this->flushEvents();
+
+        if (null === $context) {
+            return;
         }
 
         $this->runJob($context, $job);
+
+        $this->flushEvents();
+    }
+
+    private function dispatchEvent(JobUpdateEvent $event): void
+    {
+        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
+            $this->eventsToDispatch[] = $event;
+        } else {
+            $this->eventDispatcher->dispatch($event);
+        }
     }
 
     private function persistJobState(JobState $jobState): void
@@ -149,10 +182,10 @@ readonly class JobExecutor
         $this->stateRepository->persistJobState($jobState);
 
         if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getJobId());
+            $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getId());
         }
 
-        $this->eventDispatcher->dispatch(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getStatus()));
+        $this->dispatchEvent(new JobUpdateEvent($jobState->getWorkflowId(), $jobState->getJobId(), $jobState->getId(), $jobState->getStatus()));
     }
 
     private function runJob(JobExecutionContext $context, Job $job): void
@@ -255,6 +288,15 @@ readonly class JobExecutor
 
                 throw new \RuntimeException(sprintf('Error while evaluating expression "%s": %s', $value, $e->getMessage()), 0, $e);
             }
+        }
+    }
+
+    private function flushEvents(): void
+    {
+        $events = $this->eventsToDispatch;
+        $this->eventsToDispatch = [];
+        foreach ($events as $event) {
+            $this->eventDispatcher->dispatch($event);
         }
     }
 }

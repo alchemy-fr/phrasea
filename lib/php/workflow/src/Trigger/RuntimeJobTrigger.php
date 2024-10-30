@@ -12,10 +12,18 @@ readonly class RuntimeJobTrigger implements JobTriggerInterface
     {
     }
 
-    public function triggerJob(string $workflowId, string $jobId): bool
+    public function triggerJob(JobTrigger $jobTrigger): void
     {
-        $this->runner->run($workflowId, $jobId);
+        $this->runner->run($jobTrigger);
+    }
 
+    public function shouldContinue(): bool
+    {
+        return true;
+    }
+
+    public function isSynchronous(): bool
+    {
         return true;
     }
 }

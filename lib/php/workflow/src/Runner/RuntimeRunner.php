@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\Runner;
 
 use Alchemy\Workflow\Executor\PlanExecutor;
+use Alchemy\Workflow\Trigger\JobTrigger;
 
 readonly class RuntimeRunner implements RunnerInterface
 {
@@ -12,8 +13,8 @@ readonly class RuntimeRunner implements RunnerInterface
     {
     }
 
-    public function run(string $workflowId, string $jobId): void
+    public function run(JobTrigger $jobTrigger): void
     {
-        $this->planExecutor->executePlan($workflowId, $jobId);
+        $this->planExecutor->executePlan($jobTrigger);
     }
 }

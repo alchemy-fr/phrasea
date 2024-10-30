@@ -55,7 +55,7 @@ class AttributeEntity extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
-    public const TYPE_LENGTH = 100;
+    public const int TYPE_LENGTH = 100;
 
     final public const string GROUP_READ = 'attr-entity:read';
     final public const string GROUP_LIST = 'attr-entity:index';

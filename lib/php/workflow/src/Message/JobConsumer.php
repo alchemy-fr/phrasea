@@ -4,7 +4,11 @@ namespace Alchemy\Workflow\Message;
 
 final readonly class JobConsumer
 {
-    public function __construct(private string $workflowId, private string $jobId)
+    public function __construct(
+        private string $workflowId,
+        private string $jobId,
+        private string $jobStateId,
+    )
     {
     }
 
@@ -16,5 +20,10 @@ final readonly class JobConsumer
     public function getJobId(): string
     {
         return $this->jobId;
+    }
+
+    public function getJobStateId(): string
+    {
+        return $this->jobStateId;
     }
 }

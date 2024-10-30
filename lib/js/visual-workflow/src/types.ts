@@ -27,7 +27,9 @@ export type Inputs = Record<string, any>;
 export type Outputs = Record<string, any>;
 
 export type Job = {
-    id: string;
+    stateId?: string;
+    jobId: string;
+    number?: number;
     name: string;
     status?: JobStatus | undefined;
     errors?: JobError[] | undefined;

@@ -9,14 +9,24 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class MessengerJobTrigger implements JobTriggerInterface
 {
-    public function __construct(private MessageBusInterface $bus)
+    public function __construct(
+        private MessageBusInterface $bus
+    )
     {
     }
 
-    public function triggerJob(string $workflowId, string $jobId): bool
+    public function triggerJob(JobTrigger $jobTrigger): void
     {
-        $this->bus->dispatch(new JobConsumer($workflowId, $jobId));
+        $this->bus->dispatch(new JobConsumer($jobTrigger->getWorkflowId(), $jobTrigger->getJobId(), $jobTrigger->getJobStateId()));
+    }
 
+    public function shouldContinue(): bool
+    {
         return true;
+    }
+
+    public function isSynchronous(): bool
+    {
+        return false;
     }
 }

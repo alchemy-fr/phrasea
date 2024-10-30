@@ -21,10 +21,10 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
             foreach ($stage->getRuns() as $run) {
                 $j = $run->getJob();
                 $jobId = $j->getId();
-                $jobState = $state->getJobState($jobId);
+                $jobState = $state->getLastJobState($jobId);
 
                 $job = [
-                    'id' => $jobId,
+                    'jobId' => $jobId,
                     'name' => $j->getName(),
                     'needs' => array_values($j->getNeeds()->getArrayCopy()),
                     'if' => $j->getIf(),
@@ -34,7 +34,18 @@ class JsonWorkflowDumper implements WorkflowDumperInterface
                 ];
 
                 if ($jobState instanceof JobState) {
-                    $job = [...$job, 'id' => $jobState->getJobId(), 'status' => $jobState->getStatus(), 'inputs' => $jobState->getInputs(), 'outputs' => $jobState->getOutputs(), 'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(), 'startedAt' => $jobState->getStartedAt()?->formatAtom(), 'endedAt' => $jobState->getEndedAt()?->formatAtom(), 'duration' => StateUtil::getFormattedDuration($jobState->getDuration())];
+                    $job = [
+                        ...$job,
+                        'stateId' => $jobState->getId(),
+                        'status' => $jobState->getStatus(),
+                        'number' => $jobState->getNumber(),
+                        'inputs' => $jobState->getInputs(),
+                        'outputs' => $jobState->getOutputs(),
+                        'triggeredAt' => $jobState->getTriggeredAt()->formatAtom(),
+                        'startedAt' => $jobState->getStartedAt()?->formatAtom(),
+                        'endedAt' => $jobState->getEndedAt()?->formatAtom(),
+                        'duration' => StateUtil::getFormattedDuration($jobState->getDuration())
+                    ];
 
                     if (!empty($jobState->getErrors())) {
                         $job['errors'] = $jobState->getErrors();

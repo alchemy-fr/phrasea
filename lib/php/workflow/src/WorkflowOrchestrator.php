@@ -15,17 +15,24 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\LockAwareStateRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
+use Alchemy\Workflow\State\Repository\TransactionalStateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
+use Alchemy\Workflow\Trigger\JobTrigger;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
 use Alchemy\Workflow\Validator\EventValidatorInterface;
 
-readonly class WorkflowOrchestrator
+final class WorkflowOrchestrator
 {
+    /**
+     * @var JobTrigger[]
+     */
+    private array $workflowsToTrigger = [];
+
     public function __construct(
-        private WorkflowRepositoryInterface $workflowRepository,
-        private StateRepositoryInterface $stateRepository,
-        private JobTriggerInterface $trigger,
-        private EventValidatorInterface $eventValidator,
+        private readonly WorkflowRepositoryInterface $workflowRepository,
+        private readonly StateRepositoryInterface $stateRepository,
+        private readonly JobTriggerInterface $trigger,
+        private readonly EventValidatorInterface $eventValidator,
     ) {
     }
 
@@ -71,35 +78,37 @@ readonly class WorkflowOrchestrator
 
         $this->stateRepository->persistWorkflowState($workflowState);
 
-        $this->continueWorkflow($workflowState->getId(), $workflowState);
+        $this->doContinueWorkflow($workflowState);
+
+        $this->flush();
 
         return $workflowState;
     }
 
     public function cancelWorkflow(string $workflowId): void
     {
-        $workflowState = $this->stateRepository->getWorkflowState($workflowId);
-
-        if (null !== $workflowState->getEndedAt()) {
-            return;
-        }
-
-        if (WorkflowState::STATUS_FAILURE === $workflowState->getStatus()) {
-            return;
-        }
-
-        $workflowState->setCancelledAt(new MicroDateTime());
-        $workflowState->setStatus(WorkflowState::STATUS_CANCELLED);
-
-        $workflow = $this->loadWorkflowByName($workflowState->getWorkflowName());
-
-        foreach ($workflow->getJobIds() as $jobId) {
+        $this->wrapInTransaction(function () use ($workflowId): void {
             if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                $this->stateRepository->acquireJobLock($workflowId, $jobId);
+                $this->stateRepository->acquireWorkflowLock($workflowId);
             }
 
-            try {
-                $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
+            $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+
+            if (null !== $workflowState->getEndedAt()) {
+                return;
+            }
+
+            if (WorkflowState::STATUS_FAILURE === $workflowState->getStatus()) {
+                return;
+            }
+
+            $workflowState->setCancelledAt(new MicroDateTime());
+            $workflowState->setStatus(WorkflowState::STATUS_CANCELLED);
+
+            $workflow = $this->loadWorkflowByName($workflowState->getWorkflowName());
+
+            foreach ($workflow->getJobIds() as $jobId) {
+                $jobState = $this->stateRepository->getLastJobState($workflowId, $jobId);
                 if (null !== $jobState && in_array($jobState->getStatus(), [
                     JobState::STATUS_TRIGGERED,
                     JobState::STATUS_RUNNING,
@@ -107,34 +116,61 @@ readonly class WorkflowOrchestrator
                     $jobState->setStatus(JobState::STATUS_CANCELLED);
                     $this->stateRepository->persistJobState($jobState);
                 }
-            } finally {
-                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                    $this->stateRepository->releaseJobLock($workflowId, $jobId);
-                }
             }
-        }
 
-        $this->stateRepository->persistWorkflowState($workflowState);
+            $this->stateRepository->persistWorkflowState($workflowState);
+
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->releaseWorkflowLock($workflowId);
+            }
+        });
     }
 
-    public function continueWorkflow(string $workflowId, ?WorkflowState $workflowState = null): void
+    public function continueWorkflow(string $workflowId): void
     {
-        if (null === $workflowState) {
-            $workflowState = $this->stateRepository->getWorkflowState($workflowId);
-        }
+        $this->wrapInTransaction(function () use ($workflowId): void {
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->acquireWorkflowLock($workflowId);
+            }
 
-        if ($workflowState->isCancelled()) {
+            $workflowState = $this->stateRepository->getWorkflowState($workflowId);
+            if ($workflowState->isCancelled()) {
+                return;
+            }
+
+            $this->doContinueWorkflow($workflowState);
+
+            if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+                $this->stateRepository->releaseWorkflowLock($workflowId);
+            }
+        });
+
+        $this->flush();
+    }
+
+    private function wrapInTransaction(callable $callback): void
+    {
+        if ($this->stateRepository instanceof TransactionalStateRepositoryInterface) {
+            $this->stateRepository->transactional($callback);
+
             return;
         }
 
+        $callback();
+    }
+
+    private function doContinueWorkflow(WorkflowState $workflowState): void
+    {
         $event = $workflowState->getEvent();
         $planner = new WorkflowPlanner([$this->loadWorkflowByName($workflowState->getWorkflowName())]);
         $plan = null === $event ? $planner->planAll() : $planner->planEvent($event);
 
         [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
         if (null !== $nextJobId) {
+            $continue = $this->trigger->shouldContinue();
+
             do {
-                $continue = $this->triggerJob($workflowState, $nextJobId);
+                $this->triggerJob($workflowState, $nextJobId);
 
                 if ($continue) {
                     [$nextJobId, $workflowEndStatus] = $this->getNextJob($plan, $workflowState);
@@ -173,6 +209,19 @@ readonly class WorkflowOrchestrator
 
     public function rerunJobs(string $workflowId, ?string $jobIdFilter = null, ?array $expectedStatuses = null, ?array $jobInputs = null): void
     {
+        $this->wrapInTransaction(function () use ($workflowId, $jobIdFilter, $expectedStatuses, $jobInputs): void {
+            $this->doRerunJobs($workflowId, $jobIdFilter, $expectedStatuses, $jobInputs);
+        });
+
+        $this->flush();
+    }
+
+    private function doRerunJobs(string $workflowId, ?string $jobIdFilter, ?array $expectedStatuses, ?array $jobInputs): void
+    {
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->acquireWorkflowLock($workflowId);
+        }
+
         $workflowState = $this->stateRepository->getWorkflowState($workflowId);
 
         $event = $workflowState->getEvent();
@@ -190,22 +239,10 @@ readonly class WorkflowOrchestrator
                     continue;
                 }
 
-                if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                    $this->stateRepository->acquireJobLock($workflowId, $jobId);
-                }
-
-                try {
-                    $jobState = $this->stateRepository->getJobState($workflowId, $jobId);
-                    if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
-                        $this->stateRepository->resetJobState($workflowId, $jobId);
-
-                        if (!$run->getJob()->isDisabled()) {
-                            $jobsToTrigger[] = $jobId;
-                        }
-                    }
-                } finally {
-                    if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-                        $this->stateRepository->releaseJobLock($workflowId, $jobId);
+                $jobState = $this->stateRepository->getLastJobState($workflowId, $jobId);
+                if (null !== $jobState && (null === $expectedStatuses || in_array($jobState->getStatus(), $expectedStatuses, true))) {
+                    if (!$run->getJob()->isDisabled()) {
+                        $jobsToTrigger[] = $jobId;
                     }
                 }
 
@@ -223,6 +260,10 @@ readonly class WorkflowOrchestrator
             foreach ($jobsToTrigger as $jobId) {
                 $this->triggerJob($workflowState, $jobId, $jobInputs);
             }
+        }
+
+        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+            $this->stateRepository->releaseWorkflowLock($workflowId);
         }
     }
 
@@ -256,7 +297,7 @@ readonly class WorkflowOrchestrator
                     continue;
                 }
 
-                $jobState = $this->stateRepository->getJobState($state->getId(), $jobId);
+                $jobState = $this->stateRepository->getLastJobState($state->getId(), $jobId);
                 if (null === $jobState) {
                     if ($this->satisfiesAllNeeds($statuses, $job)) {
                         return [$jobId, null];
@@ -302,25 +343,31 @@ readonly class WorkflowOrchestrator
         return true;
     }
 
-    private function triggerJob(WorkflowState $state, string $jobId, ?array $jobInputs = null): bool
+    private function triggerJob(WorkflowState $workflowState, string $jobId, ?array $jobInputs = null): void
     {
-        $workflowId = $state->getId();
+        $workflowId = $workflowState->getId();
 
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->acquireJobLock($workflowId, $jobId);
-        }
-
-        $jobState = new JobState($workflowId, $jobId, JobState::STATUS_TRIGGERED);
+        $jobState = $this->stateRepository->createJobState($workflowId, $jobId);
         if (null !== $jobInputs) {
             $inputs = $jobState->getInputs() ?? new Inputs();
             $jobState->setInputs($inputs->mergeWith($jobInputs));
         }
         $this->stateRepository->persistJobState($jobState);
 
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
-            $this->stateRepository->releaseJobLock($workflowId, $jobId);
+        $jobTrigger = new JobTrigger($workflowId, $jobId, $jobState->getId());
+        if ($this->trigger->isSynchronous()) {
+            $this->trigger->triggerJob($jobTrigger);
+        } else {
+            $this->workflowsToTrigger[] = $jobTrigger;
         }
+    }
 
-        return $this->trigger->triggerJob($state->getId(), $jobId);
+    private function flush(): void
+    {
+        $jobsToTrigger = $this->workflowsToTrigger;
+        $this->workflowsToTrigger = [];
+        foreach ($jobsToTrigger as $jobTrigger) {
+            $this->trigger->triggerJob($jobTrigger);
+        }
     }
 }

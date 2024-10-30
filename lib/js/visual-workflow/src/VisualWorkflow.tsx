@@ -54,11 +54,11 @@ export default function VisualWorkflow({
                     ...j,
                     onRerun: onRerunJob,
                 };
-                jobIndex[j.id] = nodeData;
+                jobIndex[j.jobId] = nodeData;
 
                 nodes.push({
                     type: 'jobNode',
-                    id: j.id,
+                    id: j.jobId,
                     position: {
                         x: stageXPadding * (1 + sIndex * 2) + nodeWith * sIndex,
                         y: nodeYPadding * (1 + jIndex * 2) + nodeHeight * jIndex,
@@ -77,9 +77,9 @@ export default function VisualWorkflow({
                     jobIndex[n].isDependency = true;
 
                     edges.push({
-                        id: `${j.id}-${n}`,
+                        id: `${j.jobId}-${n}`,
                         source: n,
-                        target: j.id,
+                        target: j.jobId,
                         className: 'job-edge',
                     })
                 })

@@ -1,15 +1,15 @@
 <?php
 
-namespace Alchemy\Workflow\Listener;
+namespace Alchemy\Workflow\Trigger;
 
-readonly class JobUpdateEvent
+final readonly class JobTrigger
 {
     public function __construct(
         private string $workflowId,
         private string $jobId,
-        private string $jobStateId,
-        private int $status,
-    ) {
+        private string $jobStateId
+    )
+    {
     }
 
     public function getWorkflowId(): string
@@ -25,10 +25,5 @@ readonly class JobUpdateEvent
     public function getJobStateId(): string
     {
         return $this->jobStateId;
-    }
-
-    public function getStatus(): int
-    {
-        return $this->status;
     }
 }

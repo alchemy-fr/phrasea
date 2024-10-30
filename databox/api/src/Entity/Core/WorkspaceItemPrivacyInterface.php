@@ -7,22 +7,22 @@ namespace App\Entity\Core;
 interface WorkspaceItemPrivacyInterface
 {
     // Completely secret, only owner or granted users can view the item
-    public const SECRET = 0;
+    public const int SECRET = 0;
 
     // Item is listed for users allowed in the workspace but content is not accessible
-    public const PRIVATE_IN_WORKSPACE = 1;
+    public const int PRIVATE_IN_WORKSPACE = 1;
 
     // Open to users allowed in the workspace
-    public const PUBLIC_IN_WORKSPACE = 2;
+    public const int PUBLIC_IN_WORKSPACE = 2;
 
     // Item is listed to every user, but content is not accessible
-    public const PRIVATE = 3;
+    public const int PRIVATE = 3;
 
     // Public to every authenticated users
-    public const PUBLIC_FOR_USERS = 4;
+    public const int PUBLIC_FOR_USERS = 4;
 
     // Public to everyone
-    public const PUBLIC = 5;
+    public const int PUBLIC = 5;
 
     public const KEYS = [
         WorkspaceItemPrivacyInterface::SECRET => 'secret',
