@@ -158,6 +158,9 @@ export interface AssetRendition extends ApiHydraObjectResponse {
     file: File | undefined;
     ready: boolean;
     dirty?: boolean;
+    projection?: boolean;
+    locked: boolean;
+    substituted: boolean;
 }
 
 export interface RenditionClass extends ApiHydraObjectResponse {

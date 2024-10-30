@@ -178,6 +178,7 @@ function Item({
                             name={'definition'}
                             disabled={submitting}
                             mode={'yaml'}
+                            height={'700px'}
                         />
                         <FormFieldErrors field={'definition'} errors={errors} />
                     </FormRow>

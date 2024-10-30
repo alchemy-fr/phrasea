@@ -51,6 +51,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
             $outputPath,
             $output->getMimeType(),
             FamilyEnum::Image,
+            false // TODO implement projection
         );
     }
 

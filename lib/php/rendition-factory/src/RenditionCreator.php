@@ -56,19 +56,25 @@ final class RenditionCreator
         $buildHashes = $context->getBuildHashes();
         $buildHashes->setPath(BuildHashes::PATH_LEVEL_FAMILY, $inputFile->getFamily()->value);
 
+        $isProjection = true;
         $transformationCount = count($transformations);
         foreach (array_values($transformations) as $i => $transformation) {
             $buildHashes->setPath(BuildHashes::PATH_LEVEL_MODULE, $i);
             /** @var TransformerModuleInterface $transformer */
             $transformer = $this->transformers->get($transformation->getModule());
             $outputFile = $transformer->transform($inputFile, $transformation->getOptions(), $context);
+            if (!$outputFile->isProjection()) {
+                $isProjection = false;
+            }
 
             if ($i < $transformationCount) {
                 $inputFile = $outputFile->createNextInputFile();
             }
         }
 
-        return $outputFile->withBuildHashes($buildHashes->getHashes());
+        return $outputFile
+            ->withBuildHashes($buildHashes->getHashes())
+            ->withProjection($isProjection);
     }
 
     /**

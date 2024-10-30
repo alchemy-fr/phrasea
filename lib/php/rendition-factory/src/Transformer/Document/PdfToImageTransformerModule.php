@@ -52,7 +52,8 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         return new OutputFile(
             $newPath,
             $context->guessMimeTypeFromPath($newPath),
-            FamilyEnum::Image
+            FamilyEnum::Image,
+            false // TODO implement projection
         );
     }
 }

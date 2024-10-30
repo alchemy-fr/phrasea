@@ -29,5 +29,14 @@ class AssetRenditionOutput extends AbstractUuidOutput
     public ?string $name = null;
 
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
+    public ?bool $projection = null;
+
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     public ?bool $dirty = null;
+
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
+    public bool $locked = false;
+
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
+    public bool $substituted = false;
 }

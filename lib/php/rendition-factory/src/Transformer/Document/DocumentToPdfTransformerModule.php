@@ -32,7 +32,8 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         return new OutputFile(
             $newPath,
             'application/pdf',
-            FamilyEnum::Document
+            FamilyEnum::Document,
+            false // TODO implement projection
         );
     }
 }

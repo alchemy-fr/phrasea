@@ -2,19 +2,21 @@ import {ReactNode} from "react";
 import {Dimensions} from "../../Media/Asset/Players";
 import {Card, CardActions, CardContent, CardMedia, Typography} from "@mui/material";
 
+type Props = {
+    title: ReactNode;
+    info: ReactNode;
+    media: ReactNode | undefined;
+    actions: ReactNode;
+    dimensions: Dimensions;
+};
+
 export function RenditionStructure({
     title,
     info,
     media,
     actions,
     dimensions,
-}: {
-    title: ReactNode;
-    info: ReactNode;
-    media: ReactNode | undefined;
-    actions: ReactNode;
-    dimensions: Dimensions;
-}) {
+}: Props) {
     return (
         <Card
             elevation={2}

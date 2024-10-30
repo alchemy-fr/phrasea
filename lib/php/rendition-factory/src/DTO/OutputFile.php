@@ -8,6 +8,7 @@ final readonly class OutputFile extends BaseFile implements OutputFileInterface
         string $path,
         string $type,
         FamilyEnum $family,
+        private bool $projection,
         private ?array $buildHashes = null,
     ) {
         parent::__construct($path, $type, $family);
@@ -25,6 +26,16 @@ final readonly class OutputFile extends BaseFile implements OutputFileInterface
 
     public function withBuildHashes(?array $buildHashes): OutputFileInterface
     {
-        return new self($this->getPath(), $this->getType(), $this->getFamily(), $buildHashes);
+        return new self($this->getPath(), $this->getType(), $this->getFamily(), $this->isProjection(), $buildHashes);
+    }
+
+    public function withProjection(bool $isProjection): OutputFileInterface
+    {
+        return new self($this->getPath(), $this->getType(), $this->getFamily(), $isProjection, $this->getBuildHashes());
+    }
+
+    public function isProjection(): bool
+    {
+        return $this->projection;
     }
 }

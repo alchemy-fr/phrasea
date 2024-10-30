@@ -9,6 +9,8 @@ import InfoRow from '../Info/InfoRow';
 import {useTranslation} from 'react-i18next';
 import BusinessIcon from '@mui/icons-material/Business';
 import FolderIcon from '@mui/icons-material/Folder';
+import {useNavigateToModal} from "../../Routing/ModalLink.tsx";
+import {modalRoutes} from "../../../routes.ts";
 
 type Props = {
     data: Asset;
@@ -16,6 +18,8 @@ type Props = {
 
 export default function InfoAsset({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
+    const navigateToModal = useNavigateToModal();
+
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <MenuList>
@@ -61,6 +65,12 @@ export default function InfoAsset({data, onClose, minHeight}: Props) {
                     label={t('asset.info.workspace', `Workspace`)}
                     value={data.workspace.name}
                     copyValue={data.workspace.id}
+                    onClick={() => {
+                        navigateToModal(modalRoutes.workspaces.routes.manage, {
+                            id: data.workspace.id,
+                            tab: 'info',
+                        });
+                    }}
                 />
                 <InfoRow
                     icon={<FolderIcon />}
@@ -70,6 +80,12 @@ export default function InfoAsset({data, onClose, minHeight}: Props) {
                         t('asset.info.collection.none', 'None')
                     }
                     copyValue={data.referenceCollection?.id}
+                    onClick={data.referenceCollection ? () => {
+                        navigateToModal(modalRoutes.collections.routes.manage, {
+                            id: data.referenceCollection!.id,
+                            tab: 'info',
+                        });
+                    } : undefined}
                 />
             </MenuList>
         </ContentTab>

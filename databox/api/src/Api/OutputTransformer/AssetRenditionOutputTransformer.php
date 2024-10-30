@@ -39,6 +39,9 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
         $output->definition = $definition;
         $output->file = $data->getFile();
         $output->name = $data->getName();
+        $output->projection = $data->getProjection();
+        $output->locked = $data->isLocked();
+        $output->substituted = $data->isSubstituted();
 
         if ($this->hasGroup([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ], $context)) {
             $output->dirty = $this->renditionBuildHashManager->isRenditionDirty($data);
