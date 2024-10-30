@@ -23,6 +23,12 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
+        $context->log("Applying '".self::getName()."' module");
+
+        if (FamilyEnum::Video !== $inputFile->getFamily()) {
+            throw new \InvalidArgumentException('Invalid input file family, should be video');
+        }
+
         $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
 
         if (FamilyEnum::Video === $commonArgs->getOutputFormat()->getFamily()) {
@@ -131,7 +137,6 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
 
         unset($clip, $video);
         gc_collect_cycles();
-        printf("isProjection: %s\n", $isProjection ? 'true' : 'false');
 
         return new OutputFile(
             $outputPath,
@@ -199,7 +204,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
             $isProjection = false;
         }
 
-        $transformationContext->log(sprintf("Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
+        $transformationContext->log(sprintf("  Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
 
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
@@ -207,7 +212,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
     private function remove_audio(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
     {
         $customFilter = '-an';
-        $transformationContext->log("Applying 'remove_audio' filter");
+        $transformationContext->log("  Applying 'remove_audio' filter");
         $clip->addFilter(new FFMpeg\Filters\Audio\SimpleFilter([$customFilter]));
     }
 
@@ -227,7 +232,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
             throw new \InvalidArgumentException('Invalid mode for filter "resize"');
         }
 
-        $transformationContext->log(sprintf("Applying 'resize' filter: dimension=[width=%s, height=%s], mode=%s", $dimension->getWidth(), $dimension->getHeight(), $mode));
+        $transformationContext->log(sprintf("  Applying 'resize' filter: dimension=[width=%s, height=%s], mode=%s", $dimension->getWidth(), $dimension->getHeight(), $mode));
         $clip->filters()->resize(
             $dimension,
             $mode
@@ -248,7 +253,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
             throw new \InvalidArgumentException('Invalid rotation, must be 90, 180 or 270 for filter "rotate"');
         }
 
-        $transformationContext->log(sprintf("Applying 'rotate' filter: angle=%d", $angle));
+        $transformationContext->log(sprintf("  Applying 'rotate' filter: angle=%d", $angle));
         $clip->filters()->rotate($rotations[$angle]);
 
         $isProjection = false;
@@ -258,7 +263,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
     {
         $dimension = $this->getDimension($options, $resolverContext, 'pad');
 
-        $transformationContext->log(sprintf("Applying 'pad' filter: dimension=%s", FFMpegHelper::dimensionAsText($dimension)));
+        $transformationContext->log(sprintf("  Applying 'pad' filter: dimension=%s", FFMpegHelper::dimensionAsText($dimension)));
         $clip->filters()->pad($dimension);
 
         $isProjection = false;
@@ -274,7 +279,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
         $point = new FFMpeg\Coordinate\Point((int) $x, (int) $y);
         $dimension = $this->getDimension($options, $resolverContext, 'crop');
 
-        $transformationContext->log(sprintf("Applying 'crop' filter: point=%s, dimension=%s", FFMpegHelper::pointAsText($point), FFMpegHelper::dimensionAsText($dimension)));
+        $transformationContext->log(sprintf("  Applying 'crop' filter: point=%s, dimension=%s", FFMpegHelper::pointAsText($point), FFMpegHelper::dimensionAsText($dimension)));
         $clip->filters()->crop($point, $dimension);
 
         $isProjection = false;
@@ -312,13 +317,13 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
             $isProjection = false;
         }
 
-        $transformationContext->log(sprintf("Applying 'clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
+        $transformationContext->log(sprintf("  Applying 'clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
         $clip->filters()->clip($startAsTimecode, $durationAsTimecode);
     }
 
     private function synchronize(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
     {
-        $transformationContext->log("Applying 'synchronize' filter");
+        $transformationContext->log("  Applying 'synchronize' filter");
         $clip->filters()->synchronize();
     }
 
@@ -344,7 +349,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
 
         array_walk($coord, fn (&$v) => $v = (int) $this->optionsResolver->resolveOption($v, $resolverContext));
 
-        $transformationContext->log(sprintf("Applying 'watermark' filter: path=%s, coord=%s", $path, FFMpegHelper::coordAsText($coord)));
+        $transformationContext->log(sprintf("  Applying 'watermark' filter: path=%s, coord=%s", $path, FFMpegHelper::coordAsText($coord)));
         $clip->filters()->watermark($path, $coord);
     }
 
@@ -356,7 +361,7 @@ final readonly class FFMpegTransformerModule extends VideoTransformerBase implem
         }
         $gop = (int) ($options['gop'] ?? 0);
 
-        $transformationContext->log(sprintf("Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
+        $transformationContext->log(sprintf("  Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
         $clip->filters()->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
     }
 

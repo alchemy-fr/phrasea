@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
@@ -18,6 +19,12 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
+        $context->log("Applying '".self::getName()."' module");
+
+        if (FamilyEnum::Video !== $inputFile->getFamily()) {
+            throw new \InvalidArgumentException('Invalid input file family, should be video');
+        }
+
         $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
@@ -29,7 +36,7 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
             'input' => $video->getStreams()->videos()->first()->all(),
         ];
 
-        $fromSeconds = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
+        $from = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
 
         $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
         if (null !== $duration && ($duration = (int) $duration) <= 0) {
@@ -67,18 +74,26 @@ final readonly class VideoToAnimationTransformerModule extends VideoTransformerB
                 throw new \InvalidArgumentException('Invalid resize mode');
         }
 
+        $context->log(sprintf('  from=%s, duration=%s, fps=%s, width=%d, height=%d', $from, $duration, $fps, $width, $height));
+
         $commands = [
             '-i',
             $inputFile->getPath(),
             '-ss',
-            $fromSeconds,
+            $from,
         ];
         if (null !== $duration) {
             $commands[] = '-t';
             $commands[] = $duration;
         }
         $commands[] = '-vf';
-        $commands[] = 'fps='.$fps.',scale='.$width.':'.$height.':flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse';
+
+        $c = 'fps='.$fps;
+        if (-1 !== $width || -1 !== $height) {
+            $c .= ',scale='.$width.':'.$height.':flags=lanczos';
+        }
+        $c .= ',split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse';
+        $commands[] = $c;
 
         $commands[] = '-loop';
         $commands[] = '0';

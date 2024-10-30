@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
@@ -26,6 +27,12 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
      */
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
+        $context->log("Applying '".self::getName()."' module");
+
+        if (FamilyEnum::Video !== $inputFile->getFamily()) {
+            throw new \InvalidArgumentException('Invalid input file family, should be video');
+        }
+
         $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
@@ -46,6 +53,8 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
         if ($clipDuration <= 0 || $clipDuration >= $period) {
             throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s"', self::getName()));
         }
+
+        $context->log(sprintf('  period: %d, duration: %d', $period, $clipDuration));
 
         /** @var VideoInterface $FFMpegOutputFormat */
         $FFMpegOutputFormat = $outputFormat->getFFMpegFormat();
@@ -69,7 +78,7 @@ final readonly class VideoSummaryTransformerModule extends VideoTransformerBase 
             $inputDuration = $video->getFFProbe()->format($inputFile->getPath())->get('duration');
             $nClips = ceil($inputDuration / $period);
 
-            $context->log(sprintf('Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
+            $context->log(sprintf('  Duration duration: %s, extracting %d clips of %d seconds', $inputDuration, $nClips, $clipDuration));
             $clipDuration = TimeCode::fromSeconds($clipDuration);
             $removeAudioFilter = new FFMpeg\Filters\Audio\SimpleFilter(['-an']);
             for ($i = 0; $i < $nClips; ++$i) {

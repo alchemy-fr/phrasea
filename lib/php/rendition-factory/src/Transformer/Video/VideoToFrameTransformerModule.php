@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
+use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
@@ -19,6 +20,12 @@ final readonly class VideoToFrameTransformerModule extends VideoTransformerBase 
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
+        $context->log("Applying '".self::getName()."' module");
+
+        if (FamilyEnum::Video !== $inputFile->getFamily()) {
+            throw new \InvalidArgumentException('Invalid input file family, should be video');
+        }
+
         $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
@@ -30,9 +37,11 @@ final readonly class VideoToFrameTransformerModule extends VideoTransformerBase 
             'input' => $video->getStreams()->videos()->first()->all(),
         ];
 
-        $fromSeconds = $this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext);
+        $from = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
 
-        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($fromSeconds));
+        $context->log(sprintf('  from=%s', $from));
+
+        $frame = $video->frame($from);
         $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
         $frame->save($outputPath);
