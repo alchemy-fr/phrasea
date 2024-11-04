@@ -88,3 +88,4 @@ services:
     Alchemy\RenditionFactory\MimeType\MimeTypeGuesser: ~
     Alchemy\RenditionFactory\Format\FormatGuesser: ~
     Alchemy\RenditionFactory\Format\FormatFactory: ~
+    Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
