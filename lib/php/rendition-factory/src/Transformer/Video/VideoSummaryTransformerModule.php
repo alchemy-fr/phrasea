@@ -14,7 +14,7 @@ use FFMpeg\Format\VideoInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-final readonly class VideoSummaryTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoSummaryTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
@@ -33,7 +33,7 @@ final readonly class VideoSummaryTransformerModule extends AbstractVideoTransfor
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
 

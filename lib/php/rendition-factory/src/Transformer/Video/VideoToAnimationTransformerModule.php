@@ -9,8 +9,9 @@ use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
+use FFMpeg\Coordinate\TimeCode;
 
-final readonly class VideoToAnimationTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoToAnimationTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
@@ -25,7 +26,7 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var FFMpeg\Media\Video $video */
@@ -36,11 +37,31 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
             'input' => $video->getStreams()->videos()->first()->all(),
         ];
 
-        $from = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
+        $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
+        $startAsTimecode = false;
+        if (is_numeric($start) && (float) $start >= 0) {
+            $startAsTimecode = TimeCode::fromSeconds($start);
+        } elseif (is_string($start)) {
+            $startAsTimecode = TimeCode::fromString($start);
+        }
+        if (false === $startAsTimecode) {
+            throw new \InvalidArgumentException('Invalid start.');
+        }
+        $start = $startAsTimecode->toSeconds();
+
 
         $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
-        if (null !== $duration && ($duration = (int) $duration) <= 0) {
-            throw new \InvalidArgumentException('Invalid duration');
+        $durationAsTimecode = false;
+        if (is_numeric($duration) && (float) $duration >= 0) {
+            $durationAsTimecode = TimeCode::fromSeconds($duration);
+        } elseif (is_string($duration)) {
+            $durationAsTimecode = TimeCode::fromString($duration);
+        }
+        if (null !== $duration ) {
+            if (false === $durationAsTimecode) {
+                throw new \InvalidArgumentException('Invalid duration for filter "clip"');
+            }
+            $duration = $durationAsTimecode->toSeconds();
         }
 
         if (($fps = (int) $this->optionsResolver->resolveOption($options['fps'] ?? 1, $resolverContext)) <= 0) {
@@ -74,13 +95,13 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
                 throw new \InvalidArgumentException('Invalid resize mode');
         }
 
-        $context->log(sprintf('  from=%s, duration=%s, fps=%s, width=%d, height=%d', $from, $duration, $fps, $width, $height));
+        $context->log(sprintf('  start=%s, duration=%s, fps=%s, width=%d, height=%d', $start, $duration, $fps, $width, $height));
 
         $commands = [
             '-i',
             $inputFile->getPath(),
             '-ss',
-            $from,
+            $start,
         ];
         if (null !== $duration) {
             $commands[] = '-t';

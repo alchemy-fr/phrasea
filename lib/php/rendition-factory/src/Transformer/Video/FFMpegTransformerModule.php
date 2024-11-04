@@ -14,7 +14,7 @@ use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
 
-final readonly class FFMpegTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
+final readonly class FFMpegTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
@@ -29,7 +29,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformerBas
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
 
         if (FamilyEnum::Video === $commonArgs->getOutputFormat()->getFamily()) {
             return $this->doVideo($options, $inputFile, $context, $commonArgs);
@@ -42,7 +42,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformerBas
         throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $commonArgs->getOutputFormat()->getFormat()));
     }
 
-    private function doVideo(array $options, InputFileInterface $inputFile, TransformationContextInterface $transformationContext, ModuleCommonArgsDTO $commonArgs): OutputFileInterface
+    private function doVideo(array $options, InputFileInterface $inputFile, TransformationContextInterface $transformationContext, ModuleCommonArgs $commonArgs): OutputFileInterface
     {
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
@@ -149,7 +149,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformerBas
     /**
      * todo: implement audio filters.
      */
-    private function doAudio(array $options, InputFileInterface $inputFile, TransformationContextInterface $context, ModuleCommonArgsDTO $commonArgs): OutputFileInterface
+    private function doAudio(array $options, InputFileInterface $inputFile, TransformationContextInterface $context, ModuleCommonArgs $commonArgs): OutputFileInterface
     {
         $resolverContext = [
             'metadata' => $context->getTemplatingContext(),

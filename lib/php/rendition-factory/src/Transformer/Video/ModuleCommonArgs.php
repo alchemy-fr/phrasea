@@ -8,7 +8,7 @@ use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
 use FFMpeg;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class ModuleCommonArgsDTO
+class ModuleCommonArgs
 {
     private FormatInterface $outputFormat;
     private string $extension;

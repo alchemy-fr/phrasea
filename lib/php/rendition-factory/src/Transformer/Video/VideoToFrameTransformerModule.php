@@ -11,7 +11,7 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Media\Video;
 
-final readonly class VideoToFrameTransformerModule extends AbstractVideoTransformerBase implements TransformerModuleInterface
+final readonly class VideoToFrameTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
@@ -26,7 +26,7 @@ final readonly class VideoToFrameTransformerModule extends AbstractVideoTransfor
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgsDTO($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Video $video */
