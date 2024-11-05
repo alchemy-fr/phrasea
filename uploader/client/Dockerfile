@@ -17,7 +17,7 @@ RUN pnpm build
 
 ############
 
-FROM nginx:1.17.6-alpine AS client-nginx
+FROM nginx:1.27.1-alpine3.20 AS client-nginx
 
 COPY --from=client-build /srv/workspace/uploader/client/dist /var/app
 COPY ./uploader/client/docker/nginx/conf.d /etc/nginx/conf.d

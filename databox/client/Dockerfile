@@ -17,7 +17,7 @@ RUN NODE_OPTIONS="--max-old-space-size=8192" && pnpm build
 
 ############
 
-FROM nginx:1.17.6-alpine AS client-nginx
+FROM nginx:1.27.1-alpine3.20 AS client-nginx
 
 COPY --from=client-build /srv/workspace/databox/client/dist /var/app
 COPY ./databox/client/docker/nginx/conf.d /etc/nginx/conf.d

@@ -86,6 +86,14 @@ services:
       - MATOMO_URL
       - SENTRY_DSN=${CLIENT_SENTRY_DSN}
       - SENTRY_ENVIRONMENT
+      - S3_ENDPOINT
+      - S3_PATH_PREFIX
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
+      - S3_REGION
+      - CONFIGURATOR_STORAGE_BUCKET_NAME
+      - CONFIGURATOR_STORAGE_USE_PATH_STYLE_ENDPOINT
+      - VERIFY_SSL
     volumes:
       - ./configs:/configs
     labels:
@@ -93,6 +101,7 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     extra_hosts:
       - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_api-php:
     profiles:
