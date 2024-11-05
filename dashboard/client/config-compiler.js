@@ -75,5 +75,6 @@
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
         env: e,
+        theme: require('node:fs').readFileSync('/stack-config.json', 'utf8'),
     };
 });

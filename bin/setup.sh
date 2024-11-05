@@ -22,6 +22,13 @@ create_db "${KEYCLOAK_DB_NAME}"
 create_db "${KEYCLOAK2_DB_NAME}"
 
 run_container_as configurator "bin/setup.sh" app
+## Create minio bucket
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  sleep 5 && \
+  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc mb --ignore-existing minio/$CONFIGURATOR_STORAGE_BUCKET_NAME \
+"
 
 # Setup Uploader
 ## Create rabbitmq vhost

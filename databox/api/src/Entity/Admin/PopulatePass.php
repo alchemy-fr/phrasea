@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Admin;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Util\Time;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

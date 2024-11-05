@@ -1,36 +1,41 @@
 services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
+    _defaults:
+        autowire: true
+        autoconfigure: true
 
-  alchemy.webhook_client:
-    class: GuzzleHttp\Client
+    alchemy.webhook_client:
+        class: GuzzleHttp\Client
 
-  Alchemy\WebhookBundle\Form\EventsChoiceType:
-    arguments:
-      $events: '%alchemy_webhook.events%'
+    Alchemy\WebhookBundle\Form\EventsChoiceType:
+        arguments:
+            $events: '%alchemy_webhook.events%'
 
-  Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
-    arguments:
-      $client: '@alchemy.webhook_client'
+    Alchemy\WebhookBundle\Consumer\WebhookTriggerHandler:
+        arguments:
+            $client: '@alchemy.webhook_client'
 
-  Alchemy\WebhookBundle\Consumer\SerializeObjectHandler: ~
+    Alchemy\WebhookBundle\Consumer\SerializeObjectHandler: ~
 
-  Alchemy\WebhookBundle\Consumer\WebhookHandler: ~
+    Alchemy\WebhookBundle\Consumer\WebhookHandler: ~
 
-  Alchemy\WebhookBundle\Doctrine\Listener\EntityListener: ~
+    Alchemy\WebhookBundle\Doctrine\Listener\EntityListener: ~
 
-  Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~
+    Alchemy\WebhookBundle\Doctrine\EntitySerializer: ~
 
-  Alchemy\WebhookBundle\Config\EntityRegistry:
-    arguments:
-      $config: '%alchemy_webhook.listener_config%'
+    Alchemy\WebhookBundle\Config\EntityRegistry:
+        arguments:
+            $config: '%alchemy_webhook.listener_config%'
 
-  Alchemy\WebhookBundle\Webhook\WebhookTrigger: ~
+    Alchemy\WebhookBundle\Webhook\WebhookTrigger: ~
 
-  Alchemy\WebhookBundle\Webhook\ObjectNormalizer: ~
+    Alchemy\WebhookBundle\Webhook\ObjectNormalizer: ~
 
-  alchemy_webhook.normalizer.context_builder:
-    class: Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilder
+    alchemy_webhook.normalizer.context_builder:
+        class: Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilder
 
-  Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface: '@alchemy_webhook.normalizer.context_builder'
+    Alchemy\WebhookBundle\Normalizer\NormalizerContextBuilderInterface: '@alchemy_webhook.normalizer.context_builder'
+
+    Alchemy\WebhookBundle\Controller\WebhookCrudController:
+        public: true
+    Alchemy\WebhookBundle\Controller\WebhookLogCrudController:
+        public: true

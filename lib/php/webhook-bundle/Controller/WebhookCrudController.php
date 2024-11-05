@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace Alchemy\WebhookBundle\Controller;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Field\EventsChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -26,7 +27,11 @@ class WebhookCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setSearchFields(['id', 'url', 'secret', 'events', 'options']);
+            ->setSearchFields(['id', 'url', 'events', 'options'])
+            ->showEntityActionsInlined()
+            ->setDefaultSort([
+                'createdAt' => 'DESC',
+            ]);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -39,8 +44,7 @@ class WebhookCrudController extends AbstractAdminCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new()
-            ->onlyOnDetail();
+        yield IdField::new();
         yield TextField::new('url', 'URL');
         yield BooleanField::new('active');
         yield EventsChoiceField::new('events')
@@ -51,7 +55,7 @@ class WebhookCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield Field::new('timeout')
             ->onlyOnForms();
-        yield TextField::new('options')
+        yield JsonField::new('options')
             ->onlyOnDetail();
         yield TextareaField::new('eventsLabel')
             ->onlyOnIndex();

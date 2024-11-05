@@ -4,6 +4,7 @@ services:
   a_client:
     volumes:
       - ./lib/js:/srv/workspace/lib/js:rw
+      - ./lib/bash:/srv/workspace/lib/bash:rw
       - ./package.json:/srv/workspace/package.json:ro
       - ./pnpm-workspace.yaml:/srv/workspace/pnpm-workspace.yaml:ro
       - ./turbo.json:/srv/workspace/turbo.json:ro
@@ -14,9 +15,10 @@ services:
       service: a_client
     image: ${REGISTRY_NAMESPACE}dashboard-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-nginx
     volumes:
       - ./dashboard/client:/srv/workspace/dashboard/client:rw
+      - ./dashboard/client/docker/start-server.sh:/start-server.sh:rw
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -163,7 +165,7 @@ services:
       - ELASTICSEARCH_INDEX_PREFIX
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
-      - S3_ENDPOINT=https://minio.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - S3_ENDPOINT
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - S3_USE_PATH_STYLE_ENDPOINT=${UPLOADER_STORAGE_USE_PATH_STYLE_ENDPOINT}
       - S3_PATH_PREFIX
@@ -204,6 +206,8 @@ services:
       - POSTGRES_PORT=5432
       - AUTH_DB_NAME
       - CONFIGURATOR_DB_NAME
+      - CONFIGURATOR_STORAGE_BUCKET_NAME
+      - CONFIGURATOR_STORAGE_USE_PATH_STYLE_ENDPOINT
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
       - NOTIFY_DB_NAME
@@ -245,6 +249,7 @@ services:
   configurator:
     volumes:
       - ./configurator:/srv/app
+      - ./lib/php:/srv/lib/php
 
   databox-indexer:
     extends:

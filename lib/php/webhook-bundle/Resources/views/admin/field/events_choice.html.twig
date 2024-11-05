@@ -1,0 +1,11 @@
+{% if field.value is null %}
+All events
+{% elseif field.value is empty %}
+No event
+{% else %}
+<ul>
+    {% for item in field.value %}
+        <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}

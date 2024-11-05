@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace Alchemy\WebhookBundle\Controller;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;

@@ -49,7 +49,7 @@ abstract class AbstractUuidEntity
         ];
     }
 
-    public function __unserialize($data)
+    public function __unserialize($data): void
     {
         $this->id = Uuid::fromString($data['id']);
     }

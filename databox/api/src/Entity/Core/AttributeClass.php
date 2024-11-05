@@ -16,7 +16,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeClassInput;
 use App\Api\Provider\AttributeClassCollectionProvider;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;

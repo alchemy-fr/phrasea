@@ -21,6 +21,7 @@ FROM nginx:1.17.6-alpine AS client-nginx
 
 COPY --from=client-build /srv/workspace/dashboard/client/dist /var/app
 COPY ./dashboard/client/docker/nginx/conf.d /etc/nginx/conf.d
+COPY ./dashboard/client/docker/start-server.sh /
 
 RUN apk add --no-cache libstdc++ \
     && apk add --virtual .build \
@@ -36,9 +37,11 @@ EXPOSE 80
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
+COPY --chown=node:node ./lib/bash/configurator /var/app//configurator
+
 COPY ./dashboard/client/config-compiler.js /var/app/
 COPY ./dashboard/client/git-log.html /var/app/
 
 WORKDIR /var/app
 
-CMD ["/bin/sh", "-c", "/var/docker/generate-env ./ && nginx -g 'daemon off;'"]
+CMD ["/start-server.sh"]

@@ -21,18 +21,19 @@ databox/indexer
 PHP_LIBS="
 lib/php/admin-bundle
 lib/php/api-test
+lib/php/auth-bundle
+lib/php/configurator-bundle
 lib/php/core-bundle
 lib/php/metadata-manipulator-bundle
 lib/php/notify-bundle
-lib/php/auth-bundle
+lib/php/rendition-factory
+lib/php/rendition-factory-bundle
 lib/php/report-bundle
 lib/php/report-sdk
 lib/php/test-bundle
 lib/php/webhook-bundle
 lib/php/workflow
 lib/php/workflow-bundle
-lib/php/rendition-factory
-lib/php/rendition-factory-bundle
 "
 
 JS_LIBS="

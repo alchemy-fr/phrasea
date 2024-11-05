@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 
 use App\Api\Provider\AssetFileVersionCollectionProvider;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;

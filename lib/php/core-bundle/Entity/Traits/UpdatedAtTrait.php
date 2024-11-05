@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Entity\Traits;
+namespace Alchemy\CoreBundle\Entity\Traits;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

@@ -45,6 +45,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/rendition-factory",
             "options": {
                 "symlink": true
@@ -131,6 +138,7 @@
         "alchemy/acl-bundle": "^0.2.1",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
+        "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",

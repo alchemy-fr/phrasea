@@ -10,7 +10,7 @@ use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Repository\Core\CollectionAssetRepository;
 use Doctrine\ORM\Mapping as ORM;
 

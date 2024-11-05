@@ -41,6 +41,7 @@ class AlchemyMessengerExtension extends Extension implements PrependExtensionInt
                     'mappings' => [
                         'AlchemyMessengerBundle' => [
                             'type' => 'attribute',
+                            'is_bundle' => true,
                             'prefix' => 'Alchemy\\MessengerBundle\\Entity',
                             'alias' => 'messenger',
                         ],

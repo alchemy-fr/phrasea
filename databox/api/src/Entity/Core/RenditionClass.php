@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Post;
 
 use ApiPlatform\Metadata\Put;
 use App\Api\Provider\RenditionClassCollectionProvider;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;

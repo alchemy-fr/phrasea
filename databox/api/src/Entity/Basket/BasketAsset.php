@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\Link;
 use App\Api\Provider\BasketAssetCollectionProvider;
 use App\Entity\Core\Asset;
 use App\Entity\Traits\AssetAnnotationsTrait;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\DBAL\Types\Types;

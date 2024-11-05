@@ -8,6 +8,7 @@ doctrine:
         charset: utf8
         url: '%env(resolve:DATABASE_URL)%'
     orm:
+        connection: default
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
         report_fields_where_declared: true

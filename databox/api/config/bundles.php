@@ -33,4 +33,5 @@ return [
     Sentry\SentryBundle\SentryBundle::class => ['all' => true],
     Arthem\ObjectReferenceBundle\ArthemObjectReferenceBundle::class => ['all' => true],
     Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
+    Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
 ];

@@ -18,7 +18,7 @@ use Symfony\Component\Yaml\Parser;
  */
 class AlchemyWebhookExtension extends Extension implements PrependExtensionInterface
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -56,14 +56,10 @@ class AlchemyWebhookExtension extends Extension implements PrependExtensionInter
         return $events;
     }
 
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $bundles = $container->getParameter('kernel.bundles');
 
-        if (isset($bundles['EasyAdminBundle'])) {
-            $data = (new Parser())->parse(file_get_contents(__DIR__.'/../Resources/config/easy_admin_entities.yaml'));
-            $container->prependExtensionConfig('easy_admin', $data['easy_admin']);
-        }
         if (isset($bundles['TwigBundle'])) {
             $container->prependExtensionConfig('twig', [
                 'paths' => [
