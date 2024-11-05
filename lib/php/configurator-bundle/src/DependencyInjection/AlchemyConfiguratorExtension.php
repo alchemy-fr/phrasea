@@ -59,6 +59,7 @@ class AlchemyConfiguratorExtension extends Extension implements PrependExtension
     {
         $container->prependExtensionConfig('doctrine', [
             'dbal' => [
+                'default_connection' => 'default',
                 'connections' => [
                     'configurator' => [
                         'url' => '%env(resolve:CONFIGURATOR_DATABASE_URL)%',
