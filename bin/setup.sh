@@ -121,6 +121,6 @@ PRESETS=""
 for p in $@; do
   PRESETS="${PRESETS} --preset $p"
 done
-docker compose run --rm configurator configure -vvv$PRESETS
+docker compose run --rm configurator bin/console configure -vvv$PRESETS
 
 echo "Done."

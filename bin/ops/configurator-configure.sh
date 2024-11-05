@@ -23,7 +23,7 @@ NS="${1}"
 RELEASE_NAME=phrasea
 CHART_VERSION="${2}"
 
-echo "Running configuration:configure..."
+echo "Running bin/console configure..."
 
 (
   mkdir -p /tmp/phrasea-helm-configure \
