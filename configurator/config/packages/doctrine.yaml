@@ -12,6 +12,7 @@ parameters:
 
 doctrine:
     dbal:
+        default_connection: configurator
         connections:
             auth:
                 <<: *doctrine_commons
