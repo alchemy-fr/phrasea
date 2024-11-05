@@ -4,7 +4,8 @@ FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
 WORKDIR /srv/app
 
-COPY --chown=app:app . .
+COPY --chown=app:app ./configurator .
+COPY --chown=app:app lib/php /srv/lib/php
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \

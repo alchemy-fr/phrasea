@@ -36,10 +36,11 @@ jobs:
 
   build_configurator:
     name: 'Build Configurator'
-    uses: ./.github/workflows/build_base.yaml
+    uses: ./.github/workflows/build.yaml
     with:
       image: configurator
       context: ./configurator
+      withLibs: true
     secrets: inherit
     needs:
       - build_php-fpm-base

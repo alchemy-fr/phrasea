@@ -1,4 +1,9 @@
 parameters:
+    'env(CONFIGURATOR_DB_NAME)': 'configurator'
+    'env(POSTGRES_USER)': 'user'
+    'env(POSTGRES_PASSWORD)': 'ChangeMe'
+    'env(POSTGRES_HOST)': 'db'
+    'env(POSTGRES_PORT)': '5432'
     'env(CONFIGURATOR_DATABASE_URL)': 'pgsql://%env(POSTGRES_USER)%:%env(POSTGRES_PASSWORD)%@%env(POSTGRES_HOST)%:%env(POSTGRES_PORT)%/%env(CONFIGURATOR_DB_NAME)%'
 
 services:

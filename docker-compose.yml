@@ -980,7 +980,8 @@ services:
   configurator:
     image: ${REGISTRY_NAMESPACE}configurator:${DOCKER_TAG}
     build:
-      context: ./configurator
+      context: ./
+      dockerfile: ./configurator/Dockerfile
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
