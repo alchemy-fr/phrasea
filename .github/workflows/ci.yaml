@@ -193,18 +193,6 @@ jobs:
     needs:
       - build_nodejs-base
 
-  get_git_log:
-    name: 'Get git log'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 30
-
-      - name: Get git log
-        run: bin/git-log.sh
-
   setup:
     name: 'Setup stack'
     runs-on: ubuntu-latest
