@@ -147,6 +147,7 @@ services:
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:
       - ./configs:/configs
 
@@ -162,8 +163,6 @@ services:
       - S3_SECRET_KEY
       - S3_REGION
       - S3_USE_PATH_STYLE_ENDPOINT
-    extra_hosts:
-      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-api-php:
     extends:
