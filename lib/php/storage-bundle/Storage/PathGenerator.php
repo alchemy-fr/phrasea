@@ -6,7 +6,7 @@ namespace Alchemy\StorageBundle\Storage;
 
 use Ramsey\Uuid\Uuid;
 
-readonly class PathGenerator
+class PathGenerator
 {
     public function generatePath(?string $extension, string $prefix = ''): string
     {
