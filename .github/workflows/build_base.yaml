@@ -25,12 +25,12 @@ jobs:
     if: ${{ github.repository_owner == 'alchemy-fr' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 30
 
       - name: Get git log
-        if: "${{ inputs.image == 'dashboard' }}"
+        #if: "${{ inputs.image == 'dashboard' }}"
         run: bin/git-log.sh
 
       - uses: docker/setup-qemu-action@v2
