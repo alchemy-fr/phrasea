@@ -6,6 +6,7 @@ framework:
                 options: '%alchemy_messenger.amqp_transport_options%'
 
         routing:
+            Alchemy\ConfiguratorBundle\Message\DeployConfig: p1
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

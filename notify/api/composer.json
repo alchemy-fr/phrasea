@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
@@ -39,6 +46,7 @@
         "ext-iconv": "*",
         "alchemy/admin-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
+        "alchemy/configurator-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^3",

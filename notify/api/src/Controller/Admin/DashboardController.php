@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use App\Entity\Contact;
 use App\Entity\TopicSubscriber;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -30,5 +31,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::linkToCrud('Contact', 'fas fa-folder-open', Contact::class);
         yield MenuItem::linkToCrud('TopicSubscriber', 'fas fa-folder-open', TopicSubscriber::class);
         yield MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($submenu1)->setPermission(JwtUser::ROLE_TECH);
+
+        yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
     }
 }
