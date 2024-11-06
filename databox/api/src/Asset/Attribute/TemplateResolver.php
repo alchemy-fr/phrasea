@@ -19,8 +19,10 @@ final readonly class TemplateResolver implements TemplateResolverInterface
 
     public function resolve(string $template, array $values): string
     {
-        $template = $this->twig->createTemplate($template);
+        if (str_contains($template, '{')) {
+            return $this->twig->createTemplate($template)->render($values);
+        }
 
-        return $this->twig->render($template, $values);
+        return $template;
     }
 }
