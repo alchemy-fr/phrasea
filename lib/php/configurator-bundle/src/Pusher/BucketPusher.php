@@ -9,6 +9,7 @@ final readonly class BucketPusher
     public function __construct(
         private S3Client $s3Client,
         private string $bucketName,
+        private string $pathPrefix = '',
     )
     {
     }
@@ -17,7 +18,7 @@ final readonly class BucketPusher
     {
         $this->s3Client->putObject([
             'Bucket' => $this->bucketName,
-            'Key' => $path,
+            'Key' => $this->pathPrefix.$path,
             'Body' => $data,
             'ACL' => 'public-read',
         ]);

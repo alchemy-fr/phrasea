@@ -18,3 +18,4 @@ services:
     Alchemy\ConfiguratorBundle\Command\PushConfigToBucketCommand: ~
     Alchemy\ConfiguratorBundle\Dumper\JsonDumper: ~
     Alchemy\ConfiguratorBundle\Pusher\BucketPusher: ~
+    Alchemy\ConfiguratorBundle\Deployer: ~

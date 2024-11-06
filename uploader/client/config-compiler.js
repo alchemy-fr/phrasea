@@ -39,7 +39,6 @@
     }
 
     return {
-        locales: config.available_locales,
         maxFileSize: config.uploader.max_upload_file_size,
         maxCommitSize: config.uploader.max_upload_commit_size,
         maxFileCount: config.uploader.max_upload_file_count,

@@ -53,6 +53,14 @@ jobs:
       context: ./infra/docker/nginx-fpm-base
     secrets: inherit
 
+  build_nginx-client-base:
+    name: 'Build nginx-client-base'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: nginx-client-base
+      context: ./infra/docker/nginx-client-base
+    secrets: inherit
+
   build_nodejs-base:
     name: 'Build nodejs-base'
     uses: ./.github/workflows/build_base.yaml

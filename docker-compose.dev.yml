@@ -17,8 +17,7 @@ services:
       target: client-build
     volumes:
       - ./dashboard/client:/srv/workspace/dashboard/client:rw
-      - ./dashboard/client/docker/start-server.sh:/start-server.sh:rw
-      - ./lib/bash/configurator:/var/app/configurator:rw
+      - ./lib/bash/configurator:/var/app/configurator:ro
     environment:
       - WDS_SOCKET_PORT=443
 

@@ -50,7 +50,6 @@
     }
 
     return {
-        locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_URL,

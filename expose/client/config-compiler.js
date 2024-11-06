@@ -25,7 +25,6 @@
     }
 
     return {
-        locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.EXPOSE_API_URL,
         keycloakUrl: env.KEYCLOAK_URL,

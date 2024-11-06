@@ -59,7 +59,18 @@
         return false;
     }
 
+    const stackConfig = JSON.parse(require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8'));
+    const customHTML = {};
+    customHTML['__MUI_THEME__'] = '';
+    if (stackConfig.theme) {
+        customHTML['__MUI_THEME__'] = `<script>
+            window.config = window.config || {};
+            window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOptions\s*=\s*/, '')}
+</script>`;
+    }
+
     return {
+        customHTML,
         locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DASHBOARD_CLIENT_URL,
@@ -75,6 +86,5 @@
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
         env: e,
-        theme: require('node:fs').readFileSync('/stack-config.json', 'utf8'),
     };
 });

@@ -9,12 +9,19 @@ RUN apk add --no-cache \
     && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
     && chmod +x /var/docker/generate-env \
     && mkdir -p /srv/workspace \
-    && chown -R node: /srv/workspace
+    && chown -R node: /srv/workspace \
+    && mkdir -p /docker/entrypoint.d \
+    && mkdir -p /etc/app \
+    && chown -R node: /etc/app
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 WORKDIR /srv/workspace
 
+COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint.d/* /docker/entrypoint.d/
+
 EXPOSE 3000
 
-CMD ["/bin/sh", "-c", "NODE_OPTIONS= /var/docker/generate-env ./ && pnpm dev"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["pnpm", "dev"]

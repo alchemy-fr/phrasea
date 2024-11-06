@@ -52,6 +52,7 @@ class AlchemyConfiguratorExtension extends Extension implements PrependExtension
         $container->getDefinition(BucketPusher::class)
             ->setArgument('$s3Client', new Reference(self::S3_CLIENT_SERVICE))
             ->setArgument('$bucketName', $storage['bucket_name'])
+            ->setArgument('$pathPrefix', $storage['path_prefix'])
         ;
     }
 
