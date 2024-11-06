@@ -49,7 +49,18 @@
         return false;
     }
 
+    const stackConfig = JSON.parse(require('node:fs').readFileSync('/etc/app/stack-config.json', 'utf8'));
+    const customHTML = {};
+    customHTML['__MUI_THEME__'] = '';
+    if (stackConfig.theme) {
+        customHTML['__MUI_THEME__'] = `<script>
+window.config = window.config || {};
+window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOptions\s*=\s*/, '')}
+</script>`;
+    }
+
     return {
+        customHTML,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_URL,

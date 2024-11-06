@@ -64,8 +64,8 @@
     customHTML['__MUI_THEME__'] = '';
     if (stackConfig.theme) {
         customHTML['__MUI_THEME__'] = `<script>
-            window.config = window.config || {};
-            window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOptions\s*=\s*/, '')}
+window.config = window.config || {};
+window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOptions\s*=\s*/, '')}
 </script>`;
     }
 
