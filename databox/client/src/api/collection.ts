@@ -14,7 +14,6 @@ export type CollectionOptions = {
     query?: string;
     parent?: string;
     workspaces?: string[];
-    groupByWorkspace?: boolean;
 };
 
 export async function getCollections(
