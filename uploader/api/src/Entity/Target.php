@@ -56,6 +56,9 @@ class Target extends AbstractUuidEntity implements \Stringable
     #[Groups(['target:read'])]
     private bool $enabled = true;
 
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $hidden = false;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['target:index'])]
     private ?string $description = null;
@@ -215,5 +218,15 @@ class Target extends AbstractUuidEntity implements \Stringable
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    public function setHidden(bool $hidden): void
+    {
+        $this->hidden = $hidden;
     }
 }
