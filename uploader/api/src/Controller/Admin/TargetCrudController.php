@@ -46,9 +46,9 @@ class TargetCrudController extends AbstractAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield TextField::new('slug');
-        yield TextField::new('name');  
+        yield TextField::new('name');
         yield TextareaField::new('description')
-            ->hideOnIndex();   
+            ->hideOnIndex();
         yield CodeField::new('pullModeUrl', 'Pull mode URL')
             ->onlyOnIndex();
         yield TextField::new('targetUrl')
@@ -56,7 +56,7 @@ class TargetCrudController extends AbstractAdminCrudController
         yield TextField::new('targetTokenType')
             ->setHelp('Use "OAuth" for Phraseanet')
             ->setFormTypeOptions(['attr' => ['placeholder' => 'Defaults to "Bearer"']])
-            ->onlyOnForms();   
+            ->onlyOnForms();
         yield TextField::new('targetAccessToken');
         yield TextField::new('defaultDestination')
             ->setHelp('i.e: "42" (for Phraseanet collection), "cdc3679f-3f37-4260-8de7-b649ecc8c1cc" (for Databox collection)')
@@ -64,6 +64,8 @@ class TargetCrudController extends AbstractAdminCrudController
         yield GroupChoiceField::new('allowedGroups')
             ->hideOnIndex();
         yield BooleanField::new('enabled');
+        yield BooleanField::new('hidden')
+            ->setHelp('Hide this target from the list of available targets');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
 

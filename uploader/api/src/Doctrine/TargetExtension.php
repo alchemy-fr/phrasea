@@ -35,6 +35,8 @@ final class TargetExtension implements QueryCollectionExtensionInterface, QueryI
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $queryBuilder
-            ->andWhere(sprintf('%s.enabled = true', $rootAlias));
+            ->andWhere(sprintf('%s.enabled = true', $rootAlias))
+            ->andWhere(sprintf('%s.hidden = false', $rootAlias))
+        ;
     }
 }
