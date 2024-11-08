@@ -27,6 +27,7 @@ logs
 *.log
 pnpm-debug.log*
 lerna-debug.log*
+git-log.html
 
 node_modules
 dist
