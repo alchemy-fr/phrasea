@@ -59,7 +59,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -117,7 +117,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -174,7 +174,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -233,7 +233,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -289,7 +289,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -342,7 +342,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -465,7 +465,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -527,7 +527,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -581,7 +581,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -636,7 +636,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -688,7 +688,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -745,21 +745,21 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
-                "reference": "a299ab92a1ff48e027b2eb246cec63395d4ef66d"
+                "reference": "332c1c40bf8c25d48c1b46328c0b66143501477b"
             },
             "require": {
                 "ext-json": "*",
                 "php": "^8.3",
                 "ramsey/uuid": "^4.2",
-                "symfony/console": "^5.4 || ^6",
-                "symfony/expression-language": "^5.2 || ^6.2",
-                "symfony/process": "^6.3",
-                "symfony/property-access": "^5.2 || ^6.2",
-                "symfony/yaml": "^6.2"
+                "symfony/console": "^5.4 || ^6 || ^7",
+                "symfony/expression-language": "^5.2 || ^6.2 || ^7",
+                "symfony/process": "^6.3 || ^7",
+                "symfony/property-access": "^5.2 || ^6.2 || ^7",
+                "symfony/yaml": "^6.2 || ^7"
             },
             "require-dev": {
                 "colinodell/psr-testlogger": "^1.2",
@@ -767,6 +767,7 @@
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "phpunit/phpunit": "^9.5",
                 "rector/rector": "^1.0.4",
+                "symfony/http-kernel": "^6 || ^7",
                 "symfony/messenger": "^6.4",
                 "symfony/var-dumper": "^5.4"
             },
@@ -809,7 +810,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -14443,16 +14444,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.14.0",
+            "version": "v3.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "126b2c97818dbff0cdf3fbfc881aedb3d40aae72"
+                "reference": "0b6f9d8370bb3b7f1ce5313ed8feb0fafd6e399a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/126b2c97818dbff0cdf3fbfc881aedb3d40aae72",
-                "reference": "126b2c97818dbff0cdf3fbfc881aedb3d40aae72",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/0b6f9d8370bb3b7f1ce5313ed8feb0fafd6e399a",
+                "reference": "0b6f9d8370bb3b7f1ce5313ed8feb0fafd6e399a",
                 "shasum": ""
             },
             "require": {
@@ -14506,7 +14507,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.14.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.14.2"
             },
             "funding": [
                 {
@@ -14518,7 +14519,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T17:55:12+00:00"
+            "time": "2024-11-07T12:36:22+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -14638,7 +14639,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-689-delete-rendition",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -17501,5 +17502,5 @@
         "ext-sodium": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
