@@ -6,5 +6,7 @@ set -e
 
 load-env
 
+bin/git-log.sh
+
 docker compose -f docker-compose.init.yml build $@
 docker compose build $@

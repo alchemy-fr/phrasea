@@ -37,6 +37,7 @@ ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 COPY ./dashboard/client/config-compiler.js /var/app/
+COPY ./dashboard/client/git-log.html /var/app/
 
 WORKDIR /var/app
 
