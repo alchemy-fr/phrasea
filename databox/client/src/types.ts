@@ -246,7 +246,7 @@ export interface Collection extends IPermissions {
     public: boolean;
     shared: boolean;
     privacy: number;
-    inheritedPrivacy: number;
+    inheritedPrivacy?: number;
     createdAt: string;
     updatedAt: string;
     owner?: User;
