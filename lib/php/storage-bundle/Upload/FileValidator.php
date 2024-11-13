@@ -55,7 +55,7 @@ final class FileValidator
             return;
         }
 
-        $extension = FileUtil::getExtensionFromPath($path);
+        $extension = strtolower(FileUtil::getExtensionFromPath($path));
         if (null === $type) {
             $type = FileUtil::getTypeFromExtension($extension);
         }
