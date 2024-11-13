@@ -52,8 +52,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield TextField::new('slug');
         yield TextField::new('ownerId')
             ->onlyOndetail();
-        yield $this->userChoiceField->create('ownerId', 'Owner')
-            ->onlyOnForms();
+        yield $this->userChoiceField->create('ownerId', 'Owner');
         yield ArrayField::new('enabledLocales');
         yield ArrayField::new('localeFallbacks');
         yield BooleanField::new('public')

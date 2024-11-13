@@ -6,7 +6,6 @@ namespace App\Elasticsearch;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use Elastica\Aggregation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -44,57 +43,6 @@ class CollectionSearch extends AbstractSearch
         $data = $this->finder->findPaginated($query);
         $data->setMaxPerPage((int) $limit);
         $data->setCurrentPage((int) ($options['page'] ?? 1));
-
-        return $data;
-    }
-
-    public function searchAggregationsByWorkspace(
-        ?string $userId,
-        array $groupIds,
-        array $options = [],
-    ): array {
-        $query = new Query();
-        $query->setSize(0);
-
-        $boolQuery = new Query\BoolQuery();
-
-        $this->applyFilters($boolQuery, $userId, $groupIds, $options);
-
-        $aggregation = new Aggregation\Filter('ws');
-        $query->addAggregation($aggregation);
-        $aggregation->setFilter($boolQuery);
-
-        $termAgg = new Aggregation\Terms('workspaceId');
-        $termAgg->setField('workspaceId');
-        $termAgg->setSize(300);
-
-        $aggregation->addAggregation($termAgg);
-
-        $maxLimit = 50;
-        $limit = (int) ($options['limit'] ?? $maxLimit);
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
-        $top = new Aggregation\TopHits('top');
-        $top->setSize($limit);
-        $top->setSort([
-            'sortName' => ['order' => 'asc'],
-        ]);
-        $termAgg->addAggregation($top);
-
-        $result = $this->finder->findPaginated($query);
-        $aggregations = $result->getAdapter()->getAggregations();
-
-        $data = [];
-        foreach ($aggregations['ws']['workspaceId']['buckets'] as $bucket) {
-            foreach ($bucket['top']['hits']['hits'] as $hit) {
-                $object = $this->em->find(Collection::class, $hit['_id']);
-
-                if ($object instanceof Collection) {
-                    $data[] = $object;
-                }
-            }
-        }
 
         return $data;
     }
