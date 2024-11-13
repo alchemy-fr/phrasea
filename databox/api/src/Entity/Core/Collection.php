@@ -259,7 +259,7 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
 
     public function getInheritedPrivacy(): ?int
     {
-        return $this->parent?->getBestPrivacyInParentHierarchy();
+        return $this->getBestPrivacyInParentHierarchy();
     }
 
     public function getBestPrivacyInParentHierarchy(): int
