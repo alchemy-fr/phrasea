@@ -34,11 +34,22 @@ export default function FileCard({file, onRemove}: Props) {
                 container
                 spacing={2}
             >
-                {file.type.startsWith('image/') && (
                     <Grid item>
+                        {[
+                            'image/jpeg',
+                            'image/png',
+                            'image/bmp',
+                            'image/gif',
+                        ].includes(file.type) ? (
                         <FileBlobThumb file={file} size={size} />
+                ) : <div
+                            style={{
+                                width: 0,
+                                height: size,
+                                objectFit: 'contain',
+                            }}
+                        />}
                     </Grid>
-                )}
                 <Grid item xs={12} sm>
                     <Typography
                         sx={{
@@ -48,6 +59,7 @@ export default function FileCard({file, onRemove}: Props) {
                             WebkitLineClamp: '2',
                             WebkitBoxOrient: 'vertical',
                             lineHeight: 1.2,
+                            wordBreak: 'break-all',
                         }}
                         gutterBottom
                         variant="subtitle1"
