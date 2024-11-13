@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import {
+    Alert,
     Checkbox,
     FormControl,
     FormControlLabel,
@@ -31,6 +32,10 @@ function getValue(value: string, workspace: boolean, auth: boolean): number {
         case 'public':
             return workspace ? 2 : auth ? 4 : 5;
     }
+}
+
+function getAllowedValue(value: number, inheritedPrivacy?: number): number {
+    return Math.max(inheritedPrivacy ?? 0, value);
 }
 
 function getKeyValue(value: string): number {
@@ -83,7 +88,6 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
         defaultValue: 0 as any,
     });
 
-    const firstValue = React.useMemo(() => value, []);
     const [p, w, a] = getFields(value);
     const [privacy, setPrivacy] = useState<string>(p);
     const [workspaceOnly, setWorkspaceOnly] = useState(w);
@@ -91,59 +95,51 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
 
     const ip = inheritedPrivacy ?? 0;
     const inheritedKeyPrivacy = getKeyValue(getFields(ip)[0]);
-    const resolvedPrivacy =
-        inheritedKeyPrivacy > 0 && getKeyValue(privacy) <= inheritedKeyPrivacy
-            ? getFields(inheritedKeyPrivacy)[0]
-            : privacy;
-    const workspaceOnlyLocked = getValue(resolvedPrivacy, false, true) === ip;
-    const resolvedWorkspaceOnly = workspaceOnlyLocked ? false : workspaceOnly;
-    const authLocked =
-        getValue(resolvedPrivacy, resolvedWorkspaceOnly, false) === ip;
-    const resolveAuth = authLocked ? false : auth;
 
     React.useEffect(() => {
-        const [p, w, a] = getFields(value);
+        const [p, w, a] = getFields(getAllowedValue(value, inheritedPrivacy));
         setPrivacy(p);
-        setWorkspaceOnly(
-            w ||
-                (firstValue === value &&
-                    getKeyValue(privacy) < inheritedKeyPrivacy &&
-                    getValue(resolvedPrivacy, true, resolveAuth) === ip)
-        );
-        setAuth(
-            a ||
-                (firstValue === value &&
-                    getValue(resolvedPrivacy, resolvedWorkspaceOnly, true) ===
-                        ip)
-        );
+        setWorkspaceOnly(w);
+        setAuth(a);
     }, [value]);
 
     const handlePChange = (e: SelectChangeEvent): void => {
         const v = e.target.value;
         setPrivacy(v);
-        onChange(getValue(v, resolvedWorkspaceOnly, resolveAuth));
+        onChange(getAllowedValue(getValue(v, workspaceOnly, auth), inheritedPrivacy));
     };
     const handleWSOnlyChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
         setWorkspaceOnly(e.target.checked);
-        onChange(getValue(resolvedPrivacy, e.target.checked, resolveAuth));
+        onChange(getAllowedValue(getValue(privacy, e.target.checked, auth), inheritedPrivacy));
     };
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setAuth(e.target.checked);
         onChange(
-            getValue(resolvedPrivacy, resolvedWorkspaceOnly, e.target.checked)
+            getAllowedValue(getValue(privacy, workspaceOnly, e.target.checked), inheritedPrivacy)
         );
     };
+
+    const workspaceOnlyLocked = !!inheritedPrivacy && getValue(privacy, true, auth) < inheritedPrivacy;
+    const authLocked = !!inheritedPrivacy && getValue(privacy, workspaceOnly, false) < inheritedPrivacy;
 
     const label = t('form.privacy.label', 'Privacy');
 
     return (
+        <>
+            {!!inheritedPrivacy ? <>
+                <Alert severity={'warning'}>
+                    {t('form.privacy.inherited', 'This collection cannot be more restricted than its parent collection.')}
+                </Alert>
+            </> : null}
         <FormControl>
-            <InputLabel>{label}</InputLabel>
+            <InputLabel>
+                {label}
+            </InputLabel>
             <Select<string>
                 label={label}
-                value={resolvedPrivacy}
+                value={privacy}
                 onChange={handlePChange}
             >
                 {Object.keys(choices).map(k => {
@@ -164,12 +160,13 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                     );
                 })}
             </Select>
-            {['private', 'public'].includes(resolvedPrivacy) && (
+
+            {['private', 'public'].includes(privacy) && (
                 <FormControlLabel
                     disabled={workspaceOnlyLocked}
                     control={
                         <Checkbox
-                            checked={resolvedWorkspaceOnly}
+                            checked={workspaceOnly}
                             onChange={handleWSOnlyChange}
                         />
                     }
@@ -180,12 +177,12 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                     labelPlacement="end"
                 />
             )}
-            {resolvedPrivacy === 'public' && (
+            {privacy === 'public' && (
                 <FormControlLabel
-                    disabled={authLocked || resolvedWorkspaceOnly}
+                    disabled={authLocked || workspaceOnly}
                     control={
                         <Checkbox
-                            checked={resolveAuth || resolvedWorkspaceOnly}
+                            checked={auth || workspaceOnly}
                             onChange={handleAuthChange}
                         />
                     }
@@ -197,5 +194,6 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
                 />
             )}
         </FormControl>
+        </>
     );
 }

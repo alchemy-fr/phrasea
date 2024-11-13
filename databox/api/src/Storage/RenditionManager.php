@@ -173,12 +173,16 @@ final class RenditionManager
             ->select('r')
             ->from(AssetRendition::class, 'r')
             ->innerJoin('r.definition', 'd')
+            ->innerJoin('d.class', 'c')
             ->andWhere('r.asset = :asset')
+            ->andWhere('c.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
             ->setParameters([
                 'asset' => $assetId,
                 'as' => true,
             ])
+            ->addOrderBy('d.priority', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }
