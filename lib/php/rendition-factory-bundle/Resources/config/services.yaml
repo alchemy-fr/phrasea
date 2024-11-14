@@ -4,6 +4,7 @@ services:
         autoconfigure: true
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
+    Alchemy\RenditionFactory\Command\ConfigCommand: ~
 
     Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
@@ -78,6 +79,18 @@ services:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
 
     Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedWebpFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\WavFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AacFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\Mp3Format:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
 
