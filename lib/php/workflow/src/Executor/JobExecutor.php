@@ -177,11 +177,11 @@ final class JobExecutor
         }
     }
 
-    private function persistJobState(JobState $jobState): void
+    private function persistJobState(JobState $jobState, bool $releaseLock = true): void
     {
         $this->stateRepository->persistJobState($jobState);
 
-        if ($this->stateRepository instanceof LockAwareStateRepositoryInterface) {
+        if ($releaseLock && $this->stateRepository instanceof LockAwareStateRepositoryInterface) {
             $this->stateRepository->releaseJobLock($jobState->getWorkflowId(), $jobState->getId());
         }
 
@@ -241,7 +241,7 @@ final class JobExecutor
 
                 if ($runContext->isRetainJob()) {
                     $this->extractOutputs($job, $context);
-                    $this->stateRepository->persistJobState($jobState);
+                    $this->persistJobState($jobState, releaseLock: false);
 
                     return;
                 }
@@ -252,7 +252,7 @@ final class JobExecutor
 
         $jobState->setEndedAt(new MicroDateTime());
         $jobState->setStatus($endStatus);
-        $this->stateRepository->persistJobState($jobState);
+        $this->persistJobState($jobState, releaseLock: false);
     }
 
     private function getJobCallable(Step $step, JobExecutionContext $context, RunContext $runContext): callable
