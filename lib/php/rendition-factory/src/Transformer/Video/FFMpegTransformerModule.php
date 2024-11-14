@@ -13,12 +13,285 @@ use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Config\Definition\Processor;
 
 final readonly class FFMpegTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
         return 'ffmpeg';
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
+        $builder
+                ->scalarNode('format')
+                    ->info('output format')
+                ->end()
+                ->scalarNode('video_codec')
+                    ->info('Change the default video codec used by the output format')
+                ->end()
+                ->scalarNode('audio_codec')
+                    ->info('Change the default audio codec used by the output format')
+                ->end()
+                ->scalarNode('video_kilobitrate')
+                    ->info('Change the default video_kilobitrate used by the output format')
+                ->end()
+                ->scalarNode('audio_kilobitrate')
+                    ->info('Change the default audio_kilobitrate used by the output format')
+                ->end()
+                ->scalarNode('passes')
+                    ->defaultValue(2)
+                    ->info('Change the number of ffmpeg passes')
+                ->end()
+                ->arrayNode('filters')
+                    ->info('Filters to apply to the video')
+                    ->arrayPrototype()
+                        ->info('see list of available filters below')
+                        ->validate()->always()->then(function ($x) {
+                            $this->validateFilter($x);
+                        })->end()
+                        ->children()
+                            ->scalarNode('name')
+                                ->isRequired()
+                                ->info('Name of the filter')
+                                ->validate()
+                                    ->ifNotInArray(['pre_clip', 'remove_audio', 'resize', 'rotate', 'pad', 'crop', 'clip', 'synchronize', 'watermark', 'framerate'])
+                                    ->thenInvalid('Invalid filter')
+                                ->end()
+                            ->end()
+                            ->scalarNode('enabled')
+                                ->defaultTrue()
+                                ->info('Whether to enable the filter')
+                            ->end()
+                        ->end()
+                        // false: (undocumented) ignore extra keys on general validation, but do NOT suppress (so the validate..then() can check them)
+                        ->ignoreExtraKeys(false)
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
+        // @formatter:on
+    }
+
+    private function validateFilter(array $filter): void
+    {
+        var_dump($filter);
+        $name = $filter['name'];
+        unset($filter['enabled']);
+        if ($conf = $this->getFiltersConfigurations()[$name] ?? null) {
+            $node = $conf->buildTree();
+            $processor = new Processor();
+            $processor->process($node, [$name => $filter]);
+        } else {
+            throw new InvalidConfigurationException(sprintf('Unknown filter: %s', $name));
+        }
+    }
+
+    private function getFiltersConfigurations()
+    {
+        static $configurations = [
+            // @formatter:off
+            'pre_clip' => (new TreeBuilder('pre_clip'))
+                ->getRootNode()
+                    ->info('Clip the video before applying other filters')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('start')
+                            ->defaultValue(0)
+                            ->info('Offset of frame in seconds or timecode')
+                            ->example('2.5 ; "00:00:02.500" ; "{{ metadata.start }}"')
+                        ->end()
+                        ->scalarNode('duration')
+                            ->defaultValue(null)
+                            ->info('Duration in seconds or timecode')
+                            ->example('30 ; "00:00:30" ; "{{ input.duration/2 }}"')
+                        ->end()
+                    ->end()
+                ->end(),
+            'clip' => (new TreeBuilder('clip'))
+                ->getRootNode()
+                    ->info('Clip the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('start')
+                            ->defaultValue(0)
+                            ->info('Offset of frame in seconds or timecode')
+                            ->example('2.5 ; "00:00:02.500" ; "{{ metadata.start }}"')
+                        ->end()
+                            ->scalarNode('duration')
+                            ->defaultValue(null)
+                            ->info('Duration in seconds or timecode')
+                            ->example('30 ; "00:00:30" ; "{{ input.duration/2 }}"')
+                        ->end()
+                    ->end()
+                ->end(),
+            'remove_audio' => (new TreeBuilder('remove_audio'))
+                ->getRootNode()
+                    ->info('Remove the audio from the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                    ->end()
+                ->end(),
+            'resize' => (new TreeBuilder('resize'))
+                ->getRootNode()
+                    ->info('Resize the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('width')
+                            ->isRequired()
+                            ->info('Width of the video')
+                        ->end()
+                        ->scalarNode('height')
+                            ->isRequired()
+                            ->info('Height of the video')
+                        ->end()
+                        ->scalarNode('mode')
+                            ->defaultValue(FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET)
+                            ->info('Resize mode')
+                            ->example('inset')
+                        ->end()
+                    ->end()
+                ->end(),
+            'rotate' => (new TreeBuilder('rotate'))
+                ->getRootNode()
+                    ->info('Rotate the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('angle')
+                            ->isRequired()
+                            ->info('Angle of rotation [0 | 90 | 180 | 270]')
+                            ->example('90')
+                        ->end()
+                    ->end()
+                ->end(),
+            'pad' => (new TreeBuilder('pad'))
+                ->getRootNode()
+                    ->info('Pad the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('width')
+                            ->isRequired()
+                            ->info('Width of the video')
+                        ->end()
+                        ->scalarNode('height')
+                            ->isRequired()
+                            ->info('Height of the video')
+                        ->end()
+                    ->end()
+                ->end(),
+            'crop' => (new TreeBuilder('crop'))
+                ->getRootNode()
+                    ->info('Crop the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('x')
+                            ->isRequired()
+                            ->info('X coordinate')
+                        ->end()
+                        ->scalarNode('y')
+                            ->isRequired()
+                            ->info('Y coordinate')
+                        ->end()
+                        ->scalarNode('width')
+                            ->isRequired()
+                            ->info('Width of the video')
+                        ->end()
+                        ->scalarNode('height')
+                            ->isRequired()
+                            ->info('Height of the video')
+                        ->end()
+                    ->end()
+                ->end(),
+            'watermark' => (new TreeBuilder('watermark'))
+                ->getRootNode()
+                    ->info('Apply a watermark on the video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('position')
+                            ->isRequired()
+                            ->info('"relative" or "absolute" position')
+                        ->end()
+                        ->scalarNode('path')
+                            ->isRequired()
+                            ->info('Path to the watermark image')
+                        ->end()
+                        ->scalarNode('top')
+                            ->info('top coordinate (only if position is "relative", set top OR bottom)')
+                        ->end()
+                        ->scalarNode('bottom')
+                            ->info('bottom coordinate (only if position is "relative", set top OR bottom)')
+                        ->end()
+                        ->scalarNode('left')
+                            ->info('left coordinate (only if position is "relative", set left OR right)')
+                        ->end()
+                        ->scalarNode('right')
+                            ->info('right coordinate (only if position is "relative", set left OR right)')
+                        ->end()
+                        ->scalarNode('x')
+                            ->info('X coordinate (only if position is "absolute")')
+                        ->end()
+                        ->scalarNode('y')
+                            ->info('Y coordinate (only if position is "absolute")')
+                        ->end()
+                    ->end()
+                ->end(),
+            'framerate' => (new TreeBuilder('framerate'))
+                ->getRootNode()
+                    ->info('Change the framerate')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                        ->scalarNode('framerate')
+                            ->isRequired()
+                            ->info('framerate')
+                        ->end()
+                        ->scalarNode('gop')
+                            ->info('gop')
+                        ->end()
+                    ->end()
+                ->end(),
+            'synchronize' => (new TreeBuilder('synchronize'))
+                ->getRootNode()
+                    ->info('re-synchronize audio and video')
+                    ->children()
+                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('enabled')->defaultTrue()->end()
+                    ->end()
+                ->end(),
+
+            // @formatter:on
+        ];
+
+        return $configurations;
+    }
+
+    private function getFiltersDocumentation()
+    {
+        /** @var TreeBuilder $treeBuilder */
+        foreach ($this->getFiltersConfigurations() as $name => $treeBuilder) {
+            $node = $treeBuilder->buildTree();
+            $dumper = new YamlReferenceDumper();
+            $t = $dumper->dumpNode($node);
+            //            $t = preg_replace("#root:(\n( {4})?|\s+\[])#", "-\n", (string)$t);
+            //            $t = preg_replace("#\n {4}#", "\n", $t);
+            //            $t = preg_replace("#\n\n#", "\n", $t);
+            //            $t = trim(preg_replace("#^\n+#", '', $t));
+            var_dump($t);
+        }
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
@@ -36,7 +309,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         }
 
         if (FamilyEnum::Audio === $commonArgs->getOutputFormat()->getFamily()) {
-            return $this->doAudio($options, $inputFile, $context, $commonArgs);
+            return $this->doVideo($options, $inputFile, $context, $commonArgs);
         }
 
         throw new \InvalidArgumentException(sprintf('Invalid format %s, only video or audio format supported', $commonArgs->getOutputFormat()->getFormat()));
@@ -48,7 +321,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         $format = $outputFormat->getFormat();
 
         if (!method_exists($outputFormat, 'getFFMpegFormat')) {
-            throw new \InvalidArgumentException('format %s does not declare FFMpeg format', $format);
+            throw new \InvalidArgumentException(sprintf('format %s does not declare FFMpeg format', $format));
         }
 
         /** @var FFMpegFormatInterface $FFMpegFormat */
@@ -126,7 +399,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
             }
 
             /* @uses self::resize(), self::rotate(), self::pad(), self::crop(), self::clip(), self::synchronize()
-             *  @uses self::watermark(), self::framerate(), self::remove_audio()
+             * @uses self::watermark(), self::framerate(), self::remove_audio()
              */
             $this->{$filter['name']}($clip, $filter, $resolverContext, $transformationContext, $isProjection);
         }
@@ -175,36 +448,28 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
     private function preClip(Video $video, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): Clip
     {
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
-        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
+        $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
 
-        $startAsTimecode = false;
-        $durationAsTimecode = null;
-
-        if (is_numeric($start) && (float) $start >= 0) {
-            $startAsTimecode = TimeCode::fromSeconds($start);
-        } elseif (is_string($start)) {
-            $startAsTimecode = TimeCode::fromString($start);
+        if (null === $startAsTimecode) {
+            throw new \InvalidArgumentException('Invalid start for filter "pre_clip"');
         }
-        if (false === $startAsTimecode) {
-            throw new \InvalidArgumentException('Invalid start for filter "clip"');
-        }
-        if ($startAsTimecode->toSeconds() > 0) {
+        $start = FFMpegHelper::timecodeToseconds($startAsTimecode);
+        if ($start > 0.0) {
             $isProjection = false;
         }
 
+        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
         if (null !== $duration) {
-            if (is_numeric($duration) && (float) $duration > 0) {
-                $durationAsTimecode = TimeCode::fromSeconds($duration);
-            } elseif (is_string($duration)) {
-                $durationAsTimecode = TimeCode::fromString($duration);
-            }
-            if (false === $durationAsTimecode) {
+            $durationAsTimecode = FFMpegHelper::optionAsTimecode($duration);
+            if (null === $durationAsTimecode) {
                 throw new \InvalidArgumentException('Invalid duration for filter "pre_clip"');
             }
             $isProjection = false;
+            $transformationContext->log(sprintf("  Applying 'pre_clip' filter: start=%s (%.02f), duration=%s (%.02f)", $startAsTimecode, $start, $durationAsTimecode, $duration));
+        } else {
+            $durationAsTimecode = null;
+            $transformationContext->log(sprintf("  Applying 'pre_clip' filter: start=%s (%.02f), duration=null", $startAsTimecode, $start));
         }
-
-        $transformationContext->log(sprintf("  Applying 'pre_clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
 
         return $video->clip($startAsTimecode, $durationAsTimecode);
     }
@@ -288,36 +553,29 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
     private function clip(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
     {
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
-        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
+        $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
 
-        $startAsTimecode = false;
-        $durationAsTimecode = null;
-
-        if (is_numeric($start) && (float) $start >= 0) {
-            $startAsTimecode = TimeCode::fromSeconds($start);
-        } elseif (is_string($start)) {
-            $startAsTimecode = TimeCode::fromString($start);
-        }
-        if (false === $startAsTimecode) {
+        if (null === $startAsTimecode) {
             throw new \InvalidArgumentException('Invalid start for filter "clip"');
         }
-        if ($startAsTimecode->toSeconds() > 0) {
+        $start = FFMpegHelper::timecodeToseconds($startAsTimecode);
+        if ($start > 0.0) {
             $isProjection = false;
         }
 
+        $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
         if (null !== $duration) {
-            if (is_numeric($duration) && (float) $duration > 0) {
-                $durationAsTimecode = TimeCode::fromSeconds($duration);
-            } elseif (is_string($duration)) {
-                $durationAsTimecode = TimeCode::fromString($duration);
-            }
-            if (false === $durationAsTimecode) {
-                throw new \InvalidArgumentException('Invalid duration for filter "pre_clip"');
+            $durationAsTimecode = FFMpegHelper::optionAsTimecode($duration);
+            if (null === $durationAsTimecode) {
+                throw new \InvalidArgumentException('Invalid duration for filter "clip"');
             }
             $isProjection = false;
+            $transformationContext->log(sprintf("  Applying 'clip' filter: start=%s (%.02f), duration=%s (%.02f)", $startAsTimecode, $start, $durationAsTimecode, $duration));
+        } else {
+            $durationAsTimecode = null;
+            $transformationContext->log(sprintf("  Applying 'clip' filter: start=%s (%.02f), duration=null", $startAsTimecode, $start));
         }
 
-        $transformationContext->log(sprintf("  Applying 'clip' filter: start=%s, duration=%s", $startAsTimecode, $durationAsTimecode));
         $clip->filters()->clip($startAsTimecode, $durationAsTimecode);
     }
 
@@ -330,6 +588,14 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
     private function watermark(Clip $clip, array $options, array $resolverContext, TransformationContextInterface $transformationContext, bool &$isProjection): void
     {
         $path = $this->optionsResolver->resolveOption($options['path'] ?? null, $resolverContext);
+        $path = $transformationContext->getRemoteFile($path);
+        $wmImage = $this->imagine->open($path);
+        $wmWidth = $wmImage->getSize()->getWidth();
+        $wmHeight = $wmImage->getSize()->getHeight();
+        unset($wmImage);
+
+        $resolverContext['watermark'] = ['width' => $wmWidth, 'height' => $wmHeight];
+
         if (!file_exists($path)) {
             throw new \InvalidArgumentException('Watermark file for filter "watermark" not found');
         }
@@ -348,6 +614,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         }
 
         array_walk($coord, fn (&$v) => $v = (int) $this->optionsResolver->resolveOption($v, $resolverContext));
+        $coord['position'] = $position;
 
         $transformationContext->log(sprintf("  Applying 'watermark' filter: path=%s, coord=%s", $path, FFMpegHelper::coordAsText($coord)));
         $clip->filters()->watermark($path, $coord);
@@ -359,7 +626,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         if ($framerate <= 0) {
             throw new \InvalidArgumentException('Invalid framerate for filter "framerate"');
         }
-        $gop = (int) ($options['gop'] ?? 0);
+        $gop = (int) $this->optionsResolver->resolveOption($options['gop'] ?? 0, $resolverContext);
 
         $transformationContext->log(sprintf("  Applying 'framerate' filter: framerate=%d, gop=%d", $framerate, $gop));
         $clip->filters()->framerate(new FFMpeg\Coordinate\FrameRate($framerate), $gop);
