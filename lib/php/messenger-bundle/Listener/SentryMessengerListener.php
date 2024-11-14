@@ -50,12 +50,12 @@ final readonly class SentryMessengerListener
                 $scope->setTag('messenger.message_bus', $messageBusStamp->getBusName());
             }
 
-            $scope->setExtras([
-                'Messenger Message' => get_debug_type($envelope->getMessage()),
-                'Messenger Payload' => $this->serializer->serialize(
+            $scope->setContext('messenger', [
+                'Message' => get_debug_type($envelope->getMessage()),
+                'Payload' => $this->serializer->serialize(
                     $envelope->getMessage(),
                     JsonEncoder::FORMAT, [
-                        JsonEncode::OPTIONS => JSON_PRETTY_PRINT
+                        JsonEncode::OPTIONS => JSON_PRETTY_PRINT,
                     ]
                 ),
             ]);

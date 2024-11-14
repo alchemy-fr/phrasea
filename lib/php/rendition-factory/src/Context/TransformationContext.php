@@ -48,7 +48,12 @@ final readonly class TransformationContext implements TransformationContextInter
 
     public function guessMimeTypeFromPath(string $path): string
     {
-        return $this->mimeTypeGuesser->guessMimeTypeFromPath($path);
+        $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($path);
+        if (empty($mimeType)) {
+            throw new \RuntimeException(sprintf('Could not guess mime type for file "%s"', $path));
+        }
+
+        return $mimeType;
     }
 
     public function getExtension(string $mimeType): ?string
