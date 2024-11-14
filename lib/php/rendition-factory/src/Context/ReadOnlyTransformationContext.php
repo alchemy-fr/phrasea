@@ -25,7 +25,7 @@ final readonly class ReadOnlyTransformationContext implements TransformationCont
         throw new \InvalidArgumentException('Cannot get cache directory in read-only context');
     }
 
-    public function guessMimeTypeFromPath(string $path): string
+    public function guessMimeTypeFromPath(string $path): ?string
     {
         return $this->mimeTypeGuesser->guessMimeTypeFromPath($path);
     }
