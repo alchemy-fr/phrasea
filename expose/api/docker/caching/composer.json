@@ -12,6 +12,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
@@ -88,7 +95,7 @@
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
-        "ramsey/uuid-doctrine": "^1.5",
+        "ramsey/uuid-doctrine": "^1.6 || ^2.1.0",
         "symfony/amqp-messenger": "^6.3",
         "symfony/asset": "^6.3",
         "symfony/console": "^6.3",

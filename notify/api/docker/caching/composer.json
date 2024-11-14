@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/auth-bundle",
             "options": {
                 "symlink": true
@@ -44,7 +51,7 @@
         "doctrine/orm": "^2",
         "predis/predis": "^1.1",
         "qandidate/symfony-json-request-transformer": "^2.2",
-        "ramsey/uuid-doctrine": "^1.5",
+        "ramsey/uuid-doctrine": "^1.6 || ^2.1.0",
         "sensio/framework-extra-bundle": "^6.2",
         "symfony/amazon-mailer": "^6.3",
         "symfony/console": "^6.3",
@@ -62,6 +69,7 @@
         "symfony/yaml": "^6.3",
         "easycorp/easyadmin-bundle": "^4.0",
         "guzzlehttp/guzzle": "^7.2",
+        "aws/aws-sdk-php": "^3.325",
         "lcobucci/jwt": "^5.0",
         "symfony/http-client": "^6",
         "symfony/security-bundle": "^4.0 || ^5 || ^6",
