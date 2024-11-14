@@ -8,14 +8,38 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use FFMpeg;
 use FFMpeg\Media\Video;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class VideoToFrameTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
 {
     public static function getName(): string
     {
         return 'video_to_frame';
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        $builder
+            ->scalarNode('module')
+                ->isRequired()
+                ->defaultValue(self::getName())
+                ->end()
+            ->booleanNode('enabled')
+                ->defaultTrue()
+                ->info('Whether to enable this module')
+                ->end()
+            ->arrayNode('options')
+                ->info('Options for the module')
+                ->children()
+                    ->scalarNode('start')
+                        ->defaultValue(0)
+                        ->info('Offset of frame in seconds or timecode')
+                        ->example('2.5 ; "00:00:02.50" ; "{{ metadata.start }}"')
+                        ->end()
+                ->end()
+            ->end()
+        ;
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
@@ -37,11 +61,15 @@ final readonly class VideoToFrameTransformerModule extends AbstractVideoTransfor
             'input' => $video->getStreams()->videos()->first()->all(),
         ];
 
-        $from = FFMpeg\Coordinate\TimeCode::fromSeconds($this->optionsResolver->resolveOption($options['from_seconds'] ?? 0, $resolverContext));
+        $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
+        $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
+        if (null === $startAsTimecode) {
+            throw new \InvalidArgumentException('Invalid start.');
+        }
+        $start = FFMpegHelper::timecodeToseconds($startAsTimecode);
+        $context->log(sprintf('  start=%s (%.02f)', $startAsTimecode, $start));
 
-        $context->log(sprintf('  from=%s', $from));
-
-        $frame = $video->frame($from);
+        $frame = $video->frame($startAsTimecode);
         $outputPath = $context->createTmpFilePath($commonArgs->getExtension());
 
         $frame->save($outputPath);
