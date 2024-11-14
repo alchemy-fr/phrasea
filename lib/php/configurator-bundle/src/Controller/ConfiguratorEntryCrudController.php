@@ -7,15 +7,18 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
+use Alchemy\ConfiguratorBundle\Field\FileField;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -63,8 +66,14 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name');
-        yield TextareaField::new('value')
+        yield FileField::new('file')
+            ->setFormTypeOption('required', false)
+            ->setFormTypeOption('mapped', false)
+            ->onlyOnForms();
+        yield TextField::new('value')
             ->hideOnIndex()
+            ->setFormType(TextareaType::class)
+            ->addCssClass('field-textarea')
             ->setFormTypeOption('attr', [
                 'rows' => 20,
                 'style' => 'font-family: monospace;',
