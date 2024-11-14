@@ -24,6 +24,11 @@ final readonly class UrlUtil
         return $baseUrl.'?'.$query;
     }
 
+    public static function getUriWithoutQuery(string $url): string
+    {
+        return strtok($url, '?');
+    }
+
     public static function extractUrlParameters(string $url): ?array
     {
         $parts = parse_url($url);

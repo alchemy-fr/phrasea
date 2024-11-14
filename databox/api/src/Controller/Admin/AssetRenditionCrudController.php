@@ -6,8 +6,10 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
+use Alchemy\AdminBundle\Filter\AssociationIdentifierFilter;
 use Alchemy\AdminBundle\Filter\ChildPropertyEntityFilter;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Workspace;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -15,7 +17,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 
 class AssetRenditionCrudController extends AbstractAdminCrudController
@@ -45,9 +49,18 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(ChildPropertyEntityFilter::new('definition', 'workspace', 'Workspace'))
+            ->add(ChildPropertyEntityFilter::new(
+                'definition',
+                'workspace',
+                Workspace::class,
+                'Workspace'
+            ))
+            ->add(EntityFilter::new('definition'))
+            ->add(AssociationIdentifierFilter::new('asset'))
             ->add(NullFilter::new('file', 'Is Ready')->setChoiceLabels('Not ready', 'Ready'))
             ->add(DateTimeFilter::new('createdAt'))
+            ->add(BooleanFilter::new('locked'))
+            ->add(BooleanFilter::new('substituted'))
         ;
     }
 

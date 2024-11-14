@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -70,7 +71,8 @@ class MessengerMessageCrudController extends AbstractCrudController
         $this->em->persist($message);
         $this->em->flush();
 
-        return new RedirectResponse($context->getReferrer());
+        return $this->redirect($context->getReferrer()
+            ?? $this->container->get(AdminUrlGenerator::class)->setAction(Action::INDEX)->generateUrl());
     }
 
     public function configureCrud(Crud $crud): Crud

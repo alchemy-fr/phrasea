@@ -10,12 +10,16 @@ use App\Elasticsearch\IndexCleaner;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class CollectionDelete
 {
-    public function __construct(private EntityManagerInterface $em, private IndexCleaner $indexCleaner, private SoftDeleteToggler $softDeleteToggler)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private IndexCleaner $indexCleaner,
+        private SoftDeleteToggler $softDeleteToggler,
+    ) {
     }
 
     public function deleteCollection(string $collectionId, bool $isChildProcess = false): void
@@ -79,13 +83,6 @@ final readonly class CollectionDelete
             ->getQuery()
             ->toIterable();
 
-        foreach ($assets as $a) {
-            $asset = $this->em->find(Asset::class, $a['id']);
-            $this->em->remove($asset);
-            $this->em->flush();
-            $this->em->clear();
-        }
-
         $this->em->getRepository(CollectionAsset::class)
             ->createQueryBuilder('t')
             ->delete()
@@ -94,10 +91,31 @@ final readonly class CollectionDelete
             ->getQuery()
             ->execute();
 
+        foreach ($assets as $a) {
+            $asset = $this->em->find(Asset::class, $a['id']);
+            $this->em->remove($asset);
+            $this->em->flush();
+            $this->em->clear();
+        }
+
+        $this->deleteDependencies(AssetDataTemplate::class, $collectionId);
+
         $collection = $this->em->find(Collection::class, $collectionId);
         if ($collection instanceof Collection) {
             $this->em->remove($collection);
             $this->em->flush();
         }
+    }
+
+    private function deleteDependencies(string $entityClass, string $collectionId): void
+    {
+        $items = $this->em->getRepository($entityClass)->findBy([
+            'collection' => $collectionId,
+        ]);
+        foreach ($items as $item) {
+            $this->em->remove($item);
+        }
+        $this->em->flush();
+        $this->em->clear();
     }
 }

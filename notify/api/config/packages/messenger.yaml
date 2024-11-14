@@ -5,6 +5,9 @@ framework:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p1'
                 options: '%alchemy_messenger.amqp_transport_options%'
 
+        routing:
+            Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
+
 when@dev:
     framework:
         messenger:
