@@ -60,7 +60,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Attribute')
             ->setEntityLabelInPlural('Attribute')
-            ->setSearchFields(['id', 'locale', 'position', 'translationId', 'translationOriginHash', 'value', 'origin', 'originVendor', 'originUserId', 'originVendorContext', 'coordinates', 'status', 'confidence'])
+            ->setSearchFields(['id', 'locale', 'position', 'translationOriginHash', 'value', 'origin', 'originVendor', 'originUserId', 'originVendorContext', 'coordinates', 'status', 'confidence'])
             ->setPaginatorPageSize(20);
     }
 
