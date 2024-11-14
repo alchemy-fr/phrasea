@@ -30,7 +30,7 @@ return [
     Alchemy\WorkflowBundle\AlchemyWorkflowBundle::class => ['all' => true],
     Alchemy\ESBundle\AlchemyESBundle::class => ['all' => true],
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
-    Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
+    Sentry\SentryBundle\SentryBundle::class => ['all' => true],
     Arthem\ObjectReferenceBundle\ArthemObjectReferenceBundle::class => ['all' => true],
     Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
 ];

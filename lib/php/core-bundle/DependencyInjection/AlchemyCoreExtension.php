@@ -150,8 +150,10 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 ],
             ]);
         }
+
         if (isset($bundles['SentryBundle'])) {
             $container->prependExtensionConfig('sentry', [
+                'dsn' => $env === 'prod' ? '%env(SENTRY_DSN)%' : null,
                 'tracing' => [
                     'dbal' => [
                         'enabled' => false,
