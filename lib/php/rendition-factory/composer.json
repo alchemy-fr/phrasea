@@ -23,7 +23,7 @@
     },
     "require": {
         "php": "^8.3",
-        "ext-imagick": "^3.7",
+        "ext-imagick": "*",
         "symfony/console": "^6",
         "symfony/yaml": "^6.2",
         "symfony/process": "^6.3",

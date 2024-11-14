@@ -2,8 +2,7 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-ENV IMAGICK_PHP83_FIX_COMMIT=9df92616f577e38625b96b7b903582a46c064739
-# IMAGICK_VERSION=3.7.0
+ENV IMAGICK_PHP83_FIX_COMMIT=28f27044e435a2b203e32675e942eb8de620ee58
 
 RUN apk add --no-cache \
         perl \
@@ -12,6 +11,7 @@ RUN apk add --no-cache \
         libjpeg-turbo \
         libpng \
         libwebp \
+        libheif \
         ffmpeg \
         libreoffice \
     && apk add --no-cache --virtual build-essentials \
@@ -24,12 +24,21 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         imagemagick-dev \
-    && curl -L https://github.com/remicollet/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}.zip -o /tmp/imagick-issue-php83.zip  \
-        && unzip /tmp/imagick-issue-php83.zip -d /tmp \
-        && pecl install /tmp/imagick-${IMAGICK_PHP83_FIX_COMMIT}/package.xml \
-#    && pecl install \
-#        imagick-${IMAGICK_VERSION} \
     && pecl clear-cache \
+    && wget -O /tmp/imagick.zip https://github.com/Imagick/imagick/archive/${IMAGICK_PHP83_FIX_COMMIT}/master.zip \
+    && unzip -qq -d /tmp/imagick /tmp/imagick.zip \
+    && ls -la /tmp/imagick \
+    && (cd /tmp/imagick/imagick-${IMAGICK_PHP83_FIX_COMMIT} \
+       && phpize \
+       && ./configure \
+           --with-heic=yes \
+           --with-jpeg=yes \
+           --with-png=yes \
+           --with-tiff=yes \
+           --with-webp=yes \
+       && make \
+       && make install \
+    ) \
     && docker-php-ext-install \
         exif \
     && docker-php-ext-enable \
