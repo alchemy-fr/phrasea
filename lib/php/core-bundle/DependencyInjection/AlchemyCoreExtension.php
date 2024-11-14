@@ -152,8 +152,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         }
 
         if (isset($bundles['SentryBundle'])) {
-            $container->prependExtensionConfig('sentry', [
-                'dsn' => $env === 'prod' ? '%env(SENTRY_DSN)%' : null,
+            $sentryConfig = [
                 'tracing' => [
                     'dbal' => [
                         'enabled' => false,
@@ -183,7 +182,12 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         NotAcceptableHttpException::class,
                     ],
                 ],
-            ]);
+            ];
+
+            if ($env !== 'prod') {
+                $sentryConfig['dsn'] = null;
+            }
+            $container->prependExtensionConfig('sentry', $sentryConfig);
 
             if (isset($bundles['MonologBundle'])) {
                 $container->prependExtensionConfig('sentry', [
