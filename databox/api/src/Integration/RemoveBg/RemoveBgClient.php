@@ -24,7 +24,6 @@ readonly class RemoveBgClient
         }
 
         $path = $this->fileFetcher->getFile($file);
-
         $md5 = md5_file($path);
 
         $cacheFile = sprintf('%s/%s', $this->cacheDir, $md5);

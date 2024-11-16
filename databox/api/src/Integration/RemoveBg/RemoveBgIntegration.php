@@ -9,6 +9,7 @@ use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
+use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\PusherTrait;
 use App\Integration\RemoveBg\Message\RemoveBgCall;
 use App\Integration\UserActionsIntegrationInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class RemoveBgIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, UserActionsIntegrationInterface
+class RemoveBgIntegration extends AbstractIntegration implements IntegrationDataTransformerInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use PusherTrait;
     use FileUserActionsTrait;
