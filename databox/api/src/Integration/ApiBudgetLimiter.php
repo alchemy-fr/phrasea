@@ -40,6 +40,10 @@ class ApiBudgetLimiter
      */
     public function acceptIntegrationApiCall(IntegrationConfig $config, int $tokens = 1): void
     {
+        if (!$config['budgetLimit']['enabled']) {
+            return;
+        }
+
         $limiter = $this->createLimiter(
             $config['budgetLimit']['limit'],
             $config['budgetLimit']['policy'],
