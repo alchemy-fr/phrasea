@@ -25,6 +25,7 @@ use Alchemy\Workflow\WorkflowOrchestrator;
 use ColinODell\PsrTestLogger\TestLogger;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 abstract class AbstractWorkflowTest extends TestCase
 {
@@ -71,6 +72,7 @@ abstract class AbstractWorkflowTest extends TestCase
             $stateRepository,
             $jobTrigger,
             new EventValidator(),
+            new EventDispatcher(),
         ), $stateRepository, $logger];
     }
 
