@@ -330,10 +330,8 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         /** @var Video $video */
         $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
-        $resolverContext = [
-            'metadata' => $transformationContext->getTemplatingContext(),
-            'input' => $video->getStreams()->videos()->first()->all(),
-        ];
+        $resolverContext = $transformationContext->getTemplatingContext();
+        $resolverContext['input'] = $video->getStreams()->videos()->first()->all();
 
         if ($videoCodec = $this->optionsResolver->resolveOption($options['video_codec'] ?? null, $resolverContext)) {
             if (!in_array($videoCodec, $FFMpegFormat->getAvailableVideoCodecs())) {
@@ -424,9 +422,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
      */
     private function doAudio(array $options, InputFileInterface $inputFile, TransformationContextInterface $context, ModuleCommonArgs $commonArgs): OutputFileInterface
     {
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-        ];
+        $resolverContext = $context->getTemplatingContext();
 
         $format = $commonArgs->getOutputFormat()->getFormat();
         if (!method_exists($commonArgs->getOutputFormat(), 'getFFMpegFormat')) {
