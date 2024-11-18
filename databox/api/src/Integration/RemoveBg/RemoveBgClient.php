@@ -48,8 +48,11 @@ readonly class RemoveBgClient
             }
             fclose($fileHandler);
         } catch (\Throwable $e) {
-            fclose($fileHandler);
-            @unlink($cacheFile);
+            if (isset($fileHandler)) {
+                fclose($fileHandler);
+                @unlink($cacheFile);
+            }
+
             throw $e;
         }
 
