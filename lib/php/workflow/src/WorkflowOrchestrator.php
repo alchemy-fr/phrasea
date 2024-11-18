@@ -6,6 +6,7 @@ namespace Alchemy\Workflow;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\Event\WorkflowEvent;
+use Alchemy\Workflow\Listener\WorkflowUpdateEvent;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use Alchemy\Workflow\Planner\Plan;
@@ -20,6 +21,7 @@ use Alchemy\Workflow\State\WorkflowState;
 use Alchemy\Workflow\Trigger\JobTrigger;
 use Alchemy\Workflow\Trigger\JobTriggerInterface;
 use Alchemy\Workflow\Validator\EventValidatorInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class WorkflowOrchestrator
 {
@@ -33,6 +35,7 @@ final class WorkflowOrchestrator
         private readonly StateRepositoryInterface $stateRepository,
         private readonly JobTriggerInterface $trigger,
         private readonly EventValidatorInterface $eventValidator,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -185,6 +188,8 @@ final class WorkflowOrchestrator
             $workflowState->setEndedAt(new MicroDateTime());
             $workflowState->setStatus($workflowEndStatus);
             $this->stateRepository->persistWorkflowState($workflowState);
+
+            $this->eventDispatcher->dispatch(new WorkflowUpdateEvent($workflowState));
         }
     }
 
