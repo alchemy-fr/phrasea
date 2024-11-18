@@ -64,6 +64,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
     const {data, isSuccess} = useModalFetch({
         queryKey,
+        staleTime: 2000,
         queryFn: () =>
             Promise.all([
                 getAsset(assetId!),
