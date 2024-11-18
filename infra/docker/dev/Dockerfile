@@ -10,16 +10,17 @@ RUN apk add --no-cache \
 		mysql-dev \
 		postgresql-dev \
 		zlib \
-        ffmpeg \
-        libreoffice \
     	imagemagick \
     	rabbitmq-c-dev \
         bash \
+        ffmpeg \
         freetype \
         g++ \
         gettext \
+        ghostscript \
         libjpeg-turbo \
         libpng \
+        libreoffice \
         libwebp \
         linux-headers \
         make \

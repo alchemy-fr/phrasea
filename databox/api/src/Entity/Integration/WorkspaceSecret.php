@@ -63,5 +63,8 @@ class WorkspaceSecret extends AbstractUuidEntity
     public function setPlainValue(?string $plainValue): void
     {
         $this->plainValue = $plainValue;
+        if (null !== $plainValue) {
+            $this->setValue(null); // Make a change to this mapped field trigger Doctrine preUpdate event
+        }
     }
 }

@@ -5,15 +5,16 @@ FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 ENV IMAGICK_PHP83_FIX_COMMIT=28f27044e435a2b203e32675e942eb8de620ee58
 
 RUN apk add --no-cache \
-        perl \
-        freetype \
     	imagemagick \
+        ffmpeg \
+        freetype \
+        ghostscript \
+        libheif \
         libjpeg-turbo \
         libpng \
-        libwebp \
-        libheif \
-        ffmpeg \
         libreoffice \
+        libwebp \
+        perl \
     && apk add --no-cache --virtual build-essentials \
         g++ \
         make \
