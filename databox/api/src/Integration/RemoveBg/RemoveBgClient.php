@@ -24,7 +24,7 @@ readonly class RemoveBgClient
         }
 
         $path = $this->fileFetcher->getFile($file);
-        $md5 = md5_file($path);
+        $md5 = md5_file($path).'-v2';
 
         $cacheFile = sprintf('%s/%s', $this->cacheDir, $md5);
         if (file_exists($cacheFile)) {
@@ -41,11 +41,17 @@ readonly class RemoveBgClient
             ],
         ]);
 
-        $fileHandler = fopen($cacheFile, 'w');
-        foreach ($this->removeBgClient->stream($res) as $chunk) {
-            fwrite($fileHandler, $chunk->getContent());
+        try {
+            $fileHandler = fopen($cacheFile, 'w');
+            foreach ($this->removeBgClient->stream($res) as $chunk) {
+                fwrite($fileHandler, $chunk->getContent());
+            }
+            fclose($fileHandler);
+        } catch (\Throwable $e) {
+            fclose($fileHandler);
+            @unlink($cacheFile);
+            throw $e;
         }
-        fclose($fileHandler);
 
         return $cacheFile;
     }
