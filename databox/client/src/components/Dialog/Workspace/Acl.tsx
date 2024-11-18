@@ -21,7 +21,7 @@ export default function Acl({data, onClose, minHeight}: Props) {
                 objectType={PermissionObject.Workspace}
                 displayedPermissions={Object.keys(aclPermissions).filter(
                     p => p !== AclPermission.SHARE
-                )}
+                ).concat([AclPermission.ALL])}
             />
         </ContentTab>
     );
