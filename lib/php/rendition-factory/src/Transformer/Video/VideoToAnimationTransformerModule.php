@@ -94,10 +94,8 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
         /** @var FFMpeg\Media\Video $video */
         $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-            'input' => $video->getStreams()->videos()->first()->all(),
-        ];
+        $resolverContext = $context->getTemplatingContext();
+        $resolverContext['input'] = $video->getStreams()->videos()->first()->all();
 
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
         $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
