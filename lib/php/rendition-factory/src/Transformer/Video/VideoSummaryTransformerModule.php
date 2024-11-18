@@ -70,11 +70,9 @@ final readonly class VideoSummaryTransformerModule extends AbstractVideoTransfor
         /** @var FFMpeg\Media\Video $video */
         $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-            'input' => $video->getStreams()->videos()->first()->all(),
-        ];
-
+        $resolverContext = $context->getTemplatingContext();
+        $resolverContext['input'] = $video->getStreams()->videos()->first()->all();
+        
         $period = $this->optionsResolver->resolveOption($options['period'] ?? 0, $resolverContext);
         $periodAsTimecode = FFMpegHelper::optionAsTimecode($period);
         if (null === $periodAsTimecode || ($period = FFMpegHelper::timecodeToseconds($periodAsTimecode)) <= 0) {

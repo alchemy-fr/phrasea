@@ -20,9 +20,7 @@ class ModuleCommonArgs
         TransformationContextInterface $context,
         ModuleOptionsResolver $optionsResolver)
     {
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-        ];
+        $resolverContext = $context->getTemplatingContext();
 
         $format = $optionsResolver->resolveOption($options['format'] ?? null, $resolverContext);
         if (!$format) {
