@@ -3,6 +3,7 @@
 **/client/build
 **/var
 **/vendor
+**/public/bundles
 **/node_modules
 **/.idea
 **/.php-cs-fixer.php
