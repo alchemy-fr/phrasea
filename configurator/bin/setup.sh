@@ -9,6 +9,5 @@ if [ ! -d "${BASEDIR}/../vendor" ]; then
 fi
 
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
-"${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" doctrine:migrations:sync-metadata-storage
-"${BASEDIR}/console" doctrine:migrations:version --add --all -n
+"${BASEDIR}/console" doctrine:migrations:migrate --no-interaction
