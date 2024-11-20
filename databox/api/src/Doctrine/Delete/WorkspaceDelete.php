@@ -15,12 +15,17 @@ use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
 
-class WorkspaceDelete
+final readonly class WorkspaceDelete
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly CollectionDelete $collectionDelete, private readonly IndexCleaner $indexCleaner, private readonly SoftDeleteToggler $softDeleteToggler)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private CollectionDelete $collectionDelete,
+        private IndexCleaner $indexCleaner,
+        private SoftDeleteToggler $softDeleteToggler,
+    ) {
     }
 
     public function deleteWorkspace(string $workspaceId): void
@@ -62,6 +67,7 @@ class WorkspaceDelete
             $this->deleteDependencies(RenditionClass::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributeClass::class, $workspaceId);
+            $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
 
             $files = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')

@@ -22,6 +22,8 @@ import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
 import {getMediaBackgroundColor} from '../../../themes/base.ts';
 import {useModalFetch} from '../../../hooks/useModalFetch.ts';
+import {useChannelRegistration} from "../../../lib/pusher.ts";
+import {queryClient} from "../../../lib/query.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -50,8 +52,19 @@ export default function AssetView({modalIndex, open}: Props) {
         AssetAnnotation[] | undefined
     >();
 
+    const queryKey = ['assets', assetId];
+
+    useChannelRegistration(
+        `asset-${assetId}`,
+        `asset_ingested`,
+        () => {
+            queryClient.invalidateQueries({queryKey});
+        }
+    );
+
     const {data, isSuccess} = useModalFetch({
-        queryKey: ['assets', assetId],
+        queryKey,
+        staleTime: 2000,
         queryFn: () =>
             Promise.all([
                 getAsset(assetId!),

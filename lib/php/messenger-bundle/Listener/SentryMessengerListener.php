@@ -40,9 +40,6 @@ final readonly class SentryMessengerListener
             $envelope = $event->getEnvelope();
             $exception = $event->getThrowable();
 
-            $scope->setTag('messenger.receiver_name', $event->getReceiverName());
-            $scope->setTag('messenger.message_class', \get_class($envelope->getMessage()));
-
             /** @var BusNameStamp|null $messageBusStamp */
             $messageBusStamp = $envelope->last(BusNameStamp::class);
 
@@ -50,14 +47,15 @@ final readonly class SentryMessengerListener
                 $scope->setTag('messenger.message_bus', $messageBusStamp->getBusName());
             }
 
-            $scope->setExtras([
-                'Messenger Message' => get_debug_type($envelope->getMessage()),
-                'Messenger Payload' => $this->serializer->serialize(
+            $scope->setContext('messenger', [
+                'Message' => get_debug_type($envelope->getMessage()),
+                'Payload' => $this->serializer->serialize(
                     $envelope->getMessage(),
                     JsonEncoder::FORMAT, [
-                        JsonEncode::OPTIONS => JSON_PRETTY_PRINT
+                        JsonEncode::OPTIONS => JSON_PRETTY_PRINT,
                     ]
                 ),
+                'ReceiverName' => $event->getReceiverName(),
             ]);
 
             $this->captureException($exception, $event->willRetry());

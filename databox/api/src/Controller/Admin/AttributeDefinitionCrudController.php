@@ -98,7 +98,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield Field::new('facetEnabled')
             ->hideOnIndex();
         yield ArrayField::new('fallback')
-            ->hideOnIndex();
+            ->onlyOnDetail();
         yield TextField::new('key')
             ->hideOnIndex();
         yield IntegerField::new('position');

@@ -56,7 +56,7 @@ class CreateCommand extends Command
 
         if (null === $mimeType) {
             $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($src);
-            $output->writeln(sprintf('MIME type guessed: %s', $mimeType));
+            $output->writeln(sprintf('MIME type guessed: %s', $mimeType ?? 'unknown'));
         }
 
         $buildConfig = $this->yamlLoader->load($input->getArgument('build-config'));

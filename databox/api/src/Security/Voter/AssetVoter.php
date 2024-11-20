@@ -72,10 +72,7 @@ class AssetVoter extends AbstractVoter
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'DELETE')
                     || $this->hasAcl(PermissionInterface::DELETE, $subject, $token)
-                    || (
-                        null !== $subject->getReferenceCollection()
-                        && $this->hasAcl(PermissionInterface::DELETE, $subject->getReferenceCollection(), $token)
-                    );
+                    || $this->voteOnContainer($subject, AbstractVoter::DELETE);
             case self::EDIT_PERMISSIONS:
                 return $isOwner()
                     || $this->security->isGranted(self::SCOPE_PREFIX.'OWNER')

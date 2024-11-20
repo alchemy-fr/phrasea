@@ -14,6 +14,7 @@ framework:
             Alchemy\Workflow\Message\JobConsumer: p1
             Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
+            Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:
     framework:

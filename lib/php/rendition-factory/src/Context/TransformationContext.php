@@ -2,6 +2,7 @@
 
 namespace Alchemy\RenditionFactory\Context;
 
+use Alchemy\CoreBundle\Util\UrlUtil;
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use Alchemy\RenditionFactory\MimeType\MimeTypeGuesser;
 use Psr\Log\LoggerInterface;
@@ -46,7 +47,7 @@ final readonly class TransformationContext implements TransformationContextInter
         return $cacheDir;
     }
 
-    public function guessMimeTypeFromPath(string $path): string
+    public function guessMimeTypeFromPath(string $path): ?string
     {
         return $this->mimeTypeGuesser->guessMimeTypeFromPath($path);
     }
@@ -59,18 +60,23 @@ final readonly class TransformationContext implements TransformationContextInter
     public function getRemoteFile(string $uri): string
     {
         $cacheDir = $this->getCacheDir('remote');
-        $mimeType = $this->guessMimeTypeFromPath($uri);
-        $extension = $this->getExtension($mimeType);
+        $mimeType = $this->guessMimeTypeFromPath(UrlUtil::getUriWithoutQuery($uri));
+        $extension = null !== $mimeType ? $this->getExtension($mimeType) : null;
 
         $path = $cacheDir.'/'.md5($uri).($extension ? '.'.$extension : '');
         if (!file_exists($path)) {
-            $this->download($uri, $path);
+            $contentType = $this->download($uri, $path);
+            if (null === $mimeType && null !== $contentType) {
+                $newPath = $path.'.'.$this->getExtension($contentType);
+                rename($path, $newPath);
+                $path = $newPath;
+            }
         }
 
         return $path;
     }
 
-    private function download(string $uri, string $dest): void
+    private function download(string $uri, string $dest): ?string
     {
         $response = $this->client->request('GET', $uri);
 
@@ -79,6 +85,13 @@ final readonly class TransformationContext implements TransformationContextInter
             fwrite($fileHandler, $chunk->getContent());
         }
         fclose($fileHandler);
+
+        $contentType = $response->getHeaders()['content-type'] ?? null;
+        if (empty($contentType)) {
+            return null;
+        }
+
+        return is_array($contentType) ? $contentType[0] : $contentType;
     }
 
     public function getMetadata(string $name): ?string

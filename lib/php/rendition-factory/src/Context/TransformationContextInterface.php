@@ -8,7 +8,7 @@ interface TransformationContextInterface
 
     public function getCacheDir(string $folder): string;
 
-    public function guessMimeTypeFromPath(string $path): string;
+    public function guessMimeTypeFromPath(string $path): ?string;
 
     public function getExtension(string $mimeType): ?string;
 

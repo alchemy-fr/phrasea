@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FilterDataDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\FilterDto;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\FilterTrait;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Filter\Type\EntityFilterType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
@@ -24,17 +25,25 @@ final class ChildPropertyEntityFilter implements FilterInterface
 {
     use FilterTrait;
 
-    public static function new(string $propertyName, string $childPropertyName, $label = null): self
+    private string $realPropertyName;
+    private string $subPropertyName;
+
+
+    public static function new(string $propertyName, string $childPropertyName, string $entityClass, $label = null): self
     {
         $label = null == $label ? $childPropertyName : $label;
 
         return (new self())
             ->setFilterFqcn(__CLASS__)
-            ->setProperty($propertyName)
+            ->setRealPropertyName($propertyName)
+            ->setSubPropertyName($childPropertyName)
+            ->setProperty(sprintf('%s__%s', $propertyName, $childPropertyName))
             ->setLabel($label)
             ->setFormType(EntityFilterType::class)
             ->setFormTypeOption('translation_domain', 'EasyAdminBundle')
-            ->setFormTypeOption('value_type_options.attr.data-child-property', $childPropertyName);
+            ->setFormTypeOption('value_type_options.attr.data-child-property', $childPropertyName)
+            ->setFormTypeOption('value_type_options.class', $entityClass)
+            ;
     }
 
     /**
@@ -48,13 +57,13 @@ final class ChildPropertyEntityFilter implements FilterInterface
         $assocAlias = 'ea_'.$filterDataDto->getParameterName();
         $childAssocAlias = 'ea_'.$filterDataDto->getParameter2Name();
 
-        $property = $filterDataDto->getProperty();
+        $property = $this->realPropertyName;
         $comparison = $filterDataDto->getComparison();
         $parameterName = $filterDataDto->getParameterName();
         $value = $filterDataDto->getValue();
         $isMultiple = $filterDataDto->getFormTypeOption('value_type_options.multiple');
 
-        $childPropertyName = $filterDataDto->getFormTypeOption('value_type_options.attr.data-child-property');
+        $childPropertyName = $this->subPropertyName;
         $doctrineMetadata = $entityDto->getPropertyMetadata($property);
         $entityManager = $queryBuilder->getEntityManager();
         $propertyEntityFqcn = $doctrineMetadata->get('targetEntity');
@@ -154,5 +163,19 @@ final class ChildPropertyEntityFilter implements FilterInterface
         }
 
         return $parameterValue;
+    }
+
+    public function setRealPropertyName(string $realPropertyName): self
+    {
+        $this->realPropertyName = $realPropertyName;
+
+        return $this;
+    }
+
+    public function setSubPropertyName(string $subPropertyName): self
+    {
+        $this->subPropertyName = $subPropertyName;
+
+        return $this;
     }
 }
