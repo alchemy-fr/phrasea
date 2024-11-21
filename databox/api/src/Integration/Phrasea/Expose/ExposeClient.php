@@ -261,7 +261,7 @@ final readonly class ExposeClient
             $retryCount--;
             try {
                 return $this->uploadClient->request('PUT', $url, [
-                    'body' => fread($handleFile, 10 * 1024 * 1024), // 10Mo
+                    'body' => fread($handleFile, $partSize),
                 ])->getHeaders();
             } catch (\Throwable $e) {
                 if ($retryCount == 0) {
