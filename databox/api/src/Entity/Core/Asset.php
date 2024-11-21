@@ -24,6 +24,7 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Output\AssetOutput;
+use App\Api\Model\Output\ESDocumentOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
@@ -35,6 +36,7 @@ use App\Api\Processor\PrepareSubstitutionProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\AssetElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
@@ -66,7 +68,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ, Collection::GROUP_ABSOLUTE_TITLE],
-            ]
+            ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(
             uriTemplate: '/assets/{id}/collections/{collectionId}',
@@ -102,7 +105,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
             processor: PrepareSubstitutionProcessor::class,
         ),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+            validate: true,
+        ),
         new Post(
             uriTemplate: '/assets/multiple',
             normalizationContext: [
@@ -152,6 +158,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/assets',
             controller: DeleteAssetByIdsAction::class,
             name: 'delete_by_ids',
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/es-document',
+            output: ESDocumentOutput::class,
+            name: 'es_document',
+            provider: AssetElasticsearchDocumentProvider::class,
         ),
     ],
     normalizationContext: [

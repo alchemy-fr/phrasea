@@ -15,6 +15,8 @@ import OperationsAsset from './OperationsAsset';
 import {modalRoutes} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import AssetWorkflow from './AssetWorkflow.tsx';
+import {useAuth} from '@alchemy/react-auth';
+import AssetESDocument from "./AssetESDocument.tsx";
 
 type Props = {};
 
@@ -22,6 +24,7 @@ export default function AssetDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
     const navigateToModal = useNavigateToModal();
+    const {user} = useAuth();
 
     const [data, setData] = useState<Asset>();
 
@@ -127,6 +130,15 @@ export default function AssetDialog({}: Props) {
                         setData,
                     },
                     enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t('asset.manage.es_doc.title', 'ES Document'),
+                    component: AssetESDocument,
+                    id: 'es_doc',
+                    props: {
+                        data,
+                    },
+                    enabled: user?.roles?.includes('tech') ?? false,
                 },
             ]}
         />

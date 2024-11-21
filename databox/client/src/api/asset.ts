@@ -1,10 +1,6 @@
 import apiClient from './api-client';
 import {Asset, AssetFileVersion, Attribute, Collection, Share} from '../types';
-import {
-    ApiCollectionResponse,
-    getAssetsHydraCollection,
-    getHydraCollection,
-} from './hydra';
+import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 
@@ -96,9 +92,11 @@ export async function getSearchSuggestions(
 }
 
 export async function getAsset(id: string): Promise<Asset> {
-    const res = await apiClient.get(`/assets/${id}`);
+    return (await apiClient.get(`/assets/${id}`)).data;
+}
 
-    return res.data;
+export async function getAssetESDocument(id: string): Promise<Asset> {
+    return (await apiClient.get(`/assets/${id}/es-document`)).data.data;
 }
 
 export async function getAssetShares(assetId: string): Promise<Share[]> {
