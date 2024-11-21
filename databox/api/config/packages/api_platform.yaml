@@ -18,7 +18,7 @@ api_platform:
     oauth:
         clientId: '%env(ADMIN_CLIENT_ID)%'
         clientSecret: '%env(ADMIN_CLIENT_SECRET)%'
-        tokenUrl: '%env(KEYCLOAK_URL)%/oauth/v2/token'
+        tokenUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/token'
+        authorizationUrl: '%env(KEYCLOAK_URL)%/realms/%env(KEYCLOAK_REALM_NAME)%/protocol/openid-connect/auth'
         flow: authorizationCode
-        authorizationUrl: '%env(KEYCLOAK_URL)%/oauth/v2/auth'
     event_listeners_backward_compatibility_layer: false
