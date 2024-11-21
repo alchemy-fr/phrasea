@@ -69,34 +69,6 @@ use Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction;
                         ]],
                 ],
             ]),
-        new Post(
-            uriTemplate: '/uploads/{id}/complete',
-            controller: MultipartUploadCompleteAction::class,
-            openapiContext: [
-                'summary'       => 'Complete a multi part upload.',
-                'requestBody'   => [
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'parts' => [
-                                        'type' => 'array',
-                                        'items' => [
-                                            'type' => 'object',
-                                            'properties' => [
-                                                'ETag'          => ['type' => 'string'],
-                                                'PartNumber'    => ['type' => 'integer'],
-                                            ],
-                                        ],
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ),    
         new Delete(
             controller: MultipartUploadCancelAction::class,
             openapiContext: [

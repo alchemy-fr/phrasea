@@ -20,8 +20,8 @@ class MultipartUploadCancelAction extends AbstractController
     {
         try {
             $this->uploadManager->cancelMultipartUpload($data->getPath(), $data->getUploadId());
-        } catch (\Exception $e) {
-            
+        } catch (\Throwable $e) {
+            // S3 storage will clean up its uncomplete uploads automatically
         }
         
         $this->em->remove($data);

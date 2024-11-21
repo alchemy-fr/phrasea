@@ -46,10 +46,6 @@ services:
         tags:
             - { name: controller.service_arguments }        
 
-    Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction:
-        tags:
-            - { name: controller.service_arguments }        
-
     Alchemy\StorageBundle\Doctrine\MultipartUploadListener: ~
 
     Alchemy\StorageBundle\Storage\PathGenerator: ~

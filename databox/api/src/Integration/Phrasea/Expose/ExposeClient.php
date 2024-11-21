@@ -130,27 +130,6 @@ final readonly class ExposeClient
 
         $fetchedFilePath = $this->fileFetcher->getFile($source);
         try {
-            $data = array_merge([
-                'publication_id' => $publicationId,
-                'asset_id' => $asset->getId(),
-                'title' => $resolvedTitle,
-                'description' => $description,
-                'translations' => $translations,
-                'upload' => [
-                    'type' => $source->getType(),
-                    'size' => $source->getSize(),
-                    'name' => $source->getOriginalName(),
-                ],
-            ], $extraData);
-
-            $pubAsset = $this->create($config, $integrationToken)
-                ->request('POST', '/assets', [
-                    'json' => $data,
-                ])
-                ->toArray()
-            ;
-            $exposeAssetId = $pubAsset['id'];
-
             $uploadsData = [
                 'filename' => $source->getOriginalName(),
                 'type' => $source->getType(),
@@ -165,13 +144,19 @@ final readonly class ExposeClient
             ;
 
             $mUploadId = $resUploads['id'];
+
             $parts['Parts'] = [];
-            $isPartsComplete = false;
-           
+
             // Upload the file in parts.
             try {
                 $file = fopen($fetchedFilePath, 'r');
                 $partNumber = 1;
+
+                // part size is up to 5Mo https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+                $partSize = 10 * 1024 * 1024; // 10Mo
+
+                $retryCount = 3;
+
                 while (!feof($file)) {
                     $resUploadPart = $this->create($config, $integrationToken)
                         ->request('POST', '/uploads/'. $mUploadId .'/part', [
@@ -179,24 +164,8 @@ final readonly class ExposeClient
                         ])
                         ->toArray()
                     ;
-
-                    try {
-                        $headerPutPart = $this->uploadClient->request('PUT', $resUploadPart['url'], [
-                                'body' => fread($file, 10 * 1024 * 1024), // 10Mo
-                            ])->getHeaders()
-                        ;
-
-                    } catch (\Exception $e) {
-                        sleep (1); // retry after 1 second
-                        try {
-                            $headerPutPart = $this->uploadClient->request('PUT', $resUploadPart['url'], [
-                                'body' => fread($file, 10 * 1024 * 1024), // 10Mo
-                            ])->getHeaders()
-                        ;
-                        } catch (\Exception $e) {
-                            throw $e;
-                        }
-                    }
+                   
+                    $headerPutPart = $this->putPart($resUploadPart['url'], $file, $partSize, $retryCount);
                     
                     $parts['Parts'][$partNumber] = [
                         'PartNumber'    => $partNumber,
@@ -206,31 +175,34 @@ final readonly class ExposeClient
                     $partNumber++;
                 }
                 
-                $isPartsComplete = true;
                 fclose($file);
-            } catch (\Exception $e) {
+            } catch (\Throwable  $e) {
                 $this->create($config, $integrationToken)
                     ->request('DELETE', '/uploads/'. $mUploadId);
+
+                    throw $e;
             }
 
-            if ($isPartsComplete) {
-                $result = $this->create($config, $integrationToken)
-                ->request('POST', '/uploads/'. $mUploadId.'/complete', [
-                    'json' => [
-                        'parts' => $parts['Parts']
-                    ],
+            $data = array_merge([
+                'publication_id' => $publicationId,
+                'asset_id' => $asset->getId(),
+                'title' => $resolvedTitle,
+                'description' => $description,
+                'translations' => $translations,
+                'multipart' => [
+                    'uploadId'  => $mUploadId,
+                    'parts'     => $parts['Parts'],
+                ],
+            ], $extraData);
+
+            $pubAsset = $this->create($config, $integrationToken)
+                ->request('POST', '/assets', [
+                    'json' => $data,
                 ])
                 ->toArray()
-                ;
+            ;
 
-                $this->create($config, $integrationToken)
-                    ->request('PUT', '/assets/'. $exposeAssetId, [
-                        'json' => [
-                            'path' => $result['path']
-                        ],
-                    ])
-                ;
-            }
+            $exposeAssetId = $pubAsset['id'];
 
             foreach ([
                 'preview',
@@ -281,5 +253,22 @@ final readonly class ExposeClient
         $this->create($config, $integrationToken)
             ->request('DELETE', '/assets/'.$assetId)
         ;
+    }
+
+    private function putPart(string $url, mixed $handleFile, int $partSize, int $retryCount)
+    {
+        if ($retryCount > 0) {
+            $retryCount--;
+            try {
+                return $this->uploadClient->request('PUT', $url, [
+                    'body' => fread($handleFile, 10 * 1024 * 1024), // 10Mo
+                ])->getHeaders();
+            } catch (\Throwable $e) {
+                if ($retryCount == 0) {
+                    throw $e; // retry unsuccess
+                }
+                $this->putPart($url, $handleFile, $partSize, $retryCount);
+            }
+        }
     }
 }
