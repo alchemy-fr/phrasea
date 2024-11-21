@@ -2,16 +2,17 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
-use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Integration\IntegrationToken;
-use App\Integration\IntegrationConfig;
-use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Storage\RenditionManager;
+use App\Attribute\AttributeInterface;
+use App\Integration\IntegrationConfig;
+use App\Asset\Attribute\AssetTitleResolver;
+use App\Asset\Attribute\AttributesResolver;
+use App\Entity\Integration\IntegrationToken;
+use Alchemy\StorageBundle\Upload\UploadManager;
+use App\Integration\Phrasea\PhraseaClientFactory;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -23,6 +24,7 @@ final readonly class ExposeClient
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
         private RenditionManager $renditionManager,
+        private UploadManager $uploadManager
     ) {
     }
 
@@ -149,13 +151,86 @@ final readonly class ExposeClient
             ;
             $exposeAssetId = $pubAsset['id'];
 
-            $this->uploadClient->request('PUT', $pubAsset['uploadURL'], [
-                'headers' => [
-                    'Content-Type' => $source->getType(),
-                    'Content-Length' => filesize($fetchedFilePath),
-                ],
-                'body' => fopen($fetchedFilePath, 'r'),
-            ]);
+            $uploadsData = [
+                'filename' => $source->getOriginalName(),
+                'type' => $source->getType(),
+                'size' => (int)$source->getSize(),
+            ];
+
+            $resUploads = $this->create($config, $integrationToken)
+                ->request('POST', '/uploads', [
+                    'json' => $uploadsData,
+                ])
+                ->toArray()
+            ;
+
+            $mUploadId = $resUploads['id'];
+            $parts['Parts'] = [];
+            $isPartsComplete = false;
+           
+            // Upload the file in parts.
+            try {
+                $file = fopen($fetchedFilePath, 'r');
+                $partNumber = 1;
+                while (!feof($file)) {
+                    $resUploadPart = $this->create($config, $integrationToken)
+                        ->request('POST', '/uploads/'. $mUploadId .'/part', [
+                            'json' => ['part' => $partNumber],
+                        ])
+                        ->toArray()
+                    ;
+
+                    try {
+                        $headerPutPart = $this->uploadClient->request('PUT', $resUploadPart['url'], [
+                                'body' => fread($file, 10 * 1024 * 1024), // 10Mo
+                            ])->getHeaders()
+                        ;
+
+                    } catch (\Exception $e) {
+                        sleep (1); // retry after 1 second
+                        try {
+                            $headerPutPart = $this->uploadClient->request('PUT', $resUploadPart['url'], [
+                                'body' => fread($file, 10 * 1024 * 1024), // 10Mo
+                            ])->getHeaders()
+                        ;
+                        } catch (\Exception $e) {
+                            throw $e;
+                        }
+                    }
+                    
+                    $parts['Parts'][$partNumber] = [
+                        'PartNumber'    => $partNumber,
+                        'ETag'          => current($headerPutPart['etag']),
+                    ];
+
+                    $partNumber++;
+                }
+                
+                $isPartsComplete = true;
+                fclose($file);
+            } catch (\Exception $e) {
+                $this->create($config, $integrationToken)
+                    ->request('DELETE', '/uploads/'. $mUploadId);
+            }
+
+            if ($isPartsComplete) {
+                $result = $this->create($config, $integrationToken)
+                ->request('POST', '/uploads/'. $mUploadId.'/complete', [
+                    'json' => [
+                        'parts' => $parts['Parts']
+                    ],
+                ])
+                ->toArray()
+                ;
+
+                $this->create($config, $integrationToken)
+                    ->request('PUT', '/assets/'. $exposeAssetId, [
+                        'json' => [
+                            'path' => $result['path']
+                        ],
+                    ])
+                ;
+            }
 
             foreach ([
                 'preview',

@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Entity;
 
-use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
+use Ramsey\Uuid\Uuid;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
-use Ramsey\Uuid\Uuid;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
+use Alchemy\StorageBundle\Controller\MultipartUploadCancelAction;
+use Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction;
 
 #[ApiResource(
     shortName: 'Upload',
@@ -67,7 +69,42 @@ use Symfony\Component\Serializer\Annotation\Groups;
                         ]],
                 ],
             ]),
-        new Delete(openapiContext: ['summary' => 'Cancel an upload', 'description' => 'Cancel an upload.']),
+        new Post(
+            uriTemplate: '/uploads/{id}/complete',
+            controller: MultipartUploadCompleteAction::class,
+            openapiContext: [
+                'summary'       => 'Complete a multi part upload.',
+                'requestBody'   => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'parts' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'ETag'          => ['type' => 'string'],
+                                                'PartNumber'    => ['type' => 'integer'],
+                                            ],
+                                        ],
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ),    
+        new Delete(
+            controller: MultipartUploadCancelAction::class,
+            openapiContext: [
+                'summary' => 'Cancel an upload', 
+                'description' => 'Cancel an upload.'
+            ]
+        ),
+
         new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')'),
     ],
     normalizationContext: ['groups' => ['upload:read']],
@@ -149,6 +186,7 @@ class MultipartUpload
 
     public function setUploadId(string $uploadId): void
     {
+        file_put_contents("log.txt", "nandalo setuploadid");
         $this->uploadId = $uploadId;
     }
 

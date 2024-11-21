@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Upload;
 
-use Alchemy\StorageBundle\Entity\MultipartUpload;
-use Aws\Api\DateTimeResult;
 use Aws\S3\S3Client;
-use Doctrine\ORM\EntityManagerInterface;
+use Aws\Api\DateTimeResult;
 use Psr\Log\LoggerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class UploadManager
 {
@@ -62,7 +62,7 @@ final readonly class UploadManager
         return (string) $request->getUri();
     }
 
-    public function markComplete(string $uploadId, string $filename, array $parts): void
+    public function markComplete(string $uploadId, string $filename, array $parts)
     {
         $params = [
             'Bucket' => $this->uploadBucket,
@@ -73,7 +73,7 @@ final readonly class UploadManager
             'UploadId' => $uploadId,
         ];
 
-        $this->client->completeMultipartUpload($params);
+        return $this->client->completeMultipartUpload($params);
     }
 
     public function createPutObjectSignedURL(string $path, string $contentType): string
