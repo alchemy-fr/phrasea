@@ -186,7 +186,6 @@ class MultipartUpload
 
     public function setUploadId(string $uploadId): void
     {
-        file_put_contents("log.txt", "nandalo setuploadid");
         $this->uploadId = $uploadId;
     }
 
