@@ -24,7 +24,7 @@ class AlternateUrlCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('AlternateUrl')
-            ->setEntityLabelInPlural('AlternateUrl')
+            ->setEntityLabelInPlural('AlternateUrls')
             ->setSearchFields(['id', 'type', 'label']);
     }
 

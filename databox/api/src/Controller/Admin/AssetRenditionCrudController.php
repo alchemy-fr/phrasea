@@ -40,8 +40,8 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('AssetRendition')
-            ->setEntityLabelInPlural('AssetRendition')
+            ->setEntityLabelInSingular('Asset Rendition')
+            ->setEntityLabelInPlural('Asset Renditions')
             ->setSearchFields(['id', 'definition.name'])
             ->setPaginatorPageSize(100);
     }

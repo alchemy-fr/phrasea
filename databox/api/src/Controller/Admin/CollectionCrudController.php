@@ -33,7 +33,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Collection')
-            ->setEntityLabelInPlural('Collection')
+            ->setEntityLabelInPlural('Collections')
             ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
             ->setPaginatorPageSize(100);
     }

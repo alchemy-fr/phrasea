@@ -31,7 +31,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Workspace')
-            ->setEntityLabelInPlural('Workspace')
+            ->setEntityLabelInPlural('Workspaces')
             ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
             ->setPaginatorPageSize(100);
     }

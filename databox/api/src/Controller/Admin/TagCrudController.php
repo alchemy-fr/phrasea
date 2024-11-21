@@ -26,7 +26,7 @@ class TagCrudController extends AbstractAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Tag')
-            ->setEntityLabelInPlural('Tag')
+            ->setEntityLabelInPlural('Tags')
             ->setSearchFields(['id', 'name', 'locale'])
             ->setPaginatorPageSize(100);
     }
