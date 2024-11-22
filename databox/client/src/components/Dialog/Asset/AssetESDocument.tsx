@@ -1,10 +1,12 @@
-import {Asset, StateSetter} from '../../../types';
+import {Asset, ESDocumentState, StateSetter} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
-import {getAssetESDocument} from '../../../api/asset';
+import {getAssetESDocument, syncAssetESDocument} from '../../../api/asset';
+import {useTranslation} from 'react-i18next';
 import {useCallback, useEffect, useState} from "react";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import {IconButton, LinearProgress, Typography} from "@mui/material";
+import {Alert, Button} from "@mui/material";
+import {LoadingButton} from "@mui/lab";
 
 type Props = {
     data: Asset;
@@ -16,8 +18,10 @@ export default function AssetESDocument({
     onClose,
     minHeight,
 }: Props) {
-    const [document, setDocument] = useState<object>();
+    const {t} = useTranslation();
+    const [document, setDocument] = useState<ESDocumentState>();
     const [loading, setLoading] = useState(false);
+    const [synced, setSynced] = useState(false);
 
     const refresh = useCallback(async () => {
         setLoading(true);
@@ -32,17 +36,49 @@ export default function AssetESDocument({
         refresh();
     }, [refresh]);
 
+    const sync = async () => {
+        setSynced(true);
+        try {
+            await syncAssetESDocument(data.id)
+        } catch (e) {
+            setSynced(false);
+        }
+    }
+
     return (
-        <ContentTab onClose={onClose} minHeight={minHeight}>
-            {loading && <LinearProgress/>}
+        <ContentTab
+            loading={loading}
+            disablePadding
+            disableGutters
+            onClose={onClose}
+            minHeight={minHeight}
+            actions={<>
+                <LoadingButton
+                    loading={loading}
+                    disabled={loading}
+                    onClick={refresh}
+                    startIcon={<RefreshIcon/>}
+                >
+                    {t('asset.es_document.refresh', 'Refresh')}
+                </LoadingButton>
+            </>}
+        >
+
             {document ? <>
-                <IconButton onClick={refresh}>
-                    <RefreshIcon />
-                </IconButton>
+                {!document.synced ? <Alert severity={'warning'}
+                    action={<Button
+                        onClick={sync}
+                        disabled={synced}
+                    >
+                        {synced ? t('asset.es_document.sync_scheduled', 'Sync scheduled') : t('asset.es_document.sync_now', 'Sync Now')}
+                    </Button>}
+                >
+                    {t('asset.es_document.not_synced', 'This document is not synced.')}
+                </Alert> : null}
                 <pre style={{
                     fontSize: 12,
                 }}>
-                    {JSON.stringify(document, null, 4)}
+                    {JSON.stringify(document.data, null, 4)}
                 </pre>
             </> : null}
         </ContentTab>

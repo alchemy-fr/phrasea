@@ -47,6 +47,11 @@ export type Share = {
     alternateUrls: ShareAlternateUrl[];
 };
 
+export type ESDocumentState = {
+    synced: boolean;
+    data: object;
+}
+
 export interface Asset
     extends IPermissions<{
         canEditAttributes: boolean;

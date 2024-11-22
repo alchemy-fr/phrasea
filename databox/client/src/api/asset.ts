@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {Asset, AssetFileVersion, Attribute, Collection, Share} from '../types';
+import {Asset, AssetFileVersion, Attribute, Collection, ESDocumentState, Share} from '../types';
 import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
@@ -95,8 +95,12 @@ export async function getAsset(id: string): Promise<Asset> {
     return (await apiClient.get(`/assets/${id}`)).data;
 }
 
-export async function getAssetESDocument(id: string): Promise<Asset> {
-    return (await apiClient.get(`/assets/${id}/es-document`)).data.data;
+export async function getAssetESDocument(id: string): Promise<ESDocumentState> {
+    return (await apiClient.get(`/assets/${id}/es-document`)).data;
+}
+
+export async function syncAssetESDocument(id: string): Promise<void> {
+    await apiClient.post(`/assets/${id}/es-document-sync`, {});
 }
 
 export async function getAssetShares(assetId: string): Promise<Share[]> {

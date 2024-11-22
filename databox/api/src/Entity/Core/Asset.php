@@ -24,10 +24,11 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Output\AssetOutput;
-use App\Api\Model\Output\ESDocumentOutput;
+use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
+use App\Api\Processor\AssetElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
@@ -161,9 +162,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             uriTemplate: '/assets/{id}/es-document',
-            output: ESDocumentOutput::class,
+            output: ESDocumentStateOutput::class,
             name: 'es_document',
             provider: AssetElasticsearchDocumentProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/es-document-sync',
+            name: 'sync_es_document',
+            processor: AssetElasticsearchDocumentSyncProcessor::class,
         ),
     ],
     normalizationContext: [

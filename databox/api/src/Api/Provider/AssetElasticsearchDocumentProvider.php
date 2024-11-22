@@ -8,13 +8,11 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Api\Model\Output\ESDocumentOutput;
 use App\Api\Traits\ItemProviderAwareTrait;
-use App\Elasticsearch\ElasticSearchClient;
+use App\Elasticsearch\ESDocumentStateManager;
 use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Elastica\Request;
 
 final class AssetElasticsearchDocumentProvider implements ProviderInterface
 {
@@ -23,7 +21,7 @@ final class AssetElasticsearchDocumentProvider implements ProviderInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ElasticSearchClient $elasticSearchClient,
+        private readonly ESDocumentStateManager $esDocumentStateManager,
     ) {
     }
 
@@ -34,10 +32,7 @@ final class AssetElasticsearchDocumentProvider implements ProviderInterface
         $this->denyAccessUnlessGranted(JwtUser::ROLE_TECH);
 
         if ($asset instanceof Asset) {
-            $indexName = $this->elasticSearchClient->getIndexName('asset');
-            $response = $this->elasticSearchClient->request($indexName.'/_doc/'.$asset->getId(), [], Request::GET);
-
-            return new ESDocumentOutput($response->getData());
+            return $this->esDocumentStateManager->getObjectState($asset);
         }
 
         return null;
