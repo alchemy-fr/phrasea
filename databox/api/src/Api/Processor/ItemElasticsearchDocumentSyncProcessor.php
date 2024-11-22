@@ -9,10 +9,9 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Entity\Core\Asset;
 use Symfony\Component\HttpFoundation\Response;
 
-class AssetElasticsearchDocumentSyncProcessor implements ProcessorInterface
+class ItemElasticsearchDocumentSyncProcessor implements ProcessorInterface
 {
     use SecurityAwareTrait;
 
@@ -21,9 +20,6 @@ class AssetElasticsearchDocumentSyncProcessor implements ProcessorInterface
     ) {
     }
 
-    /**
-     * @param Asset $data
-     */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Response
     {
         $this->denyAccessUnlessGranted(JwtUser::ROLE_TECH);

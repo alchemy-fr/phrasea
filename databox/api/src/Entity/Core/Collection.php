@@ -19,8 +19,11 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Output\CollectionOutput;
+use App\Api\Model\Output\ESDocumentStateOutput;
+use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Provider\CollectionProvider;
+use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\DeletedAtTrait;
@@ -79,6 +82,17 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         ),
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Get(
+            uriTemplate: '/collections/{id}/es-document',
+            output: ESDocumentStateOutput::class,
+            name: 'collection_es_document',
+            provider: ItemElasticsearchDocumentProvider::class,
+        ),
+        new Post(
+            uriTemplate: '/collections/{id}/es-document-sync',
+            name: 'collection_sync_es_document',
+            processor: ItemElasticsearchDocumentSyncProcessor::class,
+        ),
     ],
     normalizationContext: [
         'enable_max_depth' => true,

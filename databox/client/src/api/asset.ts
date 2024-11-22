@@ -95,12 +95,12 @@ export async function getAsset(id: string): Promise<Asset> {
     return (await apiClient.get(`/assets/${id}`)).data;
 }
 
-export async function getAssetESDocument(id: string): Promise<ESDocumentState> {
-    return (await apiClient.get(`/assets/${id}/es-document`)).data;
+export async function getESDocument(entity: string, id: string): Promise<ESDocumentState> {
+    return (await apiClient.get(`/${entity}/${id}/es-document`)).data;
 }
 
-export async function syncAssetESDocument(id: string): Promise<void> {
-    await apiClient.post(`/assets/${id}/es-document-sync`, {});
+export async function syncESDocument(entity: string, id: string): Promise<void> {
+    await apiClient.post(`/${entity}/${id}/es-document-sync`, {});
 }
 
 export async function getAssetShares(assetId: string): Promise<Share[]> {

@@ -1,23 +1,24 @@
-import {Asset, ESDocumentState, StateSetter} from '../../../types';
+import {ESDocumentState} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
-import {getAssetESDocument, syncAssetESDocument} from '../../../api/asset';
+import {getESDocument, syncESDocument} from '../../../api/asset';
 import {useTranslation} from 'react-i18next';
 import {useCallback, useEffect, useState} from "react";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {Alert, Button} from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 
-type Props = {
-    data: Asset;
-    setData: StateSetter<Asset>;
+type Props<T extends object> = {
+    data: T;
+    entity: string;
 } & DialogTabProps;
 
-export default function AssetESDocument({
+export default function ESDocument<T>({
     data,
     onClose,
     minHeight,
-}: Props) {
+    entity,
+}: Props<T>) {
     const {t} = useTranslation();
     const [document, setDocument] = useState<ESDocumentState>();
     const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function AssetESDocument({
     const refresh = useCallback(async () => {
         setLoading(true);
         try {
-            setDocument(await getAssetESDocument(data.id));
+            setDocument(await getESDocument(entity, data.id));
         } finally {
             setLoading(false);
         }
@@ -39,7 +40,7 @@ export default function AssetESDocument({
     const sync = async () => {
         setSynced(true);
         try {
-            await syncAssetESDocument(data.id)
+            await syncESDocument(entity, data.id)
         } catch (e) {
             setSynced(false);
         }
@@ -59,21 +60,21 @@ export default function AssetESDocument({
                     onClick={refresh}
                     startIcon={<RefreshIcon/>}
                 >
-                    {t('asset.es_document.refresh', 'Refresh')}
+                    {t('es_document.refresh', 'Refresh')}
                 </LoadingButton>
             </>}
         >
 
             {document ? <>
                 {!document.synced ? <Alert severity={'warning'}
-                    action={<Button
-                        onClick={sync}
-                        disabled={synced}
-                    >
-                        {synced ? t('asset.es_document.sync_scheduled', 'Sync scheduled') : t('asset.es_document.sync_now', 'Sync Now')}
-                    </Button>}
+                                           action={<Button
+                                               onClick={sync}
+                                               disabled={synced}
+                                           >
+                                               {synced ? t('es_document.sync_scheduled', 'Sync scheduled') : t('asset.es_document.sync_now', 'Sync Now')}
+                                           </Button>}
                 >
-                    {t('asset.es_document.not_synced', 'This document is not synced.')}
+                    {t('es_document.not_synced', 'This document is not synced.')}
                 </Alert> : null}
                 <pre style={{
                     fontSize: 12,

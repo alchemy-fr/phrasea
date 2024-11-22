@@ -16,7 +16,7 @@ import {modalRoutes} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import AssetWorkflow from './AssetWorkflow.tsx';
 import {useAuth} from '@alchemy/react-auth';
-import AssetESDocument from "./AssetESDocument.tsx";
+import ESDocument from "./ESDocument.tsx";
 
 type Props = {};
 
@@ -133,10 +133,11 @@ export default function AssetDialog({}: Props) {
                 },
                 {
                     title: t('asset.manage.es_doc.title', 'ES Document'),
-                    component: AssetESDocument,
+                    component: ESDocument,
                     id: 'es_doc',
                     props: {
                         data,
+                        entity: 'assets',
                     },
                     enabled: user?.roles?.includes('tech') ?? false,
                 },
