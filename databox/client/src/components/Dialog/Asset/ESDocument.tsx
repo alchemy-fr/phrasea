@@ -1,4 +1,4 @@
-import {ESDocumentState} from '../../../types';
+import {Entity, ESDocumentState} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {getESDocument, syncESDocument} from '../../../api/asset';
@@ -8,12 +8,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import {Alert, Button} from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 
-type Props<T extends object> = {
+type Props<T extends Entity> = {
     data: T;
     entity: string;
 } & DialogTabProps;
 
-export default function ESDocument<T>({
+export default function ESDocument<T extends Entity>({
     data,
     onClose,
     minHeight,

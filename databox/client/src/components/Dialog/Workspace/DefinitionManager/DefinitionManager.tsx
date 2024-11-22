@@ -28,11 +28,11 @@ import SortableList, {
     SortableItem,
     SortableItemProps,
 } from '../../../Ui/Sortable/SortableList.tsx';
-import {Workspace} from '../../../../types.ts';
+import {Entity, Workspace} from '../../../../types.ts';
 import ItemForm from './ItemForm.tsx';
 import {UseFormSubmitReturn} from '@alchemy/api';
 
-export type DefinitionBase = ApiHydraObjectResponse & {id: string};
+export type DefinitionBase = ApiHydraObjectResponse & Entity;
 
 export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect} from 'react';
-import {Ace, UserType} from '../../types';
+import {Ace, Entity, UserType} from '../../types';
 import UserSelect from '../Form/UserSelect';
 import GroupSelect from '../Form/GroupSelect';
 import {Grid} from '@mui/material';
@@ -44,7 +44,7 @@ export default function PermissionList({
     }, [permissions]);
 
     const addEntry = async (
-        entry: {id: string; type: UserType},
+        entry: {type: UserType} & Entity,
         mask: number
     ): Promise<void> => {
         setPermissions(p =>

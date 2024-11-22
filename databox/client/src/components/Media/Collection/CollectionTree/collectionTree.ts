@@ -1,4 +1,4 @@
-import {CollectionOptionalWorkspace} from '../../../../types.ts';
+import {CollectionOptionalWorkspace, Entity} from '../../../../types.ts';
 import {nodeNewPrefix} from '../EditableTree.tsx';
 
 const nodeSeparator = '|';
@@ -62,10 +62,9 @@ export function normalizeNodeId(
 }
 
 export type NewCollectionNodeState = {
-    id: string;
     value: string;
     editing?: boolean | undefined;
-};
+} & Entity;
 
 export type NewCollectionPathState = {
     rootNode: string;

@@ -9,8 +9,7 @@ type AlternateUrl = {
     label?: string;
 };
 
-export interface File {
-    id: string;
+export interface File extends Entity {
     url?: string;
     type: string;
     alternateUrls: AlternateUrl[];
@@ -25,9 +24,8 @@ export type GroupValue = {
 };
 
 export type User = {
-    id: string;
     username: string;
-};
+} & Entity;
 
 export type ShareAlternateUrl = {
     name: string;
@@ -36,7 +34,6 @@ export type ShareAlternateUrl = {
 };
 
 export type Share = {
-    id: string;
     title?: string | undefined;
     asset: Asset;
     token: string;
@@ -45,7 +42,7 @@ export type Share = {
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
     alternateUrls: ShareAlternateUrl[];
-};
+} & Entity;
 
 export type ESDocumentState = {
     synced: boolean;
@@ -56,8 +53,7 @@ export interface Asset
     extends IPermissions<{
         canEditAttributes: boolean;
         canShare: boolean;
-    }> {
-    id: string;
+    }>, Entity {
     title?: string | undefined;
     resolvedTitle?: string;
     titleHighlight: string | null;
@@ -87,8 +83,7 @@ type AttrValue = any;
 
 type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
 
-export interface Attribute extends IPermissions {
-    id: string;
+export interface Attribute extends IPermissions, Entity {
     definition: AttributeDefinition;
     origin: AttributeOrigin;
     multiple: boolean;
@@ -101,16 +96,14 @@ export interface Attribute extends IPermissions {
     assetAnnotations?: AssetAnnotation[];
 }
 
-export interface AssetFileVersion {
-    id: string;
+export interface AssetFileVersion extends Entity {
     asset: Asset;
     file: File;
     name: string;
     createdAt: string;
 }
 
-export interface AttributeDefinition extends IPermissions {
-    id: string;
+export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
     slug: string;
     fieldType: string;
@@ -129,8 +122,7 @@ export interface AttributeDefinition extends IPermissions {
     class: AttributeClass | string | null;
 }
 
-export interface AttributeClass extends ApiHydraObjectResponse {
-    id: string;
+export interface AttributeClass extends ApiHydraObjectResponse, Entity {
     name: string;
     public: boolean;
     editable: boolean;
@@ -142,8 +134,7 @@ export interface FieldType extends ApiHydraObjectResponse {
     title: string;
 }
 
-export interface RenditionDefinition extends ApiHydraObjectResponse {
-    id: string;
+export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     name: string;
     parent?: RenditionDefinition | string | undefined | null;
     class: AttributeClass | string | null;
@@ -157,8 +148,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse {
     priority: number;
 }
 
-export interface AssetRendition extends ApiHydraObjectResponse {
-    id: string;
+export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
     file: File | undefined;
     ready: boolean;
@@ -168,15 +158,13 @@ export interface AssetRendition extends ApiHydraObjectResponse {
     substituted: boolean;
 }
 
-export interface RenditionClass extends ApiHydraObjectResponse {
-    id: string;
+export interface RenditionClass extends ApiHydraObjectResponse, Entity {
     name: string;
     workspace: Workspace | string;
     public: boolean;
 }
 
-export interface RenditionRule extends ApiHydraObjectResponse {
-    id: string;
+export interface RenditionRule extends ApiHydraObjectResponse, Entity {
     name: string;
     userId: string | null;
     groupId: string | null;
@@ -198,8 +186,7 @@ export interface IPermissions<E extends Record<string, boolean> = {}>
     capabilities: TPermission<E>;
 }
 
-export interface TagFilterRule extends ApiHydraObjectResponse {
-    id: string;
+export interface TagFilterRule extends ApiHydraObjectResponse, Entity {
     userId?: string;
     username?: string;
     groupId?: string;
@@ -215,25 +202,22 @@ type KeyTranslations = {
 };
 
 export type AttributeEntity = {
-    id: string;
     type: string;
     locale: string;
     value: string;
     translations: KeyTranslations;
     createdAt: string;
     updatedAt: string;
-} & ApiHydraObjectResponse;
+} & ApiHydraObjectResponse & Entity;
 
-export interface Tag extends ApiHydraObjectResponse, WithTranslations {
-    id: string;
+export interface Tag extends ApiHydraObjectResponse, WithTranslations, Entity {
     name: string;
     nameTranslated: string;
     color: string | null;
     workspace: Workspace | string;
 }
 
-export interface Group {
-    id: string;
+export interface Group extends Entity {
     name: string;
 }
 
@@ -242,8 +226,7 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
     'workspace'
 >;
 
-export interface Collection extends IPermissions {
-    id: string;
+export interface Collection extends IPermissions, Entity {
     title: string;
     absoluteTitle?: string;
     children?: CollectionOptionalWorkspace[];
@@ -257,8 +240,7 @@ export interface Collection extends IPermissions {
     owner?: User;
 }
 
-export interface Basket extends IPermissions {
-    id: string;
+export interface Basket extends IPermissions, Entity {
     title: string;
     titleHighlight?: string | undefined;
     description?: string | undefined;
@@ -269,8 +251,7 @@ export interface Basket extends IPermissions {
     owner?: User;
 }
 
-export interface BasketAsset {
-    id: string;
+export interface BasketAsset extends Entity {
     asset: Asset;
     context?: any;
     titleHighlight: string;
@@ -280,8 +261,7 @@ export interface BasketAsset {
     assetAnnotations?: AssetAnnotation[];
 }
 
-export interface Workspace extends IPermissions {
-    id: string;
+export interface Workspace extends IPermissions, Entity {
     name: string;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
@@ -290,15 +270,13 @@ export interface Workspace extends IPermissions {
 }
 
 export type IntegrationData = {
-    id: string;
     object?: object | undefined;
     keyId: string | null;
     name: string;
     value: any;
-};
+} & Entity;
 
-export interface WorkspaceIntegration {
-    id: string;
+export interface WorkspaceIntegration extends Entity {
     title: string;
     integration: Integration;
     data: IntegrationData[];
@@ -307,12 +285,11 @@ export interface WorkspaceIntegration {
 }
 
 export type IntegrationToken = {
-    id: string;
     userId: string;
     expired: boolean;
     expiresAt: string;
     createdAt: string;
-};
+} & Entity;
 
 export enum UserType {
     User = 'user',
@@ -334,18 +311,15 @@ export type Ace = (
           user?: User | null;
       }
 ) & {
-    id: string;
     mask: number;
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
-};
+} & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
-export type AssetOrAssetContainer = {
-    id: string;
-};
+export type AssetOrAssetContainer = {} & Entity;
 
 export enum AnnotationType {
     Point = 'point',
@@ -359,3 +333,7 @@ export type AssetAnnotation = {
     type: AnnotationType;
     [prop: string]: any;
 };
+
+export interface Entity {
+    id: string;
+}
