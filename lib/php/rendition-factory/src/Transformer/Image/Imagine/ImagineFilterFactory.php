@@ -10,7 +10,6 @@ use Liip\ImagineBundle\Binary\SimpleMimeTypeGuesser;
 use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Imagine\Filter\Loader\AutoRotateFilterLoader;
-use Liip\ImagineBundle\Imagine\Filter\Loader\BackgroundFilterLoader;
 use Liip\ImagineBundle\Imagine\Filter\Loader\CropFilterLoader;
 use Liip\ImagineBundle\Imagine\Filter\Loader\DownscaleFilterLoader;
 use Liip\ImagineBundle\Imagine\Filter\Loader\FixedFilterLoader;
