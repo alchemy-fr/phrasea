@@ -156,16 +156,22 @@ export async function getAssetAttributes(
     return res.data['hydra:member'];
 }
 
+const assetFileVersionEntity = 'asset-file-versions';
+
 export async function getAssetFileVersions(
     assetId: string | string[]
 ): Promise<ApiCollectionResponse<AssetFileVersion>> {
-    const res = await apiClient.get(`/asset-file-versions`, {
+    const res = await apiClient.get(`/${assetFileVersionEntity}`, {
         params: {
             assetId,
         },
     });
 
     return getHydraCollection(res.data);
+}
+
+export async function deleteAssetFileVersion(id: string): Promise<void> {
+    await apiClient.delete(`${assetFileVersionEntity}/${id}`);
 }
 
 export enum AttributeBatchActionEnum {
