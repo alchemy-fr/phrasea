@@ -114,14 +114,14 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->andWhere('d.fieldType IN (:types)')
             ->setParameter('types', $types);
 
-        $this->restrictTranslatableFields($queryBuilder);
+        $this->restrictTranslatableFields($queryBuilder, 't');
 
         return $queryBuilder;
     }
 
-    private function restrictTranslatableFields(QueryBuilder $queryBuilder): void
+    private function restrictTranslatableFields(QueryBuilder $queryBuilder, $rootAlias = 'a'): void
     {
-        $queryBuilder->andWhere('d.translatable = true OR a.locale IS NULL');
+        $queryBuilder->andWhere(sprintf('d.translatable = true OR %s.locale IS NULL', $rootAlias));
     }
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityType): void
