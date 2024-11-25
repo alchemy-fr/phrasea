@@ -19,22 +19,14 @@ class BackgroundFilterLoader implements LoaderInterface
             $options['color'] ?? '#fff',
             $options['opacity'] ?? 100,
         );
-        $imageSize = $image->getSize();
+        $canvas = $this->imagine->create($image->getSize(), $background);
 
-        $imageW = $imageSize->getWidth();
-        $imageH = $imageSize->getHeight();
+        // DO NOT REMOVE THIS LINE
+        // This is a workaround to avoid a bug in Imagine that causes wrong positionning
+        // when the image has multiple layers
+        $unused = $image->layers()[0];
 
-        $canvas = $this->imagine->create($imageSize, $background);
-
-        /**
-         * @var ImageInterface $layer
-         */
-        foreach ($image->layers() as $layer) {
-            $layerSize = $layer->getSize();
-            $layerDW = ($imageW - $layerSize->getWidth()) / 2;
-            $layerDH = ($imageH - $layerSize->getHeight()) / 2;
-            $canvas->paste($layer, new Point($layerDW, $layerDH));
-        }
+        $canvas->paste($image, new Point(0, 0));
 
         return $canvas;
     }
