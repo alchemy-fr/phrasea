@@ -30,7 +30,7 @@ class FieldTypeProvider extends AbstractCollectionProvider
             $t->setName($name);
 
             return $t;
-        }, $this->attributeTypeRegistry->getTypes());
+        }, array_filter($this->attributeTypeRegistry->getTypes(), fn (AttributeTypeInterface $type): bool => $type->isListed()));
 
         usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
 
