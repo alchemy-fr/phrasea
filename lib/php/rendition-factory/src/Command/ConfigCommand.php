@@ -6,6 +6,7 @@ namespace Alchemy\RenditionFactory\Command;
 
 use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Alchemy\RenditionFactory\Transformer\DocumentationTree;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
@@ -57,54 +58,33 @@ class ConfigCommand extends Command
                     continue;
                 }
 
-                $output->writeln(sprintf('Family "%s":', $family->name));
+                $output->writeln(sprintf('# Family `%s`:', $family->name));
                 foreach ($familyConfig->getTransformations() as $transformation) {
                     $transformerName = $transformation->getModule();
-                    $output->writeln(sprintf('  - %s', $transformerName));
+                   // $output->writeln(sprintf('  - %s', $transformerName));
 
                     /** @var TransformerModuleInterface $transformer */
                     $transformer = $this->transformers->get($transformerName);
-                    $output->writeln($this->getTransformerDocumentation($transformerName, $transformer, $transformation->getOptions()));
+                    $output->writeln($this->getTransformerDocumentation($transformerName, $transformer));
+
+                    $this->checkTransformerConfiguration($transformerName, $transformer, $transformation->getOptions());
                 }
-            }
-        } else {
-            $transformers = array_flip($this->transformers->getProvidedServices());
-            ksort($transformers);
-            $last_parent = null;
-            foreach ($transformers as $fqcn => $transformerName) {
-                /** @var TransformerModuleInterface $transformer */
-                $transformer = $this->transformers->get($transformerName);
-                //                $parent = get_parent_class($transformer);
-                //                if ($parent !== $last_parent) {
-                //                    if ($last_parent) {
-                //                        // $output->writeln("\n\n## parent foot: $last_parent\n");
-                //                        $output->writeln($last_parent::getDocumentationFooter());
-                //                    }
-                //                    if ($parent) {
-                //                        // $output->writeln("\n\n## parent head: $parent\n");
-                //                        $output->writeln($parent::getDocumentationHeader());
-                //                    }
-                //                    $last_parent = $parent;
-                //                }
-                $output->writeln($this->no_getTransformerDocumentation($fqcn, $transformerName, $transformer));
             }
         }
 
         return 0;
     }
 
-    private function getTransformerDocumentation(string $transformerName, TransformerModuleInterface $transformer, array $options): string
+    private function getTransformerDocumentation(string $transformerName, TransformerModuleInterface $transformer): string
     {
-        $doc = "\n\n## $transformerName\n";
+        $docToText = function(DocumentationTree $documentation, int $depth=0) use (&$docToText): string {
 
-        if (method_exists($transformer, 'getDocumentationHeader')) {
-            $doc .= $transformer->getDocumentationHeader()."\n";
-        }
+            $text = '';
+            if($t = $documentation->getHeader()) {
+                $text .= $t . "\n";
+            }
 
-        if (method_exists($transformer, 'buildConfiguration')) {
-            $treeBuilder = new TreeBuilder('root');
-            $transformer->buildConfiguration($treeBuilder->getRootNode()->children());
-
+            $treeBuilder = $documentation->getTreeBuilder();
             $node = $treeBuilder->buildTree();
             $dumper = new YamlReferenceDumper();
 
@@ -112,24 +92,39 @@ class ConfigCommand extends Command
             $t = preg_replace("#^root:(\n( {4})?|\s+\[])#", "-\n", (string) $t);
             $t = str_replace("\n\n", "\n", $t);
             $t = str_replace("\n", "\n    ", $t);
-            //            $t = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', (string)$t);
-            //            $t = preg_replace("#\n {4}#", "\n", $t);
-            //            $t = preg_replace("#\n\n#", "\n", $t);
-            //            $t = trim(preg_replace("#^\n+#", '', $t));
 
-            $doc .= "```yaml\n".$t."```\n";
-            // var_dump($options);
+            $text .= "```yaml\n" . $t . "\n```\n";
 
-            $processor = new Processor();
-            $processor->process($treeBuilder->buildTree(), ['root' => $options]);
+            foreach ($documentation->getChildren() as $child) {
+                $text .= $docToText($child, $depth+1);
+            }
 
-        }
+            if($t = $documentation->getFooter()) {
+                $text .= $t . "\n";
+            }
 
-        if (method_exists($transformer, 'getDocumentationFooter')) {
-            $doc .= $transformer->getDocumentationFooter()."\n";
+            return $text;
+        };
+
+
+        $doc = "\n\n## $transformerName transformer module\n";
+        if (method_exists($transformer, 'getDocumentation')) {
+            $documentation = $transformer->getDocumentation();
+            $doc .= $docToText($documentation);
         }
 
         return $doc;
+    }
+
+    private function checkTransformerConfiguration(string $transformerName, TransformerModuleInterface $transformer, array $options): void
+    {
+        if (method_exists($transformer, 'getDocumentation')) {
+            $documentation = $transformer->getDocumentation();
+            $treeBuilder = $documentation->getTreeBuilder();
+
+            $processor = new Processor();
+            $processor->process($treeBuilder->buildTree(), ['root' => $options]);
+        }
     }
 
     private function no_getTransformerDocumentation(string $fqcn, string $transformerName, TransformerModuleInterface $transformer): string

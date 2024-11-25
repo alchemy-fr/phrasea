@@ -7,13 +7,17 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Transformer\DocumentationTree;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\ResizeFilter;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
 use FFMpeg\Media\Clip;
 use FFMpeg\Media\Video;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -26,7 +30,37 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         return 'ffmpeg';
     }
 
-    public function buildConfiguration(NodeBuilder $builder): void
+    public static function getDocumentation(): DocumentationTree
+    {
+        static $doc = null;
+        if(null === $doc) {
+            $treeBuilder = new TreeBuilder('root');
+            self::buildConfiguration($treeBuilder->getRootNode()->children());
+            $doc = new DocumentationTree(
+                $treeBuilder,
+                <<<HEADER
+                apply filters to a video using FFMpeg.
+                HEADER,
+                <<<FOOTER
+                ### List of`ffmpeg` filters:
+                FOOTER
+            );
+
+            foreach (self::getExtraConfigurationBuilders() as $name => $builder) {
+                $tree = new TreeBuilder($name);
+                $builder($tree->getRootNode());
+                $doc->addChild(new DocumentationTree(
+                    $tree,
+                    <<<HEADER
+                    #### `$name` filter
+                    HEADER
+                ));
+            }
+        }
+        return $doc;
+    }
+
+    private static function buildConfiguration(NodeBuilder $builder): void
     {
         // @formatter:off
         $builder
@@ -49,21 +83,27 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
                     ->defaultValue(2)
                     ->info('Change the number of ffmpeg passes')
                 ->end()
+                ->scalarNode('timeout')
+                    ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
+                ->end()
+                ->scalarNode('threads')
+                    ->info('Change the default number of threads used by ffmpeg')
+                ->end()
                 ->arrayNode('filters')
                     ->info('Filters to apply to the video')
                     ->arrayPrototype()
                         ->info('see list of available filters below')
                         ->validate()->always()->then(function ($x) {
-                            $this->validateFilter($x);
+                            self::validateFilter($x);
                         })->end()
                         ->children()
                             ->scalarNode('name')
                                 ->isRequired()
                                 ->info('Name of the filter')
-                                ->validate()
-                                    ->ifNotInArray(['pre_clip', 'remove_audio', 'resize', 'rotate', 'pad', 'crop', 'clip', 'synchronize', 'watermark', 'framerate'])
-                                    ->thenInvalid('Invalid filter')
-                                ->end()
+//                                ->validate()
+//                                    ->ifNotInArray(['pre_clip', 'remove_audio', 'resize', 'rotate', 'pad', 'crop', 'clip', 'synchronize', 'watermark', 'framerate'])
+//                                    ->thenInvalid('Invalid filter')
+//                                ->end()
                             ->end()
                             ->scalarNode('enabled')
                                 ->defaultTrue()
@@ -79,26 +119,26 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         // @formatter:on
     }
 
-    private function validateFilter(array $filter): void
+    private static function validateFilter(array $filter): void
     {
-        var_dump($filter);
         $name = $filter['name'];
         unset($filter['enabled']);
-        if ($conf = $this->getFiltersConfigurations()[$name] ?? null) {
-            $node = $conf->buildTree();
+        if ($builder = self::getExtraConfigurationBuilders()[$name] ?? null) {
+            $tree = new TreeBuilder($name);
+            $builder($tree->getRootNode());
             $processor = new Processor();
-            $processor->process($node, [$name => $filter]);
+            $processor->process($tree->buildTree(), [$name => $filter]);
         } else {
             throw new InvalidConfigurationException(sprintf('Unknown filter: %s', $name));
         }
     }
 
-    private function getFiltersConfigurations()
+    private static function getExtraConfigurationBuilders(): iterable
     {
         static $configurations = [
             // @formatter:off
-            'pre_clip' => (new TreeBuilder('pre_clip'))
-                ->getRootNode()
+            'pre_clip' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Clip the video before applying other filters')
                     ->children()
                         ->scalarNode('name')->isRequired()->end()
@@ -113,186 +153,175 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
                             ->info('Duration in seconds or timecode')
                             ->example('30 ; "00:00:30" ; "{{ input.duration/2 }}"')
                         ->end()
-                    ->end()
-                ->end(),
-            'clip' => (new TreeBuilder('clip'))
-                ->getRootNode()
+                    ->end();
+            },
+            'clip' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Clip the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('start')
-                            ->defaultValue(0)
-                            ->info('Offset of frame in seconds or timecode')
-                            ->example('2.5 ; "00:00:02.500" ; "{{ metadata.start }}"')
-                        ->end()
-                            ->scalarNode('duration')
-                            ->defaultValue(null)
-                            ->info('Duration in seconds or timecode')
-                            ->example('30 ; "00:00:30" ; "{{ input.duration/2 }}"')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('start')
+                    ->defaultValue(0)
+                    ->info('Offset of frame in seconds or timecode')
+                    ->example('2.5 ; "00:00:02.500" ; "{{ metadata.start }}"')
                     ->end()
-                ->end(),
-            'remove_audio' => (new TreeBuilder('remove_audio'))
-                ->getRootNode()
+                    ->scalarNode('duration')
+                    ->defaultValue(null)
+                    ->info('Duration in seconds or timecode')
+                    ->example('30 ; "00:00:30" ; "{{ input.duration/2 }}"')
+                    ->end()
+                    ->end();
+            },
+            'remove_audio' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Remove the audio from the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                    ->end()
-                ->end(),
-            'resize' => (new TreeBuilder('resize'))
-                ->getRootNode()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->end();
+            },
+            'resize' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Resize the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('width')
-                            ->isRequired()
-                            ->info('Width of the video')
-                        ->end()
-                        ->scalarNode('height')
-                            ->isRequired()
-                            ->info('Height of the video')
-                        ->end()
-                        ->scalarNode('mode')
-                            ->defaultValue(FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET)
-                            ->info('Resize mode')
-                            ->example('inset')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('width')
+                    ->isRequired()
+                    ->info('Width of the video')
                     ->end()
-                ->end(),
-            'rotate' => (new TreeBuilder('rotate'))
-                ->getRootNode()
+                    ->scalarNode('height')
+                    ->isRequired()
+                    ->info('Height of the video')
+                    ->end()
+                    ->scalarNode('mode')
+                    ->defaultValue(FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET)
+                    ->info('Resize mode')
+                    ->example('inset')
+                    ->end()
+                    ->scalarNode('force_standards')
+                    ->defaultValue(true)
+                    ->info('Correct the width/height to the closest "standard" size')
+                    ->end()
+                    ->end();
+            },
+            'rotate' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Rotate the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('angle')
-                            ->isRequired()
-                            ->info('Angle of rotation [0 | 90 | 180 | 270]')
-                            ->example('90')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('angle')
+                    ->isRequired()
+                    ->info('Angle of rotation [0 | 90 | 180 | 270]')
+                    ->example('90')
                     ->end()
-                ->end(),
-            'pad' => (new TreeBuilder('pad'))
-                ->getRootNode()
+                    ->end();
+            },
+            'pad' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Pad the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('width')
-                            ->isRequired()
-                            ->info('Width of the video')
-                        ->end()
-                        ->scalarNode('height')
-                            ->isRequired()
-                            ->info('Height of the video')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('width')
+                    ->isRequired()
+                    ->info('Width of the video')
                     ->end()
-                ->end(),
-            'crop' => (new TreeBuilder('crop'))
-                ->getRootNode()
+                    ->scalarNode('height')
+                    ->isRequired()
+                    ->info('Height of the video')
+                    ->end()
+                    ->end();
+            },
+            'crop' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Crop the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('x')
-                            ->isRequired()
-                            ->info('X coordinate')
-                        ->end()
-                        ->scalarNode('y')
-                            ->isRequired()
-                            ->info('Y coordinate')
-                        ->end()
-                        ->scalarNode('width')
-                            ->isRequired()
-                            ->info('Width of the video')
-                        ->end()
-                        ->scalarNode('height')
-                            ->isRequired()
-                            ->info('Height of the video')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('x')
+                    ->isRequired()
+                    ->info('X coordinate')
                     ->end()
-                ->end(),
-            'watermark' => (new TreeBuilder('watermark'))
-                ->getRootNode()
+                    ->scalarNode('y')
+                    ->isRequired()
+                    ->info('Y coordinate')
+                    ->end()
+                    ->scalarNode('width')
+                    ->isRequired()
+                    ->info('Width of the video')
+                    ->end()
+                    ->scalarNode('height')
+                    ->isRequired()
+                    ->info('Height of the video')
+                    ->end()
+                    ->end();
+            },
+            'watermark' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Apply a watermark on the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('position')
-                            ->isRequired()
-                            ->info('"relative" or "absolute" position')
-                        ->end()
-                        ->scalarNode('path')
-                            ->isRequired()
-                            ->info('Path to the watermark image')
-                        ->end()
-                        ->scalarNode('top')
-                            ->info('top coordinate (only if position is "relative", set top OR bottom)')
-                        ->end()
-                        ->scalarNode('bottom')
-                            ->info('bottom coordinate (only if position is "relative", set top OR bottom)')
-                        ->end()
-                        ->scalarNode('left')
-                            ->info('left coordinate (only if position is "relative", set left OR right)')
-                        ->end()
-                        ->scalarNode('right')
-                            ->info('right coordinate (only if position is "relative", set left OR right)')
-                        ->end()
-                        ->scalarNode('x')
-                            ->info('X coordinate (only if position is "absolute")')
-                        ->end()
-                        ->scalarNode('y')
-                            ->info('Y coordinate (only if position is "absolute")')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('position')
+                    ->isRequired()
+                    ->info('"relative" or "absolute" position')
                     ->end()
-                ->end(),
-            'framerate' => (new TreeBuilder('framerate'))
-                ->getRootNode()
+                    ->scalarNode('path')
+                    ->isRequired()
+                    ->info('Path to the watermark image')
+                    ->end()
+                    ->scalarNode('top')
+                    ->info('top coordinate (only if position is "relative", set top OR bottom)')
+                    ->end()
+                    ->scalarNode('bottom')
+                    ->info('bottom coordinate (only if position is "relative", set top OR bottom)')
+                    ->end()
+                    ->scalarNode('left')
+                    ->info('left coordinate (only if position is "relative", set left OR right)')
+                    ->end()
+                    ->scalarNode('right')
+                    ->info('right coordinate (only if position is "relative", set left OR right)')
+                    ->end()
+                    ->scalarNode('x')
+                    ->info('X coordinate (only if position is "absolute")')
+                    ->end()
+                    ->scalarNode('y')
+                    ->info('Y coordinate (only if position is "absolute")')
+                    ->end()
+                    ->end();
+            },
+            'framerate' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('Change the framerate')
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
-                        ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('framerate')
-                            ->isRequired()
-                            ->info('framerate')
-                        ->end()
-                        ->scalarNode('gop')
-                            ->info('gop')
-                        ->end()
+                    ->scalarNode('name')->isRequired()->end()
+                    ->scalarNode('enabled')->defaultTrue()->end()
+                    ->scalarNode('framerate')
+                    ->isRequired()
+                    ->info('framerate')
                     ->end()
-                ->end(),
-            'synchronize' => (new TreeBuilder('synchronize'))
-                ->getRootNode()
+                    ->scalarNode('gop')
+                    ->info('gop')
+                    ->end()
+                    ->end();
+            },
+            'synchronize' => function (ArrayNodeDefinition $root): void {
+                $root
                     ->info('re-synchronize audio and video')
                     ->children()
                         ->scalarNode('name')->isRequired()->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
-                    ->end()
-                ->end(),
-
+                    ->end();
+            },
             // @formatter:on
         ];
 
         return $configurations;
     }
 
-    private function getFiltersDocumentation()
-    {
-        /** @var TreeBuilder $treeBuilder */
-        foreach ($this->getFiltersConfigurations() as $name => $treeBuilder) {
-            $node = $treeBuilder->buildTree();
-            $dumper = new YamlReferenceDumper();
-            $t = $dumper->dumpNode($node);
-            //            $t = preg_replace("#root:(\n( {4})?|\s+\[])#", "-\n", (string)$t);
-            //            $t = preg_replace("#\n {4}#", "\n", $t);
-            //            $t = preg_replace("#\n\n#", "\n", $t);
-            //            $t = trim(preg_replace("#^\n+#", '', $t));
-            var_dump($t);
-        }
-    }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
@@ -481,6 +510,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
     {
         $dimension = $this->getDimension($options, $resolverContext, 'resize');
         $mode = $this->optionsResolver->resolveOption($options['mode'] ?? FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET, $resolverContext);
+        $forceStandards = $this->optionsResolver->resolveOption($options['force_standards'] ?? true, $resolverContext);
         if (!in_array(
             $mode,
             [
@@ -494,10 +524,7 @@ final readonly class FFMpegTransformerModule extends AbstractVideoTransformer im
         }
 
         $transformationContext->log(sprintf("  Applying 'resize' filter: dimension=[width=%s, height=%s], mode=%s", $dimension->getWidth(), $dimension->getHeight(), $mode));
-        $clip->filters()->resize(
-            $dimension,
-            $mode
-        );
+        $clip->addFilter(new ResizeFilter($dimension, $mode, $forceStandards));
 
         $isProjection = false;
     }
