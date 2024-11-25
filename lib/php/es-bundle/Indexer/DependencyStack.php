@@ -2,6 +2,8 @@
 
 namespace Alchemy\ESBundle\Indexer;
 
+use Doctrine\Common\Util\ClassUtils;
+
 class DependencyStack
 {
     /**
@@ -23,7 +25,7 @@ class DependencyStack
         private readonly array $currentBatch,
         array $previousParents
     ) {
-        $this->parents = $previousParents;
+        $this->parents = array_map(fn (string $c): string => ClassUtils::getRealClass($c), $previousParents);
     }
 
     public function getParents(): array
