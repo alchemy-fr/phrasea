@@ -49,7 +49,7 @@ class PopulatePassListener implements EventSubscriberInterface
 
         $count = $this->em
             ->getRepository($entityName)
-            ->getESQueryBuilder('t')
+            ->getESQueryBuilder()
             ->select('COUNT(t) as total')
             ->resetDQLPart('orderBy')
             ->getQuery()

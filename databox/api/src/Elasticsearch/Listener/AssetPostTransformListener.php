@@ -42,9 +42,11 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         foreach ($permFields as $key => $value) {
             $document->set($key, $value);
         }
-
-        $document->set(AttributeInterface::ATTRIBUTES_FIELD, [$this->compileAttributes($asset)]); // Wrap in an array to force replacing the whole field
         $document->set('renditions', $this->compileRenditions($asset));
+
+        $attrs = $this->compileAttributes($asset);
+        // Wrap in an array to force replacing the whole field
+        $document->set(AttributeInterface::ATTRIBUTES_FIELD, !empty($attrs) ? [$attrs] : null);
     }
 
     private function compileRenditions(Asset $asset): array

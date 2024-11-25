@@ -56,7 +56,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
 
     public function getAssetAttributes(string $assetId): array
     {
-        return $this
+        $queryBuilder = $this
             ->createQueryBuilder('a')
             ->select('a')
             ->andWhere('a.asset = :asset')
@@ -65,6 +65,13 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')
             ->addOrderBy('a.position', 'ASC')
+            ->addOrderBy('a.createdAt', 'ASC')
+            ->addOrderBy('a.id', 'ASC')
+        ;
+
+        $this->restrictTranslatableFields($queryBuilder);
+
+        return $queryBuilder
             ->getQuery()
             ->getResult();
     }
@@ -107,7 +114,14 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->andWhere('d.fieldType IN (:types)')
             ->setParameter('types', $types);
 
+        $this->restrictTranslatableFields($queryBuilder);
+
         return $queryBuilder;
+    }
+
+    private function restrictTranslatableFields(QueryBuilder $queryBuilder): void
+    {
+        $queryBuilder->andWhere('d.translatable = true OR a.locale IS NULL');
     }
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityType): void
