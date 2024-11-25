@@ -7,7 +7,7 @@ use Imagine\Image\ImagineInterface;
 use Imagine\Image\Point;
 use Liip\ImagineBundle\Imagine\Filter\Loader\LoaderInterface;
 
-class BackgroundFilterLoader implements LoaderInterface
+class BackgroundFillFilterLoader implements LoaderInterface
 {
     public function __construct(protected ImagineInterface $imagine)
     {
@@ -21,7 +21,6 @@ class BackgroundFilterLoader implements LoaderInterface
         );
         $canvas = $this->imagine->create($image->getSize(), $background);
 
-        // DO NOT REMOVE THIS LINE
         // This is a workaround to avoid a bug in Imagine that causes wrong positionning
         // when the image has multiple layers
         $unused = $image->layers()[0];

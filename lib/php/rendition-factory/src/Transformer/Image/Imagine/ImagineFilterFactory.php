@@ -62,7 +62,7 @@ final readonly class ImagineFilterFactory
                 $context,
                 $this->imagine,
             ),
-            'background' => new BackgroundFilterLoader($this->imagine),
+            'background_fill' => new BackgroundFillFilterLoader($this->imagine),
             'strip' => new StripFilterLoader(),
             'scale' => new ScaleFilterLoader(),
             'upscale' => new UpscaleFilterLoader(),
