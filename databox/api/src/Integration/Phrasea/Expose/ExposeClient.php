@@ -255,7 +255,7 @@ final readonly class ExposeClient
         ;
     }
 
-    private function putPart(string $url, mixed $handleFile, int $partSize, int $retryCount): ?array
+    private function putPart(string $url, mixed $handleFile, int $partSize, int $retryCount): array
     {
         if ($retryCount > 0) {
             $retryCount--;
@@ -269,6 +269,8 @@ final readonly class ExposeClient
                 }
                 return $this->putPart($url, $handleFile, $partSize, $retryCount);
             }
+        } else {
+            return [];
         }
     }
 }
