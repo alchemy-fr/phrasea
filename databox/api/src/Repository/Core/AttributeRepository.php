@@ -65,7 +65,7 @@ class AttributeRepository extends ServiceEntityRepository implements AttributeRe
             ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')
             ->addOrderBy('a.position', 'ASC')
-            ->addOrderBy('a.createdAt', 'ASC')
+            ->addOrderBy('a.value', 'ASC')
             ->addOrderBy('a.id', 'ASC')
         ;
 
