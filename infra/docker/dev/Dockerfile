@@ -32,7 +32,7 @@ RUN apk add --no-cache \
         vim \
         zsh \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
-    && mkdir -p /bootstrap/entrypoint.d \
+    && mkdir -p /docker/entrypoint.d \
     && git clone https://github.com/robbyrussell/oh-my-zsh.git /bootstrap/.oh-my-zsh \
     && adduser -D -u 1000 app \
     && addgroup -S sudo \
@@ -183,13 +183,13 @@ RUN npm install -g pnpm@^9.3.0
 COPY oh-my-zsh/.zshrc /bootstrap/.zshrc
 COPY entrypoint.sh /bootstrap/entrypoint.sh
 COPY symfony.ini /bootstrap/symfony.ini
-COPY entrypoint.d/* /bootstrap/entrypoint.d/
+COPY entrypoint.d/* /docker/entrypoint.d/
 COPY oh-my-zsh/themes/arthem.zsh-theme /bootstrap/.oh-my-zsh/themes/arthem.zsh-theme
 COPY php/dev-cli.ini $PHP_INI_DIR/conf.d/zz-dev-cli.ini
 
 RUN chmod -R +x \
         /bootstrap/entrypoint.sh \
-        /bootstrap/entrypoint.d/*.sh
+        /docker/entrypoint.d/*.sh
 
 ENTRYPOINT ["/bootstrap/entrypoint.sh"]
 

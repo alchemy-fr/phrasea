@@ -17,8 +17,8 @@ use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
 
-use App\Entity\Traits\CreatedAtTrait;
-use App\Entity\Traits\UpdatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;

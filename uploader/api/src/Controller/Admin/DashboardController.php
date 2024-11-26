@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
+use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use App\Entity\Asset;
 use App\Entity\Commit;
@@ -39,5 +40,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Data', 'fas fa-folder-open')->setSubItems($submenu3);
 
         yield $this->createDevMenu();
+
+        yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
     }
 }

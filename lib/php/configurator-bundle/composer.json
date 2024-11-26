@@ -1,0 +1,51 @@
+{
+    "name": "alchemy/configurator-bundle",
+    "type": "symfony-bundle",
+    "description": "Configurator bundle",
+    "keywords": [],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../core-bundle",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "alchemy/core-bundle": "@dev",
+        "aws/aws-sdk-php": "^3.325",
+        "symfony/framework-bundle": "^6"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\ConfiguratorBundle\\": "src/"
+        },
+        "exclude-from-classmap": [
+            "/tests/"
+        ]
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": "echo 'This project has no test...'"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\ConfiguratorBundle\\tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "rector/rector": "^1.0.4"
+    }
+}

@@ -11,6 +11,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
@@ -96,15 +103,15 @@
         "symfony/expression-language": "^6.3",
         "symfony/flex": "^1.1",
         "symfony/form": "^6.3",
-        "symfony/framework-bundle": "^6.4",
+        "symfony/framework-bundle": "^6.3",
         "symfony/amqp-messenger": "^6.3",
-        "symfony/mime": "^6|^7",
+        "symfony/mime": "^6.3",
         "symfony/process": "^6.3",
         "symfony/property-access": "^6.3",
         "symfony/property-info": "^6.3",
         "symfony/psr-http-message-bridge": "^2.1.4",
-        "symfony/security-bundle": "^4.0 || ^5 || ^6",
-        "symfony/serializer": "^6.4",
+        "symfony/security-bundle": "^6.3",
+        "symfony/serializer": "^6.3",
         "symfony/translation": "^6.3",
         "symfony/twig-bundle": "^6.3",
         "symfony/validator": "^6.3",
@@ -112,7 +119,7 @@
         "symfony/yaml": "^6.3",
         "twig/extensions": "^1.5",
         "easycorp/easyadmin-bundle": "^4.0",
-        "aws/aws-sdk-php": "^3.20",
+        "aws/aws-sdk-php": "^3.325",
         "oneup/flysystem-bundle": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.0",
         "lcobucci/jwt": "^5.0",

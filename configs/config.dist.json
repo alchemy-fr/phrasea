@@ -1,10 +1,4 @@
 {
-  "available_locales": [
-    "en",
-    "fr",
-    "es",
-    "fr_CA"
-  ],
   "uploader": {
     "max_upload_file_size": null,
     "max_upload_commit_size": null,

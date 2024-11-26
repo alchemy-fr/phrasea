@@ -10,6 +10,7 @@ use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
 use ApiPlatform\Symfony\Validator\Exception\ValidationException;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Pusher\Pusher;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Sentry\Monolog\Handler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -204,6 +205,16 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     ],
                 ]);
             }
+        }
+
+        if (isset($bundles['DoctrineBundle'])) {
+            $container->prependExtensionConfig('doctrine', [
+                'dbal' => [
+                    'types' => [
+                        'uuid' => UuidType::class,
+                    ],
+                ],
+            ]);
         }
     }
 }

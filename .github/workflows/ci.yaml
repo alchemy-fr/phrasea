@@ -36,10 +36,11 @@ jobs:
 
   build_configurator:
     name: 'Build Configurator'
-    uses: ./.github/workflows/build_base.yaml
+    uses: ./.github/workflows/build.yaml
     with:
       image: configurator
       context: ./configurator
+      withLibs: true
     secrets: inherit
     needs:
       - build_php-fpm-base
@@ -50,6 +51,14 @@ jobs:
     with:
       image: nginx-fpm-base
       context: ./infra/docker/nginx-fpm-base
+    secrets: inherit
+
+  build_nginx-client-base:
+    name: 'Build nginx-client-base'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: nginx-client-base
+      context: ./infra/docker/nginx-client-base
     secrets: inherit
 
   build_nodejs-base:

@@ -75,4 +75,6 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
 
 WORKDIR /srv/app
 
+RUN chown -R app:app .
+
 CMD ["true"]

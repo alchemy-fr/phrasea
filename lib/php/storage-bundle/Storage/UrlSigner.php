@@ -7,26 +7,15 @@ namespace Alchemy\StorageBundle\Storage;
 use Alchemy\StorageBundle\Cdn\CloudFrontUrlGenerator;
 use Aws\S3\S3Client;
 
-class UrlSigner
+final readonly class UrlSigner
 {
-    private S3Client $client;
-    private string $bucketName;
-    private int $ttl;
-    private CloudFrontUrlGenerator $cloudFrontUrlGenerator;
-    private string $pathPrefix;
-
     public function __construct(
-        S3Client $client,
-        string $bucketName,
-        int $ttl,
-        CloudFrontUrlGenerator $cloudFrontUrlGenerator,
-        string $pathPrefix = ''
+        private S3Client $client,
+        private string $bucketName,
+        private int $ttl,
+        private CloudFrontUrlGenerator $cloudFrontUrlGenerator,
+        private string $pathPrefix = ''
     ) {
-        $this->client = $client;
-        $this->bucketName = $bucketName;
-        $this->ttl = $ttl;
-        $this->cloudFrontUrlGenerator = $cloudFrontUrlGenerator;
-        $this->pathPrefix = $pathPrefix;
     }
 
     public function getSignedUrl(string $path, array $options = []): string

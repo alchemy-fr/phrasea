@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
+use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
@@ -49,7 +50,7 @@ class DashboardController extends AbstractAdminDashboardController
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
 
-        return $this->redirect($adminUrlGenerator->setController(WebhookCrudController::class)->generateUrl());
+        return $this->redirect($adminUrlGenerator->setController(WorkspaceCrudController::class)->generateUrl());
     }
 
     public function configureMenuItems(): iterable
@@ -107,7 +108,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
         ];
 
-        $submenu6 = [
+        $webhookSubMenu = [
             MenuItem::linkToCrud('Webhooks', '', Webhook::class),
             MenuItem::linkToCrud('Webhook errors', '', WebhookLog::class),
         ];
@@ -125,6 +126,8 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
         yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);
         yield $this->createDevMenu();
-        yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($submenu6);
+        yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($webhookSubMenu);
+
+        yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
     }
 }

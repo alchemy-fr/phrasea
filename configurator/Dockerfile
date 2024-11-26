@@ -2,16 +2,19 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-WORKDIR /usr/app
+WORKDIR /srv/app
 
-ENV APP_ENV=prod
+COPY --chown=app:app ./configurator .
+COPY --chown=app:app lib/php /srv/lib/php
 
-COPY . .
-
-RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
+RUN mkdir -p var/cache var/logs var/sessions \
+    && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && chown -R app: .
 
-ENTRYPOINT ["bin/console"]
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
-CMD ["configure"]
+ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
+
+CMD ["bin/console", "configure"]

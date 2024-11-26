@@ -15,6 +15,21 @@ docker compose up -d
 # Wait for services to be ready
 docker compose run --rm dockerize
 
+# Setup Report
+## Create DB
+create_db "${REPORT_DB_NAME}"
+create_db "${KEYCLOAK_DB_NAME}"
+create_db "${KEYCLOAK2_DB_NAME}"
+
+run_container_as configurator "bin/setup.sh" app
+## Create minio bucket
+COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
+  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  sleep 5 && \
+  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc mb --ignore-existing minio/$CONFIGURATOR_S3_BUCKET_NAME \
+"
+
 # Setup Uploader
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${UPLOADER_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
@@ -25,7 +40,7 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
-  mc mb --ignore-existing minio/$UPLOADER_STORAGE_BUCKET_NAME \
+  mc mb --ignore-existing minio/$UPLOADER_S3_BUCKET_NAME \
 "
 
 # Setup Expose
@@ -48,7 +63,7 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   done; \
   sleep 3 \
   && mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
-  && mc mb --ignore-existing minio/$EXPOSE_STORAGE_BUCKET_NAME \
+  && mc mb --ignore-existing minio/$EXPOSE_S3_BUCKET_NAME \
 "
 
 # Setup Notify
@@ -67,17 +82,10 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
   mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
-  mc mb --ignore-existing minio/\$DATABOX_STORAGE_BUCKET_NAME \
+  mc mb --ignore-existing minio/$DATABOX_S3_BUCKET_NAME \
 "
 ## Create Uploader target for client upload
 exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADER_TARGET_SLUG} 'Databox Uploader' http://databox-api/incoming-uploads"
-
-# Setup Report
-## Create DB
-create_db "${REPORT_DB_NAME}"
-
-create_db "${KEYCLOAK_DB_NAME}"
-create_db "${KEYCLOAK2_DB_NAME}"
 
 ## Setup indexer
 ## Create Databox OAuth client for indexer
@@ -113,6 +121,6 @@ PRESETS=""
 for p in $@; do
   PRESETS="${PRESETS} --preset $p"
 done
-docker compose run --rm configurator configure -vvv$PRESETS
+docker compose run --rm configurator bin/console configure -vvv$PRESETS
 
 echo "Done."

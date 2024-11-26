@@ -2,7 +2,7 @@ ARG BASE_TAG=latest
 ARG REGISTRY_NAMESPACE
 FROM ${REGISTRY_NAMESPACE}php-fpm-base:${BASE_TAG} AS api-php
 
-RUN printf "\nrequest_terminate_timeout = 600\n" >> /usr/local/etc/php-fpm.d/large-upload.conf
+USER app
 
 # Warm up composer cache for faster builds
 COPY ./uploader/api/docker/caching/composer.* ./
@@ -20,6 +20,8 @@ RUN mkdir -p var/cache var/logs var/sessions \
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+
+USER root
 
 ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
 

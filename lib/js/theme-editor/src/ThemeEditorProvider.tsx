@@ -18,7 +18,7 @@ export default function ThemeEditorProvider({
 
     const value = React.useMemo<TThemeEditorContext>(() => {
         const theme = createTheme(
-            mergeDeep({}, defaultTheme, themeOptions) as ThemeOptions
+            mergeDeep({}, defaultTheme, (window as any).config?.muiTheme ?? {}, themeOptions) as ThemeOptions
         );
 
         return {

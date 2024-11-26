@@ -2,8 +2,8 @@
 
 set -e
 
-if [ -d /bootstrap/entrypoint.d ]; then
-  for i in /bootstrap/entrypoint.d/*.sh; do
+if [ -d /docker/entrypoint.d ]; then
+  for i in /docker/entrypoint.d/*.sh; do
     if [ -r $i ]; then
       . $i
     fi

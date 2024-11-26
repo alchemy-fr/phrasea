@@ -47,6 +47,8 @@ RUN apk add --no-cache \
         exif \
     && apk del build-essentials
 
+USER app
+
 # Warm up composer cache for faster builds
 COPY ./databox/api/docker/caching/composer.* ./
 RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
@@ -58,11 +60,12 @@ COPY --chown=app:app ./databox/api .
 
 RUN mkdir -p var/cache var/logs var/sessions \
     && composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction \
-    && composer clear-cache \
-    && chown -R app: .
+    && composer clear-cache
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}
+
+USER root
 
 ENTRYPOINT ["/srv/app/docker/php-entrypoint.sh"]
 

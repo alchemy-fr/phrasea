@@ -12,6 +12,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/configurator-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
@@ -76,6 +83,7 @@
         "ext-json": "*",
         "alchemy/acl-bundle": "dev-main",
         "alchemy/admin-bundle": "@dev",
+        "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/notify-bundle": "@dev",
         "alchemy/report-bundle": "@dev",

@@ -5,6 +5,9 @@
     "alchemy/auth-bundle": {
         "version": "dev-master"
     },
+    "alchemy/configurator-bundle": {
+        "version": "dev-PS-696-stack-db"
+    },
     "alchemy/core-bundle": {
         "version": "dev-core-bundle"
     },

@@ -6,25 +6,22 @@ namespace Alchemy\WebhookBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints\Url;
 
 #[ORM\Entity]
 class Webhook
 {
-    final public const ALL_EVENTS = '_all';
+    final public const string ALL_EVENTS = '_all';
 
-    /**
-     * @var Uuid
-     */
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
-    protected $id;
+    private UuidInterface|string $id;
 
     #[ORM\Column(type: Types::STRING, length: 1024, nullable: false)]
+    #[Url]
     private ?string $url = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -48,14 +45,27 @@ class Webhook
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
     private readonly \DateTimeImmutable $createdAt;
 
-    public function __construct()
+    public function __construct(string|UuidInterface|null $id = null)
     {
+        if (null !== $id) {
+            if ($id instanceof UuidInterface) {
+                $this->id = $id;
+            } else {
+                $this->id = Uuid::fromString($id);
+            }
+        } else {
+            $this->id = Uuid::uuid4();
+        }
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId()
+    public function getId(): string
     {
-        return $this->id->__toString();
+        if (is_string($this->id)) {
+            return $this->id;
+        }
+
+        return $this->id->toString();
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -153,5 +163,17 @@ class Webhook
         }
 
         return implode(', ', $this->events);
+    }
+
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+        ];
+    }
+
+    public function __unserialize($data)
+    {
+        $this->id = Uuid::fromString($data['id']);
     }
 }

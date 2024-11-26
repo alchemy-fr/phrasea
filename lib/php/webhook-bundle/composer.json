@@ -12,7 +12,7 @@
         "symfony/messenger": "^6",
         "guzzlehttp/guzzle": "^7.2",
         "ramsey/uuid-doctrine": "^1.5",
-        "symfony/framework-bundle": "^4.0 || ^5.2 || ^6"
+        "symfony/framework-bundle": "^6"
     },
     "config": {
         "sort-packages": true

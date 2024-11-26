@@ -11,6 +11,9 @@
     "alchemy/auth-bundle": {
         "version": "dev-ps-248-databox"
     },
+    "alchemy/configurator-bundle": {
+        "version": "dev-PS-696-stack-db"
+    },
     "alchemy/core-bundle": {
         "version": "dev-ps-248-databox"
     },

@@ -18,6 +18,7 @@ final class EventsChoiceField implements FieldInterface
             ->setProperty($propertyName)
             ->setLabel($label)
             ->setFormType(EventsChoiceType::class)
+            ->setTemplatePath('@AlchemyWebhook/admin/field/events_choice.html.twig')
         ;
     }
 }

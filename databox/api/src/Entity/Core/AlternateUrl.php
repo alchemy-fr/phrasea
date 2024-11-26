@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use App\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\DBAL\Types\Types;
