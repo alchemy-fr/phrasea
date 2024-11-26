@@ -255,7 +255,7 @@ final readonly class ExposeClient
         ;
     }
 
-    private function putPart(string $url, mixed $handleFile, int $partSize, int $retryCount)
+    private function putPart(string $url, mixed $handleFile, int $partSize, int $retryCount): array
     {
         if ($retryCount > 0) {
             $retryCount--;
@@ -265,7 +265,7 @@ final readonly class ExposeClient
                 ])->getHeaders();
             } catch (\Throwable $e) {
                 if ($retryCount == 0) {
-                    throw $e; // retry unsuccess
+                    throw $e;
                 }
                 $this->putPart($url, $handleFile, $partSize, $retryCount);
             }
