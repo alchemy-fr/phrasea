@@ -102,7 +102,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu4 = [
             MenuItem::linkToCrud('Integration', 'fa fa-gear', WorkspaceIntegration::class),
             MenuItem::linkToCrud('Integration Data', 'fa fa-database', IntegrationData::class),
-            MenuItem::linkToCrud('Integration Tokens', 'fa fa-fingerprint', IntegrationToken::class),
+            MenuItem::linkToCrud('Integration Token', 'fa fa-fingerprint', IntegrationToken::class),
             MenuItem::linkToCrud('Env', 'fa fa-database', WorkspaceEnv::class),
             MenuItem::linkToCrud('Secret', 'fa fa-lock', WorkspaceSecret::class),
             MenuItem::linkToRoute('Help', 'fa fa-question', 'admin_integrations_help'),

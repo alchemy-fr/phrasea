@@ -45,14 +45,41 @@ class CreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $time = microtime(true);
-        $mimeType = $input->getOption('type');
+        $ret = 0;
         $src = $input->getArgument('src');
+        if (is_dir($src)) {
+            if (false === ($od = opendir($src))) {
+                $output->writeln(sprintf('Directory "%s" could not be opened.', $src));
+
+                return 1;
+            }
+            while ($f = readdir($od)) {
+                if ('.' === $f || '..' === $f) {
+                    continue;
+                }
+                $ret |= $this->doFile($input, $output, $src.'/'.$f);
+            }
+            closedir($od);
+        } else {
+            $ret = $this->doFile($input, $output, $src);
+        }
+
+        return $ret;
+    }
+
+    protected function doFile(InputInterface $input, OutputInterface $output, string $src): int
+    {
         if (!file_exists($src)) {
             $output->writeln(sprintf('File "%s" does not exist.', $src));
 
             return 1;
         }
+
+        $time = microtime(true);
+        $output->writeln('');
+        $output->writeln(sprintf('Processing file: %s', $src));
+
+        $mimeType = $input->getOption('type');
 
         if (null === $mimeType) {
             $mimeType = $this->mimeTypeGuesser->guessMimeTypeFromPath($src);
