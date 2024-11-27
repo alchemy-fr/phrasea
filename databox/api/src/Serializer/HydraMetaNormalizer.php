@@ -29,4 +29,11 @@ class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
         return array_merge($normalized, $object->getMeta());
     }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ApiMetaWrapperOutput::class => true,
+        ];
+    }
 }

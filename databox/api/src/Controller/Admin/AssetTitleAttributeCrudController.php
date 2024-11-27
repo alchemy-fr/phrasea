@@ -23,8 +23,8 @@ class AssetTitleAttributeCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('AssetTitleAttribute')
-            ->setEntityLabelInPlural('AssetTitleAttribute')
+            ->setEntityLabelInSingular('Asset Title Attribute')
+            ->setEntityLabelInPlural('Asset Title Attributes')
             ->setSearchFields(['id', 'priority'])
             ->setPaginatorPageSize(200);
     }

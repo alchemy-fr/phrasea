@@ -71,16 +71,16 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Multipart Upload', '', MultipartUpload::class),
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
-            MenuItem::linkToCrud('AssetTitleAttribute', '', AssetTitleAttribute::class),
-            MenuItem::linkToCrud('AttributeDefinition', '', AttributeDefinition::class),
-            MenuItem::linkToCrud('AttributeClass', '', AttributeClass::class),
+            MenuItem::linkToCrud('Asset Title Attribute', '', AssetTitleAttribute::class),
+            MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
+            MenuItem::linkToCrud('Attribute Class', '', AttributeClass::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),
-            MenuItem::linkToCrud('TagFilterRule', '', TagFilterRule::class),
-            MenuItem::linkToCrud('AssetRendition', '', AssetRendition::class),
-            MenuItem::linkToCrud('RenditionDefinition', '', RenditionDefinition::class),
-            MenuItem::linkToCrud('RenditionClass', '', RenditionClass::class),
-            MenuItem::linkToCrud('RenditionRule', '', RenditionRule::class),
-            MenuItem::linkToCrud('AlternateUrl', '', AlternateUrl::class),
+            MenuItem::linkToCrud('Tag Filter Rule', '', TagFilterRule::class),
+            MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
+            MenuItem::linkToCrud('Rendition Definition', '', RenditionDefinition::class),
+            MenuItem::linkToCrud('Rendition Class', '', RenditionClass::class),
+            MenuItem::linkToCrud('Rendition Rule', '', RenditionRule::class),
+            MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
             MenuItem::linkToCrud('Share', '', Share::class),
         ];
 
@@ -90,43 +90,43 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $submenuTemplates = [
-            MenuItem::linkToCrud('AssetDataTemplate', '', AssetDataTemplate::class),
-            MenuItem::linkToCrud('TemplateAttribute', '', TemplateAttribute::class),
+            MenuItem::linkToCrud('Asset Data Template', '', AssetDataTemplate::class),
+            MenuItem::linkToCrud('Template Attribute', '', TemplateAttribute::class),
         ];
 
         $submenu3 = [
-            MenuItem::linkToCrud('PopulatePass', '', PopulatePass::class),
-            MenuItem::linkToCrud('ESIndexState', '', ESIndexState::class),
+            MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
+            MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
         ];
 
         $submenu4 = [
-            MenuItem::linkToCrud('Integration', '', WorkspaceIntegration::class),
-            MenuItem::linkToCrud('Integration Data', '', IntegrationData::class),
-            MenuItem::linkToCrud('Integration Tokens', '', IntegrationToken::class),
-            MenuItem::linkToCrud('Env', '', WorkspaceEnv::class),
-            MenuItem::linkToCrud('Secrets', '', WorkspaceSecret::class),
-            MenuItem::linkToRoute('Help', '', 'admin_integrations_help'),
+            MenuItem::linkToCrud('Integration', 'fa fa-gear', WorkspaceIntegration::class),
+            MenuItem::linkToCrud('Integration Data', 'fa fa-database', IntegrationData::class),
+            MenuItem::linkToCrud('Integration Token', 'fa fa-fingerprint', IntegrationToken::class),
+            MenuItem::linkToCrud('Env', 'fa fa-database', WorkspaceEnv::class),
+            MenuItem::linkToCrud('Secret', 'fa fa-lock', WorkspaceSecret::class),
+            MenuItem::linkToRoute('Help', 'fa fa-question', 'admin_integrations_help'),
         ];
 
         $webhookSubMenu = [
-            MenuItem::linkToCrud('Webhooks', '', Webhook::class),
-            MenuItem::linkToCrud('Webhook errors', '', WebhookLog::class),
+            MenuItem::linkToCrud('Webhook', '', Webhook::class),
+            MenuItem::linkToCrud('Webhook Error', '', WebhookLog::class),
         ];
 
         $workflows = [
-            MenuItem::linkToCrud('Workflows states', '', WorkflowState::class),
-            MenuItem::linkToCrud('Job states', '', JobState::class),
+            MenuItem::linkToCrud('Workflows State', '', WorkflowState::class),
+            MenuItem::linkToCrud('Job State', '', JobState::class),
         ];
 
-        yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
-        yield MenuItem::subMenu('Core', 'fas fa-folder-open')->setSubItems($submenu2);
+        yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
+        yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
-        yield MenuItem::subMenu('Templates', 'fas fa-folder-open')->setSubItems($submenuTemplates);
-        yield MenuItem::subMenu('Integrations', 'fas fa-folder-open')->setSubItems($submenu4);
-        yield MenuItem::subMenu('Workflows', 'fas fa-folder-open')->setSubItems($workflows);
+        yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
+        yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
+        yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
         yield $this->createDevMenu();
-        yield MenuItem::subMenu('Webhooks', 'fas fa-folder-open')->setSubItems($webhookSubMenu);
+        yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
 
         yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
     }

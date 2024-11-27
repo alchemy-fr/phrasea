@@ -47,7 +47,7 @@ export function getBatchActions(
                         });
                     } else {
                         currValue.forEach((v: AttrValue<string | number>) => {
-                            if (v.value !== undefined) {
+                            if (!isUndefined(v.value)) {
                                 const found = remoteV?.find(
                                     _v => _v.id === v.id
                                 );
@@ -121,9 +121,7 @@ export function getBatchActions(
                         if (
                             !attributes[defId] ||
                             !attributes[defId][locale] ||
-                            (attributes[defId][locale] as AttrValue).value ===
-                                undefined
-                        ) {
+                            isUndefined((attributes[defId][locale] as AttrValue).value)) {
                             actions.push({
                                 action: AttributeBatchActionEnum.Delete,
                                 definitionId: defId,
@@ -144,4 +142,9 @@ export function getBatchActions(
             value: widget.normalize(a.value),
         };
     });
+}
+
+
+function isUndefined(value: any): boolean {
+    return undefined === value || '' === value;
 }

@@ -27,8 +27,8 @@ class AttributeClassCrudController extends AbstractAclAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('AttributeClass')
-            ->setEntityLabelInPlural('AttributeClass')
+            ->setEntityLabelInSingular('Attribute Class')
+            ->setEntityLabelInPlural('Attribute Classes')
             ->setSearchFields(['id', 'name', 'key'])
             ->setPaginatorPageSize(100);
     }

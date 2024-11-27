@@ -75,9 +75,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
-            ->setEntityLabelInPlural('Asset')
-            ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy'])
-            ->setPaginatorPageSize(30);
+            ->setEntityLabelInPlural('Assets')
+            ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy']);
     }
 
     public function configureFilters(Filters $filters): Filters

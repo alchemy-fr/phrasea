@@ -17,7 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'file',
     operations: [
-
     ],
     normalizationContext: [
         'groups' => [File::GROUP_LIST],

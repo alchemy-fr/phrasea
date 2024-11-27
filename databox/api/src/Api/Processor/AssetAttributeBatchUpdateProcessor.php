@@ -42,6 +42,8 @@ final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface
             true,
         );
 
+        $this->em->clear();
+
         return $asset;
     }
 }

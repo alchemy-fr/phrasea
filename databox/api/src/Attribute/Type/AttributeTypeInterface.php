@@ -70,4 +70,6 @@ interface AttributeTypeInterface
     public function getAggregationField(): ?string;
 
     public function normalizeBucket(array $bucket): ?array;
+
+    public function isListed(): bool;
 }

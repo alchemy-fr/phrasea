@@ -13,12 +13,8 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
     {
         $asset = $this->getAsset($context);
 
-        $criteria = [
-            'asset' => $asset->getId(),
-        ];
-
-        return $this->em->getRepository(Attribute::class)->findBy($criteria, [
-            'position' => 'ASC',
-        ]);
+        return $this->em->getRepository(Attribute::class)
+            ->getAssetAttributes($asset->getId())
+        ;
     }
 }

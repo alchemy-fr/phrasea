@@ -16,6 +16,7 @@ import {useTranslation} from 'react-i18next';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DateTime from '../../Ui/DateTime';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const cardProps = {
     elevation: 2,
@@ -33,12 +34,14 @@ type Props = {
     asset: Asset;
     version: AssetFileVersion;
     dimensions: Dimensions;
+    onDelete?: () => void;
 };
 
 export function AssetFileVersionCard({
     version: {file, name, createdAt},
     asset,
     dimensions,
+    onDelete,
 }: Props) {
     const {t} = useTranslation();
 
@@ -93,6 +96,15 @@ export function AssetFileVersionCard({
                             />
                         </>
                     )}
+                    {onDelete ? (
+                        <Button
+                            onClick={() => onDelete()}
+                            color={'error'}
+                            startIcon={<DeleteIcon />}
+                        >
+                            {t('asset_version.delete', 'Delete Version')}
+                        </Button>
+                    ) : null}
                 </>
             }
         />

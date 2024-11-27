@@ -2,12 +2,15 @@ import {useEffect, useState} from 'react';
 import {Asset, AssetFileVersion} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
-import {getAssetFileVersions} from '../../../api/asset';
+import {deleteAssetFileVersion, getAssetFileVersions} from '../../../api/asset';
 import {
     AssetFileVersionCard,
     AssetFileVersionSkeleton,
 } from './AssetFileVersion';
 import {useTranslation} from 'react-i18next';
+import ConfirmDialog from "../../Ui/ConfirmDialog.tsx";
+import {toast} from "react-toastify";
+import {useModals} from "@alchemy/navigation";
 
 type Props = {
     data: Asset;
@@ -21,10 +24,32 @@ const maxDimensions = {
 export default function AssetFileVersions({data, onClose, minHeight}: Props) {
     const {t} = useTranslation();
     const [versions, setVersions] = useState<AssetFileVersion[]>();
+    const {openModal} = useModals();
 
     useEffect(() => {
         getAssetFileVersions(data.id).then(d => setVersions(d.result));
     }, []);
+
+
+    const onDelete = async (id: string) => {
+        openModal(ConfirmDialog, {
+            title: t(
+                'asset_version_delete.confirm',
+                'Are you sure you want to delete this version?'
+            ),
+            onConfirm: async () => {
+                await deleteAssetFileVersion(id);
+
+                setVersions(versions?.filter(v => v.id !== id));
+                toast.success(
+                    t(
+                        'asset_version_delete.confirmed',
+                        'Version has been deleted!'
+                    ) as string
+                );
+            },
+        });
+    }
 
     return (
         <ContentTab
@@ -53,6 +78,7 @@ export default function AssetFileVersions({data, onClose, minHeight}: Props) {
                             asset={data}
                             version={v}
                             dimensions={maxDimensions}
+                            onDelete={() => onDelete(v.id)}
                         />
                     );
                 })}

@@ -1,10 +1,6 @@
 import apiClient from './api-client';
-import {Asset, AssetFileVersion, Attribute, Collection, Share} from '../types';
-import {
-    ApiCollectionResponse,
-    getAssetsHydraCollection,
-    getHydraCollection,
-} from './hydra';
+import {Asset, AssetFileVersion, Attribute, Collection, ESDocumentState, Share} from '../types';
+import {ApiCollectionResponse, getAssetsHydraCollection, getHydraCollection,} from './hydra';
 import {AxiosRequestConfig} from 'axios';
 import {TFacets} from '../components/Media/Asset/Facets';
 
@@ -96,9 +92,15 @@ export async function getSearchSuggestions(
 }
 
 export async function getAsset(id: string): Promise<Asset> {
-    const res = await apiClient.get(`/assets/${id}`);
+    return (await apiClient.get(`/assets/${id}`)).data;
+}
 
-    return res.data;
+export async function getESDocument(entity: string, id: string): Promise<ESDocumentState> {
+    return (await apiClient.get(`/${entity}/${id}/es-document`)).data;
+}
+
+export async function syncESDocument(entity: string, id: string): Promise<void> {
+    await apiClient.post(`/${entity}/${id}/es-document-sync`, {});
 }
 
 export async function getAssetShares(assetId: string): Promise<Share[]> {
@@ -154,16 +156,22 @@ export async function getAssetAttributes(
     return res.data['hydra:member'];
 }
 
+const assetFileVersionEntity = 'asset-file-versions';
+
 export async function getAssetFileVersions(
     assetId: string | string[]
 ): Promise<ApiCollectionResponse<AssetFileVersion>> {
-    const res = await apiClient.get(`/asset-file-versions`, {
+    const res = await apiClient.get(`/${assetFileVersionEntity}`, {
         params: {
             assetId,
         },
     });
 
     return getHydraCollection(res.data);
+}
+
+export async function deleteAssetFileVersion(id: string): Promise<void> {
+    await apiClient.delete(`${assetFileVersionEntity}/${id}`);
 }
 
 export enum AttributeBatchActionEnum {

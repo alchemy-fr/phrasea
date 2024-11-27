@@ -57,11 +57,11 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     {
         $subMenu = [];
         if (class_exists(MessengerMessage::class)) {
-            $subMenu[] = MenuItem::linkToCrud('Messenger Failed Events', null, MessengerMessage::class);
+            $subMenu[] = MenuItem::linkToCrud('Messenger Failed Event', 'fa fa-bug', MessengerMessage::class);
         }
-        $subMenu[] = MenuItem::linkToRoute('PHP Info', '', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
+        $subMenu[] = MenuItem::linkToRoute('PHP Info', 'fa fa-info', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
 
-        return MenuItem::subMenu('Dev', 'fas fa-folder-open')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
+        return MenuItem::subMenu('Dev', 'fa fa-code')->setSubItems($subMenu)->setPermission(JwtUser::ROLE_TECH);
     }
 
     #[Required]

@@ -5,7 +5,7 @@ namespace App\Consumer\Handler\File;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
 #[MessengerMessage('p2')]
-final readonly class FileDelete
+final readonly class DeleteFileFromStorage
 {
     public function __construct(
         private array $paths,

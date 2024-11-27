@@ -1,5 +1,5 @@
 import {Button, Container, LinearProgress} from '@mui/material';
-import {PropsWithChildren} from 'react';
+import {PropsWithChildren, ReactNode} from 'react';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import {useTranslation} from 'react-i18next';
@@ -10,6 +10,7 @@ type Props = PropsWithChildren<{
     minHeight?: number | undefined;
     disableGutters?: boolean;
     disablePadding?: boolean;
+    actions?: ReactNode;
 }>;
 
 export default function ContentTab({
@@ -19,6 +20,7 @@ export default function ContentTab({
     minHeight,
     disableGutters,
     disablePadding,
+    actions,
 }: Props) {
     const {t} = useTranslation();
     const progressHeight = 3;
@@ -47,6 +49,7 @@ export default function ContentTab({
                 />
             )}
             <DialogActions>
+                {actions}
                 <Button onClick={onClose} disabled={loading}>
                     {t('dialog.close', 'Close')}
                 </Button>

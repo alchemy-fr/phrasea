@@ -30,8 +30,8 @@ class RenditionRuleCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('RenditionRule')
-            ->setEntityLabelInPlural('RenditionRule')
+            ->setEntityLabelInSingular('Rendition Rule')
+            ->setEntityLabelInPlural('Rendition Rules')
             ->setSearchFields(['id', 'userType', 'userId', 'objectType', 'objectId'])
             ->setPaginatorPageSize(100);
     }

@@ -114,4 +114,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
     {
         return false;
     }
+
+    public function isListed(): bool
+    {
+        return true;
+    }
 }

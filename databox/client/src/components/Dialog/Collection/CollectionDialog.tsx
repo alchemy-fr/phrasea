@@ -12,6 +12,8 @@ import Operations from './Operations';
 import InfoCollection from './InfoCollection';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
+import ESDocument from "../Asset/ESDocument.tsx";
+import {useAuth} from '@alchemy/react-auth';
 
 type Props = {};
 
@@ -20,6 +22,7 @@ export default function CollectionDialog({}: Props) {
     const {id} = useParams();
     const [data, setData] = useState<Collection>();
     const closeModal = useCloseModal();
+    const {user} = useAuth();
 
     useEffect(() => {
         getCollection(id!)
@@ -90,6 +93,16 @@ export default function CollectionDialog({}: Props) {
                         data,
                     },
                     enabled: data.capabilities.canEdit,
+                },
+                {
+                    title: t('collection.manage.es_doc.title', 'ES Document'),
+                    component: ESDocument,
+                    id: 'es_doc',
+                    props: {
+                        data,
+                        entity: 'collections',
+                    },
+                    enabled: user?.roles?.includes('tech') ?? false,
                 },
             ]}
         />

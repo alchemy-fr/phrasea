@@ -52,8 +52,8 @@ class PopulatePassCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('PopulatePass')
-            ->setEntityLabelInPlural('PopulatePass')
+            ->setEntityLabelInSingular('Populate Pass')
+            ->setEntityLabelInPlural('Populate Passes')
             ->setSearchFields(['id', 'documentCount', 'progress', 'indexName', 'mapping', 'error'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }

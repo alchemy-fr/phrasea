@@ -70,12 +70,18 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         $appScopes = $this->getAppScopes();
         foreach ($this->symfonyApplications as $app) {
             $clientId = getenv(sprintf('%s_ADMIN_CLIENT_ID', strtoupper($app)));
+            $baseUri = getenv(sprintf('%s_API_URL', strtoupper($app)));
+
             $clientData = $this->configureClient(
                 $clientId,
                 getenv(sprintf('%s_ADMIN_CLIENT_SECRET', strtoupper($app))),
-                getenv(sprintf('%s_API_URL', strtoupper($app))).'/admin',
+                $baseUri,
                 [
                     'serviceAccountsEnabled' => true,
+                ],
+                redirectUris: [
+                    $baseUri.'/admin/*',
+                    $baseUri.'/bundles/apiplatform/swagger-ui/oauth2-redirect.html',
                 ]
             );
 
@@ -198,12 +204,14 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         ?string $clientSecret,
         string $baseUri,
         array $data = [],
+        ?array $redirectUris = null,
     ): array {
         $clientData = $this->keycloakManager->createClient(
             $clientId,
             $clientSecret,
             $baseUri,
             $data,
+            $redirectUris,
         );
 
         foreach ([

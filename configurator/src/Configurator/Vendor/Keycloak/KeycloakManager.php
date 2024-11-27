@@ -274,8 +274,9 @@ final class KeycloakManager
     public function createClient(
         string $clientId,
         ?string $clientSecret,
-        ?string $baseUri,
+        ?string $rootUrl,
         array $data = [],
+        ?array $redirectUris = null,
     ): array {
         $client = $this->getClientByClientId($clientId);
 
@@ -284,10 +285,10 @@ final class KeycloakManager
             'secret' => $clientSecret,
             'publicClient' => null === $clientSecret,
             'frontchannelLogout' => false,
-            'rootUrl' => $baseUri,
-            'redirectUris' => $baseUri ? [
-                $baseUri.'/*',
-            ] : null,
+            'rootUrl' => $rootUrl,
+            'redirectUris' => $redirectUris ?? ($rootUrl ? [
+                $rootUrl.'/*',
+            ] : null),
         ], $data);
 
         if (null !== $client) {

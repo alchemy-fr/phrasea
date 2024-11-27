@@ -20,7 +20,6 @@ final readonly class BucketPusher
             'Bucket' => $this->bucketName,
             'Key' => $this->pathPrefix.$path,
             'Body' => $data,
-            'ACL' => 'public-read',
         ]);
     }
 }

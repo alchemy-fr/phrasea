@@ -37,8 +37,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Attribute Entity')
             ->setEntityLabelInPlural('Attribute Entities')
-            ->setSearchFields(['id', 'position', 'type', 'value'])
-            ->setPaginatorPageSize(20);
+            ->setSearchFields(['id', 'position', 'type', 'value']);
     }
 
     public function configureFields(string $pageName): iterable

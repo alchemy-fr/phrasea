@@ -32,8 +32,8 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('ESIndexState')
-            ->setEntityLabelInPlural('ESIndexState')
+            ->setEntityLabelInSingular('ES Index State')
+            ->setEntityLabelInPlural('ES Index State')
             ->setSearchFields(['id', 'indexName', 'mapping']);
     }
 

@@ -1,10 +1,9 @@
 import apiClient from './api-client';
 import {AttributeBatchAction} from './asset';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
-import {Attribute, Tag} from '../types';
+import {Attribute, Entity, Tag} from '../types';
 
 export type AssetDataTemplate = {
-    id: string;
     name: string;
     workspace: string;
     collection: string;
@@ -14,7 +13,7 @@ export type AssetDataTemplate = {
     public: boolean;
     tags?: Tag[] | undefined;
     title?: string | undefined;
-};
+} & Entity;
 
 const assetDataTemplateNS = 'asset-data-templates';
 

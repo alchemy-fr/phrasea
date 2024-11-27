@@ -1,5 +1,5 @@
 import apiClient from './api-client';
-import {Basket, BasketAsset} from '../types';
+import {Basket, BasketAsset, Entity} from '../types';
 import {ApiCollectionResponse, getHydraCollection} from './hydra';
 import {clearAssociationIds} from './clearAssociation';
 
@@ -66,8 +66,7 @@ export async function deleteBasket(id: string): Promise<void> {
 }
 
 export type BasketAssetInput = {
-    id: string;
-};
+} & Entity;
 
 type AddToBasketInput = {
     assets: BasketAssetInput[];

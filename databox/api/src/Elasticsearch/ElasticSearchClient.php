@@ -12,6 +12,7 @@ final readonly class ElasticSearchClient
     public function __construct(
         private Client $client,
         private Index $assetIndex,
+        private Index $collectionIndex,
     ) {
     }
 

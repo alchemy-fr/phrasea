@@ -79,4 +79,9 @@ class CollectionPathAttributeType extends AbstractAttributeType
     {
         return true;
     }
+
+    public function isListed(): bool
+    {
+        return false;
+    }
 }
