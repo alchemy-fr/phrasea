@@ -71,10 +71,16 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \
-    && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
+    && printf "\nuser = app\ngroup = app\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    && wget -O /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck \
+    && chmod +x /usr/local/bin/php-fpm-healthcheck \
+    && printf "pm.status_path = /status\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 WORKDIR /srv/app
 
 RUN chown -R app:app .
 
 CMD ["true"]
+
+HEALTHCHECK --start-interval=2s --start-period=30s --retries=50 --interval=60s --timeout=3s \
+    CMD php-fpm-healthcheck || exit 1
