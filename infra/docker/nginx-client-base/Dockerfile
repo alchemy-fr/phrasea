@@ -15,6 +15,7 @@ RUN apk update \
 
 COPY entrypoint.sh /entrypoint.sh
 COPY nginx/conf.d/* /etc/nginx/conf.d/
+COPY tpl /etc/nginx/tpl
 
 EXPOSE 80
 
