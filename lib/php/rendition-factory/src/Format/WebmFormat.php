@@ -1,40 +1,41 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use FFMpeg\Format\Audio\Wav;
+use FFMpeg\Format\Video\WebM;
+use FFMpeg\Format\VideoInterface;
 
-class WavFormat implements FormatInterface
+class WebmFormat implements FormatInterface
 {
-    private Wav $format;
+    private VideoInterface $format;
 
     public function __construct()
     {
-        $this->format = new Wav();
+        $this->format = new WebM();
     }
 
     public static function getAllowedExtensions(): array
     {
-        return ['wav'];
+        return ['webm'];
     }
 
     public static function getMimeType(): string
     {
-        return 'audio/wav';
+        return 'video/webm';
     }
 
     public static function getFormat(): string
     {
-        return 'audio-wav';
+        return 'video-webm';
     }
 
     public static function getFamily(): FamilyEnum
     {
-        return FamilyEnum::Audio;
+        return FamilyEnum::Video;
     }
 
-    public function getFFMpegFormat(): Wav
+    public function getFFMpegFormat(): VideoInterface
     {
         return $this->format;
     }

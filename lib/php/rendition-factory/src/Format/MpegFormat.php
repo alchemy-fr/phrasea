@@ -1,12 +1,12 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Video\X264;
 use FFMpeg\Format\VideoInterface;
 
-class QuicktimeFormat implements FormatInterface
+class MpegFormat implements FormatInterface
 {
     private VideoInterface $format;
 
@@ -17,17 +17,17 @@ class QuicktimeFormat implements FormatInterface
 
     public static function getAllowedExtensions(): array
     {
-        return ['mov'];
+        return ['mpeg'];
     }
 
     public static function getMimeType(): string
     {
-        return 'video/quicktime';
+        return 'video/mpeg';
     }
 
     public static function getFormat(): string
     {
-        return 'video-quicktime';
+        return 'video-mpeg';
     }
 
     public static function getFamily(): FamilyEnum

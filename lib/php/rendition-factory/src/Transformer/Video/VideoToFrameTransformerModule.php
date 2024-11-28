@@ -2,44 +2,75 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg\Media\Video;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class VideoToFrameTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
+final readonly class VideoToFrameTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        private ModuleOptionsResolver $optionsResolver,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'video_to_frame';
     }
 
-    public function buildConfiguration(NodeBuilder $builder): void
+    public static function getDocumentation(): Documentation
     {
+        static $doc = null;
+        if (null === $doc) {
+            $treeBuilder = Documentation::createBaseTree(self::getName());
+            self::buildConfiguration($treeBuilder->getRootNode()->children());
+            $doc = new Documentation(
+                $treeBuilder,
+                <<<HEADER
+                Extract one frame from the video.
+                HEADER
+            );
+        }
+
+        return $doc;
+    }
+
+    private static function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
         $builder
-            ->scalarNode('module')
-                ->isRequired()
-                ->defaultValue(self::getName())
-                ->end()
-            ->booleanNode('enabled')
-                ->defaultTrue()
-                ->info('Whether to enable this module')
-                ->end()
             ->arrayNode('options')
                 ->info('Options for the module')
                 ->children()
                     ->scalarNode('start')
                         ->defaultValue(0)
                         ->info('Offset of frame in seconds or timecode')
-                        ->example('2.5 ; "00:00:02.50" ; "{{ metadata.start }}"')
-                        ->end()
+                        ->example('2.5 ; "00:00:02.50" ; "{{ attr.start }}"')
+                    ->end()
+                    ->scalarNode('format')
+                        ->isRequired()
+                        ->info('Output format')
+                        ->example('image-jpeg')
+                    ->end()
+                    ->scalarNode('extension')
+                        ->defaultValue('default extension from format')
+                        ->info('extension of the output file')
+                        ->example('jpg')
+                    ->end()
                 ->end()
             ->end()
         ;
+        // @formatter:on
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface

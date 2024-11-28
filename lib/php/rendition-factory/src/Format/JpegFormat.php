@@ -1,28 +1,28 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
-class AnimatedWebpFormat implements FormatInterface
+class JpegFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array
     {
-        return ['webp'];
+        return ['jpg', 'jpeg'];
     }
 
     public static function getMimeType(): string
     {
-        return 'image/webp';
+        return 'image/jpeg';
     }
 
     public static function getFormat(): string
     {
-        return 'animated-webp';
+        return 'image-jpeg';
     }
 
     public static function getFamily(): FamilyEnum
     {
-        return FamilyEnum::Animation;
+        return FamilyEnum::Image;
     }
 }

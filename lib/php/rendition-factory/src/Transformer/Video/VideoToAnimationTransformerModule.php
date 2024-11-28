@@ -2,68 +2,78 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class VideoToAnimationTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
+final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        private ModuleOptionsResolver $optionsResolver,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'video_to_animation';
     }
 
-    public static function getDocumentationHeader(): ?string
+    public static function getDocumentation(): Documentation
     {
-        return 'Converts a video to an animated gif';
+        static $doc = null;
+        if (null === $doc) {
+            $treeBuilder = Documentation::createBaseTree(self::getName());
+            self::buildConfiguration($treeBuilder->getRootNode()->children());
+            $doc = new Documentation(
+                $treeBuilder,
+                <<<HEADER
+                Converts a video to an animated gif / png.
+                HEADER
+            );
+        }
+
+        return $doc;
     }
 
-    //    public static function getDocumentationFooter(): ?string
-    //    {
-    //        return null;
-    //    }
-    //
-    public function buildConfiguration(NodeBuilder $builder): void
+    private static function buildConfiguration(NodeBuilder $builder): void
     {
+        // @formatter:off
         $builder
-            ->scalarNode('module')
-                ->isRequired()
-                ->defaultValue(self::getName())
-                ->end()
-            ->booleanNode('enabled')
-                ->defaultTrue()
-                ->info('Whether to enable this module')
-                ->end()
             ->arrayNode('options')
                 ->info('Options for the module')
                 ->children()
                     ->scalarNode('start')
                         ->defaultValue(0)
                         ->info('Start time in seconds or timecode')
-                        ->example('2.5 ; "00:00:02.50" ; "{{ metadata.start }}"')
-                        ->end()
+                        ->example('2.5 ; "00:00:02.50" ; "{{ attr.start }}"')
+                    ->end()
                     ->scalarNode('duration')
                         ->defaultValue(null)
                         ->info('Duration in seconds or timecode')
                         ->example('30 ; "00:00:30.00" ; "{{ input.duration/2 }}"')
-                        ->end()
-                    ->integerNode('fps')
+                    ->end()
+                    ->scalarNode('fps')
                         ->defaultValue(1)
                         ->info('Frames per second')
-                        ->end()
-                    ->integerNode('width')
+                    ->end()
+                    ->scalarNode('width')
                         ->defaultValue(null)
                         ->info('Width in pixels')
-                        ->end()
-                    ->integerNode('height')
+                    ->end()
+                    ->scalarNode('height')
                         ->defaultValue(null)
                         ->info('Height in pixels')
-                        ->end()
+                    ->end()
                     ->enumNode('mode')
                         ->values([
                             FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET,
@@ -74,10 +84,20 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
                         ])
                         ->defaultValue(FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET)
                         ->info('Resize mode')
-                        ->end()
+                    ->end()
+                    ->scalarNode('format')
+                        ->isRequired()
+                        ->info('Output format')
+                        ->example('animated-png')
+                    ->end()
+                    ->scalarNode('extension')
+                        ->defaultValue('default extension from format')
+                        ->info('extension of the output file')
+                        ->example('apng')
+                    ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
+        // @formatter:on
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface

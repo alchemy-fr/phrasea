@@ -7,15 +7,39 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
 use Spatie\PdfToImage\Pdf;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class PdfToImageTransformerModule implements TransformerModuleInterface
 {
     public static function getName(): string
     {
         return 'pdf_to_image';
+    }
+
+    public static function getDocumentation(): Documentation
+    {
+        static $doc = null;
+        if (null === $doc) {
+            $treeBuilder = Documentation::createBaseTree(self::getName());
+            self::buildConfiguration($treeBuilder->getRootNode()->children());
+            $doc = new Documentation(
+                $treeBuilder,
+                <<<HEADER
+                **documentation to be done**.
+                HEADER
+            );
+        }
+
+        return $doc;
+    }
+
+    private static function buildConfiguration(NodeBuilder $builder): void
+    {
+        // todo
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface

@@ -6,16 +6,15 @@ namespace Alchemy\RenditionFactory\Command;
 
 use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\Transformer\DocumentationTree;
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -35,40 +34,42 @@ class ConfigCommand extends Command
     {
         parent::configure();
 
-        $this->addArgument('build-config', InputArgument::OPTIONAL, 'A build config YAML file to validate')
-            ->addOption('module', 'm', InputOption::VALUE_REQUIRED, 'Display optiond for a specific module')
-            ->setHelp('Display the options for a module, or validate a build-config YAML file.')
+        $this->addArgument('config', InputArgument::OPTIONAL, 'A build config YAML file to validate')
+            ->setHelp('Display rendition modules documentation, or validate a config file.')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($transformerName = $input->getOption('module')) {
-            /** @var TransformerModuleInterface $transformer */
-            $transformer = $this->transformers->get($transformerName);
-            $output->writeln($this->getTransformerDocumentation($transformerName, $transformer));
-        }
-
-        if ($buildConfigPath = $input->getArgument('build-config')) {
-            $buildConfig = $this->yamlLoader->load($buildConfigPath);
+        if (null !== ($configPath = $input->getArgument('config'))) {
+            $config = $this->yamlLoader->load($configPath);
 
             foreach (FamilyEnum::cases() as $family) {
-                $familyConfig = $buildConfig->getFamily($family);
+                $familyConfig = $config->getFamily($family);
                 if (null === $familyConfig) {
                     continue;
                 }
-
-                $output->writeln(sprintf('# Family `%s`:', $family->name));
                 foreach ($familyConfig->getTransformations() as $transformation) {
                     $transformerName = $transformation->getModule();
-                   // $output->writeln(sprintf('  - %s', $transformerName));
 
                     /** @var TransformerModuleInterface $transformer */
                     $transformer = $this->transformers->get($transformerName);
-                    $output->writeln($this->getTransformerDocumentation($transformerName, $transformer));
 
-                    $this->checkTransformerConfiguration($transformerName, $transformer, $transformation->getOptions());
+                    try {
+                        $this->checkTransformerConfiguration($transformerName, $transformer, $transformation->asArray());
+                    } catch (\Throwable $e) {
+                        $msg = sprintf("Error in module \"%s\"\n%s", $transformerName, $e->getMessage());
+                        throw new InvalidConfigurationException($msg);
+                    }
                 }
+            }
+            $output->writeln('Configuration is valid.');
+        } else {
+            foreach ($this->transformers->getProvidedServices() as $transformerName => $transformerFqcn) {
+
+                /** @var TransformerModuleInterface $transformer */
+                $transformer = $this->transformers->get($transformerName);
+                $output->writeln($this->getTransformerDocumentation($transformerName, $transformer));
             }
         }
 
@@ -77,11 +78,11 @@ class ConfigCommand extends Command
 
     private function getTransformerDocumentation(string $transformerName, TransformerModuleInterface $transformer): string
     {
-        $docToText = function(DocumentationTree $documentation, int $depth=0) use (&$docToText): string {
+        $docToText = function (Documentation $documentation, int $depth = 0) use (&$docToText): string {
 
             $text = '';
-            if($t = $documentation->getHeader()) {
-                $text .= $t . "\n";
+            if ($t = $documentation->getHeader()) {
+                $text .= $t."\n";
             }
 
             $treeBuilder = $documentation->getTreeBuilder();
@@ -89,76 +90,34 @@ class ConfigCommand extends Command
             $dumper = new YamlReferenceDumper();
 
             $t = $dumper->dumpNode($node);
-            $t = preg_replace("#^root:(\n( {4})?|\s+\[])#", "-\n", (string) $t);
-            $t = str_replace("\n\n", "\n", $t);
-            $t = str_replace("\n", "\n    ", $t);
+            $t = preg_replace("#^root:($|(\s+)\[]$)#m", "-\n", (string) $t);
+            $t = preg_replace("#\n+#", "\n", $t);
+            $t = trim($t);
 
-            $text .= "```yaml\n" . $t . "\n```\n";
+            $text .= "```yaml\n".$t."\n```\n";
 
-            foreach ($documentation->getChildren() as $child) {
-                $text .= $docToText($child, $depth+1);
+            if ($t = $documentation->getFooter()) {
+                $text .= $t."\n";
             }
 
-            if($t = $documentation->getFooter()) {
-                $text .= $t . "\n";
+            foreach ($documentation->getChildren() as $child) {
+                $text .= $docToText($child, $depth + 1);
             }
 
             return $text;
         };
 
+        $documentation = $transformer->getDocumentation();
 
-        $doc = "\n\n## $transformerName transformer module\n";
-        if (method_exists($transformer, 'getDocumentation')) {
-            $documentation = $transformer->getDocumentation();
-            $doc .= $docToText($documentation);
-        }
-
-        return $doc;
+        return "## `$transformerName` transformer module\n".$docToText($documentation);
     }
 
     private function checkTransformerConfiguration(string $transformerName, TransformerModuleInterface $transformer, array $options): void
     {
-        if (method_exists($transformer, 'getDocumentation')) {
-            $documentation = $transformer->getDocumentation();
-            $treeBuilder = $documentation->getTreeBuilder();
+        $documentation = $transformer->getDocumentation();
+        $treeBuilder = $documentation->getTreeBuilder();
 
-            $processor = new Processor();
-            $processor->process($treeBuilder->buildTree(), ['root' => $options]);
-        }
-    }
-
-    private function no_getTransformerDocumentation(string $fqcn, string $transformerName, TransformerModuleInterface $transformer): string
-    {
-        $doc = "\n\n## $transformerName\n";
-
-        $reflectionClass = new \ReflectionClass($fqcn);
-        if ($reflectionClass->hasMethod('getDocumentationHeader') && $reflectionClass->getMethod('getDocumentationHeader')->class == $fqcn) {
-            $doc .= $transformer->getDocumentationHeader()."\n";
-        }
-
-        if (method_exists($transformer, 'buildConfiguration')) {
-            $treeBuilder = new TreeBuilder('root');
-            $transformer->buildConfiguration($treeBuilder->getRootNode()->children());
-
-            $node = $treeBuilder->buildTree();
-            $dumper = new YamlReferenceDumper();
-
-            $t = $dumper->dumpNode($node);
-            $t = preg_replace("#^root:(\n( {4})?|\s+\[])#", "-\n", (string) $t);
-            $t = str_replace("\n\n", "\n", $t);
-            $t = str_replace("\n", "\n    ", $t);
-            //            $t = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', (string)$t);
-            //            $t = preg_replace("#\n {4}#", "\n", $t);
-            //            $t = preg_replace("#\n\n#", "\n", $t);
-            //            $t = trim(preg_replace("#^\n+#", '', $t));
-
-            $doc .= "```yaml\n".$t."```\n";
-        }
-
-        if ($reflectionClass->hasMethod('getDocumentationFooter') && $reflectionClass->getMethod('getDocumentationFooter')->class == $fqcn) {
-            $doc .= $transformer->getDocumentationFooter()."\n";
-        }
-
-        return $doc;
+        $processor = new Processor();
+        $processor->process($treeBuilder->buildTree(), ['root' => $options]);
     }
 }

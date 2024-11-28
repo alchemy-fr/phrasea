@@ -2,53 +2,91 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\VideoInterface;
+use Imagine\Image\ImagineInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class VideoSummaryTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
+final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        private ModuleOptionsResolver $optionsResolver,
+        private ImagineInterface $imagine,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'video_summary';
     }
 
-    public function buildConfiguration(NodeBuilder $builder): void
+    public static function getDocumentation(): Documentation
     {
+        static $doc = null;
+        if (null === $doc) {
+            $treeBuilder = Documentation::createBaseTree(self::getName());
+            self::buildConfiguration($treeBuilder->getRootNode()->children());
+            $doc = new Documentation(
+                $treeBuilder,
+                <<<HEADER
+                Assemble multiple extracts (clips) of the video.
+                HEADER
+            );
+        }
+
+        return $doc;
+    }
+
+    private static function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
         $builder
-            ->scalarNode('module')
-                ->isRequired()
-                ->defaultValue(self::getName())
-                ->end()
-            ->booleanNode('enabled')
-                ->defaultTrue()
-                ->info('Whether to enable this module')
-                ->end()
             ->arrayNode('options')
                 ->info('Options for the module')
                 ->children()
+                    ->scalarNode('start')
+                        ->defaultValue(0)
+                        ->info('Skip video start, in seconds or timecode')
+                        ->example('2.5 ; "00:00:02.50" ; "{{ attr.start }}"')
+                    ->end()
                     ->scalarNode('period')
                         ->isRequired()
                         ->info('Extract one video clip every period, in seconds or timecode')
                         ->example('5 ; "00:00:05.00"')
-                        ->end()
+                    ->end()
                     ->scalarNode('duration')
                         ->isRequired()
                         ->info('Duration of each clip, in seconds or timecode')
                         ->example('0.25 ; "00:00:00.25"')
-                        ->end()
+                   ->end()
+                   ->scalarNode('format')
+                        ->isRequired()
+                        ->info('Output format')
+                        ->example('video-mpeg')
+                   ->end()
+                    ->scalarNode('extension')
+                        ->defaultValue('default extension from format')
+                        ->info('extension of the output file')
+                        ->example('mpeg')
+                    ->end()
                 ->end()
             ->end()
         ;
+        // @formatter:on
     }
 
     /**
@@ -72,7 +110,7 @@ final readonly class VideoSummaryTransformerModule extends AbstractVideoTransfor
 
         $resolverContext = $context->getTemplatingContext();
         $resolverContext['input'] = $video->getStreams()->videos()->first()->all();
-        
+
         $period = $this->optionsResolver->resolveOption($options['period'] ?? 0, $resolverContext);
         $periodAsTimecode = FFMpegHelper::optionAsTimecode($period);
         if (null === $periodAsTimecode || ($period = FFMpegHelper::timecodeToseconds($periodAsTimecode)) <= 0) {
@@ -111,8 +149,7 @@ final readonly class VideoSummaryTransformerModule extends AbstractVideoTransfor
                 $FFMpegOutputFormat->setAudioCodec($audioCodec);
             }
 
-            // todo: allow to choose other extension
-            $clipsExtension = $outputFormat->getAllowedExtensions()[0];
+            $clipsExtension = $commonArgs->getExtension();
 
             try {
                 $clipsFiles = [];
@@ -150,8 +187,7 @@ final readonly class VideoSummaryTransformerModule extends AbstractVideoTransfor
                 }
             }
         } elseif (FamilyEnum::Animation === $outputFormat->getFamily()) {
-            // todo: allow to choose other extension
-            $clipsExtension = $outputFormat->getAllowedExtensions()[0];
+            $clipsExtension = $commonArgs->getExtension();
             try {
                 $clipsFiles = [];
                 $usableInputDuration = ($inputDuration - $start);

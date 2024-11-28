@@ -1,6 +1,6 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Video\X264;
