@@ -153,7 +153,7 @@ final readonly class ExposeClient
             $parts['Parts'] = [];
 
             try {
-                $file = fopen($fetchedFilePath, 'r');
+                $fd = fopen($fetchedFilePath, 'r');
                 $alreadyUploaded = 0;
 
                 $partNumber = 1;
@@ -168,11 +168,11 @@ final readonly class ExposeClient
                         ->toArray()
                     ;
 
-                    if (($fileSize - $alreadyUploaded) <= 2*$partSize) {
+                    if (($fileSize - $alreadyUploaded) < $partSize) {
                         $partSize = $fileSize - $alreadyUploaded;
                     }
 
-                    $headerPutPart = $this->putPart($resUploadPart['url'], $file, $partSize, $retryCount);
+                    $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
                     
                     $alreadyUploaded += $partSize;
 
@@ -184,7 +184,7 @@ final readonly class ExposeClient
                     $partNumber++;
                 }
                 
-                fclose($file);
+                fclose($fd);
             } catch (\Throwable  $e) {
                 $this->create($config, $integrationToken)
                     ->request('DELETE', '/uploads/'. $mUploadId);
