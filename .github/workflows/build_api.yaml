@@ -44,6 +44,7 @@ jobs:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-php
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
@@ -60,6 +61,7 @@ jobs:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-nginx
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
@@ -75,6 +77,7 @@ jobs:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: worker
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache

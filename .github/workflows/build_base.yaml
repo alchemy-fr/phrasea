@@ -43,6 +43,7 @@ jobs:
           context: ${{ inputs.context }}
           target: ${{ inputs.target }}
           file: ${{ inputs.context }}/Dockerfile
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
