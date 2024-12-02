@@ -34,4 +34,5 @@ return [
     Arthem\ObjectReferenceBundle\ArthemObjectReferenceBundle::class => ['all' => true],
     Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
     Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
+    Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
 ];
