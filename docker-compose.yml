@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:v2.5.5
+    image: traefik:3.2.1
     networks:
       - internal
     ports:
@@ -145,6 +145,8 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOVU_SECRET_KEY
+      - NOVU_API_URL
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -407,7 +409,7 @@ services:
   redis:
     profiles:
       - db
-    image: redis:5.0.5-alpine
+    image: redis:7.4.1-alpine3.20
     networks:
       - internal
     volumes:
@@ -656,6 +658,7 @@ services:
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
       - SOKETI_USAGE_URL
+      - NOVU_FRONT_URL
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
@@ -1084,6 +1087,10 @@ services:
 
   mongodb:
     image: mongo:8.0.3
+    profiles:
+      - novu
+    networks:
+      - internal
     environment:
       - PUID=1000
       - PGID=1000
@@ -1096,13 +1103,17 @@ services:
     image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
     depends_on:
       mongodb:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
+        condition: service_started
+    profiles:
+      - novu
+    networks:
+      - internal
     environment:
-      API_ROOT_URL: ${NOVU_API_BASE_URL}
-      DISABLE_USER_REGISTRATION: 'true'
-      FRONT_BASE_URL: ${NOVU_FRONT_BASE_URL}
+      API_ROOT_URL: ${NOVU_API_URL}
+      DISABLE_USER_REGISTRATION: 'false'
+      FRONT_BASE_URL: ${NOVU_FRONT_URL}
       MONGO_URL: ${NOVU_MONGO_URL}
       MONGO_MIN_POOL_SIZE: ${NOVU_MONGO_MIN_POOL_SIZE}
       MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
@@ -1113,21 +1124,28 @@ services:
       REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
       REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
       JWT_SECRET: ${NOVU_JWT_SECRET}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
       STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
+      NEW_RELIC_ENABLED: 'false'
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.novu-api.rule=Host(`api-novu.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.novu-api.loadbalancer.server.port=3000"
+    extra_hosts:
+      - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-worker:
     image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
     depends_on:
       mongodb:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
-    restart: unless-stopped
+        condition: service_started
+    profiles:
+      - novu
+    networks:
+      - internal
     environment:
       MONGO_URL: ${NOVU_MONGO_URL}
       MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
@@ -1137,15 +1155,21 @@ services:
       REDIS_DB_INDEX: 2
       REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
       REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+    extra_hosts:
+      - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
     depends_on:
       mongodb:
-        condition: service_healthy
+        condition: service_started
       redis:
-        condition: service_healthy
-    restart: unless-stopped
+        condition: service_started
+    profiles:
+      - novu
+    networks:
+      - internal
     environment:
       MONGO_URL: ${NOVU_MONGO_URL}
       MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
@@ -1153,7 +1177,6 @@ services:
       REDIS_PORT: ${NOVU_REDIS_PORT}
       REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
       JWT_SECRET: ${NOVU_JWT_SECRET}
-      WS_CONTEXT_PATH: ${NOVU_WS_CONTEXT_PATH}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1164,15 +1187,18 @@ services:
     image: ghcr.io/novuhq/novu/web:${NOVU_VERSION}
     depends_on:
       - novu-api
-    restart: unless-stopped
+    profiles:
+      - novu
+    networks:
+      - internal
     environment:
-      REACT_APP_API_URL: ${NOVU_API_BASE_URL}
+      REACT_APP_API_URL: ${NOVU_API_URL}
       REACT_APP_IS_SELF_HOSTED: 'true'
       REACT_APP_WS_URL: ${NOVU_WS_URL}
     command: ['/bin/sh', '-c', 'pnpm run envsetup:docker && pnpm run start:static:build']
     healthcheck:
-      test: ['CMD-SHELL', 'curl --silent --fail http://localhost:4200 || exit 1']
-      interval: 30s
+      test: ['CMD-SHELL', 'wget --quiet --tries=1 --timeout=5 http://127.0.0.1:4200 || exit 1']
+      interval: 60s
       timeout: 10s
       retries: 3
       start_period: 10s

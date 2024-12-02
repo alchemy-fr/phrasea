@@ -228,6 +228,8 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
+      - NOVU_SECRET_KEY
+      - NOVU_API_URL
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace

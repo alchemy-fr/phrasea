@@ -149,6 +149,11 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 'session' => [
                     'handler_id' => RedisSessionHandler::class,
                 ],
+                'notifier' => [
+                    'texter_transports' => [
+                        'novu' => 'novu://%env(NOVU_SECRET_KEY)%@%env(NOVU_API_URL)%',
+                    ],
+                ]
             ]);
         }
 

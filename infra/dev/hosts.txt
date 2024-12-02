@@ -28,4 +28,7 @@ ${IP} soketi.${PHRASEA_DOMAIN}
 ${IP} soketi-usage.${PHRASEA_DOMAIN}
 ${IP} keycloak.${PHRASEA_DOMAIN}
 ${IP} keycloak2.${PHRASEA_DOMAIN}
+${IP} novu.${PHRASEA_DOMAIN}
+${IP} ws-novu.${PHRASEA_DOMAIN}
+${IP} api-novu.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d58399fb22f00320aa0d0e5dd2f061b",
+    "content-hash": "e5ea3e5bcedfe7e342f61d57f77925e5",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -59,7 +59,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -117,7 +117,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -174,7 +174,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -227,7 +227,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -287,7 +287,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -343,7 +343,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -396,7 +396,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -519,7 +519,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -581,7 +581,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -635,7 +635,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -690,7 +690,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -742,7 +742,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -799,7 +799,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -864,7 +864,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -11406,6 +11406,151 @@
             "time": "2023-11-06T17:08:13+00:00"
         },
         {
+            "name": "symfony/notifier",
+            "version": "v6.4.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/notifier.git",
+                "reference": "c46321b53391088861bf627cd9e24873d216cf00"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/notifier/zipball/c46321b53391088861bf627cd9e24873d216cf00",
+                "reference": "c46321b53391088861bf627cd9e24873d216cf00",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "psr/log": "^1|^2|^3"
+            },
+            "conflict": {
+                "symfony/event-dispatcher": "<5.4",
+                "symfony/event-dispatcher-contracts": "<2.5",
+                "symfony/http-client-contracts": "<2.5",
+                "symfony/http-kernel": "<5.4"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher-contracts": "^2.5|^3",
+                "symfony/http-client-contracts": "^2.5|^3",
+                "symfony/http-foundation": "^5.4|^6.0|^7.0",
+                "symfony/messenger": "^5.4|^6.0|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Notifier\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Sends notifications via one or more channels (email, SMS, ...)",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "notification",
+                "notifier"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/notifier/tree/v6.4.13"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-25T14:18:03+00:00"
+        },
+        {
+            "name": "symfony/novu-notifier",
+            "version": "v6.4.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/novu-notifier.git",
+                "reference": "fe9b2b71b5d889cf28abd8e01afe17fae0e1e9a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/novu-notifier/zipball/fe9b2b71b5d889cf28abd8e01afe17fae0e1e9a0",
+                "reference": "fe9b2b71b5d889cf28abd8e01afe17fae0e1e9a0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/http-client": "^5.4|^6.0|^7.0",
+                "symfony/notifier": "^6.4|^7.0"
+            },
+            "type": "symfony-notifier-bridge",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Notifier\\Bridge\\Novu\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wouter van der Loop",
+                    "email": "woutervdl@toppy.nl"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides Novu integration for Symfony Notifier.",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "notifier",
+                "novu"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/novu-notifier/tree/v6.4.13"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-25T14:18:03+00:00"
+        },
+        {
             "name": "symfony/options-resolver",
             "version": "v6.4.13",
             "source": {
@@ -14703,7 +14848,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-696-stack-db",
+            "version": "dev-PS-705-novu",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

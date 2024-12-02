@@ -35,6 +35,7 @@
         'UPLOADER_CLIENT_URL',
         'ZIPPY_URL',
         'SOKETI_USAGE_URL',
+        'NOVU_FRONT_URL',
     ];
 
     const e = {};

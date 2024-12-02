@@ -48,6 +48,7 @@ export default function Dashboard({}: Props) {
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
+        NOVU_FRONT_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -186,7 +187,9 @@ export default function Dashboard({}: Props) {
                 )}
             </Grid>
             {roles.includes('tech') && (
-                <Grid container spacing={2} marginTop={1}>
+                <Grid container spacing={2} marginTop={1} sx={{
+                    mb: 5
+                }}>
                     {PGADMIN_URL && (
                         <Grid item>
                             <Link
@@ -275,14 +278,14 @@ export default function Dashboard({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {SOKETI_USAGE_URL && (
+                    {NOVU_FRONT_URL && (
                         <Grid item>
                             <Link
-                                href={SOKETI_USAGE_URL}
+                                href={NOVU_FRONT_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                Soketi Usage
+                                Novu
                             </Link>
                         </Grid>
                     )}
