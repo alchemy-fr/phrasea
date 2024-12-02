@@ -49,11 +49,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: ${{ inputs.target }}
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.image }}:build-cache
