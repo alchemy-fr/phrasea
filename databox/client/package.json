@@ -40,6 +40,7 @@
     "ismounted": "^0.1.8",
     "leaflet": "^1.9.4",
     "moment": "^2.30.1",
+    "novu": "2.2.1",
     "pusher-js": "^8.3.0",
     "re-resizable": "^6.10.0",
     "react": "^18.3.1",
