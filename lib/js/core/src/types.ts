@@ -23,6 +23,7 @@ export type WindowConfig = {
     analytics?: AnalyticsConfig;
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
+    logo: Readonly<string>;
 }
 
 export type SentryConfig = Pick<WindowConfig,

@@ -61,6 +61,7 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 
     return {
         customHTML,
+        logo: stackConfig.logo,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DATABOX_API_URL,
         uploaderApiBaseUrl: env.UPLOADER_API_URL,

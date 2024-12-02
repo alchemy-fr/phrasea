@@ -65,7 +65,11 @@ export default function Dashboard({}: Props) {
                             },
                         }}
                     >
-                        {STACK_NAME}
+                        { 
+                            config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ height:48 }}/>
+                            : STACK_NAME
+                        }
+                        
                         {user ? (
                             <Chip
                                 icon={<SellIcon />}

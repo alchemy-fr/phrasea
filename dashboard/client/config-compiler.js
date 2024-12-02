@@ -71,6 +71,7 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 
     return {
         customHTML,
+        logo: stackConfig.logo,
         locales: config.available_locales,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DASHBOARD_CLIENT_URL,
