@@ -183,8 +183,6 @@
         "symfony/framework-bundle": "^6.3",
         "symfony/lock": "^6.3",
         "symfony/mime": "^6.3",
-        "symfony/notifier": "^6.3",
-        "symfony/novu-notifier": "^6.3",
         "symfony/property-access": "^6.3",
         "symfony/property-info": "^6.3",
         "symfony/psr-http-message-bridge": "^2.3",

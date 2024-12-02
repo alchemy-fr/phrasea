@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace Alchemy\CoreBundle\Command;
 
-use FOS\ElasticaBundle\Elastica\Client;
-use FOS\ElasticaBundle\Index\IndexManager;
+use Alchemy\CoreBundle\Notification\NovuNotification;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Notifier\Notification\Notification;
+use Symfony\Component\Notifier\Bridge\Novu\NovuSubscriberRecipient;
 use Symfony\Component\Notifier\NotifierInterface;
-use Symfony\Component\Notifier\Recipient\Recipient;
 
+#[AsCommand(
+    name: 'app:notification:debug',
+    description: 'Send notification to user',
+)]
 class TestNotificationCommand extends Command
 {
     public function __construct(
@@ -22,24 +24,18 @@ class TestNotificationCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        parent::configure();
-
-        $this
-            ->setName('app:notifier:debug')
-            ->setDescription('Send notification to user');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Create a Notification that has to be sent
         // using the "email" channel
-        $notification = (new Notification('New Invoice'))
+        $notification = (new NovuNotification('demo-comment-on-task'))
             ->content('You got a new invoice for 15 EUR.');
 
         // The receiver of the Notification
-        $recipient = new Recipient(
+        $recipient = new NovuSubscriberRecipient(
+            '4242',
+            'John',
+            'Doe',
             'test@phrasea.local',
         );
 

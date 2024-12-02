@@ -67,6 +67,10 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $this->loadHealthCheckers($container);
         }
 
+        if ($config['notification']['enabled']) {
+            $loader->load('notification.yaml');
+        }
+
         if ($config['pusher']['enabled']) {
             $loader->load('pusher.yaml');
             $def = $container->getDefinition(PusherManager::class);
@@ -151,7 +155,10 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 ],
                 'notifier' => [
                     'texter_transports' => [
-                        'novu' => 'novu://%env(NOVU_SECRET_KEY)%@%env(NOVU_API_URL)%',
+                        'novu' => 'novu://%env(NOVU_SECRET_KEY)%@%env(NOVU_API_HOST)%',
+                    ],
+                    'channel_policy' => [
+                        'high' => 'push',
                     ],
                 ]
             ]);

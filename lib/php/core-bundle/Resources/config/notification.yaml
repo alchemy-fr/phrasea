@@ -1,0 +1,8 @@
+parameters:
+    '%env(NOVU_DSN)%': 'novu://API_KEY@default'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    Alchemy\CoreBundle\Command\TestNotificationCommand: ~
