@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Alchemy\StorageBundle\Entity;
 
-use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
+use Ramsey\Uuid\Uuid;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
-use Ramsey\Uuid\Uuid;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Alchemy\StorageBundle\Controller\MultipartUploadPartAction;
+use Alchemy\StorageBundle\Controller\MultipartUploadCancelAction;
+use Alchemy\StorageBundle\Controller\MultipartUploadCompleteAction;
 
 #[ApiResource(
     shortName: 'Upload',
@@ -67,7 +69,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
                         ]],
                 ],
             ]),
-        new Delete(openapiContext: ['summary' => 'Cancel an upload', 'description' => 'Cancel an upload.']),
+        new Delete(
+            controller: MultipartUploadCancelAction::class,
+            openapiContext: [
+                'summary' => 'Cancel an upload', 
+                'description' => 'Cancel an upload.'
+            ]
+        ),
+
         new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')'),
     ],
     normalizationContext: ['groups' => ['upload:read']],

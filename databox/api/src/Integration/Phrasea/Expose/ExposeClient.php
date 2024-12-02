@@ -2,16 +2,17 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use App\Asset\Attribute\AssetTitleResolver;
-use App\Asset\Attribute\AttributesResolver;
 use App\Asset\FileFetcher;
-use App\Attribute\AttributeInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
-use App\Entity\Integration\IntegrationToken;
-use App\Integration\IntegrationConfig;
-use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Storage\RenditionManager;
+use App\Attribute\AttributeInterface;
+use App\Integration\IntegrationConfig;
+use App\Asset\Attribute\AssetTitleResolver;
+use App\Asset\Attribute\AttributesResolver;
+use App\Entity\Integration\IntegrationToken;
+use Alchemy\StorageBundle\Upload\UploadManager;
+use App\Integration\Phrasea\PhraseaClientFactory;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -23,6 +24,7 @@ final readonly class ExposeClient
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
         private RenditionManager $renditionManager,
+        private UploadManager $uploadManager
     ) {
     }
 
@@ -127,17 +129,78 @@ final readonly class ExposeClient
         $source = $asset->getSource();
 
         $fetchedFilePath = $this->fileFetcher->getFile($source);
+        $fileSize =  filesize($fetchedFilePath);
+
+        // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
+        $partSize = 100 * 1024 * 1024; // 100Mb
+
         try {
+            $uploadsData = [
+                'filename' => $source->getOriginalName(),
+                'type' => $source->getType(),
+                'size' => (int)$source->getSize(),
+            ];
+
+            $resUploads = $this->create($config, $integrationToken)
+                ->request('POST', '/uploads', [
+                    'json' => $uploadsData,
+                ])
+                ->toArray()
+            ;
+
+            $mUploadId = $resUploads['id'];
+
+            $parts['Parts'] = [];
+
+            try {
+                $fd = fopen($fetchedFilePath, 'r');
+                $alreadyUploaded = 0;
+
+                $partNumber = 1;
+
+                $retryCount = 3;
+
+                while ( ($fileSize - $alreadyUploaded) > 0) {
+                    $resUploadPart = $this->create($config, $integrationToken)
+                        ->request('POST', '/uploads/'. $mUploadId .'/part', [
+                            'json' => ['part' => $partNumber],
+                        ])
+                        ->toArray()
+                    ;
+
+                    if (($fileSize - $alreadyUploaded) < $partSize) {
+                        $partSize = $fileSize - $alreadyUploaded;
+                    }
+
+                    $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
+                    
+                    $alreadyUploaded += $partSize;
+
+                    $parts['Parts'][$partNumber] = [
+                        'PartNumber'    => $partNumber,
+                        'ETag'          => current($headerPutPart['etag']),
+                    ];
+
+                    $partNumber++;
+                }
+                
+                fclose($fd);
+            } catch (\Throwable  $e) {
+                $this->create($config, $integrationToken)
+                    ->request('DELETE', '/uploads/'. $mUploadId);
+
+                    throw $e;
+            }
+
             $data = array_merge([
                 'publication_id' => $publicationId,
                 'asset_id' => $asset->getId(),
                 'title' => $resolvedTitle,
                 'description' => $description,
                 'translations' => $translations,
-                'upload' => [
-                    'type' => $source->getType(),
-                    'size' => $source->getSize(),
-                    'name' => $source->getOriginalName(),
+                'multipart' => [
+                    'uploadId'  => $mUploadId,
+                    'parts'     => $parts['Parts'],
                 ],
             ], $extraData);
 
@@ -147,15 +210,6 @@ final readonly class ExposeClient
                 ])
                 ->toArray()
             ;
-            $exposeAssetId = $pubAsset['id'];
-
-            $this->uploadClient->request('PUT', $pubAsset['uploadURL'], [
-                'headers' => [
-                    'Content-Type' => $source->getType(),
-                    'Content-Length' => filesize($fetchedFilePath),
-                ],
-                'body' => fopen($fetchedFilePath, 'r'),
-            ]);
 
             foreach ([
                 'preview',
@@ -168,7 +222,7 @@ final readonly class ExposeClient
                         $subDefResponse = $this->create($config, $integrationToken)
                             ->request('POST', '/sub-definitions', [
                                 'json' => [
-                                    'asset_id' => $exposeAssetId,
+                                    'asset_id' => $pubAsset['id'],
                                     'name' => $renditionName,
                                     'use_as_preview' => 'preview' === $renditionName,
                                     'use_as_thumbnail' => 'thumbnail' === $renditionName,
@@ -206,5 +260,34 @@ final readonly class ExposeClient
         $this->create($config, $integrationToken)
             ->request('DELETE', '/assets/'.$assetId)
         ;
+    }
+
+    private function putPart(string $url, mixed &$handleFile, int $partSize, int $retryCount): array
+    {
+        if ($retryCount > 0) {
+            $retryCount--;
+            try {
+                $maxToRead = $partSize;
+                $alreadyRead = 0;
+                return $this->uploadClient->request('PUT', $url, [
+                    'headers' => [
+                        'Content-Length' => $partSize,
+                    ],
+                    'body' => function ($size) use (&$handleFile, $maxToRead, &$alreadyRead): mixed {
+                        $toRead = min($size, $maxToRead - $alreadyRead);
+                        $alreadyRead += $toRead;
+
+                        return fread($handleFile, $toRead);
+                    },
+                ])->getHeaders();
+            } catch (\Throwable $e) {
+                if ($retryCount == 0) {
+                    throw $e;
+                }
+                return $this->putPart($url, $handleFile, $partSize, $retryCount);
+            }
+        } else {
+            return [];
+        }
     }
 }

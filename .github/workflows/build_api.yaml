@@ -39,11 +39,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push API PHP
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-php
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:build-cache
@@ -55,11 +56,12 @@ jobs:
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-php:${{ env.DOCKER_TAG }}
 
       - name: Build and Push API NGINX
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: api-nginx
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:build-cache
@@ -70,11 +72,12 @@ jobs:
             ${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-api-nginx:${{ env.DOCKER_TAG }}
 
       - name: Build and Push Worker
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.withLibs && './' || inputs.context }}
           file: ${{ inputs.context }}/Dockerfile
           target: worker
+          provenance: false
           push: true
           cache-from: type=registry,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache
           cache-to: type=registry,mode=max,ref=${{ env.REGISTRY_NAMESPACE }}${{ inputs.prefix }}-worker:build-cache
