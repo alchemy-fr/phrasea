@@ -23,3 +23,6 @@ WORKDIR /var/app
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
+
+HEALTHCHECK --start-interval=1s --start-period=30s --retries=60 --interval=60s \
+	CMD wget -O /dev/null http://127.0.0.1/index.html?healthcheck || exit 1
