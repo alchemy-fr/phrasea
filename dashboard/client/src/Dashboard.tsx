@@ -66,7 +66,7 @@ export default function Dashboard({}: Props) {
                         }}
                     >
                         { 
-                            config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ height:48 }}/>
+                            config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ maxHeight:48, maxWidth:150 }}/>
                             : STACK_NAME
                         }
                         

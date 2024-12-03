@@ -79,7 +79,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                             }}
                         >
                             { 
-                                config.logo ? <img src={config.logo} alt={t('common.databox', `Databox`)}  style={{ height:32 }}/>
+                                config.logo ? <img src={config.logo} alt={t('common.databox', `Databox`)}  style={{ maxHeight:32, maxWidth:150 }}/>
                                 : t('common.databox', `Databox`)
                             }
                             
