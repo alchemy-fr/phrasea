@@ -7,10 +7,12 @@ namespace Alchemy\MessengerBundle\Listener;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsEventListener(KernelEvents::TERMINATE, 'onTerminate')]
 #[AsEventListener(ConsoleEvents::TERMINATE, 'onTerminate')]
+#[AsEventListener(WorkerMessageHandledEvent::class, method: 'onTerminate')]
 final class TerminateStackListener
 {
     private array $callbacks = [];

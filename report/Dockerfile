@@ -16,4 +16,4 @@ RUN go build -o app . \
 
 EXPOSE 80
 
-CMD ./go.sh
+CMD ["./go.sh"]

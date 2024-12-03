@@ -13,4 +13,4 @@ COPY ./config/logstash.yml /usr/share/logstash/config/logstash.yml
 COPY ./files/report.sql /usr/share/logstash/files/report.sql
 COPY ./pipeline/logstash.conf /usr/share/logstash/pipeline/logstash.conf
 
-ENV ELASTICSEARCH_HOST elasticsearch-report:9200
+ENV ELASTICSEARCH_HOST=elasticsearch-report:9200

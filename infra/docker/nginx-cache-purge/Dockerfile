@@ -3,9 +3,9 @@ ARG NGINX_VERSION=1.20.1
 FROM nginx:${NGINX_VERSION}-alpine AS builder
 
 # nginx:alpine contains NGINX_VERSION environment variable, like so:
-# ENV NGINX_VERSION 1.15.0
+# ENV NGINX_VERSION=1.15.0
 
-ENV PURGE_CACHE_VERSION 2.3
+ENV PURGE_CACHE_VERSION=2.3
 
 # Download sources
 RUN mkdir -p /usr/src \
