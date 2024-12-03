@@ -28,29 +28,24 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
         return 'video_to_animation';
     }
 
-    public static function getDocumentation(): Documentation
+    public function getDocumentation(): Documentation
     {
-        static $doc = null;
-        if (null === $doc) {
-            $treeBuilder = Documentation::createBaseTree(self::getName());
-            self::buildConfiguration($treeBuilder->getRootNode()->children());
-            $doc = new Documentation(
-                $treeBuilder,
-                <<<HEADER
-                Converts a video to an animated gif / png.
-                HEADER
-            );
-        }
+        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
-        return $doc;
+        return new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            Converts a video to an animated gif / png.
+            HEADER
+        );
     }
 
-    private static function buildConfiguration(NodeBuilder $builder): void
+    public function buildConfiguration(NodeBuilder $builder): void
     {
         // @formatter:off
         $builder
             ->arrayNode('options')
-                ->info('Options for the module')
                 ->children()
                     ->scalarNode('start')
                         ->defaultValue(0)
@@ -94,6 +89,16 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
                         ->defaultValue('default extension from format')
                         ->info('extension of the output file')
                         ->example('apng')
+                    ->end()
+                    ->scalarNode('passes')
+                        ->defaultValue(2)
+                        ->info('Change the number of ffmpeg passes')
+                    ->end()
+                        ->scalarNode('timeout')
+                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
+                    ->end()
+                    ->scalarNode('threads')
+                        ->info('Change the default number of threads used by ffmpeg')
                     ->end()
                 ->end()
             ->end();

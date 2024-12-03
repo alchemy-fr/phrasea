@@ -4,7 +4,7 @@ services:
         autoconfigure: true
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
-    Alchemy\RenditionFactory\Command\ConfigCommand: ~
+    Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~
 
     Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
@@ -102,3 +102,9 @@ services:
     Alchemy\RenditionFactory\Format\FormatGuesser: ~
     Alchemy\RenditionFactory\Format\FormatFactory: ~
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
+
+    Alchemy\RenditionFactory\DocumentationDumper:
+        tags:
+              - { name: 'documentation.dumper' }
+
+    Alchemy\RenditionFactory\Config\Validator: ~

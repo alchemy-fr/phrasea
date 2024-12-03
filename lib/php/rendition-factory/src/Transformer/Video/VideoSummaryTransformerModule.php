@@ -34,29 +34,24 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         return 'video_summary';
     }
 
-    public static function getDocumentation(): Documentation
+    public function getDocumentation(): Documentation
     {
-        static $doc = null;
-        if (null === $doc) {
-            $treeBuilder = Documentation::createBaseTree(self::getName());
-            self::buildConfiguration($treeBuilder->getRootNode()->children());
-            $doc = new Documentation(
-                $treeBuilder,
-                <<<HEADER
-                Assemble multiple extracts (clips) of the video.
-                HEADER
-            );
-        }
+        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
-        return $doc;
+        return new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            Assemble multiple extracts (clips) of the video.
+            HEADER
+        );
     }
 
-    private static function buildConfiguration(NodeBuilder $builder): void
+    public function buildConfiguration(NodeBuilder $builder): void
     {
         // @formatter:off
         $builder
             ->arrayNode('options')
-                ->info('Options for the module')
                 ->children()
                     ->scalarNode('start')
                         ->defaultValue(0)
@@ -82,6 +77,16 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                         ->defaultValue('default extension from format')
                         ->info('extension of the output file')
                         ->example('mpeg')
+                    ->end()
+                    ->scalarNode('passes')
+                        ->defaultValue(2)
+                        ->info('Change the number of ffmpeg passes')
+                    ->end()
+                        ->scalarNode('timeout')
+                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
+                    ->end()
+                    ->scalarNode('threads')
+                        ->info('Change the default number of threads used by ffmpeg')
                     ->end()
                 ->end()
             ->end()

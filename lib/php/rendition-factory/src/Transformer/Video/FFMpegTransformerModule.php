@@ -39,43 +39,39 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         return 'ffmpeg';
     }
 
-    public static function getDocumentation(): Documentation
+    public function getDocumentation(): Documentation
     {
-        static $doc = null;
-        if (null === $doc) {
-            $treeBuilder = Documentation::createBaseTree(self::getName());
-            self::buildConfiguration($treeBuilder->getRootNode()->children());
-            $doc = new Documentation(
-                $treeBuilder,
-                <<<HEADER
-                apply filters to a video using FFMpeg.
-                HEADER,
-                <<<FOOTER
-                ### List of `ffmpeg` filters:
-                FOOTER
-            );
+        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
+        $doc = new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            apply filters to a video using FFMpeg.
+            HEADER,
+            <<<FOOTER
+            ### List of `ffmpeg` filters:
+            FOOTER
+        );
 
-            foreach (self::getExtraConfigurationBuilders() as $name => $builder) {
-                $tree = new TreeBuilder('root');
-                $builder($tree->getRootNode());
-                $doc->addChild(new Documentation(
-                    $tree,
-                    <<<HEADER
-                    - `$name` filter
-                    HEADER
-                ));
-            }
+        foreach ($this->getExtraConfigurationBuilders() as $name => $builder) {
+            $tree = new TreeBuilder('root');
+            $builder($tree->getRootNode());
+            $doc->addChild(new Documentation(
+                $tree,
+                <<<HEADER
+                - `$name` filter
+                HEADER
+            ));
         }
 
         return $doc;
     }
 
-    private static function buildConfiguration(NodeBuilder $builder): void
+    public function buildConfiguration(NodeBuilder $builder): void
     {
         // @formatter:off
         $builder
             ->arrayNode('options')
-                ->info('Options for the module')
                 ->children()
                     ->scalarNode('format')
                         ->info('output format')
@@ -110,16 +106,12 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                         ->arrayPrototype()
                             ->info('see list of available filters below')
                             ->validate()->always()->then(function ($x) {
-                                self::validateFilter($x);
+                                $this->validateFilter($x);
                             })->end()
                             ->children()
                                 ->scalarNode('name')
                                     ->isRequired()
                                     ->info('Name of the filter')
-    //                                ->validate()
-    //                                    ->ifNotInArray(['pre_clip', 'remove_audio', 'resize', 'rotate', 'pad', 'crop', 'clip', 'synchronize', 'watermark', 'framerate'])
-    //                                    ->thenInvalid('Invalid filter')
-    //                                ->end()
                                 ->end()
                                 ->scalarNode('enabled')
                                     ->defaultTrue()
@@ -135,11 +127,11 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         // @formatter:on
     }
 
-    private static function validateFilter(array $filter): void
+    private function validateFilter(array $filter): void
     {
         $name = $filter['name'];
         unset($filter['enabled']);
-        if ($builder = self::getExtraConfigurationBuilders()[$name] ?? null) {
+        if ($builder = $this->getExtraConfigurationBuilders()[$name] ?? null) {
             $tree = new TreeBuilder($name);
             $builder($tree->getRootNode());
             $processor = new Processor();
@@ -149,7 +141,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
         }
     }
 
-    private static function getExtraConfigurationBuilders(): iterable
+    private function getExtraConfigurationBuilders(): iterable
     {
         static $configurations = [
             // @formatter:off

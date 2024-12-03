@@ -32,7 +32,7 @@ final readonly class Transformation
         return $this->enabled;
     }
 
-    public function asArray(): array
+    public function toArray(): array
     {
         return [
             'module' => $this->module,

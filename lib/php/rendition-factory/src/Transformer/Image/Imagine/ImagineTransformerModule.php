@@ -26,26 +26,28 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
         return 'imagine';
     }
 
-    public static function getDocumentation(): Documentation
+    public function getDocumentation(): Documentation
     {
-        static $doc = null;
-        if (null === $doc) {
-            $treeBuilder = Documentation::createBaseTree(self::getName());
-            self::buildConfiguration($treeBuilder->getRootNode()->children());
-            $doc = new Documentation(
-                $treeBuilder,
-                <<<HEADER
-                **documentation to be done**.
-                HEADER
-            );
-        }
+        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
-        return $doc;
+        return new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            **documentation to be done**.
+            HEADER
+        );
     }
 
-    private static function buildConfiguration(NodeBuilder $builder): void
+    public function buildConfiguration(NodeBuilder $builder): void
     {
-        // todo
+        // @formatter:off
+        $builder
+            ->arrayNode('options')
+                ->ignoreExtraKeys(false)
+            ->end()
+        ;
+        // @formatter:on
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
