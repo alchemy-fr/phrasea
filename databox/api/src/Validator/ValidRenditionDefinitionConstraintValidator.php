@@ -24,8 +24,11 @@ class ValidRenditionDefinitionConstraintValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint): void
     {
+        if(!($definition = $value->getDefinition())) {
+            return;
+        }
         try {
-            $config = $this->yamlLoader->parse($value->getDefinition());
+            $config = $this->yamlLoader->parse($definition);
             $this->validator->validate($config);
         } catch (\Throwable $e) {
             $this->context
