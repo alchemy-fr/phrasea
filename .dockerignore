@@ -1,6 +1,12 @@
+**/.git
+**/.pnpm-store
+**/build
+**/dist
+**/.build
+**/*.log
+**/coverage
 **/Dockerfile
 **/.dockerignore
-**/client/build
 **/var
 **/vendor
 **/public/bundles
@@ -16,7 +22,6 @@
 /doc
 /report
 /tmp
-**/dist
 /uploader/client/index.html
 /expose/client/index.html
 /databox/client/index.html

@@ -1,0 +1,13 @@
+**/.git
+**/.pnpm-store
+**/build
+**/dist
+**/.build
+**/*.log
+**/coverage
+**/Dockerfile
+**/.dockerignore
+**/node_modules
+**/.idea
+**/.gitignore
+**/.github

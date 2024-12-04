@@ -145,7 +145,7 @@ services:
     tty: true
     hostname: local
     ports:
-      - 4000:4000
+      - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
@@ -250,6 +250,7 @@ services:
       - api-notify.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   report-api:
@@ -281,6 +282,58 @@ services:
       - ./cypress/cypress:/cypress/cypress
       - ./cypress/cypress.config.js:/cypress/cypress.config.js
       - /tmp/.X11-unix:/tmp/.X11-unix
+
+  novu-api:
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  novu-worker:
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  novu-bridge:
+    command:
+      - sh
+      - -c
+      - pnpm dev
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    volumes:
+      - ./novu/bridge:/usr/src/app
+
+  novu-studio:
+    image: ${REGISTRY_NAMESPACE}novu-studio:${DOCKER_TAG}
+    build:
+        context: ./novu
+        dockerfile: studio/Dockerfile
+    profiles:
+      - novu
+    command:
+#      - ash
+      - sh
+      - -c
+      - pnpm exec ./packages/novu/dist/src/index.js dev --headless --dashboard-url ${NOVU_DASHBOARD_URL} --port 443 --origin ${NOVU_BRIDGE_URL} --tunnel ${NOVU_BRIDGE_URL} --studio-host=0.0.0.0
+#      - pnpm exec ./packages/novu/dist/src/index.js sync --api-url ${NOVU_API_URL} --bridge-url ${NOVU_BRIDGE_URL}/api/novu --secret-key ${NOVU_SECRET_KEY}
+    environment:
+      - NOVU_DASHBOARD_URL
+      - NOVU_BRIDGE_URL
+      - NOVU_SECRET_KEY
+      - NOVU_API_URL
+      - NOVU_API_HOST
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - NODE_ENV=development
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-studio.rule=Host(`studio-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-studio.loadbalancer.server.port=2022"
+    extra_hosts:
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+    volumes:
+      - ./novu/novu:/usr/src/app
 
 volumes:
   dev:
