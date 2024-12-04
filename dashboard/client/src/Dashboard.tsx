@@ -65,16 +65,26 @@ export default function Dashboard({}: Props) {
                             },
                         }}
                     >
-                        {STACK_NAME}
-                        {user ? (
-                            <Chip
-                                icon={<SellIcon />}
-                                label={STACK_VERSION}
-                                color={'info'}
-                            />
-                        ) : (
-                            ''
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center' }}> 
+                            { 
+                                config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ maxHeight:48, maxWidth:150 }}/>
+                                : STACK_NAME
+                            }
+                            
+                            {user ? (
+                                <Chip
+                                    icon={<SellIcon />}
+                                    label={STACK_VERSION}
+                                    color={'info'}
+                                    component="a"
+                                    href="/git-log.html"
+                                    target={'_blank'}
+                                    clickable
+                                />
+                            ) : (
+                                ''
+                            )}
+                        </div>
                     </Typography>
                 </DashboardBar>
             )}
