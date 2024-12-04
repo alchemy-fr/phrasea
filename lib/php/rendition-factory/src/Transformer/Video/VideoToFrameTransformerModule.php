@@ -8,9 +8,9 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use FFMpeg\Media\Video;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -54,7 +54,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
                     ->end()
                     ->scalarNode('format')
                         ->isRequired()
-                        ->info('Output format')
+                        ->info('output format (see Video transformers output `format`s)')
                         ->example('image-jpeg')
                     ->end()
                     ->scalarNode('extension')

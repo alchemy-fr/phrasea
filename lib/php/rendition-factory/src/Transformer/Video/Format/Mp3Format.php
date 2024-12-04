@@ -1,32 +1,32 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use Alchemy\RenditionFactory\Format\Audio\Aac;
+use FFMpeg\Format\Audio\Mp3;
 
-class AacFormat implements FormatInterface
+class Mp3Format implements FormatInterface
 {
-    private Aac $format;
+    private Mp3 $format;
 
     public function __construct()
     {
-        $this->format = new Aac();
+        $this->format = new Mp3();
     }
 
     public static function getAllowedExtensions(): array
     {
-        return ['aac', 'm4a'];
+        return ['mp3'];
     }
 
     public static function getMimeType(): string
     {
-        return 'audio/aac';
+        return 'audio/mp3';
     }
 
     public static function getFormat(): string
     {
-        return 'audio-aac';
+        return 'audio-mp3';
     }
 
     public static function getFamily(): FamilyEnum
@@ -34,7 +34,7 @@ class AacFormat implements FormatInterface
         return FamilyEnum::Audio;
     }
 
-    public function getFFMpegFormat(): Aac
+    public function getFFMpegFormat(): Mp3
     {
         return $this->format;
     }

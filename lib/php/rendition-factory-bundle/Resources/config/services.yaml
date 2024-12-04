@@ -46,53 +46,53 @@ services:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
     # Output "formats"
-    Alchemy\RenditionFactory\Format\JpegFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\MkvFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\Mpeg4Format:
+    Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\MpegFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\QuicktimeFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\WebmFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\AnimatedGifFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedGifFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\AnimatedPngFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedPngFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\AnimatedWebpFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedWebpFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\WavFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\WavFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\AacFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AacFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Format\Mp3Format:
+    Alchemy\RenditionFactory\Transformer\Video\Format\Mp3Format:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
 
     Imagine\Imagick\Imagine: ~

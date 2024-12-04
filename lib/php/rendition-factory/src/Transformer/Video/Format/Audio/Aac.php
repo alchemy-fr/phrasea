@@ -4,7 +4,7 @@
  * This file replaces FFMpeg\Format\Audio\aac because alpine lacks libfdk
  */
 
-namespace Alchemy\RenditionFactory\Format\Audio;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format\Audio;
 
 use FFMpeg\Format\Audio\DefaultAudio;
 

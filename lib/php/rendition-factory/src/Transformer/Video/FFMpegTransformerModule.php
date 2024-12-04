@@ -8,10 +8,10 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
-use Alchemy\RenditionFactory\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\ResizeFilter;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
@@ -74,7 +74,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             ->arrayNode('options')
                 ->children()
                     ->scalarNode('format')
-                        ->info('output format')
+                        ->info('output format (see Video transformers output `format`s)')
                     ->end()
                     ->scalarNode('extension')
                         ->info('extension of the output file')

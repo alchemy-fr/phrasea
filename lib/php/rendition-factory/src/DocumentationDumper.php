@@ -2,9 +2,9 @@
 
 namespace Alchemy\RenditionFactory;
 
-use Alchemy\RenditionFactory\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -51,7 +51,7 @@ final readonly class DocumentationDumper
         }
         ksort($formats);
 
-        $text = '## Supported formats'."\n";
+        $text = "## Video transformers output `format`s.\n";
         $text .= "| Family | Format | Mime type | Extensions |\n";
         $text .= "|-|-|-|-|\n";
         foreach ($formats as $familyFormats) {

@@ -1,12 +1,12 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Video\X264;
 use FFMpeg\Format\VideoInterface;
 
-class MkvFormat implements FormatInterface
+class Mpeg4Format implements FormatInterface
 {
     private VideoInterface $format;
 
@@ -17,17 +17,17 @@ class MkvFormat implements FormatInterface
 
     public static function getAllowedExtensions(): array
     {
-        return ['mkv'];
+        return ['mp4'];
     }
 
     public static function getMimeType(): string
     {
-        return 'video/x-matroska';
+        return 'video/mp4';
     }
 
     public static function getFormat(): string
     {
-        return 'video-mkv';
+        return 'video-mpeg4';
     }
 
     public static function getFamily(): FamilyEnum

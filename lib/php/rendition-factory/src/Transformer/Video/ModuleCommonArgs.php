@@ -4,7 +4,7 @@ namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use FFMpeg;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 

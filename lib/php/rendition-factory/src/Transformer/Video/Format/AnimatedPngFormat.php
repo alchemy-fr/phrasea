@@ -1,24 +1,24 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
-class AnimatedGifFormat implements FormatInterface
+class AnimatedPngFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array
     {
-        return ['gif'];
+        return ['apng', 'png'];
     }
 
     public static function getMimeType(): string
     {
-        return 'image/gif';
+        return 'image/apng';
     }
 
     public static function getFormat(): string
     {
-        return 'animated-gif';
+        return 'animated-png';
     }
 
     public static function getFamily(): FamilyEnum

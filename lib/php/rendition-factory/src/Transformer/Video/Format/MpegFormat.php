@@ -1,33 +1,33 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
-use FFMpeg\Format\Video\WebM;
+use FFMpeg\Format\Video\X264;
 use FFMpeg\Format\VideoInterface;
 
-class WebmFormat implements FormatInterface
+class MpegFormat implements FormatInterface
 {
     private VideoInterface $format;
 
     public function __construct()
     {
-        $this->format = new WebM();
+        $this->format = new X264();
     }
 
     public static function getAllowedExtensions(): array
     {
-        return ['webm'];
+        return ['mpeg'];
     }
 
     public static function getMimeType(): string
     {
-        return 'video/webm';
+        return 'video/mpeg';
     }
 
     public static function getFormat(): string
     {
-        return 'video-webm';
+        return 'video-mpeg';
     }
 
     public static function getFamily(): FamilyEnum
