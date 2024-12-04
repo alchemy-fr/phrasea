@@ -658,7 +658,9 @@ services:
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
       - SOKETI_USAGE_URL
-      - NOVU_FRONT_URL
+      - NOVU_DASHBOARD_URL
+      - NOVU_STUDIO_URL
+      - NOVU_BRIDGE_URL
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
@@ -1113,7 +1115,7 @@ services:
     environment:
       API_ROOT_URL: ${NOVU_API_URL}
       DISABLE_USER_REGISTRATION: 'false'
-      FRONT_BASE_URL: ${NOVU_FRONT_URL}
+      FRONT_BASE_URL: ${NOVU_DASHBOARD_URL}
       MONGO_URL: ${NOVU_MONGO_URL}
       MONGO_MIN_POOL_SIZE: ${NOVU_MONGO_MIN_POOL_SIZE}
       MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
@@ -1134,6 +1136,8 @@ services:
       - "traefik.http.services.novu-api.loadbalancer.server.port=3000"
     extra_hosts:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-worker:
     image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
@@ -1158,6 +1162,8 @@ services:
       NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
     extra_hosts:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   novu-ws:
     image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
@@ -1177,13 +1183,17 @@ services:
       REDIS_PORT: ${NOVU_REDIS_PORT}
       REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
       JWT_SECRET: ${NOVU_JWT_SECRET}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.novu-ws.rule=Host(`ws-novu.${PHRASEA_DOMAIN}`)"
       - "traefik.http.services.novu-ws.loadbalancer.server.port=3002"
+    extra_hosts:
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
-  novu-web:
+  novu-dashboard:
     image: ghcr.io/novuhq/novu/web:${NOVU_VERSION}
     depends_on:
       - novu-api
@@ -1193,18 +1203,42 @@ services:
       - internal
     environment:
       REACT_APP_API_URL: ${NOVU_API_URL}
+      REACT_APP_ENVIRONMENT: production
+      REACT_APP_WIDGET_EMBED_PATH: ${NOVU_DASHBOARD_URL}/embed.umd.min.js
       REACT_APP_IS_SELF_HOSTED: 'true'
       REACT_APP_WS_URL: ${NOVU_WS_URL}
-      REACT_APP_WEB_CONTEXT_PATH: ${NOVU_FRONT_URL}/
-      REACT_APP_API_CONTEXT_PATH: ${NOVU_API_URL}/
-      REACT_APP_WIDGET_CONTEXT_PATH: ${NOVU_FRONT_URL}/
-      REACT_APP_WS_CONTEXT_PATH: ${NOVU_WS_URL}/
     command: ['/bin/sh', '-c', 'pnpm run envsetup:docker && pnpm run start:static:build']
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.novu-web.rule=Host(`novu.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.services.novu-web.loadbalancer.server.port=4200"
+      - "traefik.http.routers.novu-dashboard.rule=Host(`novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-dashboard.loadbalancer.server.port=4200"
+    extra_hosts:
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  novu-bridge:
+    image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
+    build: ./novu/bridge
+    profiles:
+      - novu
+    networks:
+      - internal
+    environment:
+      - NOVU_SECRET_KEY
+      - NEXT_PUBLIC_NOVU_SECRET_KEY=${NOVU_SECRET_KEY}
+      - NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER=${NOVU_APPLICATION_IDENTIFIER}
+      - NEXT_PUBLIC_NOVU_SUBSCRIBER_ID=${NOVU_SUBSCRIBER_ID}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-bridge.rule=Host(`bridge-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-bridge.loadbalancer.server.port=4000"
+    extra_hosts:
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
 volumes:
   db:

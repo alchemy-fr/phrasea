@@ -31,4 +31,5 @@ ${IP} keycloak2.${PHRASEA_DOMAIN}
 ${IP} novu.${PHRASEA_DOMAIN}
 ${IP} ws-novu.${PHRASEA_DOMAIN}
 ${IP} api-novu.${PHRASEA_DOMAIN}
+${IP} bridge-novu.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

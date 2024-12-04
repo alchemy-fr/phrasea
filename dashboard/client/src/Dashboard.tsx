@@ -48,7 +48,9 @@ export default function Dashboard({}: Props) {
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
-        NOVU_FRONT_URL,
+        NOVU_DASHBOARD_URL,
+        NOVU_STUDIO_URL,
+        NOVU_BRIDGE_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -278,14 +280,36 @@ export default function Dashboard({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {NOVU_FRONT_URL && (
+                    {NOVU_DASHBOARD_URL && (
                         <Grid item>
                             <Link
-                                href={NOVU_FRONT_URL}
+                                href={NOVU_DASHBOARD_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                Novu
+                                Novu Dashboard
+                            </Link>
+                        </Grid>
+                    )}
+                    {NOVU_BRIDGE_URL && (
+                        <Grid item>
+                            <Link
+                                href={NOVU_BRIDGE_URL}
+                                target={'_blank'}
+                                rel={'noreferrer noopener'}
+                            >
+                                Novu Bridge
+                            </Link>
+                        </Grid>
+                    )}
+                    {NOVU_STUDIO_URL && (
+                        <Grid item>
+                            <Link
+                                href={NOVU_STUDIO_URL}
+                                target={'_blank'}
+                                rel={'noreferrer noopener'}
+                            >
+                                Novu Studio
                             </Link>
                         </Grid>
                     )}

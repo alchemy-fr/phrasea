@@ -27,7 +27,9 @@ declare global {
                 UPLOADER_CLIENT_URL: string;
                 ZIPPY_URL: string;
                 SOKETI_USAGE_URL: string;
-                NOVU_FRONT_URL: string;
+                NOVU_DASHBOARD_URL: string;
+                NOVU_BRIDGE_URL: string;
+                NOVU_STUDIO_URL: string;
             };
         } & WindowConfig;
     }
