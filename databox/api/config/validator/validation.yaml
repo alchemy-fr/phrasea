@@ -127,7 +127,6 @@ App\Entity\Core\RenditionDefinition:
           - workspace
           - class.workspace
           - parent.workspace
-    - App\Validator\ValidRenditionDefinitionConstraint: ~
   properties:
     class:
       - NotNull: ~
@@ -177,8 +176,8 @@ App\Entity\Core\Tag:
         errorPath: name
 
 App\Entity\Integration\WorkspaceIntegration:
-    constraints:
-        - App\Validator\ValidIntegrationOptionsConstraint: ~
+  constraints:
+    - App\Validator\ValidIntegrationOptionsConstraint: ~
 
 App\Entity\Integration\IntegrationData:
   properties:

@@ -131,3 +131,5 @@ services:
             $decorated: '@.inner'
 
     Alchemy\RenditionFactory\Templating\TemplateResolverInterface: '@App\Asset\Attribute\TemplateResolver'
+
+    App\Validator\ValidRenditionDefinitionConstraintValidator: ~

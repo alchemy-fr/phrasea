@@ -11,6 +11,12 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format;
+use Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
+use Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\VideoInterface;
@@ -26,12 +32,24 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
     public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
+        private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
     }
 
     public static function getName(): string
     {
         return 'video_summary';
+    }
+
+    private static function getSupportedOutputFormats(): array
+    {
+        return [
+            MkvFormat::getFormat(),
+            Mpeg4Format::getFormat(),
+            MpegFormat::getFormat(),
+            QuicktimeFormat::getFormat(),
+            WebmFormat::getFormat(),
+        ];
     }
 
     public function getDocumentation(): Documentation
@@ -43,7 +61,8 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             $treeBuilder,
             <<<HEADER
             Assemble multiple extracts (clips) of the video.
-            HEADER
+            HEADER,
+            $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()),
         );
     }
 
@@ -70,7 +89,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                    ->end()
                    ->scalarNode('format')
                         ->isRequired()
-                        ->info('output format (see Video transformers output `format`s)')
+                        ->info('output format')
                         ->example('video-mpeg')
                    ->end()
                     ->scalarNode('extension')
@@ -106,7 +125,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
         $format = $outputFormat->getFormat();
 

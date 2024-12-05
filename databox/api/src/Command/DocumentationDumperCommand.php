@@ -8,14 +8,14 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Alchemy\RenditionFactory\DocumentationDumper as RenditionFactoryDocumentationDumper;
+use Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation;
 
 
 #[AsCommand('app:documentation:dump')]
 class DocumentationDumperCommand extends Command
 {
     public function __construct(
-        private readonly RenditionFactoryDocumentationDumper $renditionFactoryDocumentationDumper,
+        private readonly RenditionBuilderConfigurationDocumentation $renditionBuilderConfigurationDocumentation,
     )
     {
         parent::__construct();
@@ -24,16 +24,12 @@ class DocumentationDumperCommand extends Command
     protected function configure(): void
     {
         parent::configure();
-
-        $this
-            ->setName('app:documentation:dump')
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('# ' . $this->renditionFactoryDocumentationDumper::getName());
-        $output->writeln($this->renditionFactoryDocumentationDumper->dump());
+        $output->writeln('# ' . $this->renditionBuilderConfigurationDocumentation::getName());
+        $output->writeln($this->renditionBuilderConfigurationDocumentation->generate());
 
         return 0;
     }

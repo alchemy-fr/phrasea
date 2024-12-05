@@ -12,6 +12,14 @@ use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\ResizeFilter;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\Mp3Format;
+use Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format;
+use Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
+use Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\WavFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat;
 use FFMpeg;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\Format\FormatInterface as FFMpegFormatInterface;
@@ -31,12 +39,26 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
     public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
+        private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
     }
 
     public static function getName(): string
     {
         return 'ffmpeg';
+    }
+
+    private static function getSupportedOutputFormats(): array
+    {
+        return [
+            MkvFormat::getFormat(),
+            Mpeg4Format::getFormat(),
+            MpegFormat::getFormat(),
+            QuicktimeFormat::getFormat(),
+            WebmFormat::getFormat(),
+            WavFormat::getFormat(),
+            Mp3Format::getFormat(),
+        ];
     }
 
     public function getDocumentation(): Documentation
@@ -48,6 +70,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             <<<HEADER
             apply filters to a video using FFMpeg.
             HEADER,
+            $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()).
             <<<FOOTER
             ### List of `ffmpeg` filters:
             FOOTER
@@ -74,7 +97,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             ->arrayNode('options')
                 ->children()
                     ->scalarNode('format')
-                        ->info('output format (see Video transformers output `format`s)')
+                        ->info('output format')
                     ->end()
                     ->scalarNode('extension')
                         ->info('extension of the output file')
@@ -338,7 +361,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
 
         if (FamilyEnum::Video === $commonArgs->getOutputFormat()->getFamily()) {
             return $this->doVideo($options, $inputFile, $context, $commonArgs);

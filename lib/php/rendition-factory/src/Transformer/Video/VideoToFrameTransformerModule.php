@@ -11,6 +11,8 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use FFMpeg\Media\Video;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -20,12 +22,18 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 {
     public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
+        private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
     }
 
     public static function getName(): string
     {
         return 'video_to_frame';
+    }
+
+    private static function getSupportedOutputFormats(): array
+    {
+        return [JpegFormat::getFormat()];
     }
 
     public function getDocumentation(): Documentation
@@ -37,7 +45,8 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
             $treeBuilder,
             <<<HEADER
             Extract one frame from the video.
-            HEADER
+            HEADER,
+            $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()),
         );
     }
 
@@ -54,7 +63,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
                     ->end()
                     ->scalarNode('format')
                         ->isRequired()
-                        ->info('output format (see Video transformers output `format`s)')
+                        ->info('output format')
                         ->example('image-jpeg')
                     ->end()
                     ->scalarNode('extension')
@@ -86,7 +95,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var Video $video */

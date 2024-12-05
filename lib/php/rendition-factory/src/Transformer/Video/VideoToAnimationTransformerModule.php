@@ -10,7 +10,11 @@ use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedGifFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedPngFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedWebpFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use FFMpeg;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -20,12 +24,22 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
 {
     public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
+        private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {
     }
 
     public static function getName(): string
     {
         return 'video_to_animation';
+    }
+
+    private static function getSupportedOutputFormats(): array
+    {
+        return [
+            AnimatedGifFormat::getFormat(),
+            AnimatedPngFormat::getFormat(),
+            AnimatedWebpFormat::getFormat(),
+        ];
     }
 
     public function getDocumentation(): Documentation
@@ -37,7 +51,8 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
             $treeBuilder,
             <<<HEADER
             Converts a video to an animated gif / png.
-            HEADER
+            HEADER,
+            $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()),
         );
     }
 
@@ -82,7 +97,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
                     ->end()
                     ->scalarNode('format')
                         ->isRequired()
-                        ->info('output format (see Video transformers output `format`s)')
+                        ->info('output format')
                         ->example('animated-png')
                     ->end()
                     ->scalarNode('extension')
@@ -113,7 +128,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var FFMpeg\Media\Video $video */

@@ -16,6 +16,7 @@ class ModuleCommonArgs
 
     public function __construct(
         ServiceLocator $formats,
+        array $supportedOutputFormats,
         array $options,
         TransformationContextInterface $context,
         ModuleOptionsResolver $optionsResolver)
@@ -26,7 +27,7 @@ class ModuleCommonArgs
         if (!$format) {
             throw new \InvalidArgumentException('Missing format');
         }
-        if (!$formats->has($format)) {
+        if (!$formats->has($format) || !in_array($format, $supportedOutputFormats)) {
             throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
         }
 

@@ -94,6 +94,7 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation: ~
 
     Imagine\Imagick\Imagine: ~
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
@@ -103,8 +104,6 @@ services:
     Alchemy\RenditionFactory\Format\FormatFactory: ~
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
 
-    Alchemy\RenditionFactory\DocumentationDumper:
-        tags:
-              - { name: 'documentation.dumper' }
+    Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation: ~
 
-    Alchemy\RenditionFactory\Config\Validator: ~
+    Alchemy\RenditionFactory\Config\buildConfigValidator: ~

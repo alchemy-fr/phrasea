@@ -10,13 +10,12 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-class Validator
+readonly class buildConfigValidator
 {
     public function __construct(
         #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
-        private readonly ServiceLocator $transformers,
+        private ServiceLocator $transformers,
     ) {
-
     }
 
     public function getTransformers(): ServiceLocator
