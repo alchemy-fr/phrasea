@@ -1,28 +1,28 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
-class JpegFormat implements FormatInterface
+class AnimatedPngFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array
     {
-        return ['jpg', 'jpeg'];
+        return ['apng', 'png'];
     }
 
     public static function getMimeType(): string
     {
-        return 'image/jpeg';
+        return 'image/apng';
     }
 
     public static function getFormat(): string
     {
-        return 'image-jpeg';
+        return 'animated-png';
     }
 
     public static function getFamily(): FamilyEnum
     {
-        return FamilyEnum::Image;
+        return FamilyEnum::Animation;
     }
 }

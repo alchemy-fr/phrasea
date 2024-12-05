@@ -3,6 +3,7 @@
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use FFMpeg;
+use FFMpeg\Coordinate\TimeCode;
 
 class FFMpegHelper
 {
@@ -39,9 +40,35 @@ class FFMpegHelper
     {
         $s = [];
         foreach ($coord as $k => $v) {
-            $s[] = sprintf('%s=%d', $k, $v);
+            $s[] = sprintf('%s=%s', $k, $v);
         }
 
         return '['.implode(', ', $s).']';
+    }
+
+    public static function optionAsTimecode($value): ?TimeCode
+    {
+        if (is_numeric($value) && $value >= 0.0) {
+            return TimeCode::fromSeconds($value);
+        } elseif (is_string($value)) {
+            return TimeCode::fromString($value);
+        }
+
+        return null;
+    }
+
+    public static function timecodeToseconds(TimeCode $timecode): float
+    {
+        if (preg_match('/^[0-9]+:[0-9]+:[0-9]+\.[0-9]+$/', (string) $timecode)) {
+            [$hours, $minutes, $seconds, $frames] = sscanf($timecode, '%d:%d:%d.%d');
+        }
+        $s = 0.0;
+
+        $s += $hours * 60 * 60;
+        $s += $minutes * 60;
+        $s += $seconds;
+        $s += $frames / 100;
+
+        return $s;
     }
 }

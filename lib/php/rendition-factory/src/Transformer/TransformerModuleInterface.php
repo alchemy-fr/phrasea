@@ -13,4 +13,6 @@ interface TransformerModuleInterface
     public static function getName(): string;
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface;
+
+    public function getDocumentation(): Documentation;
 }

@@ -1,24 +1,24 @@
 <?php
 
-namespace Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format;
+namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 
-class AnimatedGifFormat implements FormatInterface
+class AnimatedWebpFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array
     {
-        return ['gif'];
+        return ['webp'];
     }
 
     public static function getMimeType(): string
     {
-        return 'image/gif';
+        return 'image/webp';
     }
 
     public static function getFormat(): string
     {
-        return 'animated-gif';
+        return 'animated-webp';
     }
 
     public static function getFamily(): FamilyEnum

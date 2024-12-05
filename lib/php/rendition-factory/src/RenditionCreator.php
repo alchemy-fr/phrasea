@@ -43,7 +43,7 @@ final class RenditionCreator
             NoBuildConfigException::throwNoFamily($inputFile->getFamily()->value, $mimeType);
         }
 
-        $transformations = $familyBuildConfig->getTransformations();
+        $transformations = $familyBuildConfig->getEnabledTransformations();
         if (empty($transformations)) {
             NoBuildConfigException::throwNoTransformation($inputFile->getFamily()->value, $mimeType);
         }
@@ -98,7 +98,7 @@ final class RenditionCreator
                 return true;
             }
 
-            $transformations = $familyBuildConfig->getTransformations();
+            $transformations = $familyBuildConfig->getEnabledTransformations();
             if (empty($transformations)) {
                 return true;
             }

@@ -60,9 +60,7 @@ final readonly class YamlLoader implements FileLoaderInterface
 
         $transformations = [];
         foreach ($data['transformations'] as $transformation) {
-            if ($transformation['enabled'] ?? true) {
-                $transformations[] = $this->parseTransformation($transformation);
-            }
+            $transformations[] = $this->parseTransformation($transformation);
         }
 
         return new FamilyBuildConfig($transformations, $data['normalization'] ?? []);
@@ -72,6 +70,7 @@ final readonly class YamlLoader implements FileLoaderInterface
     {
         return new Transformation(
             $transformation['module'],
+            $transformation['enabled'] ?? true,
             $transformation['options'] ?? [],
             $transformation['description'] ?? null
         );
