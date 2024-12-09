@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\RenditionFactory\Command;
 
-use Alchemy\RenditionFactory\Config\buildConfigValidator;
+use Alchemy\RenditionFactory\Config\BuildConfigValidator;
 use Alchemy\RenditionFactory\Config\YamlLoader;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -17,7 +17,7 @@ class ConfigurationValidateCommand extends Command
 {
     public function __construct(
         private readonly YamlLoader $yamlLoader,
-        private readonly buildConfigValidator $validator,
+        private readonly BuildConfigValidator $validator,
     ) {
         parent::__construct();
     }
