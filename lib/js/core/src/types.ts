@@ -23,6 +23,9 @@ export type WindowConfig = {
     analytics?: AnalyticsConfig;
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
+    novuAppIdentifier?: Readonly<string>;
+    novuSocketUrl?: Readonly<string>;
+    novuApiUrl?: Readonly<string>;
 }
 
 export type SentryConfig = Pick<WindowConfig,
