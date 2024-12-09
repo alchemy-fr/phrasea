@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
-use Alchemy\RenditionFactory\Config\buildConfigValidator;
+use Alchemy\RenditionFactory\Config\BuildConfigValidator;
 use Alchemy\RenditionFactory\Config\YamlLoader;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
 class ValidRenditionDefinitionConstraintValidator extends ConstraintValidator
 {
-    /** @uses buildConfigValidator */
-    public function __construct(private readonly YamlLoader $yamlLoader, private readonly buildConfigValidator $validator)
+    /** @uses BuildConfigValidator */
+    public function __construct(private readonly YamlLoader $yamlLoader, private readonly BuildConfigValidator $validator)
     {
     }
 
