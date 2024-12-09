@@ -10,6 +10,7 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\MimeType\ImageFormatGuesser;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Liip\ImagineBundle\Model\FileBinary;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -28,7 +29,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(

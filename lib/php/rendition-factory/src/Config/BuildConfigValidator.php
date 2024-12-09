@@ -10,7 +10,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-readonly class buildConfigValidator
+readonly class BuildConfigValidator
 {
     public function __construct(
         #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]

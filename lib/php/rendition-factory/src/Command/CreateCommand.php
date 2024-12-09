@@ -45,34 +45,38 @@ class CreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $ret = 0;
+        $ret = Command::SUCCESS;
         $src = $input->getArgument('src');
         if (is_dir($src)) {
             if (false === ($od = opendir($src))) {
                 $output->writeln(sprintf('Directory "%s" could not be opened.', $src));
 
-                return 1;
+                return Command::FAILURE;
             }
             while ($f = readdir($od)) {
                 if ('.' === $f || '..' === $f) {
                     continue;
                 }
-                $ret |= $this->doFile($input, $output, $src.'/'.$f);
+                if(false === $this->doFile($input, $output, $src.'/'.$f)) {
+                    $ret = Command::FAILURE;
+                }
             }
             closedir($od);
         } else {
-            $ret = $this->doFile($input, $output, $src);
+            if(false === $this->doFile($input, $output, $src)) {
+                $ret = Command::FAILURE;
+            }
         }
 
         return $ret;
     }
 
-    protected function doFile(InputInterface $input, OutputInterface $output, string $src): int
+    protected function doFile(InputInterface $input, OutputInterface $output, string $src): bool
     {
         if (!file_exists($src)) {
             $output->writeln(sprintf('File "%s" does not exist.', $src));
 
-            return 1;
+            return false;
         }
 
         $time = microtime(true);
@@ -104,7 +108,7 @@ class CreateCommand extends Command
         } catch (\InvalidArgumentException $e) {
             $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
 
-            return 1;
+            return false;
         }
 
         if ($outputPath = $input->getOption('output')) {
@@ -121,7 +125,7 @@ class CreateCommand extends Command
         if ($src === $outputFile->getPath()) {
             $output->writeln('No transformation needed');
 
-            return 1;
+            return false;
         }
 
         if (!$input->getOption('debug')) {
@@ -130,6 +134,6 @@ class CreateCommand extends Command
 
         $output->writeln(sprintf('Execution time: %0.2f', microtime(true) - $time));
 
-        return 0;
+        return true;
     }
 }

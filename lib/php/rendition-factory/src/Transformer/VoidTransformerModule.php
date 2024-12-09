@@ -16,7 +16,7 @@ class VoidTransformerModule implements TransformerModuleInterface
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(

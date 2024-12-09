@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedGifFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedPngFormat;
@@ -44,13 +45,13 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Converts a video to an animated gif / png.
+            Converts a video to an animated GIF / PNG.
             HEADER,
             $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()),
         );

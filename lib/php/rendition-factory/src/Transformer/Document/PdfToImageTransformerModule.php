@@ -8,6 +8,7 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
 use Spatie\PdfToImage\Pdf;
@@ -22,7 +23,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(

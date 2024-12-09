@@ -38,6 +38,6 @@ class ConfigurationValidateCommand extends Command
 
         $output->writeln('Configuration is valid.');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

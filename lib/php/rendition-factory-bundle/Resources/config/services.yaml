@@ -106,4 +106,4 @@ services:
 
     Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation: ~
 
-    Alchemy\RenditionFactory\Config\buildConfigValidator: ~
+    Alchemy\RenditionFactory\Config\BuildConfigValidator: ~

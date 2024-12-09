@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Filter\ResizeFilter;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
@@ -63,7 +64,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
         $doc = new Documentation(
             $treeBuilder,

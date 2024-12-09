@@ -9,6 +9,7 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat;
@@ -38,7 +39,7 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = Documentation::createBaseTree(self::getName());
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(

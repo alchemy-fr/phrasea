@@ -19,53 +19,36 @@ class ResizeFilter implements VideoFilterInterface
     /** resizes the video to fit the dimension height, no anamorphosis */
     public const RESIZEMODE_SCALE_HEIGHT = 'height';
 
-    /** @var Dimension */
-    private $dimension;
-    /** @var string */
-    private $mode;
-    /** @var bool */
-    private $forceStandards;
-    /** @var int */
-    private $priority;
 
-    public function __construct(Dimension $dimension, $mode = self::RESIZEMODE_FIT, $forceStandards = true, $priority = 0)
+    public function __construct(
+        private Dimension $dimension,
+        private string $mode = self::RESIZEMODE_FIT,
+        private bool $forceStandards = true,
+        private int $priority = 0)
     {
-        $this->dimension = $dimension;
-        $this->mode = $mode;
-        $this->forceStandards = $forceStandards;
-        $this->priority = $priority;
     }
 
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     * @return Dimension
-     */
-    public function getDimension()
+    public function getDimension(): Dimension
     {
         return $this->dimension;
     }
 
-    /**
-     * @return string
-     */
-    public function getMode()
+    public function getMode(): string
     {
         return $this->mode;
     }
 
-    /**
-     * @return bool
-     */
-    public function areStandardsForced()
+    public function areStandardsForced(): bool
     {
         return $this->forceStandards;
     }
 
-    public function apply(Video $video, VideoInterface $format)
+    public function apply(Video $video, VideoInterface $format): array
     {
         $rotation = 0;
 
@@ -110,7 +93,7 @@ class ResizeFilter implements VideoFilterInterface
         return $commands;
     }
 
-    private function getComputedDimensions(Dimension $dimension, $modulus)
+    private function getComputedDimensions(Dimension $dimension, $modulus): Dimension
     {
         $originalRatio = $dimension->getRatio($this->forceStandards);
         switch ($this->mode) {
