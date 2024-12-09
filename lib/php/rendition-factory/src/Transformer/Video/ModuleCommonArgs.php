@@ -4,7 +4,7 @@ namespace Alchemy\RenditionFactory\Transformer\Video;
 
 use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
-use Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use FFMpeg;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
@@ -16,19 +16,18 @@ class ModuleCommonArgs
 
     public function __construct(
         ServiceLocator $formats,
+        array $supportedOutputFormats,
         array $options,
         TransformationContextInterface $context,
         ModuleOptionsResolver $optionsResolver)
     {
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-        ];
+        $resolverContext = $context->getTemplatingContext();
 
         $format = $optionsResolver->resolveOption($options['format'] ?? null, $resolverContext);
         if (!$format) {
             throw new \InvalidArgumentException('Missing format');
         }
-        if (!$formats->has($format)) {
+        if (!$formats->has($format) || !in_array($format, $supportedOutputFormats)) {
             throw new \InvalidArgumentException(sprintf('Invalid format %s', $format));
         }
 

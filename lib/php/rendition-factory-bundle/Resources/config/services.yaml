@@ -4,6 +4,7 @@ services:
         autoconfigure: true
 
     Alchemy\RenditionFactory\Command\CreateCommand: ~
+    Alchemy\RenditionFactory\Command\ConfigurationValidateCommand: ~
 
     Alchemy\RenditionFactory\Context\TransformationContextFactory: ~
     Alchemy\RenditionFactory\FileFamilyGuesser: ~
@@ -44,43 +45,56 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\TransformerModuleInterface::TAG }
 
-    # FFMpeg "formats"
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\JpegFormat:
+    # Output "formats"
+    Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\MkvFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\Mpeg4Format:
+    Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\MpegFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\QuicktimeFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\WebmFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedGifFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedGifFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedPngFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedPngFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
-    Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\AnimatedWebpFormat:
+    Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedWebpFormat:
         tags:
-            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\FFMpeg\Format\FormatInterface::TAG }
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Video\Format\WavFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\AacFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\Mp3Format:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation: ~
 
     Imagine\Imagick\Imagine: ~
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
@@ -89,3 +103,7 @@ services:
     Alchemy\RenditionFactory\Format\FormatGuesser: ~
     Alchemy\RenditionFactory\Format\FormatFactory: ~
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
+
+    Alchemy\RenditionFactory\RenditionBuilderConfigurationDocumentation: ~
+
+    Alchemy\RenditionFactory\Config\BuildConfigValidator: ~

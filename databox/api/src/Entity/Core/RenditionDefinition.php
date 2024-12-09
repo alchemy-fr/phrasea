@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,10 +18,8 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Provider\RenditionDefinitionCollectionProvider;
 use App\Controller\Core\RenditionDefinitionSortAction;
-
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Validator as CustomAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -153,6 +153,7 @@ class RenditionDefinition extends AbstractUuidEntity implements \Stringable
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ, RenditionDefinition::GROUP_WRITE])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[ApiProperty(security: self::GRANT_ADMIN_PROP)]
+    #[CustomAssert\ValidRenditionDefinitionConstraint]
     private ?string $definition = null;
 
     #[Groups([RenditionDefinition::GROUP_READ])]

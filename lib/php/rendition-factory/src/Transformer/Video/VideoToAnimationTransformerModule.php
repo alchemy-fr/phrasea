@@ -2,20 +2,123 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video;
 
+use Alchemy\RenditionFactory\Config\ModuleOptionsResolver;
 use Alchemy\RenditionFactory\Context\TransformationContextInterface;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
+use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedGifFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedPngFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\AnimatedWebpFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use FFMpeg;
-use FFMpeg\Coordinate\TimeCode;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final readonly class VideoToAnimationTransformerModule extends AbstractVideoTransformer implements TransformerModuleInterface
+final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
 {
+    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+        private ModuleOptionsResolver $optionsResolver,
+        private OutputFormatsDocumentation $outputFormatsDocumentation,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'video_to_animation';
+    }
+
+    private static function getSupportedOutputFormats(): array
+    {
+        return [
+            AnimatedGifFormat::getFormat(),
+            AnimatedPngFormat::getFormat(),
+            AnimatedWebpFormat::getFormat(),
+        ];
+    }
+
+    public function getDocumentation(): Documentation
+    {
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
+
+        return new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            Converts a video to an animated GIF / PNG.
+            HEADER,
+            $this->outputFormatsDocumentation->listFormats(self::getSupportedOutputFormats()),
+        );
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
+        $builder
+            ->arrayNode('options')
+                ->children()
+                    ->scalarNode('start')
+                        ->defaultValue(0)
+                        ->info('Start time in seconds or timecode')
+                        ->example('2.5 ; "00:00:02.50" ; "{{ attr.start }}"')
+                    ->end()
+                    ->scalarNode('duration')
+                        ->defaultValue(null)
+                        ->info('Duration in seconds or timecode')
+                        ->example('30 ; "00:00:30.00" ; "{{ input.duration/2 }}"')
+                    ->end()
+                    ->scalarNode('fps')
+                        ->defaultValue(1)
+                        ->info('Frames per second')
+                    ->end()
+                    ->scalarNode('width')
+                        ->defaultValue(null)
+                        ->info('Width in pixels')
+                    ->end()
+                    ->scalarNode('height')
+                        ->defaultValue(null)
+                        ->info('Height in pixels')
+                    ->end()
+                    ->enumNode('mode')
+                        ->values([
+                            FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET,
+                            // todo: implement other modes
+                            // FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_FIT,
+                            // FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_SCALE_WIDTH,
+                            // FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_SCALE_HEIGHT,
+                        ])
+                        ->defaultValue(FFMpeg\Filters\Video\ResizeFilter::RESIZEMODE_INSET)
+                        ->info('Resize mode')
+                    ->end()
+                    ->scalarNode('format')
+                        ->isRequired()
+                        ->info('output format')
+                        ->example('animated-png')
+                    ->end()
+                    ->scalarNode('extension')
+                        ->defaultValue('default extension from format')
+                        ->info('extension of the output file')
+                        ->example('apng')
+                    ->end()
+                    ->scalarNode('passes')
+                        ->defaultValue(2)
+                        ->info('Change the number of ffmpeg passes')
+                    ->end()
+                        ->scalarNode('timeout')
+                        ->info('Change the default timeout used by ffmpeg (defaults to symphony process timeout)')
+                    ->end()
+                    ->scalarNode('threads')
+                        ->info('Change the default number of threads used by ffmpeg')
+                    ->end()
+                ->end()
+            ->end();
+        // @formatter:on
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
@@ -26,42 +129,29 @@ final readonly class VideoToAnimationTransformerModule extends AbstractVideoTran
             throw new \InvalidArgumentException('Invalid input file family, should be video');
         }
 
-        $commonArgs = new ModuleCommonArgs($this->formats, $options, $context, $this->optionsResolver);
+        $commonArgs = new ModuleCommonArgs($this->formats, self::getSupportedOutputFormats(), $options, $context, $this->optionsResolver);
         $outputFormat = $commonArgs->getOutputFormat();
 
         /** @var FFMpeg\Media\Video $video */
         $video = $commonArgs->getFFMpeg()->open($inputFile->getPath());
 
-        $resolverContext = [
-            'metadata' => $context->getTemplatingContext(),
-            'input' => $video->getStreams()->videos()->first()->all(),
-        ];
+        $resolverContext = $context->getTemplatingContext();
+        $resolverContext['input'] = $video->getStreams()->videos()->first()->all();
 
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
-        $startAsTimecode = false;
-        if (is_numeric($start) && (float) $start >= 0) {
-            $startAsTimecode = TimeCode::fromSeconds($start);
-        } elseif (is_string($start)) {
-            $startAsTimecode = TimeCode::fromString($start);
-        }
-        if (false === $startAsTimecode) {
+        $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
+        if (null === $startAsTimecode) {
             throw new \InvalidArgumentException('Invalid start.');
         }
-        $start = $startAsTimecode->toSeconds();
-
+        $start = FFMpegHelper::timecodeToseconds($startAsTimecode);
 
         $duration = $this->optionsResolver->resolveOption($options['duration'] ?? null, $resolverContext);
-        $durationAsTimecode = false;
-        if (is_numeric($duration) && (float) $duration >= 0) {
-            $durationAsTimecode = TimeCode::fromSeconds($duration);
-        } elseif (is_string($duration)) {
-            $durationAsTimecode = TimeCode::fromString($duration);
-        }
-        if (null !== $duration ) {
-            if (false === $durationAsTimecode) {
+        if (null !== $duration) {
+            $durationAsTimecode = FFMpegHelper::optionAsTimecode($duration);
+            if (null === $durationAsTimecode) {
                 throw new \InvalidArgumentException('Invalid duration for filter "clip"');
             }
-            $duration = $durationAsTimecode->toSeconds();
+            $duration = FFMpegHelper::timecodeToseconds($durationAsTimecode);
         }
 
         if (($fps = (int) $this->optionsResolver->resolveOption($options['fps'] ?? 1, $resolverContext)) <= 0) {

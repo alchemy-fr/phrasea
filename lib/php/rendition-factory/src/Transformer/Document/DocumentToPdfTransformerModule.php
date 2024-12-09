@@ -8,13 +8,40 @@ use Alchemy\RenditionFactory\DTO\InputFileInterface;
 use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Transformer\Document\Libreoffice\PdfConverter;
+use Alchemy\RenditionFactory\Transformer\Documentation;
+use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class DocumentToPdfTransformerModule implements TransformerModuleInterface
 {
     public static function getName(): string
     {
         return 'document_to_pdf';
+    }
+
+    public function getDocumentation(): Documentation
+    {
+        $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
+
+        return new Documentation(
+            $treeBuilder,
+            <<<HEADER
+            **documentation to be done**.
+            HEADER
+        );
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
+        $builder
+            ->arrayNode('options')
+            ->ignoreExtraKeys(false)
+            ->end()
+        ;
+        // @formatter:on
     }
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
