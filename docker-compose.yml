@@ -94,6 +94,9 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOVU_APPLICATION_IDENTIFIER
+      - NOVU_WS_URL
+      - NOVU_API_URL
     volumes:
       - ./configs:/configs
     labels:
@@ -1160,6 +1163,7 @@ services:
       REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
       REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
       NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
     extra_hosts:
       - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -1184,6 +1188,7 @@ services:
       REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
       JWT_SECRET: ${NOVU_JWT_SECRET}
       NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      NOVU_API_URL: ${NOVU_API_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1226,9 +1231,11 @@ services:
       - internal
     environment:
       - NOVU_SECRET_KEY
+      - NOVU_API_URL
       - NEXT_PUBLIC_NOVU_SECRET_KEY=${NOVU_SECRET_KEY}
       - NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER=${NOVU_APPLICATION_IDENTIFIER}
       - NEXT_PUBLIC_NOVU_SUBSCRIBER_ID=${NOVU_SUBSCRIBER_ID}
+      - NEXT_PUBLIC_NOVU_API_URL=${NOVU_API_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"

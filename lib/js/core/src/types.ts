@@ -24,6 +24,9 @@ export type WindowConfig = {
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;
     logo: Readonly<string>;
+    novuAppIdentifier?: Readonly<string>;
+    novuSocketUrl?: Readonly<string>;
+    novuApiUrl?: Readonly<string>;
 }
 
 export type SentryConfig = Pick<WindowConfig,
