@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notify\NotifierInterface;
+use Alchemy\NotifyBundle\src\NotifierInterface;
 use App\Entity\DownloadRequest;
 use App\Security\Authentication\JWTManager;
 use Doctrine\ORM\EntityManagerInterface;

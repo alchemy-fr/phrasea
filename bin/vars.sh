@@ -4,7 +4,6 @@ SYMFONY_PROJECTS="
 databox/api
 expose/api
 uploader/api
-notify/api
 "
 
 CLIENT_PROJECTS="

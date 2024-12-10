@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notify\NotifierInterface;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,23 +54,14 @@ final readonly class CommitAcknowledgeHandler
             $this->bus->dispatch(new DeleteExpiredAssets());
         }
 
-        if ($commit->getNotifyEmail()) {
-            $this->notifier->sendEmail(
-                $commit->getNotifyEmail(),
+        if ($commit->isNotify()) {
+            $this->notifier->notifyUser(
+                $commit->getUserId(),
                 'uploader/commit_acknowledged',
-                $commit->getLocale() ?? 'en',
                 [
                     'asset_count' => $commit->getAssets()->count(),
                 ]
             );
         }
-
-        $this->notifier->notifyTopic(
-            'upload_commit_acknowledged',
-            'uploader/commit_acknowledged',
-            [
-                'asset_count' => $commit->getAssets()->count(),
-            ]
-        );
     }
 }

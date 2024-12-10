@@ -12,7 +12,6 @@
         "sentry/sentry-symfony": "^4.11",
         "symfony/security-bundle": "^4.0 || ^5 || ^6",
         "ramsey/uuid-doctrine": "^1.6 || ^2.1.0",
-        "symfony/notifier": "^6.3",
         "symfony/novu-notifier": "^6.3"
     },
     "config": {

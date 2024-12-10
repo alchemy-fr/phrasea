@@ -94,25 +94,6 @@ services:
     volumes:
       - ./uploader/api/public:/srv/app/public
 
-  notify-api-php:
-    environment:
-      - XDEBUG_ENABLED
-      - XDEBUG_SESSION
-      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
-      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
-    volumes:
-      - ./notify/api:/srv/app
-      - ./lib/php:/lib/php
-
-  notify-api-nginx:
-    volumes:
-      - ./notify/api/public:/srv/app/public
-
-  notify-worker:
-    volumes:
-      - ./notify/api:/srv/app
-      - ./lib/php:/lib/php
-
   databox-api-php:
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
@@ -247,7 +228,6 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - api-notify.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

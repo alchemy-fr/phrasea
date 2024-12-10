@@ -37,7 +37,6 @@
         'SOKETI_USAGE_URL',
         'NOVU_DASHBOARD_URL',
         'NOVU_STUDIO_URL',
-        'NOVU_BRIDGE_URL',
     ];
 
     const e = {};

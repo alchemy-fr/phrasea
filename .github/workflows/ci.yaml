@@ -14,7 +14,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,notify,uploader,databox-worker,expose-worker,notify-worker,uploader-worker,db,report,mailhog,dashboard
+  COMPOSE_PROFILES: databox,expose,uploader,db,report,mailhog,dashboard
 
 jobs:
   build_keycloak:
@@ -159,18 +159,6 @@ jobs:
       context: ./infra/docker/matomo-nginx
     secrets: inherit
 
-  build_notify_api:
-    name: 'Build Notify API'
-    uses: ./.github/workflows/build_api.yaml
-    with:
-      prefix: notify
-      context: ./notify/api
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_php-fpm-base
-      - build_nginx-fpm-base
-
   build_report_api:
     name: 'Build Report API'
     uses: ./.github/workflows/build.yaml
@@ -216,7 +204,6 @@ jobs:
       - build_keycloak
       - build_matomo_nginx
       - build_matomo_php
-      - build_notify_api
       - build_report_api
       - build_uploader_api
       - build_uploader_client
