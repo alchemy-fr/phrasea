@@ -1190,7 +1190,7 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.novu-bridge.rule=Host(`bridge-novu.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.services.novu-bridge.loadbalancer.server.port=4000"
+      - "traefik.http.services.novu-bridge.loadbalancer.server.port=3000"
     extra_hosts:
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}

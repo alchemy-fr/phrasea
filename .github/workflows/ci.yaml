@@ -26,6 +26,14 @@ jobs:
       target: keycloak
     secrets: inherit
 
+  build_novu-bridge:
+    name: 'Build novu-bridge'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: novu-bridge
+      context: ./novu/bridge
+    secrets: inherit
+
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml

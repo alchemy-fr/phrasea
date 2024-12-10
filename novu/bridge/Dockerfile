@@ -17,8 +17,14 @@ USER 1000
 
 WORKDIR /usr/src/app
 
-COPY --chown=1000:1000 . .
+COPY --chown=1000:1000 package.json pnpm-lock.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
-CMD ["pnpm", "dev"]
+COPY --chown=1000:1000 . .
+
+ENV NOVU_SECRET_KEY=__defined_me
+
+RUN pnpm build
+
+CMD ["pnpm", "start"]
