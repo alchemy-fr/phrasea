@@ -3,7 +3,7 @@ import { renderEmail } from "../../emails/novu-onboarding-email";
 import { emailControlSchema, payloadSchema } from "./schemas";
 
 export const welcomeOnboardingEmail = workflow(
-  "welcome-onboarding-email2",
+  "welcome-onboarding-email",
   async ({ step, payload }) => {
     await step.inApp("In-App Step", async () => {
       return {

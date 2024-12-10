@@ -5,8 +5,12 @@ RUN apk add --no-cache g++ make py3-pip
 ENV NX_DAEMON=false
 
 # Install global dependencies
-RUN npm --no-update-notifier --no-fund --global install pm2 pnpm@9.11.0 && \
-    pnpm --version
+RUN npm --no-update-notifier --no-fund --global \
+      install \
+      pm2 \
+      pnpm@9.11.0 \
+      novu@2.1.0 \
+    && pnpm --version
 
 # Set non-root user
 USER 1000

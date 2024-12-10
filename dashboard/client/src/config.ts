@@ -13,7 +13,6 @@ declare global {
                 EXPOSE_CLIENT_URL: string;
                 MAILHOG_URL: string;
                 MATOMO_URL: string;
-                NOTIFY_API_URL: string;
                 PGADMIN_URL: string;
                 PHPMYADMIN_URL: string;
                 RABBITMQ_CONSOLE_URL: string;

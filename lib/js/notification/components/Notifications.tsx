@@ -1,5 +1,5 @@
 import {Bell, Inbox, InboxContent} from '@novu/react';
-import {IconButton, Menu} from "@mui/material";
+import {IconButton, Popover} from "@mui/material";
 import React from "react";
 
 
@@ -39,19 +39,21 @@ export default function Notifications({
                 aria-owns={open ? popoverId : undefined}
                 aria-haspopup="true"
                 onClick={handlePopoverOpen}
+                sx={{
+                    '.nt-text-foreground': {
+                        color: 'primary.contrastText',
+                    }
+                }}
             >
                 <Bell/>
             </IconButton>
 
-            <Menu
-                style={{
-                    marginTop: 30,
-                }}
+            <Popover
                 id={popoverId}
                 open={open}
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                    vertical: 'top',
+                    vertical: 'bottom',
                     horizontal: 'right',
                 }}
                 keepMounted
@@ -62,7 +64,7 @@ export default function Notifications({
                 onClose={handlePopoverClose}
             >
                 <InboxContent/>
-            </Menu>
+            </Popover>
         </Inbox>
     </>
 }

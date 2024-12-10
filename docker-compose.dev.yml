@@ -169,13 +169,10 @@ services:
       - MAIL_FROM
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
-      - NOTIFY_API_URL
       - EXPOSE_ADMIN_CLIENT_ID
       - EXPOSE_ADMIN_CLIENT_SECRET
       - UPLOADER_ADMIN_CLIENT_ID
       - UPLOADER_ADMIN_CLIENT_SECRET
-      - NOTIFY_ADMIN_CLIENT_ID
-      - NOTIFY_ADMIN_CLIENT_SECRET
       - DATABOX_ADMIN_CLIENT_ID
       - DATABOX_ADMIN_CLIENT_SECRET
       - DATABOX_CLIENT_ID
@@ -197,7 +194,6 @@ services:
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
-      - NOTIFY_DB_NAME
       - UPLOADER_DB_NAME
       - KEYCLOAK_REALM_NAME
       - DEFAULT_ADMIN_USERNAME
@@ -288,12 +284,6 @@ services:
         dockerfile: studio/Dockerfile
     profiles:
       - novu
-    command:
-#      - ash
-      - sh
-      - -c
-      - pnpm exec ./packages/novu/dist/src/index.js dev --headless --dashboard-url ${NOVU_DASHBOARD_URL} --port 443 --origin ${NOVU_BRIDGE_URL} --tunnel ${NOVU_BRIDGE_URL} --studio-host=0.0.0.0
-#      - pnpm exec ./packages/novu/dist/src/index.js sync --api-url ${NOVU_API_URL} --bridge-url ${NOVU_BRIDGE_URL}/api/novu --secret-key ${NOVU_SECRET_KEY}
     environment:
       - NOVU_DASHBOARD_URL
       - NOVU_BRIDGE_URL
@@ -312,8 +302,6 @@ services:
     extra_hosts:
       - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-    volumes:
-      - ./novu/novu:/usr/src/app
 
 volumes:
   dev:

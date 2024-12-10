@@ -21,7 +21,6 @@
         'KEYCLOAK_URL',
         'MAILHOG_URL',
         'MATOMO_URL',
-        'NOTIFY_API_URL',
         'PGADMIN_URL',
         'PHPMYADMIN_URL',
         'RABBITMQ_CONSOLE_URL',
