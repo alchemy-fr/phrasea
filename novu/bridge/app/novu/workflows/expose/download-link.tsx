@@ -1,5 +1,7 @@
 import {workflow} from "@novu/framework";
 import {z} from "zod";
+import {render} from "@react-email/components";
+import CTAEmail from "@/app/novu/emails/CTAEmail";
 
 export const exposeDownloadLink = workflow(
     "expose-download-link",
@@ -7,7 +9,12 @@ export const exposeDownloadLink = workflow(
         await step.email("Email", async () => {
             return {
                 subject: `Your download link is ready!`,
-                body: `You can download your file from the following link: ${payload.downloadUrl}`,
+                body: render(<CTAEmail
+                        introText={`You can download your file from the following link:`}
+                        linkUrl={payload.downloadUrl}
+                        linkText={'Download'}
+                    />
+                ),
             };
         });
     },

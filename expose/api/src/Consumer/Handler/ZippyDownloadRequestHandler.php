@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\src\NotifierInterface;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\DownloadRequest;
 use App\Security\Authentication\JWTManager;
 use App\ZippyManager;
@@ -32,20 +32,22 @@ final readonly class ZippyDownloadRequestHandler
         // Trigger ZIP preparation
         $this->zippyManager->getDownloadUrl($downloadRequest->getPublication());
 
+        $daysAvailable = 3;
         $uri = $this->urlGenerator->generate('archive_download', [
             'id' => $downloadRequest->getPublication()->getId(),
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $downloadUrl = $this->JWTManager->signUri(
             $uri,
-            259200 // 3 days
+            $daysAvailable * 3600 * 24,
         );
 
         $this->notifier->sendEmail(
             $downloadRequest->getEmail(),
-            'expose/zippy_download_link',
-            $downloadRequest->getLocale(),
+            'expose-zippy-download-link',
             [
-                'download_url' => $downloadUrl,
+                'locale' => $downloadRequest->getLocale(),
+                'downloadUrl' => $downloadUrl,
+                'daysAvailable' => $daysAvailable,
             ]
         );
     }
