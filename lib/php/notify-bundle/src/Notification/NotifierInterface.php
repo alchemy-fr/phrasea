@@ -11,4 +11,10 @@ interface NotifierInterface
         string $notificationId,
         array $parameters = [],
     ): void;
+
+    public function sendEmail(
+        string $email,
+        string $notificationId,
+        array $parameters = [],
+    ): void;
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\src\NotifierInterface;
+use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\DownloadRequest;
 use App\Security\Authentication\JWTManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,10 +44,10 @@ final readonly class DownloadRequestHandler
 
         $this->notifier->sendEmail(
             $downloadRequest->getEmail(),
-            'expose/download_link',
-            $downloadRequest->getLocale(),
+            'expose-download-link',
             [
-                'download_url' => $downloadUrl,
+                'locale' => $downloadRequest->getLocale(),
+                'downloadUrl' => $downloadUrl,
             ]
         );
     }
