@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,7 +17,6 @@ final readonly class AssetConsumerNotifyHandler
     public function __construct(
         private HttpClientInterface $client,
         private EntityManagerInterface $em,
-        private NotifierInterface $notifier,
         private string $uploaderUrl,
     ) {
     }
@@ -29,14 +27,6 @@ final readonly class AssetConsumerNotifyHandler
         $commit = DoctrineUtil::findStrict($this->em, Commit::class, $id);
         $target = $commit->getTarget();
         $accessToken = $target->getTargetAccessToken();
-
-        $this->notifier->notifyUser(
-            $commit->getUserId(),
-            'uploader-commit-acknowledged',
-            [
-                'assetCount' => $commit->getAssets()->count(),
-            ]
-        );
 
         if (empty($target->getTargetUrl()) || 'avoid' === $accessToken) {
             return;

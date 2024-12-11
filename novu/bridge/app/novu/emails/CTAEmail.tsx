@@ -53,8 +53,11 @@ export function createCTAEmailControlSchema({
 }: CreateCTAEEmailControlSchemaProps) {
     return createEmailControlSchema({
         ...rest,
-        introText: createOptionalOrNotString(defaultIntroText),
-        outroText: createOptionalOrNotString(defaultOutroText),
+        shape: {
+            ...(rest.shape ?? {}),
+            introText: createOptionalOrNotString(defaultIntroText),
+            outroText: createOptionalOrNotString(defaultOutroText),
+        }
     });
 }
 

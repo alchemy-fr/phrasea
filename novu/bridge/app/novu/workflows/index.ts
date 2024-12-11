@@ -1,2 +1,2 @@
-export * from "./uploader/commit-acknowledged";
+export * from "./uploader";
 export * from "./expose";

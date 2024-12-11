@@ -1,7 +1,6 @@
 import {Body, Container, Head, Html, Preview} from "@react-email/components";
 import React, {CSSProperties, PropsWithChildren} from "react";
-import {z} from "zod";
-import {ZodRawShape} from "zod/lib/types";
+import {z, ZodRawShape} from "zod";
 
 type Props = PropsWithChildren<{}>;
 
@@ -67,14 +66,15 @@ export const styles: Record<string, CSSProperties> = {
 
 export type CreateEmailControlSchemaProps = {
     defaultEmailSubject: string;
-} & ZodRawShape;
+    shape?: ZodRawShape;
+};
 
 export function createEmailControlSchema({
     defaultEmailSubject,
-    ...rest
+    shape,
 }: CreateEmailControlSchemaProps) {
     return z.object({
         emailSubject: z.string().default(defaultEmailSubject),
-        ...rest,
+        ...(shape ?? {}),
     });
 }
