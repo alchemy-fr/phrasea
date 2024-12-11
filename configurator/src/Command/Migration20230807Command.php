@@ -291,11 +291,6 @@ FROM "external_access_token" GROUP BY user_id');
                     'user_id',
                 ],
             ],
-            'notify' => [
-                'contact' => [
-                    'user_id',
-                ],
-            ],
             'uploader' => [
                 'asset' => [
                     'user_id',

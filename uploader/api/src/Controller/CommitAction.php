@@ -59,9 +59,8 @@ final class CommitAction extends AbstractController
         $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());
 
         $formData = $data->getFormData();
-        $notifyEmailField = '__notify_email';
-        if (isset($formData[$notifyEmailField]) && true === $formData[$notifyEmailField]) {
-            $data->setNotifyEmail($user->getEmail());
+        if ($formData['__notify'] ?? false) {
+            $data->setNotify(true);
         }
         $data->setFormData(FormValidator::cleanExtraFields($formData));
 

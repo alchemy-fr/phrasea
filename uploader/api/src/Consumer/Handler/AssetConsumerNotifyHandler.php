@@ -27,6 +27,7 @@ final readonly class AssetConsumerNotifyHandler
         $commit = DoctrineUtil::findStrict($this->em, Commit::class, $id);
         $target = $commit->getTarget();
         $accessToken = $target->getTargetAccessToken();
+
         if (empty($target->getTargetUrl()) || 'avoid' === $accessToken) {
             return;
         }

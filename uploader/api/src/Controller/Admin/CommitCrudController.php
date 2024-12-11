@@ -53,7 +53,7 @@ class CommitCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Commit')
             ->setEntityLabelInPlural('Commit')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notifyEmail', 'locale']);
+            ->setSearchFields(['id', 'totalSize', 'formData', 'options', 'userId', 'token', 'notify', 'locale']);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -77,7 +77,8 @@ class CommitCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield BooleanField::new('acknowledged')
             ->renderAsSwitch(false);
-        yield TextField::new('notifyEmail')
+        yield BooleanField::new('notify')
+            ->renderAsSwitch(false)
             ->hideOnIndex();
         yield IntegerField::new('totalSize')
             ->setTemplatePath('@AlchemyAdmin/list/file_size.html.twig')

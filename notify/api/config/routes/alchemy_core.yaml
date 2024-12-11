@@ -1,6 +1,0 @@
-alchemy_core_healthcheck:
-    resource: Alchemy\CoreBundle\Controller\HealthCheckAction
-    type: attribute
-alchemy_core_sentry_test:
-    resource: Alchemy\CoreBundle\Controller\SentryTestController
-    type: attribute

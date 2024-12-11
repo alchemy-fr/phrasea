@@ -17,6 +17,7 @@ import {ThemeEditorContext} from '@alchemy/theme-editor';
 import config from '../../config';
 import {keycloakClient} from '../../api/api-client';
 import {DashboardMenu} from '@alchemy/react-ps';
+import {Notifications} from '@alchemy/notification';
 import {useModals} from '@alchemy/navigation';
 import ChangeTheme from './ChangeTheme';
 import ThemeEditor from './ThemeEditor';
@@ -125,7 +126,19 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                             }}
                         ></Box>
 
-                        <Box sx={{flexGrow: 0}}>
+                        {user ? <Box sx={{
+                            flexGrow: 0,
+                            mr: 1,
+
+                        }}>
+                            <Notifications
+                                appIdentifier={config.novuAppIdentifier!}
+                                userId={user.id}
+                                socketUrl={config.novuSocketUrl!}
+                                apiUrl={config.novuApiUrl!}
+                            />
+                        </Box> : null}
+                        <div style={{flexGrow: 0}}>
                             {!user ? (
                                 <MenuItem component={'a'} href={getLoginUrl()}>
                                     {t('menu.sign_in', 'Sign in')}
@@ -186,7 +199,7 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                     ]}
                                 />
                             )}
-                        </Box>
+                        </div>
 
                         {config.displayServicesMenu && (
                             <div style={{flexGrow: 0}}>

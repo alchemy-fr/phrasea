@@ -182,6 +182,7 @@
         "symfony/yaml": "^6.3",
         "symfony/monolog-bundle": "^3.5",
         "sentry/sentry-symfony": "^4.11",
+        "symfony/novu-notifier": "^6.3",
         "symfony/messenger": "^6",
         "guzzlehttp/guzzle": "^7.2",
         "aws/aws-sdk-php": "^3.325",

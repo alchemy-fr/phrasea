@@ -1,0 +1,8 @@
+/Dockerfile
+.dockerignore
+node_modules
+.idea
+/bin
+/.gitignore
+/.github
+/dist

@@ -14,14 +14,12 @@ final readonly class DoctrineConnectionManager
         Connection $authConnection,
         Connection $databoxConnection,
         Connection $exposeConnection,
-        Connection $notifyConnection,
         Connection $uploaderConnection,
     ) {
         $this->connections = [
             'auth' => $authConnection,
             'databox' => $databoxConnection,
             'expose' => $exposeConnection,
-            'notify' => $notifyConnection,
             'uploader' => $uploaderConnection,
         ];
     }

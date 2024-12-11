@@ -1,4 +1,0 @@
-alchemy_admin:
-  service:
-    title: Notify
-    name: notify

@@ -6,13 +6,13 @@ See [LiForm documentation](https://limenius.github.io/liform-react/#/)
 
 ## Reserved keyword
 
-- `__notify_email`
+- `__notify`
 Name your field with this keyword in order to send email to user when upload has been processed.
 
 ```json
 {
     "properties": {
-        "__notify_email": {
+        "__notify": {
             "title": "Notify me when done!",
             "type": "boolean"
         }

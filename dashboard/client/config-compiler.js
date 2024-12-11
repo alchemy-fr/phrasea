@@ -21,7 +21,6 @@
         'KEYCLOAK_URL',
         'MAILHOG_URL',
         'MATOMO_URL',
-        'NOTIFY_API_URL',
         'PGADMIN_URL',
         'PHPMYADMIN_URL',
         'RABBITMQ_CONSOLE_URL',
@@ -35,6 +34,8 @@
         'UPLOADER_CLIENT_URL',
         'ZIPPY_URL',
         'SOKETI_USAGE_URL',
+        'NOVU_DASHBOARD_URL',
+        'NOVU_STUDIO_URL',
     ];
 
     const e = {};

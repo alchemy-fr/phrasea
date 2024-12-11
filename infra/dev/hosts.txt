@@ -9,7 +9,6 @@ ${IP} api-expose.${PHRASEA_DOMAIN}
 ${IP} minio.${PHRASEA_DOMAIN}
 ${IP} minio-console.${PHRASEA_DOMAIN}
 ${IP} matomo.${PHRASEA_DOMAIN}
-${IP} api-notify.${PHRASEA_DOMAIN}
 ${IP} api-databox.${PHRASEA_DOMAIN}
 ${IP} databox.${PHRASEA_DOMAIN}
 ${IP} saml-idp.${PHRASEA_DOMAIN}
@@ -28,4 +27,8 @@ ${IP} soketi.${PHRASEA_DOMAIN}
 ${IP} soketi-usage.${PHRASEA_DOMAIN}
 ${IP} keycloak.${PHRASEA_DOMAIN}
 ${IP} keycloak2.${PHRASEA_DOMAIN}
+${IP} novu.${PHRASEA_DOMAIN}
+${IP} ws-novu.${PHRASEA_DOMAIN}
+${IP} api-novu.${PHRASEA_DOMAIN}
+${IP} bridge-novu.${PHRASEA_DOMAIN}
 # </${PHRASEA_DOMAIN}>

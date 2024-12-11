@@ -66,12 +66,6 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
   && mc mb --ignore-existing minio/$EXPOSE_S3_BUCKET_NAME \
 "
 
-# Setup Notify
-## Create rabbitmq vhost
-exec_container rabbitmq "rabbitmqctl add_vhost ${NOTIFY_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${NOTIFY_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
-## Setup container
-exec_container_as notify-api-php "bin/setup.sh" app
-
 # Setup Databox
 ## Create rabbitmq vhost
 exec_container rabbitmq "rabbitmqctl add_vhost ${DATABOX_RABBITMQ_VHOST} && rabbitmqctl set_permissions -p ${DATABOX_RABBITMQ_VHOST} ${RABBITMQ_USER} '.*' '.*' '.*'"
