@@ -29,7 +29,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            **documentation to be done**.
+            Convert the first page of the pdf to an image.
             HEADER
         );
     }
@@ -39,7 +39,24 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         // @formatter:off
         $builder
             ->arrayNode('options')
-            ->ignoreExtraKeys(false)
+                ->children()
+                    ->scalarNode('extension')
+                        ->info('Output image extension: jpg, jpeg, png, or webp')
+                        ->defaultValue('jpeg')
+                    ->end()
+                    ->integerNode('resolution')
+                        ->info('Resolution of the output image in dpi')
+                        ->defaultValue(300)
+                    ->end()
+                    ->integerNode('quality')
+                        ->info('Quality of the output image, from 0 to 100')
+                        ->defaultValue(100)
+                    ->end()
+                    ->arrayNode('size')
+                        ->info('Size of the output image, [width, height] in pixels')
+                        ->example(['width', 'height'])
+                    ->end()
+                ->end()
             ->end()
         ;
         // @formatter:on
