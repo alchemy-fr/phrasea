@@ -15,6 +15,7 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\Mpeg4Format;
 use Alchemy\RenditionFactory\Transformer\Video\Format\MpegFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\OgvFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use Alchemy\RenditionFactory\Transformer\Video\Format\QuicktimeFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat;
@@ -50,6 +51,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
             MpegFormat::getFormat(),
             QuicktimeFormat::getFormat(),
             WebmFormat::getFormat(),
+            OgvFormat::getFormat(),
         ];
     }
 

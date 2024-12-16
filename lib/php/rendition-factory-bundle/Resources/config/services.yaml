@@ -50,6 +50,18 @@ services:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
+    Alchemy\RenditionFactory\Transformer\Video\Format\GifFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\PngFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\TiffFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
     Alchemy\RenditionFactory\Transformer\Video\Format\MkvFormat:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
@@ -67,6 +79,10 @@ services:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
     Alchemy\RenditionFactory\Transformer\Video\Format\WebmFormat:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\OgvFormat:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
@@ -91,6 +107,10 @@ services:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
     Alchemy\RenditionFactory\Transformer\Video\Format\Mp3Format:
+        tags:
+            - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
+
+    Alchemy\RenditionFactory\Transformer\Video\Format\OgaFormat:
         tags:
             - { name: !php/const Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface::TAG }
 
