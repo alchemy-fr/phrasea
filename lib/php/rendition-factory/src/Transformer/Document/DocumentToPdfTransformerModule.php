@@ -23,6 +23,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
     public function getDocumentation(): Documentation
     {
         $treeBuilder = TransformerConfigHelper::createBaseTree(self::getName());
+        $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(
             $treeBuilder,
@@ -30,6 +31,17 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
             Convert any document to pdf format.
             HEADER
         );
+    }
+
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
+        $builder
+            ->arrayNode('options')
+                ->ignoreExtraKeys(false)
+            ->end()
+        ;
+        // @formatter:on
     }
 
 
