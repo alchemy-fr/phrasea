@@ -231,3 +231,95 @@ To prevent twig to crash if a field doest not exists in a record (when trying to
 `getMetadata(...)` will return a "fake" empty metadata object.
 
 Same method applies for subdefs: `record.getSubdef('missingSubdef').permalink.url` will return null. 
+
+
+## `renditions`
+
+Allows to map Phraseanet subdef / (structures) to Phrasea renditions / (definitions).
+
+A Phraseanet subdef is identified by it **type** (image, video, audio, document, unknown) and its **name**. e.g. `image:thumbnail`.
+
+A Phrasea rendition-definition is declared by its **name** and **build settings** (sections image, video, ...).
+
+### `from`
+The `from` setting maps the phrasea rendition-definition to the phraseanet subdef. The build settings will be generated from the phraseanet to match the subdef.
+
+It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
+
+### `parent`
+One can declare a `parent` relation between renditions, the parent rendition **must** be declared before the child.
+
+
+The special `original` rendition has no build settings, so the `from` setting is top-level. Mostly it will be mapped to the Phraseanet special `document` subdef.
+
+### `useAsOriginal`, `useAsPreview`, `useAsThumbnail`, `class`, ...
+
+Common settings for all renditions. If not set, the value will be "guessed" from the subdef name / class.
+
+e.g.
+
+```json lines
+...
+        "renditions": {
+            "original": {
+                "from": "document",
+                "useAsOriginal": true,
+                "class": "document"
+            },
+            "preview": {
+                "useAsPreview": true,
+                "parent": "original",
+                "class": "public_preview",
+                "builders": {
+                    "image": {
+                        "from": "image:preview"
+                    },
+                    "video": {
+                        "from": "video:preview"
+                    }
+                }
+            },
+            "thumbnail": {
+                "useAsThumbnail": true,
+                "parent": "preview",
+                "builders": {
+                    "image": {
+                        "from": "image:thumbnail"
+                    },
+                    "video": {
+                        "from": "video:thumbnail"
+                    }
+                }
+            }
+/* ------------------- WIP ------------
+            ,
+            "pivot": {
+                "parent": "original",
+                "builders": {
+                    "video": {
+                        "build": {
+                            "transformations": {
+                                "module": "ffmpeg",
+                                "enabled": true,
+                                "options": {
+                                    "format": "video-mp4",
+                                    "audio_kilobitrate": 100,
+                                    "timeout": 7200,
+                                    "threads": 2,
+                                    "filters": {
+                                        "name": "resize",
+                                        "width": 1200,
+                                        "height": 1200,
+                                        "mode": "inset",
+                                        "enabled": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+*/
+        }
+...
+```

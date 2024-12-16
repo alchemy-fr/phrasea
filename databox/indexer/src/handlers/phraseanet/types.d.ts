@@ -21,6 +21,8 @@ export type FieldMap = {
     attributeDefinition: AttributeDefinition;
 };
 
+export type FieldMaps = Record<string, FieldMap>;
+
 export type ConfigDataboxMapping = {
     databox: string;
     collections?: string;
@@ -142,6 +144,7 @@ export type PhraseanetRecord = {
     title: string;
     original_name: string;
     mime_type: string;
+    type: string;
     created_on: string;
     updated_on: string;
     subdefs: PhraseanetSubdef[];
