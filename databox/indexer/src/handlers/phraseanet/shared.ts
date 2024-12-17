@@ -1,11 +1,10 @@
 import {Asset} from '../../indexers';
-import {FieldMap, PhraseanetSubdef} from './types';
+import {FieldMap} from './types';
 import {CPhraseanetRecord} from './CPhraseanetRecord';
-
+import {Logger} from 'winston';
 import {
     AttributeClass,
     AttributeInput,
-    RenditionInput,
 } from '../../databox/types';
 
 export type AttrDefinitionIndex = Record<
@@ -33,10 +32,6 @@ export async function createAsset(
     subdefToRendition: Record<string, string[]>,
     logger: Logger,
 ): Promise<Asset> {
-
-    const document: PhraseanetSubdef | undefined = record.subdefs.find(
-        s => s.name === 'document'
-    );
 
     const attributes: AttributeInput[] = [];
 
@@ -101,11 +96,16 @@ export async function createAsset(
     }
 
     const renditions = [];
-    let sourceFile = {};
+    let originalSourceFile: {
+        url: string;
+        isPrivate: boolean;
+        importFile: boolean;
+        type: string;
+    }|null = null;
 
     for(const sd of record.subdefs ?? []) {
         if(sd.name === 'document') {
-            sourceFile = {
+            originalSourceFile = {
                 url: sd.permalink.url,
                 isPrivate: false,
                 importFile: importFiles,
@@ -136,9 +136,9 @@ export async function createAsset(
         path: path,
         collectionKeyPrefix: collectionKeyPrefix,
         title: record.title,
-        sourceFile: sourceFile,
+//        sourceFile: sourceFile,
         importFile: importFiles,
-        publicUrl: sourceFile?.url,
+        publicUrl: originalSourceFile?.url,
         isPrivate: false,
         attributes: attributes,
         tags: tags,

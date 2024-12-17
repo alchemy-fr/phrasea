@@ -1,8 +1,8 @@
 import {IndexIterator} from '../../indexers';
 import {
-    ConfigDataboxMapping,
+    ConfigDataboxMapping, ConfigPhraseanetOriginal, ConfigPhraseanetSubdef,
     FieldMap,
-    FieldMaps,
+//    FieldMaps,
     PhraseanetConfig, PhraseanetDatabox,
     PhraseanetSubdefStruct,
 } from './types';
@@ -19,7 +19,7 @@ import {getConfig, getStrict} from '../../configLoader';
 import {escapeSlashes, splitPath} from '../../lib/pathUtils';
 import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
-import {Logger, loggers} from 'winston';
+import {Logger} from 'winston';
 import {DataboxClient} from '../../databox/client.ts';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
@@ -66,7 +66,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
 
             // scan the conf.fieldMap to get a list of required locales
-            const fieldMap: FieldMaps = new Map<string, FieldMap>(
+            const fieldMap = new Map<string, FieldMap>(
                 Object.entries(dm.fieldMap ?? {})
             );
             let locales: string[] = [];
@@ -120,7 +120,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 ':';
 
             logger.info(`Creating records collection(s)`);
-            const sourceCollections = await createRecordsCollections(databoxClient, workspaceId, phraseanetDatabox, phraseanetClient, dm, collectionKeyPrefix, logger);
+            const sourceCollections = await createRecordsCollections(databoxClient, workspaceId, phraseanetDatabox, dm, collectionKeyPrefix, logger);
 
             logger.info(`Creating stories collection`);
             const storiesCollectionId = await createStoriesCollection(databoxClient, workspaceId, dm, collectionKeyPrefix, logger);
@@ -159,7 +159,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                 }
                             );
                         logger.info(
-                            `Phraseanet story "${s.title}" (#${
+                            `  Phraseanet story "${s.title}" (#${
                                 s.story_id
                             }) from base "${
                                 phraseanetDatabox.collections[s.base_id].name
@@ -254,11 +254,10 @@ async function createRecordsCollections(
     databoxClient: DataboxClient,
     workspaceId: string,
     phraseanetDatabox: PhraseanetDatabox,
-    phraseanetClient: PhraseanetClient,
     dm: ConfigDataboxMapping,
     collectionKeyPrefix: string,
     logger: Logger
-): string[] {
+): Promise<string[]> {
     const sourceCollections: string[] = [];
     if (dm.collections) {
         for (const c of dm.collections.split(',')) {
@@ -304,7 +303,7 @@ async function createStoriesCollection(
     dm: ConfigDataboxMapping,
     collectionKeyPrefix: string,
     logger: Logger
-): string | null {
+): Promise<string | null> {
     let storiesCollectionId: string | null = null;
     if (dm.storiesCollectionPath !== undefined) {
         const branch = splitPath(dm.storiesCollectionPath);
@@ -333,7 +332,7 @@ async function importSubdefsStructure(
     dm: ConfigDataboxMapping,
     idempotencePrefix: string,
     logger: Logger
-): Record<string, string[]> {
+): Promise<Record<string, string[]>> {
     const classIndex: Record<string, string> = {};
     const renditionClasses = await databoxClient.getRenditionClasses(workspaceId);
     renditionClasses.forEach(rc => {
@@ -341,21 +340,33 @@ async function importSubdefsStructure(
     });
 
     const subdefs = await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
-    const sdByName: Record<string, Record> = {};
+    const sdByName: Record<string, {
+        name: string;
+        parent: string | null;
+        useAsOriginal: boolean;
+        useAsPreview: boolean;
+        useAsThumbnail: boolean;
+        useAsThumbnailActive: boolean;
+        types: Record<string, PhraseanetSubdefStruct>;
+        class: string | null;
+        labels: Record<string, string>;
+    }> = {};
 
     if(dm.renditions === false) {
         // special value: do not create rendition definitions
-        return;
+        return {};
     }
-    if(!dm.renditions) {
+
+    if(dm.renditions === undefined) {
         // import all subdefs from phraseanet
         dm['renditions'] = {
             "original": {
                 "from": "document",
                 "useAsOriginal": true,
                 "class": "Restricted"
-            },
+            } as ConfigPhraseanetOriginal
         };
+
         for(const sd of subdefs) {
             if(!dm.renditions[sd.name]) {
                 dm.renditions[sd.name] = {
@@ -365,21 +376,20 @@ async function importSubdefsStructure(
                     useAsPreview: sd.name === 'preview',
                     useAsThumbnail: sd.name === 'thumbnail',
                     useAsThumbnailActive: sd.name === 'thumbnailgif',
-                    build: {},
-                };
+                    builders: {},
+                } as ConfigPhraseanetSubdef;
             }
-            dm.renditions[sd.name].build[sd.type] = `${sd.type}:${sd.name}`;
+            (dm.renditions[sd.name] as ConfigPhraseanetSubdef).builders[sd.type].from = `${sd.type}:${sd.name}`;
         }
     }
 
     const subdefToRendition = {} as Record<string, string[]>;
 
-    // console.log(dm.renditions);
     for(const [name, rendition] of Object.entries(dm.renditions)) {
         if (!sdByName[name]) {
             sdByName[name] = {
                 name: name,
-                parent: rendition['parent'] ?? null,
+                parent: 'parent' in rendition ? rendition['parent'] : null,
                 useAsOriginal: rendition['useAsOriginal'] ?? false,
                 useAsPreview: rendition['useAsPreview'] ?? false,
                 useAsThumbnail: rendition['useAsThumbnail'] ?? false,
@@ -389,29 +399,28 @@ async function importSubdefsStructure(
                 labels: {},
             };
         }
-        if(rendition['from'] ?? '' === 'document') {
+        if('from' in rendition && rendition['from'] === 'document') {
             // phrnet original is not a subdef
             continue;
         }
-        for(const [family, settings] of Object.entries(rendition['builders'] ?? [])) {
-            // ------------ WIP -----------
-            // if(settings['build'] && settings['from']) {
-            //     logger.error(`Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`);
-            //     continue;
-            // }
-            // if(settings['build']) {
-            //     // hardcoded
-            // }
-            if(settings['from']) {
+        for(const [family, settings] of Object.entries('builders' in rendition ? rendition['builders'] : [])) {
+            if('build' in settings && 'from' in settings) {
+                logger.error(`  Rendition-definition "${name}" for family "${family}": Use "build" OR "from", not both. Rendition definition ignored`);
+                continue;
+            }
+            if('build' in settings) {
+                // hardcoded
+            }
+            if('from' in settings) {
                 // find the subdef with good name and family
                 const [sdFamily, sdName] = settings['from'].split(':');
                 const sd = subdefs.find(sd => sd.name === sdName && sd.type === sdFamily);
                 if(!sd) {
-                    logger.error(`Subdef "${settings['from']}" not found`);
+                    logger.error(`  Subdef "${settings['from']}" not found`);
                     continue;
                 }
                 if(sdByName[name].types[sd.type]) {
-                    logger.error(`Build "${sd.type}" for rendition "${name}" already set`);
+                    logger.error(`  Build "${sd.type}" for rendition "${name}" already set`);
                     continue;
                 }
                 if(!subdefToRendition[settings['from']]) {
@@ -427,7 +436,7 @@ async function importSubdefsStructure(
                     }
                     // sd of same name should have the same class
                     if (sdByName[name].class !== sd.class && sdByName[name].class !== 'mixed') {
-                        logger.info(`Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`);
+                        logger.info(`  Rendition "${name}" gets different class ("${sdByName[sd.name].class}" and "${sd.class}": "mixed" is used)`);
                         sdByName[name].class = 'mixed';
                     }
                 }
@@ -441,36 +450,40 @@ async function importSubdefsStructure(
         const sd = sdByName[sdName];
 
         if(!sd.class) {
-            logger.info(`Rendition definition "${sdName}" has neither class or phraseanet "from": using class "public"`);
+            logger.info(`  Rendition definition "${sdName}" has neither "class" or phraseanet "from": using class "public"`);
             sd.class = 'public';
         }
 
         if (!classIndex[sd.class]) {
-            logger.info(`Creating rendition class "${sd.class}" `);
+            logger.info(`  Creating rendition class "${sd.class}" `);
             classIndex[sd.class] =
                 await databoxClient.createRenditionClass({
                     name: sd.class,
                     workspace: `/workspaces/${workspaceId}`,
+                    public: true,
                 });
         }
 
         logger.info(
-            `Creating rendition definition "${sd.name}" of class "${sd.class}"`
+            `  Creating rendition definition "${sd.name}" of class "${sd.class}"`
         );
 
-        let jsConf = {};
+        let jsConf: Record<string, object> = {};
         for (const family in sd.types) {
             switch (family) {
                 case 'image':
                     jsConf['image'] = translateImageSettings(
-                        sd.types['image'],
-                        logger
+                        sd.types['image']
                     );
                     break;
                 case 'video':
                     jsConf['video'] = translateVideoSettings(
-                        sd.types['video'],
-                        logger
+                        sd.types['video']
+                    );
+                    break;
+                case 'document':
+                    jsConf['document'] = translateDocumentSettings(
+                        sd.types['document']
                     );
                     break;
             }
@@ -478,7 +491,7 @@ async function importSubdefsStructure(
 
 
         if(sd['parent'] && !renditionIdByName[sd['parent']]) {
-            logger.error(`  Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`);
+            logger.error(`    Parent rendition definition "${sd['parent']}" for "${sd.name}" not found: no parent set. Check declaration order`);
             sd['parent'] = null;
         }
 
@@ -510,10 +523,10 @@ async function importStatusBitsStructure(
     phraseanetDataboxId: string,
     phraseanetClient: PhraseanetClient,
     logger: Logger
-): TagIndex {
+): Promise<TagIndex> {
     const tagIndex: TagIndex = {};
     for (const sb of await phraseanetClient.getStatusBitsStruct(phraseanetDataboxId)) {
-        logger.info(`Creating "${sb.label_on}" tag`);
+        logger.info(`  Creating "${sb.label_on}" tag`);
         const key =
             phraseanetClient.getId() +
             '_' +
@@ -536,11 +549,11 @@ async function importMetadataStructure(
     phraseanetDataboxId: string,
     phraseanetClient: PhraseanetClient,
     dm: ConfigDataboxMapping,
-    fieldMap: FieldMaps,
+    fieldMap: Map<string, FieldMap>,
     idempotencePrefix: string,
     attrClass: string,
     logger: Logger
-): void {
+): Promise<void> {
     const metaStructure = await phraseanetClient.getMetaStruct(phraseanetDataboxId);
     if (!dm.fieldMap) {
         // import all fields from structure
@@ -625,7 +638,7 @@ async function importMetadataStructure(
                 labels: fm.labels,
                 translatable: fm.translatable,
             };
-            logger.info(`Creating "${name}" attribute definition`);
+            logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =
                 await databoxClient.createAttributeDefinition(
                     fm.id,
@@ -636,10 +649,45 @@ async function importMetadataStructure(
     }
 }
 
-function translateImageSettings(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateDocumentSettings(sd: PhraseanetSubdefStruct): object {
+    // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
+    // so we guess from the presence of option "icodec"
+    if (sd.options['icodec']) {
+        return translateDocumentSettings_withIcodec(sd);
+    }
+    // here no icodec: pdf or flexpaper (flexpaper is not handled by phrasea, so import as pdf)
+    return translateDocumentSettings_toPdf();
+}
+
+function translateDocumentSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
+    return {
+        transformations: [
+            {
+                module: 'document_to_pdf'
+            },
+            {
+                module: 'pdf_to_image',
+                options: {
+                    size: [sd.options['size'], sd.options['size']],
+                    resolution: sd.options['resolution'],
+                    extension: sd.options['icodec'],
+                }
+            },
+        ],
+    };
+}
+
+function translateDocumentSettings_toPdf(): object {
+    return {
+        transformations: [
+            {
+                module: 'document_to_pdf'
+            },
+        ],
+    };
+}
+
+function translateImageSettings(sd: PhraseanetSubdefStruct): object {
     // todo: extension ?
     const size = sd.options['size'] ?? 100;
 
@@ -661,30 +709,24 @@ function translateImageSettings(
     };
 }
 
-function translateVideoSettings(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings(sd: PhraseanetSubdefStruct): object {
     // too bad: phraseanet api does not provide the target "mediatype" (image, video, ...)
     // so we guess from the presence of option(s) "icodec", "vcodec", "acodec"
     if (sd.options['vcodec']) {
         // also have a acodec, so test first
-        return translateVideoSettings_withVcodec(sd, logger);
+        return translateVideoSettings_withVcodec(sd);
     }
     if (sd.options['acodec']) {
         // here no vcodec: pure audio
-        return translateVideoSettings_withAcodec(sd, logger);
+        return translateVideoSettings_withAcodec(sd);
     }
     if (sd.options['icodec']) {
-        return translateVideoSettings_withIcodec(sd, logger);
+        return translateVideoSettings_withIcodec(sd);
     }
     return {};
 }
 
-function translateVideoSettings_withVcodec(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     // todo : acodec, formats, ...
     let format;
     switch(sd.options['vcodec'] ?? '') {
@@ -699,7 +741,7 @@ function translateVideoSettings_withVcodec(
             break;
     }
     const size = sd.options['size'] ?? 100;
-    let ffmpegModuleOptions = {
+    let ffmpegModuleOptions: any = {
         format: format,
         timeout: 7200,
         filters: [
@@ -732,10 +774,7 @@ function translateVideoSettings_withVcodec(
     };
 }
 
-function translateVideoSettings_withAcodec(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings_withAcodec(sd: PhraseanetSubdefStruct): object {
     let format = 'video-mp4';
     switch (sd.options['acodec'] ?? '') {
         case 'pcm_s16le':
@@ -753,7 +792,7 @@ function translateVideoSettings_withAcodec(
             );
     }
 
-    let ffmpegModuleOptions = {
+    let ffmpegModuleOptions: any = {
         format: format,
         timeout: 7200,
     };
@@ -778,23 +817,17 @@ function translateVideoSettings_withAcodec(
     };
 }
 
-function translateVideoSettings_withIcodec(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
     if (sd.options['delay'] === undefined) {
         // a static image
-        return translateVideoSettings_targetImageFrame(sd, logger);
+        return translateVideoSettings_targetImageFrame(sd);
     } else {
         // a animated gif (ignore icodec, always use gif)
-        return translateVideoSettings_targetAnimatedGif(sd, logger);
+        return translateVideoSettings_targetAnimatedGif(sd);
     }
 }
 
-function translateVideoSettings_targetImageFrame(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): object {
     let format;
     switch (sd.options['icodec'] ?? '') {
         case 'jpeg':
@@ -838,10 +871,7 @@ function translateVideoSettings_targetImageFrame(
     };
 }
 
-function translateVideoSettings_targetAnimatedGif(
-    sd: PhraseanetSubdefStruct,
-    logger: Logger
-): object {
+function translateVideoSettings_targetAnimatedGif(sd: PhraseanetSubdefStruct): object {
     const size = sd.options['size'] ?? 100;
     // fps from (msec)delay, with 2 decimals
     const fps = Math.round(100000.0 / sd.options['delay']) / 100;
@@ -863,8 +893,7 @@ function translateVideoSettings_targetAnimatedGif(
     };
 }
 
-/** todo: use https://www.npmjs.com/package/yaml ? */
-function jsToYaml(a: any, depth: int): string {
+function jsToYaml(a: any, depth: number): string {
     let t = '';
     const tab = '  '.repeat(depth);
     if (a instanceof Array) {
