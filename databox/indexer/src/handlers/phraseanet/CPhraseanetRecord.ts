@@ -114,5 +114,6 @@ export class CPhraseanetStory extends CPhraseanetRecordBase {
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
+        this.children = s.children.map(r => new CPhraseanetRecord(r, client));
     }
 }
