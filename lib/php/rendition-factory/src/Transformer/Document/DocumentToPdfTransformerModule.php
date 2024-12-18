@@ -28,7 +28,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            **documentation to be done**.
+            Convert any document to PDF format.
             HEADER
         );
     }
@@ -38,11 +38,12 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         // @formatter:off
         $builder
             ->arrayNode('options')
-            ->ignoreExtraKeys(false)
+                ->ignoreExtraKeys(false)
             ->end()
         ;
         // @formatter:on
     }
+
 
     public function transform(InputFileInterface $inputFile, array $options, TransformationContextInterface $context): OutputFileInterface
     {
