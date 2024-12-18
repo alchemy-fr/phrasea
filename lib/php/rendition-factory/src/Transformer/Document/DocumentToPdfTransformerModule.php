@@ -28,7 +28,7 @@ final readonly class DocumentToPdfTransformerModule implements TransformerModule
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Convert any document to pdf format.
+            Convert any document to PDF format.
             HEADER
         );
     }

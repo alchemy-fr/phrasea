@@ -29,7 +29,7 @@ final readonly class PdfToImageTransformerModule implements TransformerModuleInt
         return new Documentation(
             $treeBuilder,
             <<<HEADER
-            Convert the first page of the pdf to an image.
+            Convert the first page of a PDF to an image.
             HEADER
         );
     }
