@@ -363,14 +363,14 @@ async function importSubdefsStructure(
             "original": {
                 "from": "document",
                 "useAsOriginal": true,
-                "class": "Restricted"
+                "class": "original"
             } as ConfigPhraseanetOriginal
         };
 
         for(const sd of subdefs) {
             if(!dm.renditions[sd.name]) {
                 dm.renditions[sd.name] = {
-                    parent: "document",
+                    parent: "original",
                     class: sd.class,
                     useAsOriginal: sd.name === 'document',
                     useAsPreview: sd.name === 'preview',
@@ -379,7 +379,9 @@ async function importSubdefsStructure(
                     builders: {},
                 } as ConfigPhraseanetSubdef;
             }
-            (dm.renditions[sd.name] as ConfigPhraseanetSubdef).builders[sd.type].from = `${sd.type}:${sd.name}`;
+            (dm.renditions[sd.name] as ConfigPhraseanetSubdef).builders[sd.type] = {
+                from: `${sd.type}:${sd.name}`
+            };
         }
     }
 
