@@ -691,22 +691,32 @@ function translateDocumentSettings_toPdf(): object {
 
 function translateImageSettings(sd: PhraseanetSubdefStruct): object {
     // todo: extension ?
-    const size = sd.options['size'] ?? 100;
+    const size = sd.options['size'];
 
     return {
         transformations: [
             {
                 module: 'imagine',
                 options: {
-                    filters: [
-                        {
-                            thumbnail: {
-                                size: [size, size],
-                            },
+                    filters: {
+                        auto_rotate: {},
+                        background_fill: {
+                            color: '#FFFFFF',
+                            opacity: 100,
                         },
-                    ],
+                        thumbnail: {
+                            size: [size, size],
+                            mode: 'inset',
+                        },
+                    },
                 },
             },
+            {
+                module: 'set_dpi',
+                options: {
+                    dpi: sd.options['resolution'],
+                }
+            }
         ],
     };
 }
@@ -907,7 +917,12 @@ function jsToYaml(a: any, depth: number): string {
             if (k[0] === '#') {
                 t += `\n${tab}# ${a[k]}`;
             } else {
-                t += `\n${tab}${k}:${jsToYaml(a[k], depth + 1)}`;
+//                console.log("------- ", k, a[k]);
+                if((a[k] instanceof Array || typeof a[k] === 'object') && Object.keys(a[k]).length === 0) {
+                    t += `\n${tab}${k}: ~`;
+                } else {
+                    t += `\n${tab}${k}:${jsToYaml(a[k], depth + 1)}`;
+                }
             }
         }
     } else {
