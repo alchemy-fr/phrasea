@@ -38,7 +38,7 @@ export type ConfigRenditionBuilder = {
 };
 
 export type ConfigPhraseanetSubdef = ConfigPhraseanetSubdefBase & {
-    parent?: string|null;
+    parent: string|null;
     builders: Record<string, ConfigRenditionBuilder>;
 };
 
