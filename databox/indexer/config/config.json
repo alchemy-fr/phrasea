@@ -56,6 +56,43 @@
           "attributeDefinition": "idmp_attributeDefinition",
           "renditionDefinition": "idmp_renditionDefinition"
         },
+        "renditions": {
+          "original": {
+            "from": "document",
+            "useAsOriginal": true,
+            "class": "document"
+          },
+          "preview": {
+            "useAsPreview": true,
+            "class": "public",
+            "builders": {
+              "image": {
+                "from": "image:preview"
+              },
+              "video": {
+                "from": "video:preview"
+              },
+              "document": {
+                "from": "document:preview"
+              }
+            }
+          },
+          "thumbnail": {
+            "useAsThumbnail": true,
+            "parent": "preview",
+            "builders": {
+              "image": {
+                "from": "image:thumbnail"
+              },
+              "video": {
+                "from": "video:thumbnail"
+              },
+              "document": {
+                "from": "document:thumbnail"
+              }
+            }
+          }
+        },
         "databoxMapping": [
           {
             "databox": "%env(PHRASEANET_DATABOX)%",
