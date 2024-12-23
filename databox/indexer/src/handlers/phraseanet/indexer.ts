@@ -511,7 +511,7 @@ async function importSubdefsStructure(
             labels: {
                 phraseanetDefinition: sd.labels,
             },
-            definition: jsToYaml(jsConf, 0),
+            definition: jsToYaml(jsConf, 0).trim(),
         });
 
     }
