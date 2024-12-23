@@ -370,7 +370,7 @@ async function importSubdefsStructure(
         for(const sd of subdefs) {
             if(!dm.renditions[sd.name]) {
                 dm.renditions[sd.name] = {
-                    parent: "original",
+                    parent: null,
                     class: sd.class,
                     useAsOriginal: sd.name === 'document',
                     useAsPreview: sd.name === 'preview',
