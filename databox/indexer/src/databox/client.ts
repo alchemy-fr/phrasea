@@ -238,8 +238,9 @@ export class DataboxClient {
         return res.data['hydra:member'];
     }
 
-    async createRenditionDefinition(data: object): Promise<void> {
-        await this.client.post(`/rendition-definitions`, data);
+    async createRenditionDefinition(data: object): Promise<string> {
+        const res = await this.client.post(`/rendition-definitions`, data);
+        return res.data.id;
     }
 
     async flushWorkspace(workspaceId: string): Promise<string> {

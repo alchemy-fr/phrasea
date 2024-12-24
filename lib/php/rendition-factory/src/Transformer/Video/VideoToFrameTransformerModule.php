@@ -12,8 +12,11 @@ use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
+use Alchemy\RenditionFactory\Transformer\Video\Format\GifFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\JpegFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
+use Alchemy\RenditionFactory\Transformer\Video\Format\PngFormat;
+use Alchemy\RenditionFactory\Transformer\Video\Format\TiffFormat;
 use FFMpeg\Media\Video;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
@@ -34,7 +37,12 @@ final readonly class VideoToFrameTransformerModule implements TransformerModuleI
 
     private static function getSupportedOutputFormats(): array
     {
-        return [JpegFormat::getFormat()];
+        return [
+            GifFormat::getFormat(),
+            JpegFormat::getFormat(),
+            PngFormat::getFormat(),
+            TiffFormat::getFormat(),
+        ];
     }
 
     public function getDocumentation(): Documentation

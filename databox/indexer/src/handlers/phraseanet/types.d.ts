@@ -21,6 +21,27 @@ export type FieldMap = {
     attributeDefinition: AttributeDefinition;
 };
 
+export type ConfigPhraseanetSubdefBase = {
+    useAsThumbnail?: boolean;
+    useAsPreview?: boolean;
+    useAsOriginal?: boolean;
+    useAsThumbnailActive?: boolean;
+    class: string;
+};
+
+export type ConfigPhraseanetOriginal = ConfigPhraseanetSubdefBase & {
+    from: string;
+};
+
+export type ConfigRenditionBuilder = {
+    from: string;
+};
+
+export type ConfigPhraseanetSubdef = ConfigPhraseanetSubdefBase & {
+    parent: string|null;
+    builders: Record<string, ConfigRenditionBuilder>;
+};
+
 export type ConfigDataboxMapping = {
     databox: string;
     collections?: string;
@@ -30,6 +51,7 @@ export type ConfigDataboxMapping = {
     copyTo: string;
     storiesCollectionPath: string;
     fieldMap: Map<string, FieldMap>;
+    renditions: Record<string, ConfigPhraseanetOriginal | ConfigPhraseanetSubdef> | false;
 };
 
 export type PhraseanetConfig = {
@@ -142,6 +164,8 @@ export type PhraseanetRecord = {
     title: string;
     original_name: string;
     mime_type: string;
+    phrasea_type: string;
+    type: string;
     created_on: string;
     updated_on: string;
     subdefs: PhraseanetSubdef[];
