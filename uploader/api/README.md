@@ -29,7 +29,7 @@
             "type": "string",
             "title": "Description"
         },
-        "__notify_email": {
+        "__notify": {
             "title": "Notify me when done!",
             "type": "boolean"
         }

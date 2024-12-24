@@ -1,3 +1,0 @@
-App\Entity\Contact:
-  constraints:
-    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: userId

@@ -7,7 +7,7 @@ networks:
 
 services:
   traefik:
-    image: traefik:v2.5.5
+    image: traefik:3.2.1
     networks:
       - internal
     ports:
@@ -94,6 +94,9 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOVU_APPLICATION_IDENTIFIER
+      - NOVU_WS_URL
+      - NOVU_API_URL
     volumes:
       - ./configs:/configs
     labels:
@@ -145,9 +148,12 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
+      - NOVU_API_HOST
+      - NOVU_SECRET_KEY
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     volumes:
       - ./configs:/configs
 
@@ -357,57 +363,10 @@ services:
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
 
-  notify-api-php:
-    extends:
-      service: a_api-php
-    profiles:
-      - notify
-    image: ${REGISTRY_NAMESPACE}notify-api-php:${DOCKER_TAG}
-    build:
-      context: ./
-      dockerfile: ./notify/api/Dockerfile
-    environment:
-      - RABBITMQ_VHOST=${NOTIFY_RABBITMQ_VHOST}
-      - ADMIN_CLIENT_ID=${NOTIFY_ADMIN_CLIENT_ID}
-      - ADMIN_CLIENT_SECRET=${NOTIFY_ADMIN_CLIENT_SECRET}
-      - REPORT_API_URL
-      - MAILER_DSN
-      - MAIL_FROM
-      - NEWRELIC_APP_NAME=notify-api
-
-  notify-worker:
-    extends:
-      service: notify-api-php
-    image: ${REGISTRY_NAMESPACE}notify-worker:${DOCKER_TAG}
-    build:
-      target: worker
-    deploy:
-      replicas: $NOTIFY_WORKER_REPLICAS
-
-  notify-api-nginx:
-    profiles:
-      - notify
-    image: ${REGISTRY_NAMESPACE}notify-api-nginx:${DOCKER_TAG}
-    build:
-      context: ./
-      dockerfile: ./notify/api/Dockerfile
-      target: api-nginx
-      args:
-        BASE_TAG: ${DOCKER_TAG}
-        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
-    networks:
-      - internal
-    depends_on:
-      - notify-api-php
-    labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.notify-api.rule=Host(`api-notify.${PHRASEA_DOMAIN}`)"
-
   redis:
     profiles:
       - db
-    image: redis:5.0.5-alpine
+    image: redis:7.4.1-alpine3.20
     networks:
       - internal
     volumes:
@@ -638,7 +597,6 @@ services:
       - KEYCLOAK_URL
       - MAILHOG_URL
       - MATOMO_URL
-      - NOTIFY_API_URL
       - PGADMIN_URL
       - PHPMYADMIN_URL
       - RABBITMQ_CONSOLE_URL
@@ -656,6 +614,9 @@ services:
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
       - SOKETI_USAGE_URL
+      - NOVU_DASHBOARD_URL
+      - NOVU_STUDIO_URL
+      - NOVU_BRIDGE_URL
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
@@ -996,15 +957,12 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD
       - VERIFY_SSL
       - DATABOX_API_URL
-      - NOTIFY_API_URL
       - EXPOSE_API_URL
       - UPLOADER_API_URL
       - EXPOSE_ADMIN_CLIENT_ID
       - EXPOSE_ADMIN_CLIENT_SECRET
       - UPLOADER_ADMIN_CLIENT_ID
       - UPLOADER_ADMIN_CLIENT_SECRET
-      - NOTIFY_ADMIN_CLIENT_ID
-      - NOTIFY_ADMIN_CLIENT_SECRET
       - DATABOX_ADMIN_CLIENT_ID
       - DATABOX_ADMIN_CLIENT_SECRET
       - DATABOX_CLIENT_ID
@@ -1023,7 +981,6 @@ services:
       - AUTH_DB_NAME
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
-      - NOTIFY_DB_NAME
       - UPLOADER_DB_NAME
       - MAIL_FROM
       - MAILER_DSN
@@ -1082,6 +1039,164 @@ services:
       - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
 
+  mongodb:
+    image: mongo:8.0.3
+    profiles:
+      - novu-self-hosted
+    networks:
+      - internal
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongodb:/data/db
+
+  novu-api:
+    image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
+    depends_on:
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    profiles:
+      - novu-self-hosted
+    networks:
+      - internal
+    environment:
+      API_ROOT_URL: ${NOVU_API_URL}
+      DISABLE_USER_REGISTRATION: 'false'
+      FRONT_BASE_URL: ${NOVU_DASHBOARD_URL}
+      MONGO_URL: ${NOVU_MONGO_URL}
+      MONGO_MIN_POOL_SIZE: ${NOVU_MONGO_MIN_POOL_SIZE}
+      MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
+      REDIS_HOST: ${NOVU_REDIS_HOST}
+      REDIS_PORT: ${NOVU_REDIS_PORT}
+      REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
+      REDIS_DB_INDEX: 2
+      REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
+      REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
+      JWT_SECRET: ${NOVU_JWT_SECRET}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
+      NEW_RELIC_ENABLED: 'false'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-api.rule=Host(`api-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-api.loadbalancer.server.port=3000"
+    extra_hosts:
+      - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  novu-worker:
+    image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
+    depends_on:
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    profiles:
+      - novu-self-hosted
+    networks:
+      - internal
+    environment:
+      MONGO_URL: ${NOVU_MONGO_URL}
+      MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
+      REDIS_HOST: ${NOVU_REDIS_HOST}
+      REDIS_PORT: ${NOVU_REDIS_PORT}
+      REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
+      REDIS_DB_INDEX: 2
+      REDIS_CACHE_SERVICE_HOST: ${NOVU_REDIS_CACHE_SERVICE_HOST}
+      REDIS_CACHE_SERVICE_PORT: ${NOVU_REDIS_CACHE_SERVICE_PORT}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
+    extra_hosts:
+      - ws-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  novu-ws:
+    image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
+    depends_on:
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+    profiles:
+      - novu-self-hosted
+    networks:
+      - internal
+    environment:
+      MONGO_URL: ${NOVU_MONGO_URL}
+      MONGO_MAX_POOL_SIZE: ${NOVU_MONGO_MAX_POOL_SIZE}
+      REDIS_HOST: ${NOVU_REDIS_HOST}
+      REDIS_PORT: ${NOVU_REDIS_PORT}
+      REDIS_PASSWORD: ${NOVU_REDIS_PASSWORD}
+      JWT_SECRET: ${NOVU_JWT_SECRET}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      NOVU_API_URL: ${NOVU_API_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-ws.rule=Host(`ws-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-ws.loadbalancer.server.port=3002"
+    extra_hosts:
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  novu-dashboard:
+    image: ghcr.io/novuhq/novu/web:${NOVU_VERSION}
+    depends_on:
+      - novu-api
+    profiles:
+      - novu-self-hosted
+    networks:
+      - internal
+    environment:
+      REACT_APP_API_URL: ${NOVU_API_URL}
+      REACT_APP_ENVIRONMENT: production
+      REACT_APP_WIDGET_EMBED_PATH: ${NOVU_DASHBOARD_URL}/embed.umd.min.js
+      REACT_APP_IS_SELF_HOSTED: 'true'
+      REACT_APP_WS_URL: ${NOVU_WS_URL}
+    command: ['/bin/sh', '-c', 'pnpm run envsetup:docker && pnpm run start:static:build']
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-dashboard.rule=Host(`novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-dashboard.loadbalancer.server.port=4200"
+    extra_hosts:
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
+  novu-bridge:
+    image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
+    build: ./novu/bridge
+    profiles:
+      - novu
+    networks:
+      - internal
+    environment:
+      - NOVU_SECRET_KEY
+      - NOVU_API_URL
+      - NOVU_BRIDGE_URL
+      - NEXT_PUBLIC_NOVU_SECRET_KEY=${NOVU_SECRET_KEY}
+      - NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER=${NOVU_APPLICATION_IDENTIFIER}
+      - NEXT_PUBLIC_NOVU_SUBSCRIBER_ID=${NOVU_SUBSCRIBER_ID}
+      - NEXT_PUBLIC_NOVU_API_URL=${NOVU_API_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-bridge.rule=Host(`bridge-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-bridge.loadbalancer.server.port=3000"
+    extra_hosts:
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - studio-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+
 volumes:
   db:
   redis:
@@ -1095,3 +1210,4 @@ volumes:
   expose-nginx-cache:
   zippy:
   cypress_output:
+  mongodb:
