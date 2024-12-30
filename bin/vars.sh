@@ -4,7 +4,6 @@ SYMFONY_PROJECTS="
 databox/api
 expose/api
 uploader/api
-notify/api
 "
 
 CLIENT_PROJECTS="
@@ -43,6 +42,7 @@ lib/js/core
 lib/js/i18n
 lib/js/liform-react
 lib/js/navigation
+lib/js/notification
 lib/js/phrasea-ui
 lib/js/react-auth
 lib/js/react-form

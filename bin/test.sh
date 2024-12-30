@@ -9,7 +9,7 @@ set -ex
 export APP_ENV=test
 export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=db,uploader,report,databox,expose,notify
+export COMPOSE_PROFILES=db,uploader,report,databox,expose
 
 docker compose up -d
 
@@ -18,7 +18,6 @@ docker compose run --rm dockerize
 SF_SERVICES="
 databox-api-php
 expose-api-php
-notify-api-php
 uploader-api-php
 "
 
@@ -30,7 +29,6 @@ LIBS="
 admin-bundle
 api-test
 auth-bundle
-notify-bundle
 report-bundle
 report-sdk
 "

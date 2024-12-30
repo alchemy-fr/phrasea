@@ -94,25 +94,6 @@ services:
     volumes:
       - ./uploader/api/public:/srv/app/public
 
-  notify-api-php:
-    environment:
-      - XDEBUG_ENABLED
-      - XDEBUG_SESSION
-      - XDEBUG_CLIENT_HOST=${PS_GATEWAY_IP}
-      - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}notify
-    volumes:
-      - ./notify/api:/srv/app
-      - ./lib/php:/lib/php
-
-  notify-api-nginx:
-    volumes:
-      - ./notify/api/public:/srv/app/public
-
-  notify-worker:
-    volumes:
-      - ./notify/api:/srv/app
-      - ./lib/php:/lib/php
-
   databox-api-php:
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY} # secret should not be provided to API but is necessary in dev mode
@@ -144,6 +125,8 @@ services:
     stdin_open: true
     tty: true
     hostname: local
+    ports:
+      - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
       - SSH_AUTH_SOCK=/ssh-auth-sock
@@ -186,13 +169,10 @@ services:
       - MAIL_FROM
       - KEYCLOAK_ADMIN
       - KEYCLOAK_ADMIN_PASSWORD
-      - NOTIFY_API_URL
       - EXPOSE_ADMIN_CLIENT_ID
       - EXPOSE_ADMIN_CLIENT_SECRET
       - UPLOADER_ADMIN_CLIENT_ID
       - UPLOADER_ADMIN_CLIENT_SECRET
-      - NOTIFY_ADMIN_CLIENT_ID
-      - NOTIFY_ADMIN_CLIENT_SECRET
       - DATABOX_ADMIN_CLIENT_ID
       - DATABOX_ADMIN_CLIENT_SECRET
       - DATABOX_CLIENT_ID
@@ -214,7 +194,6 @@ services:
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
       - DATABOX_DB_NAME
       - EXPOSE_DB_NAME
-      - NOTIFY_DB_NAME
       - UPLOADER_DB_NAME
       - KEYCLOAK_REALM_NAME
       - DEFAULT_ADMIN_USERNAME
@@ -228,6 +207,8 @@ services:
       - SOKETI_APP_ID
       - SOKETI_KEY
       - SOKETI_SECRET
+      - NOVU_SECRET_KEY
+      - NOVU_API_HOST
     working_dir: /var/workspace
     volumes:
       - ./:/var/workspace
@@ -243,7 +224,9 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - api-notify.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   report-api:
@@ -275,6 +258,50 @@ services:
       - ./cypress/cypress:/cypress/cypress
       - ./cypress/cypress.config.js:/cypress/cypress.config.js
       - /tmp/.X11-unix:/tmp/.X11-unix
+
+  novu-api:
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  novu-worker:
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  novu-bridge:
+    command:
+      - sh
+      - -c
+      - pnpm dev
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    volumes:
+      - ./novu/bridge:/usr/src/app
+
+  novu-studio:
+    image: ${REGISTRY_NAMESPACE}novu-studio:${DOCKER_TAG}
+    build:
+        context: ./novu
+        dockerfile: studio/Dockerfile
+    profiles:
+      - novu
+    environment:
+      - NOVU_DASHBOARD_URL
+      - NOVU_BRIDGE_URL
+      - NOVU_SECRET_KEY
+      - NOVU_API_URL
+      - NOVU_API_HOST
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - NODE_ENV=development
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
+      - "traefik.http.routers.novu-studio.rule=Host(`studio-novu.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.novu-studio.loadbalancer.server.port=2022"
+    extra_hosts:
+      - api-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
 volumes:
   dev:

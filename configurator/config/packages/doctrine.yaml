@@ -26,10 +26,6 @@ doctrine:
                 <<: *doctrine_commons
                 url: '%env(resolve:EXPOSE_DATABASE_URL)%'
 
-            notify:
-                <<: *doctrine_commons
-                url: '%env(resolve:NOTIFY_DATABASE_URL)%'
-
             uploader:
                 <<: *doctrine_commons
                 url: '%env(resolve:UPLOADER_DATABASE_URL)%'

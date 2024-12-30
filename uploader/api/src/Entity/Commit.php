@@ -101,9 +101,9 @@ class Commit extends AbstractUuidEntity
     /**
      * If set, this email will be notified when asset consumer acknowledges the commit.
      */
-    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     #[Groups(['commit:read', 'commit:write'])]
-    private ?string $notifyEmail = null;
+    private bool $notify = false;
 
     #[ORM\Column(type: Types::STRING, length: 5, nullable: true)]
     #[Groups(['asset:read', 'commit:read', 'commit:write'])]
@@ -197,7 +197,7 @@ class Commit extends AbstractUuidEntity
             $this->userId,
             $this->files,
             $this->formData,
-            $this->notifyEmail,
+            $this->notify,
             $this->locale,
             $this->options,
         );
@@ -212,7 +212,7 @@ class Commit extends AbstractUuidEntity
         $instance->setTarget($target);
         $instance->setFormData($message->getForm());
         $instance->setUserId($message->getUserId());
-        $instance->setNotifyEmail($message->getNotifyEmail());
+        $instance->setNotify($message->isNotify());
         $instance->setLocale($message->getLocale());
         $instance->setOptions($message->getOptions());
 
@@ -237,14 +237,14 @@ class Commit extends AbstractUuidEntity
         $this->acknowledged = $acknowledged;
     }
 
-    public function getNotifyEmail(): ?string
+    public function isNotify(): bool
     {
-        return $this->notifyEmail;
+        return $this->notify;
     }
 
-    public function setNotifyEmail(?string $notifyEmail): void
+    public function setNotify(bool $notify): void
     {
-        $this->notifyEmail = $notifyEmail;
+        $this->notify = $notify;
     }
 
     public function getLocale(): ?string
