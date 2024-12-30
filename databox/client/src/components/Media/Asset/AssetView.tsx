@@ -24,6 +24,7 @@ import {getMediaBackgroundColor} from '../../../themes/base.ts';
 import {useModalFetch} from '../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from "../../../lib/pusher.ts";
 import {queryClient} from "../../../lib/query.ts";
+import AssetDiscussion from "./AssetDiscussion.tsx";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -106,7 +107,7 @@ export default function AssetView({modalIndex, open}: Props) {
         if (!open) {
             return null;
         }
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     const [asset, renditions] = data as [Asset, AssetRendition[]];
@@ -237,6 +238,11 @@ export default function AssetView({modalIndex, open}: Props) {
                             })}
                         >
                             <AssetAttributes
+                                asset={asset}
+                                onAnnotations={onAnnotations}
+                            />
+
+                            <AssetDiscussion
                                 asset={asset}
                                 onAnnotations={onAnnotations}
                             />
