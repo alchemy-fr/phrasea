@@ -1,5 +1,6 @@
 arthem_object_reference:
     mapping:
         asset: App\Entity\Core\Asset
+        collection: App\Entity\Core\Collection
         file: App\Entity\Core\File
         basket: App\Entity\Basket\Basket

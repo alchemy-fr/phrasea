@@ -61,6 +61,8 @@ export interface Asset
     privacy: number;
     tags: Tag[] | undefined;
     owner?: User;
+    threadKey: string;
+    thread?: Thread | undefined;
     workspace: Workspace;
     attributes: Attribute[];
     referenceCollection?: Collection | undefined;
@@ -249,6 +251,20 @@ export interface Basket extends IPermissions, Entity {
     createdAt: string;
     updatedAt: string;
     owner?: User;
+}
+
+export interface Thread extends Entity {
+    id: string;
+    key: string;
+    createdAt: string;
+}
+
+export interface ThreadMessage extends Entity {
+    id: string;
+    content: string;
+    author: User;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface BasketAsset extends Entity {

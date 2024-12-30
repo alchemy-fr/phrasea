@@ -3,10 +3,10 @@ import {Asset} from '../types';
 
 export type ApiCollectionResponse<T, E extends {} = {}> = {
     total: number;
-    first: string | null;
-    previous: string | null;
-    next: string | null;
-    last: string | null;
+    first?: string | null;
+    previous?: string | null;
+    next?: string | null;
+    last?: string | null;
     result: T[];
     facets?: TFacets | undefined;
 } & E;

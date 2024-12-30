@@ -372,6 +372,35 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
+        message:
+            settings:
+                index:
+                    analysis:
+                        analyzer:
+                            text: *text_analyzer
+                        filter:
+                            worddelimiter: *worddelimiter_filter
+            use_alias: '%elastica.use_alias%'
+            index_name: "%es_index_prefix%message_%kernel.environment%"
+            properties:
+                content:
+                    type: text
+                    analyzer: text
+                authorId:
+                    type: keyword
+                users:
+                    property_path: false
+                    type: keyword
+                groups:
+                    property_path: false
+                    type: keyword
+            persistence:
+                driver: orm
+                model: App\Entity\Discussion\Message
+                listener: { enabled: false }
+                provider:
+                    query_builder_method: getESQueryBuilder
+
 when@dev:
     parameters:
         elastica.use_alias: false

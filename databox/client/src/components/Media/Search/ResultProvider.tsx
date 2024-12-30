@@ -25,7 +25,7 @@ async function search(
     result: Asset[];
     facets: TFacets;
     total: number;
-    next: string | null;
+    next?: string | null;
     debug: ESDebug;
 }> {
     if (lastController) {
