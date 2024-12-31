@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -15,6 +16,7 @@ use App\Repository\Discussion\ThreadRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class PostMessageProcessor implements ProcessorInterface
 {
@@ -24,6 +26,8 @@ class PostMessageProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly MessageBusInterface $bus,
         private readonly ThreadRepository $threadRepository,
+        private readonly PusherManager $pusherManager,
+        private readonly SerializerInterface $serializer,
     ) {
     }
 
@@ -56,6 +60,17 @@ class PostMessageProcessor implements ProcessorInterface
         $message->setContent($data->content);
         $this->em->persist($message);
         $this->em->flush();
+
+        $this->bus->dispatch($this->pusherManager->createBusMessage(
+            'thread-' . $thread->getId(),
+            'message',
+            json_decode($this->serializer->serialize($message, 'json', [
+                'groups' => [
+                    '_',
+                    Message::GROUP_READ,
+                ]
+            ]), true, 512, JSON_THROW_ON_ERROR),
+        ));
 
         return $message;
     }
