@@ -265,6 +265,7 @@ export interface ThreadMessage extends Entity {
     author: User;
     createdAt: string;
     updatedAt: string;
+    acknowledged?: boolean;
 }
 
 export interface BasketAsset extends Entity {

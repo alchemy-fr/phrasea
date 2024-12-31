@@ -17,7 +17,6 @@ export default function DiscussionMessage({
             <div>
                 <small>
                     <strong>
-
                         {message.author.username}
                     </strong>
                     {' - '}
