@@ -20,7 +20,7 @@ final readonly class DiscussionManager
     {
     }
 
-    public function getThreadObject(Thread $thread): object
+    public function getThreadObject(Thread $thread): AbstractUuidEntity
     {
         $key = $thread->getKey();
         if (!str_contains($key, ':')) {

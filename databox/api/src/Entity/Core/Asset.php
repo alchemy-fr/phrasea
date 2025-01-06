@@ -42,6 +42,7 @@ use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Controller\Core\DeleteAssetByIdsAction;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -182,7 +183,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
+class Asset extends AbstractUuidEntity implements HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -510,5 +511,10 @@ class Asset extends AbstractUuidEntity implements HighlightableModelInterface, W
     public function getMicroseconds(): int
     {
         return $this->microseconds;
+    }
+
+    public function getObjectTitle(): string
+    {
+        return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
     }
 }

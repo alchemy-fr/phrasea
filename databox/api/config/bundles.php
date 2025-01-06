@@ -35,6 +35,5 @@ return [
     Alchemy\RenditionFactoryBundle\AlchemyRenditionFactoryBundle::class => ['all' => true],
     Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
     Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
-    Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
 ];

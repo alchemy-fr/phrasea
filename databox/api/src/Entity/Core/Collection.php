@@ -26,6 +26,7 @@ use App\Api\Provider\CollectionProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use App\Entity\ObjectTitleInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -109,7 +110,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\UniqueConstraint(name: 'uniq_coll_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: CollectionRepository::class)]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt', hardDelete: false)]
-class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, \Stringable
+class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, ESIndexableDependencyInterface, ESIndexableDeleteDependencyInterface, ESIndexableInterface, ObjectTitleInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -355,5 +356,10 @@ class Collection extends AbstractUuidEntity implements SoftDeleteableInterface, 
     public function isObjectIndexable(): bool
     {
         return null === $this->workspace->getDeletedAt();
+    }
+
+    public function getObjectTitle(): string
+    {
+        return sprintf('Collection %s', $this->getTitle());
     }
 }
