@@ -26,6 +26,9 @@
     "alchemy/metadata-manipulator-bundle": {
         "version": "dev-PS-478-3_attribute-initializers"
     },
+    "alchemy/notify-bundle": {
+        "version": "dev-PS-706-discussions"
+    },
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
     },
@@ -943,6 +946,9 @@
     },
     "theseer/tokenizer": {
         "version": "1.2.1"
+    },
+    "twig/extra-bundle": {
+        "version": "v3.18.0"
     },
     "twig/twig": {
         "version": "v3.0.5"

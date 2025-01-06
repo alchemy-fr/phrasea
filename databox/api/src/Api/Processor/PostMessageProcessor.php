@@ -10,6 +10,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ThreadMessageInput;
+use App\Consumer\Handler\Discussion\PostDiscussionMessage;
 use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
 use App\Repository\Discussion\ThreadRepository;
@@ -71,6 +72,8 @@ class PostMessageProcessor implements ProcessorInterface
                 ]
             ]), true, 512, JSON_THROW_ON_ERROR),
         ));
+
+        $this->bus->dispatch(new PostDiscussionMessage($message->getId()));
 
         return $message;
     }

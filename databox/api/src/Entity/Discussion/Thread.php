@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Traits\NovuTopicKeyTrait;
 use App\Repository\Discussion\ThreadRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,6 +28,7 @@ class Thread extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+    use NovuTopicKeyTrait;
 
     final public const string GROUP_READ = 'thread:r';
     final public const string GROUP_LIST = 'thread:i';
