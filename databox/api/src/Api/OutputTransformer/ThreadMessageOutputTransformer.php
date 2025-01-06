@@ -38,6 +38,7 @@ class ThreadMessageOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
 
         $output->content = $data->getContent();
+        $output->attachments = $data->getAttachments();
         $output->thread = $data->getThread();
 
         if ($this->hasGroup([

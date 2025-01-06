@@ -11,7 +11,7 @@ type Props = {
     onAnnotations: OnAnnotations | undefined;
 };
 
-export default function AssetDiscussion({asset,}: Props) {
+export default function AssetDiscussion({asset,onAnnotations}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -34,6 +34,7 @@ export default function AssetDiscussion({asset,}: Props) {
                     <Thread
                         threadKey={asset.threadKey}
                         threadId={asset.thread?.id}
+                        onAnnotations={onAnnotations}
                     />
                 </AccordionDetails>
             </Accordion>

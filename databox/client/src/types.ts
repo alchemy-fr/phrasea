@@ -259,9 +259,15 @@ export interface Thread extends Entity {
     createdAt: string;
 }
 
+type MessageAttachment = {
+    type: string;
+    content: string;
+}
+
 export interface ThreadMessage extends Entity {
     id: string;
     content: string;
+    attachments?: MessageAttachment[];
     author: User;
     createdAt: string;
     updatedAt: string;
@@ -346,10 +352,44 @@ export enum AnnotationType {
     TimeRange = 'time_range',
 }
 
-export type AssetAnnotation = {
+export interface AssetAnnotation {
     type: AnnotationType;
     [prop: string]: any;
-};
+}
+
+export interface PointAnnotation extends AssetAnnotation {
+    type: AnnotationType.Point;
+    x: number;
+    y: number;
+    page?: number;
+}
+
+export interface CircleAnnotation extends AssetAnnotation {
+    type: AnnotationType.Circle;
+    x: number;
+    y: number;
+    radius: number;
+    page?: number;
+}
+
+export interface RectAnnotation extends AssetAnnotation {
+    type: AnnotationType.Rect;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface CueAnnotation extends AssetAnnotation {
+    type: AnnotationType.Cue;
+    time: number;
+}
+
+export interface TimeRangeAnnotation extends AssetAnnotation {
+    type: AnnotationType.TimeRange;
+    start: number;
+    end: number;
+}
 
 export interface Entity {
     id: string;

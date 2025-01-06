@@ -99,6 +99,9 @@ class Message extends AbstractUuidEntity
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     private ?string $content = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $attachments = null;
+
     public function getThread(): ?Thread
     {
         return $this->thread;
@@ -127,5 +130,15 @@ class Message extends AbstractUuidEntity
     public function setContent(?string $content): void
     {
         $this->content = $content;
+    }
+
+    public function getAttachments(): ?array
+    {
+        return $this->attachments;
+    }
+
+    public function setAttachments(?array $attachments): void
+    {
+        $this->attachments = $attachments;
     }
 }

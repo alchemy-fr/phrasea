@@ -23,4 +23,7 @@ class ThreadMessageOutput extends AbstractUuidOutput
 
     #[Groups([Message::GROUP_LIST, Message::GROUP_READ])]
     public ?string $content = null;
+
+    #[Groups([Message::GROUP_LIST, Message::GROUP_READ])]
+    public ?array $attachments = null;
 }

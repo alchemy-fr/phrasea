@@ -11,6 +11,8 @@ final class ThreadMessageInput
     #[Assert\NotBlank]
     public ?string $content = null;
 
+    public ?array $attachments = null;
+
     public ?string $threadKey = null;
 
     public ?string $threadId = null;
