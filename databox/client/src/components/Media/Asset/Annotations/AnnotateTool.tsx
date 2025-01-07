@@ -54,8 +54,8 @@ export default function AnnotateTool({
                 top: 0,
                 left: 0,
                 zIndex: annotationZIndex + 1,
-                backgroundColor: 'background.paper',
                 p: 2,
+                backgroundColor: `rgba(255, 255, 255, 0.5)`,
             }}
         >
             <div>
