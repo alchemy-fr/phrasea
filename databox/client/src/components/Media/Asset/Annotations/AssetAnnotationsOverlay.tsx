@@ -1,8 +1,9 @@
-import {AnnotationType, AssetAnnotation} from '../../../../types.ts';
 import PointAnnotation from './PointAnnotation.tsx';
 import React, {FC} from 'react';
 import RectAnnotation from './RectAnnotation.tsx';
 import CircleAnnotation from './CircleAnnotation.tsx';
+import {AnnotationType, AssetAnnotation} from "./annotationTypes.ts";
+import DrawAnnotation from "./DrawAnnotation.tsx";
 
 type Props = {
     annotations: AssetAnnotation[];
@@ -17,6 +18,7 @@ export default function AssetAnnotationsOverlay({annotations}: Props) {
         [AnnotationType.Point]: PointAnnotation,
         [AnnotationType.Rect]: RectAnnotation,
         [AnnotationType.Circle]: CircleAnnotation,
+        [AnnotationType.Draw]: DrawAnnotation,
     };
 
     return (
@@ -27,6 +29,8 @@ export default function AssetAnnotationsOverlay({annotations}: Props) {
                 zIndex: annotationZIndex,
                 width: '100%',
                 height: '100%',
+                top: 0,
+                left: 0,
             }}
         >
             {annotations.map(({type, ...props}, i) => {

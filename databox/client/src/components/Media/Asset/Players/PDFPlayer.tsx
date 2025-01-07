@@ -9,8 +9,8 @@ import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import AssetAnnotationsOverlay, {annotationZIndex} from "../Annotations/AssetAnnotationsOverlay.tsx";
-import {AssetAnnotation} from "../../../../types.ts";
 import AnnotateTool from "../Annotations/AnnotateTool.tsx";
+import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
 
 type Props = {
     controls?: boolean | undefined;
@@ -28,7 +28,6 @@ export default function PDFPlayer({
     const [numPages, setNumPages] = useState<number>();
     const pageRef = useRef<number>(1);
     const [pageNumber, setPageNumberProxy] = useState<number>(1);
-    const [renderedPageNumber, setRenderedPageNumber] = useState<number>();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
@@ -53,11 +52,11 @@ export default function PDFPlayer({
 
     const prevPageClassName = 'pdf-prev-page';
     const controlsClassName = 'pdf-controls';
-    const isLoading = renderedPageNumber !== pageNumber;
 
     useEffect(() => {
         if (annotations && annotations.length > 0) {
-            annotations[0].page && setPageNumber(annotations[0].page);
+            const goTo = annotations[annotations.length - 1].page;
+            goTo && setPageNumber(goTo);
         }
     }, [annotations]);
 
@@ -73,6 +72,9 @@ export default function PDFPlayer({
                 [`.${prevPageClassName}`]: {
                     position: 'absolute',
                     zIndex: 1,
+                    backgroundColor: '#FFF',
+                    top: 0,
+                    left: 0,
                 },
                 [`.${controlsClassName}`]: {
                     display: 'none',
@@ -93,26 +95,9 @@ export default function PDFPlayer({
                                     height: '100%',
                                     width: '100%',
                                     position: 'absolute',
-                                    zIndex: annotationZIndex + 1,
                                     userSelect: 'none',
                                 }}
                             >
-                                {isLoading ? (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            height: '100%',
-                                            width: '100%',
-                                        }}
-                                    >
-                                        <CircularProgress />
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-
                                 <div
                                     className={controlsClassName}
                                     style={{
@@ -127,10 +112,11 @@ export default function PDFPlayer({
                                         sx={theme => ({
                                             opacity: 0.9,
                                             bgcolor: 'background.paper',
+                                            zIndex: annotationZIndex + 1,
                                             p: 1,
                                             boxShadow: theme.shadows[2],
                                             borderRadius:
-                                                theme.shape.borderRadius,
+                                            theme.shape.borderRadius,
                                         })}
                                         direction={'row'}
                                         alignItems={'center'}
@@ -142,7 +128,7 @@ export default function PDFPlayer({
                                             }
                                             disabled={pageNumber === 1}
                                         >
-                                            <KeyboardArrowLeftIcon />
+                                            <KeyboardArrowLeftIcon/>
                                         </IconButton>
                                         <div>
                                             {pageNumber} / {numPages}
@@ -153,22 +139,11 @@ export default function PDFPlayer({
                                             }
                                             disabled={pageNumber === numPages}
                                         >
-                                            <KeyboardArrowRightIcon />
+                                            <KeyboardArrowRightIcon/>
                                         </IconButton>
                                     </Stack>
                                 </div>
                             </div>
-                        ) : (
-                            ''
-                        )}
-
-                        {isLoading && renderedPageNumber ? (
-                            <Page
-                                {...pdfDimensions}
-                                className={prevPageClassName}
-                                key={renderedPageNumber}
-                                pageNumber={renderedPageNumber}
-                            />
                         ) : (
                             ''
                         )}
@@ -179,24 +154,30 @@ export default function PDFPlayer({
                             />
                         ) : null}
 
-
-                        {onNewAnnotation ? (
-                            <AnnotateTool
-                                onNewAnnotation={onNewAnnotation}
-                                page={pageNumber}
+                        <AnnotateTool
+                            onNewAnnotation={onNewAnnotation}
+                            page={pageNumber}
+                        >
+                            <Page
+                                {...pdfDimensions}
+                                key={pageNumber}
+                                pageNumber={pageNumber}
+                                loading={<div
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        height: '100%',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <CircularProgress/>
+                                </div>}
                             />
-                        ) : null}
-
-                        <Page
-                            {...pdfDimensions}
-                            key={pageNumber}
-                            pageNumber={pageNumber}
-                            onRenderSuccess={() => {
-                                if (pageRef.current === pageNumber) {
-                                    setRenderedPageNumber(pageNumber);
-                                }
-                            }}
-                        />
+                        </AnnotateTool>
                     </>
                 ) : (
                     ''

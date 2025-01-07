@@ -1,6 +1,8 @@
 import AssetAnnotationsOverlay from "../Annotations/AssetAnnotationsOverlay.tsx";
-import {AssetAnnotation, File} from "../../../../types.ts";
+import {File} from "../../../../types.ts";
 import {PlayerProps} from "./index.ts";
+import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
+import AnnotateTool from "../Annotations/AnnotateTool.tsx";
 
 type Props = {
     file: File;
@@ -8,17 +10,20 @@ type Props = {
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;
 
-export default function ImagePlayer({file, title, annotations, onLoad}: Props) {
+export default function ImagePlayer({file, title, annotations, onLoad, onNewAnnotation}: Props) {
 
     const isSvg = file.type === 'image/svg+xml';
 
     return <>
-        {annotations ? (
-            <AssetAnnotationsOverlay
-                annotations={annotations}
-            />
-        ) : null}
-        <img
+        <AnnotateTool
+            onNewAnnotation={onNewAnnotation}
+        >
+            {annotations ? (
+                <AssetAnnotationsOverlay
+                    annotations={annotations}
+                />
+            ) : null}
+            <img
             style={{
                 maxWidth: '100%',
                 maxHeight: '100%',
@@ -30,5 +35,6 @@ export default function ImagePlayer({file, title, annotations, onLoad}: Props) {
             alt={title}
             onLoad={onLoad}
         />
+        </AnnotateTool>
     </>
 }

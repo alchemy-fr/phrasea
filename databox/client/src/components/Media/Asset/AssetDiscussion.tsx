@@ -5,13 +5,15 @@ import React from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import Thread from "../../Discussion/Thread.tsx";
+import {OnNewAnnotationRef} from "./Annotations/annotationTypes.ts";
 
 type Props = {
     asset: Asset;
-    onActiveAnnotations: OnActiveAnnotations | undefined;
+    onActiveAnnotations?: OnActiveAnnotations | undefined;
+    onNewAnnotationRef?: OnNewAnnotationRef;
 };
 
-export default function AssetDiscussion({asset,onActiveAnnotations}: Props) {
+export default function AssetDiscussion({asset, onActiveAnnotations, onNewAnnotationRef}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -35,6 +37,7 @@ export default function AssetDiscussion({asset,onActiveAnnotations}: Props) {
                         threadKey={asset.threadKey}
                         threadId={asset.thread?.id}
                         onActiveAnnotations={onActiveAnnotations}
+                        onNewAnnotationRef={onNewAnnotationRef}
                     />
                 </AccordionDetails>
             </Accordion>

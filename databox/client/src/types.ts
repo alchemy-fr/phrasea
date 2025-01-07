@@ -2,6 +2,7 @@ import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
+import {AssetAnnotation} from "./components/Media/Asset/Annotations/annotationTypes.ts";
 
 type AlternateUrl = {
     type: string;
@@ -344,60 +345,7 @@ export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
 export type AssetOrAssetContainer = {} & Entity;
 
-export enum AnnotationType {
-    Point = 'point',
-    Circle = 'circle',
-    Rect = 'rect',
-    Cue = 'cue',
-    TimeRange = 'time_range',
-}
-
-export interface AssetAnnotation {
-    type: AnnotationType;
-    [prop: string]: any;
-}
-
-export interface PointAnnotation extends AssetAnnotation {
-    type: AnnotationType.Point;
-    x: number;
-    y: number;
-    c?: string; // Color
-    page?: number;
-}
-
-export interface CircleAnnotation extends AssetAnnotation {
-    type: AnnotationType.Circle;
-    x: number;
-    y: number;
-    radius: number;
-    c?: string; // Border color
-    f?: string; // Fill color
-    page?: number;
-}
-
-export interface RectangleAnnotation extends AssetAnnotation {
-    type: AnnotationType.Rect;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    c?: string; // Border color
-    f?: string; // Fill color
-}
-
-export interface CueAnnotation extends AssetAnnotation {
-    type: AnnotationType.Cue;
-    t: number; // Time in seconds
-}
-
-export interface TimeRangeAnnotation extends AssetAnnotation {
-    type: AnnotationType.TimeRange;
-    s: number; // Start time in seconds
-    e: number; // End time in seconds
-}
-
 export interface Entity {
     id: string;
 }
 
-export type OnNewAnnotation = (annotation: AssetAnnotation) => void;

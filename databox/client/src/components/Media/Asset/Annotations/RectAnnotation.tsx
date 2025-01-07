@@ -1,7 +1,6 @@
-import {RectangleAnnotation} from "../../../../types.ts";
+import {RectangleAnnotation} from "./annotationTypes.ts";
 
 type Props = {
-    borderSize?: number;
 } & RectangleAnnotation;
 
 export default function RectAnnotation({
@@ -9,7 +8,7 @@ export default function RectAnnotation({
     y1,
     x2,
     y2,
-    borderSize = 3,
+    s = 3,
     c = '#000',
     f,
 }: Props) {
@@ -23,7 +22,7 @@ export default function RectAnnotation({
                 height: `${(y2 - y1) * 100}%`,
                 width: `${(x2 - x1) * 100}%`,
                 backgroundColor: f,
-                border: `${borderSize}px solid ${c}`,
+                border: `${s!}px solid ${c}`,
             }}
         />
     );

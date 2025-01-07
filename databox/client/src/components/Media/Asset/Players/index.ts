@@ -1,4 +1,5 @@
-import {AssetAnnotation, File, OnNewAnnotation} from '../../../../types';
+import {File} from '../../../../types';
+import {AssetAnnotation, OnNewAnnotation} from "../Annotations/annotationTypes.ts";
 
 export type FileWithUrl = {
     url: string;

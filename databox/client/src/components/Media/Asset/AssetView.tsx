@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
-import {Asset, AssetAnnotation, AssetRendition, OnNewAnnotation} from '../../../types';
+import {Asset, AssetRendition} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
@@ -25,6 +25,7 @@ import {useChannelRegistration} from "../../../lib/pusher.ts";
 import {queryClient} from "../../../lib/query.ts";
 import AssetDiscussion from "./AssetDiscussion.tsx";
 import {annotationZIndex} from "./Annotations/AssetAnnotationsOverlay.tsx";
+import {AssetAnnotation, OnNewAnnotation} from "./Annotations/annotationTypes.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -52,6 +53,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const [annotations, setAnnotations] = React.useState<
         AssetAnnotation[] | undefined
     >();
+    const onNewAnnotationRef = React.useRef<OnNewAnnotation>();
 
     const queryKey = ['assets', assetId];
 
@@ -103,9 +105,9 @@ export default function AssetView({modalIndex, open}: Props) {
         };
     }, [winSize]);
 
-    const onNewAnnotation: OnNewAnnotation = (annotation) => {
-        console.log('annotation', annotation);
-    };
+    const onNewAnnotation: OnNewAnnotation = useCallback((annotation) => {
+        onNewAnnotationRef.current?.(annotation);
+    }, [onNewAnnotationRef]);
 
     if (!isSuccess) {
         if (!open) {
@@ -135,7 +137,7 @@ export default function AssetView({modalIndex, open}: Props) {
                         '.MuiDialogTitle-root': {
                             height: headerHeight,
                             maxHeight: headerHeight,
-                            zIndex: annotationZIndex + 2,
+                            zIndex: annotationZIndex + 10,
                         },
                     }}
                     fullScreen={true}
@@ -245,6 +247,7 @@ export default function AssetView({modalIndex, open}: Props) {
                             <AssetDiscussion
                                 asset={asset}
                                 onActiveAnnotations={onActiveAnnotations}
+                                onNewAnnotationRef={onNewAnnotationRef}
                             />
                             {rendition?.file ? (
                                 <FileIntegrations

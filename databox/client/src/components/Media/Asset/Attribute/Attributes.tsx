@@ -1,4 +1,4 @@
-import {Asset, AssetAnnotation} from '../../../../types';
+import {Asset} from '../../../../types';
 import React, {useContext} from 'react';
 import AttributeRowUI from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -10,6 +10,7 @@ import {
     copyToClipBoardClass,
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
+import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
 
 export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
 

@@ -1,7 +1,8 @@
-import {AssetAnnotation, ThreadMessage} from "../../types.ts";
+import {ThreadMessage} from "../../types.ts";
 import {Divider} from "@mui/material";
 import moment from "moment";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
+import {AssetAnnotation} from "../Media/Asset/Annotations/annotationTypes.ts";
 
 type Props = {
     message: ThreadMessage;
