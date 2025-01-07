@@ -6,18 +6,18 @@ import MessageForm from "./MessageForm.tsx";
 import {CircularProgress} from "@mui/material";
 import DiscussionMessage from "./DiscussionMessage.tsx";
 import {useChannelRegistration} from "../../lib/pusher.ts";
-import {OnAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
+import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 
 type Props = {
     threadKey: string;
     threadId?: string;
-    onAnnotations: OnAnnotations | undefined;
+    onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
 export default function Thread({
     threadKey,
     threadId,
-    onAnnotations,
+    onActiveAnnotations,
 }: Props) {
     const [messages, setMessages] = React.useState<ApiCollectionResponse<ThreadMessage>>();
 
@@ -61,7 +61,7 @@ export default function Thread({
             <DiscussionMessage
                 key={message.id}
                 message={message}
-                onAnnotations={onAnnotations}
+                onActiveAnnotations={onActiveAnnotations}
             />
         ))}
 

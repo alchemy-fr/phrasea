@@ -8,7 +8,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Attributes, {
     attributesSx,
-    OnAnnotations,
+    OnActiveAnnotations,
 } from './Attribute/Attributes.tsx';
 import React from 'react';
 import {Asset} from '../../../types.ts';
@@ -16,10 +16,10 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     asset: Asset;
-    onAnnotations: OnAnnotations | undefined;
+    onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
-export default function AssetAttributes({asset, onAnnotations}: Props) {
+export default function AssetAttributes({asset, onActiveAnnotations}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -42,7 +42,7 @@ export default function AssetAttributes({asset, onAnnotations}: Props) {
                     <Attributes
                         asset={asset}
                         displayControls={true}
-                        onAnnotations={onAnnotations}
+                        onActiveAnnotations={onActiveAnnotations}
                     />
                 </AccordionDetails>
             </Accordion>

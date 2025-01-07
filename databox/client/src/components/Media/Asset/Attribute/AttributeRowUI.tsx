@@ -5,7 +5,7 @@ import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import React from 'react';
-import {attributesClasses, OnAnnotations} from './Attributes';
+import {attributesClasses, OnActiveAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
 
@@ -16,7 +16,7 @@ type Props = {
     togglePin: undefined | ((definitionId: string) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
-    onAnnotations?: OnAnnotations | undefined;
+    onActiveAnnotations?: OnActiveAnnotations | undefined;
 };
 
 export default function AttributeRowUI({
@@ -26,7 +26,7 @@ export default function AttributeRowUI({
     pinned,
     displayControls,
     formatContext,
-    onAnnotations,
+    onActiveAnnotations,
 }: Props) {
     const {id, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
@@ -133,10 +133,10 @@ export default function AttributeRowUI({
                                               copyToClipBoardContainerClass
                                           }
                                           onMouseEnter={
-                                              onAnnotations &&
+                                              onActiveAnnotations &&
                                               a.assetAnnotations
                                                   ? () =>
-                                                        onAnnotations(
+                                                        onActiveAnnotations(
                                                             a.assetAnnotations!
                                                         )
                                                   : undefined

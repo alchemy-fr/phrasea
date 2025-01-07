@@ -8,6 +8,8 @@ type Props = {
     annotations: AssetAnnotation[];
 };
 
+export const annotationZIndex = 100;
+
 export default function AssetAnnotationsOverlay({annotations}: Props) {
     const types: {
         [key in AnnotationType]?: FC<any>;
@@ -22,7 +24,7 @@ export default function AssetAnnotationsOverlay({annotations}: Props) {
             style={{
                 position: 'absolute',
                 overflow: 'hidden',
-                zIndex: 1000,
+                zIndex: annotationZIndex,
                 width: '100%',
                 height: '100%',
             }}

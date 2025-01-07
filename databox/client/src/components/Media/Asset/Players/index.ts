@@ -1,4 +1,4 @@
-import {File} from '../../../../types';
+import {AssetAnnotation, File, OnNewAnnotation} from '../../../../types';
 
 export type FileWithUrl = {
     url: string;
@@ -29,4 +29,8 @@ export type PlayerProps = {
     dimensions?: Dimensions | undefined;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;
+    title: string | undefined;
+    controls?: boolean | undefined;
+    onNewAnnotation?: OnNewAnnotation | undefined;
+    annotations?: AssetAnnotation[] | undefined;
 };

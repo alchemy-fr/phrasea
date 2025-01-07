@@ -1,4 +1,4 @@
-import {useCallback, useContext, useRef, useState} from 'react';
+import {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
@@ -8,6 +8,9 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import AssetAnnotationsOverlay, {annotationZIndex} from "../Annotations/AssetAnnotationsOverlay.tsx";
+import {AssetAnnotation} from "../../../../types.ts";
+import AnnotateTool from "../Annotations/AnnotateTool.tsx";
 
 type Props = {
     controls?: boolean | undefined;
@@ -18,6 +21,8 @@ export default function PDFPlayer({
     controls,
     dimensions: forcedDimensions,
     onLoad,
+    annotations,
+    onNewAnnotation,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
@@ -50,6 +55,14 @@ export default function PDFPlayer({
     const controlsClassName = 'pdf-controls';
     const isLoading = renderedPageNumber !== pageNumber;
 
+    useEffect(() => {
+        if (annotations && annotations.length > 0) {
+            annotations[0].page && setPageNumber(annotations[0].page);
+        }
+    }, [annotations]);
+
+    const pageAnnotations: AssetAnnotation[] = annotations?.filter(a => a.page === pageNumber) ?? [];
+
     return (
         <Box
             sx={{
@@ -80,7 +93,7 @@ export default function PDFPlayer({
                                     height: '100%',
                                     width: '100%',
                                     position: 'absolute',
-                                    zIndex: 10,
+                                    zIndex: annotationZIndex + 1,
                                     userSelect: 'none',
                                 }}
                             >
@@ -159,6 +172,21 @@ export default function PDFPlayer({
                         ) : (
                             ''
                         )}
+
+                        {pageAnnotations.length > 0 ? (
+                            <AssetAnnotationsOverlay
+                                annotations={pageAnnotations}
+                            />
+                        ) : null}
+
+
+                        {onNewAnnotation ? (
+                            <AnnotateTool
+                                onNewAnnotation={onNewAnnotation}
+                                page={pageNumber}
+                            />
+                        ) : null}
+
                         <Page
                             {...pdfDimensions}
                             key={pageNumber}

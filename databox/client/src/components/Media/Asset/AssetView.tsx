@@ -1,5 +1,5 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
-import {Asset, AssetAnnotation, AssetRendition} from '../../../types';
+import {Asset, AssetAnnotation, AssetRendition, OnNewAnnotation} from '../../../types';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
@@ -16,8 +16,7 @@ import {useNavigateToModal} from '../../Routing/ModalLink';
 import {modalRoutes} from '../../../routes';
 import {scrollbarWidth} from '../../../constants.ts';
 import AssetAttributes from './AssetAttributes.tsx';
-import {OnAnnotations} from './Attribute/Attributes.tsx';
-import AssetAnnotationsOverlay from './Annotations/AssetAnnotationsOverlay.tsx';
+import {OnActiveAnnotations} from './Attribute/Attributes.tsx';
 import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
 import {getMediaBackgroundColor} from '../../../themes/base.ts';
@@ -25,6 +24,7 @@ import {useModalFetch} from '../../../hooks/useModalFetch.ts';
 import {useChannelRegistration} from "../../../lib/pusher.ts";
 import {queryClient} from "../../../lib/query.ts";
 import AssetDiscussion from "./AssetDiscussion.tsx";
+import {annotationZIndex} from "./Annotations/AssetAnnotationsOverlay.tsx";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -73,7 +73,7 @@ export default function AssetView({modalIndex, open}: Props) {
             ]),
     });
 
-    const onAnnotations = React.useCallback<OnAnnotations>(annotations => {
+    const onActiveAnnotations = React.useCallback<OnActiveAnnotations>(annotations => {
         setAnnotations(annotations);
     }, []);
 
@@ -103,6 +103,10 @@ export default function AssetView({modalIndex, open}: Props) {
         };
     }, [winSize]);
 
+    const onNewAnnotation: OnNewAnnotation = (annotation) => {
+        console.log('annotation', annotation);
+    };
+
     if (!isSuccess) {
         if (!open) {
             return null;
@@ -131,6 +135,7 @@ export default function AssetView({modalIndex, open}: Props) {
                         '.MuiDialogTitle-root': {
                             height: headerHeight,
                             maxHeight: headerHeight,
+                            zIndex: annotationZIndex + 2,
                         },
                     }}
                     fullScreen={true}
@@ -200,17 +205,12 @@ export default function AssetView({modalIndex, open}: Props) {
                                     maxHeight: dimensions.height,
                                 }}
                             >
-                                {annotations && !integrationOverlay ? (
-                                    <AssetAnnotationsOverlay
-                                        annotations={annotations}
-                                    />
-                                ) : (
-                                    ''
-                                )}
                                 {rendition?.file &&
                                     (!integrationOverlay ||
                                         !integrationOverlay.replace) && (
                                         <FilePlayer
+                                            onNewAnnotation={onNewAnnotation}
+                                            annotations={annotations}
                                             file={rendition.file}
                                             title={asset.title}
                                             dimensions={dimensions}
@@ -239,12 +239,12 @@ export default function AssetView({modalIndex, open}: Props) {
                         >
                             <AssetAttributes
                                 asset={asset}
-                                onAnnotations={onAnnotations}
+                                onActiveAnnotations={onActiveAnnotations}
                             />
 
                             <AssetDiscussion
                                 asset={asset}
-                                onAnnotations={onAnnotations}
+                                onActiveAnnotations={onActiveAnnotations}
                             />
                             {rendition?.file ? (
                                 <FileIntegrations

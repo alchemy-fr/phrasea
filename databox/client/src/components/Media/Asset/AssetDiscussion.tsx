@@ -1,6 +1,6 @@
 import {Accordion, AccordionDetails, AccordionSummary, Box, Typography,} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {attributesSx, OnAnnotations,} from './Attribute/Attributes.tsx';
+import {attributesSx, OnActiveAnnotations,} from './Attribute/Attributes.tsx';
 import React from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
@@ -8,10 +8,10 @@ import Thread from "../../Discussion/Thread.tsx";
 
 type Props = {
     asset: Asset;
-    onAnnotations: OnAnnotations | undefined;
+    onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
-export default function AssetDiscussion({asset,onAnnotations}: Props) {
+export default function AssetDiscussion({asset,onActiveAnnotations}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -34,7 +34,7 @@ export default function AssetDiscussion({asset,onAnnotations}: Props) {
                     <Thread
                         threadKey={asset.threadKey}
                         threadId={asset.thread?.id}
-                        onAnnotations={onAnnotations}
+                        onActiveAnnotations={onActiveAnnotations}
                     />
                 </AccordionDetails>
             </Accordion>

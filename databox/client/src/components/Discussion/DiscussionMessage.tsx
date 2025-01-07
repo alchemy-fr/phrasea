@@ -1,23 +1,23 @@
 import {AssetAnnotation, ThreadMessage} from "../../types.ts";
 import {Divider} from "@mui/material";
 import moment from "moment";
-import {OnAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
+import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 
 type Props = {
     message: ThreadMessage;
-    onAnnotations?: OnAnnotations | undefined;
+    onActiveAnnotations?: OnActiveAnnotations | undefined;
 };
 
 export default function DiscussionMessage({
     message,
-    onAnnotations,
+    onActiveAnnotations,
 }: Props) {
     const m = moment(message.createdAt);
-    const annotations: string[] = message.attachments?.filter(a => a.type === 'annotation').map(a => JSON.parse(a.content) as AssetAnnotation) ?? [];
+    const annotations: AssetAnnotation[] = message.attachments?.filter(a => a.type === 'annotation').map(a => JSON.parse(a.content) as AssetAnnotation) ?? [];
 
     return <>
         <div
-            onMouseEnter={onAnnotations && annotations.length > 0 ? () => onAnnotations!(annotations) : undefined}
+            onMouseEnter={onActiveAnnotations && annotations.length > 0 ? () => onActiveAnnotations!(annotations) : undefined}
         >
             <div>
                 <small>

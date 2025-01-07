@@ -1,17 +1,14 @@
+import {CircleAnnotation as TCircleAnnotation} from "../../../../types.ts";
+
 type Props = {
-    x: number;
-    y: number;
-    r: number;
-    b?: number;
-    c?: string;
-    f?: string;
-};
+    borderSize?: number;
+} & TCircleAnnotation;
 
 export default function CircleAnnotation({
     x,
     y,
     r,
-    b = 3,
+    borderSize = 3,
     c = '#000',
     f,
 }: Props) {
@@ -27,7 +24,7 @@ export default function CircleAnnotation({
                 borderRadius: '50%',
                 transform: `translateX(-50%) translateY(-50%)`,
                 backgroundColor: f,
-                border: `${b}px solid ${c}`,
+                border: `${borderSize}px solid ${c}`,
             }}
         />
     );

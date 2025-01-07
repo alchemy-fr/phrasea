@@ -361,6 +361,7 @@ export interface PointAnnotation extends AssetAnnotation {
     type: AnnotationType.Point;
     x: number;
     y: number;
+    c?: string; // Color
     page?: number;
 }
 
@@ -369,28 +370,34 @@ export interface CircleAnnotation extends AssetAnnotation {
     x: number;
     y: number;
     radius: number;
+    c?: string; // Border color
+    f?: string; // Fill color
     page?: number;
 }
 
-export interface RectAnnotation extends AssetAnnotation {
+export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    c?: string; // Border color
+    f?: string; // Fill color
 }
 
 export interface CueAnnotation extends AssetAnnotation {
     type: AnnotationType.Cue;
-    time: number;
+    t: number; // Time in seconds
 }
 
 export interface TimeRangeAnnotation extends AssetAnnotation {
     type: AnnotationType.TimeRange;
-    start: number;
-    end: number;
+    s: number; // Start time in seconds
+    e: number; // End time in seconds
 }
 
 export interface Entity {
     id: string;
 }
+
+export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
