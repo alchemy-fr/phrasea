@@ -11,13 +11,12 @@ import {
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import config from './config.ts';
-import ApiIcon from '@mui/icons-material/Api';
 import SellIcon from '@mui/icons-material/Sell';
 import keycloakImg from './images/keycloak.png';
 import databoxImg from './images/databox.png';
 import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
-import notifyImg from './images/notify.png';
+import dashboardImg from './images/dashboard.png';
 import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -33,7 +32,6 @@ export default function Dashboard({}: Props) {
         DATABOX_API_URL,
         EXPOSE_API_URL,
         UPLOADER_API_URL,
-        NOTIFY_API_URL,
         DATABOX_CLIENT_URL,
         EXPOSE_CLIENT_URL,
         UPLOADER_CLIENT_URL,
@@ -48,6 +46,8 @@ export default function Dashboard({}: Props) {
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
+        NOVU_DASHBOARD_URL,
+        NOVU_STUDIO_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -65,12 +65,12 @@ export default function Dashboard({}: Props) {
                             },
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center' }}> 
-                            { 
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {
                                 config.logo ? <img src={config.logo} alt={STACK_NAME}  style={{ maxHeight:48, maxWidth:150 }}/>
                                 : STACK_NAME
                             }
-                            
+
                             {user ? (
                                 <Chip
                                     icon={<SellIcon />}
@@ -159,34 +159,21 @@ export default function Dashboard({}: Props) {
                         isAdmin={roles.includes('uploader-admin')}
                     />
                 )}
-                {NOTIFY_API_URL && roles.includes('notify-admin') && (
-                    <Service
-                        mainUrl={`${NOTIFY_API_URL}/admin`}
-                        title={`Notify Admin`}
-                        description={`Mail Sender`}
-                        logo={notifyImg}
-                        links={[
-                            {
-                                icon: <ApiIcon />,
-                                href: NOTIFY_API_URL,
-                                title: `API documentation of Notify`,
-                            },
-                        ]}
-                    />
-                )}
                 {isInIframe ? (
                     <Service
                         mainUrl={`/`}
                         title={`Dashboard`}
                         description={`Phrasea entrypoint`}
-                        logo={notifyImg}
+                        logo={dashboardImg}
                     />
                 ) : (
                     ''
                 )}
             </Grid>
             {roles.includes('tech') && (
-                <Grid container spacing={2} marginTop={1}>
+                <Grid container spacing={2} marginTop={1} sx={{
+                    mb: 5
+                }}>
                     {PGADMIN_URL && (
                         <Grid item>
                             <Link
@@ -275,14 +262,25 @@ export default function Dashboard({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {SOKETI_USAGE_URL && (
+                    {NOVU_DASHBOARD_URL && (
                         <Grid item>
                             <Link
-                                href={SOKETI_USAGE_URL}
+                                href={NOVU_DASHBOARD_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                Soketi Usage
+                                Novu Dashboard
+                            </Link>
+                        </Grid>
+                    )}
+                    {config.devMode && NOVU_STUDIO_URL && (
+                        <Grid item>
+                            <Link
+                                href={NOVU_STUDIO_URL}
+                                target={'_blank'}
+                                rel={'noreferrer noopener'}
+                            >
+                                Novu Studio
                             </Link>
                         </Grid>
                     )}

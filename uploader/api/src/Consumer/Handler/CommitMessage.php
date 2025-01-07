@@ -12,7 +12,7 @@ final readonly class CommitMessage
         private string $userId,
         private array $files,
         private array $form,
-        private ?string $notifyEmail = null,
+        private bool $notify = false,
         private ?string $locale = null,
         private array $options = [],
     ) {
@@ -38,9 +38,9 @@ final readonly class CommitMessage
         return $this->form;
     }
 
-    public function getNotifyEmail(): ?string
+    public function isNotify(): bool
     {
-        return $this->notifyEmail;
+        return $this->notify;
     }
 
     public function getLocale(): ?string

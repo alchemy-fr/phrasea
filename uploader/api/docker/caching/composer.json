@@ -124,9 +124,11 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "lcobucci/jwt": "^5.0",
         "symfony/http-client": "^6",
+        "symfony/notifier": "^6.4.13",
         "opis/json-schema": "^1.0",
         "symfony/monolog-bundle": "^3.5",
         "sentry/sentry-symfony": "^4.11",
+        "symfony/novu-notifier": "^6.3",
         "symfony/messenger": "^6.4",
         "symfony/doctrine-messenger": "^6.4.7"
     },

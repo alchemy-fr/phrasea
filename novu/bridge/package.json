@@ -1,0 +1,33 @@
+{
+  "name": "studio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port=3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "sync": "npx novu@2.1.0 sync --bridge-url=${NOVU_BRIDGE_URL}/api/novu --secret-key=${NOVU_SECRET_KEY} --api-url=${NOVU_API_URL}"
+  },
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "next": "14.2.15",
+    "@novu/framework": "latest",
+    "@novu/nextjs": "^2.5.0",
+    "@react-email/components": "0.0.18",
+    "@react-email/tailwind": "0.0.18",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.1"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.3"
+  }
+}

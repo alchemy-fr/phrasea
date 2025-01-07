@@ -15,7 +15,6 @@ services:
             array $symfonyApplications:
                 - databox
                 - expose
-                - notify
                 - uploader
             array $frontendApplications:
                 - databox

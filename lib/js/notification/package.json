@@ -1,0 +1,20 @@
+{
+  "name": "@alchemy/notification",
+  "version": "1.0.0",
+  "public": true,
+  "main": "index.ts",
+  "dependencies": {
+    "@novu/react": "^2.6.2"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "react": "^18.3.1",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7"
+  }
+}
