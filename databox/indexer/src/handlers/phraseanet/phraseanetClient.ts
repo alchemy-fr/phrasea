@@ -92,7 +92,8 @@ export default class PhraseanetClient {
             params,
             offset,
             PhraseanetSearchType.Record,
-            searchQuery
+            searchQuery,
+            50
         ) as unknown as Promise<CPhraseanetRecord[]>;
     }
 
@@ -105,7 +106,8 @@ export default class PhraseanetClient {
             params,
             offset,
             PhraseanetSearchType.Story,
-            searchQuery
+            searchQuery,
+            20
         ) as unknown as Promise<CPhraseanetStory[]>;
     }
 
@@ -113,7 +115,8 @@ export default class PhraseanetClient {
         params: Record<string, any>,
         offset: number = 0,
         searchType: PhraseanetSearchType,
-        searchQuery: string
+        searchQuery: string,
+        limit: number = 100
     ): Promise<(CPhraseanetRecord | CPhraseanetStory)[]> {
         if (this.searchOrder) {
             const [col, way] = this.searchOrder.split(',');
@@ -121,37 +124,51 @@ export default class PhraseanetClient {
             params.ord = way || 'asc';
         }
 
-        const res = await this.client.get('/api/v3/search/', {
-            params: {
-                offset,
-                limit: 100,
-                search_type: searchType,
-                query: searchQuery,
-                story_children_limit: 1000,
-                include: [
-                    'results.records.subdefs',
-                    'results.records.metadata',
-                    'results.records.status',
-                    'results.stories.caption',
-                    'results.stories.status',
-                    'results.stories.children',
-                ],
-                ...params,
-            },
-        });
+        let last_error = null;
+        let ttry = 0;
+        for(ttry=0; ttry<3; ttry++)
+        {
+            try {
+                console.log(`Fetching search results...`);
+                const res = await this.client.get('/api/v3/search/', {
+                    params: {
+                        offset,
+                        limit: limit,
+                        search_type: searchType,
+                        query: searchQuery,
+                        story_children_limit: 1000,
+                        include: [
+                            'results.records.subdefs',
+                            'results.records.metadata',
+                            'results.records.status',
+                            'results.stories.caption',
+                            'results.stories.status',
+                            'results.stories.children',
+                        ],
+                        ...params,
+                    },
+                });
+                const recs: (CPhraseanetRecord | CPhraseanetStory)[] = [];
+                if (searchType === PhraseanetSearchType.Record) {
+                    res.data.response.results.records.map((r: PhraseanetRecord) => {
+                        recs.push(new CPhraseanetRecord(r, this));
+                    });
+                } else {
+                    res.data.response.results.stories.map((s: PhraseanetStory) => {
+                        recs.push(new CPhraseanetStory(s, this));
+                    });
+                }
 
-        const recs: (CPhraseanetRecord | CPhraseanetStory)[] = [];
-        if (searchType === PhraseanetSearchType.Record) {
-            res.data.response.results.records.map((r: PhraseanetRecord) => {
-                recs.push(new CPhraseanetRecord(r, this));
-            });
-        } else {
-            res.data.response.results.stories.map((s: PhraseanetStory) => {
-                recs.push(new CPhraseanetStory(s, this));
-            });
+                return recs;
+            }
+            catch(e)
+            {
+                last_error = e;
+                console.log(`Failed to fetch search results, retrying in 5s...`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
         }
-
-        return recs;
+        throw last_error;
     }
 
     async getMetaStruct(

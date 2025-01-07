@@ -24,8 +24,8 @@ import {DataboxClient} from '../../databox/client.ts';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
-        Twig.extendFilter('escapePath', function (v: string) {
-            return v.replace('/', '_');
+        Twig.extendFilter('escapePath', function (v: string, args: any) {
+            return v.replace(/\/|[\x00-\x1F]/, (args[0] ?? '_'));
         });
 
         const phraseanetClient = new PhraseanetClient(location.options, logger);
