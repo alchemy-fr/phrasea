@@ -47,7 +47,7 @@ export default function AnnotateTool({
     >
         {!!onNewAnnotation && <Box
             sx={{
-                position: 'sticky',
+                position: 'absolute',
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',

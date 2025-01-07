@@ -1,4 +1,4 @@
-import {useCallback, useContext, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
@@ -28,6 +28,7 @@ export default function PDFPlayer({
     const [numPages, setNumPages] = useState<number>();
     const pageRef = useRef<number>(1);
     const [pageNumber, setPageNumberProxy] = useState<number>(1);
+    const [renderedPageNumber, setRenderedPageNumber] = React.useState<number>();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
@@ -59,6 +60,8 @@ export default function PDFPlayer({
             goTo && setPageNumber(goTo);
         }
     }, [annotations]);
+
+    console.log('renderedPageNumber', renderedPageNumber, pageNumber);
 
     const pageAnnotations: AssetAnnotation[] = annotations?.filter(a => a.page === pageNumber) ?? [];
 
@@ -148,16 +151,15 @@ export default function PDFPlayer({
                             ''
                         )}
 
-                        {pageAnnotations.length > 0 ? (
-                            <AssetAnnotationsOverlay
-                                annotations={pageAnnotations}
-                            />
-                        ) : null}
-
                         <AnnotateTool
                             onNewAnnotation={onNewAnnotation}
                             page={pageNumber}
                         >
+                            {renderedPageNumber === pageNumber && pageAnnotations.length > 0 ? (
+                                <AssetAnnotationsOverlay
+                                    annotations={pageAnnotations}
+                                />
+                            ) : null}
                             <Page
                                 {...pdfDimensions}
                                 key={pageNumber}
@@ -176,6 +178,9 @@ export default function PDFPlayer({
                                 >
                                     <CircularProgress/>
                                 </div>}
+                                onRenderSuccess={() => {
+                                    setRenderedPageNumber(pageNumber);
+                                }}
                             />
                         </AnnotateTool>
                     </>

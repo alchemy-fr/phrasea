@@ -43,6 +43,7 @@ export function useAnnotationDraw({
             context.scale(resolution, resolution);
 
             const onMouseMove = (event: MouseEvent) => {
+                console.log('event', event);
                 const x = event.offsetX;
                 const y = event.offsetY;
 
@@ -97,17 +98,19 @@ export function useAnnotationDraw({
 
                 dataRef.current = {};
 
-                onStart({
-                    options: annotationOptions,
-                    data: dataRef.current,
-                    context,
-                    canvas,
-                    startingPoint: startingPoint.current!,
-                    x,
-                    y,
+                requestAnimationFrame(() => {
+                    onStart({
+                        options: annotationOptions,
+                        data: dataRef.current,
+                        context,
+                        canvas,
+                        startingPoint: startingPoint.current!,
+                        x,
+                        y,
+                    });
                 });
 
-                window.addEventListener('mousemove', onMouseMove);
+                canvas.addEventListener('mousemove', onMouseMove);
                 window.addEventListener('mouseup', onMouseUp);
             };
 
@@ -115,7 +118,7 @@ export function useAnnotationDraw({
 
             return () => {
                 canvas.removeEventListener('mousedown', onMouseDown);
-                window.removeEventListener('mousemove', onMouseMove);
+                canvas.removeEventListener('mousemove', onMouseMove);
                 window.removeEventListener('mouseup', onMouseUp);
             }
         }

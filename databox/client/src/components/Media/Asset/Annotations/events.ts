@@ -1,5 +1,4 @@
 import {AnnotationOptions, AnnotationType, OnNewAnnotation, Point, RectangleAnnotation} from "./annotationTypes.ts";
-import {options} from "axios";
 
 export type StartingPoint = Point;
 
@@ -228,6 +227,12 @@ export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
             data.paths = [{x, y}];
         },
         onMove: ({context, x, y, data}) => {
+            if (x <= 0) {
+                x = 0;
+            }
+            if (y <= 0) {
+                y = 0;
+            }
             context.lineTo(x, y);
             context.stroke();
             data.paths.push({x, y});

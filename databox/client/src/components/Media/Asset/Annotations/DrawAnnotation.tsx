@@ -20,8 +20,8 @@ export default function DrawAnnotation({
             canvas.width = width * resolution;
             canvas.height = height * resolution;
 
-            canvas.style.width = width + "px";
-            canvas.style.height = height + "px";
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
 
             const context = canvas!.getContext('2d')!;
             context.scale(resolution, resolution);
@@ -42,7 +42,6 @@ export default function DrawAnnotation({
             context.stroke();
         }
     }, [canvasRef, paths, s, c]);
-
 
     return (
         <canvas
