@@ -51,7 +51,7 @@ export function useAnnotationDraw({
 
                 onMove({
                     options: annotationOptions,
-                    data: dataRef.current,
+                    data: dataRef.current!,
                     context,
                     canvas,
                     startingPoint: st,
@@ -71,7 +71,7 @@ export function useAnnotationDraw({
 
                 onEnd({
                     options: annotationOptions,
-                    data: dataRef.current,
+                    data: dataRef.current!,
                     context,
                     onNewAnnotation,
                     canvas,
@@ -101,7 +101,7 @@ export function useAnnotationDraw({
                 requestAnimationFrame(() => {
                     onStart({
                         options: annotationOptions,
-                        data: dataRef.current,
+                        data: dataRef.current!,
                         context,
                         canvas,
                         startingPoint: startingPoint.current!,

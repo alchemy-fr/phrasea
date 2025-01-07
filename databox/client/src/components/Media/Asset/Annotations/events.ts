@@ -8,7 +8,7 @@ type BaseEvent = {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     startingPoint: StartingPoint;
-    data: object;
+    data: any;
     options: AnnotationOptions;
 } & Point;
 
@@ -241,7 +241,7 @@ export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
             context.closePath();
             onNewAnnotation({
                 type: AnnotationType.Draw,
-                paths: data.paths.map(p => {
+                paths: data.paths.map((p: Point) => {
                     return {
                         x: relativeX(p.x),
                         y: relativeY(p.y),
