@@ -153,7 +153,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
                                         ->info('Sets the background color HEX value. The default color is white (#fff).')
                                         ->end()
                                     ->integerNode('opacity')
-                                        ->info('Sets the background alpha value. The value should be within a range of 0 (opaque) - 100 (fully transparent). default opacity 100')
+                                        ->info('Sets the background opacity. The value should be within a range of 0 (fully transparent) - 100 (opaque). default opacity 100')
                                     ->end()
                                 ->end()
                             ->end()
