@@ -32,10 +32,9 @@ export function useAnnotationDraw({
                 onEnd,
             } = drawingHandlers[mode];
 
-            var resolution = Math.max(devicePixelRatio, 2);
+            const resolution = Math.max(devicePixelRatio, 2);
             canvas.width = width * resolution;
             canvas.height = height * resolution;
-
             canvas.style.width = width + "px";
             canvas.style.height = height + "px";
 
