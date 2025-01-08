@@ -1,13 +1,18 @@
 import {annotationZIndex} from "./AssetAnnotationsOverlay.tsx";
-import React, {PropsWithChildren, useRef, useState} from "react";
+import React, {ReactNode, useRef, useState} from "react";
 import {useAnnotationDraw} from "./useAnnotationDraw.ts";
 import {AnnotationOptions, AnnotationType, AssetAnnotation, OnNewAnnotation} from "./annotationTypes.ts";
 import AnnotateToolbar from "./AnnotateToolbar.tsx";
 
-type Props = PropsWithChildren<{
+type Props = {
     onNewAnnotation?: OnNewAnnotation | undefined;
     page?: number,
-}>;
+    children: (props: {
+        canvas: ReactNode | null;
+        toolbar: ReactNode | null;
+        annotationActive: boolean;
+    }) => JSX.Element;
+};
 
 export default function AnnotateWrapper({
     onNewAnnotation,
@@ -35,44 +40,24 @@ export default function AnnotateWrapper({
     });
 
     return <>
-        {!!onNewAnnotation && <div
-            style={{
-                position: 'fixed',
-                bottom: 0,
-                zIndex: annotationZIndex + 1,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                ...(mode ? {
-                    pointerEvents: 'none',
-                } : {})
-            }}
-        >
-            <AnnotateToolbar
+        {children({
+            canvas: mode ? <canvas
+                ref={canvasRef}
+                style={{
+                    cursor: 'crosshair',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: annotationZIndex + 1,
+                }}
+            /> : null,
+            toolbar: onNewAnnotation ? <AnnotateToolbar
                 options={options}
                 setOptions={setOptions}
                 mode={mode}
                 setMode={setMode}
-            />
-        </div>}
-        <div
-            style={{
-                position: 'relative',
-                paddingBottom: 90,
-            }}
-        >
-            <>
-                {children}
-                {mode && <canvas
-                    ref={canvasRef}
-                    style={{
-                        cursor: 'crosshair',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        zIndex: annotationZIndex,
-                    }}
-                />}
-            </>
-        </div>
+            /> : null,
+            annotationActive: !!mode,
+        })}
     </>
 }

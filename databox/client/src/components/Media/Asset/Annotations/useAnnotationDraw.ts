@@ -23,8 +23,7 @@ export function useAnnotationDraw({
         if (onNewAnnotation && mode && canvasRef.current && mode in drawingHandlers) {
             const canvas = canvasRef.current;
             const parent = canvas.parentNode as HTMLDivElement;
-            const parentRect = parent.getBoundingClientRect();
-            const {width, height} = parentRect;
+            const {offsetWidth: width, offsetHeight: height} = parent;
 
             const {
                 onStart,
@@ -42,7 +41,6 @@ export function useAnnotationDraw({
             context.scale(resolution, resolution);
 
             const onMouseMove = (event: MouseEvent) => {
-                console.log('event', event);
                 const x = event.offsetX;
                 const y = event.offsetY;
 

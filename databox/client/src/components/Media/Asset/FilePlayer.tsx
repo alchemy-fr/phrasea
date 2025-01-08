@@ -13,27 +13,15 @@ type Props = {
 
 export default function FilePlayer({
     file,
-    title,
-    onLoad,
-    controls,
-    noInteraction,
     autoPlayable,
-    dimensions,
-    annotations,
-    onNewAnnotation,
+    ...playProps
 }: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (file.url) {
         const props: PlayerProps = {
+            ...playProps,
             file: file as FileWithUrl,
-            title,
-            onLoad,
-            controls,
-            dimensions,
-            annotations,
-            noInteraction,
-            onNewAnnotation,
         };
 
         switch (mainType) {

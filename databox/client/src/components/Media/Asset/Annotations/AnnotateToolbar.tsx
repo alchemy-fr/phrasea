@@ -20,17 +20,7 @@ export default function AnnotateToolbar({
     options,
     setOptions,
 }: Props) {
-    return <Box sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        p: 2,
-        backgroundColor: `rgba(255, 255, 255, 0.8)`,
-        ...(mode ? {
-            pointerEvents: 'none',
-            opacity: 0.6,
-        } : {})
-    }}>
+    return <>
         <div>
             <IconButton
                 disabled={mode === AnnotationType.Point}
@@ -76,5 +66,5 @@ export default function AnnotateToolbar({
                 onChange={(e) => setOptions(p => ({...p, size: parseInt(e.target.value)}))}
             />
         </div>
-    </Box>
+    </>
 }

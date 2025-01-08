@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useMemo, useState} from 'react';
+import React, {FC, useCallback, useMemo, useRef, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
 import {AppDialog, FlexRow} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
@@ -54,6 +54,7 @@ export default function AssetView({modalIndex, open}: Props) {
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
+    const previousData = useRef<DataTuple | undefined>();
     const [annotations, setAnnotations] = React.useState<
         AssetAnnotation[] | undefined
     >();
@@ -114,14 +115,22 @@ export default function AssetView({modalIndex, open}: Props) {
         onNewAnnotationRef.current?.(annotation);
     }, [onNewAnnotationRef, assetId]);
 
-    if (!isSuccess) {
+    const [asset, renditions] = (isSuccess ? data : previousData.current ?? []) as DataTuple;
+
+    React.useEffect(() => {
+        if (data) {
+            previousData.current = data;
+        }
+    }, [data, previousData]);
+
+    if (!isSuccess && !previousData.current) {
         if (!open) {
             return null;
         }
+
         return <FullPageLoader/>;
     }
 
-    const [asset, renditions] = data as [Asset, AssetRendition[]];
     const rendition = renditions.find(r => r.id === renditionId);
 
     const handleRenditionChange = (renditionId: string) => {
@@ -150,15 +159,17 @@ export default function AssetView({modalIndex, open}: Props) {
                         <FlexRow
                             flexDirection={'row'}
                         >
-                            <Trans
-                                i18nKey={'asset_view.edit_asset'}
-                                values={{
-                                    name: asset.resolvedTitle,
-                                }}
-                                defaults={
-                                    'Edit asset <strong>{{name}}</strong>'
-                                }
-                            />
+                            <div>
+                                <Trans
+                                    i18nKey={'asset_view.edit_asset'}
+                                    values={{
+                                        name: asset.resolvedTitle,
+                                    }}
+                                    defaults={
+                                        'Edit asset <strong>{{name}}</strong>'
+                                    }
+                                />
+                            </div>
                             <AssetViewNavigation
                                 state={state}
                                 currentId={assetId!}
@@ -190,6 +201,7 @@ export default function AssetView({modalIndex, open}: Props) {
                     }
                     onClose={onClose}
                 >
+                    {!isSuccess && <FullPageLoader/>}
                     <Box
                         sx={{
                             height: dimensions.height,
@@ -212,35 +224,28 @@ export default function AssetView({modalIndex, open}: Props) {
                                 backgroundColor: getMediaBackgroundColor(theme),
                             })}
                         >
-                            <div
-                                style={{
-                                    position: 'relative',
-                                    width: 'fit-content',
-                                    maxHeight: dimensions.height,
-                                }}
-                            >
-                                {rendition?.file &&
-                                    (!integrationOverlay ||
-                                        !integrationOverlay.replace) && (
-                                        <FilePlayer
-                                            onNewAnnotation={onNewAnnotation}
-                                            annotations={annotations}
-                                            file={rendition.file}
-                                            title={asset.title}
-                                            dimensions={dimensions}
-                                            autoPlayable={false}
-                                            controls={true}
-                                        />
-                                    )}
-                                {integrationOverlay &&
-                                    React.createElement(
-                                        integrationOverlay.component,
-                                        {
-                                            dimensions,
-                                            ...(integrationOverlay.props || {}),
-                                        }
-                                    )}
-                            </div>
+                            {rendition?.file &&
+                                (!integrationOverlay ||
+                                    !integrationOverlay.replace) && (
+                                    <FilePlayer
+                                        onNewAnnotation={onNewAnnotation}
+                                        annotations={annotations}
+                                        file={rendition.file}
+                                        title={asset.title}
+                                        dimensions={dimensions}
+                                        autoPlayable={false}
+                                        controls={true}
+                                        zoomEnabled={true}
+                                    />
+                                )}
+                            {integrationOverlay &&
+                                React.createElement(
+                                    integrationOverlay.component,
+                                    {
+                                        dimensions,
+                                        ...(integrationOverlay.props || {}),
+                                    }
+                                )}
                         </Box>
                         <Box
                             sx={theme => ({
@@ -278,3 +283,5 @@ export default function AssetView({modalIndex, open}: Props) {
         </RouteDialog>
     );
 }
+
+type DataTuple = [Asset, AssetRendition[]];

@@ -30,6 +30,7 @@ export type PlayerProps = {
     dimensions?: Dimensions | undefined;
     onLoad?: (() => void) | undefined;
     noInteraction?: boolean | undefined;
+    zoomEnabled?: boolean | undefined;
     title: string | undefined;
     controls?: boolean | undefined;
     onNewAnnotation?: OnNewAnnotation | undefined;

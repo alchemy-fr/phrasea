@@ -1,9 +1,9 @@
-import AssetAnnotationsOverlay, {AssetAnnotationHandle} from "../Annotations/AssetAnnotationsOverlay.tsx";
+import {AssetAnnotationHandle} from "../Annotations/AssetAnnotationsOverlay.tsx";
 import {File} from "../../../../types.ts";
 import {PlayerProps} from "./index.ts";
 import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
-import AnnotateWrapper from "../Annotations/AnnotateWrapper.tsx";
 import React, {useRef} from "react";
+import FileToolbar from "./FileToolbar.tsx";
 
 type Props = {
     file: File;
@@ -11,7 +11,7 @@ type Props = {
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;
 
-export default function ImagePlayer({file, title, annotations, onLoad, onNewAnnotation}: Props) {
+export default function ImagePlayer({file, title, annotations, onLoad, onNewAnnotation, zoomEnabled}: Props) {
     const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
     const isSvg = file.type === 'image/svg+xml';
 
@@ -25,27 +25,24 @@ export default function ImagePlayer({file, title, annotations, onLoad, onNewAnno
     }, [file]);
 
     return <>
-        <AnnotateWrapper
+        <FileToolbar
             onNewAnnotation={onNewAnnotation}
+            annotations={annotations}
+            zoomEnabled={zoomEnabled}
+            annotationEnabled={true}
         >
-            {annotations ? (
-                <AssetAnnotationsOverlay
-                    ref={annotationsOverlayRef}
-                    annotations={annotations}
-                />
-            ) : null}
             <img
-            style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                display: 'block',
-                ...(isSvg ? {width: '100%'} : {}),
-            }}
-            crossOrigin="anonymous"
-            src={file.url}
-            alt={title}
-            onLoad={pOnLoad}
-        />
-        </AnnotateWrapper>
+                style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    display: 'block',
+                    ...(isSvg ? {width: '100%'} : {}),
+                }}
+                crossOrigin="anonymous"
+                src={file.url}
+                alt={title}
+                onLoad={pOnLoad}
+            />
+        </FileToolbar>
     </>
 }

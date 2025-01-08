@@ -20,14 +20,13 @@ const AssetAnnotationsOverlay = memo(forwardRef<AssetAnnotationHandle, Props>(fu
         if (canvasRef.current) {
             const canvas = canvasRef.current;
             const parent = canvas.parentNode as HTMLDivElement;
-            const parentRect = parent.getBoundingClientRect();
-            const {width, height} = parentRect;
+            const {offsetWidth: width, offsetHeight: height} = parent;
 
             const resolution = Math.max(devicePixelRatio, 2);
             canvas.width = width * resolution;
             canvas.height = height * resolution;
-            canvas.style.width = width + "px";
-            canvas.style.height = height + "px";
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
 
             const context = canvas!.getContext('2d')!;
             context.scale(resolution, resolution);
