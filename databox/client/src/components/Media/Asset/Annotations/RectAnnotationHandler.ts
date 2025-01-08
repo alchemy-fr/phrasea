@@ -55,7 +55,7 @@ export const RectAnnotationHandler: DrawingHandler = {
         const props: Partial<RectangleAnnotation> = {
             type: AnnotationType.Rect,
             c: options.color,
-            s: options.size,
+            s: relativeX(options.size),
         };
 
         if (x1 > x2) {
@@ -76,15 +76,15 @@ export const RectAnnotationHandler: DrawingHandler = {
 
         onNewAnnotation(props as RectangleAnnotation);
     },
-    drawAnnotation: ({annotation, context}) => {
+    drawAnnotation: ({annotation, context, toX, toY}) => {
         const {x1, y1, x2, y2, c, s} = annotation;
         drawRectangle({
-            x: x1,
-            y: y1,
-            w: x2 - x1,
-            h: y2 - y1,
+            x: toX(x1),
+            y: toY(y1),
+            w: toX(x2 - x1),
+            h: toY(y2 - y1),
             context,
-            options: {color: c, size: s},
+            options: {color: c, size: toX(s)},
         });
     }
 };

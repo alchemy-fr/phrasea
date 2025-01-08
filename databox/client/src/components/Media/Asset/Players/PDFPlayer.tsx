@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
@@ -8,8 +8,11 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import AssetAnnotationsOverlay, {annotationZIndex} from "../Annotations/AssetAnnotationsOverlay.tsx";
-import AnnotateTool from "../Annotations/AnnotateTool.tsx";
+import AssetAnnotationsOverlay, {
+    annotationZIndex,
+    AssetAnnotationHandle
+} from "../Annotations/AssetAnnotationsOverlay.tsx";
+import AnnotateWrapper from "../Annotations/AnnotateWrapper.tsx";
 import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
 
 type Props = {
@@ -26,13 +29,13 @@ export default function PDFPlayer({
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
-    const pageRef = useRef<number>(1);
-    const [pageNumber, setPageNumberProxy] = useState<number>(1);
-    const [renderedPageNumber, setRenderedPageNumber] = React.useState<number>();
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [renderedPageNumber, setRenderedPageNumber] = React.useState<number | undefined>();
     const displayContext = useContext(DisplayContext);
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
     );
+    const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
@@ -46,11 +49,6 @@ export default function PDFPlayer({
         [onLoad]
     );
 
-    const setPageNumber = (num: number): void => {
-        pageRef.current = num;
-        setPageNumberProxy(num);
-    };
-
     const prevPageClassName = 'pdf-prev-page';
     const controlsClassName = 'pdf-controls';
 
@@ -61,9 +59,7 @@ export default function PDFPlayer({
         }
     }, [annotations]);
 
-    console.log('renderedPageNumber', renderedPageNumber, pageNumber);
-
-    const pageAnnotations: AssetAnnotation[] = annotations?.filter(a => a.page === pageNumber) ?? [];
+    const pageAnnotations: AssetAnnotation[] = useMemo(() => annotations?.filter(a => a.page === pageNumber) ?? [], [annotations, pageNumber]);
 
     return (
         <Box
@@ -151,13 +147,14 @@ export default function PDFPlayer({
                             ''
                         )}
 
-                        <AnnotateTool
+                        <AnnotateWrapper
                             onNewAnnotation={onNewAnnotation}
                             page={pageNumber}
                         >
                             {renderedPageNumber === pageNumber && pageAnnotations.length > 0 ? (
                                 <AssetAnnotationsOverlay
                                     annotations={pageAnnotations}
+                                    ref={annotationsOverlayRef}
                                 />
                             ) : null}
                             <Page
@@ -180,9 +177,10 @@ export default function PDFPlayer({
                                 </div>}
                                 onRenderSuccess={() => {
                                     setRenderedPageNumber(pageNumber);
+                                    annotationsOverlayRef.current?.render();
                                 }}
                             />
-                        </AnnotateTool>
+                        </AnnotateWrapper>
                     </>
                 ) : (
                     ''

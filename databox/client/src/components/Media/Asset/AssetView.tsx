@@ -1,9 +1,10 @@
 import React, {FC, useCallback, useMemo, useState} from 'react';
 import {Asset, AssetRendition} from '../../../types';
-import {AppDialog} from '@alchemy/phrasea-ui';
+import {AppDialog, FlexRow} from '@alchemy/phrasea-ui';
 import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
-import {StackedModalProps, useParams} from '@alchemy/navigation';
+import {StackedModalProps, useLocation, useParams} from '@alchemy/navigation';
+import type {Location} from '@alchemy/navigation';
 import {Dimensions} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
@@ -26,6 +27,8 @@ import {queryClient} from "../../../lib/query.ts";
 import AssetDiscussion from "./AssetDiscussion.tsx";
 import {annotationZIndex} from "./Annotations/AssetAnnotationsOverlay.tsx";
 import {AssetAnnotation, OnNewAnnotation} from "./Annotations/annotationTypes.ts";
+import AssetViewNavigation from "./AssetViewNavigation.tsx";
+import {AssetContextState} from "./assetTypes.ts";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -48,6 +51,7 @@ type Props = {} & StackedModalProps;
 export default function AssetView({modalIndex, open}: Props) {
     const menuWidth = 300;
     const headerHeight = 60;
+    const {state} = useLocation() as Location<AssetContextState | undefined>;
     const {id: assetId, renditionId} = useParams();
     const navigateToModal = useNavigateToModal();
     const [annotations, setAnnotations] = React.useState<
@@ -108,7 +112,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
     const onNewAnnotation: OnNewAnnotation = useCallback((annotation) => {
         onNewAnnotationRef.current?.(annotation);
-    }, [onNewAnnotationRef]);
+    }, [onNewAnnotationRef, assetId]);
 
     if (!isSuccess) {
         if (!open) {
@@ -129,7 +133,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
     return (
         <RouteDialog>
-            {({open, onClose}) => (
+            {({onClose}) => (
                 <AppDialog
                     modalIndex={modalIndex}
                     open={open}
@@ -143,7 +147,9 @@ export default function AssetView({modalIndex, open}: Props) {
                     }}
                     fullScreen={true}
                     title={
-                        <>
+                        <FlexRow
+                            flexDirection={'row'}
+                        >
                             <Trans
                                 i18nKey={'asset_view.edit_asset'}
                                 values={{
@@ -152,6 +158,10 @@ export default function AssetView({modalIndex, open}: Props) {
                                 defaults={
                                     'Edit asset <strong>{{name}}</strong>'
                                 }
+                            />
+                            <AssetViewNavigation
+                                state={state}
+                                currentId={assetId!}
                             />
                             <Select<string>
                                 sx={{ml: 2}}
@@ -176,7 +186,7 @@ export default function AssetView({modalIndex, open}: Props) {
                             ) : (
                                 ''
                             )}
-                        </>
+                        </FlexRow>
                     }
                     onClose={onClose}
                 >
@@ -190,6 +200,7 @@ export default function AssetView({modalIndex, open}: Props) {
                     >
                         <Box
                             sx={theme => ({
+                                position: 'relative',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',

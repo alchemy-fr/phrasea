@@ -35,7 +35,6 @@ export default function AssetViewActions({asset, file}: Props) {
                 sx={{
                     'zIndex': 1,
                     'position': 'relative',
-                    'display': 'inline-block',
                     'ml': 2,
                     '> * + *': {
                         ml: 1,

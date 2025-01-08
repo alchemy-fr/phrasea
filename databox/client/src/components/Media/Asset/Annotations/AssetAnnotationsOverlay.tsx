@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {forwardRef, memo, useCallback, useImperativeHandle} from 'react';
 import {AssetAnnotation} from "./annotationTypes.ts";
 import {drawingHandlers} from "./events.ts";
 
@@ -8,10 +8,15 @@ type Props = {
 
 export const annotationZIndex = 100;
 
-export default function AssetAnnotationsOverlay({annotations}: Props) {
+
+export type AssetAnnotationHandle = {
+    render: () => void;
+};
+
+const AssetAnnotationsOverlay = memo(forwardRef<AssetAnnotationHandle, Props>(function AssetAnnotationsOverlay({annotations}, ref) {
     const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
-    React.useEffect(() => {
+    const render = useCallback(() => {
         if (canvasRef.current) {
             const canvas = canvasRef.current;
             const parent = canvas.parentNode as HTMLDivElement;
@@ -33,21 +38,34 @@ export default function AssetAnnotationsOverlay({annotations}: Props) {
                     handler.drawAnnotation({
                         context,
                         annotation,
+                        toX: (x) => x * width,
+                        toY: (y) => y * height,
                     });
                 }
             });
         }
     }, [canvasRef, annotations]);
 
+    React.useEffect(() => {
+        render();
+    }, [render]);
+
+    useImperativeHandle(ref, () => {
+        return {
+            render,
+        };
+    }, [render]);
+
     return <canvas
         ref={canvasRef}
+        className={'annotation-overlay'}
         style={{
             position: 'absolute',
             top: 0,
             left: 0,
             zIndex: annotationZIndex,
-            width: '100%',
-            height: '100%',
         }}
     />
-}
+}));
+
+export default AssetAnnotationsOverlay;

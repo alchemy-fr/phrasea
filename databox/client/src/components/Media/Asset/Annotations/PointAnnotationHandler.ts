@@ -43,13 +43,23 @@ export const PointAnnotationHandler: DrawingHandler = {
             x: relativeX(x),
             y: relativeY(y),
             c: options.color,
-            s: options.size,
+            s: relativeX(options.size),
         });
     },
-    drawAnnotation: ({annotation, context}) => {
-        context.fillStyle = annotation.c;
-        context.beginPath();
-        context.arc(annotation.x, annotation.y, annotation.s, 0, 2 * Math.PI, false);
-        context.fill();
+    drawAnnotation: ({annotation: {
+        x,
+        y,
+        c,
+        s,
+    }, context, toX, toY}) => {
+        drawPoint({
+            x: toX(x),
+            y: toY(y),
+            context,
+            options: {
+                color: c,
+                size: toX(s),
+            },
+        });
     }
 };

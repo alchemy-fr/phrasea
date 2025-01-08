@@ -45,6 +45,8 @@ type OnEndDrawing = (event: OnEndDrawingEvent) => void;
 type DrawAnnotationProps = {
     annotation: AssetAnnotation;
     context: CanvasRenderingContext2D;
+    toX: (relativeX: number) => number;
+    toY: (relativeY: number) => number;
 }
 
 export type DrawingHandler = {

@@ -54,7 +54,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
             y: relativeY(y),
             r: relativeX(getRadius(deltaX, deltaY)),
             c: options.color,
-            s: options.size,
+            s: relativeX(options.size),
         });
     },
     drawAnnotation: ({
@@ -64,16 +64,16 @@ export const CircleAnnotationHandler: DrawingHandler = {
             r,
             c,
             s
-        }, context
+        }, context, toX, toY
     }) => {
         drawCircle({
-            x,
-            y,
+            x: toX(x),
+            y: toY(y),
             context,
-            radius: r,
+            radius: toX(r),
             options: {
                 color: c,
-                size: s,
+                size: toX(s),
             },
         });
     }

@@ -37,25 +37,27 @@ export const DrawAnnotationHandler: DrawingHandler = {
                 };
             }),
             c: options.color,
-            s: options.size,
+            s: relativeX(options.size),
         });
     },
     drawAnnotation: ({annotation: {
         paths,
         c,
         s,
-    }, context}) => {
+    }, context, toX, toY}) => {
         init(context, {
             color: c,
-            size: s,
+            size: toX(s),
         });
 
         (paths as DrawAnnotation['paths']).forEach((point: Point, i) => {
             if (i === 0) {
-                context.moveTo(point.x, point.y);
+                context.moveTo(toX(point.x), toY(point.y));
             } else {
-                context.lineTo(point.x, point.y);
+                context.lineTo(toX(point.x), toY(point.y));
             }
         });
+        context.stroke();
+        context.closePath();
     }
 };
