@@ -23,6 +23,8 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
     protected static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
     public static final String JQ_FILTER = "jq_filter";
 
+	private static final Set<IdentityProviderSyncMode> IDENTITY_PROVIDER_SYNC_MODES = new HashSet<>(Arrays.asList(IdentityProviderSyncMode.values()));
+
     static {
         ProviderConfigProperty property;
         property = new ProviderConfigProperty();
@@ -133,4 +135,9 @@ public class JqGroupMapper extends AbstractIdentityProviderMapper {
     public String getHelpText() {
         return "Add User to a list of Groups coming from the result of the jq filter of the userinfo response.";
     }
+
+	@Override
+	public boolean supportsSyncMode(IdentityProviderSyncMode syncMode) {
+		return IDENTITY_PROVIDER_SYNC_MODES.contains(syncMode);
+	}
 }
