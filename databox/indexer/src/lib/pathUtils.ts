@@ -1,3 +1,7 @@
+export function escapePath(path: string, replaceBadChars: string = '_'): string {
+    return escapeSlashes(path.replace(/[\x00-\x0F]/g, replaceBadChars));
+}
+
 export function escapeSlashes(path: string): string {
     return path.replace(/\//g, '\\/');
 }

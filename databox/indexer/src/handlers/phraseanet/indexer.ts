@@ -16,7 +16,7 @@ import {
     TagIndex,
 } from './shared';
 import {getConfig, getStrict} from '../../configLoader';
-import {escapeSlashes, splitPath} from '../../lib/pathUtils';
+import {escapePath, escapeSlashes, splitPath} from '../../lib/pathUtils';
 import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 import {Logger} from 'winston';
@@ -25,7 +25,7 @@ import {DataboxClient} from '../../databox/client.ts';
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
         Twig.extendFilter('escapePath', function (v: string, args: any) {
-            return v.replace(/\/|[\x00-\x1F]/, (args[0] ?? '_'));
+            return escapePath(v, args[0] ?? '_');
         });
 
         const phraseanetClient = new PhraseanetClient(location.options, logger);
@@ -119,20 +119,30 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 phraseanetDatabox.databox_id +
                 ':';
 
-            logger.info(`Creating records collection(s)`);
-            const sourceCollections = await createRecordsCollections(databoxClient, workspaceId, phraseanetDatabox, dm, collectionKeyPrefix, logger);
+            const recordsCollectionPath: string = dm.recordsCollectionPath ?? '';
+            let recordsCollectionPathTwig: Twig.Template|null = null;
+            if(recordsCollectionPath.search(/\{(\{|%)/) !== -1) {
+                recordsCollectionPathTwig = Twig.twig({data: recordsCollectionPath});
+            }
 
-            logger.info(`Creating stories collection`);
-            const storiesCollectionId = await createStoriesCollection(databoxClient, workspaceId, dm, collectionKeyPrefix, logger);
+            const storiesCollectionPath: string = dm.storiesCollectionPath ?? '';
+            let importStories = false;
+            let storiesCollectionPathTwig: Twig.Template | null = null;
+            if(dm.storiesCollectionPath !== undefined) {
+                if (storiesCollectionPath.search(/\{(\{|%)/) !== -1)  {
+                    storiesCollectionPathTwig = Twig.twig({data: storiesCollectionPath});
+                }
+                importStories = true;
+            }
 
-
+            const sourceCollections = await getSourceCollections(databoxClient, workspaceId, phraseanetDatabox, dm, collectionKeyPrefix, logger);
             const searchParams = {
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
 
             const recordStories: Record<string, {id: string; path: string}[]> =
                 {}; // key: record_id ; values: story_id's
-            if (storiesCollectionId !== null) {
+            if (importStories) {
                 logger.info(`Importing stories`);
                 let stories: CPhraseanetStory[] = [];
                 let offset = 0;
@@ -143,21 +153,41 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         ''
                     );
                     for (const s of stories) {
-                        const storyCollId =
-                            await databoxClient.createCollection(
-                                s.resource_id,
-                                {
-                                    workspaceId: workspaceId,
-                                    key:
-                                        idempotencePrefixes['collection'] +
-                                        s.databox_id +
-                                        '_' +
-                                        s.story_id,
-                                    title: s.title,
-                                    parent:
-                                        '/collections/' + storiesCollectionId,
-                                }
+
+                        const path: string = storiesCollectionPathTwig ?
+                            await storiesCollectionPathTwig.renderAsync({record: s, collection: phraseanetDatabox.collections[s.base_id]})
+                            :
+                            storiesCollectionPath;
+
+                        const tpath: string[] = splitPath(path);
+
+                        // create the base
+                        let storyParent: string|undefined = undefined;
+                        if (tpath.length > 0) {
+                            storyParent = '/collections/' + await databoxClient.createCollectionTreeBranch(
+                                workspaceId,
+                                collectionKeyPrefix,
+                                tpath.map(k => ({
+                                    key: k,
+                                    title: k,
+                                }))
                             );
+                        }
+                        // then create the story collection
+                        const storyCollId = await databoxClient.createCollection(
+                            s.resource_id,
+                            {
+                                workspaceId: workspaceId,
+                                key:
+                                    idempotencePrefixes['collection'] +
+                                    s.databox_id +
+                                    '_' +
+                                    s.story_id,
+                                title: s.title,
+                                parent: storyParent,
+                            }
+                        );
+
                         logger.info(
                             `  Phraseanet story "${s.title}" (#${
                                 s.story_id
@@ -171,7 +201,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             }
                             recordStories[rs.record_id].push({
                                 id: storyCollId,
-                                path: s.title,
+                                path: tpath.join('/') + '/' + s.title,
                             });
                         }
                     }
@@ -202,7 +232,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                     // copy the asset to other location(s) ?
                     for (const ct of dm.copyTo ?? []) {
                         const template = Twig.twig({data: ct});
-                        const paths = (await template.renderAsync({record: r}))
+                        const paths = (await template.renderAsync({record: r, collection: phraseanetDatabox.collections[r.base_id]}))
                             .split('\n')
                             .map(p => p.trim())
                             .filter(p => p);
@@ -210,7 +240,6 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         for (const path of paths) {
                             const branch = splitPath(path);
                             copyTo.push({
-                                path: path,
                                 id: await databoxClient.createCollectionTreeBranch(
                                     workspaceId,
                                     collectionKeyPrefix,
@@ -219,15 +248,20 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                         title: k,
                                     }))
                                 ),
+                                path: path,
                             });
                         }
                     }
 
-                    const path = `${
-                        dm.recordsCollectionPath ?? ''
-                    }/${escapeSlashes(
-                        phraseanetDatabox.collections[r.base_id].name
-                    )}/${escapeSlashes(r.original_name)}`;
+                    let path: string = '';
+                    if(recordsCollectionPathTwig !== null) {
+                        path = await recordsCollectionPathTwig.renderAsync({record: r, collection: phraseanetDatabox.collections[r.base_id]});
+                    } else {
+                        // bc: dispatch in original phraseanet collection.name
+                        path = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[r.base_id].name)}`;
+                    }
+                    path += '/' + escapeSlashes(r.original_name);
+
                     yield createAsset(
                         workspaceId,
                         importFiles,
@@ -250,7 +284,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
         }
     };
 
-async function createRecordsCollections(
+async function getSourceCollections(
     databoxClient: DataboxClient,
     workspaceId: string,
     phraseanetDatabox: PhraseanetDatabox,
@@ -283,45 +317,7 @@ async function createRecordsCollections(
         }
     }
 
-    const branch = splitPath(dm.recordsCollectionPath ?? '');
-    await databoxClient.createCollectionTreeBranch(
-        workspaceId,
-        collectionKeyPrefix,
-        branch.map(k => ({
-            key: k,
-            title: k,
-        }))
-    );
-    logger.info(`Created records collection: "${branch.join('/')}"`);
-
     return sourceCollections;
-}
-
-async function createStoriesCollection(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    dm: ConfigDataboxMapping,
-    collectionKeyPrefix: string,
-    logger: Logger
-): Promise<string | null> {
-    let storiesCollectionId: string | null = null;
-    if (dm.storiesCollectionPath !== undefined) {
-        const branch = splitPath(dm.storiesCollectionPath);
-        storiesCollectionId =
-            await databoxClient.createCollectionTreeBranch(
-                workspaceId,
-                collectionKeyPrefix,
-                branch.map(k => ({
-                    key: k,
-                    title: k,
-                }))
-            );
-        logger.info(
-            `Created stories collection: "${branch.join('/')}"`
-        );
-    }
-
-    return storiesCollectionId;
 }
 
 async function importSubdefsStructure(
@@ -917,7 +913,6 @@ function jsToYaml(a: any, depth: number): string {
             if (k[0] === '#') {
                 t += `\n${tab}# ${a[k]}`;
             } else {
-//                console.log("------- ", k, a[k]);
                 if((a[k] instanceof Array || typeof a[k] === 'object') && Object.keys(a[k]).length === 0) {
                     t += `\n${tab}${k}: ~`;
                 } else {

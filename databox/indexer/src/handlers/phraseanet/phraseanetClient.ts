@@ -141,7 +141,7 @@ export default class PhraseanetClient {
                             'results.records.subdefs',
                             'results.records.metadata',
                             'results.records.status',
-                            'results.stories.caption',
+                            'results.stories.metadata',
                             'results.stories.status',
                             'results.stories.children',
                         ],
