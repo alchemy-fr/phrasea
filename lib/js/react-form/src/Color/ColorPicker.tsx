@@ -8,6 +8,7 @@ type Props = {
     onChange: (color: string) => void;
     disabled?: boolean;
     readOnly?: boolean;
+    displayField?: boolean;
     label?: TextFieldProps['label'];
 };
 
@@ -17,6 +18,7 @@ export default function ColorPicker({
     onChange,
     disabled,
     readOnly,
+    displayField = true,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const open = Boolean(anchorEl) && !disabled && !readOnly;
@@ -66,7 +68,7 @@ export default function ColorPicker({
                 cursor: isEditable ? 'pointer' : undefined,
             }}
         >
-            <TextField
+            {displayField && <TextField
                 label={label}
                 value={color ?? ''}
                 inputRef={inputRef}
@@ -75,7 +77,7 @@ export default function ColorPicker({
                     readOnly,
                 }}
                 disabled={disabled}
-            />
+            />}
             <ColorBox
                 color={color ?? ''}
                 onMouseDown={isEditable ? toggleOpen : undefined}

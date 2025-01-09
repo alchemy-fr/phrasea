@@ -5,15 +5,12 @@ import {getRatioDimensions} from './VideoPlayer';
 import {DisplayContext} from '../../DisplayContext';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import {Box, CircularProgress, IconButton, Stack} from '@mui/material';
+import {CircularProgress, IconButton} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import AssetAnnotationsOverlay, {
-    annotationZIndex,
-    AssetAnnotationHandle
-} from "../Annotations/AssetAnnotationsOverlay.tsx";
-import AnnotateWrapper from "../Annotations/AnnotateWrapper.tsx";
+import {AssetAnnotationHandle} from "../Annotations/AssetAnnotationsOverlay.tsx";
 import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
+import FileToolbar from "./FileToolbar.tsx";
 
 type Props = {
     controls?: boolean | undefined;
@@ -26,6 +23,7 @@ export default function PDFPlayer({
     onLoad,
     annotations,
     onNewAnnotation,
+    zoomEnabled,
 }: Props) {
     const [ratio, setRatio] = useState<number>();
     const [numPages, setNumPages] = useState<number>();
@@ -49,9 +47,6 @@ export default function PDFPlayer({
         [onLoad]
     );
 
-    const prevPageClassName = 'pdf-prev-page';
-    const controlsClassName = 'pdf-controls';
-
     useEffect(() => {
         if (annotations && annotations.length > 0) {
             const goTo = annotations[annotations.length - 1].page;
@@ -62,101 +57,54 @@ export default function PDFPlayer({
     const pageAnnotations: AssetAnnotation[] = useMemo(() => annotations?.filter(a => a.page === pageNumber) ?? [], [annotations, pageNumber]);
 
     return (
-        <Box
-            sx={{
-                maxWidth: dimensions.width,
-                maxHeight: dimensions.height,
-                position: 'relative',
-                backgroundColor: '#FFF',
-                [`.${prevPageClassName}`]: {
-                    position: 'absolute',
-                    zIndex: 1,
-                    backgroundColor: '#FFF',
-                    top: 0,
-                    left: 0,
-                },
-                [`.${controlsClassName}`]: {
-                    display: 'none',
-                },
-                [`&:hover .${controlsClassName}`]: {
-                    display: 'flex',
-                },
-            }}
+        <FileToolbar
+            controls={controls}
+            onNewAnnotation={onNewAnnotation}
+            annotations={renderedPageNumber === pageNumber && pageAnnotations.length > 0 ? pageAnnotations : undefined}
+            zoomEnabled={zoomEnabled}
+            annotationEnabled={true}
+            page={pageNumber}
+            preToolbarActions={controls ? <>
+                <div>
+                    <IconButton
+                        onClick={() =>
+                            setPageNumber(pageNumber - 1)
+                        }
+                        disabled={pageNumber === 1}
+                    >
+                        <KeyboardArrowLeftIcon/>
+                    </IconButton>
+                </div>
+                <div style={{
+                    whiteSpace: 'nowrap',
+                }}>
+                    {pageNumber} / {numPages}
+                </div>
+                <div>
+                    <IconButton
+                        onClick={() =>
+                            setPageNumber(pageNumber + 1)
+                        }
+                        disabled={pageNumber === numPages}
+                    >
+                        <KeyboardArrowRightIcon/>
+                    </IconButton>
+                </div>
+            </> : undefined
+            }
         >
-            <Document file={file.url} onLoadSuccess={onDocLoad}>
-                {ratio ? (
-                    <>
-                        {controls ? (
-                            <div
-                                style={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    height: '100%',
-                                    width: '100%',
-                                    position: 'absolute',
-                                    userSelect: 'none',
-                                }}
-                            >
-                                <div
-                                    className={controlsClassName}
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: 5,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        width: '100%',
-                                    }}
-                                >
-                                    <Stack
-                                        sx={theme => ({
-                                            opacity: 0.9,
-                                            bgcolor: 'background.paper',
-                                            zIndex: annotationZIndex + 1,
-                                            p: 1,
-                                            boxShadow: theme.shadows[2],
-                                            borderRadius:
-                                            theme.shape.borderRadius,
-                                        })}
-                                        direction={'row'}
-                                        alignItems={'center'}
-                                        spacing={3}
-                                    >
-                                        <IconButton
-                                            onClick={() =>
-                                                setPageNumber(pageNumber - 1)
-                                            }
-                                            disabled={pageNumber === 1}
-                                        >
-                                            <KeyboardArrowLeftIcon/>
-                                        </IconButton>
-                                        <div>
-                                            {pageNumber} / {numPages}
-                                        </div>
-                                        <IconButton
-                                            onClick={() =>
-                                                setPageNumber(pageNumber + 1)
-                                            }
-                                            disabled={pageNumber === numPages}
-                                        >
-                                            <KeyboardArrowRightIcon/>
-                                        </IconButton>
-                                    </Stack>
-                                </div>
-                            </div>
-                        ) : (
-                            ''
-                        )}
+            <div
+                style={{
+                    maxWidth: dimensions.width,
+                    maxHeight: dimensions.height,
+                    position: 'relative',
+                    backgroundColor: '#FFF',
+                }}
+            >
+                <Document file={file.url} onLoadSuccess={onDocLoad}>
+                    {ratio ? (
+                        <>
 
-                        <AnnotateWrapper
-                            onNewAnnotation={onNewAnnotation}
-                            page={pageNumber}
-                        >
-                            {renderedPageNumber === pageNumber && pageAnnotations.length > 0 ? (
-                                <AssetAnnotationsOverlay
-                                    annotations={pageAnnotations}
-                                    ref={annotationsOverlayRef}
-                                />
-                            ) : null}
                             <Page
                                 {...pdfDimensions}
                                 key={pageNumber}
@@ -180,13 +128,11 @@ export default function PDFPlayer({
                                     annotationsOverlayRef.current?.render();
                                 }}
                             />
-                        </AnnotateWrapper>
-                    </>
-                ) : (
-                    ''
-                )}
-            </Document>
-        </Box>
+                        </>
+                    ) : null}
+                </Document>
+            </div>
+        </FileToolbar>
     );
 }
 

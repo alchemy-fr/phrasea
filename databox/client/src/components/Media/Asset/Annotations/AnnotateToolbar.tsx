@@ -1,4 +1,4 @@
-import {Box, IconButton, TextField} from "@mui/material";
+import {IconButton, TextField} from "@mui/material";
 import {AnnotationOptions, AnnotationType} from "./annotationTypes.ts";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import Crop32Icon from "@mui/icons-material/Crop32";
@@ -54,7 +54,7 @@ export default function AnnotateToolbar({
             </IconButton>
         </div>
         <div>
-            <ColorPicker color={options.color} onChange={(c) => {
+            <ColorPicker displayField={false} color={options.color} onChange={(c) => {
                 setOptions(p => ({...p, color: c}));
             }}/>
         </div>
@@ -62,6 +62,7 @@ export default function AnnotateToolbar({
             <TextField
                 label={'Size'}
                 type={'number'}
+                style={{width: 100}}
                 value={options.size}
                 onChange={(e) => setOptions(p => ({...p, size: parseInt(e.target.value)}))}
             />

@@ -5,7 +5,7 @@ import FilePlayer from './FilePlayer';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
 import {StackedModalProps, useLocation, useParams} from '@alchemy/navigation';
 import type {Location} from '@alchemy/navigation';
-import {Dimensions} from './Players';
+import {Dimensions, filePlayerRelativeWrapperClassName} from './Players';
 import {Box, Select} from '@mui/material';
 import FileIntegrations from './FileIntegrations';
 import {getAsset} from '../../../api/asset';
@@ -211,6 +211,7 @@ export default function AssetView({modalIndex, open}: Props) {
                         }}
                     >
                         <Box
+                            className={filePlayerRelativeWrapperClassName}
                             sx={theme => ({
                                 position: 'relative',
                                 display: 'flex',

@@ -36,3 +36,6 @@ export type PlayerProps = {
     onNewAnnotation?: OnNewAnnotation | undefined;
     annotations?: AssetAnnotation[] | undefined;
 };
+
+
+export const filePlayerRelativeWrapperClassName = 'fprw';

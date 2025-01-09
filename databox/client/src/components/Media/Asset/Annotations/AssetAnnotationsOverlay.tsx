@@ -63,6 +63,7 @@ const AssetAnnotationsOverlay = memo(forwardRef<AssetAnnotationHandle, Props>(fu
             top: 0,
             left: 0,
             zIndex: annotationZIndex,
+            pointerEvents: 'none',
         }}
     />
 }));

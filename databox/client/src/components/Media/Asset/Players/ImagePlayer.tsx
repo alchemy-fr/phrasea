@@ -11,7 +11,7 @@ type Props = {
     annotations?: AssetAnnotation[] | undefined;
 } & PlayerProps;
 
-export default function ImagePlayer({file, title, annotations, onLoad, onNewAnnotation, zoomEnabled}: Props) {
+export default function ImagePlayer({file, title, annotations, onLoad, onNewAnnotation, zoomEnabled, controls}: Props) {
     const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
     const isSvg = file.type === 'image/svg+xml';
 
@@ -26,6 +26,7 @@ export default function ImagePlayer({file, title, annotations, onLoad, onNewAnno
 
     return <>
         <FileToolbar
+            controls={controls}
             onNewAnnotation={onNewAnnotation}
             annotations={annotations}
             zoomEnabled={zoomEnabled}
