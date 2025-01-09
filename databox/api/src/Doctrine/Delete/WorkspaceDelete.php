@@ -15,16 +15,19 @@ use App\Entity\Core\RenditionClass;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
 final readonly class WorkspaceDelete
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private CollectionDelete $collectionDelete,
-        private IndexCleaner $indexCleaner,
-        private SoftDeleteToggler $softDeleteToggler,
+        private CollectionDelete       $collectionDelete,
+        private IndexCleaner           $indexCleaner,
+        private SoftDeleteToggler      $softDeleteToggler,
+        private LoggerInterface        $logger,
     ) {
     }
 
@@ -38,6 +41,7 @@ final readonly class WorkspaceDelete
             throw new \InvalidArgumentException(sprintf('Workspace "%s" is not marked as deleted', $workspace->getId()));
         }
 
+        $this->logger->debug('Cleaning index.');
         $this->indexCleaner->removeWorkspaceFromIndex($workspaceId);
 
         DeferredIndexListener::disable();
@@ -46,12 +50,12 @@ final readonly class WorkspaceDelete
         $this->em->beginTransaction();
 
         $configuration = $this->em->getConnection()->getConfiguration();
-        $logger = $configuration->getSQLLogger();
+        $sqlLogger = $configuration->getSQLLogger();
         $configuration->setSQLLogger();
         try {
             $collections = $this->em->getRepository(Collection::class)
                 ->createQueryBuilder('t')
-                ->select('t.id')
+                ->select('t.id, t.title')
                 ->andWhere('t.parent IS NULL')
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspaceId)
@@ -59,6 +63,7 @@ final readonly class WorkspaceDelete
                 ->toIterable();
 
             foreach ($collections as $c) {
+                $this->logger->debug(sprintf('Deleting collection "%s" (%s).', $c['title'] ?: '', $c['id']));
                 $this->collectionDelete->deleteCollection((string) $c['id'], true);
             }
 
@@ -68,6 +73,15 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributeClass::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
+            $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
+
+            $nFiles = $this->em->getRepository(File::class)
+                ->createQueryBuilder('t')
+                ->select('COUNT(t.id)')
+                ->andWhere('t.workspace = :ws')
+                ->setParameter('ws', $workspaceId)
+                ->getQuery()
+                ->getSingleScalarResult();
 
             $files = $this->em->getRepository(File::class)
                 ->createQueryBuilder('t')
@@ -77,13 +91,15 @@ final readonly class WorkspaceDelete
                 ->getQuery()
                 ->toIterable();
 
-            foreach ($files as $f) {
-                $workspace = $this->em->find(File::class, $f['id']);
-                $this->em->remove($workspace);
+            $this->logger->debug(sprintf('Deleting %d Files', $nFiles));
+            foreach ($files as $file) {
+                $f = $this->em->find(File::class, $file['id']);
+                $this->em->remove($f);
                 $this->em->flush();
             }
 
             $workspace = $this->em->find(Workspace::class, $workspaceId);
+            $this->logger->debug('Deleting workspace.');
             $this->em->remove($workspace);
             $this->em->flush();
             $this->em->commit();
@@ -93,12 +109,15 @@ final readonly class WorkspaceDelete
         } finally {
             DeferredIndexListener::enable();
             $this->softDeleteToggler->enable();
-            $configuration->setSQLLogger($logger);
+            $configuration->setSQLLogger($sqlLogger);
         }
     }
 
     private function deleteDependencies(string $entityClass, string $workspaceId): void
     {
+        $p = explode('\\', $entityClass);
+        $this->logger->debug(sprintf('Deleting %s(s)', array_pop($p)));
+
         $items = $this->em->getRepository($entityClass)->findBy([
             'workspace' => $workspaceId,
         ]);
