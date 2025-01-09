@@ -20,7 +20,7 @@ import {escapePath, escapeSlashes, splitPath} from '../../lib/pathUtils';
 import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
 import {Logger} from 'winston';
-import {DataboxClient} from '../../databox/client.ts';
+import {DataboxClient} from '../../databox/client';
 
 export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     async function* (location, logger, databoxClient, options) {
@@ -135,7 +135,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 importStories = true;
             }
 
-            const sourceCollections = await getSourceCollections(databoxClient, workspaceId, phraseanetDatabox, dm, collectionKeyPrefix, logger);
+            const sourceCollections = await getSourceCollections(phraseanetDatabox, dm, logger);
             const searchParams = {
                 bases: sourceCollections, // if empty (no collections on config) : search all collections
             };
@@ -234,8 +234,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                         const template = Twig.twig({data: ct});
                         const paths = (await template.renderAsync({record: r, collection: phraseanetDatabox.collections[r.base_id]}))
                             .split('\n')
-                            .map(p => p.trim())
-                            .filter(p => p);
+                            .map((p: string) => p.trim())
+                            .filter((p: string) => p);
 
                         for (const path of paths) {
                             const branch = splitPath(path);
@@ -285,11 +285,8 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
     };
 
 async function getSourceCollections(
-    databoxClient: DataboxClient,
-    workspaceId: string,
     phraseanetDatabox: PhraseanetDatabox,
     dm: ConfigDataboxMapping,
-    collectionKeyPrefix: string,
     logger: Logger
 ): Promise<string[]> {
     const sourceCollections: string[] = [];
@@ -736,16 +733,17 @@ function translateVideoSettings(sd: PhraseanetSubdefStruct): object {
 
 function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     // todo : acodec, formats, ...
-    let format;
+    let format: string;
     switch(sd.options['vcodec'] ?? '') {
-        case 'libx264':
-            format = 'video-mp4';
-            break;
         case 'libvpx':
             format = 'video-webm';
             break;
         case 'libtheora':
             format = 'video-webm';
+            break;
+        case 'libx264':
+        default:
+            format = 'video-mp4';
             break;
     }
     const size = sd.options['size'] ?? 100;
@@ -836,7 +834,7 @@ function translateVideoSettings_withIcodec(sd: PhraseanetSubdefStruct): object {
 }
 
 function translateVideoSettings_targetImageFrame(sd: PhraseanetSubdefStruct): object {
-    let format;
+    let format: string;
     switch (sd.options['icodec'] ?? '') {
         case 'jpeg':
             format = 'image-jpeg';
