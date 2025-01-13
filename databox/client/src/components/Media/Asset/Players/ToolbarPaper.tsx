@@ -16,7 +16,7 @@ export default function ToolbarPaper({
         // @ts-expect-error MUI types are wrong
         sx={theme => ({
             borderRadius: theme.shape.borderRadius,
-            position: 'fixed',
+            position: 'absolute',
             zIndex: annotationZIndex + 1,
             backgroundColor: `rgba(255, 255, 255, 0.8)`,
             alignItems: 'center',

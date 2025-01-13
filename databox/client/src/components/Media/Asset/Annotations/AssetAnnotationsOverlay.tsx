@@ -34,6 +34,7 @@ const AssetAnnotationsOverlay = memo(forwardRef<AssetAnnotationHandle, Props>(fu
             annotations.forEach(annotation => {
                 const handler = drawingHandlers[annotation.type];
                 if (handler) {
+                    context.globalAlpha = 1;
                     handler.drawAnnotation({
                         context,
                         annotation,
