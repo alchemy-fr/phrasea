@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -18,9 +20,7 @@ use App\Api\Processor\ShareProcessor;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
 use App\Api\Provider\ShareRenditionProvider;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Listener\OwnerPersistableInterface;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;

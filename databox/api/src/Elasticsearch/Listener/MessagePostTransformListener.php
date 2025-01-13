@@ -4,18 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\Listener;
 
-use App\Asset\Attribute\AttributesResolver;
-use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\AssetPermissionComputer;
-use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
-use App\Entity\Core\Attribute;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Discussion\Message;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

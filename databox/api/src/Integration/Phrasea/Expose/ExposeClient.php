@@ -2,17 +2,17 @@
 
 namespace App\Integration\Phrasea\Expose;
 
-use App\Asset\FileFetcher;
-use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
-use App\Storage\RenditionManager;
-use App\Attribute\AttributeInterface;
-use App\Integration\IntegrationConfig;
+use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Asset\Attribute\AssetTitleResolver;
 use App\Asset\Attribute\AttributesResolver;
+use App\Asset\FileFetcher;
+use App\Attribute\AttributeInterface;
+use App\Entity\Core\Asset;
+use App\Entity\Core\Attribute;
 use App\Entity\Integration\IntegrationToken;
-use Alchemy\StorageBundle\Upload\UploadManager;
+use App\Integration\IntegrationConfig;
 use App\Integration\Phrasea\PhraseaClientFactory;
+use App\Storage\RenditionManager;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -24,7 +24,7 @@ final readonly class ExposeClient
         private AssetTitleResolver $assetTitleResolver,
         private AttributesResolver $attributesResolver,
         private RenditionManager $renditionManager,
-        private UploadManager $uploadManager
+        private UploadManager $uploadManager,
     ) {
     }
 
@@ -129,7 +129,7 @@ final readonly class ExposeClient
         $source = $asset->getSource();
 
         $fetchedFilePath = $this->fileFetcher->getFile($source);
-        $fileSize =  filesize($fetchedFilePath);
+        $fileSize = filesize($fetchedFilePath);
 
         // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
         $partSize = 100 * 1024 * 1024; // 100Mb
@@ -138,7 +138,7 @@ final readonly class ExposeClient
             $uploadsData = [
                 'filename' => $source->getOriginalName(),
                 'type' => $source->getType(),
-                'size' => (int)$source->getSize(),
+                'size' => (int) $source->getSize(),
             ];
 
             $resUploads = $this->create($config, $integrationToken)
@@ -160,9 +160,9 @@ final readonly class ExposeClient
 
                 $retryCount = 3;
 
-                while ( ($fileSize - $alreadyUploaded) > 0) {
+                while (($fileSize - $alreadyUploaded) > 0) {
                     $resUploadPart = $this->create($config, $integrationToken)
-                        ->request('POST', '/uploads/'. $mUploadId .'/part', [
+                        ->request('POST', '/uploads/'.$mUploadId.'/part', [
                             'json' => ['part' => $partNumber],
                         ])
                         ->toArray()
@@ -173,23 +173,23 @@ final readonly class ExposeClient
                     }
 
                     $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
-                    
+
                     $alreadyUploaded += $partSize;
 
                     $parts['Parts'][$partNumber] = [
-                        'PartNumber'    => $partNumber,
-                        'ETag'          => current($headerPutPart['etag']),
+                        'PartNumber' => $partNumber,
+                        'ETag' => current($headerPutPart['etag']),
                     ];
 
-                    $partNumber++;
+                    ++$partNumber;
                 }
-                
+
                 fclose($fd);
             } catch (\Throwable  $e) {
                 $this->create($config, $integrationToken)
-                    ->request('DELETE', '/uploads/'. $mUploadId);
+                    ->request('DELETE', '/uploads/'.$mUploadId);
 
-                    throw $e;
+                throw $e;
             }
 
             $data = array_merge([
@@ -199,8 +199,8 @@ final readonly class ExposeClient
                 'description' => $description,
                 'translations' => $translations,
                 'multipart' => [
-                    'uploadId'  => $mUploadId,
-                    'parts'     => $parts['Parts'],
+                    'uploadId' => $mUploadId,
+                    'parts' => $parts['Parts'],
                 ],
             ], $extraData);
 
@@ -265,10 +265,11 @@ final readonly class ExposeClient
     private function putPart(string $url, mixed &$handleFile, int $partSize, int $retryCount): array
     {
         if ($retryCount > 0) {
-            $retryCount--;
+            --$retryCount;
             try {
                 $maxToRead = $partSize;
                 $alreadyRead = 0;
+
                 return $this->uploadClient->request('PUT', $url, [
                     'headers' => [
                         'Content-Length' => $partSize,
@@ -281,9 +282,10 @@ final readonly class ExposeClient
                     },
                 ])->getHeaders();
             } catch (\Throwable $e) {
-                if ($retryCount == 0) {
+                if (0 == $retryCount) {
                     throw $e;
                 }
+
                 return $this->putPart($url, $handleFile, $partSize, $retryCount);
             }
         } else {

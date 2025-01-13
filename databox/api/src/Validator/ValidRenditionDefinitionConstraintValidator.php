@@ -17,12 +17,12 @@ class ValidRenditionDefinitionConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param string $value
+     * @param string                             $value
      * @param ValidRenditionDefinitionConstraint $constraint
      */
     public function validate($value, Constraint $constraint): void
     {
-        if(!$value) {
+        if (!$value) {
             return;
         }
         try {

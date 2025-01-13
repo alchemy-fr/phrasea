@@ -34,6 +34,6 @@ class MessageRepository extends ServiceEntityRepository
             ->createQueryBuilder('t')
             ->addOrderBy('t.createdAt', 'DESC')
             ->addOrderBy('t.id', 'ASC')
-            ;
+        ;
     }
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Metadata\ApiResource;
-use App\Api\Model\Output\FileOutput;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use ApiPlatform\Metadata\ApiResource;
+use App\Api\Model\Output\FileOutput;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

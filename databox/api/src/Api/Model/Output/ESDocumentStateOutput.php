@@ -13,8 +13,7 @@ final readonly class ESDocumentStateOutput
         private array $data,
         #[Groups(['_'])]
         private bool $synced,
-    )
-    {
+    ) {
     }
 
     public function getData(): array

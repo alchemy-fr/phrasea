@@ -6,6 +6,8 @@ namespace App\Entity\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -15,8 +17,6 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Api\Model\Output\TagFilterRuleOutput;
 use App\Api\Provider\TagFilterRuleCollectionProvider;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Repository\Core\TagFilterRuleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;

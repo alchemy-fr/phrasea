@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Integration;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -15,9 +17,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Core\Workspace;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\NullableWorkspaceTrait;
-use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use App\Integration\Exception\CircularReferenceException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;

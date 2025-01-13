@@ -7,10 +7,8 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\ThreadMessageOutput;
 use App\Api\Traits\UserLocaleTrait;
-use App\Entity\Basket\Basket;
 use App\Entity\Discussion\Message;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\BasketVoter;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ThreadMessageOutputTransformer implements OutputTransformerInterface

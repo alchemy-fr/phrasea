@@ -16,8 +16,7 @@ final readonly class DiscussionManager
         private MessageRepository $messageRepository,
         private ObjectMapper $objectMapper,
         private EntityManagerInterface $em,
-    )
-    {
+    ) {
     }
 
     public function getThreadObject(Thread $thread): AbstractUuidEntity
