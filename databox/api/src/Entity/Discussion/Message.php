@@ -32,7 +32,7 @@ use Doctrine\ORM\Mapping as ORM;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            security: 'is_granted("'.AbstractVoter::READ.'")',
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Post(
             normalizationContext: [
@@ -45,10 +45,10 @@ use Doctrine\ORM\Mapping as ORM;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            security: 'is_granted("'.AbstractVoter::EDIT.'")',
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
         ),
         new Delete(
-            security: 'is_granted("'.AbstractVoter::DELETE.'")',
+            security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
         ),
     ],
     normalizationContext: [

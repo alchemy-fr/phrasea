@@ -278,6 +278,10 @@ export interface ThreadMessage extends Entity {
     createdAt: string;
     updatedAt: string;
     acknowledged?: boolean;
+    capabilities: {
+        canDelete: boolean;
+        canEdit: boolean;
+    };
 }
 
 export interface BasketAsset extends Entity {

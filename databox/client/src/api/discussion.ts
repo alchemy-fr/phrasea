@@ -22,3 +22,7 @@ export async function postThreadMessage(data: {
 
     return res.data;
 }
+
+export async function deleteThreadMessage(id: string): Promise<void> {
+    await apiClient.delete(`/messages/${id}`);
+}

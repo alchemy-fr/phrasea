@@ -1,27 +1,28 @@
 import {ThreadMessage} from "../../types.ts";
-import {Box, Divider, Typography} from "@mui/material";
+import {Box, Button, Divider, Typography} from "@mui/material";
 import moment from "moment";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 import {AssetAnnotation} from "../Media/Asset/Annotations/annotationTypes.ts";
 import Attachments from "./Attachments.tsx";
 import {FlexRow, UserAvatar} from '@alchemy/phrasea-ui'
+import {useTranslation} from 'react-i18next';
 
 type Props = {
     message: ThreadMessage;
     onActiveAnnotations?: OnActiveAnnotations | undefined;
-    highlighted?: boolean;
+    onDelete: (message: ThreadMessage) => void;
 };
 
 export default function DiscussionMessage({
     message,
     onActiveAnnotations,
-    highlighted,
+    onDelete,
 }: Props) {
     const m = moment(message.createdAt);
+    const {t} = useTranslation();
 
     return <>
         <FlexRow
-            className={highlighted ? 'highlighted' : ''}
             style={{
                 alignItems: 'flex-start',
             }}
@@ -45,6 +46,18 @@ export default function DiscussionMessage({
                 {m.calendar()}
                     </span>
                     </small>
+                    {message.capabilities?.canDelete ? <>
+                        {' - '}
+                        <Button
+                            color={'error'}
+                            size={'small'}
+                            variant={'text'}
+                           onClick={() => {
+                            onDelete(message);
+                        }}>
+                            {t('common.delete', 'Delete')}
+                        </Button>
+                    </> : null}
                 </div>
                 <Typography>{message.content}</Typography>
 
