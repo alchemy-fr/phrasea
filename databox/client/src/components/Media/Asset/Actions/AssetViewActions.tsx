@@ -36,8 +36,8 @@ export default function AssetViewActions({asset, file}: Props) {
                     'zIndex': 1,
                     'position': 'relative',
                     'ml': 2,
-                    display: 'flex',
-                    flexDirection: 'row',
+                    'display': 'flex',
+                    'flexDirection': 'row',
                     '> * + *': {
                         ml: 1,
                     },
@@ -45,13 +45,13 @@ export default function AssetViewActions({asset, file}: Props) {
             >
                 {can.download ? (
                     <div>
-                    <Button
-                        variant={'contained'}
-                        onClick={onDownload}
-                        startIcon={<FileDownloadIcon />}
-                    >
-                        {t('asset_actions.download', 'Download')}
-                    </Button>
+                        <Button
+                            variant={'contained'}
+                            onClick={onDownload}
+                            startIcon={<FileDownloadIcon />}
+                        >
+                            {t('asset_actions.download', 'Download')}
+                        </Button>
                     </div>
                 ) : (
                     ''
@@ -61,7 +61,7 @@ export default function AssetViewActions({asset, file}: Props) {
                         <GroupButton
                             id={'edit'}
                             onClick={onEdit}
-                            startIcon={<EditIcon/>}
+                            startIcon={<EditIcon />}
                             actions={[
                                 {
                                     id: 'edit_attrs',
@@ -71,7 +71,7 @@ export default function AssetViewActions({asset, file}: Props) {
                                     ),
                                     onClick: onEditAttr,
                                     disabled: !can.editAttributes,
-                                    startIcon: <TextSnippetIcon/>,
+                                    startIcon: <TextSnippetIcon />,
                                 },
                                 {
                                     id: 'substitute',
@@ -81,59 +81,58 @@ export default function AssetViewActions({asset, file}: Props) {
                                     ),
                                     onClick: onSubstituteFile,
                                     disabled: !can.substitute,
-                                    startIcon: <TextSnippetIcon/>,
+                                    startIcon: <TextSnippetIcon />,
                                 },
                             ]}
                         >
                             {t('asset_actions.edit', 'Edit')}
                         </GroupButton>
                     </div>
-                        ) : (
-                        ''
-                        )}
-                        {file && can.edit ? (
-                            <div>
+                ) : (
+                    ''
+                )}
+                {file && can.edit ? (
+                    <div>
+                        <SaveAsButton
+                            asset={asset}
+                            file={file}
+                            componentProps={{
+                                variant: 'contained',
+                            }}
+                        />
+                    </div>
+                ) : (
+                    ''
+                )}
+                {can.share ? (
+                    <div>
+                        <Button
+                            variant={'contained'}
+                            onClick={() => onShare()}
+                            startIcon={<ShareIcon />}
+                        >
+                            {t('asset_actions.share', 'Share')}
+                        </Button>
+                    </div>
+                ) : (
+                    ''
+                )}
 
-                            <SaveAsButton
-                                asset={asset}
-                                file={file}
-                                componentProps={{
-                                    variant: 'contained',
-                                }}
-                            />
-                            </div>
-                        ) : (
-                            ''
-                        )}
-                        {can.share ? (
-                            <div>
-                                <Button
-                                    variant={'contained'}
-                                    onClick={() => onShare()}
-                                    startIcon={<ShareIcon/>}
-                                >
-                                    {t('asset_actions.share', 'Share')}
-                                </Button>
-                            </div>
-                                ) : (
-                                ''
-                                )}
-
-                                {can.delete ? (
-                                    <div>
-                                        <Button
-                                            color={'error'}
-                                            onClick={onDelete}
-                                            variant={'contained'}
-                                            startIcon={<DeleteForeverIcon/>}
-                                        >
-                                            {t('asset_actions.delete', 'Delete')}
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    ''
-                                )}
-                            </Box>
-                            </>
-                            );
-                }
+                {can.delete ? (
+                    <div>
+                        <Button
+                            color={'error'}
+                            onClick={onDelete}
+                            variant={'contained'}
+                            startIcon={<DeleteForeverIcon />}
+                        >
+                            {t('asset_actions.delete', 'Delete')}
+                        </Button>
+                    </div>
+                ) : (
+                    ''
+                )}
+            </Box>
+        </>
+    );
+}

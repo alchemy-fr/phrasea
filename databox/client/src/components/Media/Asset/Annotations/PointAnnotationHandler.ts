@@ -1,5 +1,5 @@
-import {AnnotationOptions, AnnotationType} from "./annotationTypes.ts";
-import {DrawingHandler} from "./events.ts";
+import {AnnotationOptions, AnnotationType} from './annotationTypes.ts';
+import {DrawingHandler} from './events.ts';
 
 function drawPoint({
     x,
@@ -10,14 +10,13 @@ function drawPoint({
     x: number;
     y: number;
     context: CanvasRenderingContext2D;
-    options: AnnotationOptions,
+    options: AnnotationOptions;
 }) {
     const a = new Path2D();
     a.arc(x, y, options.size, 0, 2 * Math.PI, false);
     context.fillStyle = options.color;
     context.fill(a);
 }
-
 
 export const PointAnnotationHandler: DrawingHandler = {
     onDrawStart: ({x, y, context, options}) => {
@@ -37,7 +36,15 @@ export const PointAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onDrawEnd: ({onNewAnnotation, x, y, relativeX, relativeY, options, terminate}) => {
+    onDrawEnd: ({
+        onNewAnnotation,
+        x,
+        y,
+        relativeX,
+        relativeY,
+        options,
+        terminate,
+    }) => {
         onNewAnnotation({
             type: AnnotationType.Point,
             x: relativeX(x),
@@ -47,12 +54,7 @@ export const PointAnnotationHandler: DrawingHandler = {
         });
         terminate();
     },
-    drawAnnotation: ({annotation: {
-        x,
-        y,
-        c,
-        s,
-    }, context, toX, toY}) => {
+    drawAnnotation: ({annotation: {x, y, c, s}, context, toX, toY}) => {
         drawPoint({
             x: toX(x),
             y: toY(y),

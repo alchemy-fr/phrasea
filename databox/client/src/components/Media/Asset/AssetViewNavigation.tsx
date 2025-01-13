@@ -1,19 +1,16 @@
-import {Box, IconButton} from "@mui/material";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import {AssetContextState} from "./assetTypes.ts";
-import {useNavigateToModal} from "../../Routing/ModalLink.tsx";
-import {modalRoutes} from "../../../routes.ts";
+import {Box, IconButton} from '@mui/material';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import {AssetContextState} from './assetTypes.ts';
+import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../../routes.ts';
 
 type Props = {
     currentId: string;
     state: AssetContextState | undefined;
 };
 
-export default function AssetViewNavigation({
-    currentId,
-    state,
-}: Props) {
+export default function AssetViewNavigation({currentId, state}: Props) {
     const navigateToModal = useNavigateToModal();
     const {assetsContext} = state ?? {};
     if (!assetsContext) {
@@ -25,26 +22,34 @@ export default function AssetViewNavigation({
     const goTo = (index: number) => {
         const [id, renditionId] = assetsContext[index];
 
-        navigateToModal(modalRoutes.assets.routes.view, {
-            id,
-            renditionId,
-        }, {state});
-    }
+        navigateToModal(
+            modalRoutes.assets.routes.view,
+            {
+                id,
+                renditionId,
+            },
+            {state}
+        );
+    };
 
-    return <Box sx={{
-        mr: 1,
-    }}>
-        <IconButton
-            disabled={currentIndex === 0}
-            onClick={() => goTo(currentIndex - 1)}
+    return (
+        <Box
+            sx={{
+                mr: 1,
+            }}
         >
-            <KeyboardArrowLeftIcon/>
-        </IconButton>
-        <IconButton
-            disabled={currentIndex === assetsContext.length - 1}
-            onClick={() => goTo(currentIndex + 1)}
-        >
-            <KeyboardArrowRightIcon/>
-        </IconButton>
-    </Box>
+            <IconButton
+                disabled={currentIndex === 0}
+                onClick={() => goTo(currentIndex - 1)}
+            >
+                <KeyboardArrowLeftIcon />
+            </IconButton>
+            <IconButton
+                disabled={currentIndex === assetsContext.length - 1}
+                onClick={() => goTo(currentIndex + 1)}
+            >
+                <KeyboardArrowRightIcon />
+            </IconButton>
+        </Box>
+    );
 }

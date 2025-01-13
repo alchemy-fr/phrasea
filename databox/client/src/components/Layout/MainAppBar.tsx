@@ -79,11 +79,15 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                                 cursor: 'pointer',
                             }}
                         >
-                            { 
-                                config.logo ? <img src={config.logo} alt={t('common.databox', `Databox`)}  style={{ maxHeight:32, maxWidth:150 }}/>
-                                : t('common.databox', `Databox`)
-                            }
-                            
+                            {config.logo ? (
+                                <img
+                                    src={config.logo}
+                                    alt={t('common.databox', `Databox`)}
+                                    style={{maxHeight: 32, maxWidth: 150}}
+                                />
+                            ) : (
+                                t('common.databox', `Databox`)
+                            )}
                         </Typography>
 
                         <Box
@@ -126,18 +130,21 @@ export default function MainAppBar({onToggleLeftPanel}: Props) {
                             }}
                         ></Box>
 
-                        {user ? <Box sx={{
-                            flexGrow: 0,
-                            mr: 1,
-
-                        }}>
-                            <Notifications
-                                appIdentifier={config.novuAppIdentifier!}
-                                userId={user.id}
-                                socketUrl={config.novuSocketUrl!}
-                                apiUrl={config.novuApiUrl!}
-                            />
-                        </Box> : null}
+                        {user ? (
+                            <Box
+                                sx={{
+                                    flexGrow: 0,
+                                    mr: 1,
+                                }}
+                            >
+                                <Notifications
+                                    appIdentifier={config.novuAppIdentifier!}
+                                    userId={user.id}
+                                    socketUrl={config.novuSocketUrl!}
+                                    apiUrl={config.novuApiUrl!}
+                                />
+                            </Box>
+                        ) : null}
                         <div style={{flexGrow: 0}}>
                             {!user ? (
                                 <MenuItem component={'a'} href={getLoginUrl()}>

@@ -1,11 +1,10 @@
-import {ApiCollectionResponse, getHydraCollection} from "./hydra.ts";
-import {ThreadMessage} from "../types.ts";
-import apiClient from "./api-client.ts";
-
+import {ApiCollectionResponse, getHydraCollection} from './hydra.ts';
+import {ThreadMessage} from '../types.ts';
+import apiClient from './api-client.ts';
 
 export async function getThreadMessages(
     threadId: string,
-    nextUrl?: string,
+    nextUrl?: string
 ): Promise<ApiCollectionResponse<ThreadMessage>> {
     const res = await apiClient.get(nextUrl || `/threads/${threadId}/messages`);
 

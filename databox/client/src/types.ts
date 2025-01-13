@@ -2,7 +2,7 @@ import {ApiHydraObjectResponse} from './api/hydra';
 import {AttributeType} from './api/attributes';
 import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
-import {AssetAnnotation} from "./components/Media/Asset/Annotations/annotationTypes.ts";
+import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 
 type AlternateUrl = {
     type: string;
@@ -48,13 +48,14 @@ export type Share = {
 export type ESDocumentState = {
     synced: boolean;
     data: object;
-}
+};
 
 export interface Asset
     extends IPermissions<{
-        canEditAttributes: boolean;
-        canShare: boolean;
-    }>, Entity {
+            canEditAttributes: boolean;
+            canShare: boolean;
+        }>,
+        Entity {
     title?: string | undefined;
     resolvedTitle?: string;
     titleHighlight: string | null;
@@ -211,7 +212,8 @@ export type AttributeEntity = {
     translations: KeyTranslations;
     createdAt: string;
     updatedAt: string;
-} & ApiHydraObjectResponse & Entity;
+} & ApiHydraObjectResponse &
+    Entity;
 
 export interface Tag extends ApiHydraObjectResponse, WithTranslations, Entity {
     name: string;
@@ -263,12 +265,12 @@ export interface Thread extends Entity {
 export type MessageAttachment = {
     type: string;
     content: string;
-}
+};
 
 export type DeserializedMessageAttachment = {
     type: string;
     data: Record<string, any>;
-}
+};
 
 export interface ThreadMessage extends Entity {
     id: string;
@@ -357,4 +359,3 @@ export type AssetOrAssetContainer = {} & Entity;
 export interface Entity {
     id: string;
 }
-

@@ -16,7 +16,7 @@ import {useTranslation} from 'react-i18next';
 import DownloadIcon from '@mui/icons-material/Download';
 import SaveAsButton from '../../Media/Asset/Actions/SaveAsButton';
 import DateTime from '../../Ui/DateTime';
-import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const cardProps = {
     elevation: 2,

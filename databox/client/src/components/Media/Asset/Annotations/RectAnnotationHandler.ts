@@ -1,5 +1,9 @@
-import {AnnotationOptions, AnnotationType, RectangleAnnotation} from "./annotationTypes.ts";
-import {DrawingHandler} from "./events.ts";
+import {
+    AnnotationOptions,
+    AnnotationType,
+    RectangleAnnotation,
+} from './annotationTypes.ts';
+import {DrawingHandler} from './events.ts';
 
 function drawRectangle({
     x,
@@ -14,7 +18,7 @@ function drawRectangle({
     w: number;
     h: number;
     context: CanvasRenderingContext2D;
-    options: AnnotationOptions,
+    options: AnnotationOptions;
 }) {
     const a = new Path2D();
     a.rect(x, y, w, h);
@@ -34,7 +38,14 @@ export const RectAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onDrawMove: ({clear, context, startingPoint: {x, y}, deltaY, deltaX, options}) => {
+    onDrawMove: ({
+        clear,
+        context,
+        startingPoint: {x, y},
+        deltaY,
+        deltaX,
+        options,
+    }) => {
         clear();
         drawRectangle({
             x,
@@ -45,7 +56,16 @@ export const RectAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onDrawEnd: ({onNewAnnotation, startingPoint: {x, y}, deltaY, deltaX, relativeX, relativeY, options, terminate}) => {
+    onDrawEnd: ({
+        onNewAnnotation,
+        startingPoint: {x, y},
+        deltaY,
+        deltaX,
+        relativeX,
+        relativeY,
+        options,
+        terminate,
+    }) => {
         const x1 = relativeX(x);
         const y1 = relativeY(y);
 

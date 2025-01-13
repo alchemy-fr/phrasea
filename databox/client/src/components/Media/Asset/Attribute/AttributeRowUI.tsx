@@ -8,7 +8,7 @@ import React from 'react';
 import {attributesClasses, OnActiveAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
-import GestureIcon from "@mui/icons-material/Gesture";
+import GestureIcon from '@mui/icons-material/Gesture';
 
 type Props = {
     definition: AttributeDefinition;
@@ -119,7 +119,7 @@ export default function AttributeRowUI({
 
                                   const isRtl = isRtlLocale(a.locale);
 
-                                return (
+                                  return (
                                       <li
                                           key={i}
                                           lang={a.locale}
@@ -135,7 +135,8 @@ export default function AttributeRowUI({
                                           }
                                       >
                                           {formatter.formatValue(formatProps)}
-                                          {displayControls && onActiveAnnotations &&
+                                          {displayControls &&
+                                          onActiveAnnotations &&
                                           a.assetAnnotations ? (
                                               <IconButton
                                                   sx={{
@@ -144,11 +145,14 @@ export default function AttributeRowUI({
                                                   size="small"
                                                   onClick={e => {
                                                       e.stopPropagation();
-                                                      onActiveAnnotations!(a.assetAnnotations!);
+                                                      onActiveAnnotations!(
+                                                          a.assetAnnotations!
+                                                      );
                                                   }}
-                                                >
-                                                    <GestureIcon />
-                                              </IconButton>) : null}
+                                              >
+                                                  <GestureIcon />
+                                              </IconButton>
+                                          ) : null}
                                           {displayControls ? (
                                               <CopyAttribute
                                                   value={formatter.formatValueAsString(

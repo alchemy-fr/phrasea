@@ -24,10 +24,7 @@ export default function AssetAttributes({asset, onActiveAnnotations}: Props) {
     const {t} = useTranslation();
 
     return (
-        <Accordion
-            expanded={expanded}
-            onChange={() => setExpanded(p => !p)}
-        >
+        <Accordion expanded={expanded} onChange={() => setExpanded(p => !p)}>
             <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="attr-content"

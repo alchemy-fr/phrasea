@@ -59,7 +59,7 @@ function IntegrationProxy({
 
     // eslint-disable-next-line no-prototype-builtins
     if (
-        integrations.hasOwnProperty(i) &&
+        Object.hasOwnProperty.call(integrations, i) &&
         integrations[i].supports(props.file)
     ) {
         return (
@@ -123,27 +123,24 @@ export default function FileIntegrations({
     return (
         <>
             {!integrations && <CircularProgress color="inherit" />}
-            {integrations && integrations.map(i => (
-                        <IntegrationProxy
-                            key={i.id}
-                            expanded={expanded === i.id}
-                            onExpand={() => {
-                                enableIncs.current[i.id] = enableIncs.current[
-                                    i.id
-                                ]
-                                    ? enableIncs.current[i.id] + 1
-                                    : 1;
-                                setExpanded(p =>
-                                    p === i.id ? undefined : i.id
-                                );
-                            }}
-                            integration={i}
-                            asset={asset}
-                            file={file}
-                            enableInc={enableIncs.current[i.id]}
-                            setIntegrationOverlay={setIntegrationOverlay}
-                        />
-                    ))}
+            {integrations &&
+                integrations.map(i => (
+                    <IntegrationProxy
+                        key={i.id}
+                        expanded={expanded === i.id}
+                        onExpand={() => {
+                            enableIncs.current[i.id] = enableIncs.current[i.id]
+                                ? enableIncs.current[i.id] + 1
+                                : 1;
+                            setExpanded(p => (p === i.id ? undefined : i.id));
+                        }}
+                        integration={i}
+                        asset={asset}
+                        file={file}
+                        enableInc={enableIncs.current[i.id]}
+                        setIntegrationOverlay={setIntegrationOverlay}
+                    />
+                ))}
         </>
     );
 }

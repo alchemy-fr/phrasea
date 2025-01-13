@@ -1,9 +1,9 @@
-import {MutableRefObject} from "react";
+import {MutableRefObject} from 'react';
 
 export type Point = {
     x: number;
     y: number;
-}
+};
 
 export enum AnnotationType {
     Point = 'point',
@@ -44,7 +44,7 @@ export interface CircleAnnotation extends AssetAnnotation {
 export type AnnotationOptions = {
     color: string;
     size: number;
-}
+};
 
 export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;

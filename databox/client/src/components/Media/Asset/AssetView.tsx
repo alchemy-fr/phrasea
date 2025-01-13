@@ -22,13 +22,16 @@ import AssetViewActions from './Actions/AssetViewActions.tsx';
 import {Trans} from 'react-i18next';
 import {getMediaBackgroundColor} from '../../../themes/base.ts';
 import {useModalFetch} from '../../../hooks/useModalFetch.ts';
-import {useChannelRegistration} from "../../../lib/pusher.ts";
-import {queryClient} from "../../../lib/query.ts";
-import AssetDiscussion from "./AssetDiscussion.tsx";
-import {annotationZIndex} from "./Annotations/AssetAnnotationsOverlay.tsx";
-import {AssetAnnotation, OnNewAnnotation} from "./Annotations/annotationTypes.ts";
-import AssetViewNavigation from "./AssetViewNavigation.tsx";
-import {AssetContextState} from "./assetTypes.ts";
+import {useChannelRegistration} from '../../../lib/pusher.ts';
+import {queryClient} from '../../../lib/query.ts';
+import AssetDiscussion from './AssetDiscussion.tsx';
+import {annotationZIndex} from './Annotations/AssetAnnotationsOverlay.tsx';
+import {
+    AssetAnnotation,
+    OnNewAnnotation,
+} from './Annotations/annotationTypes.ts';
+import AssetViewNavigation from './AssetViewNavigation.tsx';
+import {AssetContextState} from './assetTypes.ts';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -62,13 +65,9 @@ export default function AssetView({modalIndex, open}: Props) {
 
     const queryKey = ['assets', assetId];
 
-    useChannelRegistration(
-        `asset-${assetId}`,
-        `asset_ingested`,
-        () => {
-            queryClient.invalidateQueries({queryKey});
-        }
-    );
+    useChannelRegistration(`asset-${assetId}`, `asset_ingested`, () => {
+        queryClient.invalidateQueries({queryKey});
+    });
 
     const {data, isSuccess} = useModalFetch({
         queryKey,
@@ -81,9 +80,12 @@ export default function AssetView({modalIndex, open}: Props) {
             ]),
     });
 
-    const onActiveAnnotations = React.useCallback<OnActiveAnnotations>(annotations => {
-        setAnnotations(annotations);
-    }, []);
+    const onActiveAnnotations = React.useCallback<OnActiveAnnotations>(
+        annotations => {
+            setAnnotations(annotations);
+        },
+        []
+    );
 
     const winSize = useWindowSize();
     const [integrationOverlay, setIntegrationOverlay] =
@@ -111,11 +113,16 @@ export default function AssetView({modalIndex, open}: Props) {
         };
     }, [winSize]);
 
-    const onNewAnnotation: OnNewAnnotation = useCallback((annotation) => {
-        onNewAnnotationRef.current?.(annotation);
-    }, [onNewAnnotationRef, assetId]);
+    const onNewAnnotation: OnNewAnnotation = useCallback(
+        annotation => {
+            onNewAnnotationRef.current?.(annotation);
+        },
+        [onNewAnnotationRef, assetId]
+    );
 
-    const [asset, renditions] = (isSuccess ? data : previousData.current ?? []) as DataTuple;
+    const [asset, renditions] = (
+        isSuccess ? data : previousData.current ?? []
+    ) as DataTuple;
 
     React.useEffect(() => {
         if (data) {
@@ -128,7 +135,7 @@ export default function AssetView({modalIndex, open}: Props) {
             return null;
         }
 
-        return <FullPageLoader/>;
+        return <FullPageLoader />;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
@@ -156,9 +163,7 @@ export default function AssetView({modalIndex, open}: Props) {
                     }}
                     fullScreen={true}
                     title={
-                        <FlexRow
-                            alignItems={'center'}
-                        >
+                        <FlexRow alignItems={'center'}>
                             <AssetViewNavigation
                                 state={state}
                                 currentId={assetId!}
@@ -201,7 +206,7 @@ export default function AssetView({modalIndex, open}: Props) {
                     }
                     onClose={onClose}
                 >
-                    {!isSuccess && <FullPageLoader/>}
+                    {!isSuccess && <FullPageLoader />}
                     <Box
                         sx={{
                             height: dimensions.height,
