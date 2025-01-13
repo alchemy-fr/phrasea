@@ -4,7 +4,7 @@ import MyLocationIcon from "@mui/icons-material/MyLocation";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
 import GestureIcon from '@mui/icons-material/Gesture';
-import {ColorPicker} from "../../../../../../../lib/js/react-form";
+import {ColorPicker} from "@alchemy/react-form";
 import {StateSetter} from "../../../../types.ts";
 import {useState} from "react";
 import ToolbarPaper from "../Players/ToolbarPaper.tsx";

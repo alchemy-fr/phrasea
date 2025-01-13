@@ -1,5 +1,5 @@
 import {ThreadMessage} from "../../types.ts";
-import {Divider} from "@mui/material";
+import {Chip, Divider} from "@mui/material";
 import moment from "moment";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 import {AssetAnnotation} from "../Media/Asset/Annotations/annotationTypes.ts";
@@ -32,6 +32,14 @@ export default function DiscussionMessage({
                 </small>
             </div>
             <p>{message.content}</p>
+
+            <div>
+                {annotations.map((annotation, i) => <div key={i}>
+                    <Chip
+                        label={annotation.name}
+                    />
+                </div>)}
+            </div>
         </div>
         <Divider sx={{
             mb: 1,

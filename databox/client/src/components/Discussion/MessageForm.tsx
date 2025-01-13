@@ -1,8 +1,8 @@
-import {Button, Chip, TextField} from "@mui/material";
+import {Box, Button, Chip, InputBase} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
-import {useFormPrompt} from "../../../../../lib/js/navigation";
-import {FormFieldErrors, FormRow} from "../../../../../lib/js/react-form";
+import {useFormPrompt} from "@alchemy//navigation";
+import {FormFieldErrors, FormRow} from "@alchemy//react-form";
 import {postThreadMessage} from "../../api/discussion.ts";
 import {ThreadMessage} from "../../types.ts";
 import RemoteErrors from "../Form/RemoteErrors.tsx";
@@ -11,6 +11,7 @@ import SendIcon from '@mui/icons-material/Send';
 import React from "react";
 import {AnnotationType, AssetAnnotation, OnNewAnnotationRef} from "../Media/Asset/Annotations/annotationTypes.ts";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
+import {FlexRow} from "@alchemy/phrasea-ui";
 
 type Props = {
     threadKey: string;
@@ -85,11 +86,16 @@ export default function MessageForm({
                 threadId,
                 threadKey,
                 content: data.content,
+                attachments: annotations.map(a => ({
+                    type: 'annotation',
+                    content: JSON.stringify(a),
+                })),
             });
         },
         onSuccess: (data: ThreadMessage) => {
             onNewMessage(data);
             reset();
+            setAnnotations([]);
         },
     });
     useFormPrompt(t, forbidNavigation);
@@ -102,44 +108,62 @@ export default function MessageForm({
     return <>
         <form onSubmit={handleSubmit}>
             <FormRow>
-                <TextField
-                    required={true}
-                    placeholder={t('form.thread_message.content.placeholder', 'Type your message here')}
-                    disabled={submitting}
-                    multiline={true}
-                    fullWidth={true}
-                    {...register('content', {
-                        required: true,
+                <Box
+                    sx={theme => ({
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: theme.shape.borderRadius / 4,
+                        alignItems: 'center'
                     })}
-                    inputRef={inputRef}
-                />
+                    onClick={() => inputRef.current?.focus()}
+                >
+                    <InputBase
+                        sx={{p: 1}}
+                        required={true}
+                        placeholder={t('form.thread_message.content.placeholder', 'Type your message here')}
+                        disabled={submitting}
+                        multiline={true}
+                        fullWidth={true}
+                        {...register('content', {
+                            required: true,
+                        })}
+                        inputRef={inputRef}
+                    />
+                    <Box sx={{
+                        p: 1,
+                        '> *': {
+                            display: 'inline-block',
+                            mt: 1,
+                            mr: 1,
+                        },
+                    }}>
+                        {annotations?.map((annotation, index) => (
+                            <div key={index}>
+                                <Chip
+                                    label={annotation.name!}
+                                    variant="outlined"
+                                    onDelete={() => setAnnotations(p => p.filter((_, i) => i !== index))}
+                                />
+                            </div>
+                        ))}
+                    </Box>
+                    <FlexRow>
+                        <div style={{
+                            flexGrow: 1,
+                        }}></div>
+                        <LoadingButton
+                            type="submit"
+                            disabled={submitting}
+                            loading={submitting}
+                            endIcon={<SendIcon/>}
+                        >
+                            {t('form.thread_message.submit.label', `Send`)}
+                        </LoadingButton>
+                    </FlexRow>
+                </Box>
                 <FormFieldErrors field={'content'} errors={errors}/>
             </FormRow>
 
-            {annotations?.map((annotation, index) => (
-                <div key={index}>
-                    <Chip
-                        label={annotation.name!}
-                        variant="outlined"
-                        onDelete={() => setAnnotations(p => p.filter((_, i) => i !== index))}
-                    />
-                    {}
-                </div>
-            ))}
-
             <RemoteErrors errors={remoteErrors}/>
-
-            <FormRow>
-                <LoadingButton
-                    variant="contained"
-                    type="submit"
-                    disabled={submitting}
-                    loading={submitting}
-                    endIcon={<SendIcon/>}
-                >
-                    {t('form.thread_message.submit.label', `Send`)}
-                </LoadingButton>
-            </FormRow>
 
             <FormRow>
                 <Button

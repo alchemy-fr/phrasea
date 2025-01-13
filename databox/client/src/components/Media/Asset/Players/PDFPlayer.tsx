@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {createStrictDimensions, PlayerProps} from './index';
 import {Document, Page, pdfjs} from 'react-pdf';
 import {getRatioDimensions} from './VideoPlayer';
@@ -8,7 +8,6 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import {CircularProgress, IconButton} from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {AssetAnnotationHandle} from "../Annotations/AssetAnnotationsOverlay.tsx";
 import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
 import FileToolbar from "./FileToolbar.tsx";
 
@@ -33,7 +32,6 @@ export default function PDFPlayer({
     const dimensions = createStrictDimensions(
         forcedDimensions ?? {width: displayContext!.thumbSize}
     );
-    const annotationsOverlayRef = useRef<AssetAnnotationHandle | null>(null);
     const pdfDimensions = getRatioDimensions(dimensions, ratio);
     const onDocLoad = useCallback(
         (pdf: any) => {
@@ -93,7 +91,7 @@ export default function PDFPlayer({
             </> : undefined
             }
         >
-            <div
+            {({annotationsOverlayRef}) => <div
                 style={{
                     maxWidth: dimensions.width,
                     maxHeight: dimensions.height,
@@ -131,7 +129,7 @@ export default function PDFPlayer({
                         </>
                     ) : null}
                 </Document>
-            </div>
+            </div>}
         </FileToolbar>
     );
 }

@@ -16,6 +16,7 @@ export async function postThreadMessage(data: {
     threadKey: string;
     threadId?: string;
     content: string;
+    attachments?: ThreadMessage['attachments'];
 }): Promise<ThreadMessage> {
     const res = await apiClient.post(`/messages`, data);
 

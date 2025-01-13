@@ -49,7 +49,7 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
 type Props = {} & StackedModalProps;
 
 export default function AssetView({modalIndex, open}: Props) {
-    const menuWidth = 300;
+    const menuWidth = 400;
     const headerHeight = 60;
     const {state} = useLocation() as Location<AssetContextState | undefined>;
     const {id: assetId, renditionId} = useParams();

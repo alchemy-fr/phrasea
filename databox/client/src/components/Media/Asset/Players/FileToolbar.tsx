@@ -1,6 +1,6 @@
 import AssetAnnotationsOverlay, {AssetAnnotationHandle} from "../Annotations/AssetAnnotationsOverlay.tsx";
 import AnnotateWrapper from "../Annotations/AnnotateWrapper.tsx";
-import {PropsWithChildren, useCallback, useRef, useState} from "react";
+import {MutableRefObject, useCallback, useRef, useState} from "react";
 import {AssetAnnotation, OnNewAnnotation} from "../Annotations/annotationTypes.ts";
 import ZoomControls from "./ZoomControls.tsx";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
@@ -10,7 +10,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import {filePlayerRelativeWrapperClassName} from "./index.ts";
 import ToolbarPaper from "./ToolbarPaper.tsx";
 
-type Props = PropsWithChildren<{
+type Props = {
     annotationEnabled?: boolean;
     zoomEnabled?: boolean;
     onNewAnnotation?: OnNewAnnotation | undefined;
@@ -19,7 +19,10 @@ type Props = PropsWithChildren<{
     controls?: boolean | undefined;
     preToolbarActions?: JSX.Element | undefined;
     forceHand?: boolean;
-}>;
+    children: ((props: {
+        annotationsOverlayRef: MutableRefObject<AssetAnnotationHandle | null>;
+    }) => JSX.Element) | JSX.Element;
+};
 
 export default function FileToolbar({
     annotations,
@@ -112,7 +115,7 @@ export default function FileToolbar({
                                 annotations={annotations}
                             />
                         ) : null}
-                        {children}
+                        {typeof children === 'function' ? children({annotationsOverlayRef}) : children}
                     </div>
                 </TransformComponent>
             </TransformWrapper>}
