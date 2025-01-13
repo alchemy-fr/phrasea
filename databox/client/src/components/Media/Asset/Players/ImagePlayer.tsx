@@ -26,11 +26,13 @@ export default function ImagePlayer({file, title, annotations, onLoad, onNewAnno
 
     return <>
         <FileToolbar
+            key={file.id}
             controls={controls}
             onNewAnnotation={onNewAnnotation}
             annotations={annotations}
             zoomEnabled={zoomEnabled}
             annotationEnabled={true}
+            forceHand={true}
         >
             <img
                 style={{

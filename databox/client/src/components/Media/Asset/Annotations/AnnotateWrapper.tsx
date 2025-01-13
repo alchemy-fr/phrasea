@@ -33,8 +33,8 @@ export default function AnnotateWrapper({
                 ...annotation,
                 page,
             });
-            setMode(undefined);
         } : undefined,
+        onTerminate: () => setMode(undefined),
         mode,
         annotationOptions: options
     });

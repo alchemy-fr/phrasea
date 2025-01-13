@@ -3,9 +3,12 @@ import {AnnotationOptions, AnnotationType} from "./annotationTypes.ts";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import PanoramaFishEyeIcon from "@mui/icons-material/PanoramaFishEye";
-import DrawIcon from "@mui/icons-material/Draw";
+import GestureIcon from '@mui/icons-material/Gesture';
 import {ColorPicker} from "../../../../../../../lib/js/react-form";
 import {StateSetter} from "../../../../types.ts";
+import {useState} from "react";
+import ToolbarPaper from "../Players/ToolbarPaper.tsx";
+import ModeIcon from '@mui/icons-material/Mode';
 
 type Props = {
     mode: AnnotationType | undefined;
@@ -20,52 +23,68 @@ export default function AnnotateToolbar({
     options,
     setOptions,
 }: Props) {
+    const [annotate, setAnnotate] = useState(false);
+
     return <>
-        <div>
-            <IconButton
-                disabled={mode === AnnotationType.Point}
-                onClick={() => setMode(AnnotationType.Point)}
-            >
-                <MyLocationIcon/>
-            </IconButton>
-        </div>
-        <div>
-            <IconButton
-                disabled={mode === AnnotationType.Rect}
-                onClick={() => setMode(AnnotationType.Rect)}
-            >
-                <Crop32Icon/>
-            </IconButton>
-        </div>
-        <div>
-            <IconButton
-                disabled={mode === AnnotationType.Circle}
-                onClick={() => setMode(AnnotationType.Circle)}
-            >
-                <PanoramaFishEyeIcon/>
-            </IconButton>
-        </div>
-        <div>
-            <IconButton
-                disabled={mode === AnnotationType.Draw}
-                onClick={() => setMode(AnnotationType.Draw)}
-            >
-                <DrawIcon/>
-            </IconButton>
-        </div>
-        <div>
-            <ColorPicker displayField={false} color={options.color} onChange={(c) => {
-                setOptions(p => ({...p, color: c}));
-            }}/>
-        </div>
-        <div>
-            <TextField
-                label={'Size'}
-                type={'number'}
-                style={{width: 100}}
-                value={options.size}
-                onChange={(e) => setOptions(p => ({...p, size: parseInt(e.target.value)}))}
-            />
-        </div>
+        <IconButton
+            title={'Annotate'}
+            color={annotate ? 'primary' : 'default'}
+            onClick={() => setAnnotate(p => !p)}>
+            <GestureIcon/>
+        </IconButton>
+        {annotate && <ToolbarPaper
+            annotationActive={!!mode}
+            sx={{
+                bottom: 80,
+                display: 'flex',
+                flexDirection: 'row',
+            }}>
+            <div>
+                <IconButton
+                    color={mode === AnnotationType.Point ? 'primary' : 'default'}
+                    onClick={() => setMode(AnnotationType.Point)}
+                >
+                    <MyLocationIcon/>
+                </IconButton>
+            </div>
+            <div>
+                <IconButton
+                    color={mode === AnnotationType.Rect ? 'primary' : 'default'}
+                    onClick={() => setMode(AnnotationType.Rect)}
+                >
+                    <Crop32Icon/>
+                </IconButton>
+            </div>
+            <div>
+                <IconButton
+                    color={mode === AnnotationType.Circle ? 'primary' : 'default'}
+                    onClick={() => setMode(AnnotationType.Circle)}
+                >
+                    <PanoramaFishEyeIcon/>
+                </IconButton>
+            </div>
+            <div>
+                <IconButton
+                    color={mode === AnnotationType.Draw ? 'primary' : 'default'}
+                    onClick={() => setMode(AnnotationType.Draw)}
+                >
+                    <ModeIcon/>
+                </IconButton>
+            </div>
+            <div>
+                <ColorPicker displayField={false} color={options.color} onChange={(c) => {
+                    setOptions(p => ({...p, color: c}));
+                }}/>
+            </div>
+            <div>
+                <TextField
+                    label={'Size'}
+                    type={'number'}
+                    style={{width: 100}}
+                    value={options.size}
+                    onChange={(e) => setOptions(p => ({...p, size: parseInt(e.target.value)}))}
+                />
+            </div>
+        </ToolbarPaper>}
     </>
 }

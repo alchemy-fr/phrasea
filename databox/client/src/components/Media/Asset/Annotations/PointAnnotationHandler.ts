@@ -20,7 +20,7 @@ function drawPoint({
 
 
 export const PointAnnotationHandler: DrawingHandler = {
-    onStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, context, options}) => {
         drawPoint({
             x,
             y,
@@ -28,7 +28,7 @@ export const PointAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onMove: ({clear, context, x, y, options}) => {
+    onDrawMove: ({clear, context, x, y, options}) => {
         clear();
         drawPoint({
             x,
@@ -37,7 +37,7 @@ export const PointAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onEnd: ({onNewAnnotation, x, y, relativeX, relativeY, options}) => {
+    onDrawEnd: ({onNewAnnotation, x, y, relativeX, relativeY, options, terminate}) => {
         onNewAnnotation({
             type: AnnotationType.Point,
             x: relativeX(x),
@@ -45,6 +45,7 @@ export const PointAnnotationHandler: DrawingHandler = {
             c: options.color,
             s: relativeX(options.size),
         });
+        terminate();
     },
     drawAnnotation: ({annotation: {
         x,
@@ -61,5 +62,6 @@ export const PointAnnotationHandler: DrawingHandler = {
                 size: toX(s),
             },
         });
-    }
+    },
+    onTerminate: () => {},
 };

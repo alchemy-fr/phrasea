@@ -8,11 +8,13 @@ type Props = {
     onNewAnnotation: OnNewAnnotation | undefined;
     mode: AnnotationType | undefined;
     annotationOptions: AnnotationOptions;
+    onTerminate: () => void;
 };
 
 export function useAnnotationDraw({
     canvasRef,
     onNewAnnotation,
+    onTerminate: onTerminateProp,
     mode,
     annotationOptions,
 }: Props) {
@@ -24,11 +26,14 @@ export function useAnnotationDraw({
             const canvas = canvasRef.current;
             const parent = canvas.parentNode as HTMLDivElement;
             const {offsetWidth: width, offsetHeight: height} = parent;
+            const relativeX = (x: number) => x / width;
+            const relativeY = (y: number) => y / height;
 
             const {
-                onStart,
-                onMove,
-                onEnd,
+                onDrawStart,
+                onDrawMove,
+                onDrawEnd,
+                onTerminate,
             } = drawingHandlers[mode];
 
             const resolution = Math.max(devicePixelRatio, 2);
@@ -40,13 +45,26 @@ export function useAnnotationDraw({
             const context = canvas!.getContext('2d')!;
             context.scale(resolution, resolution);
 
+            const reset = () => {
+                canvas.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                stopEvents.forEach(event => {
+                    window.removeEventListener(event, onStopHandler);
+                });
+                cancelEvents.forEach(event => {
+                    window.removeEventListener(event, onCancel);
+                });
+                startingPoint.current = undefined;
+                dataRef.current = undefined;
+            }
+
             const onMouseMove = (event: MouseEvent) => {
                 const x = event.offsetX;
                 const y = event.offsetY;
 
                 const st = startingPoint.current!;
 
-                onMove({
+                onDrawMove({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
@@ -59,28 +77,94 @@ export function useAnnotationDraw({
                     clear: () => context.clearRect(0, 0, canvas.width, canvas.height),
                 });
             }
+
+            const terminateHandler = () => {
+                onTerminate({
+                    options: annotationOptions,
+                    data: dataRef.current!,
+                    context,
+                    onNewAnnotation,
+                    canvas,
+                    startingPoint: startingPoint.current!,
+                    relativeX,
+                    relativeY,
+                });
+                onTerminateProp();
+                reset();
+            };
+
+            const cancelHandler = () => {
+                onTerminate({
+                    options: annotationOptions,
+                    data: dataRef.current!,
+                    context,
+                    onNewAnnotation: () => {},
+                    canvas,
+                    startingPoint: startingPoint.current!,
+                    relativeX,
+                    relativeY,
+                });
+                onTerminateProp();
+                reset();
+            };
+
             const onMouseUp = (event: MouseEvent) => {
-                window.removeEventListener('mousemove', onMouseMove);
+                canvas.removeEventListener('mousemove', onMouseMove);
                 window.removeEventListener('mouseup', onMouseUp);
                 const st = startingPoint.current!;
                 const x = event.offsetX;
                 const y = event.offsetY;
 
-                onEnd({
+                onDrawEnd({
                     options: annotationOptions,
                     data: dataRef.current!,
                     context,
                     onNewAnnotation,
+                    terminate: terminateHandler,
                     canvas,
                     startingPoint: st,
                     x,
                     y,
                     deltaX: x - st.x,
                     deltaY: y - st.y,
-                    relativeX: (x: number) => x / width,
-                    relativeY: (y: number) => y / height,
+                    relativeX,
+                    relativeY,
                 });
             }
+
+            const onCancel  = (event: any) => {
+                if (event.type === 'keydown' && (event as KeyboardEvent).key !== 'Escape') {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                cancelHandler();
+            }
+
+            const onStopHandler = (event: any) => {
+                if (event.type === 'keydown' && (event as KeyboardEvent).key === 'Escape') {
+                    event.stopPropagation();
+                    return;
+                }
+                event.preventDefault();
+
+                terminateHandler();
+            }
+
+            const stopEvents = [
+                'contextmenu',
+                'keydown',
+            ];
+            const cancelEvents = [
+                'keydown',
+            ];
+            stopEvents.forEach(event => {
+                window.addEventListener(event, onStopHandler);
+            });
+            cancelEvents.forEach(event => {
+                window.addEventListener(event, onCancel);
+            });
 
             const onMouseDown = (event: MouseEvent) => {
                 event.preventDefault();
@@ -93,18 +177,16 @@ export function useAnnotationDraw({
                     y,
                 };
 
-                dataRef.current = {};
+                dataRef.current ??= {};
 
-                requestAnimationFrame(() => {
-                    onStart({
-                        options: annotationOptions,
-                        data: dataRef.current!,
-                        context,
-                        canvas,
-                        startingPoint: startingPoint.current!,
-                        x,
-                        y,
-                    });
+                onDrawStart({
+                    options: annotationOptions,
+                    data: dataRef.current!,
+                    context,
+                    canvas,
+                    startingPoint: startingPoint.current!,
+                    x,
+                    y,
                 });
 
                 canvas.addEventListener('mousemove', onMouseMove);
@@ -115,8 +197,7 @@ export function useAnnotationDraw({
 
             return () => {
                 canvas.removeEventListener('mousedown', onMouseDown);
-                canvas.removeEventListener('mousemove', onMouseMove);
-                window.removeEventListener('mouseup', onMouseUp);
+                reset();
             }
         }
     }, [canvasRef, mode, annotationOptions]);

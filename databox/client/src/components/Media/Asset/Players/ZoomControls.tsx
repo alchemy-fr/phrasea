@@ -4,12 +4,17 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import {IconButton} from "@mui/material";
 import FitScreenIcon from '@mui/icons-material/FitScreen';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import {StateSetter} from "../../../../types.ts";
 
 type Props = {
     fitContentToWrapper: (centerView: ReactZoomPanPinchHandlers['centerView']) => void;
+    hand: boolean;
+    setHand: StateSetter<boolean>;
+    forceHand: boolean | undefined;
 };
 
-export default function ZoomControls({fitContentToWrapper}: Props) {
+export default function ZoomControls({fitContentToWrapper, hand, setHand, forceHand}: Props) {
     const {
         zoomIn,
         zoomOut,
@@ -18,6 +23,11 @@ export default function ZoomControls({fitContentToWrapper}: Props) {
     } = useControls();
 
     return <>
+    {!forceHand ? <IconButton
+            color={hand ? 'primary' : 'default'}
+            onClick={() => setHand(p => !p)}>
+            <PanToolIcon/>
+        </IconButton> : null}
         <IconButton onClick={() => zoomIn()}>
             <ZoomInIcon/>
         </IconButton>

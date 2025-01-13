@@ -57,7 +57,7 @@ export interface RectangleAnnotation extends AssetAnnotation {
 
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
-    paths: Point[];
+    paths: Point[][];
     c?: string; // Color
     s?: number; // Line width
 }

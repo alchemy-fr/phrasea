@@ -27,7 +27,7 @@ function getRadius(deltaX: number, deltaY: number) {
 }
 
 export const CircleAnnotationHandler: DrawingHandler = {
-    onStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, context, options}) => {
         drawCircle({
             x,
             y,
@@ -36,7 +36,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onMove: ({clear, startingPoint: {x, y}, context, deltaX, deltaY, options}) => {
+    onDrawMove: ({clear, startingPoint: {x, y}, context, deltaX, deltaY, options}) => {
         clear();
         const radius = getRadius(deltaX, deltaY);
         drawCircle({
@@ -47,7 +47,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onEnd: ({onNewAnnotation, startingPoint: {x, y}, deltaX, deltaY, relativeX, relativeY, options}) => {
+    onDrawEnd: ({onNewAnnotation, startingPoint: {x, y}, deltaX, deltaY, relativeX, relativeY, options, terminate}) => {
         onNewAnnotation({
             type: AnnotationType.Circle,
             x: relativeX(x),
@@ -56,6 +56,7 @@ export const CircleAnnotationHandler: DrawingHandler = {
             c: options.color,
             s: relativeX(options.size),
         });
+        terminate();
     },
     drawAnnotation: ({
         annotation: {
@@ -76,5 +77,6 @@ export const CircleAnnotationHandler: DrawingHandler = {
                 size: toX(s),
             },
         });
-    }
+    },
+    onTerminate: () => {},
 };

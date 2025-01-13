@@ -20,19 +20,26 @@ type BaseEvent = {
     startingPoint: StartingPoint;
     data: any;
     options: AnnotationOptions;
-} & Point;
+};
 
-type OnStartDrawingEvent = {} & BaseEvent;
+type OnStartDrawingEvent = {} & Point & BaseEvent;
 
 type OnDrawMoveEvent = {
     deltaX: number;
     deltaY: number;
     clear: Clear;
-} & BaseEvent;
+} & Point & BaseEvent;
 
 type OnEndDrawingEvent = {
     deltaX: number;
     deltaY: number;
+    onNewAnnotation: OnNewAnnotation;
+    terminate: () => void;
+    relativeX: (x: number) => number;
+    relativeY: (y: number) => number;
+} & Point & BaseEvent;
+
+type OnTerminateEvent = {
     onNewAnnotation: OnNewAnnotation;
     relativeX: (x: number) => number;
     relativeY: (y: number) => number;
@@ -41,6 +48,7 @@ type OnEndDrawingEvent = {
 type OnStartDrawing = (event: OnStartDrawingEvent) => void;
 type OnDrawMove = (event: OnDrawMoveEvent) => void;
 type OnEndDrawing = (event: OnEndDrawingEvent) => void;
+type OnTerminate = (event: OnTerminateEvent) => void;
 
 type DrawAnnotationProps = {
     annotation: AssetAnnotation;
@@ -50,9 +58,10 @@ type DrawAnnotationProps = {
 }
 
 export type DrawingHandler = {
-    onStart: OnStartDrawing;
-    onMove: OnDrawMove;
-    onEnd: OnEndDrawing;
+    onDrawStart: OnStartDrawing;
+    onDrawMove: OnDrawMove;
+    onDrawEnd: OnEndDrawing;
+    onTerminate: OnTerminate;
     drawAnnotation: (props: DrawAnnotationProps) => void;
 }
 
