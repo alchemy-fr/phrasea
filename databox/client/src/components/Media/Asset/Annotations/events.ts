@@ -9,6 +9,7 @@ import {DrawAnnotationHandler} from "./DrawAnnotationHandler.ts";
 import {RectAnnotationHandler} from "./RectAnnotationHandler.ts";
 import {PointAnnotationHandler} from "./PointAnnotationHandler.ts";
 import {CircleAnnotationHandler} from "./CircleAnnotationHandler.ts";
+import {HighlightAnnotationHandler} from "./HighlightAnnotationHandler.ts";
 
 export type StartingPoint = Point;
 
@@ -70,4 +71,5 @@ export const drawingHandlers: Record<AnnotationType, DrawingHandler> = {
     [AnnotationType.Point]: PointAnnotationHandler,
     [AnnotationType.Rect]: RectAnnotationHandler,
     [AnnotationType.Draw]: DrawAnnotationHandler,
+    [AnnotationType.Highlight]: HighlightAnnotationHandler,
 } as Record<AnnotationType, DrawingHandler>;

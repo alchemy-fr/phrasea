@@ -1,4 +1,4 @@
-import {Button, TextField} from "@mui/material";
+import {Button, Chip, TextField} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
 import {useFormPrompt} from "../../../../../lib/js/navigation";
@@ -9,7 +9,7 @@ import RemoteErrors from "../Form/RemoteErrors.tsx";
 import {LoadingButton} from "@mui/lab";
 import SendIcon from '@mui/icons-material/Send';
 import React from "react";
-import {AssetAnnotation, OnNewAnnotationRef} from "../Media/Asset/Annotations/annotationTypes.ts";
+import {AnnotationType, AssetAnnotation, OnNewAnnotationRef} from "../Media/Asset/Annotations/annotationTypes.ts";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 
 type Props = {
@@ -36,7 +36,27 @@ export default function MessageForm({
         if (onNewAnnotationRef) {
             onNewAnnotationRef.current = (annotation: AssetAnnotation) => {
                 inputRef.current?.focus();
-                setAnnotations(p => p.concat(annotation));
+
+                const annotationTypes: Record<AnnotationType, string> = {
+                    [AnnotationType.Draw]: t('annotation.type.draw', 'Draw'),
+                    [AnnotationType.Highlight]: t('annotation.type.highlight', 'Highlight'),
+                    [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
+                    [AnnotationType.Circle]: t('annotation.type.circle', 'Circle'),
+                    [AnnotationType.Rect]: t('annotation.type.rectangle', 'Rectangle'),
+                    [AnnotationType.Point]: t('annotation.type.point', 'Point'),
+                    [AnnotationType.TimeRange]: t('annotation.type.timerange', 'Time Range'),
+                };
+
+                setAnnotations(p => {
+                    return p.concat({
+                        ...annotation,
+                        name: annotation.name ?? t('form.annotation.default_name', {
+                            defaultValue: '{{type}} #{{n}}',
+                            type: annotationTypes[annotation.type],
+                            n: p.filter(a => a.type === annotation.type).length + 1,
+                        }),
+                    });
+                });
             }
         }
     }, [onNewAnnotationRef, inputRef]);
@@ -98,7 +118,12 @@ export default function MessageForm({
 
             {annotations?.map((annotation, index) => (
                 <div key={index}>
-                    {annotation.type.toString()}
+                    <Chip
+                        label={annotation.name!}
+                        variant="outlined"
+                        onDelete={() => setAnnotations(p => p.filter((_, i) => i !== index))}
+                    />
+                    {}
                 </div>
             ))}
 

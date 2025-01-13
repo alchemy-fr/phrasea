@@ -9,6 +9,7 @@ import {StateSetter} from "../../../../types.ts";
 import {useState} from "react";
 import ToolbarPaper from "../Players/ToolbarPaper.tsx";
 import ModeIcon from '@mui/icons-material/Mode';
+import BrushIcon from '@mui/icons-material/Brush';
 
 type Props = {
     mode: AnnotationType | undefined;
@@ -67,6 +68,14 @@ export default function AnnotateToolbar({
                 <IconButton
                     color={mode === AnnotationType.Draw ? 'primary' : 'default'}
                     onClick={() => setMode(AnnotationType.Draw)}
+                >
+                    <BrushIcon/>
+                </IconButton>
+            </div>
+            <div>
+                <IconButton
+                    color={mode === AnnotationType.Highlight ? 'primary' : 'default'}
+                    onClick={() => setMode(AnnotationType.Highlight)}
                 >
                     <ModeIcon/>
                 </IconButton>

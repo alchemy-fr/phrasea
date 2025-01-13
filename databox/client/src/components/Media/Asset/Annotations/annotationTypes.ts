@@ -8,6 +8,7 @@ export type Point = {
 export enum AnnotationType {
     Point = 'point',
     Draw = 'draw',
+    Highlight = 'highlight',
     Circle = 'circle',
     Rect = 'rect',
     Cue = 'cue',
@@ -16,6 +17,7 @@ export enum AnnotationType {
 
 export interface AssetAnnotation {
     type: AnnotationType;
+    name?: string;
     [prop: string]: any;
 }
 
