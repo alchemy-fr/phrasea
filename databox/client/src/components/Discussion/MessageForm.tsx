@@ -1,10 +1,10 @@
-import {Box, Button, Chip, InputBase} from "@mui/material";
+import {Box, Button, InputBase} from "@mui/material";
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
 import {useFormPrompt} from "@alchemy//navigation";
 import {FormFieldErrors, FormRow} from "@alchemy//react-form";
 import {postThreadMessage} from "../../api/discussion.ts";
-import {ThreadMessage} from "../../types.ts";
+import {DeserializedMessageAttachment, ThreadMessage} from "../../types.ts";
 import RemoteErrors from "../Form/RemoteErrors.tsx";
 import {LoadingButton} from "@mui/lab";
 import SendIcon from '@mui/icons-material/Send';
@@ -12,6 +12,7 @@ import React from "react";
 import {AnnotationType, AssetAnnotation, OnNewAnnotationRef} from "../Media/Asset/Annotations/annotationTypes.ts";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 import {FlexRow} from "@alchemy/phrasea-ui";
+import Attachments from "./Attachments.tsx";
 
 type Props = {
     threadKey: string;
@@ -31,7 +32,7 @@ export default function MessageForm({
 }: Props) {
     const {t} = useTranslation();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const [annotations, setAnnotations] = React.useState<AssetAnnotation[]>([]);
+    const [attachments, setAttachments] = React.useState<DeserializedMessageAttachment[]>([]);
 
     React.useEffect(() => {
         if (onNewAnnotationRef) {
@@ -48,16 +49,17 @@ export default function MessageForm({
                     [AnnotationType.TimeRange]: t('annotation.type.timerange', 'Time Range'),
                 };
 
-                setAnnotations(p => {
-                    return p.concat({
+                setAttachments(p => p.concat({
+                    type: 'annotation',
+                    data: {
                         ...annotation,
                         name: annotation.name ?? t('form.annotation.default_name', {
                             defaultValue: '{{type}} #{{n}}',
                             type: annotationTypes[annotation.type],
                             n: p.filter(a => a.type === annotation.type).length + 1,
                         }),
-                    });
-                });
+                    },
+                }));
             }
         }
     }, [onNewAnnotationRef, inputRef]);
@@ -65,9 +67,9 @@ export default function MessageForm({
 
     React.useEffect(() => {
         if (onActiveAnnotations) {
-            onActiveAnnotations(annotations);
+            onActiveAnnotations(attachments.filter(a => a.type === 'annotation').map(a => a.data as AssetAnnotation));
         }
-    }, [annotations]);
+    }, [attachments]);
 
     const {
         formState: {errors},
@@ -86,22 +88,24 @@ export default function MessageForm({
                 threadId,
                 threadKey,
                 content: data.content,
-                attachments: annotations.map(a => ({
-                    type: 'annotation',
-                    content: JSON.stringify(a),
+                attachments: attachments.map(({
+                    data,
+                    ...rest
+                }) => ({
+                    ...rest,
+                    content: JSON.stringify(data),
                 })),
             });
         },
         onSuccess: (data: ThreadMessage) => {
             onNewMessage(data);
-            reset();
-            setAnnotations([]);
+            resetAll();
         },
     });
     useFormPrompt(t, forbidNavigation);
 
     const resetAll = () => {
-        setAnnotations([]);
+        setAttachments([]);
         reset();
     }
 
@@ -128,24 +132,12 @@ export default function MessageForm({
                         })}
                         inputRef={inputRef}
                     />
-                    <Box sx={{
-                        p: 1,
-                        '> *': {
-                            display: 'inline-block',
-                            mt: 1,
-                            mr: 1,
-                        },
-                    }}>
-                        {annotations?.map((annotation, index) => (
-                            <div key={index}>
-                                <Chip
-                                    label={annotation.name!}
-                                    variant="outlined"
-                                    onDelete={() => setAnnotations(p => p.filter((_, i) => i !== index))}
-                                />
-                            </div>
-                        ))}
-                    </Box>
+                    <Attachments
+                        attachments={attachments}
+                        onDelete={a => {
+                            setAttachments(p => p.filter(att => att !== a));
+                        }}
+                    />
                     <FlexRow>
                         <div style={{
                             flexGrow: 1,

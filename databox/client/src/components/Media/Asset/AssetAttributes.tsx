@@ -24,28 +24,28 @@ export default function AssetAttributes({asset, onActiveAnnotations}: Props) {
     const {t} = useTranslation();
 
     return (
-        <Box sx={attributesSx()}>
-            <Accordion
-                expanded={expanded}
-                onChange={() => setExpanded(p => !p)}
+        <Accordion
+            expanded={expanded}
+            onChange={() => setExpanded(p => !p)}
+        >
+            <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="attr-content"
+                id="attr-header"
             >
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="attr-content"
-                    id="attr-header"
-                >
-                    <Typography component="div">
-                        {t('asset.view.attributes', `Asset Attributes`)}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
+                <Typography component="div">
+                    {t('asset.view.attributes', `Asset Attributes`)}
+                </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+                <Box sx={attributesSx()}>
                     <Attributes
                         asset={asset}
                         displayControls={true}
                         onActiveAnnotations={onActiveAnnotations}
                     />
-                </AccordionDetails>
-            </Accordion>
-        </Box>
+                </Box>
+            </AccordionDetails>
+        </Accordion>
     );
 }

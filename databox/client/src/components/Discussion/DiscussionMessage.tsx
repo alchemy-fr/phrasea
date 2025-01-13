@@ -1,48 +1,68 @@
 import {ThreadMessage} from "../../types.ts";
-import {Chip, Divider} from "@mui/material";
+import {Box, Divider, Typography} from "@mui/material";
 import moment from "moment";
 import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
 import {AssetAnnotation} from "../Media/Asset/Annotations/annotationTypes.ts";
+import Attachments from "./Attachments.tsx";
+import {FlexRow, UserAvatar} from '@alchemy/phrasea-ui'
 
 type Props = {
     message: ThreadMessage;
     onActiveAnnotations?: OnActiveAnnotations | undefined;
+    highlighted?: boolean;
 };
 
 export default function DiscussionMessage({
     message,
     onActiveAnnotations,
+    highlighted,
 }: Props) {
     const m = moment(message.createdAt);
-    const annotations: AssetAnnotation[] = message.attachments?.filter(a => a.type === 'annotation').map(a => JSON.parse(a.content) as AssetAnnotation) ?? [];
 
     return <>
-        <div
-            onMouseEnter={onActiveAnnotations && annotations.length > 0 ? () => onActiveAnnotations!(annotations) : undefined}
+        <FlexRow
+            className={highlighted ? 'highlighted' : ''}
+            style={{
+                alignItems: 'flex-start',
+            }}
         >
+            <Box sx={{
+                mr: 1,
+            }}>
+                <UserAvatar
+                    size={40}
+                    username={message.author.username}
+                />
+            </Box>
             <div>
-                <small>
-                    <strong>
-                        {message.author.username}
-                    </strong>
-                    {' - '}
-                    <span title={m.format('LLL')}>
+                <div>
+                    <small>
+                        <strong>
+                            {message.author.username}
+                        </strong>
+                        {' - '}
+                        <span title={m.format('LLL')}>
                 {m.calendar()}
                     </span>
-                </small>
-            </div>
-            <p>{message.content}</p>
+                    </small>
+                </div>
+                <Typography>{message.content}</Typography>
 
-            <div>
-                {annotations.map((annotation, i) => <div key={i}>
-                    <Chip
-                        label={annotation.name}
-                    />
-                </div>)}
+                {message.attachments ? <Attachments
+                    onClick={(attachment) => {
+                        if (onActiveAnnotations && attachment.type === 'annotation') {
+                            onActiveAnnotations([attachment.data as AssetAnnotation]);
+                        }
+                    }}
+                    attachments={message.attachments.map(a => ({
+                        data: JSON.parse(a.content),
+                        type: a.type,
+                    }))}/> : null}
             </div>
-        </div>
+        </FlexRow>
         <Divider sx={{
-            mb: 1,
+            mt: 1,
+            mb: 2,
         }}/>
     </>
 }

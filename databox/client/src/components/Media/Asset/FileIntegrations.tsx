@@ -5,7 +5,6 @@ import {
     AccordionDetails,
     AccordionSummary,
     CircularProgress,
-    List,
     Typography,
 } from '@mui/material';
 import {
@@ -124,9 +123,7 @@ export default function FileIntegrations({
     return (
         <>
             {!integrations && <CircularProgress color="inherit" />}
-            {integrations && (
-                <List component="nav" aria-labelledby="nested-list-subheader">
-                    {integrations.map(i => (
+            {integrations && integrations.map(i => (
                         <IntegrationProxy
                             key={i.id}
                             expanded={expanded === i.id}
@@ -147,8 +144,6 @@ export default function FileIntegrations({
                             setIntegrationOverlay={setIntegrationOverlay}
                         />
                     ))}
-                </List>
-            )}
         </>
     );
 }

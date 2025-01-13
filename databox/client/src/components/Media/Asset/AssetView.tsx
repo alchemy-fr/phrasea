@@ -157,8 +157,12 @@ export default function AssetView({modalIndex, open}: Props) {
                     fullScreen={true}
                     title={
                         <FlexRow
-                            flexDirection={'row'}
+                            alignItems={'center'}
                         >
+                            <AssetViewNavigation
+                                state={state}
+                                currentId={assetId!}
+                            />
                             <div>
                                 <Trans
                                     i18nKey={'asset_view.edit_asset'}
@@ -170,10 +174,6 @@ export default function AssetView({modalIndex, open}: Props) {
                                     }
                                 />
                             </div>
-                            <AssetViewNavigation
-                                state={state}
-                                currentId={assetId!}
-                            />
                             <Select<string>
                                 sx={{ml: 2}}
                                 label={''}

@@ -260,9 +260,14 @@ export interface Thread extends Entity {
     createdAt: string;
 }
 
-type MessageAttachment = {
+export type MessageAttachment = {
     type: string;
     content: string;
+}
+
+export type DeserializedMessageAttachment = {
+    type: string;
+    data: Record<string, any>;
 }
 
 export interface ThreadMessage extends Entity {

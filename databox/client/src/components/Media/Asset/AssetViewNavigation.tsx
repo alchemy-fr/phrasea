@@ -32,7 +32,7 @@ export default function AssetViewNavigation({
     }
 
     return <Box sx={{
-        ml: 2,
+        mr: 1,
     }}>
         <IconButton
             disabled={currentIndex === 0}
