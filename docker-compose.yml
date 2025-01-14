@@ -891,6 +891,8 @@ services:
     build:
       context: ./infra/docker/keycloak
       target: keycloak
+      args:
+        DASHBOARD_CLIENT_URL: ${DASHBOARD_CLIENT_URL}
     command:
       - 'start'
       - '--optimized'
