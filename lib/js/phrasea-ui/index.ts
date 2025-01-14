@@ -6,6 +6,7 @@ import FullPageLoader from "./src/components/FullPageLoader";
 import AppDialog, {AppDialogProps, AppDialogTitle, BootstrapDialog} from "./src/components/Dialog/AppDialog";
 import FlexRow from "./src/components/FlexRow";
 import UserAvatar from "./src/components/UserAvatar";
+import MoreActionsButton from "./src/components/MoreActionsButton";
 
 export {
     NotFoundPage,
@@ -18,6 +19,7 @@ export {
     AppDialogTitle,
     BootstrapDialog,
     FlexRow,
+    MoreActionsButton,
 };
 
 export type {

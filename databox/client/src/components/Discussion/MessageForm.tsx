@@ -1,22 +1,14 @@
-import {Box, Button, InputBase} from '@mui/material';
+import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
 import {useFormPrompt} from '@alchemy//navigation';
-import {FormFieldErrors, FormRow} from '@alchemy//react-form';
+import {FormRow} from '@alchemy//react-form';
 import {postThreadMessage} from '../../api/discussion.ts';
 import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
-import RemoteErrors from '../Form/RemoteErrors.tsx';
-import {LoadingButton} from '@mui/lab';
-import SendIcon from '@mui/icons-material/Send';
 import React from 'react';
-import {
-    AnnotationType,
-    AssetAnnotation,
-    OnNewAnnotationRef,
-} from '../Media/Asset/Annotations/annotationTypes.ts';
+import {AnnotationType, AssetAnnotation, OnNewAnnotationRef,} from '../Media/Asset/Annotations/annotationTypes.ts';
 import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
-import {FlexRow} from '@alchemy/phrasea-ui';
-import Attachments from './Attachments.tsx';
+import MessageField, {MessageFormData} from "./MessageField.tsx";
 
 type Props = {
     threadKey: string;
@@ -98,19 +90,11 @@ export default function MessageForm({
         }
     }, [attachments]);
 
-    const {
-        formState: {errors},
-        handleSubmit,
-        remoteErrors,
-        submitting,
-        register,
-        reset,
-        forbidNavigation,
-    } = useFormSubmit({
+    const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: {
             content: '',
         },
-        onSubmit: async (data: ThreadMessage) => {
+        onSubmit: async (data: MessageFormData) => {
             return await postThreadMessage({
                 threadId,
                 threadKey,
@@ -126,6 +110,9 @@ export default function MessageForm({
             resetAll();
         },
     });
+
+    const {forbidNavigation, handleSubmit, reset} = useFormSubmitProps;
+
     useFormPrompt(t, forbidNavigation);
 
     const resetAll = () => {
@@ -136,57 +123,17 @@ export default function MessageForm({
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <FormRow>
-                    <Box
-                        sx={theme => ({
-                            border: `1px solid ${theme.palette.divider}`,
-                            borderRadius: theme.shape.borderRadius / 4,
-                            alignItems: 'center',
-                        })}
-                        onClick={() => inputRef.current?.focus()}
-                    >
-                        <InputBase
-                            sx={{p: 1}}
-                            required={true}
-                            placeholder={t(
-                                'form.thread_message.content.placeholder',
-                                'Type your message here'
-                            )}
-                            disabled={submitting}
-                            multiline={true}
-                            fullWidth={true}
-                            {...register('content', {
-                                required: true,
-                            })}
-                            inputRef={inputRef}
-                        />
-                        <Attachments
-                            attachments={attachments}
-                            onDelete={a => {
-                                setAttachments(p => p.filter(att => att !== a));
-                            }}
-                        />
-                        <FlexRow>
-                            <div
-                                style={{
-                                    flexGrow: 1,
-                                }}
-                            ></div>
-                            <LoadingButton
-                                type="submit"
-                                disabled={submitting}
-                                loading={submitting}
-                                endIcon={<SendIcon />}
-                            >
-                                {t('form.thread_message.submit.label', `Send`)}
-                            </LoadingButton>
-                        </FlexRow>
-                    </Box>
-                    <FormFieldErrors field={'content'} errors={errors} />
-                </FormRow>
-
-                <RemoteErrors errors={remoteErrors} />
-
+                <MessageField
+                    useFormSubmitProps={useFormSubmitProps}
+                    attachments={attachments}
+                    setAttachments={setAttachments}
+                    inputRef={inputRef}
+                    submitLabel={t('form.thread_message.submit.label', `Send`)}
+                    placeholder={t(
+                        'form.thread_message.content.placeholder',
+                        'Type your message here'
+                    )}
+                />
                 <FormRow>
                     <Button onClick={() => resetAll()}>Reset</Button>
                 </FormRow>

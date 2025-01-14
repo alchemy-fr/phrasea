@@ -102,6 +102,19 @@ export default function Thread({
         });
     };
 
+    const onEditMessage = (message: ThreadMessage): void => {
+        setMessages(p =>
+            p
+                ? {
+                      ...p,
+                      result: p.result.map(m =>
+                          m.id === message.id ? message : m
+                      ),
+                  }
+                : undefined
+        );
+    };
+
     if (threadId && !messages) {
         return <CircularProgress />;
     }
@@ -114,6 +127,7 @@ export default function Thread({
                     message={message}
                     onActiveAnnotations={onActiveAnnotations}
                     onDelete={onDeleteMessage}
+                    onEdit={onEditMessage}
                 />
             ))}
 
