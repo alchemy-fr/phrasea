@@ -1,11 +1,9 @@
-import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
 import {useFormPrompt} from '@alchemy//navigation';
-import {FormRow} from '@alchemy//react-form';
 import {postThreadMessage} from '../../api/discussion.ts';
 import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {AnnotationType, AssetAnnotation, OnNewAnnotationRef,} from '../Media/Asset/Annotations/annotationTypes.ts';
 import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
 import MessageField, {MessageFormData} from "./MessageField.tsx";
@@ -80,15 +78,25 @@ export default function MessageForm({
         }
     }, [onNewAnnotationRef, inputRef]);
 
-    React.useEffect(() => {
+    const onFocus = useCallback(() => {
         if (onActiveAnnotations) {
-            onActiveAnnotations(
-                attachments
-                    .filter(a => a.type === 'annotation')
-                    .map(a => a.data as AssetAnnotation)
-            );
+            const assetAnnotations = attachments
+                .filter(a => a.type === 'annotation')
+                .map(a => a.data as AssetAnnotation);
+            if (assetAnnotations.length > 0) {
+                onActiveAnnotations(assetAnnotations);
+            }
         }
-    }, [attachments]);
+    }, [attachments, onActiveAnnotations]);
+
+    React.useEffect(() => {
+        inputRef.current?.addEventListener('focus', onFocus);
+        onFocus();
+
+        return () => {
+            inputRef.current?.removeEventListener('focus', onFocus);
+        };
+    }, [onFocus, inputRef]);
 
     const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: {
@@ -107,7 +115,8 @@ export default function MessageForm({
         },
         onSuccess: (data: ThreadMessage) => {
             onNewMessage(data);
-            resetAll();
+            setAttachments([]);
+            reset();
         },
     });
 
@@ -115,29 +124,19 @@ export default function MessageForm({
 
     useFormPrompt(t, forbidNavigation);
 
-    const resetAll = () => {
-        setAttachments([]);
-        reset();
-    };
-
     return (
-        <>
-            <form onSubmit={handleSubmit}>
-                <MessageField
-                    useFormSubmitProps={useFormSubmitProps}
-                    attachments={attachments}
-                    setAttachments={setAttachments}
-                    inputRef={inputRef}
-                    submitLabel={t('form.thread_message.submit.label', `Send`)}
-                    placeholder={t(
-                        'form.thread_message.content.placeholder',
-                        'Type your message here'
-                    )}
-                />
-                <FormRow>
-                    <Button onClick={() => resetAll()}>Reset</Button>
-                </FormRow>
-            </form>
-        </>
+        <form onSubmit={handleSubmit}>
+            <MessageField
+                useFormSubmitProps={useFormSubmitProps}
+                attachments={attachments}
+                setAttachments={setAttachments}
+                inputRef={inputRef}
+                submitLabel={t('form.thread_message.submit.label', `Send`)}
+                placeholder={t(
+                    'form.thread_message.content.placeholder',
+                    'Type your message here'
+                )}
+            />
+        </form>
     );
 }

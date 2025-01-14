@@ -10,7 +10,7 @@ import Attributes, {
     attributesSx,
     OnActiveAnnotations,
 } from './Attribute/Attributes.tsx';
-import React from 'react';
+import React, {memo} from 'react';
 import {Asset} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 
@@ -19,7 +19,7 @@ type Props = {
     onActiveAnnotations: OnActiveAnnotations | undefined;
 };
 
-export default function AssetAttributes({asset, onActiveAnnotations}: Props) {
+function AssetAttributes({asset, onActiveAnnotations}: Props) {
     const [expanded, setExpanded] = React.useState(true);
     const {t} = useTranslation();
 
@@ -46,3 +46,5 @@ export default function AssetAttributes({asset, onActiveAnnotations}: Props) {
         </Accordion>
     );
 }
+
+export default memo(AssetAttributes);

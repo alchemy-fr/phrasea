@@ -8,13 +8,14 @@ import {DeserializedMessageAttachment, StateSetter, ThreadMessage} from "../../t
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
 import type {UseFormSubmitReturn} from '@alchemy/api';
 import {FlexRow} from '@alchemy/phrasea-ui';
+import EmojiPicker from "./EmojiPicker.tsx";
 
 export type MessageFormData = Pick<ThreadMessage, "content">;
 
 type Props = {
     submitLabel: string;
     placeholder: string;
-    inputRef: React.RefObject<HTMLInputElement | null>;
+    inputRef: React.MutableRefObject<HTMLInputElement | null>;
     attachments?: DeserializedMessageAttachment[];
     setAttachments?: StateSetter<DeserializedMessageAttachment[]>;
     useFormSubmitProps: UseFormSubmitReturn<MessageFormData, ThreadMessage>;
@@ -39,14 +40,20 @@ export default function MessageField({
         register,
     } = useFormSubmitProps;
 
+    const {ref, ...rest} = register('content', {
+        required: true,
+    });
+
     return <>
         <FormRow>
             <Box
-                sx={theme => ({
-                    border: `1px solid ${theme.palette.divider}`,
-                    borderRadius: theme.shape.borderRadius / 4,
-                    alignItems: 'center',
-                })}
+                sx={theme => {
+                    return ({
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderRadius: Math.min(theme.shape.borderRadius / 4, 1),
+                        alignItems: 'center',
+                    });
+                }}
                 onClick={() => inputRef.current?.focus()}
             >
                 <InputBase
@@ -56,10 +63,11 @@ export default function MessageField({
                     disabled={submitting}
                     multiline={true}
                     fullWidth={true}
-                    {...register('content', {
-                        required: true,
-                    })}
-                    inputRef={inputRef}
+                    {...rest}
+                    inputRef={r => {
+                        ref(r);
+                        inputRef.current = r;
+                    }}
                 />
                 {attachments ? <Attachments
                     attachments={attachments}
@@ -73,8 +81,18 @@ export default function MessageField({
                             flexGrow: 1,
                         }}
                     >
-
+                        <EmojiPicker
+                            onSelect={(emoji: string) => {
+                                inputRef.current?.focus();
+                                inputRef.current?.setSelectionRange(
+                                    inputRef.current?.selectionStart! + emoji.length,
+                                    inputRef.current?.selectionStart! + emoji.length
+                                );
+                                document.execCommand('insertText', false, emoji);
+                            }}
+                        />
                     </div>
+
                     <div>
                         {onCancel ? <Button
                             disabled={submitting}
@@ -86,6 +104,7 @@ export default function MessageField({
                             type="submit"
                             disabled={submitting}
                             loading={submitting}
+                            color={'primary'}
                             endIcon={<SendIcon/>}
                         >
                             {submitLabel}

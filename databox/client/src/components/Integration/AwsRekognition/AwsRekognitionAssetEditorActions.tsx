@@ -10,7 +10,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import {runIntegrationAction} from '../../../api/integrations';
-import {IntegrationOverlayCommonProps} from '../../Media/Asset/AssetView';
+import {IntegrationOverlayCommonProps} from '../../Media/Asset/View/AssetView.tsx';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import {WorkspaceIntegration} from '../../../types';

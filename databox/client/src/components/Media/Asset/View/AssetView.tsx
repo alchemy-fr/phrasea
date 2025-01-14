@@ -1,37 +1,27 @@
 import React, {FC, useCallback, useMemo, useRef, useState} from 'react';
-import {Asset, AssetRendition} from '../../../types';
-import {AppDialog, FlexRow} from '@alchemy/phrasea-ui';
-import FilePlayer from './FilePlayer';
-import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize';
-import {StackedModalProps, useLocation, useParams} from '@alchemy/navigation';
-import type {Location} from '@alchemy/navigation';
-import {Dimensions, filePlayerRelativeWrapperClassName} from './Players';
-import {Box, Select} from '@mui/material';
-import FileIntegrations from './FileIntegrations';
-import {getAsset} from '../../../api/asset';
-import FullPageLoader from '../../Ui/FullPageLoader';
-import RouteDialog from '../../Dialog/RouteDialog';
-import {getAssetRenditions} from '../../../api/rendition';
-import MenuItem from '@mui/material/MenuItem';
-import {useNavigateToModal} from '../../Routing/ModalLink';
-import {modalRoutes} from '../../../routes';
-import {scrollbarWidth} from '../../../constants.ts';
-import AssetAttributes from './AssetAttributes.tsx';
-import {OnActiveAnnotations} from './Attribute/Attributes.tsx';
-import AssetViewActions from './Actions/AssetViewActions.tsx';
-import {Trans} from 'react-i18next';
-import {getMediaBackgroundColor} from '../../../themes/base.ts';
-import {useModalFetch} from '../../../hooks/useModalFetch.ts';
-import {useChannelRegistration} from '../../../lib/pusher.ts';
-import {queryClient} from '../../../lib/query.ts';
-import AssetDiscussion from './AssetDiscussion.tsx';
-import {annotationZIndex} from './Annotations/AssetAnnotationsOverlay.tsx';
-import {
-    AssetAnnotation,
-    OnNewAnnotation,
-} from './Annotations/annotationTypes.ts';
-import AssetViewNavigation from './AssetViewNavigation.tsx';
-import {AssetContextState} from './assetTypes.ts';
+import {Asset, AssetRendition} from '../../../../types.ts';
+import {AppDialog} from '@alchemy/phrasea-ui';
+import FilePlayer from '../FilePlayer.tsx';
+import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
+import {StackedModalProps, useParams} from '@alchemy/navigation';
+import {Dimensions, filePlayerRelativeWrapperClassName} from '../Players';
+import {Box} from '@mui/material';
+import FileIntegrations from '../FileIntegrations.tsx';
+import {getAsset} from '../../../../api/asset.ts';
+import FullPageLoader from '../../../Ui/FullPageLoader.tsx';
+import RouteDialog from '../../../Dialog/RouteDialog.tsx';
+import {getAssetRenditions} from '../../../../api/rendition.ts';
+import {scrollbarWidth} from '../../../../constants.ts';
+import AssetAttributes from '../AssetAttributes.tsx';
+import {OnActiveAnnotations} from '../Attribute/Attributes.tsx';
+import {getMediaBackgroundColor} from '../../../../themes/base.ts';
+import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
+import {useChannelRegistration} from '../../../../lib/pusher.ts';
+import {queryClient} from '../../../../lib/query.ts';
+import AssetDiscussion from '../AssetDiscussion.tsx';
+import {annotationZIndex} from '../Annotations/AssetAnnotationsOverlay.tsx';
+import {AssetAnnotation, OnNewAnnotation,} from '../Annotations/annotationTypes.ts';
+import AssetViewHeader from "./AssetViewHeader.tsx";
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -54,9 +44,7 @@ type Props = {} & StackedModalProps;
 export default function AssetView({modalIndex, open}: Props) {
     const menuWidth = 400;
     const headerHeight = 60;
-    const {state} = useLocation() as Location<AssetContextState | undefined>;
     const {id: assetId, renditionId} = useParams();
-    const navigateToModal = useNavigateToModal();
     const previousData = useRef<DataTuple | undefined>();
     const [annotations, setAnnotations] = React.useState<
         AssetAnnotation[] | undefined
@@ -135,17 +123,10 @@ export default function AssetView({modalIndex, open}: Props) {
             return null;
         }
 
-        return <FullPageLoader />;
+        return <FullPageLoader/>;
     }
 
     const rendition = renditions.find(r => r.id === renditionId);
-
-    const handleRenditionChange = (renditionId: string) => {
-        navigateToModal(modalRoutes.assets.routes.view, {
-            id: assetId,
-            renditionId,
-        });
-    };
 
     return (
         <RouteDialog>
@@ -162,51 +143,15 @@ export default function AssetView({modalIndex, open}: Props) {
                         },
                     }}
                     fullScreen={true}
-                    title={
-                        <FlexRow alignItems={'center'}>
-                            <AssetViewNavigation
-                                state={state}
-                                currentId={assetId!}
-                            />
-                            <div>
-                                <Trans
-                                    i18nKey={'asset_view.edit_asset'}
-                                    values={{
-                                        name: asset.resolvedTitle,
-                                    }}
-                                    defaults={
-                                        'Edit asset <strong>{{name}}</strong>'
-                                    }
-                                />
-                            </div>
-                            <Select<string>
-                                sx={{ml: 2}}
-                                label={''}
-                                size={'small'}
-                                value={rendition?.id}
-                                onChange={e =>
-                                    handleRenditionChange(e.target.value)
-                                }
-                            >
-                                {renditions.map((r: AssetRendition) => (
-                                    <MenuItem key={r.id} value={r.id}>
-                                        {r.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {!integrationOverlay ? (
-                                <AssetViewActions
-                                    asset={asset}
-                                    file={rendition?.file}
-                                />
-                            ) : (
-                                ''
-                            )}
-                        </FlexRow>
-                    }
+                    title={<AssetViewHeader
+                        asset={asset}
+                        rendition={rendition}
+                        renditions={renditions}
+                        displayActions={!integrationOverlay}
+                    />}
                     onClose={onClose}
                 >
-                    {!isSuccess && <FullPageLoader />}
+                    {!isSuccess && <FullPageLoader/>}
                     <Box
                         sx={{
                             height: dimensions.height,

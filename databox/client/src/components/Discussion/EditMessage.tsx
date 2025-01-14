@@ -34,6 +34,10 @@ export default function EditMessage({
         },
     });
 
+    React.useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
+
     const {
         handleSubmit,
         forbidNavigation,
