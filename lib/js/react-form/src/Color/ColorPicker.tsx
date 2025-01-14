@@ -35,9 +35,7 @@ export default function ColorPicker({
         e.stopPropagation();
         setAnchorEl(p => !p ? e.currentTarget : null);
         setTimeout(() => {
-            if (inputRef.current) {
-                inputRef.current!.focus();
-            }
+            inputRef.current?.focus();
         }, 0);
     }, []);
     const onTextChange = React.useCallback<
@@ -53,7 +51,7 @@ export default function ColorPicker({
         React.MouseEventHandler<HTMLDivElement>
     >(e => {
         e.stopPropagation();
-        inputRef.current!.focus();
+        inputRef.current?.focus();
     }, []);
 
     const height = 55;

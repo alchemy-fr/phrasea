@@ -36,87 +36,99 @@ export default function AssetViewActions({asset, file}: Props) {
                     'zIndex': 1,
                     'position': 'relative',
                     'ml': 2,
+                    'display': 'flex',
+                    'flexDirection': 'row',
                     '> * + *': {
                         ml: 1,
                     },
                 }}
             >
                 {can.download ? (
-                    <Button
-                        variant={'contained'}
-                        onClick={onDownload}
-                        startIcon={<FileDownloadIcon />}
-                    >
-                        {t('asset_actions.download', 'Download')}
-                    </Button>
+                    <div>
+                        <Button
+                            variant={'contained'}
+                            onClick={onDownload}
+                            startIcon={<FileDownloadIcon />}
+                        >
+                            {t('asset_actions.download', 'Download')}
+                        </Button>
+                    </div>
                 ) : (
                     ''
                 )}
                 {can.edit ? (
-                    <GroupButton
-                        id={'edit'}
-                        onClick={onEdit}
-                        startIcon={<EditIcon />}
-                        actions={[
-                            {
-                                id: 'edit_attrs',
-                                label: t(
-                                    'asset_actions.edit_attributes',
-                                    'Edit attributes'
-                                ),
-                                onClick: onEditAttr,
-                                disabled: !can.editAttributes,
-                                startIcon: <TextSnippetIcon />,
-                            },
-                            {
-                                id: 'substitute',
-                                label: t(
-                                    'asset_actions.substitute_file',
-                                    'Substitute File'
-                                ),
-                                onClick: onSubstituteFile,
-                                disabled: !can.substitute,
-                                startIcon: <TextSnippetIcon />,
-                            },
-                        ]}
-                    >
-                        {t('asset_actions.edit', 'Edit')}
-                    </GroupButton>
+                    <div>
+                        <GroupButton
+                            id={'edit'}
+                            onClick={onEdit}
+                            startIcon={<EditIcon />}
+                            actions={[
+                                {
+                                    id: 'edit_attrs',
+                                    label: t(
+                                        'asset_actions.edit_attributes',
+                                        'Edit attributes'
+                                    ),
+                                    onClick: onEditAttr,
+                                    disabled: !can.editAttributes,
+                                    startIcon: <TextSnippetIcon />,
+                                },
+                                {
+                                    id: 'substitute',
+                                    label: t(
+                                        'asset_actions.substitute_file',
+                                        'Substitute File'
+                                    ),
+                                    onClick: onSubstituteFile,
+                                    disabled: !can.substitute,
+                                    startIcon: <TextSnippetIcon />,
+                                },
+                            ]}
+                        >
+                            {t('asset_actions.edit', 'Edit')}
+                        </GroupButton>
+                    </div>
                 ) : (
                     ''
                 )}
                 {file && can.edit ? (
-                    <SaveAsButton
-                        asset={asset}
-                        file={file}
-                        componentProps={{
-                            variant: 'contained',
-                        }}
-                    />
+                    <div>
+                        <SaveAsButton
+                            asset={asset}
+                            file={file}
+                            componentProps={{
+                                variant: 'contained',
+                            }}
+                        />
+                    </div>
                 ) : (
                     ''
                 )}
                 {can.share ? (
-                    <Button
-                        variant={'contained'}
-                        onClick={() => onShare()}
-                        startIcon={<ShareIcon />}
-                    >
-                        {t('asset_actions.share', 'Share')}
-                    </Button>
+                    <div>
+                        <Button
+                            variant={'contained'}
+                            onClick={() => onShare()}
+                            startIcon={<ShareIcon />}
+                        >
+                            {t('asset_actions.share', 'Share')}
+                        </Button>
+                    </div>
                 ) : (
                     ''
                 )}
 
                 {can.delete ? (
-                    <Button
-                        color={'error'}
-                        onClick={onDelete}
-                        variant={'contained'}
-                        startIcon={<DeleteForeverIcon />}
-                    >
-                        {t('asset_actions.delete', 'Delete')}
-                    </Button>
+                    <div>
+                        <Button
+                            color={'error'}
+                            onClick={onDelete}
+                            variant={'contained'}
+                            startIcon={<DeleteForeverIcon />}
+                        >
+                            {t('asset_actions.delete', 'Delete')}
+                        </Button>
+                    </div>
                 ) : (
                     ''
                 )}

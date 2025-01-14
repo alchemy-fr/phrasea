@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Traits\CollectionProviderAwareTrait;
 use App\Entity\Discussion\Thread;
-use App\Entity\Integration\WorkspaceIntegration;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

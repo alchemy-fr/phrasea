@@ -1,5 +1,8 @@
 import {File} from '../../../../types';
-import {AssetAnnotation, OnNewAnnotation} from "../Annotations/annotationTypes.ts";
+import {
+    AssetAnnotation,
+    OnNewAnnotation,
+} from '../Annotations/annotationTypes.ts';
 
 export type FileWithUrl = {
     url: string;
@@ -36,6 +39,5 @@ export type PlayerProps = {
     onNewAnnotation?: OnNewAnnotation | undefined;
     annotations?: AssetAnnotation[] | undefined;
 };
-
 
 export const filePlayerRelativeWrapperClassName = 'fprw';

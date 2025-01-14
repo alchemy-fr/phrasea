@@ -1,5 +1,5 @@
-import {AnnotationOptions, AnnotationType} from "./annotationTypes.ts";
-import {DrawingHandler} from "./events.ts";
+import {AnnotationOptions, AnnotationType} from './annotationTypes.ts';
+import {DrawingHandler} from './events.ts';
 
 function drawPoint({
     x,
@@ -10,7 +10,7 @@ function drawPoint({
     x: number;
     y: number;
     context: CanvasRenderingContext2D;
-    options: AnnotationOptions,
+    options: AnnotationOptions;
 }) {
     const a = new Path2D();
     a.arc(x, y, options.size, 0, 2 * Math.PI, false);
@@ -18,9 +18,8 @@ function drawPoint({
     context.fill(a);
 }
 
-
 export const PointAnnotationHandler: DrawingHandler = {
-    onStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, context, options}) => {
         drawPoint({
             x,
             y,
@@ -28,7 +27,7 @@ export const PointAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onMove: ({clear, context, x, y, options}) => {
+    onDrawMove: ({clear, context, x, y, options}) => {
         clear();
         drawPoint({
             x,
@@ -37,7 +36,15 @@ export const PointAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onEnd: ({onNewAnnotation, x, y, relativeX, relativeY, options}) => {
+    onDrawEnd: ({
+        onNewAnnotation,
+        x,
+        y,
+        relativeX,
+        relativeY,
+        options,
+        terminate,
+    }) => {
         onNewAnnotation({
             type: AnnotationType.Point,
             x: relativeX(x),
@@ -45,13 +52,9 @@ export const PointAnnotationHandler: DrawingHandler = {
             c: options.color,
             s: relativeX(options.size),
         });
+        terminate();
     },
-    drawAnnotation: ({annotation: {
-        x,
-        y,
-        c,
-        s,
-    }, context, toX, toY}) => {
+    drawAnnotation: ({annotation: {x, y, c, s}, context, toX, toY}) => {
         drawPoint({
             x: toX(x),
             y: toY(y),
@@ -61,5 +64,6 @@ export const PointAnnotationHandler: DrawingHandler = {
                 size: toX(s),
             },
         });
-    }
+    },
+    onTerminate: () => {},
 };

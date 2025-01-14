@@ -12,7 +12,7 @@ import Operations from './Operations';
 import InfoCollection from './InfoCollection';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
-import ESDocument from "../Asset/ESDocument.tsx";
+import ESDocument from '../Asset/ESDocument.tsx';
 import {useAuth} from '@alchemy/react-auth';
 
 type Props = {};

@@ -1,16 +1,14 @@
-import {Button, TextField} from "@mui/material";
+import {Button} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import {useFormSubmit} from '@alchemy/api';
-import {useFormPrompt} from "../../../../../lib/js/navigation";
-import {FormFieldErrors, FormRow} from "../../../../../lib/js/react-form";
-import {postThreadMessage} from "../../api/discussion.ts";
-import {ThreadMessage} from "../../types.ts";
-import RemoteErrors from "../Form/RemoteErrors.tsx";
-import {LoadingButton} from "@mui/lab";
-import SendIcon from '@mui/icons-material/Send';
-import React from "react";
-import {AssetAnnotation, OnNewAnnotationRef} from "../Media/Asset/Annotations/annotationTypes.ts";
-import {OnActiveAnnotations} from "../Media/Asset/Attribute/Attributes.tsx";
+import {useFormPrompt} from '@alchemy//navigation';
+import {FormRow} from '@alchemy//react-form';
+import {postThreadMessage} from '../../api/discussion.ts';
+import {DeserializedMessageAttachment, ThreadMessage} from '../../types.ts';
+import React from 'react';
+import {AnnotationType, AssetAnnotation, OnNewAnnotationRef,} from '../Media/Asset/Annotations/annotationTypes.ts';
+import {OnActiveAnnotations} from '../Media/Asset/Attribute/Attributes.tsx';
+import MessageField, {MessageFormData} from "./MessageField.tsx";
 
 type Props = {
     threadKey: string;
@@ -19,7 +17,6 @@ type Props = {
     onNewAnnotationRef?: OnNewAnnotationRef;
     onActiveAnnotations: OnActiveAnnotations | undefined;
 };
-
 
 export default function MessageForm({
     threadKey,
@@ -30,96 +27,117 @@ export default function MessageForm({
 }: Props) {
     const {t} = useTranslation();
     const inputRef = React.useRef<HTMLInputElement | null>(null);
-    const [annotations, setAnnotations] = React.useState<AssetAnnotation[]>([]);
+    const [attachments, setAttachments] = React.useState<
+        DeserializedMessageAttachment[]
+    >([]);
 
     React.useEffect(() => {
         if (onNewAnnotationRef) {
             onNewAnnotationRef.current = (annotation: AssetAnnotation) => {
                 inputRef.current?.focus();
-                setAnnotations(p => p.concat(annotation));
-            }
+
+                const annotationTypes: Record<AnnotationType, string> = {
+                    [AnnotationType.Draw]: t('annotation.type.draw', 'Draw'),
+                    [AnnotationType.Highlight]: t(
+                        'annotation.type.highlight',
+                        'Highlight'
+                    ),
+                    [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
+                    [AnnotationType.Circle]: t(
+                        'annotation.type.circle',
+                        'Circle'
+                    ),
+                    [AnnotationType.Rect]: t(
+                        'annotation.type.rectangle',
+                        'Rectangle'
+                    ),
+                    [AnnotationType.Point]: t('annotation.type.point', 'Point'),
+                    [AnnotationType.TimeRange]: t(
+                        'annotation.type.timerange',
+                        'Time Range'
+                    ),
+                };
+
+                setAttachments(p =>
+                    p.concat({
+                        type: 'annotation',
+                        data: {
+                            ...annotation,
+                            name:
+                                annotation.name ??
+                                t('form.annotation.default_name', {
+                                    defaultValue: '{{type}} #{{n}}',
+                                    type: annotationTypes[annotation.type],
+                                    n:
+                                        p.filter(
+                                            a => a.type === annotation.type
+                                        ).length + 1,
+                                }),
+                        },
+                    })
+                );
+            };
         }
     }, [onNewAnnotationRef, inputRef]);
 
-
     React.useEffect(() => {
         if (onActiveAnnotations) {
-            onActiveAnnotations(annotations);
+            onActiveAnnotations(
+                attachments
+                    .filter(a => a.type === 'annotation')
+                    .map(a => a.data as AssetAnnotation)
+            );
         }
-    }, [annotations]);
+    }, [attachments]);
 
-    const {
-        formState: {errors},
-        handleSubmit,
-        remoteErrors,
-        submitting,
-        register,
-        reset,
-        forbidNavigation,
-    } = useFormSubmit({
+    const useFormSubmitProps = useFormSubmit<MessageFormData, ThreadMessage>({
         defaultValues: {
             content: '',
         },
-        onSubmit: async (data: ThreadMessage) => {
+        onSubmit: async (data: MessageFormData) => {
             return await postThreadMessage({
                 threadId,
                 threadKey,
                 content: data.content,
+                attachments: attachments.map(({data, ...rest}) => ({
+                    ...rest,
+                    content: JSON.stringify(data),
+                })),
             });
         },
         onSuccess: (data: ThreadMessage) => {
             onNewMessage(data);
-            reset();
+            resetAll();
         },
     });
+
+    const {forbidNavigation, handleSubmit, reset} = useFormSubmitProps;
+
     useFormPrompt(t, forbidNavigation);
 
     const resetAll = () => {
-        setAnnotations([]);
+        setAttachments([]);
         reset();
-    }
+    };
 
-    return <>
-        <form onSubmit={handleSubmit}>
-            <FormRow>
-                <TextField
-                    required={true}
-                    placeholder={t('form.thread_message.content.placeholder', 'Type your message here')}
-                    disabled={submitting}
-                    multiline={true}
-                    fullWidth={true}
-                    {...register('content', {
-                        required: true,
-                    })}
+    return (
+        <>
+            <form onSubmit={handleSubmit}>
+                <MessageField
+                    useFormSubmitProps={useFormSubmitProps}
+                    attachments={attachments}
+                    setAttachments={setAttachments}
                     inputRef={inputRef}
+                    submitLabel={t('form.thread_message.submit.label', `Send`)}
+                    placeholder={t(
+                        'form.thread_message.content.placeholder',
+                        'Type your message here'
+                    )}
                 />
-                <FormFieldErrors field={'content'} errors={errors}/>
-            </FormRow>
-
-            {annotations?.map((annotation, index) => (
-                <div key={index}>
-                    {annotation.type.toString()}
-                </div>
-            ))}
-
-            <RemoteErrors errors={remoteErrors}/>
-
-            <FormRow>
-                <LoadingButton
-                    variant="contained"
-                    type="submit"
-                    disabled={submitting}
-                    loading={submitting}
-                    endIcon={<SendIcon/>}
-                >
-                    {t('form.thread_message.submit.label', `Send`)}
-                </LoadingButton>
-            </FormRow>
-
-            <FormRow>
-                <Button
-                    onClick={() => resetAll()}>Reset</Button>
-            </FormRow>
-        </form>
-    </>
+                <FormRow>
+                    <Button onClick={() => resetAll()}>Reset</Button>
+                </FormRow>
+            </form>
+        </>
+    );
 }

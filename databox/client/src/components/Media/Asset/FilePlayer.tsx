@@ -4,18 +4,14 @@ import AssetFileIcon from './AssetFileIcon';
 import VideoPlayer from './Players/VideoPlayer';
 import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
-import ImagePlayer from "./Players/ImagePlayer.tsx";
+import ImagePlayer from './Players/ImagePlayer.tsx';
 
 type Props = {
     file: File;
     autoPlayable?: boolean;
-} & Omit<PlayerProps, "file">;
+} & Omit<PlayerProps, 'file'>;
 
-export default function FilePlayer({
-    file,
-    autoPlayable,
-    ...playProps
-}: Props) {
+export default function FilePlayer({file, autoPlayable, ...playProps}: Props) {
     const mainType = getFileTypeFromMIMEType(file.type);
 
     if (file.url) {
@@ -26,9 +22,7 @@ export default function FilePlayer({
 
         switch (mainType) {
             case FileTypeEnum.Image:
-                return <ImagePlayer
-                    {...props}
-                />
+                return <ImagePlayer {...props} />;
             case FileTypeEnum.Audio:
             case FileTypeEnum.Video:
                 return (
@@ -39,14 +33,10 @@ export default function FilePlayer({
                 );
             case FileTypeEnum.Document:
                 if (file.type === 'application/pdf') {
-                    return (
-                        <PDFPlayer
-                            {...props}
-                        />
-                    );
+                    return <PDFPlayer {...props} />;
                 }
         }
     }
 
-    return <AssetFileIcon file={file}/>;
+    return <AssetFileIcon file={file} />;
 }

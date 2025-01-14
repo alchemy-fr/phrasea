@@ -10,7 +10,7 @@ import UploadModal from '../Upload/UploadModal';
 import {modalRoutes} from '../../routes';
 import {useNavigateToModal} from '../Routing/ModalLink';
 import {OnOpen} from '../AssetList/types';
-import {AssetContextState} from "../Media/Asset/assetTypes.ts";
+import {AssetContextState} from '../Media/Asset/assetTypes.ts';
 
 type Props = {};
 
@@ -38,12 +38,23 @@ export default function AssetSearch({}: Props) {
 
     const onOpen = useCallback<OnOpen>(
         (asset, renditionId): void => {
-            navigateToModal(modalRoutes.assets.routes.view, {
-                id: asset.id,
-                renditionId,
-            }, {state: {
-                assetsContext: resultContext.pages.flat().map(a => [a.id, a.original?.id]) as AssetContextState,
-            }});
+            navigateToModal(
+                modalRoutes.assets.routes.view,
+                {
+                    id: asset.id,
+                    renditionId,
+                },
+                {
+                    state: {
+                        assetsContext: resultContext.pages
+                            .flat()
+                            .map(a => [
+                                a.id,
+                                a.original?.id,
+                            ]) as AssetContextState,
+                    },
+                }
+            );
             // eslint-disable-next-line
         },
         [navigateToModal, resultContext]

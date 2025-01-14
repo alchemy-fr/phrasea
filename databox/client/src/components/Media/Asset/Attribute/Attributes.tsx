@@ -10,7 +10,7 @@ import {
     copyToClipBoardClass,
     copyToClipBoardContainerClass,
 } from './CopyAttribute.tsx';
-import {AssetAnnotation} from "../Annotations/annotationTypes.ts";
+import {AssetAnnotation} from '../Annotations/annotationTypes.ts';
 
 export type OnActiveAnnotations = (annotations: AssetAnnotation[]) => void;
 

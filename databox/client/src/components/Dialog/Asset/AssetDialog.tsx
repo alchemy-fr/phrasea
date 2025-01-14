@@ -16,7 +16,7 @@ import {modalRoutes} from '../../../routes';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import AssetWorkflow from './AssetWorkflow.tsx';
 import {useAuth} from '@alchemy/react-auth';
-import ESDocument from "./ESDocument.tsx";
+import ESDocument from './ESDocument.tsx';
 
 type Props = {};
 

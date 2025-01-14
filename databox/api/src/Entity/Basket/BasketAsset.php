@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Entity\Basket;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use App\Api\Provider\BasketAssetCollectionProvider;
 use App\Entity\Core\Asset;
 use App\Entity\Traits\AssetAnnotationsTrait;
-use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use Doctrine\DBAL\Types\Types;

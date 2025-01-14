@@ -8,6 +8,7 @@ import React from 'react';
 import {attributesClasses, OnActiveAnnotations} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinition} from '../../../../types.ts';
+import GestureIcon from '@mui/icons-material/Gesture';
 
 type Props = {
     definition: AttributeDefinition;
@@ -132,17 +133,26 @@ export default function AttributeRowUI({
                                           className={
                                               copyToClipBoardContainerClass
                                           }
-                                          onMouseEnter={
-                                              onActiveAnnotations &&
-                                              a.assetAnnotations
-                                                  ? () =>
-                                                        onActiveAnnotations(
-                                                            a.assetAnnotations!
-                                                        )
-                                                  : undefined
-                                          }
                                       >
                                           {formatter.formatValue(formatProps)}
+                                          {displayControls &&
+                                          onActiveAnnotations &&
+                                          a.assetAnnotations ? (
+                                              <IconButton
+                                                  sx={{
+                                                      ml: 1,
+                                                  }}
+                                                  size="small"
+                                                  onClick={e => {
+                                                      e.stopPropagation();
+                                                      onActiveAnnotations!(
+                                                          a.assetAnnotations!
+                                                      );
+                                                  }}
+                                              >
+                                                  <GestureIcon />
+                                              </IconButton>
+                                          ) : null}
                                           {displayControls ? (
                                               <CopyAttribute
                                                   value={formatter.formatValueAsString(

@@ -121,7 +121,10 @@ export function getBatchActions(
                         if (
                             !attributes[defId] ||
                             !attributes[defId][locale] ||
-                            isUndefined((attributes[defId][locale] as AttrValue).value)) {
+                            isUndefined(
+                                (attributes[defId][locale] as AttrValue).value
+                            )
+                        ) {
                             actions.push({
                                 action: AttributeBatchActionEnum.Delete,
                                 definitionId: defId,
@@ -143,7 +146,6 @@ export function getBatchActions(
         };
     });
 }
-
 
 function isUndefined(value: any): boolean {
     return undefined === value || '' === value;

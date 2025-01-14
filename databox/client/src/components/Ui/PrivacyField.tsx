@@ -106,94 +106,110 @@ export default function PrivacyField<TFieldValues extends FieldValues>({
     const handlePChange = (e: SelectChangeEvent): void => {
         const v = e.target.value;
         setPrivacy(v);
-        onChange(getAllowedValue(getValue(v, workspaceOnly, auth), inheritedPrivacy));
+        onChange(
+            getAllowedValue(getValue(v, workspaceOnly, auth), inheritedPrivacy)
+        );
     };
     const handleWSOnlyChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
         setWorkspaceOnly(e.target.checked);
-        onChange(getAllowedValue(getValue(privacy, e.target.checked, auth), inheritedPrivacy));
+        onChange(
+            getAllowedValue(
+                getValue(privacy, e.target.checked, auth),
+                inheritedPrivacy
+            )
+        );
     };
     const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setAuth(e.target.checked);
         onChange(
-            getAllowedValue(getValue(privacy, workspaceOnly, e.target.checked), inheritedPrivacy)
+            getAllowedValue(
+                getValue(privacy, workspaceOnly, e.target.checked),
+                inheritedPrivacy
+            )
         );
     };
 
-    const workspaceOnlyLocked = !!inheritedPrivacy && getValue(privacy, true, auth) < inheritedPrivacy;
-    const authLocked = !!inheritedPrivacy && getValue(privacy, workspaceOnly, false) < inheritedPrivacy;
+    const workspaceOnlyLocked =
+        !!inheritedPrivacy && getValue(privacy, true, auth) < inheritedPrivacy;
+    const authLocked =
+        !!inheritedPrivacy &&
+        getValue(privacy, workspaceOnly, false) < inheritedPrivacy;
 
     const label = t('form.privacy.label', 'Privacy');
 
     return (
         <>
-            {!!inheritedPrivacy ? <>
-                <Alert severity={'warning'}>
-                    {t('form.privacy.inherited', 'This collection cannot be more restricted than its parent collection.')}
-                </Alert>
-            </> : null}
-        <FormControl>
-            <InputLabel>
-                {label}
-            </InputLabel>
-            <Select<string>
-                label={label}
-                value={privacy}
-                onChange={handlePChange}
-            >
-                {Object.keys(choices).map(k => {
-                    return (
-                        <MenuItem
-                            key={k}
-                            value={k}
-                            disabled={
-                                inheritedKeyPrivacy > 0 &&
-                                getKeyValue(k) < inheritedKeyPrivacy
-                            }
-                        >
-                            <ListItemText
-                                primary={choices[k].label}
-                                secondary={choices[k].helper}
-                            />
-                        </MenuItem>
-                    );
-                })}
-            </Select>
+            {inheritedPrivacy ? (
+                <>
+                    <Alert severity={'warning'}>
+                        {t(
+                            'form.privacy.inherited',
+                            'This collection cannot be more restricted than its parent collection.'
+                        )}
+                    </Alert>
+                </>
+            ) : null}
+            <FormControl>
+                <InputLabel>{label}</InputLabel>
+                <Select<string>
+                    label={label}
+                    value={privacy}
+                    onChange={handlePChange}
+                >
+                    {Object.keys(choices).map(k => {
+                        return (
+                            <MenuItem
+                                key={k}
+                                value={k}
+                                disabled={
+                                    inheritedKeyPrivacy > 0 &&
+                                    getKeyValue(k) < inheritedKeyPrivacy
+                                }
+                            >
+                                <ListItemText
+                                    primary={choices[k].label}
+                                    secondary={choices[k].helper}
+                                />
+                            </MenuItem>
+                        );
+                    })}
+                </Select>
 
-            {['private', 'public'].includes(privacy) && (
-                <FormControlLabel
-                    disabled={workspaceOnlyLocked}
-                    control={
-                        <Checkbox
-                            checked={workspaceOnly}
-                            onChange={handleWSOnlyChange}
-                        />
-                    }
-                    label={t(
-                        'privacy_field.only_visible_to_workspace',
-                        `Only visible to workspace`
-                    )}
-                    labelPlacement="end"
-                />
-            )}
-            {privacy === 'public' && (
-                <FormControlLabel
-                    disabled={authLocked || workspaceOnly}
-                    control={
-                        <Checkbox
-                            checked={auth || workspaceOnly}
-                            onChange={handleAuthChange}
-                        />
-                    }
-                    label={t(
-                        'privacy_field.user_must_be_authenticated',
-                        `User must be authenticated`
-                    )}
-                    labelPlacement="end"
-                />
-            )}
-        </FormControl>
+                {['private', 'public'].includes(privacy) && (
+                    <FormControlLabel
+                        disabled={workspaceOnlyLocked}
+                        control={
+                            <Checkbox
+                                checked={workspaceOnly}
+                                onChange={handleWSOnlyChange}
+                            />
+                        }
+                        label={t(
+                            'privacy_field.only_visible_to_workspace',
+                            `Only visible to workspace`
+                        )}
+                        labelPlacement="end"
+                    />
+                )}
+                {privacy === 'public' && (
+                    <FormControlLabel
+                        disabled={authLocked || workspaceOnly}
+                        control={
+                            <Checkbox
+                                checked={auth || workspaceOnly}
+                                onChange={handleAuthChange}
+                            />
+                        }
+                        label={t(
+                            'privacy_field.user_must_be_authenticated',
+                            `User must be authenticated`
+                        )}
+                        labelPlacement="end"
+                    />
+                )}
+            </FormControl>
         </>
     );
 }

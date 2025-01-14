@@ -22,6 +22,6 @@ trait NovuTopicKeyTrait
 
     public function hasNovuTopic(): bool
     {
-        return $this->topicKey !== null;
+        return null !== $this->topicKey;
     }
 }

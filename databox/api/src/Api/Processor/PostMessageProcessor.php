@@ -64,13 +64,13 @@ class PostMessageProcessor implements ProcessorInterface
         $this->em->flush();
 
         $this->bus->dispatch($this->pusherManager->createBusMessage(
-            'thread-' . $thread->getId(),
+            'thread-'.$thread->getId(),
             'message',
             json_decode($this->serializer->serialize($message, 'json', [
                 'groups' => [
                     '_',
                     Message::GROUP_READ,
-                ]
+                ],
             ]), true, 512, JSON_THROW_ON_ERROR),
         ));
 

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import MainAppBar, {menuHeight} from './Layout/MainAppBar';
 import LeftPanel from './Media/LeftPanel';
 import ResultProvider from './Media/Search/ResultProvider';
@@ -12,12 +12,15 @@ import DisplayProvider from './Media/DisplayProvider';
 import uploaderClient from '../api/uploader-client';
 import {ZIndex} from '../themes/zIndex';
 import {useRequestErrorHandler} from '@alchemy/api';
+import {useLocation} from '@alchemy/navigation';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
 import {leftPanelWidth} from '../themes/base';
 
 const AppProxy = React.memo(() => {
+    const location = useLocation();
+    const alreadyRendered = useRef(false);
     const isSmallView = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down('md')
     );
@@ -29,6 +32,12 @@ const AppProxy = React.memo(() => {
     useEffect(() => {
         setLeftPanelOpen(!isSmallView);
     }, [isSmallView]);
+
+    if (location.search.includes('_m=') && !alreadyRendered.current) {
+        return null;
+    }
+
+    alreadyRendered.current = true;
 
     return (
         <SearchProvider>

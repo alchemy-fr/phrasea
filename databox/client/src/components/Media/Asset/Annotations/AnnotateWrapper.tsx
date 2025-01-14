@@ -1,12 +1,17 @@
-import {annotationZIndex} from "./AssetAnnotationsOverlay.tsx";
-import React, {ReactNode, useRef, useState} from "react";
-import {useAnnotationDraw} from "./useAnnotationDraw.ts";
-import {AnnotationOptions, AnnotationType, AssetAnnotation, OnNewAnnotation} from "./annotationTypes.ts";
-import AnnotateToolbar from "./AnnotateToolbar.tsx";
+import {annotationZIndex} from './AssetAnnotationsOverlay.tsx';
+import React, {ReactNode, useRef, useState} from 'react';
+import {useAnnotationDraw} from './useAnnotationDraw.ts';
+import {
+    AnnotationOptions,
+    AnnotationType,
+    AssetAnnotation,
+    OnNewAnnotation,
+} from './annotationTypes.ts';
+import AnnotateToolbar from './AnnotateToolbar.tsx';
 
 type Props = {
     onNewAnnotation?: OnNewAnnotation | undefined;
-    page?: number,
+    page?: number;
     children: (props: {
         canvas: ReactNode | null;
         toolbar: ReactNode | null;
@@ -28,36 +33,44 @@ export default function AnnotateWrapper({
 
     useAnnotationDraw({
         canvasRef,
-        onNewAnnotation: onNewAnnotation ? (annotation: AssetAnnotation) => {
-            onNewAnnotation!({
-                ...annotation,
-                page,
-            });
-            setMode(undefined);
-        } : undefined,
+        onNewAnnotation: onNewAnnotation
+            ? (annotation: AssetAnnotation) => {
+                  onNewAnnotation!({
+                      ...annotation,
+                      page,
+                  });
+              }
+            : undefined,
+        onTerminate: () => setMode(undefined),
         mode,
-        annotationOptions: options
+        annotationOptions: options,
     });
 
-    return <>
-        {children({
-            canvas: mode ? <canvas
-                ref={canvasRef}
-                style={{
-                    cursor: 'crosshair',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    zIndex: annotationZIndex + 1,
-                }}
-            /> : null,
-            toolbar: onNewAnnotation ? <AnnotateToolbar
-                options={options}
-                setOptions={setOptions}
-                mode={mode}
-                setMode={setMode}
-            /> : null,
-            annotationActive: !!mode,
-        })}
-    </>
+    return (
+        <>
+            {children({
+                canvas: mode ? (
+                    <canvas
+                        ref={canvasRef}
+                        style={{
+                            cursor: 'crosshair',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            zIndex: annotationZIndex + 1,
+                        }}
+                    />
+                ) : null,
+                toolbar: onNewAnnotation ? (
+                    <AnnotateToolbar
+                        options={options}
+                        setOptions={setOptions}
+                        mode={mode}
+                        setMode={setMode}
+                    />
+                ) : null,
+                annotationActive: !!mode,
+            })}
+        </>
+    );
 }

@@ -1,5 +1,9 @@
-import {AnnotationOptions, AnnotationType, RectangleAnnotation} from "./annotationTypes.ts";
-import {DrawingHandler} from "./events.ts";
+import {
+    AnnotationOptions,
+    AnnotationType,
+    RectangleAnnotation,
+} from './annotationTypes.ts';
+import {DrawingHandler} from './events.ts';
 
 function drawRectangle({
     x,
@@ -14,7 +18,7 @@ function drawRectangle({
     w: number;
     h: number;
     context: CanvasRenderingContext2D;
-    options: AnnotationOptions,
+    options: AnnotationOptions;
 }) {
     const a = new Path2D();
     a.rect(x, y, w, h);
@@ -24,7 +28,7 @@ function drawRectangle({
 }
 
 export const RectAnnotationHandler: DrawingHandler = {
-    onStart: ({x, y, context, options}) => {
+    onDrawStart: ({x, y, context, options}) => {
         drawRectangle({
             x,
             y,
@@ -34,7 +38,14 @@ export const RectAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onMove: ({clear, context, startingPoint: {x, y}, deltaY, deltaX, options}) => {
+    onDrawMove: ({
+        clear,
+        context,
+        startingPoint: {x, y},
+        deltaY,
+        deltaX,
+        options,
+    }) => {
         clear();
         drawRectangle({
             x,
@@ -45,7 +56,16 @@ export const RectAnnotationHandler: DrawingHandler = {
             options,
         });
     },
-    onEnd: ({onNewAnnotation, startingPoint: {x, y}, deltaY, deltaX, relativeX, relativeY, options}) => {
+    onDrawEnd: ({
+        onNewAnnotation,
+        startingPoint: {x, y},
+        deltaY,
+        deltaX,
+        relativeX,
+        relativeY,
+        options,
+        terminate,
+    }) => {
         const x1 = relativeX(x);
         const y1 = relativeY(y);
 
@@ -75,6 +95,7 @@ export const RectAnnotationHandler: DrawingHandler = {
         }
 
         onNewAnnotation(props as RectangleAnnotation);
+        terminate();
     },
     drawAnnotation: ({annotation, context, toX, toY}) => {
         const {x1, y1, x2, y2, c, s} = annotation;
@@ -86,5 +107,6 @@ export const RectAnnotationHandler: DrawingHandler = {
             context,
             options: {color: c, size: toX(s)},
         });
-    }
+    },
+    onTerminate: () => {},
 };

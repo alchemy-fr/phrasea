@@ -6,7 +6,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import {LoadingButton} from '@mui/lab';
 import {useTranslation} from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {FlexRow} from '../../../../../lib/js/phrasea-ui';
+import {FlexRow} from '@alchemy/phrasea-ui';
 import {getShareTitle, UrlActions} from './UrlActions.tsx';
 import React from 'react';
 import {getShareUrl} from './shareUtils.ts';

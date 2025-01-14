@@ -1,13 +1,14 @@
-import {MutableRefObject} from "react";
+import {MutableRefObject} from 'react';
 
 export type Point = {
     x: number;
     y: number;
-}
+};
 
 export enum AnnotationType {
     Point = 'point',
     Draw = 'draw',
+    Highlight = 'highlight',
     Circle = 'circle',
     Rect = 'rect',
     Cue = 'cue',
@@ -16,6 +17,7 @@ export enum AnnotationType {
 
 export interface AssetAnnotation {
     type: AnnotationType;
+    name?: string;
     [prop: string]: any;
 }
 
@@ -42,7 +44,7 @@ export interface CircleAnnotation extends AssetAnnotation {
 export type AnnotationOptions = {
     color: string;
     size: number;
-}
+};
 
 export interface RectangleAnnotation extends AssetAnnotation {
     type: AnnotationType.Rect;
@@ -57,7 +59,7 @@ export interface RectangleAnnotation extends AssetAnnotation {
 
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
-    paths: Point[];
+    paths: Point[][];
     c?: string; // Color
     s?: number; // Line width
 }

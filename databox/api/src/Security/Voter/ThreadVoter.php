@@ -13,8 +13,7 @@ class ThreadVoter extends AbstractVoter
 {
     public function __construct(
         private readonly DiscussionManager $discussionManager,
-    )
-    {
+    ) {
     }
 
     protected function supports(string $attribute, $subject): bool

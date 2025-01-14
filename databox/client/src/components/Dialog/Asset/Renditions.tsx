@@ -4,10 +4,10 @@ import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import {deleteRendition, getAssetRenditions} from '../../../api/rendition';
 import {Rendition} from './Rendition';
-import {RenditionSkeleton} from "./RenditionSkeleton.tsx";
-import ConfirmDialog from "../../Ui/ConfirmDialog.tsx";
-import {toast} from "react-toastify";
-import {useModals} from "@alchemy/navigation";
+import {RenditionSkeleton} from './RenditionSkeleton.tsx';
+import ConfirmDialog from '../../Ui/ConfirmDialog.tsx';
+import {toast} from 'react-toastify';
+import {useModals} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 
 type Props = {
@@ -45,7 +45,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                 );
             },
         });
-    }
+    };
 
     return (
         <ContentTab

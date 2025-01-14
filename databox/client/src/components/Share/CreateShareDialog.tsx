@@ -5,7 +5,7 @@ import {TextField} from '@mui/material';
 import FormDialog from '../Dialog/FormDialog.tsx';
 import {StackedModalProps, useModals, useFormPrompt} from '@alchemy/navigation';
 import {createAssetShare} from '../../api/asset.ts';
-import {useFormSubmit} from '../../../../../lib/js/api';
+import {useFormSubmit} from '@alchemy/api';
 import RemoteErrors from '../Form/RemoteErrors.tsx';
 import {normalizeDate} from '../../lib/date.ts';
 

@@ -34,22 +34,24 @@ export default function FileCard({file, onRemove}: Props) {
                 container
                 spacing={2}
             >
-                    <Grid item>
-                        {[
-                            'image/jpeg',
-                            'image/png',
-                            'image/bmp',
-                            'image/gif',
-                        ].includes(file.type) ? (
+                <Grid item>
+                    {[
+                        'image/jpeg',
+                        'image/png',
+                        'image/bmp',
+                        'image/gif',
+                    ].includes(file.type) ? (
                         <FileBlobThumb file={file} size={size} />
-                ) : <div
+                    ) : (
+                        <div
                             style={{
                                 width: 0,
                                 height: size,
                                 objectFit: 'contain',
                             }}
-                        />}
-                    </Grid>
+                        />
+                    )}
+                </Grid>
                 <Grid item xs={12} sm>
                     <Typography
                         sx={{
