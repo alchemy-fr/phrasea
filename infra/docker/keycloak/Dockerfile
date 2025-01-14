@@ -28,6 +28,7 @@ RUN /opt/keycloak/bin/kc.sh build \
 COPY themes/phrasea /opt/keycloak/themes/phrasea
 
  RUN sed -i "s;dashboard_url;${DASHBOARD_CLIENT_URL};g" /opt/keycloak/themes/phrasea/email/html/password-reset.ftl
+ 
  RUN sed -i "s;dashboard_url;${DASHBOARD_CLIENT_URL};g" /opt/keycloak/themes/phrasea/email/text/password-reset.ftl
 
 FROM quay.io/keycloak/keycloak:25.0.2 AS keycloak
